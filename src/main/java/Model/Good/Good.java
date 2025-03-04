@@ -1,4 +1,4 @@
-package Good;
+package Model.Good;
 
 public class Good {
     private GoodType color;

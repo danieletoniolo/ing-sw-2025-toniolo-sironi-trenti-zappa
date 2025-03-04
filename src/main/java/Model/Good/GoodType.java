@@ -1,4 +1,4 @@
-package Good;
+package Model.Good;
 
 public enum GoodType {
 
