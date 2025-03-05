@@ -1,0 +1,17 @@
+package Model.Cards;
+
+public class OpenSpace extends Card {
+    public OpenSpace(int level) {
+        super(level);
+    }
+
+    @Override
+    public CardType getCardType() {
+        return CardType.OPENSPACE;
+    }
+
+    @Override
+    public void apply(PlayerData player) {
+
+    }
+}
