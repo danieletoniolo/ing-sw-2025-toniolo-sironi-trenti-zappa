@@ -25,10 +25,6 @@ public class AbandonedShip extends Card {
         return credit;
     }
 
-    public void setPlayed() {
-        played = true;
-    }
-
     public boolean isPlayed() {
         return played;
     }
@@ -40,6 +36,7 @@ public class AbandonedShip extends Card {
 
     @Override
     public void apply(PlayerData player) {
+        played = true;
 
     }
 }

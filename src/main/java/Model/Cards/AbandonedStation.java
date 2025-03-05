@@ -33,10 +33,6 @@ public class AbandonedStation extends Card {
         return played;
     }
 
-    public void setPlayed() {
-        played = true;
-    }
-
     @Override
     public CardType getCardType() {
         return CardType.ABANDONEDSTATION;
@@ -44,6 +40,6 @@ public class AbandonedStation extends Card {
 
     @Override
     public void apply(PlayerData player) {
-
+        played = true;
     }
 }
