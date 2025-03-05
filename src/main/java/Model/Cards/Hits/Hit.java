@@ -1,4 +1,4 @@
-package Model.Hits;
+package Model.Cards.Hits;
 
 public class Hit {
     private HitType type;

@@ -1,6 +1,6 @@
 package Model.Cards;
 
-import Model.Hits.Hit;
+import Model.Cards.Hits.Hit;
 
 import java.util.List;
 

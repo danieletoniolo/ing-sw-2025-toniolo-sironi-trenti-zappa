@@ -1,4 +1,4 @@
-package Model.Hits;
+package Model.Cards.Hits;
 
 public enum Direction {
     NORD, SOUTH, EAST, WEST;
