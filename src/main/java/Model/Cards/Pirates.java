@@ -1,5 +1,7 @@
 package Model.Cards;
 
+import Model.Hits.Hit;
+
 import java.util.List;
 
 public class Pirates extends Enemies {
