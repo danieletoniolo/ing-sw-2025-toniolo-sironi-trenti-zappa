@@ -17,6 +17,7 @@ public class Board {
 //    private static final int numberOfSecondLevelCardsPerDeck = 2;
 
     private final Level level;
+    private final int numberOfCells;
 
     private Deck[] decks;
     private final Stack<Card> shuffledDeck;
@@ -32,6 +33,17 @@ public class Board {
         if (!level.equals(Level.LEARNING)) {
             for (int i = 0; i < numberOfDecks; i++)
                 this.decks = new Deck[cardsPerDeck];
+        }
+        switch (level) {
+            case LEARNING:
+                this.numberOfCells = 18;
+                break;
+            case SECOND:
+                this.numberOfCells = 24;
+                break;
+            default:
+                this.numberOfCells = -1; // Da capire in caso come gestirlo
+                break;
         }
         this.shuffledDeck = new Stack<>();
         this.blue = blue;
@@ -69,6 +81,10 @@ public class Board {
         if (!this.decks[index].isPickable())
             throw new IllegalStateException("Deck is not pickable");
         return this.decks[index];
+    }
+
+    public int getNumberOfCells() {
+        return this.numberOfCells;
     }
 
     public void createDecks(ArrayList<Card> cardsFirstLevel, ArrayList<Card> cardsSecondLevel) throws IllegalStateException {
