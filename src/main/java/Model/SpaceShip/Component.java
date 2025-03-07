@@ -8,8 +8,6 @@ public abstract class Component {
     protected int row;
     protected int column;
 
-    private int exposedConnector;
-
     private boolean fixed;
 
     private final ConnectorType[] connectors;
@@ -20,14 +18,9 @@ public abstract class Component {
         ship = null;
         this.row = row;
         this.column = column;
-        exposedConnector = 0;
         fixed = false;
         this.connectors = connectors;
         clockwiseRotation = 0;
-    }
-
-    public int getExposedConnector() {
-        return exposedConnector;
     }
 
     public abstract ComponentType getComponentType();
@@ -66,7 +59,8 @@ public abstract class Component {
     /*
      @brief check the exposed connectors of the component and update the exposedConnector variable
      */
-    public void checkExposedConnectors() {
+    public int checkExposedConnectors() {
+        int exposedConnector = 0;
         ArrayList<Component> components = ship.getSurroundingComponents(row, column);
         if (components.get(0) == null && getNorthConnection() != ConnectorType.EMPTY) {
             exposedConnector++;
@@ -80,6 +74,7 @@ public abstract class Component {
         if (components.get(3) == null && getEastConnection() != ConnectorType.EMPTY) {
             exposedConnector++;
         }
+        return exposedConnector;
     }
 
     /*
@@ -158,6 +153,8 @@ public abstract class Component {
                 return false;
             }
         }
+
+        this.ship = ship;
         return true;
     }
 }

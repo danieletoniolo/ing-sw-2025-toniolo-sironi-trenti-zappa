@@ -1,7 +1,5 @@
 package Model.SpaceShip;
 
-import java.util.ArrayList;
-
 public class Engine extends Component {
     private final int engineStrength;
 
