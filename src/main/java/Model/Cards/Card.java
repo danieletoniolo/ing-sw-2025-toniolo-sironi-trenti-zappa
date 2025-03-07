@@ -1,5 +1,7 @@
 package Model.Cards;
 
+import Model.Player.PlayerData;
+
 public abstract class Card {
     private int level;
 

@@ -1,6 +1,7 @@
 package Model.Cards;
 
 import Model.Cards.Hits.Hit;
+import Model.Player.PlayerData;
 
 import java.util.List;
 
@@ -10,12 +11,12 @@ public class Pirates extends Enemies {
 
     public Pirates(List<Hit> fire, int credit, int level, int cannonStrenghtRequired, int flightDays) {
         super(level, cannonStrenghtRequired, flightDays);
-        this.fire = fire;
+        this.fires = fire;
         this.credit = credit;
     }
 
     public List<Hit> getFire() {
-        return fire;
+        return fires;
     }
 
     public int getCredit() {

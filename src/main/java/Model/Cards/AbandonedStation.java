@@ -1,6 +1,7 @@
 package Model.Cards;
 
 import Model.Good.Good;
+import Model.Player.PlayerData;
 
 import java.util.List;
 

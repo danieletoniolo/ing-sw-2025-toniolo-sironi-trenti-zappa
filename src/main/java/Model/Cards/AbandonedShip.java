@@ -1,5 +1,7 @@
 package Model.Cards;
 
+import Model.Player.PlayerData;
+
 public class AbandonedShip extends Card {
     private int crewRequired;
     private int flightDays;

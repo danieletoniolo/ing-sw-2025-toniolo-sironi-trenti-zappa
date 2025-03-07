@@ -1,5 +1,7 @@
 package Model.Cards;
 
+import Model.Player.PlayerData;
+
 public class OpenSpace extends Card {
     public OpenSpace(int level) {
         super(level);
