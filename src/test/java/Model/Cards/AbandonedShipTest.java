@@ -19,6 +19,11 @@ class AbandonedShipTest {
     }
 
     @Test
+    void getCardLevel() {
+        assertEquals(2,card.getCardLevel());
+    }
+
+    @Test
     void getCrewRequired() {
         assertEquals(3,card.getCrewRequired());
     }
