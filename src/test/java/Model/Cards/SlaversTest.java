@@ -27,7 +27,7 @@ class SlaversTest {
 
     @Test
     void getCannonStrengthRequired() {
-        assertEquals(4,card.getFlightDays());
+        assertEquals(4,card.getCannonStrengthRequired());
     }
 
     @Test

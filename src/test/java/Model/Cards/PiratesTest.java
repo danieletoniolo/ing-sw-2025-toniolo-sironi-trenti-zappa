@@ -32,7 +32,7 @@ class PiratesTest {
 
     @Test
     void getCannonStrengthRequired() {
-        assertEquals(1,card.getFlightDays());
+        assertEquals(1,card.getCannonStrengthRequired());
     }
 
     @Test
