@@ -23,22 +23,35 @@ public abstract class Component {
         clockwiseRotation = 0;
     }
 
+    /*
+     @brief Returns the type of the component
+     @return The type of the component
+     */
     public abstract ComponentType getComponentType();
 
-    public ConnectorType getNorthConnection() {
-        return connectors[(clockwiseRotation) % 4];
+    /*
+     @brief Returns the row of the component
+     @return row
+     */
+    public int getRow() {
+        return row;
     }
 
-    public ConnectorType getWestConnection() {
-        return connectors[(clockwiseRotation + 1) % 4];
+    /*
+     @brief Returns the column of the component
+     @return column
+     */
+    public int getColumn() {
+        return column;
     }
 
-    public ConnectorType getSudConnection() {
-        return connectors[(clockwiseRotation + 2) % 4];
-    }
-
-    public ConnectorType getEastConnection() {
-        return connectors[(clockwiseRotation + 3) % 4];
+    /*
+     @brief Returns the connector of the component in the given orientation
+     @param orientation The orientation of the connector (0: north, 1: west, 2: sud, 3: east)
+     @return The connector of the component in the given face
+     */
+    public ConnectorType getConnection(int face) {
+        return connectors[(clockwiseRotation + face) % 4];
     }
 
     /*
@@ -57,22 +70,16 @@ public abstract class Component {
     }
 
     /*
-     @brief check the exposed connectors of the component and update the exposedConnector variable
+     @brief get the exposed connectors of the component
+     @return the number of exposed connectors of the component
      */
-    public int checkExposedConnectors() {
+    public int getExposedConnectors() {
         int exposedConnector = 0;
         ArrayList<Component> components = ship.getSurroundingComponents(row, column);
-        if (components.get(0) == null && getNorthConnection() != ConnectorType.EMPTY) {
-            exposedConnector++;
-        }
-        if (components.get(1) == null && getWestConnection() != ConnectorType.EMPTY) {
-            exposedConnector++;
-        }
-        if (components.get(2) == null && getSudConnection() != ConnectorType.EMPTY) {
-            exposedConnector++;
-        }
-        if (components.get(3) == null && getEastConnection() != ConnectorType.EMPTY) {
-            exposedConnector++;
+        for (int i = 0; i < 4; i++) {
+            if (components.get(i) == null && getConnection(i) != ConnectorType.EMPTY) {
+                exposedConnector++;
+            }
         }
         return exposedConnector;
     }
@@ -103,6 +110,7 @@ public abstract class Component {
      @brief fix the component so it cannot be moved
      */
     public void fix() {
+        // TODO: we could call here the isConnected method and raise an exception if the component is not connected
         fixed = true;
     }
 
@@ -114,46 +122,15 @@ public abstract class Component {
         // TODO: check if the ship parameter is null and raise an exception if needed
         ArrayList<Component> components = ship.getSurroundingComponents(row, column);
 
-        // Check the north face of the component with the south face of the above component
-        if (components.get(0) == null && getNorthConnection() != ConnectorType.EMPTY) {
-            return false;
-        }
-        if (components.get(0) != null) {
-            if (getNorthConnection() != ConnectorType.TRIPLE && getNorthConnection() != components.get(0).getSudConnection()) {
-                return false;
+        for (int face = 0; face < 4; face++) {
+            if (components.get(face) != null) {
+                if (getConnection(face) != ConnectorType.TRIPLE &&
+                        getConnection(face) != components.get(face).getConnection((face + 2) % 4) &&
+                        components.get(face).getConnection((face + 2) % 4) != ConnectorType.TRIPLE) {
+                    return false;
+                }
             }
         }
-
-        // Check the west face of the component with the east face of the left component
-        if (components.get(1) == null && getWestConnection() != ConnectorType.EMPTY) {
-            return false;
-        }
-        if (components.get(1) != null) {
-            if (getWestConnection() != ConnectorType.TRIPLE && getWestConnection() != components.get(1).getEastConnection()) {
-                return false;
-            }
-        }
-
-        // Check the south face of the component with the north face of the below component
-        if (components.get(2) == null && getSudConnection() != ConnectorType.EMPTY) {
-            return false;
-        }
-        if (components.get(2) != null) {
-            if (getSudConnection() != ConnectorType.TRIPLE && getSudConnection() != components.get(2).getNorthConnection()) {
-                return false;
-            }
-        }
-
-        // Check the east face of the component with the west face of the right component
-        if (components.get(3) == null && getEastConnection() != ConnectorType.EMPTY) {
-            return false;
-        }
-        if (components.get(3) != null) {
-            if (getEastConnection() != ConnectorType.TRIPLE && getEastConnection() != components.get(3).getWestConnection()) {
-                return false;
-            }
-        }
-
         this.ship = ship;
         return true;
     }

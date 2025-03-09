@@ -200,17 +200,18 @@ public class SpaceShip {
 
     /*
      @brief Check if the ship is valid by checking the validity of every component in the matrix
-     @return true if the ship is valid, false otherwise
+     @return The list of indexes of the invalid components
      */
-    public boolean checkValidShip() {
+    public List<int[]> getInvalidComponents() {
+        List<int[]> invalidComponents = new ArrayList<>();
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
                 if (c2 != null && !c2.isValid(this)) {
-                    return false;
+                    invalidComponents.add(new int[]{c2.getRow(), c2.getColumn()});
                 }
             }
         }
-        return true;
+        return invalidComponents;
     }
 
     /*
@@ -221,7 +222,7 @@ public class SpaceShip {
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
                 if (c2 != null) {
-                    exposedConnectors += c2.checkExposedConnectors();
+                    exposedConnectors += c2.getExposedConnectors();
                 }
             }
         }
@@ -229,6 +230,7 @@ public class SpaceShip {
 
     /*
      @brief Get the component at the given row and column
+     @param row and column of the component
      @return component at the given row and column
      */
     public Component getComponent(int row, int column) {
@@ -277,6 +279,7 @@ public class SpaceShip {
     /*
      @brief Destroy a component at the given row and column, update the stats of the ship and search if there
      is component that are no longer connected
+     @return List of List of int[] representing the group of disconnected components
      */
     public List<List<int[]>> destroyComponent(int row, int column) {
         Component destroyedComponent = components[row][column];
@@ -358,59 +361,27 @@ public class SpaceShip {
 
                         Component currentComponent = components[currentRow][currentColumn];
 
-                        // Check North connection
-                        if (currentRow + 1 < 12 && components[currentRow + 1][currentColumn] != null && !visited[currentRow + 1][currentColumn]) {
-                            Component northComponent = components[currentRow + 1][currentColumn];
-                            if ((currentComponent.getNorthConnection() == ConnectorType.TRIPLE ||
-                                    northComponent.getSudConnection() == ConnectorType.TRIPLE ||
-                                    currentComponent.getNorthConnection() == northComponent.getSudConnection()) &&
-                                    currentComponent.getNorthConnection() != ConnectorType.EMPTY) {
-                                visited[currentRow + 1][currentColumn] = true;
-                                queue.add(new int[]{currentRow + 1, currentColumn});
+                        for (int face = 0; face < 4; face++) {
+                            int newRow = currentRow + (face == 0 ? 1 : face == 2 ? -1 : 0);
+                            int newColumn = currentColumn + (face == 1 ? -1 : face == 3 ? 1 : 0);
+
+                            if (newRow >= 0 && newRow < 12 && newColumn >= 0 && newColumn < 12 && components[newRow][newColumn] != null && !visited[newRow][newColumn]) {
+                                Component adjacentComponent = components[newRow][newColumn];
+                                if ((currentComponent.getConnection(face) == ConnectorType.TRIPLE ||
+                                        adjacentComponent.getConnection((face + 2) % 4) == ConnectorType.TRIPLE ||
+                                        currentComponent.getConnection(face) == adjacentComponent.getConnection((face + 2) % 4)) &&
+                                        currentComponent.getConnection(face) != ConnectorType.EMPTY) {
+                                    visited[newRow][newColumn] = true;
+                                    queue.add(new int[]{newRow, newColumn});
+                                }
                             }
                         }
-
-                        // Check West connection
-                        if (currentColumn - 1 >= 0 && components[currentRow][currentColumn - 1] != null && !visited[currentRow][currentColumn - 1]) {
-                            Component westComponent = components[currentRow][currentColumn - 1];
-                            if ((currentComponent.getWestConnection() == ConnectorType.TRIPLE ||
-                                    westComponent.getEastConnection() == ConnectorType.TRIPLE ||
-                                    currentComponent.getWestConnection() == westComponent.getEastConnection()) &&
-                                    currentComponent.getWestConnection() != ConnectorType.EMPTY) {
-                                visited[currentRow][currentColumn - 1] = true;
-                                queue.add(new int[]{currentRow, currentColumn - 1});
-                            }
-                        }
-
-                        // Check South connection
-                        if (currentRow - 1 >= 0 && components[currentRow - 1][currentColumn] != null && !visited[currentRow - 1][currentColumn]) {
-                            Component southComponent = components[currentRow - 1][currentColumn];
-                            if ((currentComponent.getSudConnection() == ConnectorType.TRIPLE ||
-                                    southComponent.getNorthConnection() == ConnectorType.TRIPLE ||
-                                    currentComponent.getSudConnection() == southComponent.getNorthConnection()) &&
-                                    currentComponent.getSudConnection() != ConnectorType.EMPTY) {
-                                visited[currentRow - 1][currentColumn] = true;
-                                queue.add(new int[]{currentRow - 1, currentColumn});
-                            }
-                        }
-
-                        // Check East connection
-                        if (currentColumn + 1 < 12 && components[currentRow][currentColumn + 1] != null && !visited[currentRow][currentColumn + 1]) {
-                            Component eastComponent = components[currentRow][currentColumn + 1];
-                            if ((currentComponent.getEastConnection() == ConnectorType.TRIPLE ||
-                                    eastComponent.getWestConnection() == ConnectorType.TRIPLE ||
-                                    currentComponent.getEastConnection() == eastComponent.getWestConnection()) &&
-                                    currentComponent.getEastConnection() != ConnectorType.EMPTY) {
-                                visited[currentRow][currentColumn + 1] = true;
-                                queue.add(new int[]{currentRow, currentColumn + 1});
-                            }
-                        }
-
                     }
                     disconnectedComponents.add(disconnectedComponent);
                 }
             }
         }
+        // TODO: check witch group of disconnected components are still valid
         return disconnectedComponents;
     }
 }
