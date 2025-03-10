@@ -5,6 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import Model.Cards.Hits.Direction;
+import Model.Cards.Hits.Hit;
+
 public class SpaceShip {
     private Component[][] components;
     private final boolean[][] validSpots;
@@ -170,10 +173,68 @@ public class SpaceShip {
      @param direction of the hit and Hit object
      @return -1 if the ship can't shield, 0 if the ship can shield spending a battery, 1 if the ship can shield without spending a battery
      */
-    // TODO: merge with model-card and take as param Hit
-    public int canShield(int direction) {
-        // TODO
-        return -1;
+    public int canProtect(int direction, Hit hit) {
+        Component component = null;
+        switch (hit.getDirection()) {
+            case NORTH:
+                for (int i = 0; i < 12 && component == null; i++) {
+                    component = components[direction][i];
+                }
+                break;
+            case WEST:
+                for (int i = 0; i < 12 && component == null; i++) {
+                    component = components[i][direction];
+                }
+                break;
+            case SOUTH:
+                for (int i = 11; i >= 0 && component == null; i--) {
+                    component = components[direction][i];
+                }
+                break;
+            case EAST:
+                for (int i = 11; i >= 0 && component == null; i--) {
+                    component = components[i][direction];
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("The direction of the hit is not valid");
+        }
+        if (component == null) {
+            return 1;
+        }
+
+        switch (hit.getType()) {
+            case SMALLMETEOR:
+                if (component.getExposedConnectors() == 0) {
+                    return 1;
+                }
+            case LIGHTFIRE:
+                for (int i = 0; i < 12; i++) {
+                    for (int j = 0; j < 12; j++) {
+                        if (components[i][j].getComponentType() == ComponentType.SHIELD) {
+                            Shield shield = (Shield) components[i][j];
+                            if (shield.canShield(hit.getDirection().getValue())) {
+                                return 0;
+                            }
+                        }
+                    }
+                }
+                return -1;
+            case LARGEMETEOR:
+                if (component.getComponentType() == ComponentType.SINGLE_CANNON &&
+                        component.getClockwiseRotation() == 4 - hit.getDirection().getValue()) {
+                    return 1;
+                } else if (component.getComponentType() == ComponentType.DOUBLE_CANNON &&
+                        component.getClockwiseRotation() == 4 - hit.getDirection().getValue()) {
+                    return 0;
+                } else {
+                    return -1;
+                }
+            case HEAVYFIRE:
+                return -1;
+            default:
+                throw new IllegalArgumentException("The type of the hit is not valid");
+        }
     }
 
     /*
