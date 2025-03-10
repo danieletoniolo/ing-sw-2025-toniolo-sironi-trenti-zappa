@@ -8,6 +8,10 @@ public class Cannon extends Component{
         this.cannonStrength = cannonStrength;
     }
 
+    /**
+     * Get the strength of the cannon based on the rotation of the cannon
+     * @return The strength of the cannon
+     */
     public int getCannonStrength() {
         if (getClockwiseRotation() == 0) {
             return cannonStrength;
@@ -16,6 +20,9 @@ public class Cannon extends Component{
         }
     }
 
+    /**
+     * @implNote Extend the isValid method to check if the cannon has no component in front of it
+     */
     @Override
     public boolean isValid(SpaceShip ship) {
         Component c = switch (getClockwiseRotation()) {

@@ -57,24 +57,24 @@ public class SpaceShip {
         exposedConnectors = 0;
     }
 
-    /*
-     @brief Get the strength of the single engines
-     @return singleEnginesStrength
+    /**
+     Get the strength of the single engines
+     @return The strength of the single engines
      */
     public int getSingleEnginesStrength() {
         return singleEnginesStrength;
     }
 
-    /*
-     @brief Get the strength of the double engines
-     @return doubleEnginesStrength
+    /**
+     * Get the strength of the double engines
+     * @return The strength of the double engines
      */
     public int getDoubleEnginesStrength() {
         return doubleEnginesStrength;
     }
 
-    /*
-     @brief Refresh the strength stats of the engines by searching in the components matrix
+    /**
+     * Refresh the strength stats of the engines by searching in the components matrix
      */
     public void refreshEngineStrength() {
         for (Component[] c1 : components) {
@@ -88,32 +88,32 @@ public class SpaceShip {
         }
     }
 
-    /*
-     @brief Get the strength of the single cannons
-     @return singleCannonsStrength
+    /**
+     * Get the strength of the single cannons of the ship
+     * @return Strength of the single cannons of the ship
      */
     public float getSingleCannonsStrength() {
         return singleCannonsStrength;
     }
 
-    /*
-     @brief Get the strength of the double cannons
-     @return doubleCannonsStrength
+    /**
+     * Get the strength of the double cannons of the ship
+     * @return Strength of the double cannons of the ship
      */
     public int getDoubleCannonsStrength() {
         return doubleCannonsStrength;
     }
 
-    /*
-     @brief Get the number of double cannons
-     @return doubleCannonsNumber
+    /**
+     * Get the number of double cannons of the ship
+     * @return Number of double cannons of the ship
      */
     public int getDoubleCannonsNumber() {
         return doubleCannonsNumber;
     }
 
-    /*
-     @brief Refresh the strength stats of the cannons by searching in the components matrix
+    /**
+     * Refresh the strength stats of the cannons by searching in the components matrix
      */
     public void refreshCannonsStrength() {
         for (Component[] c1 : components) {
@@ -137,24 +137,24 @@ public class SpaceShip {
         }
     }
 
-    /*
-     @brief Get the number of energy blocks
-     @return energyNumber
+    /**
+     * Get the number of energy blocks
+     * @return number of energy blocks available in the ship
      */
     public int getEnergyNumber() {
         return energyNumber;
     }
 
-    /*
-     @brief Get the goods value of the ship
-     @return goodsValue
+    /**
+     * Get the goods value of the ship
+     * @return goodsValue
      */
     public int getGoodsValue() {
         return goodsValue;
     }
 
-    /*
-     @brief Get the value of the goods of the ship by searching in the components matrix
+    /**
+     * Get the value of the goods of the ship by searching in the components matrix
      */
     public void refreshGoodsValue() {
         goodsValue = 0;
@@ -168,10 +168,11 @@ public class SpaceShip {
         }
     }
 
-    /*
-     @brief check if the ship can shield from a hit
-     @param direction of the hit and Hit object
-     @return -1 if the ship can't shield, 0 if the ship can shield spending a battery, 1 if the ship can shield without spending a battery
+    /**
+     * Check if the ship can shield from a hit
+     * @param direction direction of the hit (Number picked by dice roll)
+     * @param hit hit class containing the type of the hit and the direction (North, West, South, East) of the hit and Hit object
+     * @return -1 if the ship can't shield, 0 if the ship can shield spending a battery, 1 if the ship can shield without spending a battery
      */
     public int canProtect(int direction, Hit hit) {
         Component component = null;
@@ -237,11 +238,12 @@ public class SpaceShip {
         }
     }
 
-    /*
-     @brief use a battery and reduce the total number of energy
-     @param row and column of the battery cell component to use
-     @return true if the battery was used, false otherwise
-     @throws IllegalArgumentException if the component at the given row and column is not a battery
+    /**
+     * Use a battery and reduce the total number of energy
+     * @param row row of the battery cell component to use
+     * @param column column of the battery cell component to use
+     * @return true if the battery was used, false otherwise
+     * @throws IllegalArgumentException if the component at the given row and column is not a battery
      */
     public boolean useEnergy(int row, int column) {
         if (components[row][column].getComponentType() == ComponentType.BATTERY) {
@@ -259,9 +261,9 @@ public class SpaceShip {
         }
     }
 
-    /*
-     @brief Check if the ship is valid by checking the validity of every component in the matrix
-     @return The list of indexes of the invalid components
+    /**
+     * Check if the ship is valid by checking the validity of every component in the matrix
+     * @return The list of indexes of the invalid components of the ship
      */
     public List<int[]> getInvalidComponents() {
         List<int[]> invalidComponents = new ArrayList<>();
@@ -275,8 +277,8 @@ public class SpaceShip {
         return invalidComponents;
     }
 
-    /*
-     @brief Refresh the exposed connectors of the ship by searching in the components matrix
+    /**
+     * Refresh the exposed connectors of the ship by searching in the components matrix
      */
     public void refreshExposedConnectors() {
         exposedConnectors = 0;
@@ -289,18 +291,21 @@ public class SpaceShip {
         }
     }
 
-    /*
-     @brief Get the component at the given row and column
-     @param row and column of the component
-     @return component at the given row and column
+    /**
+     * Get the component at the given row and column
+     * @param row row of the component to get
+     * @param column column of the component to get
+     * @return component at the given row and column
      */
     public Component getComponent(int row, int column) {
         return components[row][column];
     }
 
-    /*
-     @brief Get the surrounding components of a given component
-     @return ArrayList of surrounding components in the order North, West, South, East
+    /**
+     * Get the surrounding components of a given component
+     * @param row row of the component to get the surrounding components
+     * @param column columnof the component to get the surrounding components
+     * @return ArrayList of surrounding components in the order North, West, South, East
      */
     public ArrayList<Component> getSurroundingComponents(int row, int column) {
         ArrayList<Component> surroundingComponents = new ArrayList<Component>();
@@ -312,10 +317,10 @@ public class SpaceShip {
         return surroundingComponents;
     }
 
-    /*
-     @brief Reserve a component to be placed in the reservedComponents ArrayList
-     @param c the component to reserve
-     @throws IllegalStateException if there are already two components reserved
+    /**
+     * Reserve a component to be placed in the reservedComponents ArrayList
+     * @param c the component to reserve
+     * @throws IllegalStateException if there are already two components reserved
      */
     public void reserveComponent(Component c) {
         if (reservedComponents.size() < 2) {
@@ -329,18 +334,20 @@ public class SpaceShip {
         }
     }
 
-    /*
-     @brief Unreserve a component in the reservedComponents ArrayList; should be called when the component is placed
-     @param c the component to unreserve
+    /**
+     * Unreserve a component in the reservedComponents ArrayList
+     * @apiNote Should only be called when the component is placed
+     * @param c the component to unreserve
      */
     public void unreserveComponent(Component c) {
         reservedComponents.remove(c);
     }
 
-    /*
-     @brief Destroy a component at the given row and column, update the stats of the ship and search if there
-     is component that are no longer connected
-     @return List of List of int[] representing the group of disconnected components
+    /**
+     * Destroy a component at the given row and column, update the stats of the ship and search if there is component that are no longer connected
+     * @param row row of the component to destroy
+     * @param column column of the component to destroy
+     * @return List of List of int[] representing the group of disconnected components
      */
     public List<List<int[]>> destroyComponent(int row, int column) {
         Component destroyedComponent = components[row][column];

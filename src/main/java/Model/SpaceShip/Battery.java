@@ -8,16 +8,16 @@ public class Battery extends Component {
         this.energyNumber = energyNumber;
     }
 
-    /*
-     @brief Get the energy number available of the battery
-     @return The energy number available of the battery
+    /**
+     * Get the energy number available of the battery
+     * @return The energy number available of the battery
      */
     public int getEnergyNumber() {
         return energyNumber;
     }
 
-    /*
-     @brief Use an energy from the battery removing one energy from energyNumber
+    /**
+     * Remove an energy from the total available for the component
      */
     public void removeEnergy() {
         if (energyNumber > 0) {

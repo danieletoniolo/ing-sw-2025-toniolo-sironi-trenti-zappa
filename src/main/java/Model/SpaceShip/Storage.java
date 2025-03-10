@@ -18,18 +18,18 @@ public class Storage extends Component{
         this.goods = new ArrayList<>();
     }
 
-    /*
-     @brief Check if the storage is dangerous
-     @return true if the storage is dangerous, false otherwise
+    /**
+     * Check if the storage is dangerous
+     * @return true if the storage is dangerous, false otherwise
      */
     public boolean isDangerous() {
         return dangerous;
     }
 
-    /*
-     @brief Add a good to the storage if there is enough space
-     @param good must be a non-null Good
-     @throws IllegalStateException if the storage is full
+    /**
+     * Add a good to the storage if there is enough space
+     * @param good the Good to add
+     * @throws IllegalStateException if the storage is full
      */
     public void addGood(Good good) {
         if (goods.size() < goodsCapacity) {
@@ -41,10 +41,10 @@ public class Storage extends Component{
         }
     }
 
-    /*
-     @brief Remove a good from the storage if it is present
-     @param good must be a non-null Good
-     @throws IllegalStateException if the good is not found in the storage
+    /**
+     * Remove a good from the storage if it is present
+     * @param good the Good to remove
+     * @throws IllegalStateException if the good is not found in the storage
      */
     public void removeGood(Good good) {
         if (goods.contains(good)) {
@@ -56,17 +56,17 @@ public class Storage extends Component{
         }
     }
 
-    /*
-     @brief Get the list of goods in the storage
-     @return ArrayList of goods in the storage
+    /**
+     * Get the list of goods in the storage
+     * @return ArrayList of goods in the storage
      */
     public ArrayList<Good> getGoods() {
         return goods;
     }
 
-    /*
-     @brief Get the value of the goods in the storage
-     @return goodsValue
+    /**
+     * Get the value of the goods in the storage
+     * @return The value of the goods in the storage
      */
     public int getGoodsValue() {
         return goodsValue;

@@ -18,74 +18,84 @@ public class Cabin extends Component {
         brownAlien = false;
     }
 
-    /*
-     @brief Get the crew number in the cabin
-     @return crewNumber
+    /**
+     * Get the crew number in the cabin
+     * @return The number of crew available in the cabin
      */
     public int getCrewNumber() {
         return crewNumber;
     }
 
-    /*
-     @brief Check if the cabin has purple life support
-     @return true if the cabin has purple life support, false otherwise
+    /**
+     * Check if the cabin has purple life support
+     * @return true if the cabin has purple life support, false otherwise
      */
     public boolean hasPurpleLifeSupport() {
         return purpleLifeSupport;
     }
 
-    /*
-     @brief Check if the cabin has brown life support
-     @return true if the cabin has brown life support, false otherwise
+    /**
+     * Check if the cabin has brown life support
+     * @return true if the cabin has brown life support, false otherwise
      */
     public boolean hasBrownLifeSupport() {
         return brownLifeSupport;
     }
 
-    /*
-     @brief Check if the cabin has purple alien
-     @return true if the cabin has purple alien, false otherwise
+    /**
+     * Check if the cabin has purple alien
+     * @return true if the cabin has purple alien, false otherwise
      */
     public boolean hasPurpleAlien() {
         return purpleAlien;
     }
 
-    /*
-     @brief Check if the cabin has brown alien
-     @return true if the cabin has brown alien, false otherwise
+    /**
+     * Check if the cabin has brown alien
+     * @return true if the cabin has brown alien, false otherwise
      */
     public boolean hasBrownAlien() {
         return brownAlien;
     }
 
-    /*
-     @brief Add two crew member to the cabin
+    /**
+     * Add two crew member to the cabin
+     * @throws IllegalStateException if there is purple alien or brown alien in the cabin
      */
     public void addCrewMember() {
+        if (brownAlien || purpleAlien) {
+            throw new IllegalStateException("Cannot add crew member to the cabin");
+        }
         crewNumber = 2;
     }
 
-    /*
-     @brief Add purple alien to the cabin
-     @return true if the cabin has purple alien, false otherwise
+    /**
+     * Add purple alien to the cabin
+     * @throws IllegalStateException if there is no purple life support or there is a brown alien in the cabin
      */
     public void addPurpleAlien() {
+        if (!purpleLifeSupport || brownAlien) {
+            throw new IllegalStateException("Cannot add purple alien to the cabin");
+        }
         purpleAlien = true;
         crewNumber = 1;
     }
 
-    /*
-     @brief Add brown alien to the cabin
-     @return true if the cabin has brown alien, false otherwise
+    /**
+     * Add brown alien to the cabin
+     * @throws IllegalStateException if there is no brown life support or there is a purple alien in the cabin
      */
     public void addBrownAlien() {
+        if (!brownLifeSupport || purpleAlien) {
+            throw new IllegalStateException("Cannot add brown alien to the cabin");
+        }
         brownAlien = true;
         crewNumber = 1;
     }
 
-    /*
-     @brief Remove crew member from the cabin
-     @throws IllegalStateException if there is no crew member in the cabin
+    /**
+     * Remove crew member from the cabin
+     * @throws IllegalStateException if there is no crew member in the cabin
      */
     public void removeCrewMember() {
         if (crewNumber > 0) {
@@ -95,24 +105,29 @@ public class Cabin extends Component {
         }
     }
 
-    /*
-     @brief Remove alien from the cabin
+    /**
+     * Remove alien from the cabin
+     * @throws IllegalStateException if there is no alien in the cabin
      */
     public void removeAlien() {
-        purpleAlien = false;
-        brownAlien = false;
-        crewNumber = 0;
+        if (purpleAlien || brownAlien) {
+            purpleAlien = false;
+            brownAlien = false;
+            crewNumber = 0;
+        } else {
+            throw new IllegalStateException("There is no alien in the cabin");
+        }
     }
 
-    /*
-     @brief Add purple life support to the cabin
+    /**
+     * Add purple life support to the cabin
      */
     public void addPurpleLifeSupport() {
         purpleLifeSupport = true;
     }
 
-    /*
-     @brief Add brown life support to the cabin
+    /**
+     * Add brown life support to the cabin
      */
     public void addBrownLifeSupport() {
         brownLifeSupport = true;

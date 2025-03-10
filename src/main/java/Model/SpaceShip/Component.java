@@ -23,55 +23,55 @@ public abstract class Component {
         clockwiseRotation = 0;
     }
 
-    /*
-     @brief Returns the type of the component
-     @return The type of the component
+    /**
+     * Returns the type of the component
+     * @return The type of the component
      */
     public abstract ComponentType getComponentType();
 
-    /*
-     @brief Returns the row of the component
-     @return row
+    /**
+     * Returns the row of the component
+     * @return row of the component
      */
     public int getRow() {
         return row;
     }
 
-    /*
-     @brief Returns the column of the component
-     @return column
+    /**
+     * Returns the column of the component
+     * @return column of the component
      */
     public int getColumn() {
         return column;
     }
 
-    /*
-     @brief Returns the connector of the component in the given orientation
-     @param orientation The orientation of the connector (0: north, 1: west, 2: sud, 3: east)
-     @return The connector of the component in the given face
+    /**
+     * Returns the connector of the component in the given face
+     * @param face The face of the connector (0: north, 1: west, 2: sud, 3: east)
+     * @return The connector of the component in the given face
      */
     public ConnectorType getConnection(int face) {
         return connectors[(clockwiseRotation + face) % 4];
     }
 
-    /*
-     @brief Returns the clockwise rotation of the component
-     @return clockwiseRotation
+    /**
+     * Returns the clockwise rotation of the component
+     * @return The clockwise rotation of the component (0: 0 degrees, 1: 90 degrees, 2: 180 degrees, 3: 270 degrees)
      */
     public int getClockwiseRotation() {
         return clockwiseRotation;
     }
 
-    /*
-     @brief Rotates the component clockwise (90 degrees)
+    /**
+     * Rotates the component clockwise (90 degrees)
      */
     public void rotateClockwise() {
         clockwiseRotation = (clockwiseRotation + 1) % 4;
     }
 
-    /*
-     @brief get the exposed connectors of the component
-     @return the number of exposed connectors of the component
+    /**
+     * Get the exposed connectors of the component
+     * @return The number of exposed connectors of the component
      */
     public int getExposedConnectors() {
         int exposedConnector = 0;
@@ -84,9 +84,10 @@ public abstract class Component {
         return exposedConnector;
     }
 
-    /*
-     @brief check if the component is connected to the ship
-     @return true if the component is connected to the ship, false otherwise
+    /**
+     * Check if the component is connected to the ship
+     * @apiNote Should be called when a component is added to the ship
+     * @return true if the component is connected to the ship, false otherwise
      */
     public boolean isConnected() {
         ArrayList<Component> components =  ship.getSurroundingComponents(row, column);
@@ -98,25 +99,26 @@ public abstract class Component {
         return false;
     }
 
-    /*
-     @brief check if the component is fixed and cannot be moved
-     @return true if the component is fixed, false otherwise
+    /**
+     * Check if the component is fixed and cannot be moved
+     * @return true if the component is fixed, false otherwise
      */
     public boolean isFixed() {
         return fixed;
     }
 
-    /*
-     @brief fix the component so it cannot be moved
+    /**
+     * Fix the component so it cannot be moved
      */
     public void fix() {
         // TODO: we could call here the isConnected method and raise an exception if the component is not connected
         fixed = true;
     }
 
-    /*
-     @brief check if the component is attached to the right connector
-     @return true if the component is attached to the right connector, false otherwise
+    /**
+     * Check if the component is attached to the right connector
+     * @param ship The ship where the component is attached
+     * @return true if the component is attached to the right connector, false otherwise
      */
     public boolean isValid(SpaceShip ship) {
         // TODO: check if the ship parameter is null and raise an exception if needed

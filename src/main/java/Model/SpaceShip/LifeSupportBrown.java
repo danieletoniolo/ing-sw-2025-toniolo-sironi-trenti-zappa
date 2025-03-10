@@ -5,6 +5,9 @@ public class LifeSupportBrown extends Component {
         super(row, column, connectors);
     }
 
+    /**
+     * @implNote Extends the isValid method of the Component class to add brown life support to the cabin next to the component.
+     */
     @Override
     public boolean isValid(SpaceShip ship) {
         for (Component component : ship.getSurroundingComponents(row, column)) {
