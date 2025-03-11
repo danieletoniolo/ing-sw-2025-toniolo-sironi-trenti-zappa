@@ -62,7 +62,7 @@ public class Cabin extends Component {
      * Add two crew member to the cabin
      * @throws IllegalStateException if there is purple alien or brown alien in the cabin
      */
-    public void addCrewMember() {
+    public void addCrewMember() throws IllegalStateException {
         if (brownAlien || purpleAlien) {
             throw new IllegalStateException("Cannot add crew member to the cabin");
         }
@@ -73,7 +73,7 @@ public class Cabin extends Component {
      * Add purple alien to the cabin
      * @throws IllegalStateException if there is no purple life support or there is a brown alien in the cabin
      */
-    public void addPurpleAlien() {
+    public void addPurpleAlien() throws IllegalStateException {
         if (!purpleLifeSupport || brownAlien) {
             throw new IllegalStateException("Cannot add purple alien to the cabin");
         }
@@ -85,7 +85,7 @@ public class Cabin extends Component {
      * Add brown alien to the cabin
      * @throws IllegalStateException if there is no brown life support or there is a purple alien in the cabin
      */
-    public void addBrownAlien() {
+    public void addBrownAlien() throws IllegalStateException {
         if (!brownLifeSupport || purpleAlien) {
             throw new IllegalStateException("Cannot add brown alien to the cabin");
         }
@@ -97,7 +97,7 @@ public class Cabin extends Component {
      * Remove crew member from the cabin
      * @throws IllegalStateException if there is no crew member in the cabin
      */
-    public void removeCrewMember() {
+    public void removeCrewMember() throws IllegalStateException {
         if (crewNumber > 0) {
             crewNumber--;
         } else {
@@ -109,7 +109,7 @@ public class Cabin extends Component {
      * Remove alien from the cabin
      * @throws IllegalStateException if there is no alien in the cabin
      */
-    public void removeAlien() {
+    public void removeAlien() throws IllegalStateException {
         if (purpleAlien || brownAlien) {
             purpleAlien = false;
             brownAlien = false;

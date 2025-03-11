@@ -173,8 +173,9 @@ public class SpaceShip {
      * @param direction direction of the hit (Number picked by dice roll)
      * @param hit hit class containing the type of the hit and the direction (North, West, South, East) of the hit and Hit object
      * @return -1 if the ship can't shield, 0 if the ship can shield spending a battery, 1 if the ship can shield without spending a battery
+     * @throws IllegalArgumentException if the direction or the type of the hit is not valid
      */
-    public int canProtect(int direction, Hit hit) {
+    public int canProtect(int direction, Hit hit) throws IllegalArgumentException {
         Component component = null;
         switch (hit.getDirection()) {
             case NORTH:
@@ -245,7 +246,7 @@ public class SpaceShip {
      * @return true if the battery was used, false otherwise
      * @throws IllegalArgumentException if the component at the given row and column is not a battery
      */
-    public boolean useEnergy(int row, int column) {
+    public boolean useEnergy(int row, int column) throws IllegalArgumentException {
         if (components[row][column].getComponentType() == ComponentType.BATTERY) {
             Battery battery = (Battery) components[row][column];
             try {
@@ -322,7 +323,7 @@ public class SpaceShip {
      * @param c the component to reserve
      * @throws IllegalStateException if there are already two components reserved
      */
-    public void reserveComponent(Component c) {
+    public void reserveComponent(Component c) throws IllegalStateException {
         if (reservedComponents.size() < 2) {
             if (reservedComponents.getFirst() == null) {
                 reservedComponents.addFirst(c);

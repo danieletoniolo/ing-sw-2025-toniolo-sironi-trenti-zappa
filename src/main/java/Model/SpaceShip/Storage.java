@@ -31,7 +31,7 @@ public class Storage extends Component{
      * @param good the Good to add
      * @throws IllegalStateException if the storage is full
      */
-    public void addGood(Good good) {
+    public void addGood(Good good) throws IllegalStateException {
         if (goods.size() < goodsCapacity) {
             goods.add(good);
             goodsValue += good.getValue();
@@ -46,7 +46,7 @@ public class Storage extends Component{
      * @param good the Good to remove
      * @throws IllegalStateException if the good is not found in the storage
      */
-    public void removeGood(Good good) {
+    public void removeGood(Good good) throws IllegalStateException {
         if (goods.contains(good)) {
             goods.remove(good);
             goodsValue -= good.getValue();

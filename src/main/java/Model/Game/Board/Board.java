@@ -33,9 +33,9 @@ public class Board {
      * @param red the player data for the red player
      * @param green the player data for the green player
      * @param yellow the player data for the yellow player
-     * @throws IllegalStateException if the level is set to an unexpected value
+     * @throws IllegalArgumentException if the level is set to an unexpected value
      */
-    public Board(Level level, PlayerData blue, PlayerData red, PlayerData green, PlayerData yellow) throws IllegalStateException {
+    public Board(Level level, PlayerData blue, PlayerData red, PlayerData green, PlayerData yellow) throws IllegalArgumentException {
         this.level = level;
         if (!level.equals(Level.LEARNING)) {
             for (int i = 0; i < numberOfDecks; i++)
@@ -49,7 +49,7 @@ public class Board {
                 this.numberOfCells = 24;
                 break;
             default:
-                throw new IllegalStateException("Unexpected value: " + level);
+                throw new IllegalArgumentException("Unexpected value: " + level);
         }
         this.shuffledDeck = new Stack<>();
         this.blue = blue;
@@ -124,11 +124,11 @@ public class Board {
      * Creates the decks for the board using the provided cards.
      * @param cardsFirstLevel the list of cards for the first level
      * @param cardsSecondLevel the list of cards for the second level
-     * @throws IllegalStateException if the board level is set to learning
+     * @throws IllegalArgumentException if the board level is set to learning
      */
-    public void createDecks(ArrayList<Card> cardsFirstLevel, ArrayList<Card> cardsSecondLevel) throws IllegalStateException {
+    public void createDecks(ArrayList<Card> cardsFirstLevel, ArrayList<Card> cardsSecondLevel) throws IllegalArgumentException {
         if (this.level.equals(Level.LEARNING))
-            throw new IllegalStateException("Cannot create decks at learning level");
+            throw new IllegalArgumentException("Cannot create decks at learning level");
 
         ArrayList<Card> cards = new ArrayList<>();
         for (int i = 0; i < numberOfDecks; i++) {
