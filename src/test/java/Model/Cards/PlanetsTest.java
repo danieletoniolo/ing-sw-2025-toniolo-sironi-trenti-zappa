@@ -4,8 +4,6 @@ import Model.Good.Good;
 import Model.Good.GoodType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,24 +32,17 @@ class PlanetsTest {
         assertEquals(planets.length, card.getPlanetNumbers());
     }
 
-    @ParameterizedTest
-    @CsvSource({"-1,0,1"})
-    void getPlanet(int n) {
-        List<Good> check=null;
-        if(n < 0){
-            assertNull(check);
-        } else {
+    @Test
+    void getPlanet() {
+        List<Good> check = card.getPlanet(0);
+        assertEquals(2, check.size());
+        assertEquals(GoodType.BLUE, check.get(0).getColor());
+        assertEquals(GoodType.RED, check.get(1).getColor());
 
-            check = card.getPlanet(0);
-            assertEquals(2, check.size());
-            assertEquals(GoodType.BLUE, check.get(0).getColor());
-            assertEquals(GoodType.RED, check.get(1).getColor());
-
-            List<Good> check1 = card.getPlanet(1);
-            assertEquals(2, check1.size());
-            assertEquals(GoodType.YELLOW, check1.get(0).getColor());
-            assertEquals(GoodType.GREEN, check1.get(1).getColor());
-        }
+        List<Good> check1 = card.getPlanet(1);
+        assertEquals(2, check1.size());
+        assertEquals(GoodType.YELLOW, check1.get(0).getColor());
+        assertEquals(GoodType.GREEN, check1.get(1).getColor());
     }
 
     @Test

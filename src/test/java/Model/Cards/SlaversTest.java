@@ -1,6 +1,7 @@
 package Model.Cards;
 
 import Model.Cards.Hits.Hit;
+import Model.Player.PlayerData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class SlaversTest {
     Slavers card;
     List<Hit> fires;
+    PlayerData player;
 
     @BeforeEach
     void setUp() {
@@ -52,5 +54,12 @@ class SlaversTest {
 
     @Test
     void apply() {
+    }
+
+    @Test
+    void isPlayed(){
+        assertFalse(card.isPlayed());
+        card.apply(player);
+        //assertTrue(card.isPlayed());
     }
 }
