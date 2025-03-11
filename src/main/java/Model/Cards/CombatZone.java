@@ -1,6 +1,7 @@
 package Model.Cards;
 
 import Model.Cards.Hits.Hit;
+import Model.Player.PlayerData;
 
 import java.util.List;
 

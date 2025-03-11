@@ -1,5 +1,7 @@
 package Model.Cards;
 
+import Model.Player.PlayerData;
+
 public abstract class Enemies extends Card {
     private int cannonStrengthRequired;
     private int flightDays;

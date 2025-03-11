@@ -1,5 +1,7 @@
 package Model.Cards;
 
+import Model.Player.PlayerData;
+
 public class StarDust extends Card {
     public StarDust(int level) {
         super(level);
@@ -11,7 +13,7 @@ public class StarDust extends Card {
     }
 
     @Override
-    public void apply(PlayerData player)  {
+    public void apply(PlayerData player) {
 
     }
 }

@@ -1,6 +1,7 @@
 package Model.Cards;
 
 import Model.Good.Good;
+import Model.Player.PlayerData;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class AbandonedStation extends Card {
         return flightDays;
     }
 
-    private List<Good> getGoods() {
+    public List<Good> getGoods() {
         return goods;
     }
 

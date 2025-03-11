@@ -1,5 +1,7 @@
 package Model.Cards;
 
+import Model.Player.PlayerData;
+
 public class Epidemic extends Card {
     public Epidemic(int level) {
         super(level);

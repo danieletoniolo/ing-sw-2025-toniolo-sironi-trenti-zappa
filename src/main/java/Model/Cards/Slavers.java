@@ -1,5 +1,7 @@
 package Model.Cards;
 
+import Model.Player.PlayerData;
+
 public class Slavers extends Enemies {
     private int crewLost;
     private int credit;

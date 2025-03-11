@@ -8,18 +8,16 @@ public class Engine extends Component {
         this.engineStrength = engineStrength;
     }
 
-    /*
-     @brief Get the engine strength
-     @return engineStrength
+    /**
+     * Get the engine strength
+     * @return The strength of the engine
      */
     public int getEngineStrength() {
         return engineStrength;
     }
 
-    /*
-     @brief Check if the engine is valid
-     @param ship must be a non-null SpaceShip
-     @return true if the engine is valid, false otherwise
+    /**
+     * @implNote Extends the isValid method from the Component class to check that the engine has no component below it and that it is not rotated
      */
     @Override
     public boolean isValid(SpaceShip ship) {
@@ -30,9 +28,6 @@ public class Engine extends Component {
         return super.isValid(ship);
     }
 
-    /*
-     @brief Get the component type
-     */
     @Override
     public ComponentType getComponentType() {
         if (engineStrength == 1) {

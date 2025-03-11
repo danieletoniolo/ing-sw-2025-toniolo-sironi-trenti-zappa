@@ -5,6 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import Model.Cards.Hits.Direction;
+import Model.Cards.Hits.Hit;
+
 public class SpaceShip {
     private Component[][] components;
     private final boolean[][] validSpots;
@@ -54,24 +57,24 @@ public class SpaceShip {
         exposedConnectors = 0;
     }
 
-    /*
-     @brief Get the strength of the single engines
-     @return singleEnginesStrength
+    /**
+     Get the strength of the single engines
+     @return The strength of the single engines
      */
     public int getSingleEnginesStrength() {
         return singleEnginesStrength;
     }
 
-    /*
-     @brief Get the strength of the double engines
-     @return doubleEnginesStrength
+    /**
+     * Get the strength of the double engines
+     * @return The strength of the double engines
      */
     public int getDoubleEnginesStrength() {
         return doubleEnginesStrength;
     }
 
-    /*
-     @brief Refresh the strength stats of the engines by searching in the components matrix
+    /**
+     * Refresh the strength stats of the engines by searching in the components matrix
      */
     public void refreshEngineStrength() {
         for (Component[] c1 : components) {
@@ -85,32 +88,32 @@ public class SpaceShip {
         }
     }
 
-    /*
-     @brief Get the strength of the single cannons
-     @return singleCannonsStrength
+    /**
+     * Get the strength of the single cannons of the ship
+     * @return Strength of the single cannons of the ship
      */
     public float getSingleCannonsStrength() {
         return singleCannonsStrength;
     }
 
-    /*
-     @brief Get the strength of the double cannons
-     @return doubleCannonsStrength
+    /**
+     * Get the strength of the double cannons of the ship
+     * @return Strength of the double cannons of the ship
      */
     public int getDoubleCannonsStrength() {
         return doubleCannonsStrength;
     }
 
-    /*
-     @brief Get the number of double cannons
-     @return doubleCannonsNumber
+    /**
+     * Get the number of double cannons of the ship
+     * @return Number of double cannons of the ship
      */
     public int getDoubleCannonsNumber() {
         return doubleCannonsNumber;
     }
 
-    /*
-     @brief Refresh the strength stats of the cannons by searching in the components matrix
+    /**
+     * Refresh the strength stats of the cannons by searching in the components matrix
      */
     public void refreshCannonsStrength() {
         for (Component[] c1 : components) {
@@ -134,24 +137,24 @@ public class SpaceShip {
         }
     }
 
-    /*
-     @brief Get the number of energy blocks
-     @return energyNumber
+    /**
+     * Get the number of energy blocks
+     * @return number of energy blocks available in the ship
      */
     public int getEnergyNumber() {
         return energyNumber;
     }
 
-    /*
-     @brief Get the goods value of the ship
-     @return goodsValue
+    /**
+     * Get the goods value of the ship
+     * @return goodsValue
      */
     public int getGoodsValue() {
         return goodsValue;
     }
 
-    /*
-     @brief Get the value of the goods of the ship by searching in the components matrix
+    /**
+     * Get the value of the goods of the ship by searching in the components matrix
      */
     public void refreshGoodsValue() {
         goodsValue = 0;
@@ -165,22 +168,82 @@ public class SpaceShip {
         }
     }
 
-    /*
-     @brief check if the ship can shield from a hit
-     @param direction of the hit and Hit object
-     @return -1 if the ship can't shield, 0 if the ship can shield spending a battery, 1 if the ship can shield without spending a battery
+    /**
+     * Check if the ship can shield from a hit
+     * @param direction direction of the hit (Number picked by dice roll)
+     * @param hit hit class containing the type of the hit and the direction (North, West, South, East) of the hit and Hit object
+     * @return -1 if the ship can't shield, 0 if the ship can shield spending a battery, 1 if the ship can shield without spending a battery
      */
-    // TODO: merge with model-card and take as param Hit
-    public int canShield(int direction) {
-        // TODO
-        return -1;
+    public int canProtect(int direction, Hit hit) {
+        Component component = null;
+        switch (hit.getDirection()) {
+            case NORTH:
+                for (int i = 0; i < 12 && component == null; i++) {
+                    component = components[direction][i];
+                }
+                break;
+            case WEST:
+                for (int i = 0; i < 12 && component == null; i++) {
+                    component = components[i][direction];
+                }
+                break;
+            case SOUTH:
+                for (int i = 11; i >= 0 && component == null; i--) {
+                    component = components[direction][i];
+                }
+                break;
+            case EAST:
+                for (int i = 11; i >= 0 && component == null; i--) {
+                    component = components[i][direction];
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("The direction of the hit is not valid");
+        }
+        if (component == null) {
+            return 1;
+        }
+
+        switch (hit.getType()) {
+            case SMALLMETEOR:
+                if (component.getExposedConnectors() == 0) {
+                    return 1;
+                }
+            case LIGHTFIRE:
+                for (int i = 0; i < 12; i++) {
+                    for (int j = 0; j < 12; j++) {
+                        if (components[i][j].getComponentType() == ComponentType.SHIELD) {
+                            Shield shield = (Shield) components[i][j];
+                            if (shield.canShield(hit.getDirection().getValue())) {
+                                return 0;
+                            }
+                        }
+                    }
+                }
+                return -1;
+            case LARGEMETEOR:
+                if (component.getComponentType() == ComponentType.SINGLE_CANNON &&
+                        component.getClockwiseRotation() == 4 - hit.getDirection().getValue()) {
+                    return 1;
+                } else if (component.getComponentType() == ComponentType.DOUBLE_CANNON &&
+                        component.getClockwiseRotation() == 4 - hit.getDirection().getValue()) {
+                    return 0;
+                } else {
+                    return -1;
+                }
+            case HEAVYFIRE:
+                return -1;
+            default:
+                throw new IllegalArgumentException("The type of the hit is not valid");
+        }
     }
 
-    /*
-     @brief use a battery and reduce the total number of energy
-     @param row and column of the battery cell component to use
-     @return true if the battery was used, false otherwise
-     @throws IllegalArgumentException if the component at the given row and column is not a battery
+    /**
+     * Use a battery and reduce the total number of energy
+     * @param row row of the battery cell component to use
+     * @param column column of the battery cell component to use
+     * @return true if the battery was used, false otherwise
+     * @throws IllegalArgumentException if the component at the given row and column is not a battery
      */
     public boolean useEnergy(int row, int column) {
         if (components[row][column].getComponentType() == ComponentType.BATTERY) {
@@ -198,46 +261,51 @@ public class SpaceShip {
         }
     }
 
-    /*
-     @brief Check if the ship is valid by checking the validity of every component in the matrix
-     @return true if the ship is valid, false otherwise
+    /**
+     * Check if the ship is valid by checking the validity of every component in the matrix
+     * @return The list of indexes of the invalid components of the ship
      */
-    public boolean checkValidShip() {
+    public List<int[]> getInvalidComponents() {
+        List<int[]> invalidComponents = new ArrayList<>();
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
                 if (c2 != null && !c2.isValid(this)) {
-                    return false;
+                    invalidComponents.add(new int[]{c2.getRow(), c2.getColumn()});
                 }
             }
         }
-        return true;
+        return invalidComponents;
     }
 
-    /*
-     @brief Refresh the exposed connectors of the ship by searching in the components matrix
+    /**
+     * Refresh the exposed connectors of the ship by searching in the components matrix
      */
     public void refreshExposedConnectors() {
         exposedConnectors = 0;
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
                 if (c2 != null) {
-                    exposedConnectors += c2.checkExposedConnectors();
+                    exposedConnectors += c2.getExposedConnectors();
                 }
             }
         }
     }
 
-    /*
-     @brief Get the component at the given row and column
-     @return component at the given row and column
+    /**
+     * Get the component at the given row and column
+     * @param row row of the component to get
+     * @param column column of the component to get
+     * @return component at the given row and column
      */
     public Component getComponent(int row, int column) {
         return components[row][column];
     }
 
-    /*
-     @brief Get the surrounding components of a given component
-     @return ArrayList of surrounding components in the order North, West, South, East
+    /**
+     * Get the surrounding components of a given component
+     * @param row row of the component to get the surrounding components
+     * @param column columnof the component to get the surrounding components
+     * @return ArrayList of surrounding components in the order North, West, South, East
      */
     public ArrayList<Component> getSurroundingComponents(int row, int column) {
         ArrayList<Component> surroundingComponents = new ArrayList<Component>();
@@ -249,10 +317,10 @@ public class SpaceShip {
         return surroundingComponents;
     }
 
-    /*
-     @brief Reserve a component to be placed in the reservedComponents ArrayList
-     @param c the component to reserve
-     @throws IllegalStateException if there are already two components reserved
+    /**
+     * Reserve a component to be placed in the reservedComponents ArrayList
+     * @param c the component to reserve
+     * @throws IllegalStateException if there are already two components reserved
      */
     public void reserveComponent(Component c) {
         if (reservedComponents.size() < 2) {
@@ -266,17 +334,20 @@ public class SpaceShip {
         }
     }
 
-    /*
-     @brief Unreserve a component in the reservedComponents ArrayList; should be called when the component is placed
-     @param c the component to unreserve
+    /**
+     * Unreserve a component in the reservedComponents ArrayList
+     * @apiNote Should only be called when the component is placed
+     * @param c the component to unreserve
      */
     public void unreserveComponent(Component c) {
         reservedComponents.remove(c);
     }
 
-    /*
-     @brief Destroy a component at the given row and column, update the stats of the ship and search if there
-     is component that are no longer connected
+    /**
+     * Destroy a component at the given row and column, update the stats of the ship and search if there is component that are no longer connected
+     * @param row row of the component to destroy
+     * @param column column of the component to destroy
+     * @return List of List of int[] representing the group of disconnected components
      */
     public List<List<int[]>> destroyComponent(int row, int column) {
         Component destroyedComponent = components[row][column];
@@ -358,59 +429,27 @@ public class SpaceShip {
 
                         Component currentComponent = components[currentRow][currentColumn];
 
-                        // Check North connection
-                        if (currentRow + 1 < 12 && components[currentRow + 1][currentColumn] != null && !visited[currentRow + 1][currentColumn]) {
-                            Component northComponent = components[currentRow + 1][currentColumn];
-                            if ((currentComponent.getNorthConnection() == ConnectorType.TRIPLE ||
-                                    northComponent.getSudConnection() == ConnectorType.TRIPLE ||
-                                    currentComponent.getNorthConnection() == northComponent.getSudConnection()) &&
-                                    currentComponent.getNorthConnection() != ConnectorType.EMPTY) {
-                                visited[currentRow + 1][currentColumn] = true;
-                                queue.add(new int[]{currentRow + 1, currentColumn});
+                        for (int face = 0; face < 4; face++) {
+                            int newRow = currentRow + (face == 0 ? 1 : face == 2 ? -1 : 0);
+                            int newColumn = currentColumn + (face == 1 ? -1 : face == 3 ? 1 : 0);
+
+                            if (newRow >= 0 && newRow < 12 && newColumn >= 0 && newColumn < 12 && components[newRow][newColumn] != null && !visited[newRow][newColumn]) {
+                                Component adjacentComponent = components[newRow][newColumn];
+                                if ((currentComponent.getConnection(face) == ConnectorType.TRIPLE ||
+                                        adjacentComponent.getConnection((face + 2) % 4) == ConnectorType.TRIPLE ||
+                                        currentComponent.getConnection(face) == adjacentComponent.getConnection((face + 2) % 4)) &&
+                                        currentComponent.getConnection(face) != ConnectorType.EMPTY) {
+                                    visited[newRow][newColumn] = true;
+                                    queue.add(new int[]{newRow, newColumn});
+                                }
                             }
                         }
-
-                        // Check West connection
-                        if (currentColumn - 1 >= 0 && components[currentRow][currentColumn - 1] != null && !visited[currentRow][currentColumn - 1]) {
-                            Component westComponent = components[currentRow][currentColumn - 1];
-                            if ((currentComponent.getWestConnection() == ConnectorType.TRIPLE ||
-                                    westComponent.getEastConnection() == ConnectorType.TRIPLE ||
-                                    currentComponent.getWestConnection() == westComponent.getEastConnection()) &&
-                                    currentComponent.getWestConnection() != ConnectorType.EMPTY) {
-                                visited[currentRow][currentColumn - 1] = true;
-                                queue.add(new int[]{currentRow, currentColumn - 1});
-                            }
-                        }
-
-                        // Check South connection
-                        if (currentRow - 1 >= 0 && components[currentRow - 1][currentColumn] != null && !visited[currentRow - 1][currentColumn]) {
-                            Component southComponent = components[currentRow - 1][currentColumn];
-                            if ((currentComponent.getSudConnection() == ConnectorType.TRIPLE ||
-                                    southComponent.getNorthConnection() == ConnectorType.TRIPLE ||
-                                    currentComponent.getSudConnection() == southComponent.getNorthConnection()) &&
-                                    currentComponent.getSudConnection() != ConnectorType.EMPTY) {
-                                visited[currentRow - 1][currentColumn] = true;
-                                queue.add(new int[]{currentRow - 1, currentColumn});
-                            }
-                        }
-
-                        // Check East connection
-                        if (currentColumn + 1 < 12 && components[currentRow][currentColumn + 1] != null && !visited[currentRow][currentColumn + 1]) {
-                            Component eastComponent = components[currentRow][currentColumn + 1];
-                            if ((currentComponent.getEastConnection() == ConnectorType.TRIPLE ||
-                                    eastComponent.getWestConnection() == ConnectorType.TRIPLE ||
-                                    currentComponent.getEastConnection() == eastComponent.getWestConnection()) &&
-                                    currentComponent.getEastConnection() != ConnectorType.EMPTY) {
-                                visited[currentRow][currentColumn + 1] = true;
-                                queue.add(new int[]{currentRow, currentColumn + 1});
-                            }
-                        }
-
                     }
                     disconnectedComponents.add(disconnectedComponent);
                 }
             }
         }
+        // TODO: check witch group of disconnected components are still valid
         return disconnectedComponents;
     }
 }
