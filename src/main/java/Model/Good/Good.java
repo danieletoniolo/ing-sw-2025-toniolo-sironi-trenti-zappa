@@ -3,7 +3,7 @@ package Model.Good;
 public class Good {
     private GoodType color;
 
-    Good(GoodType color) {
+    public Good(GoodType color) {
         this.color = color;
     }
 

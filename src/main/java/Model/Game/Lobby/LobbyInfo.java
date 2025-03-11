@@ -10,7 +10,7 @@ public class LobbyInfo {
     private final int totalPlayers;
     private int numberOfPlayersEntered;
 
-    LobbyInfo(String name, int totalPlayers) {
+    public LobbyInfo(String name, int totalPlayers) {
         this.numberOfPlayersEntered = 0;
         this.totalPlayers = totalPlayers;
         this.name = name;
