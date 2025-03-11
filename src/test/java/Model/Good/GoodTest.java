@@ -1,46 +1,42 @@
 package Model.Good;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
+import java.util.Random;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class GoodTest {
     Good good;
+    Random random = new Random();
 
     @BeforeEach
     void setUp() {
         good = new Good(GoodType.BLUE);
-        assertNotNull(good, "Variabile non dichiarata correttamente");
+        assertNotNull(good);
     }
 
     @Test
     void testGetColor() {
-        assertTrue(Arrays.asList(GoodType.values()).contains(good.getColor()), "Il colore restituito non è valido");
+        assertTrue(Arrays.asList(GoodType.values()).contains(good.getColor()));
     }
 
     @Test
     void testGetValue() {
-        assertEquals(good.getColor().getValue(), good.getValue(), "Il valore del good non è corretto");
+        assertEquals(good.getColor().getValue(), good.getValue());
     }
 
-    /*
-    TEST GENERICO
+    @RepeatedTest(10)
+    void testRandomizedGoodType() {
+        GoodType[] values = GoodType.values();
+        GoodType randomType = values[random.nextInt(values.length)];
+        System.out.println(randomType);
+        Good good = new Good(randomType);
 
-    @ParameterizedTest
-    @EnumSource(GoodType.class)
-    void testGetColor(GoodType color) {
-        good = new Good(color);
-        assertNotNull(good, "Variabile non dichiarata correttamente");
-        assertTrue(Arrays.asList(GoodType.values()).contains(good.getColor()), "Il colore restituito non è valido");
+        assertNotNull(good.getColor());
+        assertEquals(randomType, good.getColor());
+        assertEquals(randomType.getValue(), good.getValue());
     }
-
-    @ParameterizedTest
-    @EnumSource(GoodType.class)
-    void testGetValue(GoodType color) {
-        good = new Good(color);
-        assertNotNull(good, "Variabile non dichiarata correttamente");
-        assertEquals(color.getValue(), good.getValue(), "Il valore del good non è corretto");
-    }
-    */
 }
