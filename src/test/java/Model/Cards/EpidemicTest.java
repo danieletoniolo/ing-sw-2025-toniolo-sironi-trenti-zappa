@@ -26,5 +26,6 @@ class EpidemicTest {
 
     @Test
     void apply() {
+
     }
 }

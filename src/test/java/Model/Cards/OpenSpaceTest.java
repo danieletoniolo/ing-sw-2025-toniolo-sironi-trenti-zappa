@@ -25,5 +25,6 @@ class OpenSpaceTest {
 
     @Test
     void apply() {
+
     }
 }
