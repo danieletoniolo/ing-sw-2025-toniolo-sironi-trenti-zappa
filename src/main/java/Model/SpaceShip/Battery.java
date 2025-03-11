@@ -19,7 +19,7 @@ public class Battery extends Component {
     /**
      * Remove an energy from the total available for the component
      */
-    public void removeEnergy() {
+    public void removeEnergy() throws IllegalStateException {
         if (energyNumber > 0) {
             energyNumber--;
         } else {
