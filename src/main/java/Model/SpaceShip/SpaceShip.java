@@ -345,6 +345,24 @@ public class SpaceShip {
     }
 
     /**
+     * Place a component at the given row and column to the ship
+     * @param c the component to place
+     * @param row the row of the component to place
+     * @param column the column of the component to place
+     * @throws IllegalStateException if the component is not connected
+     */
+    public void placeComponent(Component c, int row, int column) throws IllegalStateException {
+        components[row][column] = c;
+        if (components[row][column].isConnected(row, column)) {
+            reservedComponents.remove(c);
+            components[row][column].setRow(row);
+            components[row][column].setColumn(column);
+        } else {
+            throw new IllegalStateException("The component at the given row and column are not connected");
+        }
+    }
+
+    /**
      * Destroy a component at the given row and column, update the stats of the ship and search if there is component that are no longer connected
      * @param row row of the component to destroy
      * @param column column of the component to destroy

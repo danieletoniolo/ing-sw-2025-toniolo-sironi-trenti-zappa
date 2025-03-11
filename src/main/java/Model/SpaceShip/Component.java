@@ -113,10 +113,12 @@ public abstract class Component {
 
     /**
      * Check if the component is connected to the ship
+     * @param row The row of the component
+     * @param column The column of the component
      * @apiNote Should be called when a component is added to the ship
      * @return true if the component is connected to the ship, false otherwise
      */
-    public boolean isConnected() {
+    public boolean isConnected(int row, int column) {
         ArrayList<Component> components =  ship.getSurroundingComponents(row, column);
         for (Component c : components) {
             if (c != null) {
