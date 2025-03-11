@@ -14,7 +14,7 @@ public class PlayerData {
 
     private boolean disconnected;
 
-    PlayerData(String username, PlayerColor color, SpaceShip ship) {
+    public PlayerData(String username, PlayerColor color, SpaceShip ship) {
         this.username = username;
         this.color = color;
         this.ship = ship;
@@ -25,34 +25,66 @@ public class PlayerData {
         this.disconnected = false;
     }
 
+    /**
+     * Get the username of the player
+     * @return the username of the player
+     */
     public String getUsername() {
         return this.username;
     }
 
+    /**
+     * Get the color of the player
+     * @return the color of the player
+     */
     public PlayerColor getColor() {
         return this.color;
     }
 
+    /**
+     * Get the steps of the player
+     * @return the steps of the player
+     */
     public int getSteps() {
         return this.steps;
     }
 
+    /**
+     * Get the coins of the player
+     * @return the coins of the player
+     */
     public int getCoins() {
         return this.coins;
     }
 
+    /**
+     * Get the laps of the player
+     * @return the laps of the player
+     */
     public int getNumberOfLaps(int numberOfCells) {
         return (int) (this.steps % numberOfCells);
     }
 
+    /**
+     * Get the leader of the game
+     * @return the leader of the game
+     */
     public boolean isLeader() {
         return this.leader;
     }
 
+    /**
+     * Get if the player is disconnected
+     * @return the status of the connection of the player
+     */
     public boolean isDisconnected() {
         return this.disconnected;
     }
 
+    /**
+     * Get if the player has given up
+     * @return the ship of the player
+     */
     public boolean hasGivenUp() {
         return this.gaveUp;
     }
@@ -73,6 +105,10 @@ public class PlayerData {
         this.gaveUp = gaveUp;
     }
 
+    /**
+     * Set the disconnected status of the player
+     * @param disconnected
+     */
     public void setDisconnected(boolean disconnected) {
         this.disconnected = disconnected;
     }

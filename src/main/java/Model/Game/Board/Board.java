@@ -13,8 +13,6 @@ import java.util.Stack;
 public class Board {
     private static final int numberOfDecks = 4;
     private static final int cardsPerDeck = 3;
-//    private static final int numberOfFirstLevelCardsPerDeck = 1;
-//    private static final int numberOfSecondLevelCardsPerDeck = 2;
 
     private final Level level;
     private final int numberOfCells;
@@ -28,7 +26,7 @@ public class Board {
     private final PlayerData green;
     private final PlayerData yellow;
 
-    Board(Level level, PlayerData blue, PlayerData red, PlayerData green, PlayerData yellow) {
+    public Board(Level level, PlayerData blue, PlayerData red, PlayerData green, PlayerData yellow) {
         this.level = level;
         if (!level.equals(Level.LEARNING)) {
             for (int i = 0; i < numberOfDecks; i++)
@@ -42,7 +40,7 @@ public class Board {
                 this.numberOfCells = 24;
                 break;
             default:
-                this.numberOfCells = -1; // Da capire in caso come gestirlo
+                this.numberOfCells = -1;
                 break;
         }
         this.shuffledDeck = new Stack<>();
@@ -52,21 +50,38 @@ public class Board {
         this.yellow = yellow;
     }
 
-    // DA METTERE NEL UML -> Metodi privati in UML?
+    /**
+     * Extracts and removes a random card from the provided list.
+     * @param cards the list of cards to select from
+     * @return the randomly selected card that has been removed from the list
+     */
     private Card extractRandomElementFromList(ArrayList<Card> cards) {
         Random random = new Random();
         int index = random.nextInt(cards.size());
         return cards.remove(index);
     }
 
+    /**
+     * Retrieves the level of the board.
+     * @return the board level
+     */
     public Level getBoardLevel() {
         return this.level;
     }
 
+    /**
+     * Retrieves the current number of flight days.
+     * @return the number of flight days
+     */
     public int getFlightDays() {
         return this.flightDays;
     }
 
+    /**
+     * Retrieves the player data associated with the specified player color.
+     * @param playerColor the color of the player to retrieve
+     * @return the player data for the specified color, or null if the color is not recognized
+     */
     public PlayerData getPlayer(PlayerColor playerColor) {
         return switch (playerColor) {
             case BLUE -> this.blue;
@@ -77,16 +92,32 @@ public class Board {
         };
     }
 
+    /**
+     * Retrieves the deck at the specified index if it is pickable.
+     * @param index the index of the deck to retrieve
+     * @return the deck at the specified index
+     * @throws IllegalStateException if the deck at the specified index is not pickable
+     */
     public Deck getDeck(int index) throws IllegalStateException {
         if (!this.decks[index].isPickable())
             throw new IllegalStateException("Deck is not pickable");
         return this.decks[index];
     }
 
+    /**
+     * Retrieves the number of cells on the board.
+     * @return the number of cells
+     */
     public int getNumberOfCells() {
         return this.numberOfCells;
     }
 
+    /**
+     * Creates the decks for the board using the provided cards.
+     * @param cardsFirstLevel the list of cards for the first level
+     * @param cardsSecondLevel the list of cards for the second level
+     * @throws IllegalStateException if the board level is set to learning
+     */
     public void createDecks(ArrayList<Card> cardsFirstLevel, ArrayList<Card> cardsSecondLevel) throws IllegalStateException {
         if (this.level.equals(Level.LEARNING))
             throw new IllegalStateException("Cannot create decks at learning level");
@@ -102,15 +133,26 @@ public class Board {
         }
     }
 
+    /**
+     * Shuffles the deck of cards.
+     */
     public void shuffleDeck() {
         Collections.shuffle(this.shuffledDeck);
     }
 
+    /**
+     * Shuffles the provided list of cards.
+     * @param cards the list of cards to shuffle
+     * @return the shuffled list of cards
+     */
     public ArrayList<Card> shuffleDeck(ArrayList<Card> cards) {
         Collections.shuffle(cards);
         return cards;
     }
 
+    /**
+     * Merges the decks into a single shuffled deck.
+     */
     public void mergeDecks() {
         for (Deck deck : this.decks) {
             for (Card card : deck.getCards()) {
@@ -119,12 +161,20 @@ public class Board {
         }
     }
 
+    /**
+     * Draws a card from the shuffled deck.
+     * @return the card drawn from the deck
+     * @throws IllegalStateException if there are no more cards in the deck
+     */
     public Card drawCard() throws IllegalStateException {
         if (this.shuffledDeck.isEmpty())
             throw new IllegalStateException("No more cards in the deck");
         return this.shuffledDeck.pop();
     }
 
+    /**
+     * Increments the number of flight days.
+     */
     public void incrementFlightDays() {
         this.flightDays++;
     }
