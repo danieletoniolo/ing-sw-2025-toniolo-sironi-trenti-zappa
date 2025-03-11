@@ -2,8 +2,10 @@ package Model.Game.Board;
 
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
+import Model.SpaceShip.Component;
 
 import javax.smartcardio.Card;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -19,6 +21,7 @@ public class Board {
 
     private Deck[] decks;
     private final Stack<Card> shuffledDeck;
+    private final ArrayList<Component> tiles;
     private int flightDays;
 
     private final PlayerData blue;
@@ -35,7 +38,7 @@ public class Board {
      * @param yellow the player data for the yellow player
      * @throws IllegalArgumentException if the level is set to an unexpected value
      */
-    public Board(Level level, PlayerData blue, PlayerData red, PlayerData green, PlayerData yellow) throws IllegalArgumentException {
+    public Board(Level level, ArrayList<Component> tiles, PlayerData blue, PlayerData red, PlayerData green, PlayerData yellow) throws IllegalArgumentException {
         this.level = level;
         if (!level.equals(Level.LEARNING)) {
             for (int i = 0; i < numberOfDecks; i++)
@@ -51,6 +54,7 @@ public class Board {
             default:
                 throw new IllegalArgumentException("Unexpected value: " + level);
         }
+        this.tiles = tiles;
         this.shuffledDeck = new Stack<>();
         this.blue = blue;
         this.red = red;
@@ -118,6 +122,16 @@ public class Board {
      */
     public int getNumberOfCells() {
         return this.numberOfCells;
+    }
+
+    /**
+     * Retrieves the tile with the specified ID.
+     * @param ID the ID of the tile to retrieve
+     * @return the tile with the specified ID, or null if no tile with that ID exists
+     */
+    // TODO: non returnare null
+    public Component getTile(int ID) {
+        return this.tiles.stream().filter(k -> k.getID() == ID).findFirst().orElse(null);
     }
 
     /**
