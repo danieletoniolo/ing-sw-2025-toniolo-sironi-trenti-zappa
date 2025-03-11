@@ -7,6 +7,10 @@ public class Epidemic extends Card {
         super(level);
     }
 
+    /**
+     * Get the card type
+     * @return card type
+     */
     @Override
     public CardType getCardType() {
         return CardType.EPIDEMIC;

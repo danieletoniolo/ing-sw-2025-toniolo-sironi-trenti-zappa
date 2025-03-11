@@ -10,36 +10,57 @@ import java.util.List;
 public class Planets extends Card {
     private Good[][] planets;
     private int flightDays;
-    private boolean[] taken;
 
-    public Planets(int level, Good[][] planets, int flightDays) {
+    /**
+     *
+     * @param level level of the card
+     * @param planets matrix for the planets: planets[row] = planet, planets[row][col] = good
+     * @param flightDays number of flight days lost
+     * @throws NullPointerException if planets == null
+     */
+    public Planets(int level, Good[][] planets, int flightDays) throws NullPointerException {
         super(level);
+        if (planets == null || planets.length == 0 || planets[0].length == 0 ) {
+            throw new NullPointerException("planets is null");
+        }
         this.planets = planets;
         this.flightDays = flightDays;
-        taken = new boolean[planets.length];
     }
 
+    /**
+     * Get the number of planets
+     * @return number of planets
+     */
     public int getPlanetNumbers() {
         return planets.length;
     }
 
-    /*
-    @ensures (nPlanet >= planets.size() || nPlanet < 0 || taken[nPlanet]) ? null :
-    @ (\forall Good x; ; (\forall int j; ; planets[nPlanet][j].contains(x) ==> \result.contains(x))
+    /**
+     * Get a list of goods
+     * @param nPlanet number of the planet to visit: 0 = first planet
+     * @return ArrayList of goods that are on the "nPlanet" planet
+     * @throws IndexOutOfBoundsException if nPlanet aut of bounds
      */
-    public /*@ pure @*/ List<Good> getPlanet(int nPlanet) {
-        if (nPlanet < 0 || nPlanet >= planets.length || taken[nPlanet]) {
-            return null;
+    public /*@ pure @*/ List<Good> getPlanet(int nPlanet) throws IndexOutOfBoundsException {
+        if (nPlanet < 0 || nPlanet >= planets.length) {
+            throw new IndexOutOfBoundsException("nPlanet: " + nPlanet + " is out of bounds");
         }
 
-        taken[nPlanet] = true;
         return new ArrayList<>(Arrays.asList(planets[nPlanet]));
     }
 
+    /**
+     * Get the number of flight days lost
+     * @return number of flight days lost
+     */
     public int getFlightDays() {
         return flightDays;
     }
 
+    /**
+     * Get the card type
+     * @return card type
+     */
     @Override
     public CardType getCardType() {
         return CardType.PLANETS;
