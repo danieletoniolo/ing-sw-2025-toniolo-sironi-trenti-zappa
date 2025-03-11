@@ -23,8 +23,10 @@ public class Planets extends Card {
         return planets.length;
     }
 
-    //@ (nPlanet >= planets.size() || nPlanet < 0 || taken[nPlanet]) ? null :
-    //@ (\forall Good x; ; (\forall int j; ; planets[nPlanet][j].contains(x) ==> \result.contains(x))
+    /*
+    @ensures (nPlanet >= planets.size() || nPlanet < 0 || taken[nPlanet]) ? null :
+    @ (\forall Good x; ; (\forall int j; ; planets[nPlanet][j].contains(x) ==> \result.contains(x))
+     */
     public /*@ pure @*/ List<Good> getPlanet(int nPlanet) {
         if (nPlanet < 0 || nPlanet >= planets.length || taken[nPlanet]) {
             return null;

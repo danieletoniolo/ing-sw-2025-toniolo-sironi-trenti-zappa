@@ -26,7 +26,7 @@ public class AbandonedStation extends Card {
         return flightDays;
     }
 
-    private List<Good> getGoods() {
+    public List<Good> getGoods() {
         return goods;
     }
 
