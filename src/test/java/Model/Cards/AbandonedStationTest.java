@@ -1,6 +1,10 @@
 package Model.Cards;
 
 import Model.Good.Good;
+import Model.Good.GoodType;
+import Model.Player.PlayerColor;
+import Model.Player.PlayerData;
+import Model.SpaceShip.SpaceShip;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,17 +15,17 @@ import java.util.ArrayList;
 
 class AbandonedStationTest {
     AbandonedStation card;
-    //PlayerData player;
+    PlayerData player;
     List<Good> goods;
 
     @BeforeEach
     void setUp() {
         goods = new ArrayList<>();
+        goods.add(new Good(GoodType.RED));
+        goods.add(new Good(GoodType.BLUE));
+        assertFalse(goods.contains(null));
         card = new AbandonedStation(2,3,1, goods);
         assertNotNull(card, "Card variable not initialized correctly");
-
-        //player = new PlayerData();
-        //assertNotNull(player, "Player variable not initialized correctly");
     }
 
     @Test
@@ -39,7 +43,21 @@ class AbandonedStationTest {
         assertEquals(1,card.getFlightDays());
     }
 
-    //isPlayed (?)
+    @Test
+    void isPlayed(){
+        assertFalse(card.isPlayed());
+        card.apply(player);
+        assertTrue(card.isPlayed());
+    }
+
+    @Test
+    void getGoods() {
+        List<Good> checkGoods = card.getGoods();
+        assertEquals(goods,checkGoods);
+        assertEquals(2, checkGoods.size());
+        assertEquals(GoodType.RED,checkGoods.get(0).getColor());
+        assertEquals(GoodType.BLUE,checkGoods.get(1).getColor());
+    }
 
     @Test
     void getCardType() {
@@ -48,5 +66,11 @@ class AbandonedStationTest {
 
     @Test
     void apply() {
+        boolean[][] spots = {};
+        SpaceShip ship = new SpaceShip(spots);
+        player = new PlayerData("NAME", PlayerColor.BLUE, ship);
+        assertNotNull(player);
+        card.apply(player);
+        assertTrue(card.isPlayed());
     }
 }

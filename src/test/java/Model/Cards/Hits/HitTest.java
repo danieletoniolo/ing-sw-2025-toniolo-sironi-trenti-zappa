@@ -10,7 +10,7 @@ class HitTest {
 
     @BeforeEach
     void setUp() {
-        hit = new Hit(HitType.HEAVYFIRE, Direction.NORD);
+        hit = new Hit(HitType.HEAVYFIRE, Direction.NORTH);
         assertNotNull(hit, "Hit variable not initialized correctly");
     }
 
@@ -21,6 +21,6 @@ class HitTest {
 
     @Test
     void getDirection() {
-        assertEquals(Direction.NORD, hit.getDirection());
+        assertEquals(Direction.NORTH, hit.getDirection());
     }
 }
