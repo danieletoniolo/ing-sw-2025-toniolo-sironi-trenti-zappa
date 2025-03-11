@@ -1,5 +1,7 @@
 package Model.Player;
 
+import Model.SpaceShip.SpaceShip;
+
 public class PlayerData {
     private final String username;
     private final PlayerColor color;
