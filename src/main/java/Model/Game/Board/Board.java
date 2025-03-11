@@ -26,7 +26,16 @@ public class Board {
     private final PlayerData green;
     private final PlayerData yellow;
 
-    public Board(Level level, PlayerData blue, PlayerData red, PlayerData green, PlayerData yellow) {
+    /**
+     * Create a new board
+     * @param level the level of the board
+     * @param blue the player data for the blue player
+     * @param red the player data for the red player
+     * @param green the player data for the green player
+     * @param yellow the player data for the yellow player
+     * @throws IllegalStateException if the level is set to an unexpected value
+     */
+    public Board(Level level, PlayerData blue, PlayerData red, PlayerData green, PlayerData yellow) throws IllegalStateException {
         this.level = level;
         if (!level.equals(Level.LEARNING)) {
             for (int i = 0; i < numberOfDecks; i++)
@@ -40,8 +49,7 @@ public class Board {
                 this.numberOfCells = 24;
                 break;
             default:
-                this.numberOfCells = -1;
-                break;
+                throw new IllegalStateException("Unexpected value: " + level);
         }
         this.shuffledDeck = new Stack<>();
         this.blue = blue;

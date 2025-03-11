@@ -14,6 +14,12 @@ public class PlayerData {
 
     private boolean disconnected;
 
+    /**
+     * Create a new player
+     * @param username the username of the player
+     * @param color the color of the player
+     * @param ship the ship of the player
+     */
     public PlayerData(String username, PlayerColor color, SpaceShip ship) {
         this.username = username;
         this.color = color;
@@ -89,25 +95,41 @@ public class PlayerData {
         return this.gaveUp;
     }
 
+    /**
+     * Adds the specified number of coins to the player's coin count.
+     * @param coins the number of coins to add
+     */
     public void addCoins(int coins) {
         this.coins += coins;
     }
 
+    /**
+     * Adds the specified number of steps to the player's step count.
+     * @param x the number of steps to add
+     */
     public void addSteps(int x) {
         this.steps += x;
     }
 
+    /**
+     * Set the leader of the game
+     * @param leader the leader of the game
+     */
     public void setLeader(boolean leader) {
         this.leader = leader;
     }
 
+    /**
+     * Set the gave up status of the player
+     * @param gaveUp the gave up status of the player
+     */
     public void setGaveUp(boolean gaveUp) {
         this.gaveUp = gaveUp;
     }
 
     /**
      * Set the disconnected status of the player
-     * @param disconnected
+     * @param disconnected the disconnected status of the player
      */
     public void setDisconnected(boolean disconnected) {
         this.disconnected = disconnected;
