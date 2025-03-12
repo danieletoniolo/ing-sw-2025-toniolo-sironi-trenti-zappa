@@ -2,6 +2,8 @@ package Model.Cards;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,5 +28,12 @@ class OpenSpaceTest {
     @Test
     void apply() {
 
+    }
+
+    @ParameterizedTest
+    @CsvSource({"1", "5", "10"})
+    void testCardLevel(int level) {
+        OpenSpace openSpace = new OpenSpace(level);
+        assertEquals(level, openSpace.getCardLevel());
     }
 }

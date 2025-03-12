@@ -4,12 +4,17 @@ import Model.Cards.Hits.Direction;
 import Model.Cards.Hits.Hit;
 import Model.Cards.Hits.HitType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 class CombatZoneTest {
     CombatZone card;
@@ -59,5 +64,28 @@ class CombatZoneTest {
     @Test
     void apply() {
 
+    }
+
+
+    @ParameterizedTest
+    @CsvSource({"7, 3", "10, 5", "2, 1"})
+    void testRepeatedCombatZoneInitialization(int flightDays, int lost) {
+        List<Hit> hits = Collections.emptyList();
+        CombatZone zone = new CombatZone(flightDays, lost, hits, 1);
+
+        assertEquals(flightDays, zone.getFlightDays());
+        assertEquals(lost, zone.getLost());
+    }
+
+    @RepeatedTest(5)
+    void testRandomizedCombatZone() {
+        Random random = new Random();
+        int flightDays = random.nextInt(card.getFlightDays()) + 1;
+        int lost = random.nextInt(card.getLost()) + 1;
+        List<Hit> hits = Collections.emptyList();
+        CombatZone zone = new CombatZone(flightDays, lost, hits, 1);
+
+        assertEquals(flightDays, zone.getFlightDays());
+        assertEquals(lost, zone.getLost());
     }
 }
