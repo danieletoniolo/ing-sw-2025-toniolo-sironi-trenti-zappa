@@ -4,12 +4,15 @@ import Model.Good.Good;
 import Model.Good.GoodType;
 import Model.Player.PlayerData;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 class SmugglersTest {
     Smugglers card;
@@ -68,5 +71,14 @@ class SmugglersTest {
         assertFalse(card.isPlayed());
         card.apply(player);
         //assertTrue(card.isPlayed());
+    }
+
+
+    @RepeatedTest(3)
+    void testRandomGoodsLoss() {
+        Random random = new Random();
+        int goodsLoss = random.nextInt(card.getGoodsLoss()) + 1;
+        Smugglers smugglers = new Smugglers(Collections.emptyList(), goodsLoss, 1, 5, 3);
+        assertEquals(goodsLoss, smugglers.getGoodsLoss());
     }
 }

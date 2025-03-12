@@ -3,10 +3,12 @@ package Model.Cards;
 import Model.Cards.Hits.Hit;
 import Model.Player.PlayerData;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -61,5 +63,16 @@ class SlaversTest {
         assertFalse(card.isPlayed());
         card.apply(player);
         //assertTrue(card.isPlayed());
+    }
+
+
+    @RepeatedTest(3)
+    void testRandomCrewLostAndReward() {
+        Random random = new Random();
+        int crewLost = random.nextInt(card.getCrewLost()) + 1;
+        int credit = random.nextInt(card.getReward()) + 1;
+        Slavers slavers = new Slavers(crewLost, credit, 1, 4, 3);
+        assertEquals(crewLost, slavers.getCrewLost());
+        assertEquals(credit, slavers.getReward());
     }
 }

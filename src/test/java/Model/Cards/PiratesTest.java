@@ -6,10 +6,13 @@ import Model.Cards.Hits.HitType;
 import Model.Player.PlayerData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 class PiratesTest {
@@ -72,5 +75,13 @@ class PiratesTest {
         assertFalse(card.isPlayed());
         card.apply(player);
         //assertTrue(card.isPlayed());
+    }
+
+
+    @ParameterizedTest
+    @CsvSource({"10, 1", "7, 2", "2, 3"})
+    void testCreditValue(int credit, int level) {
+        Pirates pirates = new Pirates(Collections.emptyList(), credit, level, 5, 3);
+        assertEquals(credit, pirates.getCredit());
     }
 }
