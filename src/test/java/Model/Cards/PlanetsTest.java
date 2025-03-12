@@ -17,9 +17,10 @@ class PlanetsTest {
     void setUp() {
         planets = new Good[][]{
                 {new Good(GoodType.BLUE), new Good(GoodType.RED)},
-                {new Good(GoodType.YELLOW), new Good(GoodType.GREEN)},
+                {new Good(GoodType.YELLOW)},
         };
         card = new Planets(2, planets, 3);
+        assertNotNull(card);
     }
 
     @Test
@@ -40,9 +41,27 @@ class PlanetsTest {
         assertEquals(GoodType.RED, check.get(1).getColor());
 
         List<Good> check1 = card.getPlanet(1);
-        assertEquals(2, check1.size());
-        assertEquals(GoodType.YELLOW, check1.get(0).getColor());
-        assertEquals(GoodType.GREEN, check1.get(1).getColor());
+        assertEquals(1, check1.size());
+        assertEquals(GoodType.YELLOW, check1.getFirst().getColor());
+    }
+
+    @Test
+    void testGetPlanetValid() {
+        List<Good> goods = card.getPlanet(1);
+        assertNotNull(goods);
+        assertEquals(1, goods.size());
+    }
+
+    @Test
+    void testGetPlanetInvalidIndex() {
+        assertNull(card.getPlanet(-1));
+        assertNull(card.getPlanet(3));
+    }
+
+    @Test
+    void testGetPlanetTwice() {
+        assertNotNull(card.getPlanet(0));
+        assertNull(card.getPlanet(0));
     }
 
     @Test
