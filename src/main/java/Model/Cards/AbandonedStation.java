@@ -3,6 +3,7 @@ package Model.Cards;
 import Model.Good.Good;
 import Model.Player.PlayerData;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AbandonedStation extends Card {
@@ -72,7 +73,18 @@ public class AbandonedStation extends Card {
     }
 
     @Override
-    public void apply(PlayerData player) {
-        played = true;
+    public void entry(ArrayList<PlayerData> players) {
+        //TODO
+    }
+
+    @Override
+    public void execute(PlayerData player) {
+        //TODO
+
+    }
+
+    @Override
+    public void exit() {
+        //TODO
     }
 }

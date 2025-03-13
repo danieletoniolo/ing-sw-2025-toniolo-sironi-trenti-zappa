@@ -2,9 +2,10 @@ package Model.Cards;
 
 import Model.Player.PlayerData;
 
-public abstract class Card {
-    private int level;
+import java.util.ArrayList;
 
+public abstract class Card {
+    private final int level;
     /**
      *
      * @param level level of the card
@@ -27,5 +28,9 @@ public abstract class Card {
         return level;
     }
 
-    public abstract void apply(PlayerData player);
+    public abstract void entry(ArrayList<PlayerData> players);
+
+    public abstract void execute(PlayerData player);
+
+    public abstract void exit();
 }

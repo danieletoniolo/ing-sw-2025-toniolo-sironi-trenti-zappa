@@ -3,6 +3,7 @@ package Model.Cards;
 import Model.Cards.Hits.Hit;
 import Model.Player.PlayerData;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CombatZone extends Card {
@@ -63,7 +64,18 @@ public class CombatZone extends Card {
     }
 
     @Override
-    public void apply(PlayerData player) {
+    public void entry(ArrayList<PlayerData> players) {
+        //TODO
+    }
 
+    @Override
+    public void execute(PlayerData player) {
+        //TODO
+
+    }
+
+    @Override
+    public void exit() {
+        //TODO
     }
 }

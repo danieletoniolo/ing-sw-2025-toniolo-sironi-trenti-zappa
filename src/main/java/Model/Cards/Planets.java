@@ -67,7 +67,18 @@ public class Planets extends Card {
     }
 
     @Override
-    public void apply(PlayerData player) {
+    public void entry(ArrayList<PlayerData> players) {
+        //TODO
+    }
 
+    @Override
+    public void execute(PlayerData player) {
+        //TODO
+
+    }
+
+    @Override
+    public void exit() {
+        //TODO
     }
 }
