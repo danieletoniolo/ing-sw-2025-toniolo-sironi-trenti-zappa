@@ -1,9 +1,5 @@
 package Model.Cards;
 
-import Model.Player.PlayerData;
-
-import java.util.ArrayList;
-
 public class Epidemic extends Card {
     public Epidemic(int level) {
         super(level);
@@ -18,19 +14,4 @@ public class Epidemic extends Card {
         return CardType.EPIDEMIC;
     }
 
-    @Override
-    public void entry(ArrayList<PlayerData> players) {
-        //TODO
-    }
-
-    @Override
-    public void execute(PlayerData player) {
-        //TODO
-
-    }
-
-    @Override
-    public void exit() {
-        //TODO
-    }
 }

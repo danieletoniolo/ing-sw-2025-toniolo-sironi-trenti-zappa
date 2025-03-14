@@ -1,9 +1,5 @@
 package Model.Cards;
 
-import Model.Player.PlayerData;
-
-import java.util.ArrayList;
-
 public abstract class Card {
     private final int level;
     /**
@@ -27,10 +23,4 @@ public abstract class Card {
     public int getCardLevel() {
         return level;
     }
-
-    public abstract void entry(ArrayList<PlayerData> players);
-
-    public abstract void execute(PlayerData player);
-
-    public abstract void exit();
 }

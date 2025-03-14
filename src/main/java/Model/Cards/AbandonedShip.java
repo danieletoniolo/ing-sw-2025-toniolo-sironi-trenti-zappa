@@ -1,9 +1,5 @@
 package Model.Cards;
 
-import Model.Player.PlayerData;
-
-import java.util.ArrayList;
-
 public class AbandonedShip extends Card {
     private int crewRequired;
     private int flightDays;
@@ -67,19 +63,4 @@ public class AbandonedShip extends Card {
     }
 
 
-    @Override
-    public void entry(ArrayList<PlayerData> players) {
-        //TODO
-    }
-
-    @Override
-    public void execute(PlayerData player) {
-        //TODO
-
-    }
-
-    @Override
-    public void exit() {
-        //TODO
-    }
 }

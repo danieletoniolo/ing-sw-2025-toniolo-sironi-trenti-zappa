@@ -1,9 +1,5 @@
 package Model.Cards;
 
-import Model.Player.PlayerData;
-
-import java.util.ArrayList;
-
 public class Slavers extends Enemies {
     private int crewLost;
     private int credit;
@@ -47,19 +43,4 @@ public class Slavers extends Enemies {
         return CardType.SLAVERS;
     }
 
-    @Override
-    public void entry(ArrayList<PlayerData> players) {
-        //TODO
-    }
-
-    @Override
-    public void execute(PlayerData player) {
-        //TODO
-
-    }
-
-    @Override
-    public void exit() {
-        //TODO
-    }
 }

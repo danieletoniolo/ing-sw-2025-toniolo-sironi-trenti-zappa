@@ -1,9 +1,7 @@
 package Model.Cards;
 
 import Model.Good.Good;
-import Model.Player.PlayerData;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Smugglers extends Enemies {
@@ -53,19 +51,4 @@ public class Smugglers extends Enemies {
         return CardType.SMUGGLERS;
     }
 
-    @Override
-    public void entry(ArrayList<PlayerData> players) {
-        //TODO
-    }
-
-    @Override
-    public void execute(PlayerData player) {
-        //TODO
-
-    }
-
-    @Override
-    public void exit() {
-        //TODO
-    }
 }

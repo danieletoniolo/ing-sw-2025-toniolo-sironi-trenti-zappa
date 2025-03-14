@@ -1,9 +1,7 @@
 package Model.Cards;
 
 import Model.Cards.Hits.Hit;
-import Model.Player.PlayerData;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Pirates extends Enemies {
@@ -53,19 +51,4 @@ public class Pirates extends Enemies {
         return CardType.PIRATES;
     }
 
-    @Override
-    public void entry(ArrayList<PlayerData> players) {
-        //TODO
-    }
-
-    @Override
-    public void execute(PlayerData player) {
-        //TODO
-
-    }
-
-    @Override
-    public void exit() {
-        //TODO
-    }
 }

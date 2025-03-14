@@ -1,7 +1,6 @@
 package Model.Cards;
 
 import Model.Good.Good;
-import Model.Player.PlayerData;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,19 +65,4 @@ public class Planets extends Card {
         return CardType.PLANETS;
     }
 
-    @Override
-    public void entry(ArrayList<PlayerData> players) {
-        //TODO
-    }
-
-    @Override
-    public void execute(PlayerData player) {
-        //TODO
-
-    }
-
-    @Override
-    public void exit() {
-        //TODO
-    }
 }
