@@ -3,8 +3,8 @@ package Model.SpaceShip;
 public class Cannon extends Component{
     private final int cannonStrength;
 
-    public Cannon(int row, int column, ConnectorType[] connectors, int cannonStrength) {
-        super(row, column, connectors);
+    public Cannon(int ID, int row, int column, ConnectorType[] connectors, int cannonStrength) {
+        super(ID, row, column, connectors);
         this.cannonStrength = cannonStrength;
     }
 

@@ -10,8 +10,8 @@ public class Storage extends Component{
     private int goodsValue;
     private ArrayList<Good> goods;
 
-    public Storage(int row, int column, ConnectorType[] connectors, boolean dangerous, int goodsCapacity) {
-        super(row, column, connectors);
+    public Storage(int ID, int row, int column, ConnectorType[] connectors, boolean dangerous, int goodsCapacity) {
+        super(ID, row, column, connectors);
         this.dangerous = dangerous;
         this.goodsCapacity = goodsCapacity;
         this.goodsValue = 0;
@@ -53,6 +53,20 @@ public class Storage extends Component{
         } else {
             // TODO: understand what to do in this case
             throw new IllegalStateException("Good not found in storage");
+        }
+    }
+
+    /**
+     * Exchange goods in the storage with the given goods
+     * @param goodsToAdd Goods to add in the storage
+     * @param goodsToRemove Goods to remove from the storage
+     */
+    public void exchangeGood(ArrayList<Good> goodsToAdd, ArrayList<Good> goodsToRemove) {
+        for (Good good : goodsToAdd) {
+            removeGood(good);
+        }
+        for (Good good : goodsToRemove) {
+            addGood(good);
         }
     }
 

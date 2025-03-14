@@ -1,8 +1,8 @@
 package Model.SpaceShip;
 
 public class LifeSupportPurple extends Component {
-    public LifeSupportPurple(int row, int column, ConnectorType[] connectors) {
-        super(row, column, connectors);
+    public LifeSupportPurple(int ID, int row, int column, ConnectorType[] connectors) {
+        super(ID, row, column, connectors);
     }
 
     /**

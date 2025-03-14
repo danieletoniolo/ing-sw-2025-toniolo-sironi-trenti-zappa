@@ -9,8 +9,8 @@ public class Cabin extends Component {
     private boolean purpleAlien;
     private boolean brownAlien;
 
-    public Cabin(int row, int column, ConnectorType[] connectors) {
-        super(row, column, connectors);
+    public Cabin(int ID, int row, int column, ConnectorType[] connectors) {
+        super(ID, row, column, connectors);
         crewNumber = 0;
         purpleLifeSupport = false;
         brownLifeSupport = false;

@@ -16,11 +16,11 @@ public abstract class Component {
 
     private int clockwiseRotation;
 
-    public Component(int ID, ConnectorType[] connectors) {
+    public Component(int ID, int row, int column, ConnectorType[] connectors) {
         this.ID = ID;
         this.ship = null;
-        this.row = -1;
-        this.column = -1;
+        this.row = row;
+        this.column = column;
         this.fixed = false;
         this.connectors = connectors;
         this.clockwiseRotation = 0;

@@ -3,8 +3,8 @@ package Model.SpaceShip;
 public class Battery extends Component {
     private int energyNumber;
 
-    public Battery(int row, int column, ConnectorType[] connectors, int energyNumber) {
-        super(row, column, connectors);
+    public Battery(int ID, int row, int column, ConnectorType[] connectors, int energyNumber) {
+        super(ID, row, column, connectors);
         this.energyNumber = energyNumber;
     }
 
