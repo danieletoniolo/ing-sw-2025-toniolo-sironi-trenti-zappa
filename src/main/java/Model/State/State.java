@@ -7,12 +7,14 @@ import java.util.ArrayList;
 
 public abstract class State {
     private ArrayList<Pair<PlayerData, Boolean>> players;
+    private Boolean played;
 
     /**
      * Constructor for State
      */
-    public State() {
-        players = new ArrayList<>();
+    public State(ArrayList<Pair<PlayerData, Boolean>> players) {
+        this.players = players;
+        this.played = false;
     }
 
 

@@ -72,6 +72,14 @@ public class PlayerData {
     }
 
     /**
+     * Get the ship of the player
+     * @return the ship of the player
+     */
+    public SpaceShip getSpaceShip() {
+        return this.ship;
+    }
+
+    /**
      * Get the leader of the game
      * @return the leader of the game
      */
