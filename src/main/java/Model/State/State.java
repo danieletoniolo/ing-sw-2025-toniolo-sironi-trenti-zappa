@@ -6,7 +6,7 @@ import org.javatuples.Pair;
 import java.util.ArrayList;
 
 public abstract class State {
-    private ArrayList<Pair<PlayerData, Boolean>> players;
+    protected ArrayList<Pair<PlayerData, Boolean>> players;
     private Boolean played;
 
     /**
@@ -37,9 +37,8 @@ public abstract class State {
 
     /**
      * Execute at the beginning of the state
-     * @param players List of players
      */
-    public abstract void entry(ArrayList<PlayerData> players);
+    public abstract void entry();
 
     /**
      * Make the player play in the state
@@ -58,7 +57,7 @@ public abstract class State {
      * Check if all players have played
      * @throws IllegalStateException if not all players have played
      */
-    public void exit(PlayerData player) throws IllegalStateException {
+    public void exit() throws IllegalStateException {
         for (Pair<PlayerData, Boolean> p : players) {
             if (!p.getValue1()) {
                 throw new IllegalStateException("Not all players have played");
