@@ -12,8 +12,11 @@ public abstract class State {
     /**
      * Constructor for State
      */
-    public State(ArrayList<Pair<PlayerData, Boolean>> players) {
-        this.players = players;
+    public State(ArrayList<PlayerData> players) {
+        this.players = new ArrayList<>();
+        for (PlayerData player : players) {
+            this.players.add(new Pair<>(player, false));
+        }
         this.played = false;
     }
 
@@ -33,14 +36,10 @@ public abstract class State {
     }
 
     /**
-     * Initialize the players in the state with the given order and set their turn to false (not played yet)
-     * @param players ArrayList of PlayerData to be added to the state in the order they are in the board
+     * Execute at the beginning of the state
+     * @param players List of players
      */
-    public void entry(ArrayList<PlayerData> players) {
-        for (PlayerData player : players) {
-            this.players.add(new Pair<>(player, false));
-        }
-    }
+    public abstract void entry(ArrayList<PlayerData> players);
 
     /**
      * Make the player play in the state
@@ -59,7 +58,7 @@ public abstract class State {
      * Check if all players have played
      * @throws IllegalStateException if not all players have played
      */
-    public void exit(PlayerData player) {
+    public void exit(PlayerData player) throws IllegalStateException {
         for (Pair<PlayerData, Boolean> p : players) {
             if (!p.getValue1()) {
                 throw new IllegalStateException("Not all players have played");
