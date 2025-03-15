@@ -293,6 +293,22 @@ public class SpaceShip {
     }
 
     /**
+     * Calculate the exposed connectors of the ship by searching in the components matrix
+     * @return The number of the exposed connectors
+     */
+    public int getExposedConnectors() {
+        exposedConnectors = 0;
+        for (Component[] c1 : components) {
+            for (Component c2 : c1) {
+                if (c2 != null) {
+                    exposedConnectors += c2.getExposedConnectors();
+                }
+            }
+        }
+        return exposedConnectors;
+    }
+
+    /**
      * Get the component at the given row and column
      * @param row row of the component to get
      * @param column column of the component to get

@@ -1,0 +1,26 @@
+package Model.State;
+
+import Model.Player.PlayerData;
+import org.javatuples.Pair;
+
+import java.util.ArrayList;
+
+public class StardustState extends State {
+    private int numberExposedConnectors;
+
+    /**
+     * Constructor for StardustState
+     * @param players List of players in the current order to play
+     */
+    public StardustState(ArrayList<PlayerData> players) {
+        super(players);
+    }
+
+    @Override
+    public void entry(){
+        for(Pair<PlayerData, Boolean> p : players){
+            numberExposedConnectors = p.getValue0().getSpaceShip().getExposedConnectors();
+            p.getValue0().addSteps(-numberExposedConnectors);
+        }
+    }
+}

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class EpidemicState extends State {
     private ArrayList<Component> surroundingComponents;
     private Component component;
-    private boolean[][] check;
+    private Boolean[][] check;
 
     /**
      * Constructor for EpidemicState
@@ -23,12 +23,14 @@ public class EpidemicState extends State {
 
     @Override
     public void entry() {
-        check = new boolean[12][12];
+        check = new Boolean[12][12];
         for (Pair<PlayerData , Boolean> p : players) {
             for(int i = 0; i < 12; i++){
                 for(int j = 0; j < 12; j++){
                     if(p.getValue0().getSpaceShip().getComponent(i, j) != null){
                         check[i][j] = false;
+                    } else {
+                        check[i][j] = null;
                     }
                 }
             }
@@ -72,28 +74,4 @@ public class EpidemicState extends State {
             }
         }
     }
-
-    /**
-     * Marks the player as played
-     * @param player PlayerData of the player to play
-     */
-    @Override
-    public void execute(PlayerData player) {
-        for (Pair<PlayerData , Boolean> p : players) {
-            if (p.getValue0().equals(player)) {
-                p.setAt1(true);
-                break;
-            }
-        }
-    }
-
-    /**
-     * Exits the state and removes the flight days from the players that have selected a planet
-     * If a player has not selected a planet, the flight days are not removed
-     */
-    @Override
-    public void exit() {
-        super.exit();
-    }
-
 }
