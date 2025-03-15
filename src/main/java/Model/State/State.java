@@ -22,6 +22,20 @@ public abstract class State {
 
 
     /**
+     * Set the status of the player
+     * @param player PlayerData of the player to set the status
+     * @return Boolean of the status of the player
+     */
+    private void setStatusPlayer(PlayerData player, Boolean status) {
+        for (Pair<PlayerData, Boolean> p : players) {
+            if (p.getValue0().equals(player)) {
+                p.setAt1(status);
+                break;
+            }
+        }
+    }
+
+    /**
      * Get the player who has not played yet (current player to play)
      * @return PlayerData of the current player that is playing
      * @throws IllegalStateException if all players have played
@@ -36,21 +50,24 @@ public abstract class State {
     }
 
     /**
+     * Make the player playing in the state
+     * @param player PlayerData of the player which is playing
+     */
+    public void play(PlayerData player) {
+        this.setStatusPlayer(player, null);
+    }
+
+    /**
      * Execute at the beginning of the state
      */
-    public abstract void entry();
+    public void entry() {};
 
     /**
      * Make the player play in the state
      * @param player PlayerData of the player to play
      */
     public void execute(PlayerData player) {
-        for (Pair<PlayerData, Boolean> p : players) {
-            if (p.getValue0().equals(player)) {
-                p.setAt1(true);
-                break;
-            }
-        }
+        this.setStatusPlayer(player, true);
     }
 
     /**
