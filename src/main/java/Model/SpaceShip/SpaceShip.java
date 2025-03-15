@@ -15,9 +15,9 @@ public class SpaceShip {
     private List<Component> lostComponents;
     private ArrayList<Component> reservedComponents;
 
-    private ArrayList<Storage> storages;
-    private ArrayList<Battery> batteries;
-    private ArrayList<Cabin> cabins;
+    private Map<Integer, Storage> storages;
+    private Map<Integer, Battery> batteries;
+    private Map<Integer, Cabin> cabins;
 
     private int singleEnginesStrength;
     private int doubleEnginesStrength;
@@ -185,6 +185,14 @@ public class SpaceShip {
                 }
             }
         }
+    }
+
+    /**
+     * Get the number of crew members of the ship
+     * @return the number of crew members of the ship
+     */
+    public int getCrewNumber() {
+        return crewNumber;
     }
 
     /**
@@ -386,13 +394,13 @@ public class SpaceShip {
             components[row][column].setColumn(column);
             switch (components[row][column].getComponentType()) {
                 case BATTERY:
-                    batteries.add((Battery) components[row][column]);
+                    batteries.put(c.getID(), (Battery) components[row][column]);
                     break;
                 case CABIN:
-                    cabins.add((Cabin) components[row][column]);
+                    cabins.put(c.getID(), (Cabin) components[row][column]);
                     break;
                 case STORAGE:
-                    storages.add((Storage) components[row][column]);
+                    storages.put(c.getID(), (Storage) components[row][column]);
                     break;
                 default:
                     break;
@@ -403,27 +411,27 @@ public class SpaceShip {
     }
 
     /**
-     * Get the list of cabins in the ship
-     * @return ArrayList of cabins in the ship
+     * Get the cabin in the ship by ID
+     * @return cabin in the ship
      */
-    public ArrayList<Cabin> getCabins() {
-        return cabins;
+    public Cabin getCabin(int ID) {
+        return this.cabins.get(ID);
     }
 
     /**
-     * Get the list of storages in the ship
-     * @return ArrayList of storages in the ship
+     * Get the storage in the ship by ID
+     * @return storage in the ship
      */
-    public ArrayList<Storage> getStorages() {
-        return storages;
+    public Storage getStorage(int ID) {
+        return this.storages.get(ID);
     }
 
     /**
-     * Get the list of batteries in the ship
-     * @return ArrayList of batteries in the ship
+     * Get the battery in the ship by ID
+     * @return battery in the ship
      */
-    public ArrayList<Battery> getBatteries() {
-        return batteries;
+    public Battery getBattery(int ID) {
+        return this.batteries.get(ID);
     }
 
     /**
@@ -454,6 +462,7 @@ public class SpaceShip {
                 break;
             case CABIN:
                 Cabin cabin = (Cabin) destroyedComponent;
+                cabins.remove(cabin.getID());
                 crewNumber -= cabin.getCrewNumber();
                 break;
             case BROWN_LIFE_SUPPORT:
@@ -482,10 +491,12 @@ public class SpaceShip {
                 break;
             case STORAGE:
                 Storage storage = (Storage) destroyedComponent;
+                storages.remove(storage.getID());
                 goodsValue -= storage.getGoodsValue();
                 break;
             case BATTERY:
                 Battery battery = (Battery) destroyedComponent;
+                batteries.remove(battery.getID());
                 energyNumber -= battery.getEnergyNumber();
                 break;
             default:
