@@ -24,7 +24,7 @@ public class EpidemicState extends State {
     @Override
     public void entry() {
         check = new Boolean[12][12];
-        for (Pair<PlayerData , Boolean> p : players) {
+        for (Pair<PlayerData , PlayerStatus> p : players) {
             for(int i = 0; i < 12; i++){
                 for(int j = 0; j < 12; j++){
                     if(p.getValue0().getSpaceShip().getComponent(i, j) != null){

@@ -56,7 +56,7 @@ public class PlanetsState extends State {
 
     @Override
     public void entry() {
-        //Nothing to do here for now
+        super.entry();
         //TODO: Implement the entry method
     }
 
@@ -66,12 +66,8 @@ public class PlanetsState extends State {
      */
     @Override
     public void execute(PlayerData player) {
-        for (Pair<PlayerData , Boolean> p : players) {
-            if (p.getValue0().equals(player)) {
-                p.setAt1(true);
-                break;
-            }
-        }
+        super.execute(player);
+        //TODO: Implement the execute method
     }
 
     /**
@@ -82,8 +78,8 @@ public class PlanetsState extends State {
     public void exit() {
         super.exit();
         int flightDays = card.getFlightDays();
-        for (Pair<PlayerData, Boolean> p : players) {
-            if (p.getValue1()) {
+        for (Pair<PlayerData, PlayerStatus> p : players) {
+            if (p.getValue1() == PlayerStatus.PLAYED) {
                 p.getValue0().addSteps(-flightDays);
             }
         }

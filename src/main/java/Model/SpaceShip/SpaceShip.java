@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Map;
 
-import Model.Cards.Hits.Direction;
 import Model.Cards.Hits.Hit;
 
 public class SpaceShip {
@@ -14,6 +14,10 @@ public class SpaceShip {
 
     private List<Component> lostComponents;
     private ArrayList<Component> reservedComponents;
+
+    private Map<Integer, Storage> storages;
+    private Map<Integer, Battery> batteries;
+    private Map<Integer, Cabin> cabins;
 
     private int singleEnginesStrength;
     private int doubleEnginesStrength;
@@ -143,6 +147,21 @@ public class SpaceShip {
      */
     public int getEnergyNumber() {
         return energyNumber;
+    }
+
+    /**
+     * Refresh the number of energy blocks by searching in the components matrix
+     */
+    public void refreshEnergyNumber() {
+        energyNumber = 0;
+        for (Component[] c1 : components) {
+            for (Component c2 : c1) {
+                if (c2.getComponentType() == ComponentType.BATTERY) {
+                    Battery battery = (Battery) c2;
+                    energyNumber += battery.getEnergyNumber();
+                }
+            }
+        }
     }
 
     /**
@@ -373,6 +392,19 @@ public class SpaceShip {
             reservedComponents.remove(c);
             components[row][column].setRow(row);
             components[row][column].setColumn(column);
+            switch (components[row][column].getComponentType()) {
+                case BATTERY:
+                    batteries.put(components[row][column].getID(), (Battery) components[row][column]);
+                    break;
+                case CABIN:
+                    cabins.put(components[row][column].getID(), (Cabin) components[row][column]);
+                    break;
+                case STORAGE:
+                    storages.put(components[row][column].getID(), (Storage) components[row][column]);
+                    break;
+                default:
+                    break;
+            }
         } else {
             throw new IllegalStateException("The component at the given row and column are not connected");
         }

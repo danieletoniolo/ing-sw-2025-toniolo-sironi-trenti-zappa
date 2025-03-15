@@ -2,11 +2,12 @@ package Model.State;
 
 import Model.Player.PlayerData;
 import org.javatuples.Pair;
+import Model.State.PlayerStatus;
 
 import java.util.ArrayList;
 
 public abstract class State {
-    protected ArrayList<Pair<PlayerData, Boolean>> players;
+    protected ArrayList<Pair<PlayerData, PlayerStatus>> players;
     private Boolean played;
 
     /**
@@ -15,7 +16,7 @@ public abstract class State {
     public State(ArrayList<PlayerData> players) {
         this.players = new ArrayList<>();
         for (PlayerData player : players) {
-            this.players.add(new Pair<>(player, false));
+            this.players.add(new Pair<>(player, PlayerStatus.WAITING));
         }
         this.played = false;
     }
@@ -26,8 +27,8 @@ public abstract class State {
      * @param player PlayerData of the player to set the status
      * @return Boolean of the status of the player
      */
-    private void setStatusPlayer(PlayerData player, Boolean status) {
-        for (Pair<PlayerData, Boolean> p : players) {
+    private void setStatusPlayer(PlayerData player, PlayerStatus status) {
+        for (Pair<PlayerData, PlayerStatus> p : players) {
             if (p.getValue0().equals(player)) {
                 p.setAt1(status);
                 break;
@@ -41,8 +42,8 @@ public abstract class State {
      * @throws IllegalStateException if all players have played
      */
     public PlayerData getCurrentPlayer() throws IllegalStateException{
-        for (Pair<PlayerData, Boolean> player : players) {
-            if (!player.getValue1()) {
+        for (Pair<PlayerData, PlayerStatus> player : players) {
+            if (player.getValue1() == PlayerStatus.WAITING) {
                 return player.getValue0();
             }
         }
@@ -54,7 +55,7 @@ public abstract class State {
      * @param player PlayerData of the player which is playing
      */
     public void play(PlayerData player) {
-        this.setStatusPlayer(player, null);
+        this.setStatusPlayer(player, PlayerStatus.PLAYING);
     }
 
     /**
@@ -67,7 +68,15 @@ public abstract class State {
      * @param player PlayerData of the player to play
      */
     public void execute(PlayerData player) {
-        this.setStatusPlayer(player, true);
+        for (Pair<PlayerData, PlayerStatus> p : players) {
+            if (p.getValue0().equals(player)) {
+                if (p.getValue1() == PlayerStatus.PLAYING) {
+                    p.setAt1(PlayerStatus.PLAYED);
+                } else {
+                    p.setAt1(PlayerStatus.WAITING);
+                }
+            }
+        }
     }
 
     /**
@@ -75,8 +84,8 @@ public abstract class State {
      * @throws IllegalStateException if not all players have played
      */
     public void exit() throws IllegalStateException {
-        for (Pair<PlayerData, Boolean> p : players) {
-            if (!p.getValue1()) {
+        for (Pair<PlayerData, PlayerStatus> p : players) {
+            if (p.getValue1() == PlayerStatus.WAITING) {
                 throw new IllegalStateException("Not all players have played");
             }
         }

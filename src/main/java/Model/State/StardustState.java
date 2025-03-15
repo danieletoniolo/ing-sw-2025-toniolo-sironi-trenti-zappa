@@ -18,7 +18,7 @@ public class StardustState extends State {
 
     @Override
     public void entry(){
-        for(Pair<PlayerData, Boolean> p : players){
+        for(Pair<PlayerData, PlayerStatus> p : players){
             numberExposedConnectors = p.getValue0().getSpaceShip().getExposedConnectors();
             p.getValue0().addSteps(-numberExposedConnectors);
         }

@@ -60,8 +60,9 @@ public class Storage extends Component{
      * Exchange goods in the storage with the given goods
      * @param goodsToAdd Goods to add in the storage
      * @param goodsToRemove Goods to remove from the storage
+     * @throws IllegalStateException if the storage is full or the good to remove is not found
      */
-    public void exchangeGood(ArrayList<Good> goodsToAdd, ArrayList<Good> goodsToRemove) {
+    public void exchangeGood(ArrayList<Good> goodsToAdd, ArrayList<Good> goodsToRemove) throws IllegalStateException {
         for (Good good : goodsToAdd) {
             removeGood(good);
         }
