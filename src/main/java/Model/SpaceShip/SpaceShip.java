@@ -15,9 +15,9 @@ public class SpaceShip {
     private List<Component> lostComponents;
     private ArrayList<Component> reservedComponents;
 
-    private Map<Integer, Storage> storages;
-    private Map<Integer, Battery> batteries;
-    private Map<Integer, Cabin> cabins;
+    private ArrayList<Storage> storages;
+    private ArrayList<Battery> batteries;
+    private ArrayList<Cabin> cabins;
 
     private int singleEnginesStrength;
     private int doubleEnginesStrength;
@@ -316,14 +316,6 @@ public class SpaceShip {
      * @return The number of the exposed connectors
      */
     public int getExposedConnectors() {
-        exposedConnectors = 0;
-        for (Component[] c1 : components) {
-            for (Component c2 : c1) {
-                if (c2 != null) {
-                    exposedConnectors += c2.getExposedConnectors();
-                }
-            }
-        }
         return exposedConnectors;
     }
 
@@ -394,13 +386,13 @@ public class SpaceShip {
             components[row][column].setColumn(column);
             switch (components[row][column].getComponentType()) {
                 case BATTERY:
-                    batteries.put(components[row][column].getID(), (Battery) components[row][column]);
+                    batteries.add((Battery) components[row][column]);
                     break;
                 case CABIN:
-                    cabins.put(components[row][column].getID(), (Cabin) components[row][column]);
+                    cabins.add((Cabin) components[row][column]);
                     break;
                 case STORAGE:
-                    storages.put(components[row][column].getID(), (Storage) components[row][column]);
+                    storages.add((Storage) components[row][column]);
                     break;
                 default:
                     break;
@@ -408,6 +400,30 @@ public class SpaceShip {
         } else {
             throw new IllegalStateException("The component at the given row and column are not connected");
         }
+    }
+
+    /**
+     * Get the list of cabins in the ship
+     * @return ArrayList of cabins in the ship
+     */
+    public ArrayList<Cabin> getCabins() {
+        return cabins;
+    }
+
+    /**
+     * Get the list of storages in the ship
+     * @return ArrayList of storages in the ship
+     */
+    public ArrayList<Storage> getStorages() {
+        return storages;
+    }
+
+    /**
+     * Get the list of batteries in the ship
+     * @return ArrayList of batteries in the ship
+     */
+    public ArrayList<Battery> getBatteries() {
+        return batteries;
     }
 
     /**

@@ -65,7 +65,12 @@ public abstract class State {
         if (player == null) {
             throw new NullPointerException("player is null");
         }
-        this.setStatusPlayer(player, PlayerStatus.PLAYING);
+        for (Pair<PlayerData, PlayerStatus> p : players) {
+            if (p.getValue0().equals(player)) {
+                p.setAt1(PlayerStatus.PLAYING);
+                break;
+            }
+        }
     }
 
     /**
