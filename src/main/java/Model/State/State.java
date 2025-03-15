@@ -13,7 +13,10 @@ public abstract class State {
     /**
      * Constructor for State
      */
-    public State(ArrayList<PlayerData> players) {
+    public State(ArrayList<PlayerData> players) throws NullPointerException {
+        if (players == null) {
+            throw new NullPointerException("players is null");
+        }
         this.players = new ArrayList<>();
         for (PlayerData player : players) {
             this.players.add(new Pair<>(player, PlayerStatus.WAITING));
@@ -25,9 +28,12 @@ public abstract class State {
     /**
      * Set the status of the player
      * @param player PlayerData of the player to set the status
-     * @return Boolean of the status of the player
+     * @throws NullPointerException player == null
      */
-    private void setStatusPlayer(PlayerData player, PlayerStatus status) {
+    private void setStatusPlayer(PlayerData player, PlayerStatus status) throws NullPointerException {
+        if (player == null) {
+            throw new NullPointerException("Player is null");
+        }
         for (Pair<PlayerData, PlayerStatus> p : players) {
             if (p.getValue0().equals(player)) {
                 p.setAt1(status);
@@ -53,8 +59,12 @@ public abstract class State {
     /**
      * Make the player playing in the state
      * @param player PlayerData of the player which is playing
+     * @throws NullPointerException player == null
      */
-    public void play(PlayerData player) {
+    public void play(PlayerData player) throws NullPointerException {
+        if (player == null) {
+            throw new NullPointerException("player is null");
+        }
         this.setStatusPlayer(player, PlayerStatus.PLAYING);
     }
 
@@ -66,8 +76,12 @@ public abstract class State {
     /**
      * Make the player play in the state
      * @param player PlayerData of the player to play
+     * @throws NullPointerException player == null
      */
-    public void execute(PlayerData player) {
+    public void execute(PlayerData player) throws NullPointerException {
+        if (player == null) {
+            throw new NullPointerException("player is null");
+        }
         for (Pair<PlayerData, PlayerStatus> p : players) {
             if (p.getValue0().equals(player)) {
                 if (p.getValue1() == PlayerStatus.PLAYING) {
