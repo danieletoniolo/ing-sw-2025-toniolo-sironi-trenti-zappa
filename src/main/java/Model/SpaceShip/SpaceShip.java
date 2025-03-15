@@ -9,6 +9,8 @@ import java.util.Map;
 import Model.Cards.Hits.Hit;
 
 public class SpaceShip {
+    private static final int rows = 12;
+    private static final int cols = 12;
     private Component[][] components;
     private final boolean[][] validSpots;
 
@@ -38,7 +40,7 @@ public class SpaceShip {
     private int exposedConnectors;
 
     public SpaceShip(boolean[][] validSpots) {
-        components = new Component[12][12];
+        components = new Component[rows][cols];
         this.validSpots = validSpots;
         lostComponents = new ArrayList<>();
         reservedComponents = new ArrayList<>();
@@ -75,6 +77,22 @@ public class SpaceShip {
      */
     public int getDoubleEnginesStrength() {
         return doubleEnginesStrength;
+    }
+
+    /**
+     *
+     * @return number of rows
+     */
+    public static int getRows(){
+        return rows;
+    }
+
+    /**
+     *
+     * @return number of cols
+     */
+    public static int getCols(){
+        return cols;
     }
 
     /**
