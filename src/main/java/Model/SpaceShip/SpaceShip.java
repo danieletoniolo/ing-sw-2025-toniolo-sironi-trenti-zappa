@@ -220,6 +220,7 @@ public class SpaceShip {
      * @return -1 if the ship can't shield, 0 if the ship can shield spending a battery, 1 if the ship can shield without spending a battery
      * @throws IllegalArgumentException if the direction or the type of the hit is not valid
      */
+    //TODO: Implement the Large meteor mechanism to protect the ship
     public int canProtect(int direction, Hit hit) throws IllegalArgumentException {
         Component component = null;
         switch (hit.getDirection()) {
@@ -453,12 +454,11 @@ public class SpaceShip {
     }
 
     /**
-     * Destroy a component at the given row and column, update the stats of the ship and search if there is component that are no longer connected
+     * Destroy a component at the given row and column and update the stats of the ship
      * @param row row of the component to destroy
      * @param column column of the component to destroy
-     * @return List of List of int[] representing the group of disconnected components
      */
-    public List<List<int[]>> destroyComponent(int row, int column) {
+    public void destroyComponent(int row, int column) {
         Component destroyedComponent = components[row][column];
         components[row][column] = null;
 
@@ -520,9 +520,14 @@ public class SpaceShip {
             default:
                 break;
         }
-
         lostComponents.add(destroyedComponent);
+    }
 
+    /**
+     * Search if there is component that are no longer connected to the ship
+     * @return List of List of int[] representing the group of disconnected components
+     */
+    public List<List<int[]>> getDisconnectedComponents() {
         List<List<int[]>> disconnectedComponents = new ArrayList<>();
         boolean[][] visited = new boolean[12][12];
         for (int i = 0; i < 12; i++) {
