@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public abstract class State {
     protected ArrayList<Pair<PlayerData, PlayerStatus>> players;
-    private Boolean played;
+    protected Boolean played;
 
     /**
      * Constructor for State
