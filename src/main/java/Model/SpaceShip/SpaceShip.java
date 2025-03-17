@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Map;
 
+import Model.Cards.Hits.Direction;
 import Model.Cards.Hits.Hit;
+import org.javatuples.Pair;
 
 public class SpaceShip {
     private static final int rows = 12;
@@ -229,11 +231,11 @@ public class SpaceShip {
      * Check if the ship can shield from a hit
      * @param direction direction of the hit (Number picked by dice roll)
      * @param hit hit class containing the type of the hit and the direction (North, West, South, East) of the hit and Hit object
-     * @return -1 if the ship can't shield, 0 if the ship can shield spending a battery, 1 if the ship can shield without spending a battery
+     * @return Pair of the component that can shield and the value of the shield. -1 if the ship can't shield, 0 if the ship can shield spending a battery, 1 if the ship can shield without spending a battery (in this case the component return is null)
      * @throws IllegalArgumentException if the direction or the type of the hit is not valid
      */
     //TODO: Implement the Large meteor mechanism to protect the ship
-    public int canProtect(int direction, Hit hit) throws IllegalArgumentException {
+    public Pair<Component, Integer> canProtect(int direction, Hit hit) throws IllegalArgumentException {
         Component component = null;
         switch (hit.getDirection()) {
             case NORTH:
@@ -260,13 +262,13 @@ public class SpaceShip {
                 throw new IllegalArgumentException("The direction of the hit is not valid");
         }
         if (component == null) {
-            return 1;
+            return new Pair<>(null, 1);
         }
 
         switch (hit.getType()) {
             case SMALLMETEOR:
                 if (component.getExposedConnectors() == 0) {
-                    return 1;
+                    return new Pair<>(null, 1);
                 }
             case LIGHTFIRE:
                 for (int i = 0; i < 12; i++) {
@@ -274,24 +276,24 @@ public class SpaceShip {
                         if (components[i][j].getComponentType() == ComponentType.SHIELD) {
                             Shield shield = (Shield) components[i][j];
                             if (shield.canShield(hit.getDirection().getValue())) {
-                                return 0;
+                                return new Pair<>(component, 0);
                             }
                         }
                     }
                 }
-                return -1;
+                return new Pair<>(component, -1);
             case LARGEMETEOR:
                 if (component.getComponentType() == ComponentType.SINGLE_CANNON &&
                         component.getClockwiseRotation() == 4 - hit.getDirection().getValue()) {
-                    return 1;
+                    return new Pair<>(null, 1);
                 } else if (component.getComponentType() == ComponentType.DOUBLE_CANNON &&
                         component.getClockwiseRotation() == 4 - hit.getDirection().getValue()) {
-                    return 0;
+                    return new Pair<>(component, 0);
                 } else {
-                    return -1;
+                    return new Pair<>(component, -1);
                 }
             case HEAVYFIRE:
-                return -1;
+                return new Pair<>(component, -1);
             default:
                 throw new IllegalArgumentException("The type of the hit is not valid");
         }

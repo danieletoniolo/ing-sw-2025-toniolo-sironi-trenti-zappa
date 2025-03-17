@@ -25,6 +25,39 @@ public abstract class State {
     }
 
     /**
+     * Get the position of the player
+     * @param player PlayerData of the player to get the position
+     * @return position of the player
+     * @throws IllegalArgumentException if the player is not found
+     */
+    protected int getPlayerPosition(PlayerData player) throws IllegalArgumentException {
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i).getValue0().equals(player)) {
+                return i;
+            }
+        }
+        throw new IllegalArgumentException("Player not found");
+    }
+
+
+    /**
+     * Set the status of the player
+     * @param player PlayerData of the player to set the status
+     * @throws NullPointerException player == null
+     */
+    private void setStatusPlayer(PlayerData player, PlayerStatus status) throws NullPointerException {
+        if (player == null) {
+            throw new NullPointerException("Player is null");
+        }
+        for (Pair<PlayerData, PlayerStatus> p : players) {
+            if (p.getValue0().equals(player)) {
+                p.setAt1(status);
+                break;
+            }
+        }
+    }
+
+    /**
      * Get the player who has not played yet (current player to play)
      * @return PlayerData of the current player that is playing
      * @throws IllegalStateException if all players have played
@@ -58,7 +91,7 @@ public abstract class State {
     /**
      * Execute at the beginning of the state
      */
-    public void entry() {};
+    public void entry() {}
 
     /**
      * Make the player play in the state
@@ -81,16 +114,15 @@ public abstract class State {
     }
 
     /**
-     * Check if all players have played and set the state as played
+     * Check if all players have played
      * @throws IllegalStateException if not all players have played
      */
     public void exit() throws IllegalStateException {
         for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue1() == PlayerStatus.WAITING || p.getValue1() == PlayerStatus.PLAYING) {
+            if (p.getValue1() == PlayerStatus.WAITING) {
                 throw new IllegalStateException("Not all players have played");
             }
         }
-        played = true;
     }
 
 }
