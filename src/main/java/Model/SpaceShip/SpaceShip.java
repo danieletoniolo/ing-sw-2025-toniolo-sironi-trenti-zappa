@@ -452,6 +452,14 @@ public class SpaceShip {
     }
 
     /**
+     * Get the cabins in the ship
+     * @return cabins in the ship
+     */
+    public Map<Integer, Cabin> getCabins() {
+        return cabins;
+    }
+
+    /**
      * Get the storage in the ship by ID
      * @return storage in the ship
      */
@@ -460,11 +468,27 @@ public class SpaceShip {
     }
 
     /**
+     * Get the storages in the ship
+     * @return storages in the ship
+     */
+    public Map<Integer, Storage> getStorages() {
+        return storages;
+    }
+
+    /**
      * Get the battery in the ship by ID
      * @return battery in the ship
      */
     public Battery getBattery(int ID) {
         return this.batteries.get(ID);
+    }
+
+    /**
+     * Get the batteries in the ship
+     * @return get batteries in the ship
+     */
+    public Map<Integer, Battery> getBatteries() {
+        return batteries;
     }
 
     /**
