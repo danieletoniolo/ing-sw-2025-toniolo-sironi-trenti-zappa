@@ -3,7 +3,7 @@ package Model.SpaceShip;
 import java.util.ArrayList;
 
 public abstract class Component {
-    private SpaceShip ship;
+    protected SpaceShip ship;
 
     protected int ID;
 

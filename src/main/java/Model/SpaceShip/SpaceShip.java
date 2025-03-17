@@ -214,6 +214,18 @@ public class SpaceShip {
     }
 
     /**
+     * Add crew members to the ship
+     * @param num number of crew members to add
+     * @throws IllegalArgumentException if the number of crew members is negative
+     */
+    public void addCrewMember(int num) throws IllegalArgumentException {
+        if (crewNumber + num < 0) {
+            throw new IllegalStateException("Cannot have negative crew members");
+        }
+        crewNumber += num;
+    }
+
+    /**
      * Check if the ship can shield from a hit
      * @param direction direction of the hit (Number picked by dice roll)
      * @param hit hit class containing the type of the hit and the direction (North, West, South, East) of the hit and Hit object

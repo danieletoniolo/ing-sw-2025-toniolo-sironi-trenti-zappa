@@ -2,12 +2,13 @@ package Model.Cards;
 
 import Model.Cards.Hits.Hit;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CombatZone extends Card {
     private int flightDays;
     private int lost;
-    private List<Hit> fires;
+    private ArrayList<Hit> fires;
 
     /**
      *
@@ -17,7 +18,7 @@ public class CombatZone extends Card {
      * @param level level of the card
      * @throws NullPointerException if fires == null
      */
-    public CombatZone(int flightDays, int lost, List<Hit> fires, int level) throws NullPointerException{
+    public CombatZone(int flightDays, int lost, ArrayList<Hit> fires, int level) throws NullPointerException{
         super(level);
         this.flightDays = flightDays;
         this.lost = lost;
@@ -48,7 +49,7 @@ public class CombatZone extends Card {
      * Get the list of hits
      * @return list of hits
      */
-    public List<Hit> getFires() {
+    public ArrayList<Hit> getFires() {
         return fires;
     }
 

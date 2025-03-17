@@ -97,11 +97,12 @@ public class Cabin extends Component {
      * Remove crew member from the cabin
      * @throws IllegalStateException if there is no crew member in the cabin
      */
-    public void removeCrewMember() throws IllegalStateException {
-        if (crewNumber > 0) {
-            crewNumber--;
+    public void removeCrewMember(int num) throws IllegalStateException {
+        if (crewNumber > 0 && num <= crewNumber) {
+            crewNumber -= num;
+            super.ship.addCrewMember(-num);
         } else {
-            throw new IllegalStateException("There is no crew member in the cabin");
+            throw new IllegalStateException("There isn't enough crew member in the cabin");
         }
     }
 

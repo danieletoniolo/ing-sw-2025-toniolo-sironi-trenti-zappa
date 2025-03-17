@@ -142,4 +142,13 @@ public class PlayerData {
     public void setDisconnected(boolean disconnected) {
         this.disconnected = disconnected;
     }
+
+    /**
+     * Check if the player is equal to another player
+     * @param p the player to compare
+     * @return true if the players are equal, false otherwise
+     */
+    public boolean equals(PlayerData p) {
+        return this.color.equals(p.getColor());
+    }
 }

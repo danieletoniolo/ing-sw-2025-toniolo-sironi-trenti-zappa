@@ -48,7 +48,7 @@ public class EpidemicState extends State {
                                     if(cabin1.hasPurpleAlien() || cabin1.hasBrownAlien()){
                                         cabin1.removeAlien();
                                     } else {
-                                        cabin1.removeCrewMember();
+                                        cabin1.removeCrewMember(1);
                                     }
 
                                     int row, column;
@@ -61,7 +61,7 @@ public class EpidemicState extends State {
                                         if(cabin2.hasPurpleAlien() || cabin2.hasBrownAlien()){
                                             cabin2.removeAlien();
                                         } else {
-                                            cabin2.removeCrewMember();
+                                            cabin2.removeCrewMember(1);
                                         }
 
                                         check[row][column] = true;

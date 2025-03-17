@@ -32,6 +32,7 @@ public class Board {
     /**
      * Create a new board
      * @param level the level of the board
+     * @param tiles the list of tiles on the board
      * @param blue the player data for the blue player
      * @param red the player data for the red player
      * @param green the player data for the green player
