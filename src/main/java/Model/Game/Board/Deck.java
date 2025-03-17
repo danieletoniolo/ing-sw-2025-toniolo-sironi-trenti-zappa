@@ -1,6 +1,7 @@
 package Model.Game.Board;
 
-import javax.smartcardio.Card;
+import Model.Cards.Card;
+
 import java.util.ArrayList;
 
 public class Deck {

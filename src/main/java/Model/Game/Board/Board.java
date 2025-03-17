@@ -1,10 +1,10 @@
 package Model.Game.Board;
 
+import Model.Cards.Card;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
 
-import javax.smartcardio.Card;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
