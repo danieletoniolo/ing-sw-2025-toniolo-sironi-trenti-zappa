@@ -22,6 +22,7 @@ public class SpaceShip {
     private Map<Integer, Storage> storages;
     private Map<Integer, Battery> batteries;
     private Map<Integer, Cabin> cabins;
+    private Map<Integer, Cannon> cannons;
 
     private int singleEnginesStrength;
     private int doubleEnginesStrength;
@@ -489,6 +490,22 @@ public class SpaceShip {
      */
     public Map<Integer, Battery> getBatteries() {
         return batteries;
+    }
+
+    /**
+     * Get the cannon in the ship by ID
+     * @return cannon in the ship
+     */
+    public Cannon getCannon(int ID) {
+        return this.cannons.get(ID);
+    }
+
+    /**
+     * Get the cannons in the ship
+     * @return cannons in the ship
+     */
+    public Map<Integer, Cannon> getCannons() {
+        return cannons;
     }
 
     /**
