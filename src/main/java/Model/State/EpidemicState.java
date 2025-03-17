@@ -44,12 +44,7 @@ public class EpidemicState extends State {
                             for(Component c : surroundingComponents){
                                 if(c.getComponentType() == ComponentType.CABIN){
                                     Cabin cabin1 = (Cabin) component;
-
-                                    if(cabin1.hasPurpleAlien() || cabin1.hasBrownAlien()){
-                                        cabin1.removeAlien();
-                                    } else {
-                                        cabin1.removeCrewMember(1);
-                                    }
+                                    cabin1.removeCrewMember(1);
 
                                     int row, column;
                                     row = c.getRow();
@@ -57,13 +52,7 @@ public class EpidemicState extends State {
 
                                     if(!check[row][column]){
                                         Cabin cabin2 = (Cabin) c;
-
-                                        if(cabin2.hasPurpleAlien() || cabin2.hasBrownAlien()){
-                                            cabin2.removeAlien();
-                                        } else {
-                                            cabin2.removeCrewMember(1);
-                                        }
-
+                                        cabin2.removeCrewMember(1);
                                         check[row][column] = true;
                                     }
                                 }

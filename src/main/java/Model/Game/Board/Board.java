@@ -4,23 +4,22 @@ import Model.Cards.Card;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
+import Model.State.State;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
 
 
 public class Board {
     private static final int numberOfDecks = 4;
     private static final int cardsPerDeck = 3;
 
+    private final State state;
     private final Level level;
     private final int numberOfCells;
 
     private Deck[] decks;
     private final Stack<Card> shuffledDeck;
-    private final ArrayList<Component> tiles;
+    private final Map<Integer, Component> tiles;
     private int flightDays;
 
     private final PlayerData blue;
@@ -38,7 +37,9 @@ public class Board {
      * @param yellow the player data for the yellow player
      * @throws IllegalArgumentException if the level is set to an unexpected value
      */
-    public Board(Level level, ArrayList<Component> tiles, PlayerData blue, PlayerData red, PlayerData green, PlayerData yellow) throws IllegalArgumentException {
+    public Board(Level level, Map<Integer, Component> tiles, PlayerData blue, PlayerData red, PlayerData green, PlayerData yellow) throws IllegalArgumentException {
+        // TODO: dichiarare state iniziale
+        this.state = null;
         this.level = level;
         if (!level.equals(Level.LEARNING)) {
             for (int i = 0; i < numberOfDecks; i++)
@@ -129,9 +130,15 @@ public class Board {
      * @param ID the ID of the tile to retrieve
      * @return the tile with the specified ID, or null if no tile with that ID exists
      */
-    // TODO: non returnare null
     public Component getTile(int ID) {
-        return this.tiles.stream().filter(k -> k.getID() == ID).findFirst().orElse(null);
+        return this.tiles.get(ID);
+    }
+
+    /**
+     * Do the transition to the next state
+     */
+    public void stateTransition() {
+        // TODO: implementare transizione di stato
     }
 
     /**
