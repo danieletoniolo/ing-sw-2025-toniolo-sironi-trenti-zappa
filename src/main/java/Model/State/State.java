@@ -24,24 +24,6 @@ public abstract class State {
         this.played = false;
     }
 
-
-    /**
-     * Set the status of the player
-     * @param player PlayerData of the player to set the status
-     * @throws NullPointerException player == null
-     */
-    private void setStatusPlayer(PlayerData player, PlayerStatus status) throws NullPointerException {
-        if (player == null) {
-            throw new NullPointerException("Player is null");
-        }
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue0().equals(player)) {
-                p.setAt1(status);
-                break;
-            }
-        }
-    }
-
     /**
      * Get the player who has not played yet (current player to play)
      * @return PlayerData of the current player that is playing
@@ -99,15 +81,16 @@ public abstract class State {
     }
 
     /**
-     * Check if all players have played
+     * Check if all players have played and set the state as played
      * @throws IllegalStateException if not all players have played
      */
     public void exit() throws IllegalStateException {
         for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue1() == PlayerStatus.WAITING) {
+            if (p.getValue1() == PlayerStatus.WAITING || p.getValue1() == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");
             }
         }
+        played = true;
     }
 
 }

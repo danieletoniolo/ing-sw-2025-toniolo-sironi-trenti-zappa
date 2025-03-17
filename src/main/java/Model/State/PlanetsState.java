@@ -8,6 +8,7 @@ import Model.SpaceShip.Storage;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PlanetsState extends State {
     private final Planets card;
@@ -49,6 +50,26 @@ public class PlanetsState extends State {
      * @throws IllegalStateException If the player does not have enough space in the storage component or the goods to leave are not in the storage component
      */
     public void exchangeGoods(PlayerData player, ArrayList<Good> goodsToGet, ArrayList<Good> goodsToLeave, int row, int column) throws IllegalStateException {
+        // Find the planet number that the player has selected
+        int planetNumber = 0;
+        while (planetSelected[planetNumber] != player && planetNumber < planetSelected.length) {
+            planetNumber++;
+        }
+        if (planetNumber == planetSelected.length) {
+            //TODO: consider throwing a custom exception
+            throw new IllegalStateException("Player has not selected a planet");
+        }
+
+        // Get the goods available in the planet and check if the planet has the goods that the player wants to get
+        List<Good> goodsAvailable = card.getPlanet(planetNumber);
+        for (Good good : goodsToGet) {
+            if (!goodsAvailable.contains(good)) {
+                //TODO: consider throwing a custom exception
+                throw new IllegalStateException("Planet does not have the good");
+            }
+        }
+
+        // Get the storage component of the player's spaceship and exchange the goods
         SpaceShip ship = player.getSpaceShip();
         Storage storage = (Storage) ship.getComponent(row, column);
         storage.exchangeGood(goodsToGet, goodsToLeave);
@@ -65,7 +86,7 @@ public class PlanetsState extends State {
      * @param player PlayerData of the player to play
      */
     @Override
-    public void execute(PlayerData player) {
+    public void execute(PlayerData player) throws NullPointerException {
         super.execute(player);
         //TODO: Implement the execute method
     }
@@ -73,14 +94,17 @@ public class PlanetsState extends State {
     /**
      * Exits the state and removes the flight days from the players that have selected a planet
      * If a player has not selected a planet, the flight days are not removed
+     * @throws IllegalStateException If not all players have played
      */
     @Override
-    public void exit() {
+    public void exit() throws IllegalStateException{
         super.exit();
         int flightDays = card.getFlightDays();
         for (Pair<PlayerData, PlayerStatus> p : players) {
             if (p.getValue1() == PlayerStatus.PLAYED) {
                 p.getValue0().addSteps(-flightDays);
+            } else if (p.getValue1() == PlayerStatus.WAITING || p.getValue1() == PlayerStatus.PLAYING) {
+                throw new IllegalStateException("Not all players have played");
             }
         }
     }
