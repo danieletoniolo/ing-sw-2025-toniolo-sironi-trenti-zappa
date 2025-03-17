@@ -94,29 +94,19 @@ public class Cabin extends Component {
     }
 
     /**
-     * Remove crew member from the cabin
+     * Remove crew member or alien from the cabin
      * @throws IllegalStateException if there is no crew member in the cabin
      */
     public void removeCrewMember(int num) throws IllegalStateException {
         if (crewNumber > 0 && num <= crewNumber) {
+            if (purpleAlien || brownAlien) {
+                purpleAlien = false;
+                brownAlien = false;
+            }
             crewNumber -= num;
             super.ship.addCrewMember(-num);
         } else {
             throw new IllegalStateException("There isn't enough crew member in the cabin");
-        }
-    }
-
-    /**
-     * Remove alien from the cabin
-     * @throws IllegalStateException if there is no alien in the cabin
-     */
-    public void removeAlien() throws IllegalStateException {
-        if (purpleAlien || brownAlien) {
-            purpleAlien = false;
-            brownAlien = false;
-            crewNumber = 0;
-        } else {
-            throw new IllegalStateException("There is no alien in the cabin");
         }
     }
 
