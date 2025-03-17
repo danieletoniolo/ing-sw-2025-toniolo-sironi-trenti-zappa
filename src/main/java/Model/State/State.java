@@ -45,7 +45,7 @@ public abstract class State {
      * @param player PlayerData of the player to set the status
      * @throws NullPointerException player == null
      */
-    private void setStatusPlayer(PlayerData player, PlayerStatus status) throws NullPointerException {
+    protected void setStatusPlayer(PlayerData player, PlayerStatus status) throws NullPointerException {
         if (player == null) {
             throw new NullPointerException("Player is null");
         }

@@ -11,6 +11,7 @@ import Model.Cards.Hits.Hit;
 import org.javatuples.Pair;
 
 public class SpaceShip {
+    private static final float alienStrength = 2.0f;
     private static final int rows = 12;
     private static final int cols = 12;
     private Component[][] components;
@@ -214,6 +215,30 @@ public class SpaceShip {
      */
     public int getCrewNumber() {
         return crewNumber;
+    }
+
+    /**
+     * Get if there is a purple alien in the ship
+     * @return true if there is a purple alien in the ship, false otherwise
+     */
+    public boolean getPurpleAlien(){
+        return purpleAlien;
+    }
+
+    /**
+     * Get if there is a brown alien in the ship
+     * @return true if there is a brown alien in the ship, false otherwise
+     */
+    public boolean getBrownAlien(){
+        return brownAlien;
+    }
+
+    /**
+     * Get how much the aliens add to the stats
+     * @return return how much the aliens add to the stats
+     */
+    public static float getAlienStrength() {
+        return alienStrength;
     }
 
     /**
@@ -544,7 +569,7 @@ public class SpaceShip {
                         Cabin cabinBrown = (Cabin) c;
                         if (cabinBrown.hasBrownAlien()) {
                             brownAlien = false;
-                            cabinBrown.removeAlien();
+                            cabinBrown.removeCrewMember(1);
                             crewNumber -= cabinBrown.getCrewNumber();
                         }
                     }
@@ -556,7 +581,7 @@ public class SpaceShip {
                         Cabin cabinPurple = (Cabin) c;
                         if (cabinPurple.hasPurpleAlien()) {
                             purpleAlien = false;
-                            cabinPurple.removeAlien();
+                            cabinPurple.removeCrewMember(1);
                             crewNumber -= cabinPurple.getCrewNumber();
                         }
                     }
