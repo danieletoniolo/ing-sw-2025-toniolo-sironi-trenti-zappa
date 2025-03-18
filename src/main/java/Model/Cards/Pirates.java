@@ -4,7 +4,10 @@ import Model.Cards.Hits.Hit;
 
 import java.util.List;
 
-public class Pirates extends Enemies {
+public class Pirates extends Card {
+    private final int cannonStrengthRequired;
+    private final int flightDays;
+
     private List<Hit> fires;
     private int credit;
 
@@ -18,12 +21,30 @@ public class Pirates extends Enemies {
      * @throws NullPointerException if fire == null
      */
     public Pirates(List<Hit> fire, int credit, int level, int cannonStrengthRequired, int flightDays) throws NullPointerException {
-        super(level, cannonStrengthRequired, flightDays);
+        super(level);
+        this.cannonStrengthRequired = cannonStrengthRequired;
+        this.flightDays = flightDays;
         if (fire == null || fire.isEmpty()) {
             throw new NullPointerException("Fire can't be null or empty");
         }
         this.fires = fire;
         this.credit = credit;
+    }
+
+    /**
+     * Get the cannon power required to beat the card
+     * @return cannon power required
+     */
+    public int getCannonStrengthRequired() {
+        return cannonStrengthRequired;
+    }
+
+    /**
+     * Get the number of flight days lost for the quest
+     * @return number of flight days lost for the quest
+     */
+    public int getFlightDays() {
+        return flightDays;
     }
 
     /**
