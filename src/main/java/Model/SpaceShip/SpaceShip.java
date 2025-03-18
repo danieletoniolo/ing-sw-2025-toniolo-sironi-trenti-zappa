@@ -15,6 +15,7 @@ public class SpaceShip {
     private static final int rows = 12;
     private static final int cols = 12;
     private Component[][] components;
+    private int numberOfComponents;
     private final boolean[][] validSpots;
 
     private List<Component> lostComponents;
@@ -47,6 +48,7 @@ public class SpaceShip {
         components = new Component[rows][cols];
         // TODO: Set the initial components of the ship with proper values
         components[7][7] = new Cabin(1, 7, 7, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
+        numberOfComponents = 0;
         this.validSpots = validSpots;
         lostComponents = new ArrayList<>();
         reservedComponents = new ArrayList<>();
@@ -86,7 +88,7 @@ public class SpaceShip {
     }
 
     /**
-     *
+     * Get the row of the ship matrix
      * @return number of rows
      */
     public static int getRows(){
@@ -94,7 +96,7 @@ public class SpaceShip {
     }
 
     /**
-     *
+     * Get the column of the ship matrix
      * @return number of cols
      */
     public static int getCols(){
@@ -267,22 +269,22 @@ public class SpaceShip {
         Component component = null;
         switch (hit.getDirection()) {
             case NORTH:
-                for (int i = 0; i < 12 && component == null; i++) {
+                for (int i = 0; i < cols && component == null; i++) {
                     component = components[direction][i];
                 }
                 break;
             case WEST:
-                for (int i = 0; i < 12 && component == null; i++) {
+                for (int i = 0; i < rows && component == null; i++) {
                     component = components[i][direction];
                 }
                 break;
             case SOUTH:
-                for (int i = 11; i >= 0 && component == null; i--) {
+                for (int i = cols-1; i >= 0 && component == null; i--) {
                     component = components[direction][i];
                 }
                 break;
             case EAST:
-                for (int i = 11; i >= 0 && component == null; i--) {
+                for (int i = rows-1; i >= 0 && component == null; i--) {
                     component = components[i][direction];
                 }
                 break;
@@ -449,6 +451,7 @@ public class SpaceShip {
      */
     public void placeComponent(Component c, int row, int column) throws IllegalStateException {
         components[row][column] = c;
+        components[row + 1][column].ship = this;
         if (components[row][column].isConnected(row, column)) {
             reservedComponents.remove(c);
             components[row][column].setRow(row);
@@ -466,7 +469,9 @@ public class SpaceShip {
                 default:
                     break;
             }
+            numberOfComponents++;
         } else {
+            components[row][column].ship = null;
             throw new IllegalStateException("The component at the given row and column are not connected");
         }
     }
@@ -602,28 +607,29 @@ public class SpaceShip {
             default:
                 break;
         }
+        numberOfComponents--;
         lostComponents.add(destroyedComponent);
     }
 
     /**
      * Search if there is component that are no longer connected to the ship
-     * @return List of List of int[] representing the group of disconnected components
+     * @return List of List of Pair<Integer, Integer> representing the group of disconnected components
      */
-    public List<List<int[]>> getDisconnectedComponents() {
-        List<List<int[]>> disconnectedComponents = new ArrayList<>();
+    public List<List<Pair<Integer, Integer>>> getDisconnectedComponents() {
+        List<List<Pair<Integer, Integer>>> disconnectedComponents = new ArrayList<>();
         boolean[][] visited = new boolean[12][12];
         for (int i = 0; i < 12; i++) {
             for (int j = 0; j < 12; j++) {
                 if (components[i][j] != null && !visited[i][j]) {
-                    List<int[]> disconnectedComponent = new ArrayList<>();
-                    Queue<int[]> queue = new LinkedList<>();
-                    queue.add(new int[]{i, j});
+                    List<Pair<Integer, Integer>> disconnectedComponent = new ArrayList<>();
+                    Queue<Pair<Integer, Integer>> queue = new LinkedList<>();
+                    queue.add(new Pair<Integer, Integer>(i, j));
                     visited[i][j] = true;
 
                     while (!queue.isEmpty()) {
-                        int[] current = queue.poll();
-                        int currentRow = current[0];
-                        int currentColumn = current[1];
+                        Pair<Integer, Integer> current = queue.poll();
+                        int currentRow = current.getValue0();
+                        int currentColumn = current.getValue1();
                         disconnectedComponent.add(current);
 
                         Component currentComponent = components[currentRow][currentColumn];
@@ -639,7 +645,7 @@ public class SpaceShip {
                                         currentComponent.getConnection(face) == adjacentComponent.getConnection((face + 2) % 4)) &&
                                         currentComponent.getConnection(face) != ConnectorType.EMPTY) {
                                     visited[newRow][newColumn] = true;
-                                    queue.add(new int[]{newRow, newColumn});
+                                    queue.add(new Pair<Integer, Integer>(newRow, newColumn));
                                 }
                             }
                         }

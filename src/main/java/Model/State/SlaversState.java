@@ -78,7 +78,7 @@ public class SlaversState extends State {
                     break;
                 if (slaversDefeat) {
                     if (acceptCredits) {
-                        player.addCoins(slavers.getReward());
+                        player.addCoins(slavers.getCredit());
                         player.addSteps(-slavers.getFlightDays());
                     }
                 } else {

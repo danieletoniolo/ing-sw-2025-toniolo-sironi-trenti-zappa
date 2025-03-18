@@ -1,8 +1,11 @@
 package Model.Cards;
 
-public class Slavers extends Enemies {
-    private int crewLost;
-    private int credit;
+public class Slavers extends Card {
+    private final int cannonStrengthRequired;
+    private final int flightDays;
+
+    private final int crewLost;
+    private final int credit;
 
     /**
      *
@@ -13,16 +16,34 @@ public class Slavers extends Enemies {
      * @param flightDays number of flight days lost
      */
     public Slavers(int crewLost, int credit, int level, int cannonStrengthRequired, int flightDays) {
-        super(level, cannonStrengthRequired, flightDays);
+        super(level);
+        this.cannonStrengthRequired = cannonStrengthRequired;
+        this.flightDays = flightDays;
         this.crewLost = crewLost;
         this.credit = credit;
+    }
+
+    /**
+     * Get the cannon power required to beat the card
+     * @return cannon power required
+     */
+    public int getCannonStrengthRequired() {
+        return cannonStrengthRequired;
+    }
+
+    /**
+     * Get the number of flight days lost for the quest
+     * @return number of flight days lost for the quest
+     */
+    public int getFlightDays() {
+        return flightDays;
     }
 
     /**
      * Get number of credit rewarded
      * @return number of credit rewarded
      */
-    public int getReward() {
+    public int getCredit() {
         return credit;
     }
 
