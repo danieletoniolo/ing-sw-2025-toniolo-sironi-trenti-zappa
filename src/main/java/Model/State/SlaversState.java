@@ -12,13 +12,13 @@ import java.util.Map;
 
 public class SlaversState extends State {
     private int execForPlayer;
-    private final Card card;
+    private final Slavers card;
     private final Map<PlayerData, Float> stats;
     private final Map<Integer, Integer> crewLost;
     private Boolean slaversDefeat;
     private boolean acceptCredits;
 
-    public SlaversState(ArrayList<PlayerData> players, Card card) {
+    public SlaversState(ArrayList<PlayerData> players, Slavers card) {
         super(players);
         this.execForPlayer = 0;
         this.card = card;
@@ -58,9 +58,8 @@ public class SlaversState extends State {
 
     @Override
     public void execute(PlayerData player) throws IllegalStateException {
-        Slavers slavers = (Slavers) card;
         SpaceShip spaceShip = player.getSpaceShip();
-        int cardValue = slavers.getCannonStrengthRequired();
+        int cardValue = card.getCannonStrengthRequired();
 
         switch (execForPlayer) {
             case 0:
@@ -78,14 +77,14 @@ public class SlaversState extends State {
                     break;
                 if (slaversDefeat) {
                     if (acceptCredits) {
-                        player.addCoins(slavers.getCredit());
-                        player.addSteps(-slavers.getFlightDays());
+                        player.addCoins(card.getCredit());
+                        player.addSteps(-card.getFlightDays());
                     }
                 } else {
                     for (Map.Entry<Integer, Integer> entry : crewLost.entrySet()) {
                         spaceShip.getCabin(entry.getKey()).removeCrewMember(entry.getValue());
                     }
-                    if (spaceShip.getCrewNumber() <= slavers.getCrewLost()) {
+                    if (spaceShip.getCrewNumber() <= card.getCrewLost()) {
                         player.setGaveUp(true);
                     }
                 }

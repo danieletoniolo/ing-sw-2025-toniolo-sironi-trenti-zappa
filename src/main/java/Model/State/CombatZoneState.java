@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class CombatZoneState extends State {
     private CombatZoneStatsType subState;
-    private final Card card;
+    private final CombatZone card;
     private final ArrayList<Map<PlayerData, Float>> stats;
     private PlayerData minPlayerCannons;
     private int dice;
@@ -27,7 +27,7 @@ public class CombatZoneState extends State {
     private int hitIndex;
     private int fightIndex;
 
-    public CombatZoneState(ArrayList<PlayerData> players, Card card) {
+    public CombatZoneState(ArrayList<PlayerData> players, CombatZone card) {
         super(players);
         this.card = card;
         this.stats = new ArrayList<>(3);
@@ -76,7 +76,7 @@ public class CombatZoneState extends State {
     }
 
     private void executeSubStateCrew() {
-        int flightDays = ((CombatZone) card).getFlightDays();
+        int flightDays = card.getFlightDays();
         int statsIndex = CombatZoneStatsType.CREW.getIndex();
 
         stats.get(statsIndex).entrySet().stream().min(this::comparePlayers).ifPresent(entry -> {
@@ -87,7 +87,7 @@ public class CombatZoneState extends State {
     }
 
     private void executeSubStateEngines(PlayerData player) {
-        int crewLost = ((CombatZone) card).getLost();
+        int crewLost = card.getLost();
         int statsIndex = CombatZoneStatsType.ENGINES.getIndex();
 
         stats.get(statsIndex).entrySet().stream().min(this::comparePlayers).ifPresent(entry -> {
@@ -135,7 +135,7 @@ public class CombatZoneState extends State {
 
     private void executeSubStateCannons(PlayerData player) {
         SpaceShip spaceShip = player.getSpaceShip();
-        Hit hit = ((CombatZone) card).getFires().get(hitIndex);
+        Hit hit = card.getFires().get(hitIndex);
 
         switch (fightIndex) {
             case 0:
