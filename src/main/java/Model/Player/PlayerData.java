@@ -116,6 +116,7 @@ public class PlayerData {
      * @param x the number of steps to add
      */
     public void addSteps(int x) {
+        // TODO: due player non possono essere nella stessa posizione
         this.steps += x;
     }
 

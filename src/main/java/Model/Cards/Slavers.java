@@ -43,7 +43,7 @@ public class Slavers extends Card {
      * Get number of credit rewarded
      * @return number of credit rewarded
      */
-    public int getReward() {
+    public int getCredit() {
         return credit;
     }
 

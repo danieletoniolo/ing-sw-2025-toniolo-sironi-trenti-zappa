@@ -607,23 +607,23 @@ public class SpaceShip {
 
     /**
      * Search if there is component that are no longer connected to the ship
-     * @return List of List of int[] representing the group of disconnected components
+     * @return List of List of Pair<Integer, Integer> representing the group of disconnected components
      */
-    public List<List<int[]>> getDisconnectedComponents() {
-        List<List<int[]>> disconnectedComponents = new ArrayList<>();
+    public List<List<Pair<Integer, Integer>>> getDisconnectedComponents() {
+        List<List<Pair<Integer, Integer>>> disconnectedComponents = new ArrayList<>();
         boolean[][] visited = new boolean[12][12];
         for (int i = 0; i < 12; i++) {
             for (int j = 0; j < 12; j++) {
                 if (components[i][j] != null && !visited[i][j]) {
-                    List<int[]> disconnectedComponent = new ArrayList<>();
-                    Queue<int[]> queue = new LinkedList<>();
-                    queue.add(new int[]{i, j});
+                    List<Pair<Integer, Integer>> disconnectedComponent = new ArrayList<>();
+                    Queue<Pair<Integer, Integer>> queue = new LinkedList<>();
+                    queue.add(new Pair<Integer, Integer>(i, j));
                     visited[i][j] = true;
 
                     while (!queue.isEmpty()) {
-                        int[] current = queue.poll();
-                        int currentRow = current[0];
-                        int currentColumn = current[1];
+                        Pair<Integer, Integer> current = queue.poll();
+                        int currentRow = current.getValue0();
+                        int currentColumn = current.getValue1();
                         disconnectedComponent.add(current);
 
                         Component currentComponent = components[currentRow][currentColumn];
@@ -639,7 +639,7 @@ public class SpaceShip {
                                         currentComponent.getConnection(face) == adjacentComponent.getConnection((face + 2) % 4)) &&
                                         currentComponent.getConnection(face) != ConnectorType.EMPTY) {
                                     visited[newRow][newColumn] = true;
-                                    queue.add(new int[]{newRow, newColumn});
+                                    queue.add(new Pair<Integer, Integer>(newRow, newColumn));
                                 }
                             }
                         }
