@@ -4,14 +4,18 @@ import Model.Player.PlayerData;
 import Model.SpaceShip.Cabin;
 import Model.SpaceShip.Component;
 import Model.SpaceShip.ComponentType;
+import Model.SpaceShip.SpaceShip;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class EpidemicState extends State {
     private ArrayList<Component> surroundingComponents;
     private Component component;
-    private Boolean[][] check;
+    private Map<Integer, Cabin> cabins;
+    private Cabin currentCabin;
+    private boolean[][] check;
 
     /**
      * Constructor for EpidemicState
@@ -19,43 +23,34 @@ public class EpidemicState extends State {
      */
     public EpidemicState(ArrayList<PlayerData> players) {
         super(players);
+        check = new boolean[SpaceShip.getRows()][SpaceShip.getCols()];
     }
 
+    /**
+     * Function for eliminating the crew in two adjacent cabins
+     */
     @Override
     public void entry() {
-        check = new Boolean[12][12];
-        for (Pair<PlayerData , PlayerStatus> p : players) {
-            for(int i = 0; i < 12; i++){
-                for(int j = 0; j < 12; j++){
-                    if(p.getValue0().getSpaceShip().getComponent(i, j) != null){
-                        check[i][j] = false;
-                    } else {
-                        check[i][j] = null;
-                    }
+        for (Pair<PlayerData, PlayerStatus> p : players) {
+            for(int i = 0; i < SpaceShip.getRows(); i++){
+                for(int j = 0; j < SpaceShip.getCols(); j++){
+                    check[i][j] = false;
                 }
             }
-            for(int i = 0; i < 12; i++){
-                for(int j = 0; j < 12; j++){
-                    if(p.getValue0().getSpaceShip().getComponent(i, j) != null && !check[i][j]) {
-                        check[i][j] = true;
-                        component = p.getValue0().getSpaceShip().getComponent(i, j);
-                        if(component.getComponentType() == ComponentType.CABIN){
-                            surroundingComponents = p.getValue0().getSpaceShip().getSurroundingComponents(i, j);
-                            for(Component c : surroundingComponents){
-                                if(c.getComponentType() == ComponentType.CABIN){
-                                    Cabin cabin1 = (Cabin) component;
-                                    cabin1.removeCrewMember(1);
+            cabins = p.getValue0().getSpaceShip().getCabins();
+            for(Map.Entry<Integer, Cabin> ca : cabins.entrySet()){
+                currentCabin = ca.getValue();
+                if(!check[currentCabin.getRow()][currentCabin.getColumn()]){
+                    surroundingComponents = p.getValue0().getSpaceShip().getSurroundingComponents(currentCabin.getRow(), currentCabin.getColumn());
+                    for(Component co : surroundingComponents){
+                        if(co.getComponentType() == ComponentType.CABIN){
+                            check[currentCabin.getRow()][currentCabin.getColumn()] = true;
+                            currentCabin.removeCrewMember(1);
 
-                                    int row, column;
-                                    row = c.getRow();
-                                    column = c.getColumn();
-
-                                    if(!check[row][column]){
-                                        Cabin cabin2 = (Cabin) c;
-                                        cabin2.removeCrewMember(1);
-                                        check[row][column] = true;
-                                    }
-                                }
+                            Cabin cabin = (Cabin) co;
+                            if(!check[cabin.getRow()][cabin.getColumn()]){
+                                cabin.removeCrewMember(1);
+                                check[cabin.getRow()][cabin.getColumn()] = true;
                             }
                         }
                     }
