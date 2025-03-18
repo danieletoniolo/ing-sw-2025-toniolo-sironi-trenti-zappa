@@ -82,11 +82,10 @@ public class SlaversState extends State {
                         player.addSteps(-slavers.getFlightDays());
                     }
                 } else {
-                    if (spaceShip.getCrewNumber() >= slavers.getCrewLost()) {
-                        for (Map.Entry<Integer, Integer> entry : crewLost.entrySet()) {
-                            spaceShip.getCabin(entry.getKey()).removeCrewMember(entry.getValue());
-                        }
-                    } else {
+                    for (Map.Entry<Integer, Integer> entry : crewLost.entrySet()) {
+                        spaceShip.getCabin(entry.getKey()).removeCrewMember(entry.getValue());
+                    }
+                    if (spaceShip.getCrewNumber() <= slavers.getCrewLost()) {
                         player.setGaveUp(true);
                     }
                 }
