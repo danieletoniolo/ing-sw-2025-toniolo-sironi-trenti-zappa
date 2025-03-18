@@ -15,6 +15,7 @@ public class SpaceShip {
     private static final int rows = 12;
     private static final int cols = 12;
     private Component[][] components;
+    private int numberOfComponents;
     private final boolean[][] validSpots;
 
     private List<Component> lostComponents;
@@ -47,6 +48,7 @@ public class SpaceShip {
         components = new Component[rows][cols];
         // TODO: Set the initial components of the ship with proper values
         components[7][7] = new Cabin(1, 7, 7, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
+        numberOfComponents = 0;
         this.validSpots = validSpots;
         lostComponents = new ArrayList<>();
         reservedComponents = new ArrayList<>();
@@ -86,7 +88,7 @@ public class SpaceShip {
     }
 
     /**
-     *
+     * Get the row of the ship matrix
      * @return number of rows
      */
     public static int getRows(){
@@ -94,7 +96,7 @@ public class SpaceShip {
     }
 
     /**
-     *
+     * Get the column of the ship matrix
      * @return number of cols
      */
     public static int getCols(){
@@ -267,22 +269,22 @@ public class SpaceShip {
         Component component = null;
         switch (hit.getDirection()) {
             case NORTH:
-                for (int i = 0; i < 12 && component == null; i++) {
+                for (int i = 0; i < cols && component == null; i++) {
                     component = components[direction][i];
                 }
                 break;
             case WEST:
-                for (int i = 0; i < 12 && component == null; i++) {
+                for (int i = 0; i < rows && component == null; i++) {
                     component = components[i][direction];
                 }
                 break;
             case SOUTH:
-                for (int i = 11; i >= 0 && component == null; i--) {
+                for (int i = cols-1; i >= 0 && component == null; i--) {
                     component = components[direction][i];
                 }
                 break;
             case EAST:
-                for (int i = 11; i >= 0 && component == null; i--) {
+                for (int i = rows-1; i >= 0 && component == null; i--) {
                     component = components[i][direction];
                 }
                 break;
@@ -449,6 +451,7 @@ public class SpaceShip {
      */
     public void placeComponent(Component c, int row, int column) throws IllegalStateException {
         components[row][column] = c;
+        components[row + 1][column].ship = this;
         if (components[row][column].isConnected(row, column)) {
             reservedComponents.remove(c);
             components[row][column].setRow(row);
@@ -466,7 +469,9 @@ public class SpaceShip {
                 default:
                     break;
             }
+            numberOfComponents++;
         } else {
+            components[row][column].ship = null;
             throw new IllegalStateException("The component at the given row and column are not connected");
         }
     }
@@ -602,6 +607,7 @@ public class SpaceShip {
             default:
                 break;
         }
+        numberOfComponents--;
         lostComponents.add(destroyedComponent);
     }
 
