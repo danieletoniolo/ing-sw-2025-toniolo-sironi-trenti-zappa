@@ -107,7 +107,7 @@ public abstract class State {
                 if (p.getValue1() == PlayerStatus.PLAYING) {
                     p.setAt1(PlayerStatus.PLAYED);
                 } else {
-                    p.setAt1(PlayerStatus.WAITING);
+                    p.setAt1(PlayerStatus.SKIPPED);
                 }
             }
         }

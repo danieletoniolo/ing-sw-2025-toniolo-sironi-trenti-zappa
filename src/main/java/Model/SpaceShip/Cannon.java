@@ -12,11 +12,11 @@ public class Cannon extends Component{
      * Get the strength of the cannon based on the rotation of the cannon
      * @return The strength of the cannon
      */
-    public int getCannonStrength() {
+    public float getCannonStrength() {
         if (getClockwiseRotation() == 0) {
             return cannonStrength;
         } else {
-            return cannonStrength/2;
+            return ((float) cannonStrength)/2;
         }
     }
 

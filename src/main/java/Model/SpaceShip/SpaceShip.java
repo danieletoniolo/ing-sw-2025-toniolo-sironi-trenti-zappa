@@ -72,6 +72,14 @@ public class SpaceShip {
     }
 
     /**
+     * Get the number of components placed in the ship
+     * @return number of components placed in the ship
+     */
+    public int getNumberOfComponents() {
+        return numberOfComponents;
+    }
+
+    /**
      Get the strength of the single engines
      @return The strength of the single engines
      */
@@ -104,25 +112,6 @@ public class SpaceShip {
     }
 
     /**
-     * Refresh the strength stats of the engines by searching in the components matrix
-     */
-    public void refreshEngineStrength() {
-        singleEnginesStrength = 0;
-        doubleEnginesStrength = 0;
-        for (Component[] c1 : components) {
-            for (Component c2 : c1) {
-                if (c2 != null) {
-                    if (c2.getComponentType() == ComponentType.SINGLE_ENGINE) {
-                        singleEnginesStrength++;
-                    } else if (c2.getComponentType() == ComponentType.DOUBLE_ENGINE) {
-                        doubleEnginesStrength += 2;
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Get the strength of the single cannons of the ship
      * @return Strength of the single cannons of the ship
      */
@@ -147,58 +136,11 @@ public class SpaceShip {
     }
 
     /**
-     * Refresh the strength stats of the cannons by searching in the components matrix
-     */
-    public void refreshCannonsStrength() {
-        singleCannonsStrength = 0;
-        doubleCannonsStrength = 0;
-        doubleCannonsNumber = 0;
-        for (Component[] c1 : components) {
-            for (Component c2 : c1) {
-                if (c2 != null) {
-                    if (c2.getComponentType() == ComponentType.SINGLE_CANNON) {
-                        if (c2.getClockwiseRotation() == 0) {
-                            singleCannonsStrength++;
-                        } else {
-                            singleCannonsStrength += 0.5f;
-                        }
-                    }
-                    if (c2.getComponentType() == ComponentType.DOUBLE_CANNON) {
-                        if (c2.getClockwiseRotation() == 0) {
-                            doubleCannonsStrength += 2;
-                        } else {
-                            doubleCannonsStrength += 1;
-                        }
-                        doubleCannonsNumber++;
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Get the number of energy blocks
      * @return number of energy blocks available in the ship
      */
     public int getEnergyNumber() {
         return energyNumber;
-    }
-
-    /**
-     * Refresh the number of energy blocks by searching in the components matrix
-     */
-    public void refreshEnergyNumber() {
-        energyNumber = 0;
-        for (Component[] c1 : components) {
-            for (Component c2 : c1) {
-                if (c2 != null) {
-                    if (c2.getComponentType() == ComponentType.BATTERY) {
-                        Battery battery = (Battery) c2;
-                        energyNumber += battery.getEnergyNumber();
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -471,6 +413,7 @@ public class SpaceShip {
             components[row][column].setColumn(column);
             switch (components[row][column].getComponentType()) {
                 case BATTERY:
+                    energyNumber += ((Battery) components[row][column]).getEnergyNumber();
                     batteries.put(c.getID(), (Battery) components[row][column]);
                     break;
                 case CABIN:
@@ -478,6 +421,19 @@ public class SpaceShip {
                     break;
                 case STORAGE:
                     storages.put(c.getID(), (Storage) components[row][column]);
+                    break;
+                case SINGLE_CANNON:
+                    singleCannonsStrength += ((Cannon) components[row][column]).getCannonStrength();
+                    break;
+                case DOUBLE_CANNON:
+                    doubleCannonsStrength += ((Cannon) components[row][column]).getCannonStrength();
+                    doubleCannonsNumber++;
+                    break;
+                case SINGLE_ENGINE:
+                    singleEnginesStrength++;
+                    break;
+                case DOUBLE_ENGINE:
+                    doubleEnginesStrength++;
                     break;
                 default:
                     break;
