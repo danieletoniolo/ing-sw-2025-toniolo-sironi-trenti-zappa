@@ -45,6 +45,8 @@ public class SpaceShip {
 
     public SpaceShip(boolean[][] validSpots) {
         components = new Component[rows][cols];
+        // TODO: Set the initial components of the ship with proper values
+        components[7][7] = new Cabin(1, 7, 7, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         this.validSpots = validSpots;
         lostComponents = new ArrayList<>();
         reservedComponents = new ArrayList<>();
