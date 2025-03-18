@@ -56,12 +56,7 @@ public class AbandonedShipState extends State {
         super.played = true;
         crewLoss.forEach((ID, loss) -> {
             Cabin cabin = player.getSpaceShip().getCabin(ID);
-            if (cabin.hasBrownAlien() || cabin.hasPurpleAlien()) {
-                cabin.removeAlien();
-            }
-            else {
-                cabin.removeCrewMember(loss);
-            }
+            cabin.removeCrewMember(loss);
         });
         player.addCoins(card.getCredit());
         player.addSteps(-card.getFlightDays());

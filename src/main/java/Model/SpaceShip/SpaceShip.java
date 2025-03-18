@@ -569,7 +569,7 @@ public class SpaceShip {
                         Cabin cabinBrown = (Cabin) c;
                         if (cabinBrown.hasBrownAlien()) {
                             brownAlien = false;
-                            cabinBrown.removeCrewMember(1);
+                            cabinBrown.removeCrewMember(1);;
                             crewNumber -= cabinBrown.getCrewNumber();
                         }
                     }
