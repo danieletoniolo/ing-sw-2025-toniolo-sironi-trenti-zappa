@@ -107,12 +107,16 @@ public class SpaceShip {
      * Refresh the strength stats of the engines by searching in the components matrix
      */
     public void refreshEngineStrength() {
+        singleEnginesStrength = 0;
+        doubleEnginesStrength = 0;
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
-                if (c2.getComponentType() == ComponentType.SINGLE_ENGINE) {
-                    singleEnginesStrength++;
-                } else if (c2.getComponentType() == ComponentType.DOUBLE_ENGINE) {
-                    doubleEnginesStrength++;
+                if (c2 != null) {
+                    if (c2.getComponentType() == ComponentType.SINGLE_ENGINE) {
+                        singleEnginesStrength++;
+                    } else if (c2.getComponentType() == ComponentType.DOUBLE_ENGINE) {
+                        doubleEnginesStrength += 2;
+                    }
                 }
             }
         }
@@ -146,22 +150,27 @@ public class SpaceShip {
      * Refresh the strength stats of the cannons by searching in the components matrix
      */
     public void refreshCannonsStrength() {
+        singleCannonsStrength = 0;
+        doubleCannonsStrength = 0;
+        doubleCannonsNumber = 0;
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
-                if (c2.getComponentType() == ComponentType.SINGLE_CANNON) {
-                    if (c2.getClockwiseRotation() == 0) {
-                        singleCannonsStrength++;
-                    } else {
-                        singleCannonsStrength += (float) 0.5;
+                if (c2 != null) {
+                    if (c2.getComponentType() == ComponentType.SINGLE_CANNON) {
+                        if (c2.getClockwiseRotation() == 0) {
+                            singleCannonsStrength++;
+                        } else {
+                            singleCannonsStrength += 0.5f;
+                        }
                     }
-                }
-                if (c2.getComponentType() == ComponentType.DOUBLE_CANNON) {
-                    if (c2.getClockwiseRotation() == 0) {
-                        doubleCannonsStrength += 2;
-                    } else {
-                        doubleCannonsStrength += 1;
+                    if (c2.getComponentType() == ComponentType.DOUBLE_CANNON) {
+                        if (c2.getClockwiseRotation() == 0) {
+                            doubleCannonsStrength += 2;
+                        } else {
+                            doubleCannonsStrength += 1;
+                        }
+                        doubleCannonsNumber++;
                     }
-                    doubleCannonsNumber++;
                 }
             }
         }
@@ -182,9 +191,11 @@ public class SpaceShip {
         energyNumber = 0;
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
-                if (c2.getComponentType() == ComponentType.BATTERY) {
-                    Battery battery = (Battery) c2;
-                    energyNumber += battery.getEnergyNumber();
+                if (c2 != null) {
+                    if (c2.getComponentType() == ComponentType.BATTERY) {
+                        Battery battery = (Battery) c2;
+                        energyNumber += battery.getEnergyNumber();
+                    }
                 }
             }
         }
@@ -205,9 +216,11 @@ public class SpaceShip {
         goodsValue = 0;
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
-                if (c2.getComponentType() == ComponentType.STORAGE) {
-                    Storage storage = (Storage) c2;
-                    goodsValue += storage.getGoodsValue();
+                if (c2 != null) {
+                    if (c2.getComponentType() == ComponentType.STORAGE) {
+                        Storage storage = (Storage) c2;
+                        goodsValue += storage.getGoodsValue();
+                    }
                 }
             }
         }
@@ -451,7 +464,7 @@ public class SpaceShip {
      */
     public void placeComponent(Component c, int row, int column) throws IllegalStateException {
         components[row][column] = c;
-        components[row + 1][column].ship = this;
+        components[row][column].ship = this;
         if (components[row][column].isConnected(row, column)) {
             reservedComponents.remove(c);
             components[row][column].setRow(row);
