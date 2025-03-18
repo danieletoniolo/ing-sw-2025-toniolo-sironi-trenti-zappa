@@ -9,8 +9,8 @@ public class Cabin extends Component {
     private boolean purpleAlien;
     private boolean brownAlien;
 
-    public Cabin(int row, int column, ConnectorType[] connectors) {
-        super(row, column, connectors);
+    public Cabin(int ID, int row, int column, ConnectorType[] connectors) {
+        super(ID, row, column, connectors);
         crewNumber = 0;
         purpleLifeSupport = false;
         brownLifeSupport = false;
@@ -62,7 +62,7 @@ public class Cabin extends Component {
      * Add two crew member to the cabin
      * @throws IllegalStateException if there is purple alien or brown alien in the cabin
      */
-    public void addCrewMember() {
+    public void addCrewMember() throws IllegalStateException {
         if (brownAlien || purpleAlien) {
             throw new IllegalStateException("Cannot add crew member to the cabin");
         }
@@ -73,7 +73,7 @@ public class Cabin extends Component {
      * Add purple alien to the cabin
      * @throws IllegalStateException if there is no purple life support or there is a brown alien in the cabin
      */
-    public void addPurpleAlien() {
+    public void addPurpleAlien() throws IllegalStateException {
         if (!purpleLifeSupport || brownAlien) {
             throw new IllegalStateException("Cannot add purple alien to the cabin");
         }
@@ -85,7 +85,7 @@ public class Cabin extends Component {
      * Add brown alien to the cabin
      * @throws IllegalStateException if there is no brown life support or there is a purple alien in the cabin
      */
-    public void addBrownAlien() {
+    public void addBrownAlien() throws IllegalStateException {
         if (!brownLifeSupport || purpleAlien) {
             throw new IllegalStateException("Cannot add brown alien to the cabin");
         }
@@ -94,28 +94,19 @@ public class Cabin extends Component {
     }
 
     /**
-     * Remove crew member from the cabin
+     * Remove crew member or alien from the cabin
      * @throws IllegalStateException if there is no crew member in the cabin
      */
-    public void removeCrewMember() {
-        if (crewNumber > 0) {
-            crewNumber--;
+    public void removeCrewMember(int num) throws IllegalStateException {
+        if (crewNumber > 0 && num <= crewNumber) {
+            if (purpleAlien || brownAlien) {
+                purpleAlien = false;
+                brownAlien = false;
+            }
+            crewNumber -= num;
+            super.ship.addCrewMember(-num);
         } else {
-            throw new IllegalStateException("There is no crew member in the cabin");
-        }
-    }
-
-    /**
-     * Remove alien from the cabin
-     * @throws IllegalStateException if there is no alien in the cabin
-     */
-    public void removeAlien() {
-        if (purpleAlien || brownAlien) {
-            purpleAlien = false;
-            brownAlien = false;
-            crewNumber = 0;
-        } else {
-            throw new IllegalStateException("There is no alien in the cabin");
+            throw new IllegalStateException("There isn't enough crew member in the cabin");
         }
     }
 

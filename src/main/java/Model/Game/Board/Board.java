@@ -1,24 +1,25 @@
 package Model.Game.Board;
 
+import Model.Cards.Card;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
+import Model.SpaceShip.Component;
+import Model.State.State;
 
-import javax.smartcardio.Card;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
 
 
 public class Board {
     private static final int numberOfDecks = 4;
     private static final int cardsPerDeck = 3;
 
+    private final State state;
     private final Level level;
     private final int numberOfCells;
 
     private Deck[] decks;
     private final Stack<Card> shuffledDeck;
+    private final Map<Integer, Component> tiles;
     private int flightDays;
 
     private final PlayerData blue;
@@ -26,7 +27,19 @@ public class Board {
     private final PlayerData green;
     private final PlayerData yellow;
 
-    public Board(Level level, PlayerData blue, PlayerData red, PlayerData green, PlayerData yellow) {
+    /**
+     * Create a new board
+     * @param level the level of the board
+     * @param tiles the list of tiles on the board
+     * @param blue the player data for the blue player
+     * @param red the player data for the red player
+     * @param green the player data for the green player
+     * @param yellow the player data for the yellow player
+     * @throws IllegalArgumentException if the level is set to an unexpected value
+     */
+    public Board(Level level, Map<Integer, Component> tiles, PlayerData blue, PlayerData red, PlayerData green, PlayerData yellow) throws IllegalArgumentException {
+        // TODO: dichiarare state iniziale
+        this.state = null;
         this.level = level;
         if (!level.equals(Level.LEARNING)) {
             for (int i = 0; i < numberOfDecks; i++)
@@ -40,9 +53,9 @@ public class Board {
                 this.numberOfCells = 24;
                 break;
             default:
-                this.numberOfCells = -1;
-                break;
+                throw new IllegalArgumentException("Unexpected value: " + level);
         }
+        this.tiles = tiles;
         this.shuffledDeck = new Stack<>();
         this.blue = blue;
         this.red = red;
@@ -113,14 +126,30 @@ public class Board {
     }
 
     /**
+     * Retrieves the tile with the specified ID.
+     * @param ID the ID of the tile to retrieve
+     * @return the tile with the specified ID, or null if no tile with that ID exists
+     */
+    public Component getTile(int ID) {
+        return this.tiles.get(ID);
+    }
+
+    /**
+     * Do the transition to the next state
+     */
+    public void stateTransition() {
+        // TODO: implementare transizione di stato
+    }
+
+    /**
      * Creates the decks for the board using the provided cards.
      * @param cardsFirstLevel the list of cards for the first level
      * @param cardsSecondLevel the list of cards for the second level
-     * @throws IllegalStateException if the board level is set to learning
+     * @throws IllegalArgumentException if the board level is set to learning
      */
-    public void createDecks(ArrayList<Card> cardsFirstLevel, ArrayList<Card> cardsSecondLevel) throws IllegalStateException {
+    public void createDecks(ArrayList<Card> cardsFirstLevel, ArrayList<Card> cardsSecondLevel) throws IllegalArgumentException {
         if (this.level.equals(Level.LEARNING))
-            throw new IllegalStateException("Cannot create decks at learning level");
+            throw new IllegalArgumentException("Cannot create decks at learning level");
 
         ArrayList<Card> cards = new ArrayList<>();
         for (int i = 0; i < numberOfDecks; i++) {

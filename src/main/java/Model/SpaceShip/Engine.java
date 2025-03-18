@@ -3,8 +3,8 @@ package Model.SpaceShip;
 public class Engine extends Component {
     private final int engineStrength;
 
-    public Engine(int row, int column, ConnectorType[] connectors, int engineStrength) {
-        super(row, column, connectors);
+    public Engine(int ID, int row, int column, ConnectorType[] connectors, int engineStrength) {
+        super(ID, row, column, connectors);
         this.engineStrength = engineStrength;
     }
 

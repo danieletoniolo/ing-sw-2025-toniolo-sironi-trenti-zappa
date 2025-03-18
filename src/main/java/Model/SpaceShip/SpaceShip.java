@@ -4,16 +4,26 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Map;
 
 import Model.Cards.Hits.Direction;
 import Model.Cards.Hits.Hit;
+import org.javatuples.Pair;
 
 public class SpaceShip {
+    private static final float alienStrength = 2.0f;
+    private static final int rows = 12;
+    private static final int cols = 12;
     private Component[][] components;
     private final boolean[][] validSpots;
 
     private List<Component> lostComponents;
     private ArrayList<Component> reservedComponents;
+
+    private Map<Integer, Storage> storages;
+    private Map<Integer, Battery> batteries;
+    private Map<Integer, Cabin> cabins;
+    private Map<Integer, Cannon> cannons;
 
     private int singleEnginesStrength;
     private int doubleEnginesStrength;
@@ -34,7 +44,7 @@ public class SpaceShip {
     private int exposedConnectors;
 
     public SpaceShip(boolean[][] validSpots) {
-        components = new Component[12][12];
+        components = new Component[rows][cols];
         this.validSpots = validSpots;
         lostComponents = new ArrayList<>();
         reservedComponents = new ArrayList<>();
@@ -71,6 +81,22 @@ public class SpaceShip {
      */
     public int getDoubleEnginesStrength() {
         return doubleEnginesStrength;
+    }
+
+    /**
+     *
+     * @return number of rows
+     */
+    public static int getRows(){
+        return rows;
+    }
+
+    /**
+     *
+     * @return number of cols
+     */
+    public static int getCols(){
+        return cols;
     }
 
     /**
@@ -146,6 +172,21 @@ public class SpaceShip {
     }
 
     /**
+     * Refresh the number of energy blocks by searching in the components matrix
+     */
+    public void refreshEnergyNumber() {
+        energyNumber = 0;
+        for (Component[] c1 : components) {
+            for (Component c2 : c1) {
+                if (c2.getComponentType() == ComponentType.BATTERY) {
+                    Battery battery = (Battery) c2;
+                    energyNumber += battery.getEnergyNumber();
+                }
+            }
+        }
+    }
+
+    /**
      * Get the goods value of the ship
      * @return goodsValue
      */
@@ -169,12 +210,58 @@ public class SpaceShip {
     }
 
     /**
+     * Get the number of crew members of the ship
+     * @return the number of crew members of the ship
+     */
+    public int getCrewNumber() {
+        return crewNumber;
+    }
+
+    /**
+     * Get if there is a purple alien in the ship
+     * @return true if there is a purple alien in the ship, false otherwise
+     */
+    public boolean getPurpleAlien(){
+        return purpleAlien;
+    }
+
+    /**
+     * Get if there is a brown alien in the ship
+     * @return true if there is a brown alien in the ship, false otherwise
+     */
+    public boolean getBrownAlien(){
+        return brownAlien;
+    }
+
+    /**
+     * Get how much the aliens add to the stats
+     * @return return how much the aliens add to the stats
+     */
+    public static float getAlienStrength() {
+        return alienStrength;
+    }
+
+    /**
+     * Add crew members to the ship
+     * @param num number of crew members to add
+     * @throws IllegalArgumentException if the number of crew members is negative
+     */
+    public void addCrewMember(int num) throws IllegalArgumentException {
+        if (crewNumber + num < 0) {
+            throw new IllegalStateException("Cannot have negative crew members");
+        }
+        crewNumber += num;
+    }
+
+    /**
      * Check if the ship can shield from a hit
      * @param direction direction of the hit (Number picked by dice roll)
      * @param hit hit class containing the type of the hit and the direction (North, West, South, East) of the hit and Hit object
-     * @return -1 if the ship can't shield, 0 if the ship can shield spending a battery, 1 if the ship can shield without spending a battery
+     * @return Pair of the component that can shield and the value of the shield. -1 if the ship can't shield, 0 if the ship can shield spending a battery, 1 if the ship can shield without spending a battery (in this case the component return is null)
+     * @throws IllegalArgumentException if the direction or the type of the hit is not valid
      */
-    public int canProtect(int direction, Hit hit) {
+    //TODO: Implement the Large meteor mechanism to protect the ship
+    public Pair<Component, Integer> canProtect(int direction, Hit hit) throws IllegalArgumentException {
         Component component = null;
         switch (hit.getDirection()) {
             case NORTH:
@@ -201,13 +288,13 @@ public class SpaceShip {
                 throw new IllegalArgumentException("The direction of the hit is not valid");
         }
         if (component == null) {
-            return 1;
+            return new Pair<>(null, 1);
         }
 
         switch (hit.getType()) {
             case SMALLMETEOR:
                 if (component.getExposedConnectors() == 0) {
-                    return 1;
+                    return new Pair<>(null, 1);
                 }
             case LIGHTFIRE:
                 for (int i = 0; i < 12; i++) {
@@ -215,24 +302,24 @@ public class SpaceShip {
                         if (components[i][j].getComponentType() == ComponentType.SHIELD) {
                             Shield shield = (Shield) components[i][j];
                             if (shield.canShield(hit.getDirection().getValue())) {
-                                return 0;
+                                return new Pair<>(component, 0);
                             }
                         }
                     }
                 }
-                return -1;
+                return new Pair<>(component, -1);
             case LARGEMETEOR:
                 if (component.getComponentType() == ComponentType.SINGLE_CANNON &&
                         component.getClockwiseRotation() == 4 - hit.getDirection().getValue()) {
-                    return 1;
+                    return new Pair<>(null, 1);
                 } else if (component.getComponentType() == ComponentType.DOUBLE_CANNON &&
                         component.getClockwiseRotation() == 4 - hit.getDirection().getValue()) {
-                    return 0;
+                    return new Pair<>(component, 0);
                 } else {
-                    return -1;
+                    return new Pair<>(component, -1);
                 }
             case HEAVYFIRE:
-                return -1;
+                return new Pair<>(component, -1);
             default:
                 throw new IllegalArgumentException("The type of the hit is not valid");
         }
@@ -245,7 +332,7 @@ public class SpaceShip {
      * @return true if the battery was used, false otherwise
      * @throws IllegalArgumentException if the component at the given row and column is not a battery
      */
-    public boolean useEnergy(int row, int column) {
+    public boolean useEnergy(int row, int column) throws IllegalArgumentException {
         if (components[row][column].getComponentType() == ComponentType.BATTERY) {
             Battery battery = (Battery) components[row][column];
             try {
@@ -292,6 +379,14 @@ public class SpaceShip {
     }
 
     /**
+     * Calculate the exposed connectors of the ship by searching in the components matrix
+     * @return The number of the exposed connectors
+     */
+    public int getExposedConnectors() {
+        return exposedConnectors;
+    }
+
+    /**
      * Get the component at the given row and column
      * @param row row of the component to get
      * @param column column of the component to get
@@ -322,7 +417,7 @@ public class SpaceShip {
      * @param c the component to reserve
      * @throws IllegalStateException if there are already two components reserved
      */
-    public void reserveComponent(Component c) {
+    public void reserveComponent(Component c) throws IllegalStateException {
         if (reservedComponents.size() < 2) {
             if (reservedComponents.getFirst() == null) {
                 reservedComponents.addFirst(c);
@@ -344,12 +439,106 @@ public class SpaceShip {
     }
 
     /**
-     * Destroy a component at the given row and column, update the stats of the ship and search if there is component that are no longer connected
+     * Place a component at the given row and column to the ship
+     * @param c the component to place
+     * @param row the row of the component to place
+     * @param column the column of the component to place
+     * @throws IllegalStateException if the component is not connected
+     */
+    public void placeComponent(Component c, int row, int column) throws IllegalStateException {
+        components[row][column] = c;
+        if (components[row][column].isConnected(row, column)) {
+            reservedComponents.remove(c);
+            components[row][column].setRow(row);
+            components[row][column].setColumn(column);
+            switch (components[row][column].getComponentType()) {
+                case BATTERY:
+                    batteries.put(c.getID(), (Battery) components[row][column]);
+                    break;
+                case CABIN:
+                    cabins.put(c.getID(), (Cabin) components[row][column]);
+                    break;
+                case STORAGE:
+                    storages.put(c.getID(), (Storage) components[row][column]);
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            throw new IllegalStateException("The component at the given row and column are not connected");
+        }
+    }
+
+    /**
+     * Get the cabin in the ship by ID
+     * @return cabin in the ship
+     */
+    public Cabin getCabin(int ID) {
+        return this.cabins.get(ID);
+    }
+
+    /**
+     * Get the cabins in the ship
+     * @return cabins in the ship
+     */
+    public Map<Integer, Cabin> getCabins() {
+        return cabins;
+    }
+
+    /**
+     * Get the storage in the ship by ID
+     * @return storage in the ship
+     */
+    public Storage getStorage(int ID) {
+        return this.storages.get(ID);
+    }
+
+    /**
+     * Get the storages in the ship
+     * @return storages in the ship
+     */
+    public Map<Integer, Storage> getStorages() {
+        return storages;
+    }
+
+    /**
+     * Get the battery in the ship by ID
+     * @return battery in the ship
+     */
+    public Battery getBattery(int ID) {
+        return this.batteries.get(ID);
+    }
+
+    /**
+     * Get the batteries in the ship
+     * @return get batteries in the ship
+     */
+    public Map<Integer, Battery> getBatteries() {
+        return batteries;
+    }
+
+    /**
+     * Get the cannon in the ship by ID
+     * @return cannon in the ship
+     */
+    public Cannon getCannon(int ID) {
+        return this.cannons.get(ID);
+    }
+
+    /**
+     * Get the cannons in the ship
+     * @return cannons in the ship
+     */
+    public Map<Integer, Cannon> getCannons() {
+        return cannons;
+    }
+
+    /**
+     * Destroy a component at the given row and column and update the stats of the ship
      * @param row row of the component to destroy
      * @param column column of the component to destroy
-     * @return List of List of int[] representing the group of disconnected components
      */
-    public List<List<int[]>> destroyComponent(int row, int column) {
+    public void destroyComponent(int row, int column) {
         Component destroyedComponent = components[row][column];
         components[row][column] = null;
 
@@ -371,6 +560,7 @@ public class SpaceShip {
                 break;
             case CABIN:
                 Cabin cabin = (Cabin) destroyedComponent;
+                cabins.remove(cabin.getID());
                 crewNumber -= cabin.getCrewNumber();
                 break;
             case BROWN_LIFE_SUPPORT:
@@ -379,7 +569,7 @@ public class SpaceShip {
                         Cabin cabinBrown = (Cabin) c;
                         if (cabinBrown.hasBrownAlien()) {
                             brownAlien = false;
-                            cabinBrown.removeAlien();
+                            cabinBrown.removeCrewMember(1);;
                             crewNumber -= cabinBrown.getCrewNumber();
                         }
                     }
@@ -391,7 +581,7 @@ public class SpaceShip {
                         Cabin cabinPurple = (Cabin) c;
                         if (cabinPurple.hasPurpleAlien()) {
                             purpleAlien = false;
-                            cabinPurple.removeAlien();
+                            cabinPurple.removeCrewMember(1);
                             crewNumber -= cabinPurple.getCrewNumber();
                         }
                     }
@@ -399,18 +589,25 @@ public class SpaceShip {
                 break;
             case STORAGE:
                 Storage storage = (Storage) destroyedComponent;
+                storages.remove(storage.getID());
                 goodsValue -= storage.getGoodsValue();
                 break;
             case BATTERY:
                 Battery battery = (Battery) destroyedComponent;
+                batteries.remove(battery.getID());
                 energyNumber -= battery.getEnergyNumber();
                 break;
             default:
                 break;
         }
-
         lostComponents.add(destroyedComponent);
+    }
 
+    /**
+     * Search if there is component that are no longer connected to the ship
+     * @return List of List of int[] representing the group of disconnected components
+     */
+    public List<List<int[]>> getDisconnectedComponents() {
         List<List<int[]>> disconnectedComponents = new ArrayList<>();
         boolean[][] visited = new boolean[12][12];
         for (int i = 0; i < 12; i++) {

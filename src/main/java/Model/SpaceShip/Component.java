@@ -3,7 +3,9 @@ package Model.SpaceShip;
 import java.util.ArrayList;
 
 public abstract class Component {
-    private SpaceShip ship;
+    protected SpaceShip ship;
+
+    protected int ID;
 
     protected int row;
     protected int column;
@@ -14,13 +16,14 @@ public abstract class Component {
 
     private int clockwiseRotation;
 
-    public Component(int row, int column, ConnectorType[] connectors) {
-        ship = null;
+    public Component(int ID, int row, int column, ConnectorType[] connectors) {
+        this.ID = ID;
+        this.ship = null;
         this.row = row;
         this.column = column;
-        fixed = false;
+        this.fixed = false;
         this.connectors = connectors;
-        clockwiseRotation = 0;
+        this.clockwiseRotation = 0;
     }
 
     /**
@@ -63,6 +66,30 @@ public abstract class Component {
     }
 
     /**
+     * Returns the ID of the component
+     * @return The ID of the component
+     */
+    public int getID() {
+        return ID;
+    }
+
+    /**
+     * Set the row of the component
+     * @param row The row of the component
+     */
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    /**
+     * Set the column of the component
+     * @param column The column of the component
+     */
+    public void setColumn(int column) {
+        this.column = column;
+    }
+
+    /**
      * Rotates the component clockwise (90 degrees)
      */
     public void rotateClockwise() {
@@ -86,10 +113,12 @@ public abstract class Component {
 
     /**
      * Check if the component is connected to the ship
+     * @param row The row of the component
+     * @param column The column of the component
      * @apiNote Should be called when a component is added to the ship
      * @return true if the component is connected to the ship, false otherwise
      */
-    public boolean isConnected() {
+    public boolean isConnected(int row, int column) {
         ArrayList<Component> components =  ship.getSurroundingComponents(row, column);
         for (Component c : components) {
             if (c != null) {
