@@ -43,12 +43,17 @@ public class OpenSpaceState extends State {
     }
 
     /**
-     *
+     * Execute: Add steps to player
      * @param player PlayerData of the player to play
      */
     @Override
     public void execute(PlayerData player) {
+        if (stats.get(player) == 0) {
+            player.setGaveUp(true);
+        }
+        else {
+            player.addSteps(stats.get(player));
+        }
         super.execute(player);
-        player.addSteps(stats.get(player));
     }
 }
