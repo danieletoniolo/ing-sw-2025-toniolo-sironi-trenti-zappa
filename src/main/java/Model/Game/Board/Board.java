@@ -111,9 +111,13 @@ public class Board {
      * @return the deck at the specified index
      * @throws IllegalStateException if the deck at the specified index is not pickable
      */
-    public Deck getDeck(int index) throws IllegalStateException {
-        if (!this.decks[index].isPickable())
+    public Deck getDeck(int index, PlayerData player) throws IllegalStateException, NullPointerException {
+        if (player == null) {
+            throw new NullPointerException("Player is null");
+        }
+        if (!this.decks[index].isPickable() && player.getSpaceShip().getNumberOfComponents() >= 1)
             throw new IllegalStateException("Deck is not pickable");
+
         return this.decks[index];
     }
 

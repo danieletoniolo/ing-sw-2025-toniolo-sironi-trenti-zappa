@@ -2,7 +2,7 @@ package Model.State;
 
 import Model.Cards.AbandonedShip;
 import Model.Player.PlayerData;
-import Model.SpaceShip.Cabin;
+import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,13 +52,20 @@ public class AbandonedShipState extends State {
         if (crewLostTotal != card.getCrewRequired()) {
             throw new IllegalStateException("Crew loss does not match the card requirements");
         }
+
+        for (Pair<PlayerData, PlayerStatus> p : players) {
+            if (p.getValue0().equals(player)) {
+                if (p.getValue1().equals(PlayerStatus.PLAYING)) {
+                    played = true;
+                    crewLoss.forEach((ID, loss) -> {
+                        player.getSpaceShip().getCabin(ID).removeCrewMember(loss);
+                    });
+                    player.addCoins(card.getCredit());
+                    player.addSteps(-card.getFlightDays());
+                }
+                break;
+            }
+        }
         super.execute(player);
-        super.played = true;
-        crewLoss.forEach((ID, loss) -> {
-            Cabin cabin = player.getSpaceShip().getCabin(ID);
-            cabin.removeCrewMember(loss);
-        });
-        player.addCoins(card.getCredit());
-        player.addSteps(-card.getFlightDays());
     }
 }
