@@ -215,33 +215,33 @@ public class SpaceShip {
 
     /**
      * Check if the ship can shield from a hit
-     * @param direction direction of the hit (Number picked by dice roll)
+     * @param dice direction of the hit (Number picked by dice roll)
      * @param hit hit class containing the type of the hit and the direction (North, West, South, East) of the hit and Hit object
      * @return Pair of the component that can shield and the value of the shield. -1 if the ship can't shield, 0 if the ship can shield spending a battery, 1 if the ship can shield without spending a battery (in this case the component return is null)
      * @throws IllegalArgumentException if the direction or the type of the hit is not valid
      */
     //TODO: Implement the Large meteor mechanism to protect the ship
-    public Pair<Component, Integer> canProtect(int direction, Hit hit) throws IllegalArgumentException {
+    public Pair<Component, Integer> canProtect(int dice, Hit hit) throws IllegalArgumentException {
         Component component = null;
         switch (hit.getDirection()) {
             case NORTH:
                 for (int i = 0; i < cols && component == null; i++) {
-                    component = components[direction][i];
+                    component = components[dice][i];
                 }
                 break;
             case WEST:
                 for (int i = 0; i < rows && component == null; i++) {
-                    component = components[i][direction];
+                    component = components[i][dice];
                 }
                 break;
             case SOUTH:
                 for (int i = cols-1; i >= 0 && component == null; i--) {
-                    component = components[direction][i];
+                    component = components[dice][i];
                 }
                 break;
             case EAST:
                 for (int i = rows-1; i >= 0 && component == null; i--) {
-                    component = components[i][direction];
+                    component = components[i][dice];
                 }
                 break;
             default:
