@@ -1,10 +1,6 @@
 package Model.SpaceShip;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Map;
+import java.util.*;
 
 import Model.Cards.Hits.Direction;
 import Model.Cards.Hits.Hit;
@@ -69,6 +65,11 @@ public class SpaceShip {
 
         goodsValue = 0;
         exposedConnectors = 0;
+
+        storages = new HashMap<>();
+        batteries = new HashMap<>();
+        cabins = new HashMap<>();
+        cannons = new HashMap<>();
     }
 
     /**
@@ -286,24 +287,19 @@ public class SpaceShip {
 
     /**
      * Use a battery and reduce the total number of energy
-     * @param row row of the battery cell component to use
-     * @param column column of the battery cell component to use
+     * @param ID ID of the battery to use
      * @return true if the battery was used, false otherwise
      * @throws IllegalArgumentException if the component at the given row and column is not a battery
      */
-    public boolean useEnergy(int row, int column) throws IllegalArgumentException {
-        if (components[row][column].getComponentType() == ComponentType.BATTERY) {
-            Battery battery = (Battery) components[row][column];
-            try {
-                battery.removeEnergy();
-                energyNumber--;
-                return true;
-            } catch (IllegalStateException e) {
-                // TODO: decide if we want to throw an exception or return false
-                return false;
-            }
-        } else {
-            throw new IllegalArgumentException("The component at the given row and column is not a battery");
+    public boolean useEnergy(int ID) throws IllegalArgumentException {
+        Battery battery = batteries.get(ID);
+        try {
+            battery.removeEnergy();
+            energyNumber--;
+            return true;
+        } catch (IllegalStateException e) {
+            // TODO: decide if we want to throw an exception or return false
+            return false;
         }
     }
 
