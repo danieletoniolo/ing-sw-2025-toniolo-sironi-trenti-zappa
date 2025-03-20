@@ -11,7 +11,15 @@ public enum CombatZoneStatsType {
         this.index = index;
     }
 
-    public int getIndex() {
-        return index;
+    public int getIndex(int level) {
+        int out = this.index;
+        if (level == 2) {
+            if (index == 0) {
+                out = 2;
+            } else if (index == 2) {
+                out = 0;
+            }
+        }
+        return out;
     }
 }
