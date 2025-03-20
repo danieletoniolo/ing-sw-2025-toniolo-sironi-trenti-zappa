@@ -20,12 +20,12 @@ public class Engine extends Component {
      * @implNote Extends the isValid method from the Component class to check that the engine has no component below it and that it is not rotated
      */
     @Override
-    public boolean isValid(SpaceShip ship) {
+    public boolean isValid() {
         Component c = ship.getComponent(row-1, column);
         if (c != null || getClockwiseRotation() != 0) {
             return false;
         }
-        return super.isValid(ship);
+        return super.isValid();
     }
 
     @Override
