@@ -24,7 +24,7 @@ public class Cannon extends Component{
      * @implNote Extend the isValid method to check if the cannon has no component in front of it
      */
     @Override
-    public boolean isValid(SpaceShip ship) {
+    public boolean isValid() {
         Component c = switch (getClockwiseRotation()) {
             case 0 -> ship.getComponent(row + 1, column);
             case 1 -> ship.getComponent(row, column - 1);
@@ -32,7 +32,7 @@ public class Cannon extends Component{
             case 3 -> ship.getComponent(row, column + 1);
             default -> null;
         };
-        return c == null && super.isValid(ship);
+        return c == null && super.isValid();
     }
 
     @Override

@@ -14,36 +14,72 @@ public class SlaversState extends State {
     private int execForPlayer;
     private final Slavers card;
     private final Map<PlayerData, Float> stats;
-    private final Map<Integer, Integer> crewLost;
+    private Map<Integer, Integer> crewLost;
     private Boolean slaversDefeat;
-    private boolean acceptCredits;
+    private Boolean acceptCredits;
 
     public SlaversState(ArrayList<PlayerData> players, Slavers card) {
         super(players);
         this.execForPlayer = 0;
         this.card = card;
         this.stats = new HashMap<>();
-        this.crewLost = new HashMap<>();
+        this.crewLost = null;
         this.slaversDefeat = false;
-        this.acceptCredits = false;
+        this.acceptCredits = null;
     }
 
-    public void addStats(PlayerData player, Float value) {
+    /**
+     * Add stats to the player
+     * @param player PlayerData
+     * @param value Float value to add
+     * @throws IllegalStateException if execForPlayer != 0
+     */
+    public void addStats(PlayerData player, Float value) throws IllegalStateException {
+        if (execForPlayer != 0) {
+            throw new IllegalStateException("addStats not allowed in this state");
+        }
         stats.merge(player, value, Float::sum);
     }
 
-    public void setCrewLost(int cabin, int crew) {
+    /**
+     * Set the crew lost for a cabin
+     * @param cabin Cabin ID
+     * @param crew Number of crew members lost
+     * @throws IllegalStateException if execForPlayer != 1
+     */
+    public void setCrewLost(int cabin, int crew) throws IllegalStateException {
+        if (execForPlayer != 1) {
+            throw new IllegalStateException("setCrewLost not allowed in this state");
+        }
+        if (this.crewLost == null) {
+            this.crewLost = new HashMap<>();
+        }
         crewLost.put(cabin, crew);
     }
 
-    public void setAcceptCredits(boolean acceptCredits) {
+    /**
+     * Set if the player accepts the credits
+     * @param acceptCredits Boolean value
+     * @throws IllegalStateException if execForPlayer != 1
+     */
+    public void setAcceptCredits(boolean acceptCredits) throws IllegalStateException {
+        if (execForPlayer != 1) {
+            throw new IllegalStateException("setAcceptCredits not allowed in this state");
+        }
         this.acceptCredits = acceptCredits;
     }
 
+    /**
+     * Check if the slavers are defeated
+     * @return Boolean value
+     */
     public Boolean isSlaversDefeat() {
         return slaversDefeat;
     }
 
+    /**
+     * Entry method, set the stats for the players
+     */
     @Override
     public void entry() {
         PlayerData value0;
@@ -56,6 +92,11 @@ public class SlaversState extends State {
         }
     }
 
+    /**
+     * Execute the state
+     * @param player PlayerData of the player to play
+     * @throws IllegalStateException if acceptCredits not set, crewLost not set
+     */
     @Override
     public void execute(PlayerData player) throws IllegalStateException {
         SpaceShip spaceShip = player.getSpaceShip();
@@ -76,11 +117,17 @@ public class SlaversState extends State {
                 if (slaversDefeat == null)
                     break;
                 if (slaversDefeat) {
+                    if (acceptCredits == null) {
+                        throw new IllegalStateException("acceptCredits not set");
+                    }
                     if (acceptCredits) {
                         player.addCoins(card.getCredit());
                         player.addSteps(-card.getFlightDays());
                     }
                 } else {
+                    if (crewLost == null) {
+                        throw new IllegalStateException("crewLost not set");
+                    }
                     for (Map.Entry<Integer, Integer> entry : crewLost.entrySet()) {
                         spaceShip.getCabin(entry.getKey()).removeCrewMember(entry.getValue());
                     }

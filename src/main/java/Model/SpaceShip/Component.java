@@ -99,6 +99,7 @@ public abstract class Component {
     /**
      * Get the exposed connectors of the component
      * @return The number of exposed connectors of the component
+     * @apiNote Should only be called after the component is attached to the ship (after the placeComponent method is called)
      */
     public int getExposedConnectors() {
         int exposedConnector = 0;
@@ -140,29 +141,29 @@ public abstract class Component {
      * Fix the component so it cannot be moved
      */
     public void fix() {
-        // TODO: we could call here the isConnected method and raise an exception if the component is not connected
         fixed = true;
     }
 
     /**
      * Check if the component is attached to the right connector
-     * @param ship The ship where the component is attached
      * @return true if the component is attached to the right connector, false otherwise
      */
-    public boolean isValid(SpaceShip ship) {
-        // TODO: check if the ship parameter is null and raise an exception if needed
+    public boolean isValid() {
         ArrayList<Component> components = ship.getSurroundingComponents(row, column);
 
         for (int face = 0; face < 4; face++) {
-            if (components.get(face) != null) {
-                if (getConnection(face) != ConnectorType.TRIPLE &&
-                        getConnection(face) != components.get(face).getConnection((face + 2) % 4) &&
-                        components.get(face).getConnection((face + 2) % 4) != ConnectorType.TRIPLE) {
+            Component adjacent = components.get(face);
+            if (adjacent != null) {
+                ConnectorType currentConnection = getConnection(face);
+                ConnectorType adjacentConnection = adjacent.getConnection((face + 2) % 4);
+
+                if ((currentConnection == ConnectorType.EMPTY && adjacentConnection != ConnectorType.EMPTY) ||
+                        (currentConnection != ConnectorType.EMPTY && adjacentConnection == ConnectorType.EMPTY) ||
+                        (currentConnection != ConnectorType.TRIPLE && currentConnection != adjacentConnection && adjacentConnection != ConnectorType.TRIPLE)) {
                     return false;
                 }
             }
         }
-        this.ship = ship;
         return true;
     }
 }
