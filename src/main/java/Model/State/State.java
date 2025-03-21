@@ -39,6 +39,18 @@ public abstract class State {
         throw new IllegalArgumentException("Player not found");
     }
 
+    /**
+     * Check if all players have played
+     * @return Boolean value if all players have played
+     */
+    protected boolean haveAllPlayersPlayed() {
+        for (Pair<PlayerData, PlayerStatus> p : players) {
+            if (p.getValue1() != PlayerStatus.PLAYED) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Set the status of the player
@@ -54,6 +66,16 @@ public abstract class State {
                 p.setAt1(status);
                 break;
             }
+        }
+    }
+
+    /**
+     * Set the status of all players
+     * @param status PlayerStatus to set to all players
+     */
+    protected void setStatusPlayers(PlayerStatus status) {
+        for (Pair<PlayerData, PlayerStatus> p : players) {
+            p.setAt1(status);
         }
     }
 
