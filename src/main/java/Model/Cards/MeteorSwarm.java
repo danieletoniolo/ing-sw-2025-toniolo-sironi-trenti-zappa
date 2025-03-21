@@ -7,13 +7,14 @@ public class MeteorSwarm extends Card {
     private List<Hit> meteors;
 
     /**
-     *
+     * Constructor
      * @param level level of the card
+     * @param ID ID of the card
      * @param meteors list of hits
      * @throws NullPointerException meteors == null
      */
-    public MeteorSwarm(int level, List<Hit> meteors) throws NullPointerException {
-        super(level);
+    public MeteorSwarm(int level, int ID, List<Hit> meteors) throws NullPointerException {
+        super(level, ID);
         if (meteors == null || meteors.isEmpty()) {
             throw new NullPointerException("meteors is null");
         }

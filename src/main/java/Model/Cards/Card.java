@@ -2,12 +2,14 @@ package Model.Cards;
 
 public abstract class Card {
     private final int level;
+    private final int ID;
     /**
      *
      * @param level level of the card
      */
-    public Card(int level) {
+    public Card(int level, int ID) {
         this.level = level;
+        this.ID = ID;
     }
 
     /**

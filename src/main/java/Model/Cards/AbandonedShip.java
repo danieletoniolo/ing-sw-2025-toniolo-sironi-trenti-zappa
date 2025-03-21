@@ -9,12 +9,13 @@ public class AbandonedShip extends Card {
     /**
      *
      * @param level level of the card
+     * @param ID ID of the card
      * @param crewRequired number of crew members required for the quest and lost
      * @param flightDays number of flight days lost for the quest
      * @param credit number of credit rewarded
      */
-    public AbandonedShip(int level, int crewRequired, int flightDays, int credit) {
-        super(level);
+    public AbandonedShip(int level, int ID, int crewRequired, int flightDays, int credit) {
+        super(level, ID);
         this.crewRequired = crewRequired;
         this.flightDays = flightDays;
         this.credit = credit;

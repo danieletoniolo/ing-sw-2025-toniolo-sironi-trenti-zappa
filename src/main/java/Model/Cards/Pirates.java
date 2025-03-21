@@ -8,11 +8,12 @@ public class Pirates extends Card {
     private final int cannonStrengthRequired;
     private final int flightDays;
 
-    private List<Hit> fires;
-    private int credit;
+    private final List<Hit> fires;
+    private final int credit;
 
     /**
-     *
+     * Constructor
+     * @param ID ID of the card
      * @param fire list of hits
      * @param credit number of credit rewarded for the quest
      * @param level level of the card
@@ -20,8 +21,8 @@ public class Pirates extends Card {
      * @param flightDays number of flight days lost
      * @throws NullPointerException if fire == null
      */
-    public Pirates(List<Hit> fire, int credit, int level, int cannonStrengthRequired, int flightDays) throws NullPointerException {
-        super(level);
+    public Pirates(int level, int ID, List<Hit> fire, int credit, int cannonStrengthRequired, int flightDays) throws NullPointerException {
+        super(level, ID);
         this.cannonStrengthRequired = cannonStrengthRequired;
         this.flightDays = flightDays;
         if (fire == null || fire.isEmpty()) {
@@ -51,7 +52,7 @@ public class Pirates extends Card {
      * Get list of hits
      * @return list of hits
      */
-    public List<Hit> getFire() {
+    public List<Hit> getFires() {
         return fires;
     }
 
