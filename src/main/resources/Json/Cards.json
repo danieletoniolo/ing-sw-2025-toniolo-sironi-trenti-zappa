@@ -1,5 +1,6 @@
 [
   {
+    "type": "Slavers",
     "ID": 0,
     "level": 1,
     "crewLost": 3,
@@ -8,6 +9,7 @@
     "flightDays": 1
   },
   {
+    "type": "Smugglers",
     "ID": 1,
     "level": 1,
     "goodsReward": [
@@ -26,8 +28,325 @@
     "flightDays": 1
   },
   {
+    "type": "Pirates",
     "ID": 2,
     "level": 1,
-    fires
+    "fires": [
+      {
+        "type": "LIGHTFIRE",
+        "direction": "NORTH"
+      },
+      {
+        "type": "HEAVYFIRE",
+        "direction": "NORTH"
+      },
+      {
+        "type": "LIGHTFIRE",
+        "direction": "NORTH"
+      }
+    ],
+    "credit": 4,
+    "cannonStrengthRequired": 5,
+    "flightDays": 1
+  },
+  {
+    "type": "StarDust",
+    "ID": 3,
+    "level": 1
+  },
+  {
+    "type": "OpenSpace",
+    "ID": 4,
+    "level": 1
+  },
+  {
+    "type": "OpenSpace",
+    "ID": 5,
+    "level": 1
+  },
+  {
+    "type": "OpenSpace",
+    "ID": 6,
+    "level": 1
+  },
+  {
+    "type": "OpenSpace",
+    "ID": 7,
+    "level": 1
+  },
+  {
+    "type": "MeteorSwarm",
+    "ID": 8,
+    "level": 1,
+    "meteors": [
+      {
+        "type": "LARGEMETEOR",
+        "direction": "NORTH"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "WEST"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "EAST"
+      }
+    ]
+  },
+  {
+    "type": "MeteorSwarm",
+    "ID": 9,
+    "level": 1,
+    "meteors": [
+      {
+        "type": "SMALLMETEOR",
+        "direction": "NORTH"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "NORTH"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "WEST"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "EAST"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "SOUTH"
+      }
+    ]
+  },
+  {
+    "type": "MeteorSwarm",
+    "ID": 10,
+    "level": 1,
+    "meteors": [
+      {
+        "type": "LARGEMETEOR",
+        "direction": "NORTH"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "NORTH"
+      },
+      {
+        "type": "LARGEMETEOR",
+        "direction": "NORTH"
+      }
+    ]
+  },
+  {
+    "type": "Planets",
+    "ID": 11,
+    "level": 1,
+    "planets": [
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        }
+      ],
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "YELLOW"
+        },
+        {
+          "color": "BLUE"
+        }
+      ],
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        }
+      ],
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "GREEN"
+        }
+      ]
+    ],
+    "flightDays": 3
+  },
+  {
+    "type": "Planets",
+    "ID": 12,
+    "level": 1,
+    "planets": [
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        }
+      ],
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "YELLOW"
+        },
+        {
+          "color": "BLUE"
+        }
+      ],
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        }
+      ],
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "GREEN"
+        }
+      ]
+    ],
+    "flightDays": 3
+  },
+  {
+    "type": "Planets",
+    "ID": 13,
+    "level": 1,
+    "planets": [
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        }
+      ],
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "YELLOW"
+        },
+        {
+          "color": "BLUE"
+        }
+      ],
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        }
+      ],
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "GREEN"
+        }
+      ]
+    ],
+    "flightDays": 3
+  },
+  {
+    "type": "Planets",
+    "ID": 14,
+    "level": 1,
+    "planets": [
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "RED"
+        }
+      ],
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        }
+      ],
+      [
+        {
+          "color": "YELLOW"
+        }
+      ]
+    ],
+    "flightDays": 2
+  },
+  {
+
   }
+
 ]
