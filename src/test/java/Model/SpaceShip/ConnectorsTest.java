@@ -22,9 +22,6 @@ class ConnectorsTest {
 
     @RepeatedTest(10)
     void getComponentType() {
-        Random rand = new Random();
-        int i = rand.nextInt(2) + 1;
-
         c = new Connectors(0, 1, 2, connectors);
         ComponentType type = c.getComponentType();
         System.out.println(type);
