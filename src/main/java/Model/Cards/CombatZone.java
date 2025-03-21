@@ -16,10 +16,11 @@ public class CombatZone extends Card {
      * @param lost number of objects lost (varies depending on level card)
      * @param fires list of Hits
      * @param level level of the card
+     * @param ID ID of the card
      * @throws NullPointerException if fires == null
      */
-    public CombatZone(int flightDays, int lost, ArrayList<Hit> fires, int level) throws NullPointerException{
-        super(level);
+    public CombatZone(int flightDays, int lost, ArrayList<Hit> fires, int level, int ID) throws NullPointerException{
+        super(level, ID);
         this.flightDays = flightDays;
         this.lost = lost;
 

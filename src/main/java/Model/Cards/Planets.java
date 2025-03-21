@@ -11,14 +11,15 @@ public class Planets extends Card {
     private int flightDays;
 
     /**
-     *
+     * Constructor
+     * @param ID ID of the card
      * @param level level of the card
      * @param planets matrix for the planets: planets[row] = planet, planets[row][col] = good
      * @param flightDays number of flight days lost
      * @throws NullPointerException if planets == null
      */
-    public Planets(int level, Good[][] planets, int flightDays) throws NullPointerException {
-        super(level);
+    public Planets(int level, int ID, Good[][] planets, int flightDays) throws NullPointerException {
+        super(level, ID);
         if (planets == null || planets.length == 0 || planets[0].length == 0 ) {
             throw new NullPointerException("planets is null");
         }

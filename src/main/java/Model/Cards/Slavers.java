@@ -8,15 +8,16 @@ public class Slavers extends Card {
     private final int credit;
 
     /**
-     *
+     * Constructor
+     * @param ID ID of the card
      * @param crewLost number of members crew lost
      * @param credit number of credit rewarded
      * @param level level of the card
      * @param cannonStrengthRequired cannon strength of enemies
      * @param flightDays number of flight days lost
      */
-    public Slavers(int crewLost, int credit, int level, int cannonStrengthRequired, int flightDays) {
-        super(level);
+    public Slavers(int level, int ID, int crewLost, int credit, int cannonStrengthRequired, int flightDays) {
+        super(level, ID);
         this.cannonStrengthRequired = cannonStrengthRequired;
         this.flightDays = flightDays;
         this.crewLost = crewLost;

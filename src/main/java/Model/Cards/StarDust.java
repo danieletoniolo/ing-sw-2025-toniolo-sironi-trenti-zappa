@@ -1,8 +1,14 @@
 package Model.Cards;
 
 public class StarDust extends Card {
-    public StarDust(int level) {
-        super(level);
+
+    /**
+     * Constructor
+     * @param level level of the card
+     * @param ID ID of the card
+     */
+    public StarDust(int level, int ID) {
+        super(level, ID);
     }
 
     /**

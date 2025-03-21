@@ -1,8 +1,13 @@
 package Model.Cards;
 
 public class Epidemic extends Card {
-    public Epidemic(int level) {
-        super(level);
+    /**
+     * Constructor
+     * @param level level of the card
+     * @param ID ID of the card
+     */
+    public Epidemic(int level, int ID) {
+        super(level, ID);
     }
 
     /**

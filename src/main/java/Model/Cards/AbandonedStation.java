@@ -13,13 +13,14 @@ public class AbandonedStation extends Card {
     /**
      *
      * @param level level of the card
+     * @param ID ID of the card
      * @param crewRequired number of crew member required for the quest and not lost
      * @param flightDays number of flight days lost for the quest
      * @param goods list of goods rewarded
      * @throws NullPointerException if goods == null
      */
-    public AbandonedStation(int level, int crewRequired, int flightDays, List<Good> goods) throws NullPointerException{
-        super(level);
+    public AbandonedStation(int level, int ID, int crewRequired, int flightDays, List<Good> goods) throws NullPointerException{
+        super(level, ID);
         this.crewRequired = crewRequired;
         this.flightDays = flightDays;
 

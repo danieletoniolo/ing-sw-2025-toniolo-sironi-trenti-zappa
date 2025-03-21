@@ -12,7 +12,8 @@ public class Smugglers extends Card {
     private final int goodsLoss;
 
     /**
-     *
+     * Constructor
+     * @param ID ID of the card
      * @param goodsReward list of goods rewarded
      * @param goodsLoss number of goods lost
      * @param level level of the card
@@ -20,8 +21,8 @@ public class Smugglers extends Card {
      * @param flightDays number of flight days lost
      * @throws NullPointerException if goods rewarded == null
      */
-    public Smugglers(List<Good> goodsReward, int goodsLoss, int level, int cannonStrengthRequired, int flightDays) throws NullPointerException {
-        super(level);
+    public Smugglers(int level, int ID, List<Good> goodsReward, int goodsLoss, int cannonStrengthRequired, int flightDays) throws NullPointerException {
+        super(level, ID);
         this.cannonStrengthRequired = cannonStrengthRequired;
         this.flightDays = flightDays;
         if (goodsReward == null) {

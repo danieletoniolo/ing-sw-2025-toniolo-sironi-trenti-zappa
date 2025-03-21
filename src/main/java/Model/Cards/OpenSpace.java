@@ -1,8 +1,14 @@
 package Model.Cards;
 
 public class OpenSpace extends Card {
-    public OpenSpace(int level) {
-        super(level);
+
+    /**
+     * Constructor
+     * @param level level of the card
+     * @param ID ID of the card
+     */
+    public OpenSpace(int level, int ID) {
+        super(level, ID);
     }
 
     /**
