@@ -1,5 +1,33 @@
 [
   {
-
+    "ID": 0,
+    "level": 1,
+    "crewLost": 3,
+    "credit": 5,
+    "cannonStrengthRequired": 6,
+    "flightDays": 1
+  },
+  {
+    "ID": 1,
+    "level": 1,
+    "goodsReward": [
+      {
+        "color": "YELLOW"
+      },
+      {
+        "color": "GREEN"
+      },
+      {
+          "color": "BLUE"
+      }
+    ],
+    "goodsLoss": 2,
+    "cannonStrengthRequired": 4,
+    "flightDays": 1
+  },
+  {
+    "ID": 2,
+    "level": 1,
+    fires
   }
 ]
