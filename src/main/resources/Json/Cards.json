@@ -207,122 +207,6 @@
           "color": "RED"
         },
         {
-          "color": "GREEN"
-        },
-        {
-          "color": "BLUE"
-        },
-        {
-          "color": "BLUE"
-        },
-        {
-          "color": "BLUE"
-        }
-      ],
-      [
-        {
-          "color": "RED"
-        },
-        {
-          "color": "YELLOW"
-        },
-        {
-          "color": "BLUE"
-        }
-      ],
-      [
-        {
-          "color": "RED"
-        },
-        {
-          "color": "BLUE"
-        },
-        {
-          "color": "BLUE"
-        },
-        {
-          "color": "BLUE"
-        }
-      ],
-      [
-        {
-          "color": "RED"
-        },
-        {
-          "color": "GREEN"
-        }
-      ]
-    ],
-    "flightDays": 3
-  },
-  {
-    "type": "Planets",
-    "ID": 13,
-    "level": 1,
-    "planets": [
-      [
-        {
-          "color": "RED"
-        },
-        {
-          "color": "GREEN"
-        },
-        {
-          "color": "BLUE"
-        },
-        {
-          "color": "BLUE"
-        },
-        {
-          "color": "BLUE"
-        }
-      ],
-      [
-        {
-          "color": "RED"
-        },
-        {
-          "color": "YELLOW"
-        },
-        {
-          "color": "BLUE"
-        }
-      ],
-      [
-        {
-          "color": "RED"
-        },
-        {
-          "color": "BLUE"
-        },
-        {
-          "color": "BLUE"
-        },
-        {
-          "color": "BLUE"
-        }
-      ],
-      [
-        {
-          "color": "RED"
-        },
-        {
-          "color": "GREEN"
-        }
-      ]
-    ],
-    "flightDays": 3
-  },
-  {
-    "type": "Planets",
-    "ID": 14,
-    "level": 1,
-    "planets": [
-      [
-        {
-          "color": "RED"
-        },
-        {
           "color": "RED"
         }
       ],
@@ -346,7 +230,129 @@
     "flightDays": 2
   },
   {
-
+    "type": "Planets",
+    "ID": 13,
+    "level": 1,
+    "planets": [
+      [
+        {
+          "color": "YELLOW"
+        },
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        }
+      ],
+      [
+        {
+          "color": "YELLOW"
+        },
+        {
+          "color": "YELLOW"
+        }
+      ]
+    ],
+    "flightDays": 3
+  },
+  {
+    "type": "Planets",
+    "ID": 14,
+    "level": 1,
+    "planets": [
+      [
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "GREEN"
+        }
+      ],
+      [
+        {
+          "color": "YELLOW"
+        }
+      ],
+      [
+        {
+          "color": "YELLOW"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        }
+      ]
+    ],
+    "flightDays": 2
+  },
+  {
+    "type": "CombabtZone",
+    "ID": 15,
+    "level": 1,
+    "fligthDays": 3,
+    "lost": 2,
+    "fires": [
+      {
+        "type": "LIGHTFIRE",
+        "direction": "NORTH"
+      },
+      {
+        "type": "HEAVYFIRE",
+        "direction": "NORTH"
+      }
+    ]
+  },
+  {
+    "type": "AbandonedShip",
+    "ID": 16,
+    "level": 1,
+    "crewRequired": 2,
+    "credit": 3,
+    "flightDays": 1
+  },
+  {
+    "type": "AbandonedShip",
+    "ID": 17,
+    "level": 1,
+    "crewRequired": 3,
+    "credit": 4,
+    "flightDays": 1
+  },
+  {
+    "type": "AbandonedStation",
+    "ID": 18,
+    "level": 1,
+    "crewRequired": 5,
+    "flightDays": 1,
+    "goods": [
+      {
+        "color": "YELLOW"
+      },
+      {
+        "color": "GREEN"
+      }
+    ]
+  },
+  {
+    "type": "AbandonedStation",
+    "ID": 19,
+    "level": 1,
+    "crewRequired": 6,
+    "flightDays": 1,
+    "goods": [
+      {
+        "color": "RED"
+      },
+      {
+        "color": "RED"
+      }
+    ]
   }
 
 ]
