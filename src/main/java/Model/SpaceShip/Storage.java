@@ -10,8 +10,8 @@ public class Storage extends Component{
     private int goodsValue;
     private ArrayList<Good> goods;
 
-    public Storage(int ID, int row, int column, ConnectorType[] connectors, boolean dangerous, int goodsCapacity) {
-        super(ID, row, column, connectors);
+    public Storage(int ID, ConnectorType[] connectors, boolean dangerous, int goodsCapacity) {
+        super(ID, connectors);
         this.dangerous = dangerous;
         this.goodsCapacity = goodsCapacity;
         this.goodsValue = 0;
