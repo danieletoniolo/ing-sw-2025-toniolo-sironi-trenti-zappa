@@ -9,8 +9,8 @@ public class Cabin extends Component {
     private boolean purpleAlien;
     private boolean brownAlien;
 
-    public Cabin(int ID, int row, int column, ConnectorType[] connectors) {
-        super(ID, row, column, connectors);
+    public Cabin(int ID, ConnectorType[] connectors) {
+        super(ID, connectors);
         crewNumber = 0;
         purpleLifeSupport = false;
         brownLifeSupport = false;
@@ -67,6 +67,7 @@ public class Cabin extends Component {
             throw new IllegalStateException("Cannot add crew member to the cabin");
         }
         crewNumber = 2;
+        super.ship.addCrewMember(2);
     }
 
     /**
@@ -79,6 +80,7 @@ public class Cabin extends Component {
         }
         purpleAlien = true;
         crewNumber = 1;
+        super.ship.addCrewMember(1);
     }
 
     /**
@@ -91,6 +93,7 @@ public class Cabin extends Component {
         }
         brownAlien = true;
         crewNumber = 1;
+        super.ship.addCrewMember(1);
     }
 
     /**

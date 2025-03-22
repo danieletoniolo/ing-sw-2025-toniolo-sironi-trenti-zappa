@@ -26,6 +26,11 @@ public class CombatZoneState extends State {
     private int hitIndex;
     private int fightIndex;
 
+    /**
+     * Constructor whit players and card
+     * @param players List of players in the current order to play
+     * @param card CombatZone card associated with the state
+     */
     public CombatZoneState(ArrayList<PlayerData> players, CombatZone card) {
         super(players);
         this.card = card;

@@ -1,6 +1,5 @@
 package Model.State;
 
-import Model.Cards.Card;
 import Model.Cards.Slavers;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
@@ -18,6 +17,11 @@ public class SlaversState extends State {
     private Boolean slaversDefeat;
     private Boolean acceptCredits;
 
+    /**
+     * Constructor whit players and card
+     * @param players List of players in the current order to play
+     * @param card Slavers card associated with the state
+     */
     public SlaversState(ArrayList<PlayerData> players, Slavers card) {
         super(players);
         this.execForPlayer = 0;
@@ -139,9 +143,7 @@ public class SlaversState extends State {
         }
 
         if (slaversDefeat != null && slaversDefeat && execForPlayer == 1) {
-            for(Pair<PlayerData, PlayerStatus> p : super.players) {
-                p.setAt1(PlayerStatus.PLAYED);
-            }
+            super.setStatusPlayers(PlayerStatus.PLAYED);
         } else {
             super.execute(player);
         }

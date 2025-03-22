@@ -8,8 +8,8 @@ public class Pirates extends Card {
     private final int cannonStrengthRequired;
     private final int flightDays;
 
-    private List<Hit> fires;
-    private int credit;
+    private final List<Hit> fires;
+    private final int credit;
 
     /**
      * Constructor
@@ -52,7 +52,7 @@ public class Pirates extends Card {
      * Get list of hits
      * @return list of hits
      */
-    public List<Hit> getFire() {
+    public List<Hit> getFires() {
         return fires;
     }
 

@@ -1,8 +1,8 @@
 package Model.SpaceShip;
 
 public class Shield extends Component {
-    public Shield(int ID, int row, int column, ConnectorType[] connectors) {
-        super(ID, row, column, connectors);
+    public Shield(int ID, ConnectorType[] connectors) {
+        super(ID, connectors);
     }
 
     /**
