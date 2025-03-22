@@ -182,6 +182,8 @@ class BatteryTest {
         }
     }
 
+    //TODO: finire il metodo quando implementano il metodo di spostare i componenti
+    //Test for the methods isFixed and fix
     @RepeatedTest(5)
     void isFixedTest(){
         assertFalse(b.isFixed());
@@ -189,29 +191,23 @@ class BatteryTest {
         Random rand = new Random();
         int count = rand.nextInt(4) + 1;
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
-        Battery[] batteries = new Battery[count];
+        Battery[] bs = new Battery[count];
         int i = 0;
+        int j = 0;
+        for(j = 0; j < count; j++){
+            bs[j] = new Battery(j, 6, 7 + j, connectors, 2);
+            System.out.println(bs[j]);
 
-        for(int j = 0; j < count; j++){
-            batteries[j] = new Battery(j, 6, 7 + j, connectors, 1);
-            System.out.println(batteries[j]);
-
-            ship.placeComponent(batteries[j], 6, 7 + j);
+            ship.placeComponent(bs[j], 6, 7 + j);
 
             if(j > 0){
-                batteries[i].fix();
-                assertTrue(batteries[i].isFixed());
+                bs[i].fix();
+                assertTrue(bs[i].isFixed());
                 i++;
             }
+
+            assertFalse(bs[j].isFixed());
         }
-
-        assertFalse(batteries[i].isFixed());
-    }
-
-    @RepeatedTest(5)
-    void fixTest(){
-        //TODO: METODO NON FINITO
-        //Creare una ship, aggiungere un componente e fissarlo, poi controllare se è fissato, cercando di muovere il pezzo usando un opportuno metodo
     }
 
     @RepeatedTest(5)

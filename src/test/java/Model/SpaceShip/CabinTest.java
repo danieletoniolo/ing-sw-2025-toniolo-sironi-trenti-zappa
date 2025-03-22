@@ -181,6 +181,8 @@ class CabinTest {
         }
     }
 
+    //TODO: finire il metodo quando implementano il metodo di spostare i componenti
+    //Test for the methods isFixed and fix
     @RepeatedTest(5)
     void isFixedTest(){
         assertFalse(c.isFixed());
@@ -188,29 +190,23 @@ class CabinTest {
         Random rand = new Random();
         int count = rand.nextInt(4) + 1;
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
-        Cabin[] cabins = new Cabin[count];
+        Cabin[] cs = new Cabin[count];
         int i = 0;
+        int j = 0;
+        for(j = 0; j < count; j++){
+            cs[j] = new Cabin(j, 6, 7 + j, connectors);
+            System.out.println(cs[j]);
 
-        for(int j = 0; j < count; j++){
-            cabins[j] = new Cabin(j, 6, 7 + j, connectors);
-            System.out.println(cabins[j]);
-
-            ship.placeComponent(cabins[j], 6, 7 + j);
+            ship.placeComponent(cs[j], 6, 7 + j);
 
             if(j > 0){
-                cabins[i].fix();
-                assertTrue(cabins[i].isFixed());
+                cs[i].fix();
+                assertTrue(cs[i].isFixed());
                 i++;
             }
+
+            assertFalse(cs[j].isFixed());
         }
-
-        assertFalse(cabins[i].isFixed());
-    }
-
-    @RepeatedTest(5)
-    void fixTest(){
-        //TODO: METODO NON FINITO
-        //Creare una ship, aggiungere un componente e fissarlo, poi controllare se è fissato, cercando di muovere il pezzo usando un opportuno metodo
     }
 
     @RepeatedTest(5)
