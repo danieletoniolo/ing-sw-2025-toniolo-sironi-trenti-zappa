@@ -184,7 +184,7 @@ class StorageTest {
     }
 
     //TODO: finire il metodo quando implementano il metodo di spostare i componenti
-    //Test for the method isFixed and fix
+    //Test for the methods isFixed and fix
     @RepeatedTest(5)
     void isFixedTest(){
         assertFalse(s.isFixed());
