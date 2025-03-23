@@ -13,31 +13,22 @@ class EpidemicTest {
 
     @BeforeEach
     void setUp() {
-        card = new Epidemic(2);
+        card = new Epidemic(2, 0);
         assertNotNull(card, "Card variable not initialized correctly");
     }
 
-    @Test
+    @RepeatedTest(5)
     void getCardLevel() {
         assertEquals(2,card.getCardLevel());
+
+        Random rand = new Random();
+        int level = rand.nextInt(3) + 1;
+        Epidemic randomCard = new Epidemic(level, 0);
+        assertEquals(level, randomCard.getCardLevel());
     }
 
     @Test
     void getCardType() {
         assertEquals(CardType.EPIDEMIC, card.getCardType());
-    }
-
-    @Test
-    void apply() {
-
-    }
-
-
-    @RepeatedTest(5)
-    void testRandomizedEpidemic() {
-        Random random = new Random();
-        int level = random.nextInt(card.getCardLevel()) + 1;
-        Epidemic epidemic = new Epidemic(level);
-        assertEquals(CardType.EPIDEMIC, epidemic.getCardType());
     }
 }
