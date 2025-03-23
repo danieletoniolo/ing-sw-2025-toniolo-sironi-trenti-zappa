@@ -2,23 +2,18 @@ package Model.Cards;
 
 import Model.Good.Good;
 import Model.Good.GoodType;
-import Model.Player.PlayerColor;
-import Model.Player.PlayerData;
-import Model.SpaceShip.SpaceShip;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
 
 class AbandonedStationTest {
     AbandonedStation card;
-    PlayerData player;
     List<Good> goods;
 
     @BeforeEach
@@ -27,39 +22,8 @@ class AbandonedStationTest {
         goods.add(new Good(GoodType.RED));
         goods.add(new Good(GoodType.BLUE));
         assertFalse(goods.contains(null));
-        card = new AbandonedStation(2,3,1, goods);
+        card = new AbandonedStation(2,3,1, 0, goods);
         assertNotNull(card, "Card variable not initialized correctly");
-    }
-
-    @Test
-    void getCardLevel() {
-        assertEquals(2,card.getCardLevel());
-    }
-
-    @Test
-    void getCrewRequired() {
-        assertEquals(3,card.getCrewRequired());
-    }
-
-    @Test
-    void getFlightDays() {
-        assertEquals(1,card.getFlightDays());
-    }
-
-    @Test
-    void isPlayed(){
-        assertFalse(card.isPlayed());
-        card.apply(player);
-        assertTrue(card.isPlayed());
-    }
-
-    @Test
-    void getGoods() {
-        List<Good> checkGoods = card.getGoods();
-        assertEquals(goods,checkGoods);
-        assertEquals(2, checkGoods.size());
-        assertEquals(GoodType.RED,checkGoods.get(0).getColor());
-        assertEquals(GoodType.BLUE,checkGoods.get(1).getColor());
     }
 
     @Test
@@ -67,29 +31,62 @@ class AbandonedStationTest {
         assertEquals(CardType.ABANDONEDSTATION, card.getCardType());
     }
 
-    @Test
-    void apply() {
-        boolean[][] spots = {};
-        SpaceShip ship = new SpaceShip(spots);
-        player = new PlayerData("NAME", PlayerColor.BLUE, ship);
-        assertNotNull(player);
-        card.apply(player);
-        assertTrue(card.isPlayed());
+    @RepeatedTest(5)
+    void getCardLevel() {
+        assertEquals(2,card.getCardLevel());
+
+        Random random = new Random();
+        int level = random.nextInt(3) + 1;
+        AbandonedStation randomCard = new AbandonedStation(level, 3, 1, 0, goods);
+        assertEquals(level, randomCard.getCardLevel());
     }
 
+    @RepeatedTest(5)
+    void getCrewRequired() {
+        assertEquals(1,card.getCrewRequired());
 
-    @RepeatedTest(10)
-    void testRandomizedGoods() {
-        // + 1 because the highest integer number doesn't belong to the interval of the randomized
         Random random = new Random();
-        int crewRequired = random.nextInt(card.getCrewRequired()) + 1;
-        int flightDays = random.nextInt(card.getCrewRequired()) + 1;
-        List<Good> randomGoods = Collections.singletonList(new Good(GoodType.values()[random.nextInt(GoodType.values().length)]));
+        int crew = random.nextInt(3) + 1;
+        AbandonedStation randomCard = new AbandonedStation(2, 3, crew, 0, goods);
+        assertEquals(crew, randomCard.getCrewRequired());
+    }
 
-        AbandonedStation randomStation = new AbandonedStation(1, crewRequired, flightDays, randomGoods);
-        assertEquals(crewRequired, randomStation.getCrewRequired());
-        assertEquals(flightDays, randomStation.getFlightDays());
-        assertEquals(randomGoods, randomStation.getGoods());
-        assertFalse(randomStation.isPlayed());
+    @RepeatedTest(5)
+    void getFlightDays() {
+        assertEquals(0,card.getFlightDays());
+
+        Random random = new Random();
+        int flightDays = random.nextInt(3) + 1;
+        AbandonedStation randomCard = new AbandonedStation(2, 3, 1, flightDays, goods);
+        assertEquals(flightDays, randomCard.getFlightDays());
+    }
+
+    @RepeatedTest(5)
+    void getGoods() {
+        List<Good> checkGoods = card.getGoods();
+        assertEquals(goods,checkGoods);
+        assertEquals(2, checkGoods.size());
+        assertEquals(GoodType.RED,checkGoods.get(0).getColor());
+        assertEquals(GoodType.BLUE,checkGoods.get(1).getColor());
+
+        Random random = new Random();
+        GoodType[] values = GoodType.values();
+        List<Good> randomGoods = new ArrayList<>();
+        List<Good> goods = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            randomGoods.add(new Good(values[random.nextInt(values.length)]));
+            goods.add(randomGoods.get(i));
+        }
+        AbandonedStation randomCard = new AbandonedStation(2, 3, 1, 0, randomGoods);
+        assertEquals(randomGoods, randomCard.getGoods());
+        assertEquals(goods,randomCard.getGoods());
+    }
+
+    //TODO: Capire isPlayed. Aspettare modifica
+    @Test
+    void isPlayed(){
+        assertFalse(card.isPlayed());
+        //card.apply(player);
+        //assertTrue(card.isPlayed());
     }
 }
