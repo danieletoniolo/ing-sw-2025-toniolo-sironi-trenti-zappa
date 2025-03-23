@@ -1,9 +1,10 @@
 package Model.Cards;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,28 +13,21 @@ class OpenSpaceTest {
 
     @BeforeEach
     void setUp() {
-        card = new OpenSpace(2);
+        card = new OpenSpace(2, 0);
     }
 
-    @Test
+    @RepeatedTest(5)
     void getCardLevel() {
         assertEquals(2,card.getCardLevel());
+
+        Random random = new Random();
+        int level = random.nextInt(3) + 1;
+        OpenSpace randomCard = new OpenSpace(level, 0);
+        assertEquals(level, randomCard.getCardLevel());
     }
 
     @Test
     void getCardType() {
         assertEquals(CardType.OPENSPACE, card.getCardType());
-    }
-
-    @Test
-    void apply() {
-
-    }
-
-    @ParameterizedTest
-    @CsvSource({"1", "5", "10"})
-    void testCardLevel(int level) {
-        OpenSpace openSpace = new OpenSpace(level);
-        assertEquals(level, openSpace.getCardLevel());
     }
 }
