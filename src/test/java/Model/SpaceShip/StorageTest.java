@@ -12,7 +12,6 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StorageTest {
-    //TODO: ALL TESTS
     Storage s;
     ConnectorType[] connectors;
 

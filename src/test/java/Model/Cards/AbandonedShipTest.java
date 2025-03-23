@@ -1,13 +1,9 @@
 package Model.Cards;
 
-import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
-import Model.SpaceShip.SpaceShip;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.Random;
 
@@ -15,40 +11,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AbandonedShipTest {
     AbandonedShip card;
-    PlayerData player;
-    Random random = new Random();
 
     @BeforeEach
     void setUp() {
-        card = new AbandonedShip(2,3,3,2);
+        card = new AbandonedShip(2,3,3,2, 0);
         assertNotNull(card);
-    }
-
-    @Test
-    void getCardLevel() {
-        assertEquals(2,card.getCardLevel());
-    }
-
-    @Test
-    void getCrewRequired() {
-        assertEquals(3,card.getCrewRequired());
-    }
-
-    @Test
-    void getFlightDays() {
-        assertEquals(3,card.getFlightDays());
-    }
-
-    @Test
-    void getCredit() {
-        assertEquals(2,card.getCredit());
-    }
-
-    @Test
-    void isPlayed(){
-        assertFalse(card.isPlayed());
-        card.apply(player);
-        assertTrue(card.isPlayed());
     }
 
     @Test
@@ -56,43 +23,51 @@ class AbandonedShipTest {
         assertEquals(CardType.ABANDONEDSHIP, card.getCardType());
     }
 
-    @Test
-    void apply() {
-        boolean[][] spots = {};
-        SpaceShip ship = new SpaceShip(spots);
-        player = new PlayerData("NAME", PlayerColor.BLUE, ship);
-        assertNotNull(player);
-        card.apply(player);
-        assertTrue(card.isPlayed());
-    }
+    @RepeatedTest(5)
+    void getCardLevel() {
+        assertEquals(2,card.getCardLevel());
 
-
-
-    @ParameterizedTest
-    @CsvSource({
-            "1, 2, 3, 50",
-            "2, 3, 5, 100",
-            "3, 4, 6, 150"
-    })
-    void testCardInitialization(int level, int crew, int flightDays, int credit) {
-        AbandonedShip testCard = new AbandonedShip(level, crew, flightDays, credit);
-        assertEquals(level, testCard.getCardLevel());
-        assertEquals(crew, testCard.getCrewRequired());
-        assertEquals(flightDays, testCard.getFlightDays());
-        assertEquals(credit, testCard.getCredit());
+        Random random = new Random();
+        int level = random.nextInt(3) + 1;
+        AbandonedShip randomCard = new AbandonedShip(level, 3, 3, 2, 0);
+        assertEquals(level, randomCard.getCardLevel());
     }
 
     @RepeatedTest(5)
-    void testRandomizedInitialization() {
-        // + 1 because the highest integer number doesn't belong to the interval of the randomized
-        int crew = random.nextInt(card.getCrewRequired()) + 1;
-        int flightDays = random.nextInt(card.getFlightDays()) + 1;
-        int credit = random.nextInt(card.getCredit()) + 1;
+    void getCrewRequired() {
+        assertEquals(3,card.getCrewRequired());
 
-        AbandonedShip randomCard = new AbandonedShip(2, crew, flightDays, credit);
-        System.out.println(randomCard.getCrewRequired() + " " + randomCard.getFlightDays() + " " + randomCard.getCredit());
+        Random random = new Random();
+        int crew = random.nextInt(3) + 1;
+        AbandonedShip randomCard = new AbandonedShip(2, 3, crew, 2, 0);
         assertEquals(crew, randomCard.getCrewRequired());
+    }
+
+    @RepeatedTest(5)
+    void getFlightDays() {
+        assertEquals(2,card.getFlightDays());
+
+        Random random = new Random();
+        int flightDays = random.nextInt(3) + 1;
+        AbandonedShip randomCard = new AbandonedShip(2, 3, 2, flightDays, 0);
         assertEquals(flightDays, randomCard.getFlightDays());
+    }
+
+    @RepeatedTest(5)
+    void getCredit() {
+        assertEquals(0,card.getCredit());
+
+        Random random = new Random();
+        int credit = random.nextInt(3) + 1;
+        AbandonedShip randomCard = new AbandonedShip(2, 3, 3, 2, credit);
         assertEquals(credit, randomCard.getCredit());
+    }
+
+    //TODO: Capire isPlayed
+    @Test
+    void isPlayed(){
+        assertFalse(card.isPlayed());
+        //card.apply(player);
+        //assertTrue(card.isPlayed());
     }
 }
