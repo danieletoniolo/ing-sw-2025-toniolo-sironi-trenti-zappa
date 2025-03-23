@@ -1214,5 +1214,492 @@
       "TRIPLE"
     ],
     "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 111,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 112,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "DOUBLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 113,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "TRIPLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 114,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "SINGLE",
+      "SINGLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 115,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "TRIPLE",
+      "DOUBLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 116,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "EMPTY",
+      "TRIPLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 117,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 118,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "SINGLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 119,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "TRIPLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 120,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 121,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "TRIPLE",
+      "SINGLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 122,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "DOUBLE",
+      "DOUBLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 123,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "DOUBLE",
+      "SINGLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 124,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 125,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "SINGLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 126,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "DOUBLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 127,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "TRIPLE",
+      "SINGLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 128,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "TRIPLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 129,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "DOUBLE",
+      "TRIPLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 130,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "DOUBLE",
+      "SINGLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 131,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 132,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "TRIPLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 133,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "SINGLE",
+      "DOUBLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 134,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 135,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "SINGLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "LifeSupportBrown",
+    "ID": 136,
+    "connectors": [
+      "SINGLE",
+      "SINGLE",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "LifeSupportBrown",
+    "ID": 137,
+    "connectors": [
+      "DOUBLE",
+      "SINGLE",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "LifeSupportBrown",
+    "ID": 138,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "LifeSupportBrown",
+    "ID": 139,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "SINGLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "LifeSupportBrown",
+    "ID": 140,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "LifeSupportBrown",
+    "ID": 141,
+    "connectors": [
+      "SINGLE",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "LifeSupportPurple",
+    "ID": 142,
+    "connectors": [
+      "SINGLE",
+      "DOUBLE",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "LifeSupportPurple",
+    "ID": 143,
+    "connectors": [
+      "DOUBLE",
+      "DOUBLE",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "LifeSupportPurple",
+    "ID": 144,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "LifeSupportPurple",
+    "ID": 145,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "DOUBLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "LifeSupportPurple",
+    "ID": 146,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "LifeSupportPurple",
+    "ID": 147,
+    "connectors": [
+      "DOUBLE",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Shield",
+    "ID": 148,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "TRIPLE",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 149,
+    "connectors": [
+      "SINGLE",
+      "SINGLE",
+      "SINGLE",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 150,
+    "connectors": [
+      "DOUBLE",
+      "SINGLE",
+      "DOUBLE",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 151,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "TRIPLE",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 152,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "DOUBLE",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 153,
+    "connectors": [
+      "SINGLE",
+      "DOUBLE",
+      "SINGLE",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 154,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "SINGLE",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 155,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "DOUBLE",
+      "DOUBLE"
+    ]
   }
 ]
