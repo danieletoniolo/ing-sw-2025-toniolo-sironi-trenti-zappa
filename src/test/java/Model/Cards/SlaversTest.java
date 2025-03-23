@@ -1,7 +1,6 @@
 package Model.Cards;
 
 import Model.Cards.Hits.Hit;
-import Model.Player.PlayerData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -15,38 +14,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class SlaversTest {
     Slavers card;
     List<Hit> fires;
-    PlayerData player;
 
     @BeforeEach
     void setUp() {
         fires = new ArrayList<>();
-        card = new Slavers(1, 3, 2, 4, 5);
+        card = new Slavers(1, 0, 3, 2, 4, 5);
         assertNotNull(card, "Card variable not inialized correctly");
-    }
-
-    @Test
-    void getCardLevel() {
-        assertEquals(2, card.getCardLevel());
-    }
-
-    @Test
-    void getCannonStrengthRequired() {
-        assertEquals(4,card.getCannonStrengthRequired());
-    }
-
-    @Test
-    void getFlightDays() {
-        assertEquals(5,card.getFlightDays());
-    }
-
-    @Test
-    void getReward() {
-        assertEquals(3,card.getReward());
-    }
-
-    @Test
-    void getCrewLost() {
-        assertEquals(1,card.getCrewLost());
     }
 
     @Test
@@ -54,25 +27,53 @@ class SlaversTest {
         assertEquals(CardType.SLAVERS,card.getCardType());
     }
 
-    @Test
-    void apply() {
-    }
+    @RepeatedTest(5)
+    void getCardLevel() {
+        assertEquals(1, card.getCardLevel());
 
-    @Test
-    void isPlayed(){
-        assertFalse(card.isPlayed());
-        card.apply(player);
-        //assertTrue(card.isPlayed());
-    }
-
-
-    @RepeatedTest(3)
-    void testRandomCrewLostAndReward() {
         Random random = new Random();
-        int crewLost = random.nextInt(card.getCrewLost()) + 1;
-        int credit = random.nextInt(card.getReward()) + 1;
-        Slavers slavers = new Slavers(crewLost, credit, 1, 4, 3);
-        assertEquals(crewLost, slavers.getCrewLost());
-        assertEquals(credit, slavers.getReward());
+        int level = random.nextInt(3) + 1;
+        Slavers randomCard = new Slavers(level, 0, 3, 2, 4, 5);
+        assertEquals(level, randomCard.getCardLevel());
+    }
+
+    @RepeatedTest(5)
+    void getCannonStrengthRequired() {
+        assertEquals(4,card.getCannonStrengthRequired());
+
+        Random random = new Random();
+        int cannonStrength = random.nextInt(3) + 1;
+        Slavers randomCard = new Slavers(1, 0, 3, 4, cannonStrength, 5);
+        assertEquals(cannonStrength, randomCard.getCannonStrengthRequired());
+    }
+
+    @RepeatedTest(5)
+    void getFlightDays() {
+        assertEquals(5,card.getFlightDays());
+
+        Random random = new Random();
+        int flightDays = random.nextInt(3) + 1;
+        Slavers randomCard = new Slavers(1, 0, 3, 2, 4, flightDays);
+        assertEquals(flightDays, randomCard.getFlightDays());
+    }
+
+    @RepeatedTest(5)
+    void getCredit() {
+        assertEquals(2,card.getCredit());
+
+        Random random = new Random();
+        int credit = random.nextInt(3) + 1;
+        Slavers randomCard = new Slavers(1, 0, 3, credit, 4, 5);
+        assertEquals(credit, randomCard.getCredit());
+    }
+
+    @RepeatedTest(5)
+    void getCrewLost() {
+        assertEquals(3,card.getCrewLost());
+
+        Random random = new Random();
+        int crewLost = random.nextInt(3) + 1;
+        Slavers randomCard = new Slavers(1, 0, crewLost, 2, 4, 5);
+        assertEquals(crewLost, randomCard.getCrewLost());
     }
 }
