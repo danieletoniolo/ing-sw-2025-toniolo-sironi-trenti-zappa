@@ -2,7 +2,6 @@ package Model.Cards;
 
 import Model.Good.Good;
 import Model.Good.GoodType;
-import Model.Player.PlayerData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -10,51 +9,30 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 class SmugglersTest {
     Smugglers card;
     List<Good> rewards;
-    PlayerData player;
 
     @BeforeEach
     void setUp() {
         rewards = new ArrayList<>();
         rewards.add(new Good(GoodType.BLUE));
         rewards.add(new Good(GoodType.RED));
-        card = new Smugglers(rewards, 1, 2, 3, 4);
+        card = new Smugglers(2, 0, rewards, 1, 2, 3);
         assertNotNull(card, "Card variable not initialized correctly");
     }
 
-    @Test
-    void getGoodsReward() {
-        List<Good> check = card.getGoodsReward();
-        assertEquals(rewards, check);
-        assertEquals(2, check.size());
-        assertEquals(GoodType.BLUE, check.get(0).getColor());
-        assertEquals(GoodType.RED, check.get(1).getColor());
-    }
-
-    @Test
-    void getGoodsLoss() {
-        assertEquals(1, card.getGoodsLoss());
-    }
-
-    @Test
+    @RepeatedTest(5)
     void getCardLevel() {
         assertEquals(2, card.getCardLevel());
-    }
 
-    @Test
-    void getCannonStrengthRequired() {
-        assertEquals(3,card.getCannonStrengthRequired());
-    }
-
-    @Test
-    void getFlightDays() {
-        assertEquals(4,card.getFlightDays());
+        Random random = new Random();
+        int level = random.nextInt(3) + 1;
+        Smugglers randomCard = new Smugglers(level, 0, rewards, 1, 2, 3);
+        assertEquals(level, randomCard.getCardLevel());
     }
 
     @Test
@@ -62,23 +40,53 @@ class SmugglersTest {
         assertEquals(CardType.SMUGGLERS, card.getCardType());
     }
 
-    @Test
-    void apply() {
-    }
+    @RepeatedTest(5)
+    void getCannonStrengthRequired() {
+        assertEquals(2,card.getCannonStrengthRequired());
 
-    @Test
-    void isPlayed(){
-        assertFalse(card.isPlayed());
-        card.apply(player);
-        //assertTrue(card.isPlayed());
-    }
-
-
-    @RepeatedTest(3)
-    void testRandomGoodsLoss() {
         Random random = new Random();
-        int goodsLoss = random.nextInt(card.getGoodsLoss()) + 1;
-        Smugglers smugglers = new Smugglers(Collections.emptyList(), goodsLoss, 1, 5, 3);
-        assertEquals(goodsLoss, smugglers.getGoodsLoss());
+        int cannonStrength = random.nextInt(3) + 1;
+        Smugglers randomCard = new Smugglers(2, 0, rewards, 1, cannonStrength, 3);
+        assertEquals(cannonStrength, randomCard.getCannonStrengthRequired());
+    }
+
+    @RepeatedTest(5)
+    void getFlightDays() {
+        assertEquals(3,card.getFlightDays());
+
+        Random random = new Random();
+        int flightDays = random.nextInt(3) + 1;
+        Smugglers randomCard = new Smugglers(2, 0, rewards, 1, 2, flightDays);
+        assertEquals(flightDays, randomCard.getFlightDays());
+    }
+
+    @RepeatedTest(5)
+    void getGoodsLoss() {
+        assertEquals(1, card.getGoodsLoss());
+
+        Random random = new Random();
+        int goodsLoss = random.nextInt(3) + 1;
+        Smugglers randomCard = new Smugglers(2, 0, rewards, goodsLoss, 2, 3);
+        assertEquals(goodsLoss, randomCard.getGoodsLoss());
+    }
+
+    @RepeatedTest(5)
+    void getGoodsReward() {
+        List<Good> check = card.getGoodsReward();
+        assertEquals(rewards, check);
+        assertEquals(2, check.size());
+        assertEquals(GoodType.BLUE, check.get(0).getColor());
+        assertEquals(GoodType.RED, check.get(1).getColor());
+
+        Random random = new Random();
+        List<Good> rewards = new ArrayList<>();
+        List<Good> checks = new ArrayList<>();
+        GoodType[] goodTypes = GoodType.values();
+        for (int i = 0; i < 2; i++) {
+            rewards.add(new Good(goodTypes[random.nextInt(goodTypes.length)]));
+            checks.add(rewards.get(i));
+        }
+        Smugglers randomCard = new Smugglers(2, 0, rewards, 1, 2, 3);
+        assertEquals(checks, randomCard.getGoodsReward());
     }
 }
