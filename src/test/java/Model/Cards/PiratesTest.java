@@ -3,22 +3,19 @@ package Model.Cards;
 import Model.Cards.Hits.Direction;
 import Model.Cards.Hits.Hit;
 import Model.Cards.Hits.HitType;
-import Model.Player.PlayerData;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 class PiratesTest {
     Pirates card;
     List<Hit> fires;
-    PlayerData player;
 
     @BeforeEach
     void setUp() {
@@ -26,39 +23,18 @@ class PiratesTest {
         fires.add(new Hit(HitType.HEAVYFIRE, Direction.NORTH));
         fires.add(new Hit(HitType.LIGHTFIRE, Direction.SOUTH));
         assertFalse(fires.contains(null));
-        card = new Pirates(fires, 4, 2, 1, 3);
+        card = new Pirates(2, 0, fires, 4, 2, 1);
         assertNotNull(card, "Card variable not inialized correctly");
     }
 
-    @Test
+    @RepeatedTest(5)
     void getCardLevel() {
         assertEquals(2, card.getCardLevel());
-    }
 
-    @Test
-    void getFire() {
-        List<Hit> hits = card.getFire();
-        assertEquals(fires,hits);
-        assertEquals(2, hits.size());
-        assertEquals(HitType.HEAVYFIRE, hits.get(0).getType());
-        assertEquals(HitType.LIGHTFIRE, hits.get(1).getType());
-        assertEquals(Direction.NORTH, hits.get(0).getDirection());
-        assertEquals(Direction.SOUTH, hits.get(1).getDirection());
-    }
-
-    @Test
-    void getCannonStrengthRequired() {
-        assertEquals(1,card.getCannonStrengthRequired());
-    }
-
-    @Test
-    void getFlightDays() {
-        assertEquals(3,card.getFlightDays());
-    }
-
-    @Test
-    void getCredit() {
-        assertEquals(4, card.getCredit());
+        Random random = new Random();
+        int level = random.nextInt(3) + 1;
+        Pirates randomCard = new Pirates(level, 0, fires, 4, 2, 1);
+        assertEquals(level, randomCard.getCardLevel());
     }
 
     @Test
@@ -66,22 +42,58 @@ class PiratesTest {
         assertEquals(CardType.PIRATES, card.getCardType());
     }
 
-    @Test
-    void apply() {
+    @RepeatedTest(5)
+    void getFire() {
+        List<Hit> hits = card.getFires();
+        assertEquals(fires,hits);
+        assertEquals(2, hits.size());
+        assertEquals(HitType.HEAVYFIRE, hits.get(0).getType());
+        assertEquals(HitType.LIGHTFIRE, hits.get(1).getType());
+        assertEquals(Direction.NORTH, hits.get(0).getDirection());
+        assertEquals(Direction.SOUTH, hits.get(1).getDirection());
+
+        Random random = new Random();
+        List<Hit> randomHits = new ArrayList<>();
+        List<Hit> checkHits = new ArrayList<>();
+        HitType[] valuesHitType = HitType.values();
+        Direction[] valuesDirection = Direction.values();
+        for (int i = 0; i < 2; i++) {
+            randomHits.add(new Hit(valuesHitType[random.nextInt(valuesHitType.length)], valuesDirection[random.nextInt(valuesDirection.length)]));
+            checkHits.add(randomHits.get(i));
+        }
+        Pirates randomCard = new Pirates(2, 0, randomHits, 4, 2, 1);
+        hits = randomCard.getFires();
+        assertEquals(randomHits, hits);
+        assertEquals(checkHits, hits);
     }
 
-    @Test
-    void isPlayed(){
-        assertFalse(card.isPlayed());
-        card.apply(player);
-        //assertTrue(card.isPlayed());
+    @RepeatedTest(5)
+    void getCannonStrengthRequired() {
+        assertEquals(2,card.getCannonStrengthRequired());
+
+        Random random = new Random();
+        int cannonStrength = random.nextInt(3) + 1;
+        Pirates randomCard = new Pirates(2, 0, fires, 4, cannonStrength, 1);
+        assertEquals(cannonStrength, randomCard.getCannonStrengthRequired());
     }
 
+    @RepeatedTest(5)
+    void getFlightDays() {
+        assertEquals(1,card.getFlightDays());
 
-    @ParameterizedTest
-    @CsvSource({"10, 1", "7, 2", "2, 3"})
-    void testCreditValue(int credit, int level) {
-        Pirates pirates = new Pirates(Collections.emptyList(), credit, level, 5, 3);
-        assertEquals(credit, pirates.getCredit());
+        Random random = new Random();
+        int flightDays = random.nextInt(3) + 1;
+        Pirates randomCard = new Pirates(2, 0, fires, 4, 2, flightDays);
+        assertEquals(flightDays, randomCard.getFlightDays());
+    }
+
+    @RepeatedTest(5)
+    void getCredit() {
+        assertEquals(4, card.getCredit());
+
+        Random random = new Random();
+        int credit = random.nextInt(3) + 1;
+        Pirates randomCard = new Pirates(2, 0, fires, credit, 2, 1);
+        assertEquals(credit, randomCard.getCredit());
     }
 }
