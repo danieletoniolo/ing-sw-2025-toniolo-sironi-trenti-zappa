@@ -80,6 +80,7 @@ public class Cabin extends Component {
         }
         purpleAlien = true;
         crewNumber = 1;
+        super.ship.addPurpleAlien();
         super.ship.addCrewMember(1);
     }
 
@@ -93,6 +94,7 @@ public class Cabin extends Component {
         }
         brownAlien = true;
         crewNumber = 1;
+        super.ship.addBrownAlien();
         super.ship.addCrewMember(1);
     }
 

@@ -97,9 +97,13 @@ public abstract class Component {
     /**
      * Get the exposed connectors of the component
      * @return The number of exposed connectors of the component
+     * @throws IllegalStateException if the component is not attached to the ship
      * @apiNote Should only be called after the component is attached to the ship (after the placeComponent method is called)
      */
     public int getExposedConnectors() {
+        if (ship == null) {
+            throw new IllegalStateException("The component is not attached to the ship");
+        }
         int exposedConnector = 0;
         ArrayList<Component> components = ship.getSurroundingComponents(row, column);
         for (int i = 0; i < 4; i++) {

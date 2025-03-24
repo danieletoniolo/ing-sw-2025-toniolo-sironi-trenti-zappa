@@ -11,7 +11,7 @@ public class Shield extends Component {
      */
     public boolean canShield(int direction) {
         /* As a standard shield can shield from top and right */
-        return direction - getClockwiseRotation() == 0 || direction - getClockwiseRotation() == 1;
+        return (direction - getClockwiseRotation()) % 4 == 0 || (direction - getClockwiseRotation()) % 4 == 1;
     }
 
     @Override
