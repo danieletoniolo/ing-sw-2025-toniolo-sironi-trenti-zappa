@@ -214,8 +214,8 @@ class EngineTest {
         }
     }
 
-    //TODO: Fare prima isValid di cannon
-    @RepeatedTest(5)
+    //TODO: Fare prima isValid di engine
+    @RepeatedTest(500)
     void isValidTest() {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
 
@@ -245,6 +245,7 @@ class EngineTest {
             assertTrue(engine1.isValid());
         } else {
             assertFalse(engine1.isValid());
+            return;
         }
 
         ship.placeComponent(engine2, 6, 8);

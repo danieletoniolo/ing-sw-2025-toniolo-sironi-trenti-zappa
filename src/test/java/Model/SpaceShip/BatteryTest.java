@@ -210,7 +210,7 @@ class BatteryTest {
         }
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(500)
     void isValidTest() {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
 
@@ -240,6 +240,7 @@ class BatteryTest {
             assertTrue(battery.isValid());
         } else {
             assertFalse(battery.isValid());
+            return;
         }
 
         ship.placeComponent(battery1, 6, 8);

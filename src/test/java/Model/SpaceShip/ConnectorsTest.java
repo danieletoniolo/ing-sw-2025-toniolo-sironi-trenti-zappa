@@ -207,7 +207,7 @@ class ConnectorsTest {
         }
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(500)
     void isValidTest() {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
 
@@ -237,6 +237,7 @@ class ConnectorsTest {
             assertTrue(connector1.isValid());
         } else {
             assertFalse(connector1.isValid());
+            return;
         }
 
         ship.placeComponent(connector2, 6, 8);

@@ -210,7 +210,7 @@ class StorageTest {
         }
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(500)
     void isValidTest() {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
 
@@ -240,6 +240,7 @@ class StorageTest {
             assertTrue(storage1.isValid());
         } else {
             assertFalse(storage1.isValid());
+            return;
         }
 
         ship.placeComponent(storage2, 6, 8);

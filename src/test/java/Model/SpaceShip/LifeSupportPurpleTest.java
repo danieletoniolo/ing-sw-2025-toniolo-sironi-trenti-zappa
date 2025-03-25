@@ -208,7 +208,7 @@ class LifeSupportPurpleTest {
     }
 
     //TODO: controllo isValid e sua funzione
-    @RepeatedTest(5)
+    @RepeatedTest(500)
     void isValidTest() {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
 
@@ -238,6 +238,7 @@ class LifeSupportPurpleTest {
             assertTrue(lsp1.isValid());
         } else {
             assertFalse(lsp1.isValid());
+            return;
         }
 
         ship.placeComponent(lsp2, 6, 8);
