@@ -1,8 +1,8 @@
 package Model.SpaceShip;
 
 public class LifeSupportPurple extends Component {
-    public LifeSupportPurple(int ID, int row, int column, ConnectorType[] connectors) {
-        super(ID, row, column, connectors);
+    public LifeSupportPurple(int ID, ConnectorType[] connectors) {
+        super(ID, connectors);
     }
 
     /**
@@ -10,13 +10,16 @@ public class LifeSupportPurple extends Component {
      */
     @Override
     public boolean isValid() {
+        if (!super.isValid()) {
+            return false;
+        }
         for (Component component : ship.getSurroundingComponents(row, column)) {
-            if (component.getComponentType() == ComponentType.CABIN) {
+            if (component != null && component.getComponentType() == ComponentType.CABIN) {
                 Cabin cabin = (Cabin) component;
                 cabin.addPurpleLifeSupport();
             }
         }
-        return super.isValid();
+        return true;
     }
 
     @Override

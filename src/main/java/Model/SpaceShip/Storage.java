@@ -10,8 +10,8 @@ public class Storage extends Component{
     private int goodsValue;
     private ArrayList<Good> goods;
 
-    public Storage(int ID, int row, int column, ConnectorType[] connectors, boolean dangerous, int goodsCapacity) {
-        super(ID, row, column, connectors);
+    public Storage(int ID, ConnectorType[] connectors, boolean dangerous, int goodsCapacity) {
+        super(ID, connectors);
         this.dangerous = dangerous;
         this.goodsCapacity = goodsCapacity;
         this.goodsValue = 0;
@@ -63,10 +63,10 @@ public class Storage extends Component{
      * @throws IllegalStateException if the storage is full or the good to remove is not found
      */
     public void exchangeGood(ArrayList<Good> goodsToAdd, ArrayList<Good> goodsToRemove) throws IllegalStateException {
-        for (Good good : goodsToAdd) {
+        for (Good good : goodsToRemove) {
             removeGood(good);
         }
-        for (Good good : goodsToRemove) {
+        for (Good good : goodsToAdd) {
             addGood(good);
         }
     }

@@ -25,4 +25,12 @@ public abstract class Card {
     public int getCardLevel() {
         return level;
     }
+
+    /**
+     * Get the card ID
+     * @return card ID
+     */
+    public int getID() {
+        return ID;
+    }
 }
