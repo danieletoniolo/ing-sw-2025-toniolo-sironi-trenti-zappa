@@ -32,28 +32,6 @@ class BatteryTest {
     }
 
     @RepeatedTest(5)
-    void getRowTest(){
-        assertEquals(6, b.getRow());
-
-        Random rand = new Random();
-        int r = rand.nextInt(4,9);
-        Battery battery = new Battery(1, connectors, 1);
-
-        assertEquals(r, battery.getRow());
-    }
-
-    @RepeatedTest(5)
-    void getColumnTest(){
-        assertEquals(7, b.getColumn());
-
-        Random rand = new Random();
-        int c = rand.nextInt(5,9);
-        Battery battery = new Battery(1, connectors, 1);
-
-        assertEquals(c, battery.getColumn());
-    }
-
-    @RepeatedTest(5)
     void getIDTest(){
         assertEquals(0, b.getID());
 

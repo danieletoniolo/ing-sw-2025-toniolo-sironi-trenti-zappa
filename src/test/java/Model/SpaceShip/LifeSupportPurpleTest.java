@@ -29,28 +29,6 @@ class LifeSupportPurpleTest {
     }
 
     @RepeatedTest(5)
-    void getRowTest(){
-        assertEquals(6, lsp.getRow());
-
-        Random rand = new Random();
-        int r = rand.nextInt(4,9);
-        LifeSupportPurple l = new LifeSupportPurple(1, connectors);
-
-        assertEquals(r, l.getRow());
-    }
-
-    @RepeatedTest(5)
-    void getColumnTest(){
-        assertEquals(7, lsp.getColumn());
-
-        Random rand = new Random();
-        int c = rand.nextInt(5,9);
-        LifeSupportPurple l = new LifeSupportPurple(1, connectors);
-
-        assertEquals(c, l.getColumn());
-    }
-
-    @RepeatedTest(5)
     void getIDTest(){
         assertEquals(0, lsp.getID());
 

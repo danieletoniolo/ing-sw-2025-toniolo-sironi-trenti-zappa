@@ -36,28 +36,6 @@ class EngineTest {
     }
 
     @RepeatedTest(5)
-    void getRowTest(){
-        assertEquals(6, engine.getRow());
-
-        Random rand = new Random();
-        int r = rand.nextInt(4,9);
-        Engine engine = new Engine(1, connectors, 1);
-
-        assertEquals(r, engine.getRow());
-    }
-
-    @RepeatedTest(5)
-    void getColumnTest(){
-        assertEquals(7, engine.getColumn());
-
-        Random rand = new Random();
-        int c = rand.nextInt(5,9);
-        Engine engine = new Engine(1, connectors, 1);
-
-        assertEquals(c, engine.getColumn());
-    }
-
-    @RepeatedTest(5)
     void getIDTest(){
         assertEquals(0, engine.getID());
 

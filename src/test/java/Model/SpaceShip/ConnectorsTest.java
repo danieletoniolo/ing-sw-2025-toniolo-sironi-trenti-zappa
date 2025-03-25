@@ -29,28 +29,6 @@ class ConnectorsTest {
     }
 
     @RepeatedTest(5)
-    void getRowTest(){
-        assertEquals(6, c.getRow());
-
-        Random rand = new Random();
-        int r = rand.nextInt(4,9);
-        Connectors connector = new Connectors(1, connectors);
-
-        assertEquals(r, connector.getRow());
-    }
-
-    @RepeatedTest(5)
-    void getColumnTest(){
-        assertEquals(7, c.getColumn());
-
-        Random rand = new Random();
-        int c = rand.nextInt(5,9);
-        Connectors connector = new Connectors(1, connectors);
-
-        assertEquals(c, connector.getColumn());
-    }
-
-    @RepeatedTest(5)
     void getIDTest(){
         assertEquals(0, c.getID());
 

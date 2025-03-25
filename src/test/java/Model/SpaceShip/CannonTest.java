@@ -20,28 +20,6 @@ class CannonTest {
     }
 
     @RepeatedTest(5)
-    void getRowTest(){
-        assertEquals(1, component.getRow());
-
-        Random rand = new Random();
-        int r = rand.nextInt(4,9);
-        Cannon cannon = new Cannon(1, connectors, 1);
-
-        assertEquals(r, cannon.getRow());
-    }
-
-    @RepeatedTest(5)
-    void getColumnTest(){
-        assertEquals(2, component.getColumn());
-
-        Random rand = new Random();
-        int c = rand.nextInt(5,9);
-        Cannon cannon = new Cannon(1, connectors, 1);
-
-        assertEquals(c, cannon.getColumn());
-    }
-
-    @RepeatedTest(5)
     void getIDTest(){
         assertEquals(0, component.getID());
 

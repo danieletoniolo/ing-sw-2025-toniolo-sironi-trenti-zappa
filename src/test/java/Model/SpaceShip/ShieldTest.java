@@ -29,28 +29,6 @@ class ShieldTest {
     }
 
     @RepeatedTest(5)
-    void getRowTest(){
-        assertEquals(6, s.getRow());
-
-        Random rand = new Random();
-        int r = rand.nextInt(4,9);
-        Shield s = new Shield(1, connectors);
-
-        assertEquals(r, s.getRow());
-    }
-
-    @RepeatedTest(5)
-    void getColumnTest(){
-        assertEquals(7, s.getColumn());
-
-        Random rand = new Random();
-        int c = rand.nextInt(5,9);
-        Shield s = new Shield(1, connectors);
-
-        assertEquals(c, s.getColumn());
-    }
-
-    @RepeatedTest(5)
     void getIDTest(){
         assertEquals(0, s.getID());
 

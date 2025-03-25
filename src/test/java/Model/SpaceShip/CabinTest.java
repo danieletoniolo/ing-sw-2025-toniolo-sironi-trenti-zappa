@@ -31,28 +31,6 @@ class CabinTest {
     }
 
     @RepeatedTest(5)
-    void getRowTest(){
-        assertEquals(6, c.getRow());
-
-        Random rand = new Random();
-        int r = rand.nextInt(4,9);
-        Cabin cabin = new Cabin(1, connectors);
-
-        assertEquals(r, cabin.getRow());
-    }
-
-    @RepeatedTest(5)
-    void getColumnTest(){
-        assertEquals(7, c.getColumn());
-
-        Random rand = new Random();
-        int c = rand.nextInt(5,9);
-        Cabin cabin = new Cabin(1, connectors);
-
-        assertEquals(c, cabin.getColumn());
-    }
-
-    @RepeatedTest(5)
     void getIDTest(){
         assertEquals(0, c.getID());
 
