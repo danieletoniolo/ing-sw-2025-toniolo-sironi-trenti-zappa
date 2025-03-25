@@ -50,7 +50,8 @@ public class SpaceShip {
         components[7][7].ship = this;
         components[7][7].setRow(7);
         components[7][7].setColumn(7);
-        numberOfComponents = 0;
+        cabins.put(components[7][7].getID(), (Cabin) components[7][7]);
+        numberOfComponents = 1;
         this.validSpots = validSpots;
         lostComponents = new ArrayList<>();
         reservedComponents = new ArrayList<>();
