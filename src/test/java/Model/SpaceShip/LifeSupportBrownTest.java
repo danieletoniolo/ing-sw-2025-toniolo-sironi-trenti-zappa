@@ -3,7 +3,6 @@ package Model.SpaceShip;
 import Model.Game.Board.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
@@ -16,13 +15,13 @@ class LifeSupportBrownTest {
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        lsb = new LifeSupportBrown(0, 6, 7, connectors);
+        lsb = new LifeSupportBrown(0, connectors);
         assertNotNull(lsb, "Component not initialized correctly");
     }
 
     @RepeatedTest(10)
     void getComponentType() {
-        lsb = new LifeSupportBrown(0, 1, 2, connectors);
+        lsb = new LifeSupportBrown(0, connectors);
         ComponentType type = lsb.getComponentType();
         System.out.println(type);
 
@@ -35,7 +34,7 @@ class LifeSupportBrownTest {
 
         Random rand = new Random();
         int r = rand.nextInt(4,9);
-        LifeSupportBrown l = new LifeSupportBrown(1, r, 2, connectors);
+        LifeSupportBrown l = new LifeSupportBrown(1, connectors);
 
         assertEquals(r, l.getRow());
     }
@@ -46,7 +45,7 @@ class LifeSupportBrownTest {
 
         Random rand = new Random();
         int c = rand.nextInt(5,9);
-        LifeSupportBrown l = new LifeSupportBrown(1, 2, c, connectors);
+        LifeSupportBrown l = new LifeSupportBrown(1, connectors);
 
         assertEquals(c, l.getColumn());
     }
@@ -57,7 +56,7 @@ class LifeSupportBrownTest {
 
         Random rand = new Random();
         int id = rand.nextInt(4,9);
-        LifeSupportBrown l = new LifeSupportBrown(id, 1, 2, connectors);
+        LifeSupportBrown l = new LifeSupportBrown(id, connectors);
 
         assertEquals(id, l.getID());
     }
@@ -75,7 +74,7 @@ class LifeSupportBrownTest {
             check[i] = randomType;
         }
 
-        LifeSupportBrown l = new LifeSupportBrown(1, 2, 3, connectorArray);
+        LifeSupportBrown l = new LifeSupportBrown(1, connectorArray);
 
         for(int k = 0; k < 4; k++){
             assertEquals(l.getConnection(k), check[k]);
@@ -126,7 +125,7 @@ class LifeSupportBrownTest {
             }
         }
 
-        LifeSupportBrown l = new LifeSupportBrown(1, 6, 7, connectorArray);
+        LifeSupportBrown l = new LifeSupportBrown(1, connectorArray);
         ship.placeComponent(l, 6, 7);
         if(l.getConnection(2) != ConnectorType.EMPTY){
             exposed--;
@@ -134,7 +133,7 @@ class LifeSupportBrownTest {
         System.out.println(exposed);
         assertEquals(exposed, l.getExposedConnectors());
 
-        LifeSupportBrown l1 = new LifeSupportBrown(2, 6, 8, connectorArray);
+        LifeSupportBrown l1 = new LifeSupportBrown(2, connectorArray);
         ship.placeComponent(l1, 6, 8);
         if(l.getConnection(3) != ConnectorType.EMPTY){
             exposed--;
@@ -166,7 +165,7 @@ class LifeSupportBrownTest {
                 connector[k] = randomType;
             }
 
-            LifeSupportBrown l = new LifeSupportBrown(1, 2, 3, connector);
+            LifeSupportBrown l = new LifeSupportBrown(1, connector);
 
             int r = rand.nextInt(4) + 1;
             for(int p = 0; p < r; p++){
@@ -191,9 +190,9 @@ class LifeSupportBrownTest {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
         LifeSupportBrown[] lsbs = new LifeSupportBrown[count];
         int i = 0;
-        int j = 0;
+        int j;
         for(j = 0; j < count; j++){
-            lsbs[j] = new LifeSupportBrown(j, 6, 7 + j, connectors);
+            lsbs[j] = new LifeSupportBrown(j, connectors);
             System.out.println(lsbs[j]);
 
             ship.placeComponent(lsbs[j], 6, 7 + j);
@@ -229,8 +228,8 @@ class LifeSupportBrownTest {
             System.out.println(randomType);
         }
 
-        LifeSupportBrown lsb1 = new LifeSupportBrown(1, 6, 7, connectors1);
-        LifeSupportBrown lsb2 = new LifeSupportBrown(2, 6, 8, connectors2);
+        LifeSupportBrown lsb1 = new LifeSupportBrown(1, connectors1);
+        LifeSupportBrown lsb2 = new LifeSupportBrown(2, connectors2);
 
         ship.placeComponent(lsb1, 6, 7);
         System.out.println(lsb1.isValid());

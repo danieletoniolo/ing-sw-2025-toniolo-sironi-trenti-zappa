@@ -15,7 +15,7 @@ class EngineTest {
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        engine = new Engine(0, 6, 7, connectors, 1);
+        engine = new Engine(0, connectors, 1);
         assertNotNull(engine, "Component not initialized correctly");
     }
 
@@ -24,7 +24,7 @@ class EngineTest {
         Random rand = new Random();
         int i = rand.nextInt(2) + 1;
 
-        engine = new Engine(0, 1, 2, connectors, i);
+        engine = new Engine(0, connectors, i);
         ComponentType type = engine.getComponentType();
         System.out.println(type);
 
@@ -41,7 +41,7 @@ class EngineTest {
 
         Random rand = new Random();
         int r = rand.nextInt(4,9);
-        Engine engine = new Engine(1, r, 2, connectors, 1);
+        Engine engine = new Engine(1, connectors, 1);
 
         assertEquals(r, engine.getRow());
     }
@@ -52,7 +52,7 @@ class EngineTest {
 
         Random rand = new Random();
         int c = rand.nextInt(5,9);
-        Engine engine = new Engine(1, 2, c, connectors, 1);
+        Engine engine = new Engine(1, connectors, 1);
 
         assertEquals(c, engine.getColumn());
     }
@@ -63,7 +63,7 @@ class EngineTest {
 
         Random rand = new Random();
         int id = rand.nextInt(4,9);
-        Engine engine = new Engine(id, 1, 2, connectors, 1);
+        Engine engine = new Engine(id, connectors, 1);
 
         assertEquals(id, engine.getID());
     }
@@ -81,7 +81,7 @@ class EngineTest {
             check[i] = randomType;
         }
 
-        Engine engine = new Engine(1, 2, 3, connectorArray, 1);
+        Engine engine = new Engine(1, connectorArray, 1);
 
         for(int k = 0; k < 4; k++){
             assertEquals(engine.getConnection(k), check[k]);
@@ -132,7 +132,7 @@ class EngineTest {
             }
         }
 
-        Engine engine = new Engine(1, 6, 7, connectorArray, 1);
+        Engine engine = new Engine(1, connectorArray, 1);
         ship.placeComponent(engine, 6, 7);
         if(engine.getConnection(2) != ConnectorType.EMPTY){
             exposed--;
@@ -140,7 +140,7 @@ class EngineTest {
         System.out.println(exposed);
         assertEquals(exposed, engine.getExposedConnectors());
 
-        Engine engine1 = new Engine(2, 6, 8, connectorArray, 2);
+        Engine engine1 = new Engine(2, connectorArray, 2);
         ship.placeComponent(engine1, 6, 8);
         if(engine.getConnection(3) != ConnectorType.EMPTY){
             exposed--;
@@ -172,7 +172,7 @@ class EngineTest {
                 connector[k] = randomType;
             }
 
-            Engine engine = new Engine(1, 2, 3, connector, 1);
+            Engine engine = new Engine(1, connector, 1);
 
             int r = rand.nextInt(4) + 1;
             for(int p = 0; p < r; p++){
@@ -197,9 +197,9 @@ class EngineTest {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
         Engine[] es = new Engine[count];
         int i = 0;
-        int j = 0;
+        int j;
         for(j = 0; j < count; j++){
-            es[j] = new Engine(j, 6, 7 + j, connectors, 2);
+            es[j] = new Engine(j, connectors, 2);
             System.out.println(es[j]);
 
             ship.placeComponent(es[j], 6, 7 + j);
@@ -235,8 +235,8 @@ class EngineTest {
             System.out.println(randomType);
         }
 
-        Engine engine1 = new Engine(1, 6, 7, connectors1, 1);
-        Engine engine2 = new Engine(2, 6, 8, connectors2, 2);
+        Engine engine1 = new Engine(1, connectors1, 1);
+        Engine engine2 = new Engine(2, connectors2, 2);
 
         ship.placeComponent(engine1, 6, 7);
         System.out.println(engine1.isValid());
@@ -269,7 +269,7 @@ class EngineTest {
         Random rand = new Random();
         int power = rand.nextInt(2) + 1;
         System.out.println(power);
-        Engine engine = new Engine(1, 2, 3, connectors, power);
+        Engine engine = new Engine(1, connectors, power);
         assertEquals(power, engine.getEngineStrength());
     }
 }

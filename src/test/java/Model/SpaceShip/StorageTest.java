@@ -18,13 +18,13 @@ class StorageTest {
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        s = new Storage(0, 6, 7, connectors, true, 3);
+        s = new Storage(0, connectors, true, 3);
         assertNotNull(s, "Component not initialized correctly");
     }
 
     @RepeatedTest(10)
     void getComponentType() {
-        s = new Storage(0, 1, 2, connectors, true, 2);
+        s = new Storage(0, connectors, true, 2);
         ComponentType type = s.getComponentType();
         System.out.println(type);
 
@@ -37,7 +37,7 @@ class StorageTest {
 
         Random rand = new Random();
         int r = rand.nextInt(4,9);
-        Storage s = new Storage(1, r, 2, connectors, true, 2);
+        Storage s = new Storage(1, connectors, true, 2);
 
         assertEquals(r, s.getRow());
     }
@@ -48,7 +48,7 @@ class StorageTest {
 
         Random rand = new Random();
         int c = rand.nextInt(5,9);
-        Storage s = new Storage(1, 2, c, connectors, true, 3);
+        Storage s = new Storage(1, connectors, true, 3);
 
         assertEquals(c, s.getColumn());
     }
@@ -59,7 +59,7 @@ class StorageTest {
 
         Random rand = new Random();
         int id = rand.nextInt(4,9);
-        Storage s = new Storage(id, 1, 2, connectors, true, 2);
+        Storage s = new Storage(id, connectors, true, 2);
 
         assertEquals(id, s.getID());
     }
@@ -77,7 +77,7 @@ class StorageTest {
             check[i] = randomType;
         }
 
-        Storage s = new Storage(1, 2, 3, connectorArray, true, 2);
+        Storage s = new Storage(1, connectorArray, true, 2);
 
         for(int k = 0; k < 4; k++){
             assertEquals(s.getConnection(k), check[k]);
@@ -128,7 +128,7 @@ class StorageTest {
             }
         }
 
-        Storage s = new Storage(1, 6, 7, connectorArray, true, 2);
+        Storage s = new Storage(1, connectorArray, true, 2);
         ship.placeComponent(s, 6, 7);
         if(s.getConnection(2) != ConnectorType.EMPTY){
             exposed--;
@@ -136,7 +136,7 @@ class StorageTest {
         System.out.println(exposed);
         assertEquals(exposed, s.getExposedConnectors());
 
-        Storage s1 = new Storage(2, 6, 8, connectorArray, true, 3);
+        Storage s1 = new Storage(2, connectorArray, true, 3);
         ship.placeComponent(s1, 6, 8);
         if(s.getConnection(3) != ConnectorType.EMPTY){
             exposed--;
@@ -168,7 +168,7 @@ class StorageTest {
                 connector[k] = randomType;
             }
 
-            Storage s = new Storage(1, 2, 3, connector, true, 2);
+            Storage s = new Storage(1, connector, true, 2);
 
             int r = rand.nextInt(4) + 1;
             for(int p = 0; p < r; p++){
@@ -193,9 +193,9 @@ class StorageTest {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
         Storage[] ss = new Storage[count];
         int i = 0;
-        int j = 0;
+        int j;
         for(j = 0; j < count; j++){
-            ss[j] = new Storage(j, 6, 7 + j, connectors, true, 2);
+            ss[j] = new Storage(j, connectors, true, 2);
             System.out.println(ss[j]);
 
             ship.placeComponent(ss[j], 6, 7 + j);
@@ -230,8 +230,8 @@ class StorageTest {
             System.out.println(randomType);
         }
 
-        Storage storage1 = new Storage(1, 6, 7, connectors1, true, 2);
-        Storage storage2 = new Storage(2, 6, 8, connectors2, true, 3);
+        Storage storage1 = new Storage(1, connectors1, true, 2);
+        Storage storage2 = new Storage(2, connectors2, true, 3);
 
         ship.placeComponent(storage1, 6, 7);
         System.out.println(storage1.isValid());
@@ -261,7 +261,7 @@ class StorageTest {
     void isDangerous() {
         Random rand = new Random();
         boolean isDangerous = rand.nextBoolean();
-        Storage s = new Storage(1, 2, 3, connectors, isDangerous, 2);
+        Storage s = new Storage(1, connectors, isDangerous, 2);
         if(isDangerous){
             assertTrue(s.isDangerous());
         } else {
@@ -278,7 +278,7 @@ class StorageTest {
         int capacity = rand.nextInt(1, 4);
 
         ArrayList<Good> check = new ArrayList<>();
-        Storage s = new Storage(1, 2, 3, connectors, dangerous, capacity);
+        Storage s = new Storage(1, connectors, dangerous, capacity);
         for(int i = 0; i < capacity; i++){
             GoodType[] values = GoodType.values();
             GoodType randType = values[rand.nextInt(values.length)];
@@ -327,7 +327,7 @@ class StorageTest {
         boolean dangerous = rand.nextBoolean();
         System.out.println(dangerous);
         int capacity = rand.nextInt(1, 4);
-        Storage s = new Storage(1, 2, 3, connectors, dangerous, capacity);
+        Storage s = new Storage(1, connectors, dangerous, capacity);
         for(int i = 0; i < capacity; i++){
             GoodType[] values = GoodType.values();
             GoodType randType = values[rand.nextInt(values.length)];
@@ -388,7 +388,7 @@ class StorageTest {
     @RepeatedTest(5)
     void exchangeGood() {
         Random rand = new Random();
-        Storage s = new Storage(1, 2, 3, connectors, true, 4);
+        Storage s = new Storage(1, connectors, true, 4);
         ArrayList<Good> goodsToAdd = new ArrayList<>();
         ArrayList<Good> goodsToRemove = new ArrayList<>();
         Good[] minGood = null;

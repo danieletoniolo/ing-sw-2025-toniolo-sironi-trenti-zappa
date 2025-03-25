@@ -3,7 +3,6 @@ package Model.SpaceShip;
 import Model.Game.Board.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
@@ -16,13 +15,13 @@ class LifeSupportPurpleTest {
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        lsp = new LifeSupportPurple(0, 6, 7, connectors);
+        lsp = new LifeSupportPurple(0, connectors);
         assertNotNull(lsp, "Component not initialized correctly");
     }
 
     @RepeatedTest(10)
     void getComponentType() {
-        lsp = new LifeSupportPurple(0, 1, 2, connectors);
+        lsp = new LifeSupportPurple(0, connectors);
         ComponentType type = lsp.getComponentType();
         System.out.println(type);
 
@@ -35,7 +34,7 @@ class LifeSupportPurpleTest {
 
         Random rand = new Random();
         int r = rand.nextInt(4,9);
-        LifeSupportPurple l = new LifeSupportPurple(1, r, 2, connectors);
+        LifeSupportPurple l = new LifeSupportPurple(1, connectors);
 
         assertEquals(r, l.getRow());
     }
@@ -46,7 +45,7 @@ class LifeSupportPurpleTest {
 
         Random rand = new Random();
         int c = rand.nextInt(5,9);
-        LifeSupportPurple l = new LifeSupportPurple(1, 2, c, connectors);
+        LifeSupportPurple l = new LifeSupportPurple(1, connectors);
 
         assertEquals(c, l.getColumn());
     }
@@ -57,7 +56,7 @@ class LifeSupportPurpleTest {
 
         Random rand = new Random();
         int id = rand.nextInt(4,9);
-        LifeSupportPurple l = new LifeSupportPurple(id, 1, 2, connectors);
+        LifeSupportPurple l = new LifeSupportPurple(id, connectors);
 
         assertEquals(id, l.getID());
     }
@@ -75,7 +74,7 @@ class LifeSupportPurpleTest {
             check[i] = randomType;
         }
 
-        LifeSupportPurple l = new LifeSupportPurple(1, 2, 3, connectorArray);
+        LifeSupportPurple l = new LifeSupportPurple(1, connectorArray);
 
         for(int k = 0; k < 4; k++){
             assertEquals(l.getConnection(k), check[k]);
@@ -126,7 +125,7 @@ class LifeSupportPurpleTest {
             }
         }
 
-        LifeSupportPurple l = new LifeSupportPurple(1, 6, 7, connectorArray);
+        LifeSupportPurple l = new LifeSupportPurple(1, connectorArray);
         ship.placeComponent(l, 6, 7);
         if(l.getConnection(2) != ConnectorType.EMPTY){
             exposed--;
@@ -134,7 +133,7 @@ class LifeSupportPurpleTest {
         System.out.println(exposed);
         assertEquals(exposed, l.getExposedConnectors());
 
-        LifeSupportPurple l1 = new LifeSupportPurple(2, 6, 8, connectorArray);
+        LifeSupportPurple l1 = new LifeSupportPurple(2, connectorArray);
         ship.placeComponent(l1, 6, 8);
         if(l.getConnection(3) != ConnectorType.EMPTY){
             exposed--;
@@ -166,7 +165,7 @@ class LifeSupportPurpleTest {
                 connector[k] = randomType;
             }
 
-            LifeSupportPurple l = new LifeSupportPurple(1, 2, 3, connector);
+            LifeSupportPurple l = new LifeSupportPurple(1, connector);
 
             int r = rand.nextInt(4) + 1;
             for(int p = 0; p < r; p++){
@@ -191,9 +190,9 @@ class LifeSupportPurpleTest {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
         LifeSupportPurple[] lsps = new LifeSupportPurple[count];
         int i = 0;
-        int j = 0;
+        int j;
         for(j = 0; j < count; j++){
-            lsps[j] = new LifeSupportPurple(j, 6, 7 + j, connectors);
+            lsps[j] = new LifeSupportPurple(j, connectors);
             System.out.println(lsps[j]);
 
             ship.placeComponent(lsps[j], 6, 7 + j);
@@ -229,8 +228,8 @@ class LifeSupportPurpleTest {
             System.out.println(randomType);
         }
 
-        LifeSupportPurple lsp1 = new LifeSupportPurple(1, 6, 7, connectors1);
-        LifeSupportPurple lsp2 = new LifeSupportPurple(2, 6, 8, connectors2);
+        LifeSupportPurple lsp1 = new LifeSupportPurple(1, connectors1);
+        LifeSupportPurple lsp2 = new LifeSupportPurple(2, connectors2);
 
         ship.placeComponent(lsp1, 6, 7);
         System.out.println(lsp1.isValid());

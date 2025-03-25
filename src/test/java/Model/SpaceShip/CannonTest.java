@@ -15,7 +15,7 @@ class CannonTest {
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE , ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        component = new Cannon(0, 6, 7, connectors, 1);
+        component = new Cannon(0, connectors, 1);
         assertNotNull(component, "Component not initialized correctly");
     }
 
@@ -25,7 +25,7 @@ class CannonTest {
 
         Random rand = new Random();
         int r = rand.nextInt(4,9);
-        Cannon cannon = new Cannon(1, r, 2, connectors, 1);
+        Cannon cannon = new Cannon(1, connectors, 1);
 
         assertEquals(r, cannon.getRow());
     }
@@ -36,7 +36,7 @@ class CannonTest {
 
         Random rand = new Random();
         int c = rand.nextInt(5,9);
-        Cannon cannon = new Cannon(1, 2, c, connectors, 1);
+        Cannon cannon = new Cannon(1, connectors, 1);
 
         assertEquals(c, cannon.getColumn());
     }
@@ -47,7 +47,7 @@ class CannonTest {
 
         Random rand = new Random();
         int id = rand.nextInt(4,9);
-        Cannon cannon = new Cannon(id, 1, 2, connectors, 1);
+        Cannon cannon = new Cannon(id, connectors, 1);
 
         assertEquals(id, cannon.getID());
     }
@@ -65,7 +65,7 @@ class CannonTest {
             check[i] = randomType;
         }
 
-        Cannon cannon = new Cannon(1, 2, 3, connectorArray, 1);
+        Cannon cannon = new Cannon(1, connectorArray, 1);
 
         for(int k = 0; k < 4; k++){
             assertEquals(cannon.getConnection(k), check[k]);
@@ -78,19 +78,19 @@ class CannonTest {
         //TODO: Da controllare ma è sbagliato il risultato - sbaglia quando è true add, quindi è sbagliato il metodo - chiedi a toni
         //Potrei fare un test con un componente davanti e uno senza, ma in modo randomico aggiungere un componente davanti
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
-        Storage storage = new Storage(1, 8, 7, connectors, true, 1);
+        Storage storage = new Storage(1, connectors, true, 1);
         ship.placeComponent(storage, 8, 7);
         Random rand = new Random();
         int i = rand.nextInt(4) + 1;
         for(int j = 0; j < i; j++) {
-            Cannon cannon = new Cannon(j, 8, 8 + j, connectors, 1);
+            Cannon cannon = new Cannon(j, connectors, 1);
             ship.placeComponent(cannon, 8, 8 + j);
 
             boolean add = rand.nextBoolean();
             System.out.println(add);
             if(add){
                 //If true, add a component in front of the cannon
-                Cannon cannon1 = new Cannon(5 + j, 7, 8 + j, connectors, 1);
+                Cannon cannon1 = new Cannon(5 + j, connectors, 1);
                 ship.placeComponent(cannon1, 7, 8 + j);
             }
 
@@ -109,9 +109,9 @@ class CannonTest {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
         Cannon[] cs = new Cannon[count];
         int i = 0;
-        int j = 0;
+        int j;
         for(j = 0; j < count; j++){
-            cs[j] = new Cannon(j, 6, 7 + j, connectors, 2);
+            cs[j] = new Cannon(j, connectors, 2);
             System.out.println(cs[j]);
 
             ship.placeComponent(cs[j], 6, 7 + j);
@@ -142,7 +142,7 @@ class CannonTest {
             }
         }
 
-        Cannon cannon = new Cannon(1, 6, 7, connectorArray, 1);
+        Cannon cannon = new Cannon(1, connectorArray, 1);
         ship.placeComponent(cannon, 6, 7);
         if(cannon.getConnection(2) != ConnectorType.EMPTY){
             exposed--;
@@ -150,7 +150,7 @@ class CannonTest {
         System.out.println(exposed);
         assertEquals(exposed, cannon.getExposedConnectors());
 
-        Cannon cannon1 = new Cannon(2, 6, 8, connectorArray, 1);
+        Cannon cannon1 = new Cannon(2, connectorArray, 1);
         ship.placeComponent(cannon1, 6, 8);
         if(cannon1.getConnection(3) != ConnectorType.EMPTY){
             exposed--;
@@ -182,7 +182,7 @@ class CannonTest {
                 connector[k] = randomType;
             }
 
-            Cannon cannon = new Cannon(1, 2, 3, connector, 1);
+            Cannon cannon = new Cannon(1, connector, 1);
 
             int r = rand.nextInt(4) + 1;
             for(int p = 0; p < r; p++){
@@ -231,7 +231,7 @@ class CannonTest {
         Random rand = new Random();
         int r = rand.nextInt(4);
         int power = rand.nextInt(1,3);
-        Cannon cannon = new Cannon(0, 1, 2, connectors, power);
+        Cannon cannon = new Cannon(0, connectors, power);
         for(int k = 0; k < r; k++){
             cannon.rotateClockwise();
         }
@@ -251,7 +251,7 @@ class CannonTest {
         Random rand = new Random();
         int i = rand.nextInt(2) + 1;
 
-        component = new Cannon(0, 1, 2, connectors, i);
+        component = new Cannon(0, connectors, i);
         ComponentType type = component.getComponentType();
         System.out.println(type);
 

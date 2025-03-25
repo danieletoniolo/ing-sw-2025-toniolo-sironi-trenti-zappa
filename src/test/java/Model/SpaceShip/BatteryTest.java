@@ -15,7 +15,7 @@ class BatteryTest {
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        b = new Battery(0, 6, 7, connectors, 1);
+        b = new Battery(0, connectors, 1);
         assertNotNull(b, "Component not initialized correctly");
     }
 
@@ -24,7 +24,7 @@ class BatteryTest {
         Random rand = new Random();
         int i = rand.nextInt(2) + 1;
 
-        b = new Battery(0, 1, 2, connectors, i);
+        b = new Battery(0, connectors, i);
         ComponentType type = b.getComponentType();
         System.out.println(type);
 
@@ -37,7 +37,7 @@ class BatteryTest {
 
         Random rand = new Random();
         int r = rand.nextInt(4,9);
-        Battery battery = new Battery(1, r, 2, connectors, 1);
+        Battery battery = new Battery(1, connectors, 1);
 
         assertEquals(r, battery.getRow());
     }
@@ -48,7 +48,7 @@ class BatteryTest {
 
         Random rand = new Random();
         int c = rand.nextInt(5,9);
-        Battery battery = new Battery(1, 2, c, connectors, 1);
+        Battery battery = new Battery(1, connectors, 1);
 
         assertEquals(c, battery.getColumn());
     }
@@ -59,7 +59,7 @@ class BatteryTest {
 
         Random rand = new Random();
         int id = rand.nextInt(4,9);
-        Battery battery = new Battery(id, 1, 2, connectors, 1);
+        Battery battery = new Battery(id, connectors, 1);
 
         assertEquals(id, battery.getID());
     }
@@ -77,7 +77,7 @@ class BatteryTest {
             check[i] = randomType;
         }
 
-        Battery battery = new Battery(1, 2, 3, connectorArray, 1);
+        Battery battery = new Battery(1, connectorArray, 1);
 
         for(int k = 0; k < 4; k++){
             assertEquals(battery.getConnection(k), check[k]);
@@ -128,7 +128,7 @@ class BatteryTest {
             }
         }
 
-        Battery battery = new Battery(1, 6, 7, connectorArray, 1);
+        Battery battery = new Battery(1, connectorArray, 1);
         ship.placeComponent(battery, 6, 7);
         if(battery.getConnection(2) != ConnectorType.EMPTY){
             exposed--;
@@ -136,7 +136,7 @@ class BatteryTest {
         System.out.println(exposed);
         assertEquals(exposed, battery.getExposedConnectors());
 
-        Battery battery1 = new Battery(2, 6, 8, connectorArray, 1);
+        Battery battery1 = new Battery(2, connectorArray, 1);
         ship.placeComponent(battery1, 6, 8);
         if(battery.getConnection(3) != ConnectorType.EMPTY){
             exposed--;
@@ -168,7 +168,7 @@ class BatteryTest {
                 connector[k] = randomType;
             }
 
-            Battery battery = new Battery(1, 2, 3, connector, 1);
+            Battery battery = new Battery(1, connector, 1);
 
             int r = rand.nextInt(4) + 1;
             for(int p = 0; p < r; p++){
@@ -193,9 +193,9 @@ class BatteryTest {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
         Battery[] bs = new Battery[count];
         int i = 0;
-        int j = 0;
+        int j;
         for(j = 0; j < count; j++){
-            bs[j] = new Battery(j, 6, 7 + j, connectors, 2);
+            bs[j] = new Battery(j, connectors, 2);
             System.out.println(bs[j]);
 
             ship.placeComponent(bs[j], 6, 7 + j);
@@ -230,8 +230,8 @@ class BatteryTest {
             System.out.println(randomType);
         }
 
-        Battery battery = new Battery(1, 6, 7, connectors1, 1);
-        Battery battery1 = new Battery(2, 6, 8, connectors2, 1);
+        Battery battery = new Battery(1, connectors1, 1);
+        Battery battery1 = new Battery(2, connectors2, 1);
 
         ship.placeComponent(battery, 6, 7);
         System.out.println(battery.isValid());
@@ -262,7 +262,7 @@ class BatteryTest {
         Random rand = new Random();
         int i = rand.nextInt(5) + 1;
 
-        Battery battery = new Battery(1, 2, 3, connectors, i);
+        Battery battery = new Battery(1, connectors, i);
         assertEquals(i, battery.getEnergyNumber());
     }
 
@@ -271,7 +271,7 @@ class BatteryTest {
         Random rand = new Random();
         int i = rand.nextInt(5) + 1;
 
-        Battery battery = new Battery(1, 2, 3, connectors, i);
+        Battery battery = new Battery(1, connectors, i);
         for(int j = 0; j < i; j++){
             System.out.println(battery.getEnergyNumber());
             battery.removeEnergy();

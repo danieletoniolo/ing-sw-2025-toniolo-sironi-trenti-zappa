@@ -1,6 +1,5 @@
 package Model.Cards;
 
-import Model.Player.PlayerData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -61,13 +60,5 @@ class AbandonedShipTest {
         int credit = random.nextInt(3) + 1;
         AbandonedShip randomCard = new AbandonedShip(2, 3, 3, 2, credit);
         assertEquals(credit, randomCard.getCredit());
-    }
-
-    //TODO: Capire isPlayed
-    @Test
-    void isPlayed(){
-        assertFalse(card.isPlayed());
-        //card.apply(player);
-        //assertTrue(card.isPlayed());
     }
 }

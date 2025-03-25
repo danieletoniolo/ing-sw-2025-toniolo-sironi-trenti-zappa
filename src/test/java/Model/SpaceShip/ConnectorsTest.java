@@ -3,7 +3,6 @@ package Model.SpaceShip;
 import Model.Game.Board.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
@@ -16,13 +15,13 @@ class ConnectorsTest {
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        c = new Connectors(0, 6, 7, connectors);
+        c = new Connectors(0, connectors);
         assertNotNull(c, "Component not initialized correctly");
     }
 
     @RepeatedTest(10)
     void getComponentType() {
-        c = new Connectors(0, 1, 2, connectors);
+        c = new Connectors(0, connectors);
         ComponentType type = c.getComponentType();
         System.out.println(type);
 
@@ -35,7 +34,7 @@ class ConnectorsTest {
 
         Random rand = new Random();
         int r = rand.nextInt(4,9);
-        Connectors connector = new Connectors(1, r, 2, connectors);
+        Connectors connector = new Connectors(1, connectors);
 
         assertEquals(r, connector.getRow());
     }
@@ -46,7 +45,7 @@ class ConnectorsTest {
 
         Random rand = new Random();
         int c = rand.nextInt(5,9);
-        Connectors connector = new Connectors(1, 2, c, connectors);
+        Connectors connector = new Connectors(1, connectors);
 
         assertEquals(c, connector.getColumn());
     }
@@ -57,7 +56,7 @@ class ConnectorsTest {
 
         Random rand = new Random();
         int id = rand.nextInt(4,9);
-        Connectors connector = new Connectors(id, 1, 2, connectors);
+        Connectors connector = new Connectors(id, connectors);
 
         assertEquals(id, connector.getID());
     }
@@ -75,7 +74,7 @@ class ConnectorsTest {
             check[i] = randomType;
         }
 
-        Connectors connector = new Connectors(1, 2, 3, connectorArray);
+        Connectors connector = new Connectors(1, connectorArray);
 
         for(int k = 0; k < 4; k++){
             assertEquals(connector.getConnection(k), check[k]);
@@ -126,7 +125,7 @@ class ConnectorsTest {
             }
         }
 
-        Connectors connector = new Connectors(1, 6, 7, connectorArray);
+        Connectors connector = new Connectors(1, connectorArray);
         ship.placeComponent(connector, 6, 7);
         if(connector.getConnection(2) != ConnectorType.EMPTY){
             exposed--;
@@ -134,7 +133,7 @@ class ConnectorsTest {
         System.out.println(exposed);
         assertEquals(exposed, connector.getExposedConnectors());
 
-        Connectors connector1 = new Connectors(2, 6, 8, connectorArray);
+        Connectors connector1 = new Connectors(2, connectorArray);
         ship.placeComponent(connector1, 6, 8);
         if(connector.getConnection(3) != ConnectorType.EMPTY){
             exposed--;
@@ -166,7 +165,7 @@ class ConnectorsTest {
                 connector[k] = randomType;
             }
 
-            Connectors connectors = new Connectors(1, 2, 3, connector);
+            Connectors connectors = new Connectors(1, connector);
 
             int r = rand.nextInt(4) + 1;
             for(int p = 0; p < r; p++){
@@ -191,9 +190,9 @@ class ConnectorsTest {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
         Connectors[] cs = new Connectors[count];
         int i = 0;
-        int j = 0;
+        int j;
         for(j = 0; j < count; j++){
-            cs[j] = new Connectors(j, 6, 7 + j, connectors);
+            cs[j] = new Connectors(j, connectors);
             System.out.println(cs[j]);
 
             ship.placeComponent(cs[j], 6, 7 + j);
@@ -228,8 +227,8 @@ class ConnectorsTest {
             System.out.println(randomType);
         }
 
-        Connectors connector1 = new Connectors(1, 6, 7, connectors1);
-        Connectors connector2 = new Connectors(2, 6, 8, connectors2);
+        Connectors connector1 = new Connectors(1, connectors1);
+        Connectors connector2 = new Connectors(2, connectors2);
 
         ship.placeComponent(connector1, 6, 7);
         System.out.println(connector1.isValid());

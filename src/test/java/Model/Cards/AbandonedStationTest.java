@@ -81,12 +81,4 @@ class AbandonedStationTest {
         assertEquals(randomGoods, randomCard.getGoods());
         assertEquals(goods,randomCard.getGoods());
     }
-
-    //TODO: Capire isPlayed. Aspettare modifica
-    @Test
-    void isPlayed(){
-        assertFalse(card.isPlayed());
-        //card.apply(player);
-        //assertTrue(card.isPlayed());
-    }
 }

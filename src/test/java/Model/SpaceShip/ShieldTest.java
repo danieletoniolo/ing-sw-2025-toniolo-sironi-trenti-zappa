@@ -3,7 +3,6 @@ package Model.SpaceShip;
 import Model.Game.Board.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
@@ -16,13 +15,13 @@ class ShieldTest {
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        s = new Shield(0, 6, 7, connectors);
+        s = new Shield(0, connectors);
         assertNotNull(s, "Component not initialized correctly");
     }
 
     @RepeatedTest(10)
     void getComponentType() {
-        s = new Shield(0, 1, 2, connectors);
+        s = new Shield(0, connectors);
         ComponentType type = s.getComponentType();
         System.out.println(type);
 
@@ -35,7 +34,7 @@ class ShieldTest {
 
         Random rand = new Random();
         int r = rand.nextInt(4,9);
-        Shield s = new Shield(1, r, 2, connectors);
+        Shield s = new Shield(1, connectors);
 
         assertEquals(r, s.getRow());
     }
@@ -46,7 +45,7 @@ class ShieldTest {
 
         Random rand = new Random();
         int c = rand.nextInt(5,9);
-        Shield s = new Shield(1, 2, c, connectors);
+        Shield s = new Shield(1, connectors);
 
         assertEquals(c, s.getColumn());
     }
@@ -57,7 +56,7 @@ class ShieldTest {
 
         Random rand = new Random();
         int id = rand.nextInt(4,9);
-        Shield s = new Shield(id, 1, 2, connectors);
+        Shield s = new Shield(id, connectors);
 
         assertEquals(id, s.getID());
     }
@@ -75,7 +74,7 @@ class ShieldTest {
             check[i] = randomType;
         }
 
-        Shield s = new Shield(1, 2, 3, connectorArray);
+        Shield s = new Shield(1, connectorArray);
 
         for(int k = 0; k < 4; k++){
             assertEquals(s.getConnection(k), check[k]);
@@ -126,7 +125,7 @@ class ShieldTest {
             }
         }
 
-        Shield s = new Shield(1, 6, 7, connectorArray);
+        Shield s = new Shield(1, connectorArray);
         ship.placeComponent(s, 6, 7);
         if(s.getConnection(2) != ConnectorType.EMPTY){
             exposed--;
@@ -134,7 +133,7 @@ class ShieldTest {
         System.out.println(exposed);
         assertEquals(exposed, s.getExposedConnectors());
 
-        Shield s1 = new Shield(2, 6, 8, connectorArray);
+        Shield s1 = new Shield(2, connectorArray);
         ship.placeComponent(s1, 6, 8);
         if(s.getConnection(3) != ConnectorType.EMPTY){
             exposed--;
@@ -166,7 +165,7 @@ class ShieldTest {
                 connector[k] = randomType;
             }
 
-            Shield s = new Shield(1, 2, 3, connector);
+            Shield s = new Shield(1, connector);
 
             int r = rand.nextInt(4) + 1;
             for(int p = 0; p < r; p++){
@@ -191,9 +190,9 @@ class ShieldTest {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
         Shield[] ss = new Shield[count];
         int i = 0;
-        int j = 0;
+        int j;
         for(j = 0; j < count; j++){
-            ss[j] = new Shield(j, 6, 7 + j, connectors);
+            ss[j] = new Shield(j, connectors);
             System.out.println(ss[j]);
 
             ship.placeComponent(ss[j], 6, 7 + j);
@@ -228,8 +227,8 @@ class ShieldTest {
             System.out.println(randomType);
         }
 
-        Shield shield1 = new Shield(1, 6, 7, connectors1);
-        Shield shield2 = new Shield(2, 6, 8, connectors2);
+        Shield shield1 = new Shield(1, connectors1);
+        Shield shield2 = new Shield(2, connectors2);
 
         ship.placeComponent(shield1, 6, 7);
         System.out.println(shield1.isValid());
