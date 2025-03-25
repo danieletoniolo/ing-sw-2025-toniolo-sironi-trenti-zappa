@@ -51,7 +51,7 @@ public class CombatZoneState extends State {
      * @param player player to add to the stats
      * @param value value to add to the stats
      */
-    private void addSingleCannonStats(CombatZoneStatsType statsType, PlayerData player, Float value) {
+    private void addDefaultStats(CombatZoneStatsType statsType, PlayerData player, Float value) {
         stats.get(statsType.getIndex(card.getCardLevel())).merge(player, value, Float::sum);
     }
 
@@ -254,8 +254,9 @@ public class CombatZoneState extends State {
         boolean isStateCannon = statsType == CombatZoneStatsType.CANNONS;
         boolean isStateEngine = statsType == CombatZoneStatsType.ENGINES;
 
-        addSingleCannonStats(statsType, player, value);
+        addDefaultStats(statsType, player, value);
         if (!isStateCrew) {
+            super.setStatusPlayer(player, PlayerStatus.PLAYED);
             for (Pair<PlayerData, PlayerStatus> playerTemp : super.players) {
                 if (playerTemp.getValue1() != PlayerStatus.PLAYED) {
                     allPlayerPlayed = false;
@@ -274,6 +275,7 @@ public class CombatZoneState extends State {
                         minPlayerEngines = entry.getKey();
                     }
                 });
+                super.setStatusPlayers(PlayerStatus.WAITING);
             }
         }
     }
@@ -286,16 +288,16 @@ public class CombatZoneState extends State {
         PlayerData value0;
         for (Pair<PlayerData, PlayerStatus> player : super.players) {
             value0 = player.getValue0();
-            this.addSingleCannonStats(CombatZoneStatsType.CREW, value0, (float) value0.getSpaceShip().getCrewNumber());
+            this.addDefaultStats(CombatZoneStatsType.CREW, value0, (float) value0.getSpaceShip().getCrewNumber());
 
-            this.addSingleCannonStats(CombatZoneStatsType.ENGINES, value0, (float) value0.getSpaceShip().getSingleEnginesStrength());
+            this.addDefaultStats(CombatZoneStatsType.ENGINES, value0, (float) value0.getSpaceShip().getSingleEnginesStrength());
             if (value0.getSpaceShip().getBrownAlien()) {
-                this.addSingleCannonStats(CombatZoneStatsType.ENGINES, value0, SpaceShip.getAlienStrength());
+                this.addDefaultStats(CombatZoneStatsType.ENGINES, value0, SpaceShip.getAlienStrength());
             }
 
-            this.addSingleCannonStats(CombatZoneStatsType.CANNONS, value0, value0.getSpaceShip().getSingleCannonsStrength());
+            this.addDefaultStats(CombatZoneStatsType.CANNONS, value0, value0.getSpaceShip().getSingleCannonsStrength());
             if (value0.getSpaceShip().getPurpleAlien()) {
-                this.addSingleCannonStats(CombatZoneStatsType.CANNONS, value0, SpaceShip.getAlienStrength());
+                this.addDefaultStats(CombatZoneStatsType.CANNONS, value0, SpaceShip.getAlienStrength());
             }
         }
     }
@@ -307,7 +309,6 @@ public class CombatZoneState extends State {
     @Override
     public void execute(PlayerData player) {
         // TODO: sistemare utilizzo di player
-        super.execute(player);
         switch (subState) {
             case CombatZoneStatsType.CREW:
                 executeSubStateCrew();

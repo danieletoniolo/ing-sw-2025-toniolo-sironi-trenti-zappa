@@ -14,6 +14,8 @@ public class PlayerData {
 
     private boolean disconnected;
 
+    // TODO: creare UUID per i giocatori
+
     /**
      * Create a new player
      * @param username the username of the player

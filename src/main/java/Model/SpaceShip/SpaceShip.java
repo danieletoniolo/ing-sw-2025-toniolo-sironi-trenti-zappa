@@ -46,9 +46,12 @@ public class SpaceShip {
         this.level = level;
         components = new Component[rows][cols];
         // TODO: Set the initial components of the ship with proper values
-        components[7][7] = new Cabin(1, 7, 7, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
+        components[7][7] = new Cabin(1, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         components[7][7].ship = this;
-        numberOfComponents = 0;
+        components[7][7].setRow(7);
+        components[7][7].setColumn(7);
+        cabins.put(components[7][7].getID(), (Cabin) components[7][7]);
+        numberOfComponents = 1;
         this.validSpots = validSpots;
         lostComponents = new ArrayList<>();
         reservedComponents = new ArrayList<>();
@@ -185,7 +188,7 @@ public class SpaceShip {
      * Get if there is a purple alien in the ship
      * @return true if there is a purple alien in the ship, false otherwise
      */
-    public boolean getPurpleAlien(){
+    public boolean hasPurpleAlien(){
         return purpleAlien;
     }
 
@@ -193,7 +196,7 @@ public class SpaceShip {
      * Get if there is a brown alien in the ship
      * @return true if there is a brown alien in the ship, false otherwise
      */
-    public boolean getBrownAlien(){
+    public boolean hasBrownAlien(){
         return brownAlien;
     }
 
@@ -226,15 +229,53 @@ public class SpaceShip {
     }
 
     /**
-     * Add crew members to the ship
-     * @param num number of crew members to add
-     * @throws IllegalArgumentException if the number of crew members is negative
+     * Add crew members to the ship at the given cabin
+     * @param cabinID ID of the cabin to add the crew members
+     * @param brownAlien true if the crew member to add is a brown alien, false otherwise
+     * @param purpleAlien true if the crew member to add is a purple alien, false otherwise
+     * @throws IllegalArgumentException if the brownAlien and purpleAlien are both true or if the cabin with the given ID does not exist
+     * @throws IllegalStateException if the cabin is full
      */
-    public void addCrewMember(int num) throws IllegalArgumentException {
-        if (crewNumber + num < 0) {
-            throw new IllegalStateException("Cannot have negative crew members");
+    public void addCrewMember(int cabinID, boolean brownAlien, boolean purpleAlien) throws IllegalArgumentException, IllegalStateException{
+        if (brownAlien && purpleAlien) {
+            throw new IllegalArgumentException("Cannot add both brown and purple alien to the cabin");
         }
-        crewNumber += num;
+
+        Cabin cabin = cabins.get(cabinID);
+        if (cabin == null) {
+            throw new IllegalArgumentException("The cabin with the given ID does not exist");
+        }
+
+        if (brownAlien) {
+            this.brownAlien = true;
+            cabin.addBrownAlien();
+        } else if (purpleAlien) {
+            this.purpleAlien = true;
+            cabin.addPurpleAlien();
+        } else {
+            cabin.addCrewMember();
+        }
+        this.crewNumber += (brownAlien || purpleAlien) ? 1 : 2;
+    }
+
+    /**
+     * Remove crew members from the ship at the given cabin
+     * @param cabinID ID of the cabin to remove the crew members from
+     * @param num number of crew members to remove
+     * @throws IllegalArgumentException if the cabin with the given ID does not exist
+     * @throws IllegalStateException if the cabin does not have enough crew members to remove
+     */
+    public void removeCrewMember(int cabinID, int num) throws IllegalArgumentException, IllegalStateException {
+        Cabin cabin = cabins.get(cabinID);
+        if (cabin == null) {
+            throw new IllegalArgumentException("The cabin with the given ID does not exist");
+        }
+        if (cabin.hasBrownAlien()) {
+            brownAlien = false;
+        } else if (cabin.hasPurpleAlien()) {
+            purpleAlien = false;
+        }
+        cabin.removeCrewMember(num);
     }
 
     /**

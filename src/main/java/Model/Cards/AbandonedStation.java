@@ -8,7 +8,6 @@ public class AbandonedStation extends Card {
     private int crewRequired;
     private int flightDays;
     private List<Good> goods;
-    private boolean played;
 
     /**
      *
@@ -52,14 +51,6 @@ public class AbandonedStation extends Card {
      */
     public List<Good> getGoods() {
         return goods;
-    }
-
-    /**
-     * Verify if the card is played by a player
-     * @return boolean value that verify if the card is played
-     */
-    public boolean isPlayed() {
-        return played;
     }
 
     /**

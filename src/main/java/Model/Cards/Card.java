@@ -47,7 +47,7 @@ public abstract class Card {
      * Get the card ID
      * @return card ID
      */
-    public int getCardID() {
+    public int getID() {
         return ID;
     }
 }

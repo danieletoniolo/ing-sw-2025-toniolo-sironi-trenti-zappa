@@ -67,7 +67,6 @@ public class Cabin extends Component {
             throw new IllegalStateException("Cannot add crew member to the cabin");
         }
         crewNumber = 2;
-        super.ship.addCrewMember(2);
     }
 
     /**
@@ -80,7 +79,6 @@ public class Cabin extends Component {
         }
         purpleAlien = true;
         crewNumber = 1;
-        super.ship.addCrewMember(1);
     }
 
     /**
@@ -93,7 +91,6 @@ public class Cabin extends Component {
         }
         brownAlien = true;
         crewNumber = 1;
-        super.ship.addCrewMember(1);
     }
 
     /**
@@ -107,7 +104,6 @@ public class Cabin extends Component {
                 brownAlien = false;
             }
             crewNumber -= num;
-            super.ship.addCrewMember(-num);
         } else {
             throw new IllegalStateException("There isn't enough crew member in the cabin");
         }

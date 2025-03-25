@@ -27,6 +27,8 @@ public class Board {
     private final PlayerData green;
     private final PlayerData yellow;
 
+    // TODO:  da sistemare
+
     /**
      * Create a new board
      * @param level the level of the board
