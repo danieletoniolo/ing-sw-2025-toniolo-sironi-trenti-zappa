@@ -1498,8 +1498,7 @@
       "SINGLE",
       "EMPTY",
       "SINGLE"
-    ],
-    "cannonStrength": 2
+    ]
   },
   {
     "type": "LifeSupportBrown",
@@ -1509,8 +1508,7 @@
       "SINGLE",
       "EMPTY",
       "SINGLE"
-    ],
-    "cannonStrength": 2
+    ]
   },
   {
     "type": "LifeSupportBrown",
@@ -1520,8 +1518,7 @@
       "TRIPLE",
       "EMPTY",
       "EMPTY"
-    ],
-    "cannonStrength": 2
+    ]
   },
   {
     "type": "LifeSupportBrown",
@@ -1531,8 +1528,7 @@
       "TRIPLE",
       "SINGLE",
       "EMPTY"
-    ],
-    "cannonStrength": 2
+    ]
   },
   {
     "type": "LifeSupportBrown",
@@ -1542,8 +1538,7 @@
       "TRIPLE",
       "EMPTY",
       "DOUBLE"
-    ],
-    "cannonStrength": 2
+    ]
   },
   {
     "type": "LifeSupportBrown",
@@ -1553,8 +1548,7 @@
       "TRIPLE",
       "EMPTY",
       "EMPTY"
-    ],
-    "cannonStrength": 2
+    ]
   },
   {
     "type": "LifeSupportPurple",
@@ -1564,8 +1558,7 @@
       "DOUBLE",
       "EMPTY",
       "DOUBLE"
-    ],
-    "cannonStrength": 2
+    ]
   },
   {
     "type": "LifeSupportPurple",
@@ -1575,8 +1568,7 @@
       "DOUBLE",
       "EMPTY",
       "DOUBLE"
-    ],
-    "cannonStrength": 2
+    ]
   },
   {
     "type": "LifeSupportPurple",
@@ -1586,8 +1578,7 @@
       "TRIPLE",
       "EMPTY",
       "EMPTY"
-    ],
-    "cannonStrength": 2
+    ]
   },
   {
     "type": "LifeSupportPurple",
@@ -1597,8 +1588,7 @@
       "TRIPLE",
       "DOUBLE",
       "EMPTY"
-    ],
-    "cannonStrength": 2
+    ]
   },
   {
     "type": "LifeSupportPurple",
@@ -1608,8 +1598,7 @@
       "TRIPLE",
       "EMPTY",
       "SINGLE"
-    ],
-    "cannonStrength": 2
+    ]
   },
   {
     "type": "LifeSupportPurple",
@@ -1619,8 +1608,7 @@
       "TRIPLE",
       "EMPTY",
       "EMPTY"
-    ],
-    "cannonStrength": 2
+    ]
   },
   {
     "type": "Shield",

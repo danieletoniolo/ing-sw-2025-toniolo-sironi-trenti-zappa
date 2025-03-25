@@ -292,10 +292,10 @@
     "flightDays": 2
   },
   {
-    "type": "CombabtZone",
+    "type": "CombatZone",
     "ID": 15,
     "level": 1,
-    "fligthDays": 3,
+    "flightDays": 3,
     "lost": 2,
     "fires": [
       {
