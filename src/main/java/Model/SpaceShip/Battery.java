@@ -8,6 +8,11 @@ public class Battery extends Component {
         this.energyNumber = energyNumber;
     }
 
+
+    public Battery(){
+        super();
+    }
+
     /**
      * Get the energy number available of the battery
      * @return The energy number available of the battery

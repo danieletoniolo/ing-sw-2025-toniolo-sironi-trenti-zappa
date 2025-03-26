@@ -5,6 +5,10 @@ public class Connectors extends Component {
         super(ID, connectors);
     }
 
+    public Connectors(){
+        super();
+    }
+
     @Override
     public ComponentType getComponentType() {
         return ComponentType.CONNECTORS;

@@ -1,12 +1,14 @@
 package Model.SpaceShip;
 
 import Model.Good.Good;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 
 public class Storage extends Component{
-    private final boolean dangerous;
-    private final int goodsCapacity;
+    private boolean dangerous;
+    @JsonProperty("goodsCapacity")
+    private int goodsCapacity;
     private int goodsValue;
     private ArrayList<Good> goods;
 
@@ -18,6 +20,9 @@ public class Storage extends Component{
         this.goods = new ArrayList<>();
     }
 
+    public Storage(){
+        super();
+    }
     /**
      * Check if the storage is dangerous
      * @return true if the storage is dangerous, false otherwise

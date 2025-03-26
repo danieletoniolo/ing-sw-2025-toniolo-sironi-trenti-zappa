@@ -1,11 +1,15 @@
 package Model.SpaceShip;
 
 public class Cannon extends Component{
-    private final int cannonStrength;
+    private int cannonStrength;
 
     public Cannon(int ID, ConnectorType[] connectors, int cannonStrength) {
         super(ID, connectors);
         this.cannonStrength = cannonStrength;
+    }
+
+    public Cannon(){
+        super();
     }
 
     /**
