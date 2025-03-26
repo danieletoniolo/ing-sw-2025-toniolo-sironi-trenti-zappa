@@ -291,14 +291,14 @@ public class CombatZoneState extends State {
             this.addDefaultStats(CombatZoneStatsType.CREW, value0, (float) value0.getSpaceShip().getCrewNumber());
 
             this.addDefaultStats(CombatZoneStatsType.ENGINES, value0, (float) value0.getSpaceShip().getSingleEnginesStrength());
-            /*if (value0.getSpaceShip().getBrownAlien()) {
+            if (value0.getSpaceShip().getBrownAlien()) {
                 this.addDefaultStats(CombatZoneStatsType.ENGINES, value0, SpaceShip.getAlienStrength());
-            }*/
+            }
 
             this.addDefaultStats(CombatZoneStatsType.CANNONS, value0, value0.getSpaceShip().getSingleCannonsStrength());
-            /*if (value0.getSpaceShip().getPurpleAlien()) {
+            if (value0.getSpaceShip().getPurpleAlien()) {
                 this.addDefaultStats(CombatZoneStatsType.CANNONS, value0, SpaceShip.getAlienStrength());
-            }*/
+            }
         }
     }
 
