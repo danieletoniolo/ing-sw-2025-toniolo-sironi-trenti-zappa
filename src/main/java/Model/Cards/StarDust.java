@@ -11,6 +11,9 @@ public class StarDust extends Card {
         super(level, ID);
     }
 
+    public StarDust() {
+        super();
+    }
     /**
      * Get the card type
      * @return card type

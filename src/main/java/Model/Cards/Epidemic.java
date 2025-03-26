@@ -10,6 +10,9 @@ public class Epidemic extends Card {
         super(level, ID);
     }
 
+    public Epidemic() {
+        super();
+    }
     /**
      * Get the card type
      * @return card type

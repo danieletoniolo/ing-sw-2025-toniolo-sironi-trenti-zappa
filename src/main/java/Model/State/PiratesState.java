@@ -210,9 +210,9 @@ public class PiratesState extends State {
         for (Pair<PlayerData, PlayerStatus> player : super.players) {
             value0 = player.getValue0();
             this.addStats(value0, value0.getSpaceShip().getSingleCannonsStrength());
-            if (value0.getSpaceShip().getPurpleAlien()) {
+            /*if (value0.getSpaceShip().getPurpleAlien()) {
                 this.addStats(value0, SpaceShip.getAlienStrength());
-            }
+            }*/
         }
     }
 

@@ -443,7 +443,7 @@
         "direction": "NORTH"
       },
       {
-        "type": "HEAVYMETEOR",
+        "type": "LARGEMETEOR",
         "direction": "WEST"
       },
       {
@@ -462,11 +462,11 @@
     "level": 2,
     "meteors": [
       {
-        "type": "HEAVYMETEOR",
+        "type": "LARGEMETEOR",
         "direction": "NORTH"
       },
       {
-        "type": "HEAVYMETEOR",
+        "type": "LARGEMETEOR",
         "direction": "NORTH"
       },
       {
@@ -677,10 +677,10 @@
     "flightDays": 3
   },
   {
-    "type": "CombabtZone",
+    "type": "CombatZone",
     "ID": 35,
     "level": 2,
-    "fligthDays": 4,
+    "flightDays": 4,
     "lost": 3,
     "fires": [
       {

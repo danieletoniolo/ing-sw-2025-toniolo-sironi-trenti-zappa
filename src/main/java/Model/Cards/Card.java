@@ -2,8 +2,9 @@ package Model.Cards;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-// 📌 Permette a Jackson di capire quale sottoclasse usare
+// 📌 Allows Jackson to understand which subclass to use.
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Slavers.class, name = "Slavers"),
@@ -15,11 +16,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = Planets.class, name = "Planets"),
         @JsonSubTypes.Type(value = CombatZone.class, name = "CombatZone"),
         @JsonSubTypes.Type(value = AbandonedShip.class, name = "AbandonedShip"),
-        @JsonSubTypes.Type(value = AbandonedStation.class, name = "AbandonedStation")
+        @JsonSubTypes.Type(value = AbandonedStation.class, name = "AbandonedStation"),
+        @JsonSubTypes.Type(value = Epidemic.class, name = "Epidemic")
 })
 public abstract class Card {
-    private final int level;
-    private final int ID;
+    @JsonProperty
+    private int level;
+    @JsonProperty
+    private int ID;
     /**
      *
      * @param level level of the card
@@ -27,6 +31,10 @@ public abstract class Card {
     public Card(int level, int ID) {
         this.level = level;
         this.ID = ID;
+    }
+
+    public Card(){
+
     }
 
     /**
