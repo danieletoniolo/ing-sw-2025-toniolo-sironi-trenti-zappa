@@ -1,5 +1,7 @@
 package Model.SpaceShip;
 
+import java.util.ArrayList;
+
 public class Cabin extends Component {
     private int crewNumber;
 
@@ -110,17 +112,22 @@ public class Cabin extends Component {
     }
 
     /**
-     * Add purple life support to the cabin
+     * Extend the isValid method from the Component class to lock for life support in the surrounding components
+     * @return true if the cabin is valid, false otherwise
      */
-    public void addPurpleLifeSupport() {
-        purpleLifeSupport = true;
-    }
-
-    /**
-     * Add brown life support to the cabin
-     */
-    public void addBrownLifeSupport() {
-        brownLifeSupport = true;
+    @Override
+    public boolean isValid() {
+        ArrayList<Component> components = ship.getSurroundingComponents(row, column);
+        for (Component c : components) {
+            if (c != null) {
+                if (c.getComponentType() == ComponentType.BROWN_LIFE_SUPPORT) {
+                    brownLifeSupport = true;
+                } else if (c.getComponentType() == ComponentType.PURPLE_LIFE_SUPPORT) {
+                    purpleLifeSupport = true;
+                }
+            }
+        }
+        return super.isValid();
     }
 
     @Override
