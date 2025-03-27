@@ -233,13 +233,13 @@ class ShieldTest {
         }
     }
 
-    //TODO: capire canShield
-    @RepeatedTest(5)
+    //Reminder: we rotate in sense counterclockwise, so in 0 (N) we protect 0 (N) and 3 (E), in 1 (W) we protect 0 (N) and 1 (W), in 2 (S) we protect 1 (W) and 2 (S), in 3 (E) we protect 2 (S) and 3 (E)
+    @RepeatedTest(500)
     void canShield() {
         assertTrue(s.canShield(0));
-        assertTrue(s.canShield(1));
+        assertFalse(s.canShield(1));
         assertFalse(s.canShield(2));
-        assertFalse(s.canShield(3));
+        assertTrue(s.canShield(3));
 
         Random rand = new Random();
         int r = rand.nextInt(4);
@@ -250,23 +250,23 @@ class ShieldTest {
 
         if(r == 0){
             assertTrue(s.canShield(0));
+            assertFalse(s.canShield(1));
+            assertFalse(s.canShield(2));
+            assertTrue(s.canShield(3));
+        } else if(r == 1){
+            assertTrue(s.canShield(0));
             assertTrue(s.canShield(1));
             assertFalse(s.canShield(2));
-            assertFalse(s.canShield(3));
-        } else if(r == 1){
-            assertFalse(s.canShield(0));
-            assertTrue(s.canShield(1));
-            assertTrue(s.canShield(2));
             assertFalse(s.canShield(3));
         } else if(r == 2){
             assertFalse(s.canShield(0));
+            assertTrue(s.canShield(1));
+            assertTrue(s.canShield(2));
+            assertFalse(s.canShield(3));
+        } else {
+            assertFalse(s.canShield(0));
             assertFalse(s.canShield(1));
             assertTrue(s.canShield(2));
-            assertTrue(s.canShield(3));
-        } else {
-            assertTrue(s.canShield(0));
-            assertFalse(s.canShield(1));
-            assertFalse(s.canShield(2));
             assertTrue(s.canShield(3));
         }
     }
