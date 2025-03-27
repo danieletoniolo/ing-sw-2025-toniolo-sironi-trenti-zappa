@@ -15,6 +15,8 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SpaceShipTest {
+    //TODO: Da capire se voglio creare una classe che mi randomizza / mi crea una ship con i vari componenti
+
     SpaceShip ship;
     boolean[][] spots;
     ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
@@ -49,8 +51,8 @@ class SpaceShipTest {
         assertEquals(0, ship.getSingleEnginesStrength());
 
         Random rand = new Random();
-        int j = 0;
-        int i = 0, power = 0;
+        int j;
+        int i, power = 0;
         int index = 0;
         int limit = rand.nextInt(3) + 1;
         System.out.println("There are " + limit + " engine");
@@ -86,8 +88,8 @@ class SpaceShipTest {
         assertEquals(0, ship.getDoubleEnginesStrength());
 
         Random rand = new Random();
-        int j = 0;
-        int i = 0, power = 0;
+        int j;
+        int i, power = 0;
         int index = 0;
         int limit = rand.nextInt(3) + 1;
         System.out.println("There are " + limit + " engine");
@@ -123,8 +125,8 @@ class SpaceShipTest {
         assertEquals(0, ship.getSingleEnginesStrength() + ship.getDoubleEnginesStrength());
 
         Random rand = new Random();
-        int j = 0;
-        int i = 0, power = 0;
+        int j;
+        int i, power = 0;
         for(j = 0; j < rand.nextInt(5); j++){
             i = rand.nextInt(2) + 1;
             System.out.println(" i " + i);
@@ -141,8 +143,8 @@ class SpaceShipTest {
         assertEquals(0, ship.getSingleCannonsStrength());
 
         Random rand = new Random();
-        int j = 0;
-        int i = 0;
+        int j;
+        int i;
         float power = 0f;
         int index = 0;
         int limit = rand.nextInt(3) + 1;
@@ -180,8 +182,8 @@ class SpaceShipTest {
         assertEquals(0, ship.getDoubleCannonsStrength());
 
         Random rand = new Random();
-        int j = 0;
-        int i = 0, power = 0;
+        int j;
+        int i, power = 0;
         int index = 0;
         int limit = rand.nextInt(3) + 1;
         System.out.println("There are " + limit + " cannon");
@@ -218,8 +220,9 @@ class SpaceShipTest {
         assertEquals(0, ship.getDoubleCannonsNumber());
 
         Random rand = new Random();
-        int j = 0;
-        int i = 0, power = 0;
+        int j;
+        int i;
+        int power = 0;
         int index = 0;
         int number = 0;
         int limit = rand.nextInt(3) + 1;
@@ -258,8 +261,8 @@ class SpaceShipTest {
         assertEquals(0, ship.getDoubleCannonsStrength() + ship.getSingleCannonsStrength());
 
         Random rand = new Random();
-        int j = 0;
-        int i = 0, power = 0;
+        int j;
+        int i, power = 0;
         for(j = 0; j < rand.nextInt(5); j++){
             i = rand.nextInt(2) + 1;
             Cannon cannon = new Cannon(j, connectors, i);
@@ -427,80 +430,126 @@ class SpaceShipTest {
         assertEquals(total, ship.getCrewNumber());
     }
 
-    //TODO: DA RIFARE
-    @RepeatedTest(5)
-    void canProtect() {
+    @RepeatedTest(500)
+    void canProtect(){
         Random rand = new Random();
-        int dice = rand.nextInt(7,10);
-        int number = rand.nextInt(1, 5);
-        Pair<Component, Integer> pair = new Pair<>(null, 0);
+        int numberHit = rand.nextInt(3, 6);
+        Pair<Component, Integer> pair;
 
-        Shield shield = new Shield(0, connectors);
+        Shield shield = new Shield(10, connectors);
         for(int j = 0; j < rand.nextInt(4); j++){
             shield.rotateClockwise();
         }
         System.out.println("Rotation shield: " + shield.getClockwiseRotation());
         ship.placeComponent(shield, 6,7);
 
-        Battery battery = new Battery(1, connectors, 3);
-        for(int j = 0; j < rand.nextInt(4); j++){
-            battery.rotateClockwise();
-        }
+        Battery battery = new Battery(11, connectors, 3);
         ship.placeComponent(battery, 6,8);
+        Battery battery1 = new Battery(12, connectors, 3);
+        ship.placeComponent(battery1, 8,7);
+        ConnectorType[] connector1 = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.EMPTY, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        Battery battery2 = new Battery(13, connector1, 3);
+        ship.placeComponent(battery2, 8,6);
+        Battery battery3 = new Battery(12, connectors, 3);
+        ship.placeComponent(battery3, 9,7);
 
-        Cannon cannon = new Cannon(0, connectors, 1);
+        Cannon cannon = new Cannon(12, connectors, 1);
         for(int j = 0; j < rand.nextInt(4); j++){
-            shield.rotateClockwise();
+            cannon.rotateClockwise();
         }
         System.out.println("Rotation cannon: " + cannon.getClockwiseRotation());
         ship.placeComponent(cannon, 6,9);
 
-        for(int i = 0; i < number; i++){
+        for(int j = 0; j < numberHit; j++){
+            int dice = rand.nextInt(6,10);
+            System.out.println("\nDice : " + dice);
+
             HitType[] values = HitType.values();
             HitType randomType = values[rand.nextInt(values.length)];
             System.out.println(randomType);
 
-            Direction[] direction = Direction.values();
-            Direction randomDirection = direction[rand.nextInt(direction.length)];
+            Direction[] values2 = Direction.values();
+            Direction randomDirection = values2[rand.nextInt(values2.length)];
             System.out.println(randomDirection);
 
             Hit hit = new Hit(randomType, randomDirection);
 
             pair = ship.canProtect(dice, hit);
+            System.out.println(pair.getValue0() + "  " + pair.getValue1());
 
-            System.out.println(pair);
-
-            if(pair.getValue0() != null){ //Ho colpito qualcosa
-                if(pair.getValue1() == 1){
-                    //TODO: ABBIAMO UN METODO CHE CONTROLLA CHE IL SINGOLO COMPONENTE NON ABBIA CONNETTORI ESPOSTI IN QUELLA DIREZIONE
-                    System.out.println("I'm protected");
-                    assertEquals(HitType.SMALLMETEOR, hit.getType());
-                } else if(pair.getValue1() == 0){
-
-                    System.out.println("I use a battery for protection");
-                    assertNotEquals(HitType.HEAVYFIRE, hit.getType());
+            if(hit.getType() == HitType.SMALLMETEOR){
+                Component component = null;
+                Component[][] components = ship.returnComponents();
+                switch (hit.getDirection()) {
+                    case NORTH:
+                        for (int i = 0; i < 12 && component == null; i++) {
+                            component = components[i][dice];
+                        }
+                        break;
+                    case WEST:
+                        for (int i = 0; i < 12 && component == null; i++) {
+                            component = components[dice][i];
+                        }
+                        break;
+                    case SOUTH:
+                        for (int i = 12 - 1; i >= 0 && component == null; i--) {
+                            component = components[i][dice];
+                        }
+                        break;
+                    case EAST:
+                        for (int i = 12 - 1; i >= 0 && component == null; i--) {
+                            component = components[dice][i];
+                        }
+                        break;
+                }
+                if (component != null) {
+                    if (component.getConnection(hit.getDirection().getValue()) == ConnectorType.EMPTY) {
+                        assertEquals(1, pair.getValue1());
+                    }
+                } else if(hit.getDirection().getValue() == shield.getClockwiseRotation() || hit.getDirection().getValue() == (shield.getClockwiseRotation() + 3) % 4){
+                    assertEquals(0, pair.getValue1());
                 } else {
-                    System.out.println("I don't have any chance to protect me");
-                    if(!shield.canShield(hit.getDirection().getValue()) && hit.getType() != HitType.HEAVYFIRE){
-                        assertNotEquals(HitType.HEAVYFIRE, hit.getType());
+                    assertEquals(-1, pair.getValue1());
+                }
+            } else if(hit.getType() == HitType.LARGEMETEOR){
+                if(hit.getDirection().getValue() == cannon.getClockwiseRotation() && pair.getValue0() != null){
+                    if(hit.getDirection().getValue() % 2 == 0 && dice == cannon.getColumn()){
+                        assertEquals(1, pair.getValue1());
+                    } else if(hit.getDirection().getValue() % 2 != 0 && dice == cannon.getRow()){
+                        assertEquals(1, pair.getValue1());
                     } else {
-                        assertEquals(HitType.HEAVYFIRE, hit.getType());
+                        assertEquals(-1, pair.getValue1());
+                    }
+                } else {
+                    if(pair.getValue0() == null){
+                        assertEquals(1, pair.getValue1());
+                    } else {
+                        assertEquals(-1, pair.getValue1());
                     }
                 }
+            } else if(hit.getType() == HitType.LIGHTFIRE){
+                if(hit.getDirection().getValue() == shield.getClockwiseRotation() || hit.getDirection().getValue() == (shield.getClockwiseRotation() + 3) % 4){
+                    assertEquals(0, pair.getValue1());
+                } else {
+                    assertEquals(-1, pair.getValue1());
+                }
+            } else {
+                assertEquals(-1, pair.getValue1());
             }
+
         }
     }
 
-    //TODO: DA FINIRE pk non hanno finito nel model
+    //TODO: Control if in the model they put false or they throws an exception
     @RepeatedTest(5)
     void useEnergy() {
         Random rand = new Random();
-        Map<Integer, Battery> batteries = new HashMap<>();
+        Map<Integer, Battery> batteries;
         int count = rand.nextInt(3) + 1;
         for(int i = 0; i < count; i++){
-            int energy = rand.nextInt(0, 4);
+            int energy = rand.nextInt(2, 4);
             System.out.println("Battery " + i + " : " + energy);
-            Battery battery = new Battery(i, connectors, energy);
+            Battery battery = new Battery(i + 4, connectors, energy);
             for(int j = 0; j < rand.nextInt(4); j++){
                 battery.rotateClockwise();
             }
@@ -508,10 +557,10 @@ class SpaceShipTest {
         }
 
         batteries = ship.getBatteries();
+        assertEquals(count, batteries.size());
 
         for(int i = 0; i < count; i++){
-            Battery batterySingle;
-            batterySingle = batteries.get(i);
+            Battery batterySingle = batteries.get(i + 4);
             int energy = batterySingle.getEnergyNumber();
             System.out.println(energy);
             if(energy > 0){
@@ -525,28 +574,24 @@ class SpaceShipTest {
 
     }
 
-    //TODO: DA CAPIRE SE FUNZIONA CORRETTAMENTE. CHIEDERE IL GIRO DEI CONNECTORS pk mi sa che uno gira in senso orario e l'altro in senso antiorario (alcuni test errati)
-    //TODO: Non tornano i risultati
-    //Giro ConnectorType senso antiorario
-    //getInvalidComponents restituisce ENTRAMBI i pezzi della ship con connettori non validi
     @RepeatedTest(5)
     void getInvalidComponents() {
         Random rand = new Random();
         ConnectorType[] values = ConnectorType.values();
-        List<Pair<Integer, Integer>> invalidComponents = new ArrayList<>();
-        ConnectorType[] connector = new ConnectorType[4];
+        List<Pair<Integer, Integer>> invalidComponents;
         boolean shipOk = true;
 
         int count = rand.nextInt(1, 4);
         for(int j = 0; j < count; j++){
+            ConnectorType[] connector = new ConnectorType[4];
             for(int i = 0; i < 4; i++){
                 ConnectorType randomType = values[rand.nextInt(values.length)];
                 System.out.println(randomType);
                 connector[i] = randomType;
             }
 
-            Storage storage = new Storage(j, connector, true, 2);
-            System.out.println(storage);
+            Storage storage = new Storage(j + 4, connector, true, 2);
+            System.out.println(storage + "\n");
             ship.placeComponent(storage, 6, 7 + j);
 
             if(!storage.isValid()){
@@ -636,7 +681,7 @@ class SpaceShipTest {
     @RepeatedTest(5)
     void getLostComponent() {
         Random rand = new Random();
-        List<Component> lostComponents = new ArrayList<>();
+        List<Component> lostComponents;
         int count = rand.nextInt(1, 4);
         for(int i = 0; i < count; i++){
             Storage storage = new Storage(i, connectors, true, 2);
@@ -681,6 +726,7 @@ class SpaceShipTest {
         }
     }
 
+    //TODO: fai test con tutti i componenti
     @RepeatedTest(5)
     void placeComponent() {
         Random rand = new Random();
@@ -700,15 +746,15 @@ class SpaceShipTest {
         Random rand = new Random();
         int count = rand.nextInt(1, 4);
         for(int i = 0; i < count; i++){
-            Cabin cabin = new Cabin(i, connectors);
+            Cabin cabin = new Cabin(i + 4, connectors);
             ship.placeComponent(cabin, 6, 7 + i);
         }
-        assertEquals(count, ship.getCabins().size());
+        assertEquals(count + 1, ship.getCabins().size());
         for(int i = 0; i < count; i++){
-            assertEquals(i, ship.getCabin(i).getID());
-            assertEquals(ComponentType.CABIN, ship.getCabin(i).getComponentType());
-            assertEquals(ComponentType.CABIN, ship.getCabins().get(i).getComponentType());
-
+            //TODO: Dobbiamo segnare quando gli id delle cabine etc non ci sono (mettere if != null)
+            assertEquals(i + 4, ship.getCabin(i + 4).getID());
+            assertEquals(ComponentType.CABIN, ship.getCabin(i + 4).getComponentType());
+            assertEquals(ComponentType.CABIN, ship.getCabins().get(i + 4).getComponentType());
         }
     }
 
@@ -717,14 +763,14 @@ class SpaceShipTest {
         Random rand = new Random();
         int count = rand.nextInt(1, 4);
         for(int i = 0; i < count; i++){
-            Storage storage = new Storage(i, connectors, true, 2);
+            Storage storage = new Storage(i + 4, connectors, true, 2);
             ship.placeComponent(storage, 6, 7 + i);
         }
         assertEquals(count, ship.getStorages().size());
         for(int i = 0; i < count; i++){
-            assertEquals(i, ship.getStorage(i).getID());
-            assertEquals(ComponentType.STORAGE, ship.getStorage(i).getComponentType());
-            assertEquals(ComponentType.STORAGE, ship.getStorages().get(i).getComponentType());
+            assertEquals(i + 4, ship.getStorage(i + 4).getID());
+            assertEquals(ComponentType.STORAGE, ship.getStorage(i + 4).getComponentType());
+            assertEquals(ComponentType.STORAGE, ship.getStorages().get(i + 4).getComponentType());
         }
     }
 
@@ -733,14 +779,14 @@ class SpaceShipTest {
         Random rand = new Random();
         int count = rand.nextInt(1, 4);
         for(int i = 0; i < count; i++){
-            Battery battery = new Battery(i, connectors, 3);
+            Battery battery = new Battery(i + 4, connectors, 3);
             ship.placeComponent(battery, 6, 7 + i);
         }
         assertEquals(count, ship.getBatteries().size());
         for(int i = 0; i < count; i++){
-            assertEquals(i, ship.getBattery(i).getID());
-            assertEquals(ComponentType.BATTERY, ship.getBattery(i).getComponentType());
-            assertEquals(ComponentType.BATTERY, ship.getBatteries().get(i).getComponentType());
+            assertEquals(i + 4, ship.getBattery(i + 4).getID());
+            assertEquals(ComponentType.BATTERY, ship.getBattery(i + 4).getComponentType());
+            assertEquals(ComponentType.BATTERY, ship.getBatteries().get(i + 4).getComponentType());
         }
     }
 
