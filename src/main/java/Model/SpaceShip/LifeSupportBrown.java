@@ -5,6 +5,10 @@ public class LifeSupportBrown extends Component {
         super(ID, connectors);
     }
 
+    public LifeSupportBrown(){
+        super();
+    }
+
     @Override
     public ComponentType getComponentType() {
         return ComponentType.BROWN_LIFE_SUPPORT;

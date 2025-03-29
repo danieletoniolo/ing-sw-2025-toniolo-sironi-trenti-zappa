@@ -20,6 +20,10 @@ public class Cabin extends Component {
         brownAlien = false;
     }
 
+    public Cabin(){
+        super();
+    }
+
     /**
      * Get the crew number in the cabin
      * @return The number of crew available in the cabin

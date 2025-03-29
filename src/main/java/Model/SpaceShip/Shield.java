@@ -5,6 +5,10 @@ public class Shield extends Component {
         super(ID, connectors);
     }
 
+    public Shield() {
+        super();
+    }
+
     /**
      * Check if the shield can shield from the given direction (clockwise from the top)
      * @param direction The clockwise direction to check (0 = top, 1 = right, 2 = bottom, 3 = left)

@@ -5,6 +5,10 @@ public class LifeSupportPurple extends Component {
         super(ID, connectors);
     }
 
+    public LifeSupportPurple() {
+        super();
+    }
+
     @Override
     public ComponentType getComponentType() {
         return ComponentType.PURPLE_LIFE_SUPPORT;

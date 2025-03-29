@@ -29,6 +29,9 @@ public class AbandonedStation extends Card {
         this.goods = goods;
     }
 
+    public AbandonedStation(){
+        super();
+    }
     /**
      * Get the number of crew members required for the quest
      * @return number of crew members required for the quest
