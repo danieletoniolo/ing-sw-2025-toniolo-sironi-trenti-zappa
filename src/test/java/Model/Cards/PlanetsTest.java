@@ -8,19 +8,18 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 class PlanetsTest {
     Planets card;
-    Good[][] planets;
+    List<List<Good>> planets = Arrays.asList( Arrays.asList(new Good(GoodType.BLUE), new Good(GoodType.RED)),
+            Arrays.asList(new Good(GoodType.YELLOW)) );
 
     @BeforeEach
     void setUp() {
-        planets = new Good[][]{
-                {new Good(GoodType.BLUE), new Good(GoodType.RED)},
-                {new Good(GoodType.YELLOW)},
-        };
         card = new Planets(2, 0, planets, 3);
         assertNotNull(card);
     }
@@ -42,15 +41,16 @@ class PlanetsTest {
 
     @RepeatedTest(5)
     void getPlanetNumbers() {
-        assertEquals(planets.length, card.getPlanetNumbers());
+        assertEquals(planets.size(), card.getPlanetNumbers());
 
         Random random = new Random();
         int numberOfPlanets = random.nextInt(3) + 1;
-        Good[][] randomPlanets = new Good[numberOfPlanets][8];
+        List<List<Good>> randomPlanets = new ArrayList<>();
         for (int i = 0; i < numberOfPlanets; i++) {
-            int numberOfGoods = random.nextInt(3) + 1;
+            randomPlanets.add(new ArrayList<>(Arrays.asList()));
+            int numberOfGoods = random.nextInt(1, 5);
             for (int j = 0; j < numberOfGoods; j++) {
-                randomPlanets[i][j] = new Good(GoodType.BLUE);
+                randomPlanets.get(i).add(new Good(GoodType.BLUE));
             }
         }
         Planets randomCard = new Planets(2, 0, randomPlanets, 3);
@@ -84,24 +84,25 @@ class PlanetsTest {
 
         Random random = new Random();
         int numberOfPlanets = random.nextInt(3) + 1;
-        Good[][] randomPlanets = new Good[numberOfPlanets][8];
+        List<List<Good>> randomPlanets = new ArrayList<>();
         GoodType[] values = GoodType.values();
 
         for (int i = 0; i < numberOfPlanets; i++) {
+            randomPlanets.add(new ArrayList<>(Arrays.asList()));
             int numberOfGoods = random.nextInt(3) + 1;
             for (int j = 0; j < numberOfGoods; j++) {
                 GoodType randomColor = values[random.nextInt(values.length)];
                 Good addGood = new Good(randomColor);
-                randomPlanets[i][j] = addGood;
+                randomPlanets.get(i).add(addGood);
             }
         }
         Planets randomCard = new Planets(2, 0, randomPlanets, 3);
         for (int i = 0; i < numberOfPlanets; i++) {
             List<Good> checkRandom = randomCard.getPlanet(i);
-            assertEquals(randomPlanets[i].length, checkRandom.size());
-            for (int j = 0; j < randomPlanets[i].length; j++) {
-                if(randomPlanets[i][j] != null){
-                    assertEquals(randomPlanets[i][j].getColor(), checkRandom.get(j).getColor());
+            assertEquals(randomPlanets.get(i).size(), checkRandom.size());
+            for (int j = 0; j < randomPlanets.get(i).size(); j++) {
+                if(randomPlanets.get(i).get(j) != null){
+                    assertEquals(randomPlanets.get(i).get(j).getColor(), checkRandom.get(j).getColor());
                 }
             }
         }
