@@ -225,6 +225,7 @@ public class CombatZoneState extends State implements Fightable {
      */
     @Override
     public void execute(PlayerData player) {
+        // TODO: sistemo subState
         switch (subState) {
             case CombatZoneStatsType.CREW:
                 executeSubStateCrew();

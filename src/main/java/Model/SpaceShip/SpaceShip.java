@@ -372,6 +372,7 @@ public class SpaceShip {
             purpleAlien = false;
         }
         cabin.removeCrewMember(num);
+        crewNumber -= num;
     }
 
     /**
