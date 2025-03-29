@@ -116,53 +116,16 @@ public class CombatZoneState extends State {
      * Execute the subState engines
      * @param player player to execute
      */
-    private void executeSubStateEngines(PlayerData player) {
+    private void executeSubStateEngines(PlayerData player) throws IllegalArgumentException {
         int crewLost = card.getLost();
-        int statsIndex = CombatZoneStatsType.ENGINES.getIndex(card.getCardLevel());
 
-        stats.get(statsIndex).entrySet().stream().min(this::comparePlayers).ifPresent(entry -> {
-            SpaceShip spaceShip = entry.getKey().getSpaceShip();
-            //spaceShip.addCrewMember(-crewLost);
-            if (spaceShip.getCrewNumber() <= crewLost) {
-                player.setGaveUp(true);
+        SpaceShip spaceShip = minPlayerEngines.getSpaceShip();
+        if (spaceShip.getCrewNumber() <= crewLost) {
+            player.setGaveUp(true);
+        } else {
+            for (Map.Entry<Integer, Integer> cabinID : cabinsID.entrySet()) {
+                spaceShip.removeCrewMember(cabinID.getKey(), cabinID.getValue());
             }
-        });
-
-        transition(CombatZoneStatsType.CANNONS);
-    }
-
-    /**
-     * Execute the sub state protection
-     * @param spaceShip spaceShip to execute
-     */
-    private void executeSubStateProtection(SpaceShip spaceShip) {
-        Component component = protectionResult.getValue0();
-        int protectionType = protectionResult.getValue1();
-
-        switch (protectionType) {
-            case -1:
-                fragments = destroyComponent(spaceShip, component);
-                if (fragments.size() > 1) {
-                    fightIndex++;
-                } else {
-                    transitionHit();
-                }
-                break;
-            case 0:
-                if (useEnergy) {
-                    spaceShip.useEnergy(batteryID);
-                    transitionHit();
-                } else {
-                    fragments = destroyComponent(spaceShip, component);
-                    if (fragments.size() > 1) {
-                        fightIndex++;
-                    } else {
-                        transitionHit();
-                    }
-                }
-                break;
-            case 1:
-                break;
         }
     }
 

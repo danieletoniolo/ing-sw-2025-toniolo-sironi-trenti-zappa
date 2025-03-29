@@ -44,9 +44,7 @@ public class SpaceShip {
 
     public SpaceShip(Level level, boolean[][] validSpots) {
         this.level = level;
-        components = new Component[rows][cols];
-        // TODO: Set the initial components of the ship with proper values
-        numberOfComponents = 1;
+
         this.validSpots = validSpots;
         lostComponents = new ArrayList<>();
         reservedComponents = new ArrayList<>();
@@ -73,11 +71,107 @@ public class SpaceShip {
         cabins = new HashMap<>();
         cannons = new HashMap<>();
 
+        components = new Component[rows][cols];
         components[7][7] = new Cabin(1, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         components[7][7].ship = this;
         components[7][7].setRow(7);
         components[7][7].setColumn(7);
         cabins.put(components[7][7].getID(), (Cabin) components[7][7]);
+        numberOfComponents = 1;
+    }
+
+    /**
+     * Find the component in the ship that is being hit from the given direction
+     * @param dice direction of the hit (Number picked by dice roll)
+     * @param direction direction of the hit (North, West, South, East)
+     * @return The component that is being hit from the given direction
+     */
+    private Component findComponent(int dice, Direction direction) {
+        switch (direction) {
+            case NORTH:
+                for (int i = 0; i < rows; i++) {
+                    if (components[i][dice] != null) return components[i][dice];
+                }
+                break;
+            case WEST:
+                for (int i = 0; i < cols; i++) {
+                    if (components[dice][i] != null) return components[dice][i];
+                }
+                break;
+            case SOUTH:
+                for (int i = rows - 1; i >= 0; i--) {
+                    if (components[i][dice] != null) return components[i][dice];
+                }
+                break;
+            case EAST:
+                for (int i = cols - 1; i >= 0; i--) {
+                    if (components[dice][i] != null) return components[dice][i];
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("The direction of the hit is not valid");
+        }
+        return null;
+    }
+
+    /**
+     * Check if the ship can shield from a hit
+     * @param direction direction of the hit (North, West, South, East)
+     * @return true if the ship can shield from the hit, false otherwise
+     */
+    private boolean canShield(int direction) {
+        for (Component[] row : components) {
+            for (Component comp : row) {
+                if (comp != null && comp.getComponentType() == ComponentType.SHIELD) {
+                    Shield shield = (Shield) comp;
+                    if (shield.canShield(direction)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if the ship can protect from a large meteor
+     * @param dice direction of the hit (Number picked by dice roll)
+     * @param direction direction of the hit (North, West, South, East)
+     * @return true if the ship can protect from the large meteor, false otherwise
+     */
+    private boolean canProtectFromLargeMeteor(int dice, int direction) {
+        if (level == Level.SECOND && direction % 2 != 0) {
+            for (int j = 0; j < 12; j++) {
+                if (isCannonProtecting(dice - 1, j, direction) || isCannonProtecting(dice + 1, j, direction)) {
+                    return true;
+                }
+            }
+        }
+        for (int j = 0; j < 12; j++) {
+            if (isCannonProtecting(direction % 2 == 0 ? j : dice, direction % 2 == 0 ? dice : j, direction)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if the cannon is protecting from the given direction
+     * @param row row of the cannon
+     * @param col column of the cannon
+     * @param direction direction of the hit (North, West, South, East)
+     * @return true if the cannon is protecting from the given direction, false otherwise
+     */
+    private boolean isCannonProtecting(int row, int col, int direction) {
+        Component comp = components[row][col];
+        if (comp != null) {
+            if (comp.getComponentType() == ComponentType.SINGLE_CANNON && comp.getClockwiseRotation() == direction) {
+                return true;
+            } else if (comp.getComponentType() == ComponentType.DOUBLE_CANNON && comp.getClockwiseRotation() == direction) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
