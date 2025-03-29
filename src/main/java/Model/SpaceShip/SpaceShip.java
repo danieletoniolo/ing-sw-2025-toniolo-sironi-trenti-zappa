@@ -45,9 +45,7 @@ public class SpaceShip {
 
     public SpaceShip(Level level, boolean[][] validSpots) {
         this.level = level;
-        components = new Component[rows][cols];
-        // TODO: Set the initial components of the ship with proper values
-        numberOfComponents = 1;
+
         this.validSpots = validSpots;
         lostComponents = new ArrayList<>();
         reservedComponents = new ArrayList<>();
@@ -74,11 +72,13 @@ public class SpaceShip {
         cabins = new HashMap<>();
         cannons = new HashMap<>();
 
+        components = new Component[rows][cols];
         components[7][7] = new Cabin(1, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         components[7][7].ship = this;
         components[7][7].setRow(7);
         components[7][7].setColumn(7);
         cabins.put(components[7][7].getID(), (Cabin) components[7][7]);
+        numberOfComponents = 1;
     }
 
     /**
