@@ -23,7 +23,7 @@ class CabinTest {
 
     @RepeatedTest(10)
     void getComponentType() {
-        c = new Cabin(0,  connectors);
+        c = new Cabin(4,  connectors);
         ComponentType type = c.getComponentType();
         System.out.println(type);
 
@@ -36,7 +36,7 @@ class CabinTest {
 
         Random rand = new Random();
         int id = rand.nextInt(4,9);
-        Cabin cabin = new Cabin(id, connectors);
+        Cabin cabin = new Cabin(id, connectors );
 
         assertEquals(id, cabin.getID());
     }
@@ -54,7 +54,7 @@ class CabinTest {
             check[i] = randomType;
         }
 
-        Cabin cabin = new Cabin(1, connectorArray);
+        Cabin cabin = new Cabin(4, connectorArray);
 
         for(int k = 0; k < 4; k++){
             assertEquals(cabin.getConnection(k), check[k]);
@@ -105,7 +105,7 @@ class CabinTest {
             }
         }
 
-        Cabin cabin = new Cabin(1, connectorArray);
+        Cabin cabin = new Cabin(4, connectorArray);
         ship.placeComponent(cabin, 6, 7);
         if(cabin.getConnection(2) != ConnectorType.EMPTY){
             exposed--;
@@ -113,7 +113,7 @@ class CabinTest {
         System.out.println(exposed);
         assertEquals(exposed, cabin.getExposedConnectors());
 
-        Cabin cabin1 = new Cabin(2, connectorArray);
+        Cabin cabin1 = new Cabin(5, connectorArray);
         ship.placeComponent(cabin1, 6, 8);
         if(cabin.getConnection(3) != ConnectorType.EMPTY){
             exposed--;
@@ -241,7 +241,13 @@ class CabinTest {
     void getCrewNumber() {
         Random rand = new Random();
         int count = rand.nextInt(4) + 1;
-        SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
         for(int i = 0; i < count; i++){
             Cabin cabin = new Cabin(i, connectors);
             ship.placeComponent(cabin, 6, 7 + i);
@@ -252,20 +258,18 @@ class CabinTest {
             boolean bool = rand.nextBoolean();
             if(bool){
                 cabin.removeCrewMember(1);
-            } else {
-                cabin.removeCrewMember(2);
-            }
-
-            if(bool){
                 assertEquals(1, cabin.getCrewNumber());
             } else {
+                cabin.removeCrewMember(2);
                 assertEquals(0, cabin.getCrewNumber());
             }
         }
 
+        LifeSupportPurple lsp = new LifeSupportPurple(10, connectors);
         Cabin cabin1 = new Cabin(1, connectors);
         ship.placeComponent(cabin1, 8, 7);
-        cabin1.addPurpleLifeSupport();
+        ship.placeComponent(lsp, 8, 8);
+        cabin1.isValid();
         cabin1.addPurpleAlien();
         assertEquals(1, cabin1.getCrewNumber());
         cabin1.removeCrewMember(1);
@@ -273,46 +277,45 @@ class CabinTest {
         assertThrows((IllegalStateException.class), () -> cabin1.removeCrewMember(1));
     }
 
-    //TODO: Da controllare che nel model abbiano cambiato il metodo, pk non controllano che ci sia un life support accanto
-    @Test
+    @RepeatedTest(5)
     void hasPurpleLifeSupport() {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
-        Cabin cabin = new Cabin(1, connectors);
+        Cabin cabin = new Cabin(3, connectors);
         assertFalse(cabin.hasPurpleLifeSupport());
 
-        LifeSupportPurple c = new LifeSupportPurple(1, connectors);
+        LifeSupportPurple c = new LifeSupportPurple(4, connectors);
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(c, 6, 8);
 
-        cabin.addPurpleLifeSupport();
+        cabin.isValid();
         assertTrue(cabin.hasPurpleLifeSupport());
     }
 
-    @Test
+    @RepeatedTest(5)
     void hasBrownLifeSupport() {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
-        Cabin cabin = new Cabin(1, connectors);
+        Cabin cabin = new Cabin(3, connectors);
         assertFalse(cabin.hasBrownLifeSupport());
 
-        LifeSupportBrown c = new LifeSupportBrown(1, connectors);
+        LifeSupportBrown c = new LifeSupportBrown(4, connectors);
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(c, 6, 8);
 
-        cabin.addBrownLifeSupport();
+        cabin.isValid();
         assertTrue(cabin.hasBrownLifeSupport());
     }
 
     @RepeatedTest(5)
     void hasPurpleAlien() {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
-        Cabin cabin = new Cabin(1, connectors);
+        Cabin cabin = new Cabin(3, connectors);
         assertFalse(cabin.hasPurpleAlien());
 
-        LifeSupportPurple c = new LifeSupportPurple(1, connectors);
+        LifeSupportPurple c = new LifeSupportPurple(4, connectors);
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(c, 6, 8);
 
-        cabin.addPurpleLifeSupport();
+        cabin.isValid();
         cabin.addPurpleAlien();
 
         assertThrows((IllegalStateException.class), cabin::addCrewMember);
@@ -322,14 +325,14 @@ class CabinTest {
     @RepeatedTest(5)
     void hasBrownAlien() {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
-        Cabin cabin = new Cabin(1, connectors);
+        Cabin cabin = new Cabin(3, connectors);
         assertFalse(cabin.hasBrownAlien());
 
-        LifeSupportBrown c = new LifeSupportBrown(1, connectors);
+        LifeSupportBrown c = new LifeSupportBrown(4, connectors);
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(c, 6, 8);
 
-        cabin.addBrownLifeSupport();
+        cabin.isValid();
         cabin.addBrownAlien();
 
         assertThrows((IllegalStateException.class), cabin::addCrewMember);
@@ -354,7 +357,7 @@ class CabinTest {
                     LifeSupportPurple l = new LifeSupportPurple(1, connectors);
                     ship.placeComponent(l, 8, 8 + i);
 
-                    cabin.addPurpleLifeSupport();
+                    cabin.isValid();
                     cabin.addPurpleAlien();
                     assertEquals(1, cabin.getCrewNumber());
                     assertThrows((IllegalStateException.class), cabin::addCrewMember);
@@ -363,7 +366,7 @@ class CabinTest {
                     LifeSupportBrown l = new LifeSupportBrown(1, connectors);
                     ship.placeComponent(l, 8, 8 + i);
 
-                    cabin.addBrownLifeSupport();
+                    cabin.isValid();
                     cabin.addBrownAlien();
                     assertEquals(1, cabin.getCrewNumber());
                     assertThrows((IllegalStateException.class), cabin::addCrewMember);
@@ -380,7 +383,7 @@ class CabinTest {
     void addPurpleAlien() {
         Random rand = new Random();
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
-        Cabin cabin = new Cabin(1, connectors);
+        Cabin cabin = new Cabin(3, connectors);
         assertFalse(cabin.hasPurpleAlien());
         assertEquals(0, cabin.getCrewNumber());
 
@@ -389,21 +392,21 @@ class CabinTest {
             boolean bool1 = rand.nextBoolean();
             if(bool1){
                 System.out.println("P");
-                LifeSupportPurple l = new LifeSupportPurple(1, connectors);
+                LifeSupportPurple l = new LifeSupportPurple(4, connectors);
                 ship.placeComponent(cabin, 6, 7);
                 ship.placeComponent(l, 6, 8);
 
-                cabin.addPurpleLifeSupport();
+                cabin.isValid();
                 cabin.addPurpleAlien();
                 assertEquals(1, cabin.getCrewNumber());
                 assertTrue(cabin.hasPurpleAlien());
             } else {
                 System.out.println("B");
-                LifeSupportBrown l = new LifeSupportBrown(1, connectors);
+                LifeSupportBrown l = new LifeSupportBrown(5, connectors);
                 ship.placeComponent(cabin, 6, 7);
                 ship.placeComponent(l, 6, 8);
 
-                cabin.addBrownLifeSupport();
+                cabin.isValid();
                 cabin.addBrownAlien();
                 assertEquals(1, cabin.getCrewNumber());
                 assertThrows((IllegalStateException.class), cabin::addPurpleAlien);
@@ -420,7 +423,7 @@ class CabinTest {
     void addBrownAlien() {
         Random rand = new Random();
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
-        Cabin cabin = new Cabin(1, connectors);
+        Cabin cabin = new Cabin(3, connectors);
         assertFalse(cabin.hasBrownAlien());
         assertEquals(0, cabin.getCrewNumber());
 
@@ -429,21 +432,21 @@ class CabinTest {
             boolean bool1 = rand.nextBoolean();
             if(bool1){
                 System.out.println("P");
-                LifeSupportPurple l = new LifeSupportPurple(1, connectors);
+                LifeSupportPurple l = new LifeSupportPurple(4, connectors);
                 ship.placeComponent(cabin, 6, 7);
                 ship.placeComponent(l, 6, 8);
 
-                cabin.addPurpleLifeSupport();
+                cabin.isValid();
                 cabin.addPurpleAlien();
                 assertEquals(1, cabin.getCrewNumber());
                 assertThrows((IllegalStateException.class), cabin::addBrownAlien);
             } else {
                 System.out.println("B");
-                LifeSupportBrown l = new LifeSupportBrown(1, connectors);
+                LifeSupportBrown l = new LifeSupportBrown(5, connectors);
                 ship.placeComponent(cabin, 6, 7);
                 ship.placeComponent(l, 6, 8);
 
-                cabin.addBrownLifeSupport();
+                cabin.isValid();
                 cabin.addBrownAlien();
                 assertEquals(1, cabin.getCrewNumber());
                 assertTrue(cabin.hasBrownAlien());
@@ -462,8 +465,8 @@ class CabinTest {
         int count = rand.nextInt(2) + 1;
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
         for(int i = 0; i < count; i++){
-            Cabin cabin = new Cabin(i, connectors);
-            ship.placeComponent(cabin, 7, 8 + i);
+            Cabin cabin = new Cabin(i , connectors);
+            ship.placeComponent(cabin, 7, 8 + i );
 
             //Alien
             boolean bool = rand.nextBoolean();
@@ -471,10 +474,10 @@ class CabinTest {
                 boolean bool1 = rand.nextBoolean();
                 if(bool1){
                     System.out.println("P");
-                    LifeSupportPurple l = new LifeSupportPurple(i + 5, connectors);
+                    LifeSupportPurple l = new LifeSupportPurple(i + 9, connectors);
                     ship.placeComponent(l, 8, 8 + i);
 
-                    cabin.addPurpleLifeSupport();
+                    cabin.isValid();
                     cabin.addPurpleAlien();
                     assertEquals(1, cabin.getCrewNumber());
                     cabin.removeCrewMember(1);
@@ -482,10 +485,10 @@ class CabinTest {
                     assertThrows((IllegalStateException.class), () -> cabin.removeCrewMember(1));
                 } else {
                     System.out.println("B");
-                    LifeSupportBrown l = new LifeSupportBrown(i + 5, connectors);
+                    LifeSupportBrown l = new LifeSupportBrown(i + 10, connectors);
                     ship.placeComponent(l, 8, 8 + i);
 
-                    cabin.addBrownLifeSupport();
+                    cabin.isValid();
                     cabin.addBrownAlien();
                     assertEquals(1, cabin.getCrewNumber());
                     cabin.removeCrewMember(1);
@@ -509,14 +512,14 @@ class CabinTest {
     void addPurpleLifeSupport() {
         Random rand = new Random();
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
-        Cabin cabin = new Cabin(1, connectors);
+        Cabin cabin = new Cabin(3, connectors);
         assertFalse(cabin.hasPurpleLifeSupport());
         ship.placeComponent(cabin, 6, 7);
 
         boolean bool = rand.nextBoolean();
         if(bool){
             System.out.println("P");
-            LifeSupportPurple l = new LifeSupportPurple(1, connectors);
+            LifeSupportPurple l = new LifeSupportPurple(4, connectors);
             ship.placeComponent(l, 6, 8);
         }
 
@@ -526,7 +529,7 @@ class CabinTest {
             System.out.println(i + " " + a.get(i));
             if(a.get(i) instanceof LifeSupportPurple){
                 System.out.println("Y");
-                cabin.addPurpleLifeSupport();
+                cabin.isValid();
                 assertTrue(cabin.hasPurpleLifeSupport());
             } else {
                 System.out.println("N");
@@ -539,14 +542,14 @@ class CabinTest {
     void addBrownLifeSupport() {
         Random rand = new Random();
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
-        Cabin cabin = new Cabin(1, connectors);
+        Cabin cabin = new Cabin(3, connectors);
         assertFalse(cabin.hasBrownLifeSupport());
         ship.placeComponent(cabin, 6, 7);
 
         boolean bool = rand.nextBoolean();
         if(bool){
             System.out.println("B");
-            LifeSupportBrown l = new LifeSupportBrown(1, connectors);
+            LifeSupportBrown l = new LifeSupportBrown(4, connectors);
             ship.placeComponent(l, 6, 8);
         }
 
@@ -556,7 +559,7 @@ class CabinTest {
             System.out.println(i + " " + a.get(i));
             if(a.get(i) instanceof LifeSupportBrown){
                 System.out.println("Y");
-                cabin.addBrownLifeSupport();
+                cabin.isValid();
                 assertTrue(cabin.hasBrownLifeSupport());
             } else {
                 System.out.println("N");

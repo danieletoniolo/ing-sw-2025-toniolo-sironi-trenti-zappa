@@ -369,18 +369,24 @@ class SpaceShipTest {
             System.out.println("Flag: " + flag);
             if(flag == 1 && (!ship.hasPurpleAlien() || !ship.hasBrownAlien())) {
                 if (!ship.hasBrownAlien()) {
-                    ship.getCabin(i + 4).addBrownLifeSupport();
+                    LifeSupportBrown lsb = new LifeSupportBrown(i + 10, connectors);
+                    ship.placeComponent(lsb, 5,7 + i);
+
+                    ship.getCabin(i + 4).isValid();
                     ship.addCrewMember(cabin.getID(), true, false);
                     total += 1;
-                    System.out.println("1");
+                    System.out.println("BA");
 
                     assertTrue(ship.hasBrownAlien());
                     assertEquals(1, cabin.getCrewNumber());
                 } else {
-                    ship.getCabin(i + 4).addPurpleLifeSupport();
+                    LifeSupportPurple lsp = new LifeSupportPurple(i + 11, connectors);
+                    ship.placeComponent(lsp, 5,7 + i);
+
+                    ship.getCabin(i + 4).isValid();
                     ship.addCrewMember(cabin.getID(), false, true);
                     total += 1;
-                    System.out.println("2");
+                    System.out.println("PA");
 
                     assertTrue(ship.hasPurpleAlien());
                     assertEquals(1, cabin.getCrewNumber());
@@ -388,20 +394,20 @@ class SpaceShipTest {
             } else {
                 ship.addCrewMember(cabin.getID(), false, false);
                 total += 2;
-                System.out.println("3");
+                System.out.println("CM");
                 assertEquals(2, cabin.getCrewNumber());
             }
         }
 
-        System.out.println(total);
+        System.out.println("Total : " + total +"\n");
         assertEquals(total, ship.getCrewNumber());
 
         for(int j = 0; j < limit; j++){
             boolean flag = rand.nextBoolean();
-            System.out.println("ID: " + (j));
-            if(flag){ //Voglio rimuovere
+            System.out.println("Flag : " + flag + "    ID: " + (j));
+            if(flag){           //I need to remove
                 if (ship.getCabin(j + 4).hasBrownAlien()) {
-                    System.out.println("1.1");
+                    System.out.println("BA.1");
 
                     ship.removeCrewMember(j + 4, 1);
                     assertFalse(ship.hasBrownAlien());
@@ -409,7 +415,7 @@ class SpaceShipTest {
 
                     total -= 1;
                 } else if(ship.getCabin(j + 4).hasPurpleAlien()) {
-                    System.out.println("2.1");
+                    System.out.println("PA.1");
 
                     ship.removeCrewMember(j + 4, 1);
                     assertFalse(ship.hasPurpleAlien());
@@ -417,7 +423,7 @@ class SpaceShipTest {
 
                     total -= 1;
                 } else {
-                    System.out.println("3.1");
+                    System.out.println("CM.1");
 
                     ship.removeCrewMember(j + 4, 2);
                     assertEquals(0, ship.getCabin(j + 4).getCrewNumber());
@@ -427,6 +433,7 @@ class SpaceShipTest {
             }
         }
 
+        System.out.println("Total final : " + total + "\n");
         assertEquals(total, ship.getCrewNumber());
     }
 
@@ -479,7 +486,7 @@ class SpaceShipTest {
 
             if(hit.getType() == HitType.SMALLMETEOR){
                 Component component = null;
-                Component[][] components = ship.returnComponents();
+                Component[][] components = ship.getComponents();
                 switch (hit.getDirection()) {
                     case NORTH:
                         for (int i = 0; i < 12 && component == null; i++) {
