@@ -577,7 +577,10 @@ public class SpaceShip {
      * Get the cabin in the ship by ID
      * @return cabin in the ship
      */
-    public Cabin getCabin(int ID) {
+    public Cabin getCabin(int ID) throws IllegalArgumentException {
+        if (cabins.get(ID) == null) {
+            throw new IllegalArgumentException("The ID of the cabin is not valid");
+        }
         return this.cabins.get(ID);
     }
 
@@ -593,7 +596,10 @@ public class SpaceShip {
      * Get the storage in the ship by ID
      * @return storage in the ship
      */
-    public Storage getStorage(int ID) {
+    public Storage getStorage(int ID) throws IllegalArgumentException {
+        if (storages.get(ID) == null) {
+            throw new IllegalArgumentException("The ID of the storage is not valid");
+        }
         return this.storages.get(ID);
     }
 
@@ -609,7 +615,10 @@ public class SpaceShip {
      * Get the battery in the ship by ID
      * @return battery in the ship
      */
-    public Battery getBattery(int ID) {
+    public Battery getBattery(int ID) throws IllegalArgumentException {
+        if (batteries.get(ID) == null) {
+            throw new IllegalArgumentException("The ID of the battery is not valid");
+        }
         return this.batteries.get(ID);
     }
 
@@ -625,7 +634,10 @@ public class SpaceShip {
      * Get the cannon in the ship by ID
      * @return cannon in the ship
      */
-    public Cannon getCannon(int ID) {
+    public Cannon getCannon(int ID) throws IllegalArgumentException {
+        if (cannons.get(ID) == null) {
+            throw new IllegalArgumentException("The ID of the cannon is not valid");
+        }
         return this.cannons.get(ID);
     }
 
