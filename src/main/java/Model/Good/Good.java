@@ -11,6 +11,9 @@ public class Good {
         this.color = color;
     }
 
+    public Good(){
+
+    }
     /**
      * Get the color of the good
      * @return the color of the good

@@ -30,6 +30,10 @@ public class CombatZone extends Card {
         this.fires = fires;
     }
 
+    public CombatZone(){
+        super();
+    }
+
     /**
      * Get the number of flight days lost for the quest
      * @return number of flight days lost for the quest

@@ -1,18 +1,36 @@
 package Model.SpaceShip;
 
+import Model.Cards.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.util.ArrayList;
 
+// 📌 Allows Jackson to understand which subclass to use.
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Battery.class, name = "Battery"),
+        @JsonSubTypes.Type(value = Storage.class, name = "Storage"),
+        @JsonSubTypes.Type(value = Cabin.class, name = "Cabin"),
+        @JsonSubTypes.Type(value = Connectors.class, name = "Connectors"),
+        @JsonSubTypes.Type(value = Engine.class, name = "Engine"),
+        @JsonSubTypes.Type(value = Cannon.class, name = "Cannon"),
+        @JsonSubTypes.Type(value = LifeSupportBrown.class, name = "LifeSupportBrown"),
+        @JsonSubTypes.Type(value = LifeSupportPurple.class, name = "LifeSupportPurple"),
+        @JsonSubTypes.Type(value = Shield.class, name = "Shield"),
+})
 public abstract class Component {
     protected SpaceShip ship;
-
+    @JsonProperty
     protected int ID;
 
     protected int row;
     protected int column;
 
     private boolean fixed;
-
-    private final ConnectorType[] connectors;
+    @JsonProperty
+    private ConnectorType[] connectors;
 
     private int clockwiseRotation;
 
@@ -24,6 +42,7 @@ public abstract class Component {
         this.clockwiseRotation = 0;
     }
 
+    public Component(){}
     /**
      * Returns the type of the component
      * @return The type of the component

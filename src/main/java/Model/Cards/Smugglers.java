@@ -5,11 +5,11 @@ import Model.Good.Good;
 import java.util.List;
 
 public class Smugglers extends Card {
-    private final int cannonStrengthRequired;
-    private final int flightDays;
+    private int cannonStrengthRequired;
+    private int flightDays;
 
-    private final List<Good> goodsReward;
-    private final int goodsLoss;
+    private List<Good> goodsReward;
+    private int goodsLoss;
 
     /**
      * Constructor
@@ -32,6 +32,9 @@ public class Smugglers extends Card {
         this.goodsLoss = goodsLoss;
     }
 
+    public Smugglers(){
+        super();
+    }
     /**
      * Get the cannon power required to beat the card
      * @return cannon power required

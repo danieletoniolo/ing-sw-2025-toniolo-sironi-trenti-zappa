@@ -20,6 +20,10 @@ public class AbandonedShip extends Card {
         this.credit = credit;
     }
 
+    public AbandonedShip(){
+        super();
+    }
+
     /**
      * Get the number of crew members required and lost
      * @return number of crew members required and lost

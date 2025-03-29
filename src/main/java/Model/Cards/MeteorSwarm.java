@@ -21,6 +21,10 @@ public class MeteorSwarm extends Card {
         this.meteors = meteors;
     }
 
+    public MeteorSwarm() {
+        super();
+    }
+
     /**
      * Get list of meteors
      * @return meteors

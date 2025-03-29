@@ -2,7 +2,6 @@ package Model.SpaceShip;
 
 import java.util.*;
 
-import Model.Cards.Hits.Direction;
 import Model.Cards.Hits.Hit;
 import Model.Game.Board.Level;
 import org.javatuples.Pair;
@@ -383,32 +382,89 @@ public class SpaceShip {
      * @throws IllegalArgumentException if the direction or the type of the hit is not valid
      */
     public Pair<Component, Integer> canProtect(int dice, Hit hit) throws IllegalArgumentException {
-        Component component = findComponent(dice, hit.getDirection());
+        Component component = null;
+        switch (hit.getDirection()) {
+            case NORTH:
+                for (int i = 0; i < rows && component == null; i++) {
+                    component = components[i][dice];
+                }
+                break;
+            case WEST:
+                for (int i = 0; i < cols && component == null; i++) {
+                    component = components[dice][i];
+                }
+                break;
+            case SOUTH:
+                for (int i = rows-1; i >= 0 && component == null; i--) {
+                    component = components[i][dice];
+                }
+                break;
+            case EAST:
+                for (int i = cols-1; i >= 0 && component == null; i--) {
+                    component = components[dice][i];
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("The direction of the hit is not valid");
+        }
         if (component == null) {
             return new Pair<>(null, 1);
         }
 
         switch (hit.getType()) {
             case SMALLMETEOR:
-                if (component.getConnection(hit.getDirection().getValue()) == ConnectorType.EMPTY) {
+                // Check if the component has a smooth side (EMPTY) where the hit is coming from
+                int direction = hit.getDirection().getValue();
+                if (component.getConnection((direction + 2) % 4) == ConnectorType.EMPTY) {
                     return new Pair<>(null, 1);
                 }
             case LIGHTFIRE:
-                if (canShield(hit.getDirection().getValue())) {
-                    return new Pair<>(component, 0);
+                for (int i = 0; i < 12; i++) {
+                    for (int j = 0; j < 12; j++) {
+                        if (components[i][j] != null && components[i][j].getComponentType() == ComponentType.SHIELD) {
+                            Shield shield = (Shield) components[i][j];
+                            if (shield.canShield(hit.getDirection().getValue())) {
+                                return new Pair<>(component, 0);
+                            }
+                        }
+                    }
                 }
-                break;
+                return new Pair<>(component, -1);
             case LARGEMETEOR:
-                if (canProtectFromLargeMeteor(dice, hit.getDirection().getValue())) {
-                    return new Pair<>(null, 1);
+                int targetRotation = 4 - hit.getDirection().getValue();
+                if (level == Level.SECOND && hit.getDirection().getValue() % 2 != 0) {
+                    for (int j = 0; j < 12; j++) {
+                        Component componentAbove = components[dice - 1][j];
+                        Component componentBelow = components[dice + 1][j];
+
+                        if (componentAbove.getComponentType() == ComponentType.SINGLE_CANNON && componentAbove.getClockwiseRotation() == targetRotation) {
+                            return new Pair<>(null, 1);
+                        } else if (componentAbove.getComponentType() == ComponentType.DOUBLE_CANNON && componentAbove.getClockwiseRotation() == targetRotation) {
+                            return new Pair<>(componentAbove, 0);
+                        }
+
+                        if (componentBelow.getComponentType() == ComponentType.SINGLE_CANNON && componentBelow.getClockwiseRotation() == targetRotation) {
+                            return new Pair<>(null, 1);
+                        } else if (componentBelow.getComponentType() == ComponentType.DOUBLE_CANNON && componentBelow.getClockwiseRotation() == targetRotation) {
+                            return new Pair<>(componentBelow, 0);
+                        }
+                    }
                 }
-                break;
+                for (int j = 0; j < 12; j++) {
+                    Component centerComponent = components[dice][j];
+
+                    if (centerComponent.getComponentType() == ComponentType.SINGLE_CANNON && centerComponent.getClockwiseRotation() == targetRotation) {
+                        return new Pair<>(null, 1);
+                    } else if (centerComponent.getComponentType() == ComponentType.DOUBLE_CANNON && centerComponent.getClockwiseRotation() == targetRotation) {
+                        return new Pair<>(centerComponent, 0);
+                    }
+                }
+                return new Pair<>(component, -1);
             case HEAVYFIRE:
-                break;
+                return new Pair<>(component, -1);
             default:
                 throw new IllegalArgumentException("The type of the hit is not valid");
         }
-        return new Pair<>(component, -1);
     }
 
     /**
@@ -475,14 +531,6 @@ public class SpaceShip {
      */
     public Component getComponent(int row, int column) {
         return components[row][column];
-    }
-
-    /**
-     * Get the components of the ship
-     * @return components of the ship
-     */
-    public Component[][] getComponents() {
-        return components;
     }
 
     /**
@@ -579,10 +627,7 @@ public class SpaceShip {
      * Get the cabin in the ship by ID
      * @return cabin in the ship
      */
-    public Cabin getCabin(int ID) throws IllegalArgumentException {
-        if (cabins.get(ID) == null) {
-            throw new IllegalArgumentException("The ID of the cabin is not valid");
-        }
+    public Cabin getCabin(int ID) {
         return this.cabins.get(ID);
     }
 
@@ -598,10 +643,7 @@ public class SpaceShip {
      * Get the storage in the ship by ID
      * @return storage in the ship
      */
-    public Storage getStorage(int ID) throws IllegalArgumentException {
-        if (storages.get(ID) == null) {
-            throw new IllegalArgumentException("The ID of the storage is not valid");
-        }
+    public Storage getStorage(int ID) {
         return this.storages.get(ID);
     }
 
@@ -617,10 +659,7 @@ public class SpaceShip {
      * Get the battery in the ship by ID
      * @return battery in the ship
      */
-    public Battery getBattery(int ID) throws IllegalArgumentException {
-        if (batteries.get(ID) == null) {
-            throw new IllegalArgumentException("The ID of the battery is not valid");
-        }
+    public Battery getBattery(int ID) {
         return this.batteries.get(ID);
     }
 
@@ -636,10 +675,7 @@ public class SpaceShip {
      * Get the cannon in the ship by ID
      * @return cannon in the ship
      */
-    public Cannon getCannon(int ID) throws IllegalArgumentException {
-        if (cannons.get(ID) == null) {
-            throw new IllegalArgumentException("The ID of the cannon is not valid");
-        }
+    public Cannon getCannon(int ID) {
         return this.cannons.get(ID);
     }
 

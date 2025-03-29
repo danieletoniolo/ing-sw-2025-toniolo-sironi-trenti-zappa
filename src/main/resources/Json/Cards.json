@@ -292,10 +292,10 @@
     "flightDays": 2
   },
   {
-    "type": "CombabtZone",
+    "type": "CombatZone",
     "ID": 15,
     "level": 1,
-    "fligthDays": 3,
+    "flightDays": 3,
     "lost": 2,
     "fires": [
       {
@@ -353,6 +353,401 @@
         "color": "RED"
       }
     ]
+  },
+  {
+    "type": "Slavers",
+    "ID": 20,
+    "level": 2,
+    "crewLost": 4,
+    "credit": 8,
+    "cannonStrengthRequired": 7,
+    "flightDays": 2
+  },
+  {
+    "type": "Smugglers",
+    "ID": 21,
+    "level": 2,
+    "goodsReward": [
+      {
+        "color": "RED"
+      },
+      {
+        "color": "YELLOW"
+      },
+      {
+        "color": "YELLOW"
+      }
+    ],
+    "goodsLoss": 3,
+    "cannonStrengthRequired": 8,
+    "flightDays": 1
+  },
+  {
+    "type": "Pirates",
+    "ID": 22,
+    "level": 2,
+    "fires": [
+      {
+        "type": "HEAVYFIRE",
+        "direction": "NORTH"
+      },
+      {
+        "type": "LIGHTFIRE",
+        "direction": "NORTH"
+      },
+      {
+        "type": "HEAVYFIRE",
+        "direction": "NORTH"
+      }
+    ],
+    "credit": 7,
+    "cannonStrengthRequired": 6,
+    "flightDays": 2
+  },
+  {
+    "type": "StarDust",
+    "ID": 23,
+    "level": 2
+  },
+  {
+    "type": "Epidemic",
+    "ID": 24,
+    "level": 2
+  },
+  {
+    "type": "OpenSpace",
+    "ID": 25,
+    "level": 2
+  },
+  {
+    "type": "OpenSpace",
+    "ID": 26,
+    "level": 2
+  },
+  {
+    "type": "OpenSpace",
+    "ID": 27,
+    "level": 2
+  },
+  {
+    "type": "MeteorSwarm",
+    "ID": 28,
+    "level": 2,
+    "meteors": [
+      {
+        "type": "SMALLMETEOR",
+        "direction": "NORTH"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "NORTH"
+      },
+      {
+        "type": "LARGEMETEOR",
+        "direction": "WEST"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "WEST"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "WEST"
+      }
+    ]
+  },
+  {
+    "type": "MeteorSwarm",
+    "ID": 29,
+    "level": 2,
+    "meteors": [
+      {
+        "type": "LARGEMETEOR",
+        "direction": "NORTH"
+      },
+      {
+        "type": "LARGEMETEOR",
+        "direction": "NORTH"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "SOUTH"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "SOUTH"
+      }
+    ]
+  },
+  {
+    "type": "MeteorSwarm",
+    "ID": 30,
+    "level": 2,
+    "meteors": [
+      {
+        "type": "SMALLMETEOR",
+        "direction": "NORTH"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "NORTH"
+      },
+      {
+        "type": "LARGEMETEOR",
+        "direction": "EAST"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "EAST"
+      },
+      {
+        "type": "SMALLMETEOR",
+        "direction": "EAST"
+      }
+    ]
+  },
+  {
+    "type": "Planets",
+    "ID": 31,
+    "level": 2,
+    "planets": [
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "RED"
+        },
+        {
+          "color": "RED"
+        },
+        {
+          "color": "YELLOW"
+        }
+      ],
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "RED"
+        },
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "GREEN"
+        }
+      ],
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        }
+      ]
+    ],
+    "flightDays": 4
+  },
+  {
+    "type": "Planets",
+    "ID": 32,
+    "level": 2,
+    "planets": [
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "RED"
+        }
+      ],
+      [
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "GREEN"
+        }
+      ]
+    ],
+    "flightDays": 3
+  },
+  {
+    "type": "Planets",
+    "ID": 33,
+    "level": 2,
+    "planets": [
+      [
+        {
+          "color": "RED"
+        },
+        {
+          "color": "YELLOW"
+        }
+      ],
+      [
+        {
+          "color": "YELLOW"
+        },
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "BLUE"
+        }
+      ],
+      [
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "GREEN"
+        }
+      ],
+      [
+        {
+          "color": "YELLOW"
+        }
+      ]
+    ],
+    "flightDays": 2
+  },
+  {
+    "type": "Planets",
+    "ID": 34,
+    "level": 2,
+    "planets": [
+      [
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "GREEN"
+        },
+        {
+          "color": "GREEN"
+        }
+      ],
+      [
+        {
+          "color": "YELLOW"
+        },
+        {
+          "color": "YELLOW"
+        }
+      ],
+      [
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        },
+        {
+          "color": "BLUE"
+        }
+      ]
+    ],
+    "flightDays": 3
+  },
+  {
+    "type": "CombatZone",
+    "ID": 35,
+    "level": 2,
+    "flightDays": 4,
+    "lost": 3,
+    "fires": [
+      {
+        "type": "LIGHTFIRE",
+        "direction": "NORTH"
+      },
+      {
+        "type": "LIGHTFIRE",
+        "direction": "WEST"
+      },
+      {
+        "type": "LIGHTFIRE",
+        "direction": "EAST"
+      },
+      {
+        "type": "HEAVYFIRE",
+        "direction": "SOUTH"
+      }
+    ]
+  },
+  {
+    "type": "AbandonedShip",
+    "ID": 36,
+    "level": 2,
+    "crewRequired": 4,
+    "credit": 6,
+    "flightDays": 1
+  },
+  {
+    "type": "AbandonedShip",
+    "ID": 37,
+    "level": 2,
+    "crewRequired": 5,
+    "credit": 8,
+    "flightDays": 2
+  },
+  {
+    "type": "AbandonedStation",
+    "ID": 38,
+    "level": 2,
+    "crewRequired": 7,
+    "flightDays": 1,
+    "goods": [
+      {
+        "color": "RED"
+      },
+      {
+        "color": "YELLOW"
+      }
+    ]
+  },
+  {
+    "type": "AbandonedStation",
+    "ID": 39,
+    "level": 2,
+    "crewRequired": 8,
+    "flightDays": 2,
+    "goods": [
+      {
+        "color": "YELLOW"
+      },
+      {
+        "color": "YELLOW"
+      },
+      {
+        "color": "GREEN"
+      }
+    ]
   }
-
 ]

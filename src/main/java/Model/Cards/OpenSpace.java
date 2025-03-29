@@ -11,6 +11,9 @@ public class OpenSpace extends Card {
         super(level, ID);
     }
 
+    public OpenSpace() {
+        super();
+    }
     /**
      * Get the card type
      * @return card type
