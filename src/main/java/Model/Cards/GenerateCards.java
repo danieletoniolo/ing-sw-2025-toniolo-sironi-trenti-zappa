@@ -34,7 +34,7 @@ public class GenerateCards {
     /**
      * Get a list of cards based on the game level
      * @param gameLevel 0 for learning, 2 for second level
-     * @return a list of cards: 8 cards for learning, 12 cards for second level (4 of level 1 + 8 of level 2)
+     * @return a list of random cards: 8 cards for learning, 12 cards for second level (4 of level 1 + 8 of level 2)
      * @throws IllegalStateException if the game level is not 0 or 2
      */
     public ArrayList<Card> getRandomizedCards(int gameLevel) throws IllegalStateException {
