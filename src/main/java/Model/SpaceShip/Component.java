@@ -100,7 +100,7 @@ public abstract class Component {
      * @throws IllegalStateException if the component is not attached to the ship
      * @apiNote Should only be called after the component is attached to the ship (after the placeComponent method is called)
      */
-    public int getExposedConnectors() {
+    public int getExposedConnectors() throws IllegalStateException {
         if (ship == null) {
             throw new IllegalStateException("The component is not attached to the ship");
         }

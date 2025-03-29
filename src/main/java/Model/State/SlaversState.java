@@ -90,7 +90,7 @@ public class SlaversState extends State {
         for (Pair<PlayerData, PlayerStatus> player : super.players) {
             value0 = player.getValue0();
             addStats(value0, value0.getSpaceShip().getSingleCannonsStrength());
-            if (value0.getSpaceShip().getPurpleAlien()) {
+            if (value0.getSpaceShip().hasPurpleAlien()) {
                 addStats(value0, SpaceShip.getAlienStrength());
             }
         }
