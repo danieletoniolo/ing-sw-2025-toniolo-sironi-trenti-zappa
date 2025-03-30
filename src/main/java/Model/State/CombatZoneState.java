@@ -1,30 +1,23 @@
 package Model.State;
 
 import Model.Cards.CombatZone;
-import Model.Cards.Hits.Hit;
 import Model.Player.PlayerData;
-import Model.SpaceShip.Component;
 import Model.SpaceShip.SpaceShip;
+import Model.State.Handler.FightHandler;
+import Model.State.Interface.Fightable;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-public class CombatZoneState extends State {
+public class CombatZoneState extends State implements Fightable {
     private CombatZoneStatsType subState;
     private final CombatZone card;
     private final ArrayList<Map<PlayerData, Float>> stats;
     private PlayerData minPlayerEngines;
     private PlayerData minPlayerCannons;
-    private Integer dice;
-    private Boolean useEnergy;
-    private Integer batteryID;
-    List<List<Pair<Integer, Integer>>> fragments;
-    private Integer fragmentChoice;
-    private Pair<Component, Integer> protectionResult;
-    private int hitIndex;
-    private int fightIndex;
+    private Map<Integer, Integer> cabinsID;
+    private final FightHandler fightHandler;
 
     /**
      * Constructor whit players and card
@@ -36,23 +29,8 @@ public class CombatZoneState extends State {
         this.card = card;
         this.stats = new ArrayList<>(3);
         this.subState = CombatZoneStatsType.CREW;
-        this.useEnergy = null;
-        this.fragmentChoice = null;
-        this.dice = null;
         this.minPlayerCannons = null;
-        this.batteryID = null;
-        this.hitIndex = 0;
-        this.fightIndex = 0;
-    }
-
-    /**
-     * Add stats to the player
-     * @param statsType type of stats to add
-     * @param player player to add to the stats
-     * @param value value to add to the stats
-     */
-    private void addDefaultStats(CombatZoneStatsType statsType, PlayerData player, Float value) {
-        stats.get(statsType.getIndex(card.getCardLevel())).merge(player, value, Float::sum);
+        this.fightHandler = new FightHandler();
     }
 
     /**
@@ -64,22 +42,13 @@ public class CombatZoneState extends State {
     }
 
     /**
-     * Transition to the next hit
+     * Add stats to the player
+     * @param statsType type of stats to add
+     * @param player player to add to the stats
+     * @param value value to add to the stats
      */
-    private void transitionHit() {
-        hitIndex++;
-        fightIndex = 0;
-    }
-
-    /**
-     * Destroy a component
-     * @param spaceShip spaceShip to destroy the component
-     * @param component component to destroy
-     * @return List of disconnected components
-     */
-    private List<List<Pair<Integer, Integer>>> destroyComponent(SpaceShip spaceShip, Component component) {
-        spaceShip.destroyComponent(component.getRow(), component.getColumn());
-        return spaceShip.getDisconnectedComponents();
+    private void addDefaultStats(CombatZoneStatsType statsType, PlayerData player, Float value) {
+        stats.get(statsType.getIndex(card.getCardLevel())).merge(player, value, Float::sum);
     }
 
     /**
@@ -106,7 +75,7 @@ public class CombatZoneState extends State {
         int statsIndex = CombatZoneStatsType.CREW.getIndex(card.getCardLevel());
 
         stats.get(statsIndex).entrySet().stream().min(this::comparePlayers).ifPresent(entry ->
-            entry.getKey().addSteps(-flightDays)
+                entry.getKey().addSteps(-flightDays)
         );
 
         transition(CombatZoneStatsType.ENGINES);
@@ -127,41 +96,9 @@ public class CombatZoneState extends State {
                 spaceShip.removeCrewMember(cabinID.getKey(), cabinID.getValue());
             }
         }
-    }
 
-    /**
-     * Execute the subState cannons
-     * @param player player to execute
-     * @throws IllegalStateException if dice not set, useEnergy not set, fragmentChoice not set
-     */
-    private void executeSubStateCannons(PlayerData player) throws IllegalStateException {
-        SpaceShip spaceShip = player.getSpaceShip();
-        Hit hit = card.getFires().get(hitIndex);
-
-        switch (fightIndex) {
-            case 0:
-                if (dice == null) {
-                    throw new IllegalStateException("Dice not set");
-                }
-                protectionResult = spaceShip.canProtect(dice, hit);
-                fightIndex++;
-                break;
-            case 1:
-                if (useEnergy == null) {
-                    throw new IllegalStateException("UseEnergy not set");
-                }
-                executeSubStateProtection(spaceShip);
-                break;
-            case 2:
-                if (fragmentChoice == null) {
-                    throw new IllegalStateException("FragmentChoice not set");
-                }
-                for (Pair<Integer, Integer> fragment : fragments.get(fragmentChoice)) {
-                    spaceShip.destroyComponent(fragment.getValue0(), fragment.getValue1());
-                }
-                transitionHit();
-                break;
-        }
+        transition(CombatZoneStatsType.CANNONS);
+        fightHandler.initialize(0);
     }
 
     /**
@@ -170,28 +107,24 @@ public class CombatZoneState extends State {
      * @throws IllegalStateException if not in the right state in order to do the action
      */
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
-        if (subState != CombatZoneStatsType.CANNONS || fightIndex != 2) {
+        if (subState != CombatZoneStatsType.CANNONS) {
             throw new IllegalStateException("Fragment choice not allowed in this state");
         }
-        this.fragmentChoice = fragmentChoice;
+        fightHandler.setFragmentChoice(fragmentChoice);
     }
 
     /**
      * Set the use energy
-     * @param useEnergy_ use energy
+     * @param protect_ use energy
      * @param batteryID_ battery ID
      * @throws IllegalStateException if not in the right state in order to do the action
-     * @throws IllegalArgumentException if batteryID_ is null and useEnergy_ is true
+     * @throws IllegalArgumentException if batteryID_ is null and protect_ is true
      */
-    public void setUseEnergy(boolean useEnergy_, Integer batteryID_) throws IllegalStateException, IllegalArgumentException {
-        if (subState != CombatZoneStatsType.CANNONS || fightIndex != 1) {
+    public void setProtect(boolean protect_, Integer batteryID_) throws IllegalStateException, IllegalArgumentException {
+        if (subState != CombatZoneStatsType.CANNONS) {
             throw new IllegalStateException("Battery ID not allowed in this state");
         }
-        this.useEnergy = useEnergy_;
-        if (useEnergy_ && batteryID_ == null) {
-            throw new IllegalArgumentException("If you set useEnergy to true, you have to set the batteryID");
-        }
-        this.batteryID = batteryID_;
+        fightHandler.setProtect(protect_, batteryID_);
     }
 
     /**
@@ -199,10 +132,31 @@ public class CombatZoneState extends State {
      * @param dice dice
      */
     public void setDice(int dice) {
-        if (subState != CombatZoneStatsType.CANNONS || fightIndex != 0) {
+        if (subState != CombatZoneStatsType.CANNONS) {
             throw new IllegalStateException("Dice not allowed in this state");
         }
-        this.dice = dice;
+        fightHandler.setDice(dice);
+    }
+
+    /**
+     * Set the cabins ID
+     * @param cabinsID Map of cabins ID and number of crew removed for cabins
+     * @throws IllegalStateException if not in the right state in order to do the action
+     */
+    public void setCabinsID(Map<Integer, Integer> cabinsID) throws IllegalStateException {
+        if (subState != CombatZoneStatsType.ENGINES) {
+            throw new IllegalStateException("setCabinsID not allowed in this state");
+        }
+
+        int crewRemoved = 0;
+        for (Map.Entry<Integer, Integer> cabinID : cabinsID.entrySet()) {
+            crewRemoved += cabinID.getValue();
+        }
+
+        if (crewRemoved != card.getLost()) {
+            throw new IllegalStateException("The crew removed is not equal to the crew lost");
+        }
+        this.cabinsID = cabinsID;
     }
 
     /**
@@ -254,12 +208,12 @@ public class CombatZoneState extends State {
             this.addDefaultStats(CombatZoneStatsType.CREW, value0, (float) value0.getSpaceShip().getCrewNumber());
 
             this.addDefaultStats(CombatZoneStatsType.ENGINES, value0, (float) value0.getSpaceShip().getSingleEnginesStrength());
-            if (value0.getSpaceShip().getBrownAlien()) {
+            if (value0.getSpaceShip().hasBrownAlien()) {
                 this.addDefaultStats(CombatZoneStatsType.ENGINES, value0, SpaceShip.getAlienStrength());
             }
 
             this.addDefaultStats(CombatZoneStatsType.CANNONS, value0, value0.getSpaceShip().getSingleCannonsStrength());
-            if (value0.getSpaceShip().getPurpleAlien()) {
+            if (value0.getSpaceShip().hasPurpleAlien()) {
                 this.addDefaultStats(CombatZoneStatsType.CANNONS, value0, SpaceShip.getAlienStrength());
             }
         }
@@ -271,7 +225,7 @@ public class CombatZoneState extends State {
      */
     @Override
     public void execute(PlayerData player) {
-        // TODO: sistemare utilizzo di player
+        // TODO: sistemo subState
         switch (subState) {
             case CombatZoneStatsType.CREW:
                 executeSubStateCrew();
@@ -280,13 +234,18 @@ public class CombatZoneState extends State {
                 if (minPlayerEngines == null) {
                     throw new IllegalStateException("Not all player have set their engines");
                 }
-                executeSubStateEngines(player);
+                executeSubStateEngines(minPlayerEngines);
                 break;
             case CombatZoneStatsType.CANNONS:
                 if (minPlayerCannons == null) {
                     throw new IllegalStateException("Not all player have set their cannons");
                 }
-                executeSubStateCannons(player);
+                int currentHitIndex = fightHandler.getHitIndex();
+                if (currentHitIndex >= card.getFires().size()) {
+                    throw new IndexOutOfBoundsException("Hit index out of bounds");
+                }
+
+                fightHandler.executeFight(minPlayerCannons.getSpaceShip(), () -> card.getFires().get(currentHitIndex));
                 break;
         }
     }
