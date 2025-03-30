@@ -123,7 +123,7 @@ public class Board {
         if (player == null) {
             throw new NullPointerException("Player is null");
         }
-        if (!this.decks[index].isPickable() && player.getSpaceShip().getNumberOfComponents() < 1) {
+        if (!this.decks[index].isPickable() || player.getSpaceShip().getNumberOfComponents() <= 1) {
             throw new IllegalStateException("Deck is not pickable");
         }
         return this.decks[index];
@@ -154,5 +154,9 @@ public class Board {
         if (this.shuffledDeck.isEmpty())
             throw new IllegalStateException("No more cards in the deck");
         return shuffledDeck.pop();
+    }
+
+    public Stack<Card> getShuffledDeck() {
+        return shuffledDeck;
     }
 }
