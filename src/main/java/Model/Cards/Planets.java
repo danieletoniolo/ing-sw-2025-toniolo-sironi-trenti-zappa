@@ -4,7 +4,6 @@ import Model.Good.Good;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Planets extends Card {
@@ -47,12 +46,12 @@ public class Planets extends Card {
      * @return ArrayList of goods that are on the "nPlanet" planet
      * @throws IndexOutOfBoundsException if nPlanet aut of bounds
      */
-    public /*@ pure @*/ List<Good> getPlanet(int nPlanet) throws IndexOutOfBoundsException {
+    public /*@ pure @*/ ArrayList<Good> getPlanet(int nPlanet) throws IndexOutOfBoundsException {
         if (nPlanet < 0 || nPlanet >= planets.size()) {
             throw new IndexOutOfBoundsException("nPlanet: " + nPlanet + " is out of bounds");
         }
 
-        return planets.get(nPlanet);
+        return new ArrayList<>(planets.get(nPlanet));
     }
 
     /**

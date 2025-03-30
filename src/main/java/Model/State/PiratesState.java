@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// TODO: implements with FightHandler
 public class PiratesState extends State {
     private final Pirates card;
     private final Map<PlayerData, Float> stats;
