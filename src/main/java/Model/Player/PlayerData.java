@@ -2,8 +2,11 @@ package Model.Player;
 
 import Model.SpaceShip.SpaceShip;
 
+import java.util.UUID;
+
 public class PlayerData {
     private final String username;
+    private final UUID uuid;
     private final PlayerColor color;
     private int steps;
 
@@ -24,6 +27,7 @@ public class PlayerData {
      */
     public PlayerData(String username, PlayerColor color, SpaceShip ship) {
         this.username = username;
+        this.uuid = UUID.fromString(username);
         this.color = color;
         this.ship = ship;
         this.steps = 0;
@@ -39,6 +43,14 @@ public class PlayerData {
      */
     public String getUsername() {
         return this.username;
+    }
+
+    /**
+     * Get the UUID of the player
+     * @return the UUID of the player
+     */
+    public UUID getUUID() {
+        return this.uuid;
     }
 
     /**
@@ -152,6 +164,6 @@ public class PlayerData {
      * @return true if the players are equal, false otherwise
      */
     public boolean equals(PlayerData p) {
-        return this.color.equals(p.getColor());
+        return this.uuid.equals(p.getUUID());
     }
 }

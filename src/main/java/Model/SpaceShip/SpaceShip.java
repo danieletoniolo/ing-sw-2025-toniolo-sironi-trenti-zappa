@@ -72,6 +72,7 @@ public class SpaceShip {
         cabins = new HashMap<>();
         cannons = new HashMap<>();
 
+        // TODO: The center cabin should be 6 6 and not 7 7 (because of the 0 index)
         components = new Component[rows][cols];
         components[7][7] = new Cabin(1, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         components[7][7].ship = this;
@@ -343,9 +344,15 @@ public class SpaceShip {
         }
 
         if (brownAlien) {
+            if (cabin.hasBrownAlien()) {
+                throw new IllegalStateException("The cabin already has a brown alien");
+            }
             this.brownAlien = true;
             cabin.addBrownAlien();
         } else if (purpleAlien) {
+            if (cabin.hasPurpleAlien()) {
+                throw new IllegalStateException("The cabin already has a purple alien");
+            }
             this.purpleAlien = true;
             cabin.addPurpleAlien();
         } else {
@@ -535,6 +542,9 @@ public class SpaceShip {
      * @throws IllegalStateException if the component is not connected
      */
     public void placeComponent(Component c, int row, int column) throws IllegalStateException {
+        if (!validSpots[row][column]) {
+            throw new IllegalStateException("The component cannot be placed in the given row and column");
+        }
         components[row][column] = c;
         components[row][column].ship = this;
         if (components[row][column].isConnected(row, column)) {

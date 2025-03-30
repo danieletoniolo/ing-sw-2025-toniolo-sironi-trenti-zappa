@@ -3,50 +3,43 @@ package Model.State;
 import Model.Cards.AbandonedStation;
 import Model.Good.Good;
 import Model.Player.PlayerData;
+import Model.State.interfaces.ExchangeableGoods;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import Model.SpaceShip.SpaceShip;
 import Model.SpaceShip.Storage;
 import org.javatuples.Pair;
+import org.javatuples.Triplet;
 
-public class AbandonedStationState extends State {
-    AbandonedStation card;
-    Map<PlayerData, Float> cannonStrength;
+public class AbandonedStationState extends State implements ExchangeableGoods {
+    private final AbandonedStation card;
+    private Map<UUID, Float> cannonStrength;
+    private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
 
     public AbandonedStationState(ArrayList<PlayerData> players, AbandonedStation card) {
         super(players);
         this.card = card;
+        this.cannonStrength = new java.util.HashMap<>();
+        this.exchangeData = new ArrayList<>();
     }
 
-    public void addCannonStrength(PlayerData player, float strength) {
-        float oldCannonStrength = cannonStrength.get(player);
-        cannonStrength.replace(player, oldCannonStrength + strength);
+    public void addCannonStrength(UUID uuid, float strength) {
+        float oldCannonStrength = cannonStrength.get(uuid);
+        cannonStrength.replace(uuid, oldCannonStrength + strength);
     }
 
-    public void exchangeGoods(PlayerData player, ArrayList<Good> goodsToGet, ArrayList<Good> goodsToLeave, int row, int column) throws IllegalStateException {
-        // Get the goods available in the station and check if the station has the goods that the player wants to get
-        List<Good> goodsAvailable = card.getGoods();
-        for (Good good : goodsToGet) {
-            if (!goodsAvailable.contains(good)) {
-                //TODO: consider throwing a custom exception
-                throw new IllegalStateException("The station does not have the good");
-            }
-        }
-
-        // Get the storage component of the player's spaceship and exchange the goods
-        SpaceShip ship = player.getSpaceShip();
-        Storage storage = (Storage) ship.getComponent(row, column);
-        storage.exchangeGood(goodsToGet, goodsToLeave);
+    public void exchangeGoods(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) {
+        this.exchangeData = exchangeData;
     }
 
     @Override
     public void entry() {
         for (Pair<PlayerData, PlayerStatus> player : players) {
             SpaceShip ship = player.getValue0().getSpaceShip();
-            cannonStrength.put(player.getValue0(), ship.getSingleCannonsStrength());
+            cannonStrength.put(player.getValue0().getUUID(), ship.getSingleCannonsStrength());
         }
     }
 
@@ -60,6 +53,22 @@ public class AbandonedStationState extends State {
             if (p.getValue0().equals(player)) {
                 if (p.getValue1() == PlayerStatus.PLAYING) {
                     p.setAt1(PlayerStatus.PLAYED);
+
+                    // Execute the exchange
+                    for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
+                        ArrayList<Good> goodsToGet = triplet.getValue0();
+                        ArrayList<Good> goodsToLeave = triplet.getValue1();
+                        int storageId = triplet.getValue2();
+
+                        Storage storage = player.getSpaceShip().getStorage(storageId);
+                        for (Good good : goodsToGet) {
+                            storage.addGood(good);
+                        }
+                        for (Good good : goodsToLeave) {
+                            storage.removeGood(good);
+                        }
+                    }
+
                     super.played = true;
                 } else {
                     p.setAt1(PlayerStatus.WAITING);

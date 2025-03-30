@@ -3,7 +3,7 @@ package Model.State;
 import Model.Cards.MeteorSwarm;
 import Model.Player.PlayerData;
 import Model.State.Handler.FightHandler;
-import Model.State.Interface.Fightable;
+import Model.State.interfaces.Fightable;
 import org.javatuples.Pair;
 import java.util.ArrayList;
 import java.util.List;

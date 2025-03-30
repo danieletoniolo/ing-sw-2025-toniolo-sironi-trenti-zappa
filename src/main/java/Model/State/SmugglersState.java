@@ -4,44 +4,32 @@ import Model.Cards.Smugglers;
 import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.SpaceShip.Storage;
+import Model.State.interfaces.ExchangeableGoods;
+
+import Model.State.interfaces.UsableCannon;
 import org.javatuples.Pair;
+import org.javatuples.Triplet;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-public class SmugglersState extends State {
-    Smugglers card;
-    Map<PlayerData, Float> cannonStrength;
+public class SmugglersState extends State implements UsableCannon, ExchangeableGoods {
+    private final Smugglers card;
+    private Map<PlayerData, Float> cannonStrength;
+    private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
 
     public SmugglersState(ArrayList<PlayerData> players, Smugglers card) {
         super(players);
         this.card = card;
     }
-
-    public void addCannonStrength(PlayerData player, float strength) {
+    
+    public void useCannon(PlayerData player, float strength) {
         float oldCannonStrength = cannonStrength.get(player);
         cannonStrength.replace(player, oldCannonStrength + strength);
     }
 
-    public void exchangeGoods(PlayerData player, ArrayList<Good> goodsToGet, ArrayList<Good> goodsToLeave, int row, int column) throws IllegalStateException {
-        if (cannonStrength.get(player) <= card.getCannonStrengthRequired()) {
-            throw new IllegalStateException("Not enough cannon strength to beat the smugglers");
-        }
-        // Get the goods available in the smuggler ship and check if the smuggler has the goods that the player wants to get
-        List<Good> goodsAvailable = card.getGoodsReward();
-        for (Good good : goodsToGet) {
-            if (!goodsAvailable.contains(good)) {
-                //TODO: consider throwing a custom exception
-                throw new IllegalStateException("The station does not have the good");
-            }
-        }
-
-        // Get the storage component of the player's spaceship and exchange the goods
-        SpaceShip ship = player.getSpaceShip();
-        Storage storage = (Storage) ship.getComponent(row, column);
-        storage.exchangeGood(goodsToGet, goodsToLeave);
+    public void exchangeGoods(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) throws IllegalStateException {
+        this.exchangeData = exchangeData;
     }
 
     @Override
@@ -61,8 +49,14 @@ public class SmugglersState extends State {
             if (p.getValue0().equals(player)) {
                 if (p.getValue1() == PlayerStatus.PLAYING) {
                     p.setAt1(PlayerStatus.PLAYED);
+
+                    // Check if the player has enough cannon strength to beat the card
                     if (cannonStrength.get(player) > card.getCannonStrengthRequired()) {
                         super.played = true;
+                    } else {
+                        // If the player doesn't have enough cannon strength we can't exchange goods
+                        this.exchangeData = null;
+                        // TODO: handle how to deal with the penalty
                     }
                 } else {
                     p.setAt1(PlayerStatus.WAITING);

@@ -4,7 +4,7 @@ import Model.Cards.CombatZone;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.Handler.FightHandler;
-import Model.State.Interface.Fightable;
+import Model.State.interfaces.Fightable;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
