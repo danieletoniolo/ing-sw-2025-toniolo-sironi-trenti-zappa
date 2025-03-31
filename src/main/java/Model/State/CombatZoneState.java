@@ -4,10 +4,7 @@ import Model.Cards.CombatZone;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.handler.FightHandler;
-import Model.State.interfaces.Fightable;
-import Model.State.interfaces.RemovableCrew;
-import Model.State.interfaces.UsableCannon;
-import Model.State.interfaces.UsableEngine;
+import Model.State.interfaces.*;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -38,12 +35,13 @@ enum CombatZoneInternalState {
 }
 
 
-public class CombatZoneState extends State implements Fightable, RemovableCrew, UsableCannon, UsableEngine {
+public class CombatZoneState extends State implements Fightable, ChoosableFragment, RemovableCrew, UsableCannon, UsableEngine {
     private CombatZoneInternalState subState;
     private final CombatZone card;
     private final ArrayList<Map<PlayerData, Float>> stats;
     private PlayerData minPlayerEngines;
     private PlayerData minPlayerCannons;
+    private PlayerData minPlayerCrew;
     private ArrayList<Pair<Integer, Integer>> crewLoss;
     private final FightHandler fightHandler;
 
@@ -58,16 +56,21 @@ public class CombatZoneState extends State implements Fightable, RemovableCrew, 
         this.stats = new ArrayList<>(3);
         this.subState = CombatZoneInternalState.CREW;
         this.minPlayerCannons = null;
+        this.minPlayerEngines = null;
+        this.minPlayerCrew = null;
         this.crewLoss = null;
         this.fightHandler = new FightHandler();
     }
 
     /**
      * Transition to the next state
-     * @param statsType type of the next state
      */
-    private void transition(CombatZoneInternalState statsType) {
-        this.subState = statsType;
+    private void transition() {
+        this.subState = switch (subState) {
+            case CREW -> card.getCardLevel() == 2 ? CombatZoneInternalState.CANNONS : CombatZoneInternalState.ENGINES;
+            case ENGINES -> card.getCardLevel() == 2 ? CombatZoneInternalState.CREW : CombatZoneInternalState.CANNONS;
+            case CANNONS -> card.getCardLevel() == 2 ? CombatZoneInternalState.ENGINES : CombatZoneInternalState.CREW;
+        };
     }
 
     /**
@@ -136,22 +139,16 @@ public class CombatZoneState extends State implements Fightable, RemovableCrew, 
     /**
      * Execute the subState crew
      */
-    private void executeSubStateCrew() {
+    private void executeSubStateFlightDays(PlayerData player) {
         int flightDays = card.getFlightDays();
-        int statsIndex = CombatZoneInternalState.CREW.getIndex(card.getCardLevel());
-
-        stats.get(statsIndex).entrySet().stream().min(this::comparePlayers).ifPresent(entry ->
-                entry.getKey().addSteps(-flightDays)
-        );
-
-        transition(CombatZoneInternalState.ENGINES);
+        player.addSteps(-flightDays);
     }
 
     /**
      * Execute the subState engines
      * @param player player to execute
      */
-    private void executeSubStateEngines(PlayerData player) throws IllegalArgumentException {
+    private void executeSubStateRemoveCrew(PlayerData player) throws IllegalArgumentException {
         int crewLost = card.getLost();
 
         SpaceShip spaceShip = minPlayerEngines.getSpaceShip();
@@ -163,8 +160,16 @@ public class CombatZoneState extends State implements Fightable, RemovableCrew, 
             }
         }
 
-        transition(CombatZoneInternalState.CANNONS);
         fightHandler.initialize(0);
+    }
+
+    private void executeSubStateHits(PlayerData player) throws IndexOutOfBoundsException {
+        int currentHitIndex = fightHandler.getHitIndex();
+        if (currentHitIndex >= card.getFires().size()) {
+            throw new IndexOutOfBoundsException("Hit index out of bounds");
+        }
+
+        fightHandler.executeFight(minPlayerCannons.getSpaceShip(), () -> card.getFires().get(currentHitIndex));
     }
 
     /**
@@ -260,6 +265,9 @@ public class CombatZoneState extends State implements Fightable, RemovableCrew, 
         for (Pair<PlayerData, PlayerStatus> player : super.players) {
             value0 = player.getValue0();
             this.addDefaultStats(CombatZoneInternalState.CREW, value0, (float) value0.getSpaceShip().getCrewNumber());
+            if (minPlayerCrew == null || minPlayerCrew.getSpaceShip().getCrewNumber() > value0.getSpaceShip().getCrewNumber()) {
+                minPlayerCrew = value0;
+            }
 
             this.addDefaultStats(CombatZoneInternalState.ENGINES, value0, (float) value0.getSpaceShip().getSingleEnginesStrength());
             if (value0.getSpaceShip().hasBrownAlien()) {
@@ -279,32 +287,42 @@ public class CombatZoneState extends State implements Fightable, RemovableCrew, 
      */
     @Override
     public void execute(PlayerData player) {
-        // TODO: sistemo subState
         switch (subState) {
             case CombatZoneInternalState.CREW:
-                executeSubStateCrew();
+                if (card.getCardLevel() == 2) {
+                    executeSubStateHits(minPlayerCrew);
+                } else {
+                    executeSubStateFlightDays(minPlayerCrew);
+                    transition();
+                }
                 break;
             case CombatZoneInternalState.ENGINES:
                 if (minPlayerEngines == null) {
                     throw new IllegalStateException("Not all player have set their engines");
                 }
-                if (crewLoss == null) {
-                    throw new IllegalStateException("The min player have not set their crew loss");
-                }
 
-                executeSubStateEngines(minPlayerEngines);
+                if (card.getCardLevel() == 2) {
+                    // TODO: execute goods
+                } else {
+                    if (crewLoss == null) {
+                        throw new IllegalStateException("The min player have not set their crew loss");
+                    }
+                    executeSubStateRemoveCrew(minPlayerEngines);
+                }
+                transition();
                 break;
             case CombatZoneInternalState.CANNONS:
                 if (minPlayerCannons == null) {
                     throw new IllegalStateException("Not all player have set their cannons");
                 }
-                int currentHitIndex = fightHandler.getHitIndex();
-                if (currentHitIndex >= card.getFires().size()) {
-                    throw new IndexOutOfBoundsException("Hit index out of bounds");
-                }
 
-                fightHandler.executeFight(minPlayerCannons.getSpaceShip(), () -> card.getFires().get(currentHitIndex));
+                if (card.getCardLevel() == 2) {
+                    executeSubStateFlightDays(minPlayerCannons);
+                    transition();
+                } else {
+                    executeSubStateHits(minPlayerCannons);
+                }
                 break;
+            }
         }
     }
-}

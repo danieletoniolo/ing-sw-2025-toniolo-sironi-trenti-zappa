@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-enum openStateInternalState {
+enum OpenStateInternalState {
     SET_ENGINES,
     EXECUTE
 }
 
 public class OpenSpaceState extends State implements UsableEngine {
     private Map<PlayerData, Float> stats;
-    private openStateInternalState internalState;
+    private OpenStateInternalState internalState;
 
     /**
      * Constructor
@@ -27,7 +27,7 @@ public class OpenSpaceState extends State implements UsableEngine {
     public OpenSpaceState(ArrayList<PlayerData> players, OpenSpace card) {
         super(players);
         this.stats = new HashMap<>();
-        this.internalState = openStateInternalState.SET_ENGINES;
+        this.internalState = OpenStateInternalState.SET_ENGINES;
     }
 
     /**
@@ -40,7 +40,7 @@ public class OpenSpaceState extends State implements UsableEngine {
             throw new IllegalArgumentException("Required strength > max strength player");
         }
         this.stats.merge(player, strength, Float::sum);
-        internalState = openStateInternalState.EXECUTE;
+        internalState = OpenStateInternalState.EXECUTE;
     }
 
     /**
@@ -65,7 +65,7 @@ public class OpenSpaceState extends State implements UsableEngine {
      */
     @Override
     public void execute(PlayerData player) throws IllegalStateException {
-        if (internalState == openStateInternalState.SET_ENGINES){
+        if (internalState == OpenStateInternalState.SET_ENGINES){
             throw new IllegalStateException("Player has not set the engines");
         }
         if (stats.get(player) == 0) {
@@ -75,6 +75,6 @@ public class OpenSpaceState extends State implements UsableEngine {
             player.addSteps( stats.get(player).intValue() );
         }
         super.execute(player);
-        this.internalState = openStateInternalState.SET_ENGINES;
+        this.internalState = OpenStateInternalState.SET_ENGINES;
     }
 }

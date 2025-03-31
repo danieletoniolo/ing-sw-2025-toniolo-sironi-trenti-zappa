@@ -3,12 +3,13 @@ package Model.State;
 import Model.Cards.MeteorSwarm;
 import Model.Player.PlayerData;
 import Model.State.handler.FightHandler;
+import Model.State.interfaces.ChoosableFragment;
 import Model.State.interfaces.Fightable;
 import org.javatuples.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MeteorSwarmState extends State implements Fightable {
+public class MeteorSwarmState extends State implements Fightable, ChoosableFragment {
     private final MeteorSwarm card;
     private final FightHandler fightHandler;
 

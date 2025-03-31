@@ -12,13 +12,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-enum slaversInternalState {
+enum SlaversInternalState {
     SET_CANNONS,
     PENALTY
 }
 
 public class SlaversState extends State implements AcceptableCredits, UsableCannon, RemovableCrew {
-    private slaversInternalState internalState;
+    private SlaversInternalState internalState;
     private final Slavers card;
     private final Map<PlayerData, Float> stats;
     private ArrayList<Pair<Integer, Integer>> crewLoss;
@@ -32,7 +32,7 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
      */
     public SlaversState(ArrayList<PlayerData> players, Slavers card) {
         super(players);
-        this.internalState = slaversInternalState.SET_CANNONS;
+        this.internalState = SlaversInternalState.SET_CANNONS;
         this.card = card;
         this.stats = new HashMap<>();
         this.crewLoss = null;
@@ -47,7 +47,7 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
      * @throws IllegalStateException if execForPlayer != 0
      */
     public void useCannon(PlayerData player, Float value) throws IllegalStateException {
-        if (internalState != slaversInternalState.SET_CANNONS) {
+        if (internalState != SlaversInternalState.SET_CANNONS) {
             throw new IllegalStateException("Use cannon not allowed in this state");
         }
         stats.merge(player, value, Float::sum);
@@ -62,7 +62,7 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
             slaversDefeat = null;
         }
 
-        internalState = slaversInternalState.PENALTY;
+        internalState = SlaversInternalState.PENALTY;
     }
 
     /**
@@ -71,7 +71,7 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
      * @throws IllegalStateException if state is not PENALTY
      */
     public void setCrewLoss(ArrayList<Pair<Integer, Integer>> cabinsID) throws IllegalStateException {
-        if (internalState != slaversInternalState.PENALTY) {
+        if (internalState != SlaversInternalState.PENALTY) {
             throw new IllegalStateException("setCabinsID not allowed in this state");
         }
 
@@ -92,7 +92,7 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
      * @throws IllegalStateException if execForPlayer != 1
      */
     public void setAcceptCredits(boolean acceptCredits) throws IllegalStateException {
-        if (internalState != slaversInternalState.PENALTY) {
+        if (internalState != SlaversInternalState.PENALTY) {
             throw new IllegalStateException("setAcceptCredits not allowed in this state");
         }
         this.acceptCredits = acceptCredits;
@@ -153,7 +153,7 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
                         player.setGaveUp(true);
                     }
                 }
-                internalState = slaversInternalState.SET_CANNONS;
+                internalState = SlaversInternalState.SET_CANNONS;
                 break;
         }
 

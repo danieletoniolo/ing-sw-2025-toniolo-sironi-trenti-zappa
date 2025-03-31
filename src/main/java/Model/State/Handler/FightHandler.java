@@ -8,7 +8,7 @@ import org.javatuples.Pair;
 import java.util.List;
 import java.util.function.Supplier;
 
-enum fightHandlerInternalState {
+enum FightHandlerInternalState {
     CAN_PROTECT,
     PROTECTION,
     DESTROY_FRAGMENT
@@ -22,7 +22,7 @@ public class FightHandler {
     private List<List<Pair<Integer, Integer>>> fragments;
     private Pair<Component, Integer> protectionResult;
     private int hitIndex;
-    private fightHandlerInternalState internalState;
+    private FightHandlerInternalState internalState;
 
     /**
      * Constructor
@@ -33,7 +33,7 @@ public class FightHandler {
         this.batteryID = null;
         this.fragmentChoice = null;
         this.hitIndex = 0;
-        this.internalState = fightHandlerInternalState.CAN_PROTECT;
+        this.internalState = FightHandlerInternalState.CAN_PROTECT;
     }
 
     /**
@@ -42,7 +42,7 @@ public class FightHandler {
      */
     public void initialize(int startIndex) {
         this.hitIndex = startIndex;
-        this.internalState = fightHandlerInternalState.CAN_PROTECT;
+        this.internalState = FightHandlerInternalState.CAN_PROTECT;
         this.dice = null;
         this.protect = null;
         this.batteryID = null;
@@ -54,7 +54,7 @@ public class FightHandler {
      */
     public void transitionHit() {
         hitIndex++;
-        internalState = fightHandlerInternalState.CAN_PROTECT;
+        internalState = FightHandlerInternalState.CAN_PROTECT;
         dice = null;
         protect = null;
         batteryID = null;
@@ -67,7 +67,7 @@ public class FightHandler {
      * @throws IllegalStateException if not in the right state in order to do the action
      */
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
-        if (internalState != fightHandlerInternalState.DESTROY_FRAGMENT) {
+        if (internalState != FightHandlerInternalState.DESTROY_FRAGMENT) {
             throw new IllegalStateException("Fragment choice not allowed in this state");
         }
         this.fragmentChoice = fragmentChoice;
@@ -81,7 +81,7 @@ public class FightHandler {
      * @throws IllegalArgumentException if batteryID_ is null and protect_ is true
      */
     public void setProtect(boolean protect_, Integer batteryID_) throws IllegalStateException, IllegalArgumentException {
-        if (internalState != fightHandlerInternalState.PROTECTION) {
+        if (internalState != FightHandlerInternalState.PROTECTION) {
             throw new IllegalStateException("Battery ID not allowed in this state");
         }
         this.protect = protect_;
@@ -97,7 +97,7 @@ public class FightHandler {
      * @throws IllegalStateException if not in the right state to set dice
      */
     public void setDice(int dice) throws IllegalStateException {
-        if (internalState != fightHandlerInternalState.CAN_PROTECT) {
+        if (internalState != FightHandlerInternalState.CAN_PROTECT) {
             throw new IllegalStateException("Dice not allowed in this state");
         }
         this.dice = dice;
@@ -135,7 +135,7 @@ public class FightHandler {
                 spaceShip.destroyComponent(component.getRow(), component.getColumn());
                 fragments = spaceShip.getDisconnectedComponents();
                 if (fragments.size() > 1) {
-                    internalState = fightHandlerInternalState.DESTROY_FRAGMENT;
+                    internalState = FightHandlerInternalState.DESTROY_FRAGMENT;
                 } else {
                     transitionHit();
                 }
@@ -160,7 +160,7 @@ public class FightHandler {
                 }
                 Hit hit = hitSupplier.get();
                 protectionResult = spaceShip.canProtect(dice, hit);
-                internalState = fightHandlerInternalState.PROTECTION;
+                internalState = FightHandlerInternalState.PROTECTION;
                 break;
             case PROTECTION:
                 if (protect == null) {

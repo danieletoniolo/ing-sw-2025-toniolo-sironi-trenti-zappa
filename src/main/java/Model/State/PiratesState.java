@@ -5,6 +5,7 @@ import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.handler.FightHandler;
 import Model.State.interfaces.AcceptableCredits;
+import Model.State.interfaces.ChoosableFragment;
 import Model.State.interfaces.Fightable;
 import Model.State.interfaces.UsableCannon;
 import org.javatuples.Pair;
@@ -13,16 +14,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-enum piratesInternalState {
+enum PiratesInternalState {
     DEFAULT,
     MIDDLE,
     PENALTY
 }
 
-public class PiratesState extends State implements Fightable, AcceptableCredits, UsableCannon {
+public class PiratesState extends State implements Fightable, ChoosableFragment, AcceptableCredits, UsableCannon {
     private final Pirates card;
     private final Map<PlayerData, Float> stats;
-    private piratesInternalState internalState;
+    private PiratesInternalState internalState;
     Boolean piratesDefeat;
     Boolean acceptCredits;
     ArrayList<PlayerData> playersDefeated;
@@ -39,7 +40,7 @@ public class PiratesState extends State implements Fightable, AcceptableCredits,
         this.stats = new HashMap<>();
         this.piratesDefeat = false;
         this.acceptCredits = false;
-        this.internalState = piratesInternalState.DEFAULT;
+        this.internalState = PiratesInternalState.DEFAULT;
         this.playersDefeated = new ArrayList<>();
     }
 
@@ -49,7 +50,7 @@ public class PiratesState extends State implements Fightable, AcceptableCredits,
      * @throws IllegalStateException if not in the correct state
      */
     public void setAcceptCredits(boolean acceptCredits) throws IllegalStateException {
-        if (internalState != piratesInternalState.MIDDLE) {
+        if (internalState != PiratesInternalState.MIDDLE) {
             throw new IllegalStateException("setAcceptCredits not allowed in this state");
         }
         this.acceptCredits = acceptCredits;
@@ -61,7 +62,7 @@ public class PiratesState extends State implements Fightable, AcceptableCredits,
      * @throws IllegalStateException if not in the correct state
      */
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
-        if (internalState != piratesInternalState.PENALTY) {
+        if (internalState != PiratesInternalState.PENALTY) {
             throw new IllegalStateException("Fragment choice not allowed in this state");
         }
         fightHandler.setFragmentChoice(fragmentChoice);
@@ -75,7 +76,7 @@ public class PiratesState extends State implements Fightable, AcceptableCredits,
      * @throws IllegalArgumentException if batteryID_ is null and protect_ is true
      */
     public void setProtect(boolean protect_, Integer batteryID_) throws IllegalStateException, IllegalArgumentException {
-        if (internalState != piratesInternalState.PENALTY) {
+        if (internalState != PiratesInternalState.PENALTY) {
             throw new IllegalStateException("setProtect not allowed in this state");
         }
         fightHandler.setProtect(protect_, batteryID_);
@@ -86,7 +87,7 @@ public class PiratesState extends State implements Fightable, AcceptableCredits,
      * @param dice dice value
      */
     public void setDice(int dice) throws IllegalStateException {
-        if (internalState != piratesInternalState.PENALTY) {
+        if (internalState != PiratesInternalState.PENALTY) {
             throw new IllegalStateException("setDice not allowed in this state");
         }
         fightHandler.setDice(dice);
@@ -134,7 +135,7 @@ public class PiratesState extends State implements Fightable, AcceptableCredits,
                 } else {
                     piratesDefeat = null;
                 }
-                internalState = piratesInternalState.MIDDLE;
+                internalState = PiratesInternalState.MIDDLE;
                 break;
             case MIDDLE:
                 if (piratesDefeat == null) {
@@ -165,14 +166,14 @@ public class PiratesState extends State implements Fightable, AcceptableCredits,
                 break;
         }
 
-        if (piratesDefeat != null && piratesDefeat && internalState == piratesInternalState.MIDDLE) {
+        if (piratesDefeat != null && piratesDefeat && internalState == PiratesInternalState.MIDDLE) {
             super.setStatusPlayers(PlayerStatus.PLAYED);
         } else {
             super.execute(player);
         }
 
         if (super.haveAllPlayersPlayed()) {
-            internalState = piratesInternalState.PENALTY;
+            internalState = PiratesInternalState.PENALTY;
             super.setStatusPlayers(PlayerStatus.WAITING);
         }
     }
