@@ -81,9 +81,13 @@ public class CardsManager {
         }
 
         decks[0] = new Deck(deck1);
+        decks[0].setPickable(true);
         decks[1] = new Deck(deck2);
+        decks[1].setPickable(true);
         decks[2] = new Deck(deck3);
+        decks[2].setPickable(true);
         decks[3] = new Deck(deck4);
+        decks[3].setPickable(false);
 
         return decks;
     }
