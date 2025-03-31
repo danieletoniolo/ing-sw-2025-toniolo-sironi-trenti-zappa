@@ -23,14 +23,14 @@ public class Board {
     private final Deck[] decks;
     private final Stack<Card> shuffledDeck;
 
-    private Component[] tiles;
+    private final Component[] tiles;
 
-    private PlayerData blue;
-    private PlayerData red;
-    private PlayerData green;
-    private PlayerData yellow;
+    private final PlayerData blue;
+    private final PlayerData red;
+    private final PlayerData green;
+    private final PlayerData yellow;
 
-    // TODO:  da sistemare
+    // TODO: da sistemare
 
     /**
      * Create a new board
@@ -60,7 +60,6 @@ public class Board {
                 this.decks = CardsManager.createDecks(level);
                 this.shuffledDeck = CardsManager.createShuffledDeck(this.decks);
                 this.stepsForALap = 24;
-
                 break;
             default:
                 throw new IllegalArgumentException("Unexpected value: " + level);
@@ -88,7 +87,6 @@ public class Board {
     public int getStepsForALap() {
         return stepsForALap;
     }
-
 
     /**
      * Retrieves the level of the board.
@@ -126,6 +124,7 @@ public class Board {
         if (!this.decks[index].isPickable() || player.getSpaceShip().getNumberOfComponents() <= 1) {
             throw new IllegalStateException("Deck is not pickable");
         }
+
         return this.decks[index];
     }
 
@@ -156,6 +155,10 @@ public class Board {
         return shuffledDeck.pop();
     }
 
+    /**
+     * Get the shuffled deck
+     * @return the shuffled deck
+     */
     public Stack<Card> getShuffledDeck() {
         return shuffledDeck;
     }
