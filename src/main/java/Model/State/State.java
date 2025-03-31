@@ -151,6 +151,7 @@ public abstract class State {
                 throw new IllegalStateException("Not all players have played");
             }
         }
+        this.played = true;
     }
 
 }

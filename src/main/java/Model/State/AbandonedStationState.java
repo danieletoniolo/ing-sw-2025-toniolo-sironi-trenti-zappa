@@ -31,7 +31,7 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
         cannonStrength.replace(uuid, oldCannonStrength + strength);
     }
 
-    public void exchangeGoods(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) {
+    public void setGoodsToExchange(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) {
         this.exchangeData = exchangeData;
     }
 
@@ -56,17 +56,8 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
 
                     // Execute the exchange
                     for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
-                        ArrayList<Good> goodsToGet = triplet.getValue0();
-                        ArrayList<Good> goodsToLeave = triplet.getValue1();
-                        int storageId = triplet.getValue2();
-
-                        Storage storage = player.getSpaceShip().getStorage(storageId);
-                        for (Good good : goodsToGet) {
-                            storage.addGood(good);
-                        }
-                        for (Good good : goodsToLeave) {
-                            storage.removeGood(good);
-                        }
+                        SpaceShip ship = p.getValue0().getSpaceShip();
+                        ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
                     }
 
                     super.played = true;
