@@ -1,7 +1,9 @@
 package Model.State.interfaces;
 
-import java.util.Map;
+import org.javatuples.Pair;
+
+import java.util.ArrayList;
 
 public interface RemovableCrew {
-    public void setCrewLoss(Map<Integer, Integer> cabinsID) throws IllegalStateException;
+    public void setCrewLoss(ArrayList<Pair<Integer, Integer>> cabinsID) throws IllegalStateException;
 }

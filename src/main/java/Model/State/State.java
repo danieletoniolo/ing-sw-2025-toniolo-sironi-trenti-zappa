@@ -2,9 +2,15 @@ package Model.State;
 
 import Model.Player.PlayerData;
 import org.javatuples.Pair;
-import Model.State.PlayerStatus;
 
 import java.util.ArrayList;
+
+enum PlayerStatus {
+    WAITING,
+    PLAYING,
+    PLAYED,
+    SKIPPED
+}
 
 public abstract class State {
     protected ArrayList<Pair<PlayerData, PlayerStatus>> players;

@@ -44,7 +44,7 @@ public class CombatZoneState extends State implements Fightable, RemovableCrew, 
     private final ArrayList<Map<PlayerData, Float>> stats;
     private PlayerData minPlayerEngines;
     private PlayerData minPlayerCannons;
-    private Map<Integer, Integer> crewLoss;
+    private ArrayList<Pair<Integer, Integer>> crewLoss;
     private final FightHandler fightHandler;
 
     /**
@@ -158,8 +158,8 @@ public class CombatZoneState extends State implements Fightable, RemovableCrew, 
         if (spaceShip.getCrewNumber() <= crewLost) {
             player.setGaveUp(true);
         } else {
-            for (Map.Entry<Integer, Integer> cabinID : crewLoss.entrySet()) {
-                spaceShip.removeCrewMember(cabinID.getKey(), cabinID.getValue());
+            for (Pair<Integer, Integer> cabin : crewLoss) {
+                spaceShip.removeCrewMember(cabin.getValue0(), cabin.getValue1());
             }
         }
 
@@ -209,14 +209,14 @@ public class CombatZoneState extends State implements Fightable, RemovableCrew, 
      * @param cabinsID Map of cabins ID and number of crew removed for cabins
      * @throws IllegalStateException if not in the right state in order to do the action
      */
-    public void setCrewLoss(Map<Integer, Integer> cabinsID) throws IllegalStateException {
+    public void setCrewLoss(ArrayList<Pair<Integer, Integer>> cabinsID) throws IllegalStateException {
         if (subState != CombatZoneInternalState.ENGINES) {
             throw new IllegalStateException("setCabinsID not allowed in this state");
         }
 
         int crewRemoved = 0;
-        for (Map.Entry<Integer, Integer> cabinID : cabinsID.entrySet()) {
-            crewRemoved += cabinID.getValue();
+        for (Pair<Integer, Integer> cabin : cabinsID) {
+            crewRemoved += cabin.getValue1();
         }
 
         if (crewRemoved != card.getLost()) {

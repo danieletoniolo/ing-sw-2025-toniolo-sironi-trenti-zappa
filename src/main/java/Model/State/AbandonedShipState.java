@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class AbandonedShipState extends State implements RemovableCrew {
     private final AbandonedShip card;
-    private Map<Integer, Integer> crewLoss;
+    private ArrayList<Pair<Integer, Integer>> crewLoss;
 
     /**
      * Constructor
@@ -29,10 +29,10 @@ public class AbandonedShipState extends State implements RemovableCrew {
      * @param cabinsID Map of cabins ID and number of crew removed for cabins
      * @throws IllegalStateException if not in the right state in order to do the action
      */
-    public void setCrewLoss(Map<Integer, Integer> cabinsID) throws IllegalStateException {
+    public void setCrewLoss(ArrayList<Pair<Integer, Integer>> cabinsID) throws IllegalStateException {
         int crewRemoved = 0;
-        for (Map.Entry<Integer, Integer> cabinID : cabinsID.entrySet()) {
-            crewRemoved += cabinID.getValue();
+        for (Pair<Integer, Integer> cabin : cabinsID) {
+            crewRemoved += cabin.getValue1();
         }
 
         if (crewRemoved != card.getCrewRequired()) {
@@ -67,8 +67,8 @@ public class AbandonedShipState extends State implements RemovableCrew {
             if (p.getValue0().equals(player)) {
                 if (p.getValue1().equals(PlayerStatus.PLAYING)) {
                     played = true;
-                    crewLoss.forEach((ID, loss) -> {
-                        player.getSpaceShip().getCabin(ID).removeCrewMember(loss);
+                    crewLoss.forEach(cabin -> {
+                        player.getSpaceShip().getCabin(cabin.getValue0()).removeCrewMember(cabin.getValue1());
                     });
                     player.addCoins(card.getCredit());
                     player.addSteps(-card.getFlightDays());

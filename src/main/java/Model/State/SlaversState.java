@@ -21,7 +21,7 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
     private slaversInternalState internalState;
     private final Slavers card;
     private final Map<PlayerData, Float> stats;
-    private Map<Integer, Integer> crewLoss;
+    private ArrayList<Pair<Integer, Integer>> crewLoss;
     private Boolean slaversDefeat;
     private Boolean acceptCredits;
 
@@ -70,14 +70,14 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
      * @param cabinsID Map of cabins ID and number of crew removed for cabins
      * @throws IllegalStateException if state is not PENALTY
      */
-    public void setCrewLoss(Map<Integer, Integer> cabinsID) throws IllegalStateException {
+    public void setCrewLoss(ArrayList<Pair<Integer, Integer>> cabinsID) throws IllegalStateException {
         if (internalState != slaversInternalState.PENALTY) {
             throw new IllegalStateException("setCabinsID not allowed in this state");
         }
 
         int crewRemoved = 0;
-        for (Map.Entry<Integer, Integer> cabinID : cabinsID.entrySet()) {
-            crewRemoved += cabinID.getValue();
+        for (Pair<Integer, Integer> cabin : cabinsID) {
+            crewRemoved += cabin.getValue1();
         }
 
         if (crewRemoved != card.getCrewLost()) {
@@ -146,8 +146,8 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
                     if (crewLoss == null) {
                         throw new IllegalStateException("crewLost not set");
                     }
-                    for (Map.Entry<Integer, Integer> entry : crewLoss.entrySet()) {
-                        spaceShip.getCabin(entry.getKey()).removeCrewMember(entry.getValue());
+                    for (Pair<Integer, Integer> cabin : crewLoss) {
+                        spaceShip.getCabin(cabin.getValue0()).removeCrewMember(cabin.getValue1());
                     }
                     if (spaceShip.getCrewNumber() <= card.getCrewLost()) {
                         player.setGaveUp(true);
