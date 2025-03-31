@@ -40,7 +40,7 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
     /**
      * @throws IllegalStateException if we are in the penalty state
      */
-    public void useCannon(PlayerData player, float strength) throws IllegalStateException {
+    public void useCannon(PlayerData player, Float strength) throws IllegalStateException {
         if (smugglerInternalState == Model.State.smugglerInternalState.PENALTY) {
             throw new IllegalStateException("There is a penalty to serve.");
         }

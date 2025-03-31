@@ -1,4 +1,4 @@
-package Model.State.Handler;
+package Model.State.handler;
 
 import Model.Cards.Hits.Hit;
 import Model.SpaceShip.Component;
@@ -8,6 +8,12 @@ import org.javatuples.Pair;
 import java.util.List;
 import java.util.function.Supplier;
 
+enum fightHandlerInternalState {
+    CAN_PROTECT,
+    PROTECTION,
+    DESTROY_FRAGMENT
+}
+
 public class FightHandler {
     private Integer dice;
     private Boolean protect;
@@ -16,7 +22,7 @@ public class FightHandler {
     private List<List<Pair<Integer, Integer>>> fragments;
     private Pair<Component, Integer> protectionResult;
     private int hitIndex;
-    private int fightState;
+    private fightHandlerInternalState internalState;
 
     /**
      * Constructor
@@ -27,7 +33,7 @@ public class FightHandler {
         this.batteryID = null;
         this.fragmentChoice = null;
         this.hitIndex = 0;
-        this.fightState = 0;
+        this.internalState = fightHandlerInternalState.CAN_PROTECT;
     }
 
     /**
@@ -36,7 +42,7 @@ public class FightHandler {
      */
     public void initialize(int startIndex) {
         this.hitIndex = startIndex;
-        this.fightState = 0;
+        this.internalState = fightHandlerInternalState.CAN_PROTECT;
         this.dice = null;
         this.protect = null;
         this.batteryID = null;
@@ -48,7 +54,7 @@ public class FightHandler {
      */
     public void transitionHit() {
         hitIndex++;
-        fightState = 0;
+        internalState = fightHandlerInternalState.CAN_PROTECT;
         dice = null;
         protect = null;
         batteryID = null;
@@ -61,7 +67,7 @@ public class FightHandler {
      * @throws IllegalStateException if not in the right state in order to do the action
      */
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
-        if (fightState != 2) {
+        if (internalState != fightHandlerInternalState.DESTROY_FRAGMENT) {
             throw new IllegalStateException("Fragment choice not allowed in this state");
         }
         this.fragmentChoice = fragmentChoice;
@@ -75,7 +81,7 @@ public class FightHandler {
      * @throws IllegalArgumentException if batteryID_ is null and protect_ is true
      */
     public void setProtect(boolean protect_, Integer batteryID_) throws IllegalStateException, IllegalArgumentException {
-        if (fightState != 1) {
+        if (internalState != fightHandlerInternalState.PROTECTION) {
             throw new IllegalStateException("Battery ID not allowed in this state");
         }
         this.protect = protect_;
@@ -91,18 +97,10 @@ public class FightHandler {
      * @throws IllegalStateException if not in the right state to set dice
      */
     public void setDice(int dice) throws IllegalStateException {
-        if (fightState != 0) {
+        if (internalState != fightHandlerInternalState.CAN_PROTECT) {
             throw new IllegalStateException("Dice not allowed in this state");
         }
         this.dice = dice;
-    }
-
-    /**
-     * Get the current state of the fight
-     * @return current fight state
-     */
-    public int getFightState() {
-        return fightState;
     }
 
     /**
@@ -137,7 +135,7 @@ public class FightHandler {
                 spaceShip.destroyComponent(component.getRow(), component.getColumn());
                 fragments = spaceShip.getDisconnectedComponents();
                 if (fragments.size() > 1) {
-                    fightState++;
+                    internalState = fightHandlerInternalState.DESTROY_FRAGMENT;
                 } else {
                     transitionHit();
                 }
@@ -155,22 +153,22 @@ public class FightHandler {
      * @throws IllegalStateException If required state variables are not set
      */
     public void executeFight(SpaceShip spaceShip, Supplier<Hit> hitSupplier) throws IndexOutOfBoundsException, IllegalStateException {
-        switch (fightState) {
-            case 0:
+        switch (internalState) {
+            case CAN_PROTECT:
                 if (dice == null) {
                     throw new IllegalStateException("Dice not set");
                 }
                 Hit hit = hitSupplier.get();
                 protectionResult = spaceShip.canProtect(dice, hit);
-                fightState++;
+                internalState = fightHandlerInternalState.PROTECTION;
                 break;
-            case 1:
+            case PROTECTION:
                 if (protect == null) {
                     throw new IllegalStateException("Protect not set");
                 }
                 executeProtection(spaceShip);
                 break;
-            case 2:
+            case DESTROY_FRAGMENT:
                 if (fragmentChoice == null) {
                     throw new IllegalStateException("FragmentChoice not set");
                 }
