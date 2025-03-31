@@ -5,6 +5,7 @@ import java.util.*;
 import Model.Cards.Hits.Direction;
 import Model.Cards.Hits.Hit;
 import Model.Game.Board.Level;
+import Model.Good.Good;
 import org.javatuples.Pair;
 
 public class SpaceShip {
@@ -24,6 +25,7 @@ public class SpaceShip {
     private Map<Integer, Battery> batteries;
     private Map<Integer, Cabin> cabins;
     private Map<Integer, Cannon> cannons;
+    private PriorityQueue<Good> goods;
 
     private int singleEnginesStrength;
     private int doubleEnginesStrength;
@@ -71,6 +73,7 @@ public class SpaceShip {
         batteries = new HashMap<>();
         cabins = new HashMap<>();
         cannons = new HashMap<>();
+        goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
 
         // TODO: The center cabin should be 6 6 and not 7 7 (because of the 0 index)
         components = new Component[rows][cols];
@@ -257,23 +260,6 @@ public class SpaceShip {
     }
 
     /**
-     * Get the value of the goods of the ship by searching in the components matrix
-     */
-    public void refreshGoodsValue() {
-        goodsValue = 0;
-        for (Component[] c1 : components) {
-            for (Component c2 : c1) {
-                if (c2 != null) {
-                    if (c2.getComponentType() == ComponentType.STORAGE) {
-                        Storage storage = (Storage) c2;
-                        goodsValue += storage.getGoodsValue();
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Get the number of crew members of the ship
      * @return the number of crew members of the ship
      */
@@ -323,6 +309,48 @@ public class SpaceShip {
      */
     public List<Component> getLostComponents() {
         return lostComponents;
+    }
+
+    /**
+     * Get the goods of the ship ordered by value
+     * @return PriorityQueue of goods of the ship (The max value is at the top)
+     */
+    public PriorityQueue<Good> getGoods() {
+        return goods;
+    }
+
+    /**
+     * Add goods to the ship and the storage
+     * @param goodsToAdd goods to add to the storage
+     * @param goodsToRemove goods to remove from the storage
+     * @param storageID storage ID where to exchange the goods
+     * @throws IllegalArgumentException if the storage with the given ID does not exist
+     * @throws IllegalStateException if the storage is full or if the goods to remove are not in the storage
+     * @apiNote The conditions that the goods to remove are in the storage and that we are not adding more than
+     * the maximum capacity of the storage are checked in the Storage class. We assume that the goods to add had been
+     * correctly checked before calling this method.
+     */
+    public void exchangeGood(ArrayList<Good> goodsToAdd, ArrayList<Good> goodsToRemove, int storageID) {
+        Storage storage = storages.get(storageID);
+        if (storage == null) {
+            throw new IllegalArgumentException("The storage with the given ID does not exist");
+        }
+        // Remove the goods to leave from the storage and update the ships stats
+        if (goodsToRemove != null) {
+            for (Good good : goodsToRemove) {
+                storage.removeGood(good);
+                goods.remove(good);
+                goodsValue -= good.getValue();
+            }
+        }
+        // Add the goods to get to the storage and update the ships stats
+        if (goodsToAdd != null) {
+            for (Good good : goodsToAdd) {
+                storage.addGood(good);
+                goods.add(good);
+                goodsValue += good.getValue();
+            }
+        }
     }
 
     /**
@@ -718,6 +746,9 @@ public class SpaceShip {
             case STORAGE:
                 Storage storage = (Storage) destroyedComponent;
                 storages.remove(storage.getID());
+                for (Good good : storage.getGoods()) {
+                    goods.remove(good);
+                }
                 goodsValue -= storage.getGoodsValue();
                 break;
             case BATTERY:

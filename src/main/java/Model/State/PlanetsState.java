@@ -3,6 +3,7 @@ package Model.State;
 import Model.Cards.Planets;
 import Model.Good.Good;
 import Model.Player.PlayerData;
+import Model.SpaceShip.SpaceShip;
 import Model.SpaceShip.Storage;
 import Model.State.interfaces.ExchangeableGoods;
 import Model.State.interfaces.SelectablePlanet;
@@ -41,7 +42,7 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
         }
     }
 
-    public void exchangeGoods(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) {
+    public void setGoodsToExchange(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) {
         this.exchangeData = exchangeData;
     }
 
@@ -63,17 +64,8 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
 
                     // Execute the exchange
                     for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
-                        ArrayList<Good> goodsToGet = triplet.getValue0();
-                        ArrayList<Good> goodsToLeave = triplet.getValue1();
-                        int storageId = triplet.getValue2();
-
-                        Storage storage = player.getSpaceShip().getStorage(storageId);
-                        for (Good good : goodsToGet) {
-                            storage.addGood(good);
-                        }
-                        for (Good good : goodsToLeave) {
-                            storage.removeGood(good);
-                        }
+                        SpaceShip ship = p.getValue0().getSpaceShip();
+                        ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
                     }
 
                 } else if (p.getValue1() == PlayerStatus.WAITING) {
