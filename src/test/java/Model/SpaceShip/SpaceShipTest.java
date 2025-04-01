@@ -4,8 +4,10 @@ import Model.Cards.Hits.Direction;
 import Model.Cards.Hits.Hit;
 import Model.Cards.Hits.HitType;
 import Model.Game.Board.Level;
+import Model.GenerateRandomShip;
 import Model.Good.Good;
 import Model.Good.GoodType;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
@@ -15,8 +17,6 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SpaceShipTest {
-    //TODO: Da capire se voglio creare una classe che mi randomizza / mi crea una ship con i vari componenti
-
     SpaceShip ship;
     boolean[][] spots;
     ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
@@ -35,7 +35,7 @@ class SpaceShipTest {
 
     @RepeatedTest(5)
     void getNumberOfComponents() {
-        assertEquals(0, ship.getNumberOfComponents());
+        assertEquals(1, ship.getNumberOfComponents());
 
         Random rand = new Random();
         int count = rand.nextInt(1, 4);
@@ -43,7 +43,7 @@ class SpaceShipTest {
             Storage storage = new Storage(i, connectors, true, 2);
             ship.placeComponent(storage, 6, 7 + i);
         }
-        assertEquals(count, ship.getNumberOfComponents());
+        assertEquals(count + 1, ship.getNumberOfComponents());
     }
 
     @RepeatedTest(5)
@@ -648,22 +648,195 @@ class SpaceShipTest {
         assertEquals(ris, ship.getExposedConnectors());
     }
 
+    //All the components are in direction 0
     @RepeatedTest(5)
-    void getComponent() {
+    void getComponent() throws JsonProcessingException {
         Random rand = new Random();
         ComponentType[] values = ComponentType.values();
         ComponentType randomType = values[rand.nextInt(values.length)];
-        System.out.println(randomType);
 
-        //TODO: CHIEDERE AI BOYS SE VOGLIAMO FARE UN TEST CHE FA CLASSI RANDOM, MA SERVE UNA INTERFACCIA (CHATGPT)
+        GenerateRandomShip randShip = new GenerateRandomShip();
+        ship = randShip.getShip();
+        boolean[][] valid = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                valid[i][j] = true;
+            }
+        }
+
+        Integer[] number = new Integer[12]; //Last one for total components
+        for(int i = 0; i < 12; i++){
+            number[i] = 0;
+        }
+
+        for(int i = 0; i < 12; i++){
+            for(int j = 0; j < 12; j++){
+                if(valid[i][j]){
+                    if(ship.getComponent(i,j) != null){
+                        switch (ship.getComponent(i , j).getComponentType()) {
+                            case CABIN:
+                                assertEquals(ComponentType.CABIN, ship.getComponent(i, j).getComponentType());
+                                number[0] += 1;
+                                break;
+                            case CENTER_CABIN:
+                                assertEquals(ComponentType.CENTER_CABIN, ship.getComponent(i, j).getComponentType());
+                                number[0] += 1;
+                                break;
+                            case STORAGE:
+                                assertEquals(ComponentType.STORAGE, ship.getComponent(i, j).getComponentType());
+                                number[1] += 1;
+                                break;
+                            case BATTERY:
+                                assertEquals(ComponentType.BATTERY, ship.getComponent(i, j).getComponentType());
+                                number[2] += 1;
+                                break;
+                            case SINGLE_ENGINE:
+                                assertEquals(ComponentType.SINGLE_ENGINE, ship.getComponent(i, j).getComponentType());
+                                number[3] += 1;
+                                break;
+                            case DOUBLE_ENGINE:
+                                assertEquals(ComponentType.DOUBLE_ENGINE, ship.getComponent(i, j).getComponentType());
+                                number[4] += 1;
+                                break;
+                            case SINGLE_CANNON:
+                                assertEquals(ComponentType.SINGLE_CANNON, ship.getComponent(i, j).getComponentType());
+                                number[5] += 1;
+                                break;
+                            case DOUBLE_CANNON:
+                                assertEquals(ComponentType.DOUBLE_CANNON, ship.getComponent(i, j).getComponentType());
+                                number[6] += 1;
+                                break;
+                            case SHIELD:
+                                assertEquals(ComponentType.SHIELD, ship.getComponent(i, j).getComponentType());
+                                number[7] += 1;
+                                break;
+                            case BROWN_LIFE_SUPPORT:
+                                assertEquals(ComponentType.BROWN_LIFE_SUPPORT, ship.getComponent(i, j).getComponentType());
+                                number[8] += 1;
+                                break;
+                            case PURPLE_LIFE_SUPPORT:
+                                assertEquals(ComponentType.PURPLE_LIFE_SUPPORT, ship.getComponent(i, j).getComponentType());
+                                number[9] += 1;
+                                break;
+                            case CONNECTORS:
+                                assertEquals(ComponentType.CONNECTORS, ship.getComponent(i, j).getComponentType());
+                                number[10] += 1;
+                                break;
+                            default:
+                                break;
+                        }
+                        number[11] += 1;
+                    }
+                }
+            }
+        }
+
+        assertEquals(number[0], ship.getCabins().size());
+        assertEquals(number[1], ship.getStorages().size());
+        assertEquals(number[2], ship.getBatteries().size());
+
+        assertEquals(number[3], ship.getSingleEnginesStrength());
+        assertEquals(number[4], ship.getDoubleEnginesStrength() / 2);
+
+        assertEquals(number[5] + number[6], ship.getCannons().size());
+        assertEquals(number[6], ship.getDoubleCannonsNumber());
+
+        boolean notCabinWithLifeSupport = true;
+        boolean check = false;
+        for(Map.Entry<Integer, Cabin> c : ship.getCabins().entrySet()){
+            ArrayList<Component> surrounding = ship.getSurroundingComponents(c.getValue().getRow(), c.getValue().getColumn());
+            for(Component comp : surrounding){
+                if(comp != null) {
+                    if (comp.getComponentType() == ComponentType.BROWN_LIFE_SUPPORT) {
+                        c.getValue().isValid();
+                        ship.addCrewMember(c.getValue().getID(), true, false);
+                        notCabinWithLifeSupport = false;
+                        ship.removeCrewMember(c.getValue().getID(), 1);
+                        check = true;
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        if(check){
+            assertTrue(number[8] > 0);
+        } else {
+            assertTrue(notCabinWithLifeSupport);
+        }
+
+        notCabinWithLifeSupport = true;
+        check = false;
+        for(Map.Entry<Integer, Cabin> c : ship.getCabins().entrySet()){
+            ArrayList<Component> surrounding = ship.getSurroundingComponents(c.getValue().getRow(), c.getValue().getColumn());
+            for(Component comp : surrounding){
+                if(comp != null) {
+                    if (comp.getComponentType() == ComponentType.PURPLE_LIFE_SUPPORT) {
+                        c.getValue().isValid();
+                        ship.addCrewMember(c.getValue().getID(), false, true);
+                        notCabinWithLifeSupport = false;
+                        check = true;
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+        if(check){
+            assertTrue(number[9] > 0);
+        } else {
+            assertTrue(notCabinWithLifeSupport);
+        }
+
+        int remaining = number[11] - number[0] - number[1] - number[2] - number[3] - number[4] - number[5] - number[6] - number[8] - number[9];
+        assertEquals(remaining, number[7] + number[10]); //Number of shields and connectors
+
+        assertEquals(number[11], ship.getNumberOfComponents());
     }
 
     @RepeatedTest(5)
-    void getSurroundingComponents() {
+    void getSurroundingComponents() throws JsonProcessingException {
         Random rand = new Random();
         int count = rand.nextInt(1, 4);
 
-        //TODO: CHIEDI QUELLO CHE HAI SCRITTO SOPRA
+        GenerateRandomShip s = new GenerateRandomShip();
+        SpaceShip ship = s.getShip();
+
+        boolean[][] vs = new boolean[12][12];
+        for(int i = 0; i < 12; i++) {
+            for(int j = 0; j < 12; j++) {
+                vs[i][j] = false;
+            }
+        }
+        vs[5][6] = true;
+        vs[5][8] = true;
+        for(int j = 5; j < 10; j++) {
+            vs[6][j] = true;
+        }
+        for(int i = 4; i < 11; i++) {
+            vs[7][i] = true;
+            vs[8][i] = true;
+        }
+        for(int j = 4; j < 7; j++) {
+            vs[9][j] = true;
+        }
+        for(int j = 8; j < 11; j++) {
+            vs[9][j] = true;
+        }
+
+        for(int i = 1; i < 11; i++){
+            for(int j = 1; j < 11; j++){
+                if(vs[i][j]){
+                    ArrayList<Component> result = new ArrayList<>();
+                    result = ship.getSurroundingComponents(i, j);
+                    System.out.println(result);
+                    assertEquals(ship.getComponent(i - 1, j), result.get(0));
+                    assertEquals(ship.getComponent(i, j - 1), result.get(1));
+                    assertEquals(ship.getComponent(i + 1, j), result.get(2));
+                    assertEquals(ship.getComponent(i, j + 1), result.get(3));
+                }
+            }
+        }
     }
 
     @RepeatedTest(5)
@@ -716,20 +889,122 @@ class SpaceShipTest {
         assertEquals(0, ship.getReservedComponents().size());
     }
 
-    //TODO: DA FARE TUTTI I CASI PER OGNI SINGOLO COMPONENTE - Fare classe random?
     @RepeatedTest(5)
-    void destroyComponent() {
-        int number = ship.getNumberOfComponents();
-
+    void destroyComponent() throws JsonProcessingException {
         Random rand = new Random();
-        int count = rand.nextInt(1, 4);
-        for(int i = 0; i < count; i++){
-            Storage storage = new Storage(i, connectors, true, 2);
-            ship.placeComponent(storage, 6, 7 + i);
+        int number = rand.nextInt(1, 7);
+        GenerateRandomShip s = new GenerateRandomShip();
+        s.addElementsShip();
+        ship = s.getShip();
+
+        boolean[][] vs = new boolean[12][12];
+        for(int i = 0; i < 12; i++) {
+            for(int j = 0; j < 12; j++) {
+                vs[i][j] = false;
+            }
         }
-        for(int i = 0; i < count; i++){
-            ship.destroyComponent(6, 7 + count - i - 1);
-            assertEquals(count - i - 1, ship.getNumberOfComponents());
+        vs[5][6] = true;
+        vs[5][8] = true;
+        for(int j = 5; j < 10; j++) {
+            vs[6][j] = true;
+        }
+        for(int i = 4; i < 11; i++) {
+            vs[7][i] = true;
+            vs[8][i] = true;
+        }
+        for(int j = 4; j < 7; j++) {
+            vs[9][j] = true;
+        }
+        for(int j = 8; j < 11; j++) {
+            vs[9][j] = true;
+        }
+
+        for(int k = 0; k < number; k++){
+            int i, j;
+            Component c = null;
+            int[] checkValues = new int[8];
+            checkValues[0] = ship.getCrewNumber();
+            checkValues[1] = ship.getGoodsValue();
+            checkValues[2] = ship.getEnergyNumber();
+            checkValues[3] = ship.getSingleEnginesStrength();
+            checkValues[4] = ship.getDoubleEnginesStrength();
+            checkValues[5] = (int) ship.getSingleCannonsStrength();
+            checkValues[6] = ship.getDoubleCannonsStrength();
+            checkValues[7] = ship.getDoubleCannonsNumber();
+
+            do {
+                do {
+                    i = rand.nextInt(4, 9);
+                    j = rand.nextInt(3, 10);
+                } while (!vs[i][j]);
+
+                if (ship.getComponent(i, j) != null) {
+                    c = ship.getComponent(i, j);
+                    ship.destroyComponent(i, j);
+                }
+            } while (c == null);
+
+            switch (c.getComponentType()) {
+                case CABIN, CENTER_CABIN:
+                    Cabin c1 = (Cabin) c;
+                    if(c1.hasPurpleAlien() || c1.hasBrownAlien()){
+                        assertEquals(ship.getCrewNumber() + 1, checkValues[0]);
+                    } else if(c1.getCrewNumber() > 0){
+                        assertEquals(ship.getCrewNumber() + 2, checkValues[0]);
+                    }
+                    break;
+                case STORAGE:
+                    Storage s1 = (Storage) c;
+                    assertEquals(ship.getGoodsValue() + s1.getGoodsValue(), checkValues[1]);
+                    break;
+                case BATTERY:
+                    Battery b = (Battery) c;
+                    assertEquals(ship.getEnergyNumber() + b.getEnergyNumber(), checkValues[2]);
+                    break;
+                case SINGLE_ENGINE:
+                    Engine e2 = (Engine) c;
+                    assertEquals(ship.getSingleEnginesStrength() + e2.getEngineStrength(), checkValues[3]);
+                    break;
+                case DOUBLE_ENGINE:
+                    Engine e1 = (Engine) c;
+                    assertEquals(ship.getDoubleEnginesStrength() + e1.getEngineStrength(), checkValues[4]);
+                    break;
+                case SINGLE_CANNON:
+                    Cannon c3 = (Cannon) c;
+                    assertEquals(ship.getSingleCannonsStrength() + c3.getCannonStrength(), checkValues[5]);
+                    break;
+                case DOUBLE_CANNON:
+                    Cannon c2 = (Cannon) c;
+                    assertEquals(ship.getDoubleCannonsStrength() + c2.getCannonStrength(), checkValues[6]);
+                    assertEquals(ship.getDoubleCannonsNumber() + 1, checkValues[7]);
+                    break;
+                case BROWN_LIFE_SUPPORT:
+                    if(ship.getCabins().isEmpty()){
+                        assertFalse(ship.hasBrownAlien());
+                    } else {
+                        for(Cabin cabin : ship.getCabins().values()){
+                            if(cabin.hasBrownAlien()){
+                                assertTrue(ship.hasBrownAlien());
+                            }
+                        }
+                    }
+                    break;
+                case PURPLE_LIFE_SUPPORT:
+                    if(ship.getCabins().isEmpty()){
+                        assertFalse(ship.hasPurpleAlien());
+                    } else {
+                        for(Cabin cabin : ship.getCabins().values()){
+                            if(cabin.hasPurpleAlien()){
+                                assertTrue(ship.hasPurpleAlien());
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            c = null;
         }
     }
 
@@ -758,11 +1033,11 @@ class SpaceShipTest {
         }
         assertEquals(count + 1, ship.getCabins().size());
         for(int i = 0; i < count; i++){
-            //TODO: Dobbiamo segnare quando gli id delle cabine etc non ci sono (mettere if != null)
             assertEquals(i + 4, ship.getCabin(i + 4).getID());
             assertEquals(ComponentType.CABIN, ship.getCabin(i + 4).getComponentType());
             assertEquals(ComponentType.CABIN, ship.getCabins().get(i + 4).getComponentType());
         }
+        assertThrows((IllegalArgumentException.class), () -> ship.getCabin(100));
     }
 
     @RepeatedTest(5)
@@ -774,7 +1049,11 @@ class SpaceShipTest {
             ship.placeComponent(storage, 6, 7 + i);
         }
         assertEquals(count, ship.getStorages().size());
-        for(int i = 0; i < count; i++){
+        for(int i = 0; i < count + 1; i++){
+            if(i == count){
+                assertThrows((IllegalArgumentException.class), () -> ship.getStorage(count));
+                break;
+            }
             assertEquals(i + 4, ship.getStorage(i + 4).getID());
             assertEquals(ComponentType.STORAGE, ship.getStorage(i + 4).getComponentType());
             assertEquals(ComponentType.STORAGE, ship.getStorages().get(i + 4).getComponentType());
@@ -790,7 +1069,11 @@ class SpaceShipTest {
             ship.placeComponent(battery, 6, 7 + i);
         }
         assertEquals(count, ship.getBatteries().size());
-        for(int i = 0; i < count; i++){
+        for(int i = 0; i < count + 1; i++){
+            if(i == count){
+                assertThrows((IllegalArgumentException.class), () -> ship.getBattery(count));
+                break;
+            }
             assertEquals(i + 4, ship.getBattery(i + 4).getID());
             assertEquals(ComponentType.BATTERY, ship.getBattery(i + 4).getComponentType());
             assertEquals(ComponentType.BATTERY, ship.getBatteries().get(i + 4).getComponentType());
