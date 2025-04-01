@@ -33,6 +33,14 @@ public class Storage extends Component{
     }
 
     /**
+     * Get the capacity of the storage
+     * @return The capacity of the storage
+     */
+    public int getGoodsCapacity() {
+        return goodsCapacity;
+    }
+
+    /**
      * Add a good to the storage if there is enough space
      * @param good the Good to add
      * @throws IllegalStateException if the storage is full or if the good is red and the storage is not dangerous
@@ -40,6 +48,9 @@ public class Storage extends Component{
     public void addGood(Good good) throws IllegalStateException {
         if (good.getColor() == GoodType.RED && !dangerous) {
             throw new IllegalStateException("Cannot add a red good to a non-dangerous storage");
+        }
+        if (goods == null) {
+            goods = new ArrayList<>();
         }
         if (goods.size() < goodsCapacity) {
             goods.add(good);

@@ -592,16 +592,18 @@ public class SpaceShip {
                     break;
                 case SINGLE_CANNON:
                     singleCannonsStrength += ((Cannon) components[row][column]).getCannonStrength();
+                    cannons.put(c.getID(), (Cannon) components[row][column]);
                     break;
                 case DOUBLE_CANNON:
                     doubleCannonsStrength += ((Cannon) components[row][column]).getCannonStrength();
+                    cannons.put(c.getID(), (Cannon) components[row][column]);
                     doubleCannonsNumber++;
                     break;
                 case SINGLE_ENGINE:
                     singleEnginesStrength++;
                     break;
                 case DOUBLE_ENGINE:
-                    doubleEnginesStrength++;
+                    doubleEnginesStrength+=2;
                     break;
                 default:
                     break;
@@ -703,7 +705,7 @@ public class SpaceShip {
                 singleEnginesStrength--;
                 break;
             case DOUBLE_ENGINE:
-                doubleEnginesStrength--;
+                doubleEnginesStrength-=2;
                 break;
             case SINGLE_CANNON:
                 Cannon singlecannon = (Cannon) destroyedComponent;
@@ -725,8 +727,9 @@ public class SpaceShip {
                         Cabin cabinBrown = (Cabin) c;
                         if (cabinBrown.hasBrownAlien()) {
                             brownAlien = false;
-                            cabinBrown.removeCrewMember(1);;
                             crewNumber -= cabinBrown.getCrewNumber();
+                            cabinBrown.removeCrewMember(1);;
+                            break;
                         }
                     }
                 }
@@ -737,19 +740,20 @@ public class SpaceShip {
                         Cabin cabinPurple = (Cabin) c;
                         if (cabinPurple.hasPurpleAlien()) {
                             purpleAlien = false;
-                            cabinPurple.removeCrewMember(1);
                             crewNumber -= cabinPurple.getCrewNumber();
+                            cabinPurple.removeCrewMember(1);
+                            break;
                         }
                     }
                 }
                 break;
             case STORAGE:
                 Storage storage = (Storage) destroyedComponent;
-                storages.remove(storage.getID());
                 for (Good good : storage.getGoods()) {
                     goods.remove(good);
                 }
                 goodsValue -= storage.getGoodsValue();
+                storages.remove(storage.getID());
                 break;
             case BATTERY:
                 Battery battery = (Battery) destroyedComponent;
@@ -765,7 +769,7 @@ public class SpaceShip {
 
     /**
      * Search if there is component that are no longer connected to the ship
-     * @return List of List of Pair<Integer, Integer> representing the group of disconnected components
+     * @return ArrayList of ArrayList of Pair<Integer, Integer> representing the group of disconnected components
      */
     public ArrayList<ArrayList<Pair<Integer, Integer>>> getDisconnectedComponents() {
         ArrayList<ArrayList<Pair<Integer, Integer>>> disconnectedComponents = new ArrayList<>();
