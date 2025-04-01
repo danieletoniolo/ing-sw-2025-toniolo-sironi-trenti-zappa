@@ -48,12 +48,10 @@ public class OpenSpaceState extends State implements UsableEngine {
      */
     @Override
     public void entry() {
-        PlayerData value0;
-        for (Pair<PlayerData, PlayerStatus> player : super.players) {
-            value0 = player.getValue0();
-            this.useEngine(value0, value0.getSpaceShip().getSingleCannonsStrength());
-            if (value0.getSpaceShip().hasPurpleAlien()) {
-                this.useEngine(value0, SpaceShip.getAlienStrength());
+        for (PlayerData player : super.players) {
+            this.useEngine(player, player.getSpaceShip().getSingleCannonsStrength());
+            if (player.getSpaceShip().hasPurpleAlien()) {
+                this.useEngine(player, SpaceShip.getAlienStrength());
             }
         }
     }

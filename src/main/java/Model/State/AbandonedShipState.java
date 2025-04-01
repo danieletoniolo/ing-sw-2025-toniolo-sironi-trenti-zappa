@@ -63,18 +63,13 @@ public class AbandonedShipState extends State implements RemovableCrew {
             throw new IllegalStateException("Crew loss does not match the card requirements");
         }
 
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue0().equals(player)) {
-                if (p.getValue1().equals(PlayerStatus.PLAYING)) {
-                    played = true;
-                    crewLoss.forEach(cabin -> {
-                        player.getSpaceShip().getCabin(cabin.getValue0()).removeCrewMember(cabin.getValue1());
-                    });
-                    player.addCoins(card.getCredit());
-                    player.addSteps(-card.getFlightDays());
-                }
-                break;
-            }
+        if (playersStatus.get(player.getColor()).equals(PlayerStatus.PLAYING)) {
+            played = true;
+            crewLoss.forEach(cabin -> {
+                player.getSpaceShip().getCabin(cabin.getValue0()).removeCrewMember(cabin.getValue1());
+            });
+            player.addCoins(card.getCredit());
+            player.addSteps(-card.getFlightDays());
         }
         super.execute(player);
     }

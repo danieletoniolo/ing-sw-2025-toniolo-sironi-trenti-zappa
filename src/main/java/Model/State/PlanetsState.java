@@ -57,21 +57,17 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
      */
     @Override
     public void execute(PlayerData player) throws NullPointerException {
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue0().equals(player)) {
-                if (p.getValue1() == PlayerStatus.PLAYING) {
-                    p.setAt1(PlayerStatus.PLAYED);
+        if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
+            playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
 
-                    // Execute the exchange
-                    for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
-                        SpaceShip ship = p.getValue0().getSpaceShip();
-                        ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
-                    }
-
-                } else if (p.getValue1() == PlayerStatus.WAITING) {
-                    p.setAt1(PlayerStatus.SKIPPED);
-                }
+            // Execute the exchange
+            for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
+                SpaceShip ship = player.getSpaceShip();
+                ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
             }
+
+        } else if (playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {
+            playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
         }
     }
 
@@ -84,10 +80,12 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
     public void exit() throws IllegalStateException{
         super.exit();
         int flightDays = card.getFlightDays();
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue1() == PlayerStatus.PLAYED) {
-                p.getValue0().addSteps(-flightDays);
-            } else if (p.getValue1() == PlayerStatus.WAITING || p.getValue1() == PlayerStatus.PLAYING) {
+        PlayerStatus status;
+        for (PlayerData p : players) {
+            status = playersStatus.get(p.getColor());
+            if (status == PlayerStatus.PLAYED) {
+                p.addSteps(-flightDays);
+            } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");
             }
         }
