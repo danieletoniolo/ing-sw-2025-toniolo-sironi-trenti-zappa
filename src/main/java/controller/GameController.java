@@ -6,6 +6,7 @@ import Model.Player.PlayerData;
 import Model.State.State;
 import Model.State.interfaces.ExchangeableGoods;
 import Model.State.interfaces.UsableCannon;
+import Model.State.interfaces.UsableEngine;
 import org.javatuples.Triplet;
 
 import java.util.ArrayList;
@@ -128,9 +129,10 @@ public class GameController {
      */
     public void swapGoods(UUID uuid, int storageID1, int storageID2, ArrayList<Good> goods1to2, ArrayList<Good> goods2to1) {
         if (state instanceof ExchangeableGoods) {
-            if (state.getCurrentPlayer().getUUID().equals(uuid)) {
-                state.getCurrentPlayer().getSpaceShip().exchangeGood(goods2to1, goods1to2, storageID1);
-                state.getCurrentPlayer().getSpaceShip().exchangeGood(goods1to2, goods2to1, storageID2);
+            PlayerData player = state.getCurrentPlayer();
+            if (player.getUUID().equals(uuid)) {
+                player.getSpaceShip().exchangeGood(goods2to1, goods1to2, storageID1);
+                player.getSpaceShip().exchangeGood(goods1to2, goods2to1, storageID2);
             }
         }
     }
@@ -149,8 +151,18 @@ public class GameController {
         }
     }
 
-    public void useEngines(UUID uuid, int enginesPowerToUse) {
-        // TODO
+    /**
+     * Use the engines of the spaceship
+     * @param uuid player's uuid
+     * @param enginesPowerToUse engines power to use (float)
+     */
+    public void useEngines(UUID uuid, float enginesPowerToUse) {
+        if (state instanceof UsableEngine) {
+            PlayerData player = state.getCurrentPlayer();
+            if (player.getUUID().equals(uuid)) {
+                ((UsableEngine) state).useEngine(player, enginesPowerToUse);
+            }
+        }
     }
 
     public void removeCrew(UUID uuid, int cabinID, int numberOfCrew) {
