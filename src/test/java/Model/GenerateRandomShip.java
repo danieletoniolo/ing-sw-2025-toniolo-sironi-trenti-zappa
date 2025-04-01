@@ -174,12 +174,19 @@ public class GenerateRandomShip {
                         case STORAGE:
                             Storage storage = (Storage) c;
                             Random rand = new Random();
-                            GoodType[] values = GoodType.values();
-                            int randomIndex = rand.nextInt(values.length);
-                            GoodType randomGoodType = values[randomIndex];
-                            Good g = new Good(randomGoodType);
-                            storage.addGood(g);
-                            ship.refreshGoodsValue();
+                            ArrayList<Good> goods = new ArrayList<>();
+                            for(int l = 0; l < storage.getGoodsCapacity(); l++){
+                                GoodType[] values = GoodType.values();
+                                int randomIndex = rand.nextInt(values.length);
+                                GoodType randomGoodType = values[randomIndex];
+                                Good g = new Good(randomGoodType);
+                                if(randomGoodType == GoodType.RED && !storage.isDangerous()){
+                                    l--;
+                                } else {
+                                    goods.add(g);
+                                }
+                            }
+                            ship.exchangeGood(goods, null, storage.getID());
                             break;
                         default:
                             break;

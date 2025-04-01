@@ -299,9 +299,8 @@ class SpaceShipTest {
         assertEquals(total, ship.getEnergyNumber());
     }
 
-    //Test getGoodsValue and refreshGoodsValue
     @RepeatedTest(5)
-    void getGoodsValue() {
+    void exchangeGood() {
         assertEquals(0, ship.getGoodsValue());
 
         Random rand = new Random();
@@ -309,31 +308,27 @@ class SpaceShipTest {
         int index = 0;
         int total = 0;
         for(int i = 0; i < limit; i++){
-            int j = rand.nextInt(1,4);
+            System.out.println("i : " + i + "\n");
             boolean bool = rand.nextBoolean();
-            Storage storage = new Storage(i, connectors, bool, j);
-
-            int r = rand.nextInt(4) + 1;
-            for(int k = 0; k < r; k++){
-                storage.rotateClockwise();
-            }
-            System.out.println("Rotation: " + r%4);
+            Storage storage = new Storage(i, connectors, bool, 3);
 
             ship.placeComponent(storage, 6,7 + index);
             index++;
 
-            for(int k = 0; k < j; k++){
+            //Creation of storage
+            ArrayList<Good> gToAdd = new ArrayList<>();
+            for(int k = 0; k < 3; k++){
                 GoodType[] values = GoodType.values();
                 GoodType randomType = values[rand.nextInt(values.length)];
                 System.out.println(randomType);
                 Good good = new Good(randomType);
 
                 if(storage.isDangerous()){
-                    storage.addGood(good);
+                    gToAdd.add(good);
                     total += good.getValue();
                 } else {
                     if(good.getColor() != GoodType.RED){
-                        storage.addGood(good);
+                        gToAdd.add(good);
                         total += good.getValue();
                     } else {
                         System.out.println("Red good not added");
@@ -341,7 +336,45 @@ class SpaceShipTest {
                     }
                 }
             }
-            ship.refreshGoodsValue();
+            ship.exchangeGood(gToAdd, null, storage.getID());
+
+            System.out.println(" ");
+
+            //Add
+            ArrayList<Good> addGoods = new ArrayList<>();
+            int toAdd = rand.nextInt(1, storage.getGoodsCapacity());
+            for(int k = 0; k < toAdd; k++){
+                GoodType[] values = GoodType.values();
+                GoodType randomType = values[rand.nextInt(values.length)];
+                System.out.println(randomType);
+                Good good = new Good(randomType);
+
+                if(storage.isDangerous()){
+                    addGoods.add(good);
+                    total += good.getValue();
+                } else {
+                    if(good.getColor() != GoodType.RED){
+                        addGoods.add(good);
+                        total += good.getValue();
+                    } else {
+                        System.out.println("Red good not added");
+                        k--;
+                    }
+                }
+            }
+
+            System.out.println(" ");
+
+            //Remove
+            ArrayList<Good> removeGoods = new ArrayList<>();
+            for(int k = 0; k < toAdd; k++){
+                Good good = storage.getGoods().get(k);
+                System.out.println(good.getColor());
+                removeGoods.add(good);
+                total -= good.getValue();
+            }
+
+            ship.exchangeGood(addGoods, removeGoods, storage.getID());
         }
         System.out.println(total);
         assertEquals(total, ship.getGoodsValue());
@@ -892,6 +925,7 @@ class SpaceShipTest {
     @RepeatedTest(5)
     void destroyComponent() throws JsonProcessingException {
         Random rand = new Random();
+        int value = 0;
         int number = rand.nextInt(1, 7);
         GenerateRandomShip s = new GenerateRandomShip();
         s.addElementsShip();
@@ -940,6 +974,12 @@ class SpaceShipTest {
 
                 if (ship.getComponent(i, j) != null) {
                     c = ship.getComponent(i, j);
+
+                    System.out.println("Value goods: " + ship.getGoodsValue());
+                    if(c.getComponentType() == ComponentType.STORAGE){
+                        value = ((Storage) c).getGoodsValue();
+                        System.out.println("Tolgo storage");
+                    }
                     ship.destroyComponent(i, j);
                 }
             } while (c == null);
@@ -955,7 +995,8 @@ class SpaceShipTest {
                     break;
                 case STORAGE:
                     Storage s1 = (Storage) c;
-                    assertEquals(ship.getGoodsValue() + s1.getGoodsValue(), checkValues[1]);
+                    System.out.println("Value: " + s1.getGoodsValue());
+                    assertEquals(ship.getGoodsValue() + value, checkValues[1]);
                     break;
                 case BATTERY:
                     Battery b = (Battery) c;
@@ -1003,8 +1044,6 @@ class SpaceShipTest {
                 default:
                     break;
             }
-
-            c = null;
         }
     }
 
