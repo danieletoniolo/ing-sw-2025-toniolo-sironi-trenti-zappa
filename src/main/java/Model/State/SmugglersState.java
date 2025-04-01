@@ -19,7 +19,7 @@ enum SmugglerInternalState {
 
 public class SmugglersState extends State implements UsableCannon, ExchangeableGoods {
     private final Smugglers card;
-    private SmugglerInternalState smugglerInternalState;
+    private SmugglerInternalState internalState;
 
     private Map<PlayerData, Float> cannonStrength;
     private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
@@ -30,7 +30,7 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
         super(players);
         this.card = card;
         this.cannonStrength = new HashMap<>();
-        this.smugglerInternalState = SmugglerInternalState.DEFAULT;
+        this.internalState = SmugglerInternalState.DEFAULT;
         this.exchangeData = null;
         this.goodsToDiscard = null;
         this.crewToLose = null;
@@ -40,7 +40,7 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
      * @throws IllegalStateException if we are in the penalty state
      */
     public void useCannon(PlayerData player, Float strength) throws IllegalStateException {
-        if (smugglerInternalState == SmugglerInternalState.PENALTY) {
+        if (internalState == SmugglerInternalState.PENALTY) {
             throw new IllegalStateException("There is a penalty to serve.");
         }
         float oldCannonStrength = cannonStrength.get(player);
@@ -51,7 +51,7 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
      * @throws IllegalStateException if we are in the penalty state
      */
     public void setGoodsToExchange(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) throws IllegalStateException {
-        if (smugglerInternalState == SmugglerInternalState.PENALTY) {
+        if (internalState == SmugglerInternalState.PENALTY) {
             throw new IllegalStateException("There is a penalty to serve.");
         }
         this.exchangeData = exchangeData;
@@ -64,7 +64,7 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
      * @param goodsToDiscard ArrayList of (in order) the good to discard and the storage id where to take it from
      */
     public void setGoodsToDiscard(PlayerData player, ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard) {
-        if (smugglerInternalState == SmugglerInternalState.DEFAULT) {
+        if (internalState == SmugglerInternalState.DEFAULT) {
             throw new IllegalStateException("There is no penalty to serve yet.");
         }
         this.goodsToDiscard = goodsToDiscard;
@@ -75,7 +75,7 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
      * @param crewToLose ArrayList of (in order) the cabin ID and the number if crew members to lose
      */
     public void setCrewToLose(ArrayList<Pair<Integer, Integer> > crewToLose) {
-        if (smugglerInternalState == SmugglerInternalState.DEFAULT) {
+        if (internalState == SmugglerInternalState.DEFAULT) {
             throw new IllegalStateException("There is no penalty to serve yet.");
         }
         this.crewToLose = crewToLose;
@@ -99,30 +99,29 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
         }
         for (Pair<PlayerData, PlayerStatus> p : players) {
             if (p.getValue0().equals(player)) {
-                if (p.getValue1() == PlayerStatus.PLAYING) {
-                    switch (smugglerInternalState) {
-                        case DEFAULT:
+                switch (internalState) {
+                    case DEFAULT:
                             // Check if the player has enough cannon strength to beat the card
                             if (cannonStrength.get(player) > card.getCannonStrengthRequired()) {
-                                // If the player has not set the exchange data, we throw an exception
-                                if (exchangeData == null) {
-                                    throw new IllegalStateException("No exchange data set");
-                                }
-                                // If the player has enough cannon strength we can exchange goods
-                                for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
-                                    SpaceShip ship = p.getValue0().getSpaceShip();
-                                    ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
+                                // If the player has enough cannon strength and want to exchange goods we execute the exchange
+                                if (exchangeData != null) {
+                                    for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
+                                        SpaceShip ship = p.getValue0().getSpaceShip();
+                                        ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
+                                    }
                                 }
                                 // Set the player as played
                                 p.setAt1(PlayerStatus.PLAYED);
                                 // Set the state as finished
-
                                 super.played = true;
+                            } else if (cannonStrength.get(player) == card.getCannonStrengthRequired()) {
+                                // Set the player as played
+                                p.setAt1(PlayerStatus.SKIPPED);
                             } else {
                                 // If the player doesn't have enough cannon strength we can't exchange goods
                                 this.exchangeData = null;
                                 // Change the internal state to PENALTY
-                                this.smugglerInternalState = SmugglerInternalState.PENALTY;
+                                this.internalState = SmugglerInternalState.PENALTY;
                             }
                         case PENALTY:
                             // If the player has not set the goods to discard, we throw an exception
@@ -164,27 +163,23 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
                             // Reset the goods to discard
                             this.goodsToDiscard = null;
                             // Set the player as played
-                            p.setAt1(PlayerStatus.PLAYED);
+                            p.setAt1(PlayerStatus.SKIPPED);
                             // Change back the internal state to DEFAULT
-                            this.smugglerInternalState = SmugglerInternalState.DEFAULT;
+                            this.internalState = SmugglerInternalState.DEFAULT;
                         default:
-                            throw new IllegalStateException("Unknown internal state");
+                            throw new IllegalStateException("Unknown internal state" + internalState);
                     }
-                } else {
-                    p.setAt1(PlayerStatus.WAITING);
                 }
             }
         }
-    }
 
     @Override
     public void exit() throws IllegalStateException {
+        super.exit();
         for (Pair<PlayerData, PlayerStatus> p : players) {
             if (p.getValue1() == PlayerStatus.PLAYED) {
                 int flightDays = card.getFlightDays();
                 p.getValue0().addSteps(-flightDays);
-            } else if (p.getValue1() == PlayerStatus.WAITING || p.getValue1() == PlayerStatus.PLAYING) {
-                throw new IllegalStateException("Not all players have played");
             }
         }
     }

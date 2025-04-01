@@ -468,8 +468,8 @@ public class SpaceShip {
      * Check if the ship is valid by checking the validity of every component in the matrix
      * @return The list of indexes (Pair of Integer) of the invalid components of the ship
      */
-    public List<Pair<Integer, Integer>> getInvalidComponents() {
-        List<Pair<Integer, Integer>> invalidComponents = new ArrayList<>();
+    public ArrayList<Pair<Integer, Integer>> getInvalidComponents() {
+        ArrayList<Pair<Integer, Integer>> invalidComponents = new ArrayList<>();
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
                 if (c2 != null && !c2.isValid()) {
@@ -767,13 +767,13 @@ public class SpaceShip {
      * Search if there is component that are no longer connected to the ship
      * @return List of List of Pair<Integer, Integer> representing the group of disconnected components
      */
-    public List<List<Pair<Integer, Integer>>> getDisconnectedComponents() {
-        List<List<Pair<Integer, Integer>>> disconnectedComponents = new ArrayList<>();
+    public ArrayList<ArrayList<Pair<Integer, Integer>>> getDisconnectedComponents() {
+        ArrayList<ArrayList<Pair<Integer, Integer>>> disconnectedComponents = new ArrayList<>();
         boolean[][] visited = new boolean[12][12];
         for (int i = 0; i < 12; i++) {
             for (int j = 0; j < 12; j++) {
                 if (components[i][j] != null && !visited[i][j]) {
-                    List<Pair<Integer, Integer>> disconnectedComponent = new ArrayList<>();
+                    ArrayList<Pair<Integer, Integer>> disconnectedComponent = new ArrayList<>();
                     Queue<Pair<Integer, Integer>> queue = new LinkedList<>();
                     queue.add(new Pair<Integer, Integer>(i, j));
                     visited[i][j] = true;

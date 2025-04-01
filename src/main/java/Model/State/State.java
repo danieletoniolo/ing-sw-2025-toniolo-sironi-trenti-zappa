@@ -1,5 +1,6 @@
 package Model.State;
 
+import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import org.javatuples.Pair;
 
@@ -45,13 +46,14 @@ public abstract class State {
         throw new IllegalArgumentException("Player not found");
     }
 
+    // TODO: If the method is used only in pirates state, remove it from here
     /**
      * Check if all players have played
      * @return Boolean value if all players have played
      */
     protected boolean haveAllPlayersPlayed() {
         for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue1() != PlayerStatus.PLAYED) {
+            if (p.getValue1() != PlayerStatus.PLAYED && p.getValue1() != PlayerStatus.SKIPPED) {
                 return false;
             }
         }
@@ -146,12 +148,9 @@ public abstract class State {
      * @throws IllegalStateException if not all players have played
      */
     public void exit() throws IllegalStateException {
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue1() == PlayerStatus.WAITING) {
-                throw new IllegalStateException("Not all players have played");
-            }
+        if (!haveAllPlayersPlayed()) {
+            throw new IllegalStateException("Not all players have played");
         }
         this.played = true;
     }
-
 }

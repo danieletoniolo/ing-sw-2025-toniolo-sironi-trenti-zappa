@@ -163,7 +163,15 @@ public class PlayerData {
      * @param p the player to compare
      * @return true if the players are equal, false otherwise
      */
-    public boolean equals(PlayerData p) {
-        return this.uuid.equals(p.getUUID());
+    @Override
+    public boolean equals(Object p) {
+        if (p == null) {
+            return false;
+        }
+        if (p instanceof PlayerData) {
+            PlayerData player = (PlayerData) p;
+            return this.uuid.equals(player.getUUID());
+        }
+        return false;
     }
 }
