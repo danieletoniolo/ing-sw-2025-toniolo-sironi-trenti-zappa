@@ -5,7 +5,7 @@ import Model.SpaceShip.Component;
 import Model.SpaceShip.SpaceShip;
 import org.javatuples.Pair;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.function.Supplier;
 
 enum FightHandlerInternalState {
@@ -19,7 +19,7 @@ public class FightHandler {
     private Boolean protect;
     private Integer batteryID;
     private Integer fragmentChoice;
-    private List<List<Pair<Integer, Integer>>> fragments;
+    private ArrayList<ArrayList<Pair<Integer, Integer>>> fragments;
     private Pair<Component, Integer> protectionResult;
     private int hitIndex;
     private FightHandlerInternalState internalState;
@@ -115,7 +115,7 @@ public class FightHandler {
      * Get the fragments
      * @return fragments
      */
-    public List<List<Pair<Integer, Integer>>> getFragments() {
+    public ArrayList<ArrayList<Pair<Integer, Integer>>> getFragments() {
         return fragments;
     }
 
