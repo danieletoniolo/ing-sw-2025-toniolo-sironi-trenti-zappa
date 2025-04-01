@@ -2,13 +2,14 @@ package Model.State;
 
 import Model.Cards.MeteorSwarm;
 import Model.Player.PlayerData;
-import Model.State.Handler.FightHandler;
+import Model.State.handler.FightHandler;
+import Model.State.interfaces.ChoosableFragment;
 import Model.State.interfaces.Fightable;
 import org.javatuples.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MeteorSwarmState extends State implements Fightable {
+public class MeteorSwarmState extends State implements Fightable, ChoosableFragment {
     private final MeteorSwarm card;
     private final FightHandler fightHandler;
 
@@ -21,18 +22,6 @@ public class MeteorSwarmState extends State implements Fightable {
         super(players);
         this.card = card;
         this.fightHandler = new FightHandler();
-    }
-
-    /**
-     * Get disconnectedComponents
-     * @return List of (List of Pair(row, column)) of disconnected components
-     * @throws IllegalStateException if method called is done in the wrong order
-     */
-    public List<List<Pair<Integer, Integer>>> getFragments() throws IllegalStateException {
-        if (fightHandler.getFightState() != 2) {
-            throw new IllegalStateException("getDisconnectedComponents done in the wrong order, current state: " + fightHandler.getFightState());
-        }
-        return fightHandler.getFragments();
     }
 
     /**
@@ -59,16 +48,8 @@ public class MeteorSwarmState extends State implements Fightable {
      * Set dice
      * @param dice dice value
      */
-    public void setDice(int dice) {
+    public void setDice(int dice) throws IllegalStateException {
         fightHandler.setDice(dice);
-    }
-
-    /**
-     * Get the number of hits
-     * @return number of hits
-     */
-    public int getNumberOfHits() {
-        return card.getMeteors().size();
     }
 
     /**

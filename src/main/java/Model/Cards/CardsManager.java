@@ -69,7 +69,7 @@ public class CardsManager {
             }
         }
 
-        /// Distribute the selected cards into 4 decks
+        // Distribute the selected cards into 4 decks
         Deck[] decks = new Deck[4];
         for (i = 0; i < selectedCards.size(); i++) {
             switch (i % 4) {
@@ -81,9 +81,13 @@ public class CardsManager {
         }
 
         decks[0] = new Deck(deck1);
+        decks[0].setPickable(true);
         decks[1] = new Deck(deck2);
+        decks[1].setPickable(true);
         decks[2] = new Deck(deck3);
+        decks[2].setPickable(true);
         decks[3] = new Deck(deck4);
+        decks[3].setPickable(false);
 
         return decks;
     }
@@ -134,7 +138,7 @@ public class CardsManager {
 
     }
 
-    /// METODO DA ELIMINARE
+    /// TODO: METODO DA ELIMINARE
     /**
      * Get a card by its ID
      * @param ID the ID of the card

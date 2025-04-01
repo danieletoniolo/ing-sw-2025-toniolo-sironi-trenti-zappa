@@ -8,5 +8,5 @@ public interface UsableCannon {
      * @param player PlayerData of the player using the cannon
      * @param strength Strength of the cannon to be used
      */
-    void useCannon(PlayerData player, float strength);
+    void useCannon(PlayerData player, Float strength) throws IllegalStateException;
 }

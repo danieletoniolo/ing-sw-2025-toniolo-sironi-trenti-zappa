@@ -111,7 +111,7 @@ public class PlayerData {
 
     /**
      * Get if the player has given up
-     * @return the ship of the player
+     * @return true if the player has given up, false otherwise
      */
     public boolean hasGivenUp() {
         return this.gaveUp;

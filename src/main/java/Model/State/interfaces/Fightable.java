@@ -1,5 +1,8 @@
 package Model.State.interfaces;
 
-// TODO: non mi piace per niente che l'interfaccia sia vuota, ma per ora non ho trovato un modo migliore per farlo
+import java.util.Map;
+
 public interface Fightable {
+    public void setDice(int dice) throws IllegalStateException;
+    public void setProtect(boolean protect_, Integer batteryID_) throws IllegalStateException, IllegalArgumentException;
 }

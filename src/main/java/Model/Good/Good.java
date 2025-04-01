@@ -29,4 +29,15 @@ public class Good {
     public int getValue() {
         return color.getValue();
     }
+
+    @Override
+    public boolean equals(Object good) {
+        if (good == null) {
+            return false;
+        }
+        if (good instanceof Good) {
+            return ((Good) good).getColor() == this.getColor();
+        }
+        return false;
+    }
 }
