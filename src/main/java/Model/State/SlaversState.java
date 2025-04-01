@@ -111,12 +111,10 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
      */
     @Override
     public void entry() {
-        PlayerData value0;
-        for (Pair<PlayerData, PlayerStatus> player : super.players) {
-            value0 = player.getValue0();
-            useCannon(value0, value0.getSpaceShip().getSingleCannonsStrength());
-            if (value0.getSpaceShip().hasPurpleAlien()) {
-                useCannon(value0, SpaceShip.getAlienStrength());
+        for (PlayerData player : super.players) {
+            useCannon(player, player.getSpaceShip().getSingleCannonsStrength());
+            if (player.getSpaceShip().hasPurpleAlien()) {
+                useCannon(player, SpaceShip.getAlienStrength());
             }
         }
     }

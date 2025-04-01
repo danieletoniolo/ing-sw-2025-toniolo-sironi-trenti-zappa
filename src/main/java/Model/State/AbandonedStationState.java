@@ -37,9 +37,9 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
 
     @Override
     public void entry() {
-        for (Pair<PlayerData, PlayerStatus> player : players) {
-            SpaceShip ship = player.getValue0().getSpaceShip();
-            cannonStrength.put(player.getValue0().getUUID(), ship.getSingleCannonsStrength());
+        for (PlayerData player : players) {
+            SpaceShip ship = player.getSpaceShip();
+            cannonStrength.put(player.getUUID(), ship.getSingleCannonsStrength());
         }
     }
 
@@ -49,33 +49,31 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
         if (player == null) {
             throw new NullPointerException("player is null");
         }
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue0().equals(player)) {
-                if (p.getValue1() == PlayerStatus.PLAYING) {
-                    p.setAt1(PlayerStatus.PLAYED);
 
-                    // Execute the exchange
-                    for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
-                        SpaceShip ship = p.getValue0().getSpaceShip();
-                        ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
-                    }
+        if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
+            playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
 
-                    super.played = true;
-                } else {
-                    p.setAt1(PlayerStatus.WAITING);
-                }
+            // Execute the exchange
+            for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
+                SpaceShip ship = player.getSpaceShip();
+                ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
             }
+
+            super.played = true;
+        } else {
+            playersStatus.replace(player.getColor(), PlayerStatus.WAITING);
         }
     }
 
     @Override
     public void exit() throws IllegalStateException{
-        for (Pair<PlayerData, PlayerStatus> player : players) {
-            if (player.getValue1() == PlayerStatus.PLAYED) {
+        for (PlayerData player : players) {
+            PlayerStatus status = playersStatus.get(player.getColor());
+            if (status == PlayerStatus.PLAYED) {
                 int flightDays = card.getFlightDays();
-                player.getValue0().addSteps(-flightDays);
+                player.addSteps(-flightDays);
                 break;
-            } else if (player.getValue1() == PlayerStatus.WAITING || player.getValue1() == PlayerStatus.PLAYING) {
+            } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");
             }
         }

@@ -5,6 +5,7 @@ import Model.Player.PlayerData;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 enum PlayerStatus {
     WAITING,
@@ -14,7 +15,8 @@ enum PlayerStatus {
 }
 
 public abstract class State {
-    protected ArrayList<Pair<PlayerData, PlayerStatus>> players;
+    protected ArrayList<PlayerData> players;
+    protected Map<PlayerColor, PlayerStatus> playersStatus;
     protected Boolean played;
 
     /**
@@ -24,9 +26,9 @@ public abstract class State {
         if (players == null) {
             throw new NullPointerException("players is null");
         }
-        this.players = new ArrayList<>();
+        this.players = players;
         for (PlayerData player : players) {
-            this.players.add(new Pair<>(player, PlayerStatus.WAITING));
+            this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
         }
         this.played = false;
     }
@@ -39,7 +41,7 @@ public abstract class State {
      */
     protected int getPlayerPosition(PlayerData player) throws IllegalArgumentException {
         for (int i = 0; i < players.size(); i++) {
-            if (players.get(i).getValue0().equals(player)) {
+            if (players.get(i).equals(player)) {
                 return i;
             }
         }
@@ -52,8 +54,8 @@ public abstract class State {
      * @return Boolean value if all players have played
      */
     protected boolean haveAllPlayersPlayed() {
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue1() != PlayerStatus.PLAYED && p.getValue1() != PlayerStatus.SKIPPED) {
+        for (PlayerData p : players) {
+            if (playersStatus.get(p.getColor()) != PlayerStatus.PLAYED && playersStatus.get(p.getColor()) != PlayerStatus.SKIPPED) {
                 return false;
             }
         }
@@ -61,29 +63,12 @@ public abstract class State {
     }
 
     /**
-     * Set the status of the player
-     * @param player PlayerData of the player to set the status
-     * @throws NullPointerException player == null
-     */
-    protected void setStatusPlayer(PlayerData player, PlayerStatus status) throws NullPointerException {
-        if (player == null) {
-            throw new NullPointerException("Player is null");
-        }
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue0().equals(player)) {
-                p.setAt1(status);
-                break;
-            }
-        }
-    }
-
-    /**
      * Set the status of all players
      * @param status PlayerStatus to set to all players
      */
     protected void setStatusPlayers(PlayerStatus status) {
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            p.setAt1(status);
+        for (PlayerData p : players) {
+            playersStatus.put(p.getColor(), status);
         }
     }
 
@@ -93,9 +78,9 @@ public abstract class State {
      * @throws IllegalStateException if all players have played
      */
     public PlayerData getCurrentPlayer() throws IllegalStateException{
-        for (Pair<PlayerData, PlayerStatus> player : players) {
-            if (player.getValue1() == PlayerStatus.WAITING) {
-                return player.getValue0();
+        for (PlayerData player : players) {
+            if (playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {
+                return player;
             }
         }
         throw new IllegalStateException("All players have played");
@@ -110,12 +95,7 @@ public abstract class State {
         if (player == null) {
             throw new NullPointerException("player is null");
         }
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue0().equals(player)) {
-                p.setAt1(PlayerStatus.PLAYING);
-                break;
-            }
-        }
+        playersStatus.replace(player.getColor(), PlayerStatus.PLAYING);
     }
 
     /**
@@ -132,14 +112,12 @@ public abstract class State {
         if (player == null) {
             throw new NullPointerException("player is null");
         }
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue0().equals(player)) {
-                if (p.getValue1() == PlayerStatus.PLAYING) {
-                    p.setAt1(PlayerStatus.PLAYED);
-                } else {
-                    p.setAt1(PlayerStatus.SKIPPED);
-                }
-            }
+
+        PlayerStatus playerStatus = playersStatus.get(player.getColor());
+        if (playerStatus == PlayerStatus.PLAYING) {
+            playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
+        } else {
+            playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
         }
     }
 
@@ -148,8 +126,10 @@ public abstract class State {
      * @throws IllegalStateException if not all players have played
      */
     public void exit() throws IllegalStateException {
-        if (!haveAllPlayersPlayed()) {
-            throw new IllegalStateException("Not all players have played");
+        for (PlayerData p : players) {
+            if (playersStatus.get(p.getColor()) == PlayerStatus.WAITING) {
+                throw new IllegalStateException("Not all players have played");
+            }
         }
         this.played = true;
     }

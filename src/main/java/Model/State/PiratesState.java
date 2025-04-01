@@ -107,12 +107,10 @@ public class PiratesState extends State implements Fightable, ChoosableFragment,
      */
     @Override
     public void entry() {
-        PlayerData value0;
-        for (Pair<PlayerData, PlayerStatus> player : super.players) {
-            value0 = player.getValue0();
-            this.useCannon(value0, value0.getSpaceShip().getSingleCannonsStrength());
-            if (value0.getSpaceShip().hasPurpleAlien()) {
-                this.useCannon(value0, SpaceShip.getAlienStrength());
+        for (PlayerData player : super.players) {
+            this.useCannon(player, player.getSpaceShip().getSingleCannonsStrength());
+            if (player.getSpaceShip().hasPurpleAlien()) {
+                this.useCannon(player, SpaceShip.getAlienStrength());
             }
         }
     }
