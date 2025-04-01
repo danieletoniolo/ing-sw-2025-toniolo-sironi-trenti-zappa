@@ -21,6 +21,763 @@ class CabinTest {
         assertNotNull(c);
     }
 
+    @RepeatedTest(5)
+    void getCrewNumber_initiallyZero() {
+        Cabin cabin = new Cabin(1, connectors);
+        assertEquals(0, cabin.getCrewNumber());
+    }
+
+    @RepeatedTest(5)
+    void getCrewNumber_afterAddingCrewMembers() {
+        Cabin cabin = new Cabin(1, connectors);
+        cabin.addCrewMember();
+        assertEquals(2, cabin.getCrewNumber());
+    }
+
+    @RepeatedTest(5)
+    void getCrewNumber_afterAddingPurpleAlien() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        cabin.isValid();
+        cabin.addPurpleAlien();
+        assertEquals(1, cabin.getCrewNumber());
+    }
+
+    @RepeatedTest(5)
+    void getCrewNumber_afterAddingBrownAlien() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        cabin.isValid();
+        cabin.addBrownAlien();
+        assertEquals(1, cabin.getCrewNumber());
+    }
+
+    @RepeatedTest(5)
+    void getCrewNumber_afterRemovingCrewMembers() {
+        Cabin cabin = new Cabin(1, connectors);
+        cabin.addCrewMember();
+        cabin.removeCrewMember(1);
+        assertEquals(1, cabin.getCrewNumber());
+        cabin.removeCrewMember(1);
+        assertEquals(0, cabin.getCrewNumber());
+    }
+
+    @RepeatedTest(5)
+    void hasPurpleLifeSupport_initiallyFalse() {
+        Cabin cabin = new Cabin(1, connectors);
+        assertFalse(cabin.hasPurpleLifeSupport());
+    }
+
+    @RepeatedTest(5)
+    void hasPurpleLifeSupport_afterAddingPurpleLifeSupport() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        cabin.isValid();
+        assertTrue(cabin.hasPurpleLifeSupport());
+    }
+
+    @RepeatedTest(5)
+    void hasPurpleLifeSupport_withNoAdjacentLifeSupport() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        cabin.isValid();
+        assertFalse(cabin.hasPurpleLifeSupport());
+    }
+
+    @RepeatedTest(5)
+    void hasPurpleLifeSupport_withMultipleAdjacentComponents() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportPurple lifeSupport1 = new LifeSupportPurple(2, connectors);
+        LifeSupportPurple lifeSupport2 = new LifeSupportPurple(3, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport1, 6, 8);
+        ship.placeComponent(lifeSupport2, 7, 7);
+        cabin.isValid();
+        assertTrue(cabin.hasPurpleLifeSupport());
+    }
+
+    @RepeatedTest(5)
+    void hasBrownLifeSupport_initiallyFalse() {
+        Cabin cabin = new Cabin(1, connectors);
+        assertFalse(cabin.hasBrownLifeSupport());
+    }
+
+    @RepeatedTest(5)
+    void hasBrownLifeSupport_afterAddingBrownLifeSupport() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        cabin.isValid();
+        assertTrue(cabin.hasBrownLifeSupport());
+    }
+
+    @RepeatedTest(5)
+    void hasBrownLifeSupport_withNoAdjacentLifeSupport() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        cabin.isValid();
+        assertFalse(cabin.hasBrownLifeSupport());
+    }
+
+    @RepeatedTest(5)
+    void hasBrownLifeSupport_withMultipleAdjacentComponents() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportBrown lifeSupport1 = new LifeSupportBrown(2, connectors);
+        LifeSupportBrown lifeSupport2 = new LifeSupportBrown(3, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport1, 6, 8);
+        ship.placeComponent(lifeSupport2, 7, 7);
+        cabin.isValid();
+        assertTrue(cabin.hasBrownLifeSupport());
+    }
+
+    @RepeatedTest(5)
+    void hasPurpleAlien_initiallyFalse() {
+        Cabin cabin = new Cabin(1, connectors);
+        assertFalse(cabin.hasPurpleAlien());
+    }
+
+    @RepeatedTest(5)
+    void hasPurpleAlien_afterAddingPurpleAlien() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        cabin.isValid();
+        cabin.addPurpleAlien();
+        assertTrue(cabin.hasPurpleAlien());
+    }
+
+    @RepeatedTest(5)
+    void hasPurpleAlien_withNoPurpleLifeSupport() {
+        Cabin cabin = new Cabin(1, connectors);
+        assertThrows(IllegalStateException.class, cabin::addPurpleAlien);
+        assertFalse(cabin.hasPurpleAlien());
+    }
+
+    @RepeatedTest(5)
+    void hasPurpleAlien_withBrownAlienPresent() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        cabin.isValid();
+        cabin.addBrownAlien();
+        assertThrows(IllegalStateException.class, cabin::addPurpleAlien);
+        assertFalse(cabin.hasPurpleAlien());
+    }
+
+    @RepeatedTest(5)
+    void hasBrownAlien_initiallyFalse() {
+        Cabin cabin = new Cabin(1, connectors);
+        assertFalse(cabin.hasBrownAlien());
+    }
+
+    @RepeatedTest(5)
+    void hasBrownAlien_afterAddingBrownAlien() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        cabin.isValid();
+        cabin.addBrownAlien();
+        assertTrue(cabin.hasBrownAlien());
+    }
+
+    @RepeatedTest(5)
+    void hasBrownAlien_withNoBrownLifeSupport() {
+        Cabin cabin = new Cabin(1, connectors);
+        assertThrows(IllegalStateException.class, cabin::addBrownAlien);
+        assertFalse(cabin.hasBrownAlien());
+    }
+
+    @RepeatedTest(5)
+    void hasBrownAlien_withPurpleAlienPresent() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        cabin.isValid();
+        cabin.addPurpleAlien();
+        assertThrows(IllegalStateException.class, cabin::addBrownAlien);
+        assertFalse(cabin.hasBrownAlien());
+    }
+
+    @RepeatedTest(5)
+    void addCrewMember_withNoAliens() {
+        Cabin cabin = new Cabin(1, connectors);
+        cabin.addCrewMember();
+        assertEquals(2, cabin.getCrewNumber());
+    }
+
+    @RepeatedTest(5)
+    void addCrewMember_withPurpleAlien() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        cabin.isValid();
+        cabin.addPurpleAlien();
+        assertThrows(IllegalStateException.class, cabin::addCrewMember);
+    }
+
+    @RepeatedTest(5)
+    void addCrewMember_withBrownAlien() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        cabin.isValid();
+        cabin.addBrownAlien();
+        assertThrows(IllegalStateException.class, cabin::addCrewMember);
+    }
+
+    @RepeatedTest(5)
+    void removeCrewMember_withSufficientCrew() {
+        Cabin cabin = new Cabin(1, connectors);
+        cabin.addCrewMember();
+        cabin.removeCrewMember(1);
+        assertEquals(1, cabin.getCrewNumber());
+        cabin.removeCrewMember(1);
+        assertEquals(0, cabin.getCrewNumber());
+    }
+
+    @RepeatedTest(5)
+    void removeCrewMember_withInsufficientCrew() {
+        Cabin cabin = new Cabin(1, connectors);
+        assertThrows(IllegalStateException.class, () -> cabin.removeCrewMember(1));
+    }
+
+    @RepeatedTest(5)
+    void removeCrewMember_withPurpleAlien() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        cabin.isValid();
+        cabin.addPurpleAlien();
+        cabin.removeCrewMember(1);
+        assertEquals(0, cabin.getCrewNumber());
+        assertFalse(cabin.hasPurpleAlien());
+    }
+
+    @RepeatedTest(5)
+    void removeCrewMember_withBrownAlien() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        cabin.isValid();
+        cabin.addBrownAlien();
+        cabin.removeCrewMember(1);
+        assertEquals(0, cabin.getCrewNumber());
+        assertFalse(cabin.hasBrownAlien());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withNoAdjacentLifeSupport() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        assertTrue(cabin.isValid());
+        assertFalse(cabin.hasBrownAlien());
+        assertFalse(cabin.hasPurpleAlien());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withAdjacentPurpleLifeSupport() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        assertTrue(cabin.isValid());
+        assertTrue(cabin.hasPurpleLifeSupport());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withAdjacentBrownLifeSupport() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        assertTrue(cabin.isValid());
+        assertTrue(cabin.hasBrownLifeSupport());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withMultipleAdjacentLifeSupports() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportPurple lifeSupport1 = new LifeSupportPurple(2, connectors);
+        LifeSupportBrown lifeSupport2 = new LifeSupportBrown(3, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport1, 6, 8);
+        ship.placeComponent(lifeSupport2, 7, 7);
+        assertTrue(cabin.isValid());
+        assertTrue(cabin.hasPurpleLifeSupport());
+        assertTrue(cabin.hasBrownLifeSupport());
+    }
+
+    @RepeatedTest(5)
+    void getComponentType_returnsCabinType() {
+        Cabin cabin = new Cabin(1, connectors);
+        assertEquals(ComponentType.CABIN, cabin.getComponentType());
+    }
+
+    @RepeatedTest(5)
+    void getComponentType_withDifferentID() {
+        Cabin cabin = new Cabin(2, connectors);
+        assertEquals(ComponentType.CABIN, cabin.getComponentType());
+    }
+
+    @RepeatedTest(5)
+    void getConnection_northFace() {
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY};
+        Component component = new Cabin(1, connectors);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(0));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_westFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.EMPTY};
+        Component component = new Cabin(1, connectors);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(1));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_southFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY};
+        Component component = new Cabin(1, connectors);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(2));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_eastFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.SINGLE};
+        Component component = new Cabin(1, connectors);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(3));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_afterRotation() {
+        ConnectorType[] connectors1 = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.DOUBLE, ConnectorType.EMPTY};
+        Component component = new Cabin(1, connectors1);
+        component.rotateClockwise();
+        assertEquals(ConnectorType.EMPTY, component.getConnection(0));
+        assertEquals(ConnectorType.DOUBLE, component.getConnection(1));
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_initialValue() {
+        Component component = new Cabin(1, connectors);
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_afterOneRotation() {
+        Component component = new Cabin(1, connectors);
+        component.rotateClockwise();
+        assertEquals(1, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_afterMultipleRotations() {
+        Component component = new Cabin(1, connectors);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(3, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_fullRotation() {
+        Component component = new Cabin(1, connectors);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getID_returnsCorrectID() {
+        Component component = new Cabin(1, connectors);
+        assertEquals(1, component.getID());
+    }
+
+    @RepeatedTest(5)
+    void getID_differentID() {
+        Component component = new Cabin(2, connectors);
+        assertEquals(2, component.getID());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_once() {
+        Component component = new Cabin(1, connectors);
+        component.rotateClockwise();
+        assertEquals(1, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_twice() {
+        Component component = new Cabin(1, connectors);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(2, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_threeTimes() {
+        Component component = new Cabin(1, connectors);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(3, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_fourTimes() {
+        Component component = new Cabin(1, connectors);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_multipleFullRotations() {
+        Component component = new Cabin(1, connectors);
+        for (int i = 0; i < 8; i++) {
+            component.rotateClockwise();
+        }
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_whenAttachedToShip() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Cabin(1, connectors);
+        ship.placeComponent(component, 6, 7);
+        assertEquals(3, component.getExposedConnectors());
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_whenNotAttachedToShip_throwsException() {
+        Component component = new Cabin(1, connectors);
+        assertThrows(IllegalStateException.class, component::getExposedConnectors);
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_withSurroundingComponents() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Cabin(1, connectors);
+        Component adjacentComponent = new Cabin(2, connectors);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertEquals(2, component.getExposedConnectors());
+    }
+
+    @RepeatedTest(5)
+    void isConnected_withAdjacentComponent() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Cabin(1, connectors);
+        Component adjacentComponent = new Cabin(2, connectors);
+        ship.placeComponent(component, 6, 7);
+        assertTrue(component.isConnected(6, 7));
+    }
+
+    @RepeatedTest(5)
+    void isConnected_withMultipleAdjacentComponents() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Cabin(1, connectors);
+        Component adjacentComponent1 = new Cabin(2, connectors);
+        Component adjacentComponent2 = new Cabin(3, connectors);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent1, 6, 8);
+        ship.placeComponent(adjacentComponent2, 5, 7);
+        assertTrue(component.isConnected(6, 7));
+    }
+
+    @RepeatedTest(5)
+    void isFixed_initiallyFalse() {
+        Component component = new Cabin(1, connectors);
+        assertFalse(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isFixed_afterFixing() {
+        Component component = new Cabin(1, connectors);
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isFixed_afterMultipleFixCalls() {
+        Component component = new Cabin(1, connectors);
+        component.fix();
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void fix_setsFixedToTrue() {
+        Component component = new Cabin(1, connectors);
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void fix_doesNotChangeFixedStateIfAlreadyFixed() {
+        Component component = new Cabin(1, connectors);
+        component.fix();
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withAllValidConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Cabin(1, connectors);
+        Component adjacentComponent = new Cabin(2, connectors);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertTrue(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withInvalidConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY};
+        Component component = new Cabin(1, connectors);
+        Component adjacentComponent = new Cabin(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE});
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertFalse(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withTripleConnector() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.TRIPLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Cabin(1, connectors);
+        Component adjacentComponent = new Cabin(2, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.TRIPLE, ConnectorType.SINGLE});
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertTrue(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withMixedConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Cabin(1, connectors);
+        Component adjacentComponent1 = new Cabin(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE});
+        Component adjacentComponent2 = new Cabin(3, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE});
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent1, 6, 8);
+        ship.placeComponent(adjacentComponent2, 6, 6);
+        assertFalse(component.isValid());
+    }
+
+
+
+
+/*
     @RepeatedTest(10)
     void getComponentType() {
         c = new Cabin(4,  connectors);
@@ -567,4 +1324,5 @@ class CabinTest {
             }
         }
     }
+ */
 }

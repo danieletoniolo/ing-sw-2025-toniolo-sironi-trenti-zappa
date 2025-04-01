@@ -15,10 +15,377 @@ class BatteryTest {
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        b = new Battery(0, connectors, 1);
+        b = new Battery(0, connectors, 3);
         assertNotNull(b, "Component not initialized correctly");
     }
 
+    @RepeatedTest(5)
+    void getEnergyNumber_initialValue() {
+        assertEquals(3, b.getEnergyNumber());
+    }
+
+    @RepeatedTest(5)
+    void getEnergyNumber_afterRemovingEnergy() {
+        b.removeEnergy();
+        assertEquals(2, b.getEnergyNumber());
+    }
+
+    @RepeatedTest(5)
+    void getEnergyNumber_afterMultipleRemovals() {
+        b.removeEnergy();
+        b.removeEnergy();
+        assertEquals(1, b.getEnergyNumber());
+    }
+
+    @RepeatedTest(5)
+    void getEnergyNumber_noEnergyLeft() {
+        Battery battery = new Battery(1, connectors, 1);
+        battery.removeEnergy();
+        assertThrows(IllegalStateException.class, battery::removeEnergy);
+        assertEquals(0, battery.getEnergyNumber());
+    }
+
+    @RepeatedTest(5)
+    void removeEnergy_validRemoval() {
+        Battery battery = new Battery(1, connectors, 3);
+        battery.removeEnergy();
+        assertEquals(2, battery.getEnergyNumber());
+    }
+
+    @RepeatedTest(5)
+    void removeEnergy_multipleRemovals() {
+        Battery battery = new Battery(1, connectors, 3);
+        battery.removeEnergy();
+        battery.removeEnergy();
+        assertEquals(1, battery.getEnergyNumber());
+    }
+
+    @RepeatedTest(5)
+    void removeEnergy_noEnergyLeftThrowsException() {
+        Battery battery = new Battery(1, connectors, 1);
+        battery.removeEnergy();
+        assertThrows(IllegalStateException.class, battery::removeEnergy);
+        assertEquals(0, battery.getEnergyNumber());
+    }
+
+    @RepeatedTest(5)
+    void removeEnergy_negativeEnergyThrowsException() {
+        Battery battery = new Battery(1, connectors, 0);
+        assertThrows(IllegalStateException.class, battery::removeEnergy);
+        assertEquals(0, battery.getEnergyNumber());
+    }
+
+    @RepeatedTest(5)
+    void getComponentType_returnsBattery() {
+        assertEquals(ComponentType.BATTERY, b.getComponentType());
+    }
+
+    @RepeatedTest(5)
+    void getComponentType_withDifferentID() {
+        Battery battery = new Battery(2, connectors, 3);
+        assertEquals(ComponentType.BATTERY, battery.getComponentType());
+    }
+
+    @RepeatedTest(5)
+    void getConnection_northFace() {
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY};
+        Component component = new Battery(1, connectors, 3);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(0));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_westFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.EMPTY};
+        Component component = new Battery(1, connectors, 3);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(1));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_southFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY};
+        Component component = new Battery(1, connectors, 3);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(2));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_eastFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.SINGLE};
+        Component component = new Battery(1, connectors, 3);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(3));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_afterRotation() {
+        ConnectorType[] connectors1 = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.DOUBLE, ConnectorType.EMPTY};
+        Component component = new Battery(1, connectors1, 3);
+        component.rotateClockwise();
+        assertEquals(ConnectorType.EMPTY, component.getConnection(0));
+        assertEquals(ConnectorType.DOUBLE, component.getConnection(1));
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_initialValue() {
+        Component component = new Battery(1, connectors, 3);
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_afterOneRotation() {
+        Component component = new Battery(1, connectors, 3);
+        component.rotateClockwise();
+        assertEquals(1, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_afterMultipleRotations() {
+        Component component = new Battery(1, connectors, 3);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(3, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_fullRotation() {
+        Component component = new Battery(1, connectors, 3);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getID_returnsCorrectID() {
+        Component component = new Battery(1, connectors, 3);
+        assertEquals(1, component.getID());
+    }
+
+    @RepeatedTest(5)
+    void getID_differentID() {
+        Component component = new Battery(2, connectors, 3);
+        assertEquals(2, component.getID());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_once() {
+        Component component = new Battery(1, connectors, 3);
+        component.rotateClockwise();
+        assertEquals(1, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_twice() {
+        Component component = new Battery(1, connectors, 3);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(2, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_threeTimes() {
+        Component component = new Battery(1, connectors, 3);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(3, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_fourTimes() {
+        Component component = new Battery(1, connectors, 3);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_multipleFullRotations() {
+        Component component = new Battery(1, connectors, 3);
+        for (int i = 0; i < 8; i++) {
+            component.rotateClockwise();
+        }
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_whenAttachedToShip() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Battery(1, connectors, 3);
+        ship.placeComponent(component, 6, 7);
+        assertEquals(3, component.getExposedConnectors());
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_whenNotAttachedToShip_throwsException() {
+        Component component = new Battery(1, connectors, 3);
+        assertThrows(IllegalStateException.class, component::getExposedConnectors);
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_withSurroundingComponents() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Battery(1, connectors, 3);
+        Component adjacentComponent = new Battery(2, connectors, 3);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertEquals(2, component.getExposedConnectors());
+    }
+
+    @RepeatedTest(5)
+    void isConnected_withAdjacentComponent() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Battery(1, connectors, 3);
+        Component adjacentComponent = new Battery(2, connectors, 3);
+        ship.placeComponent(component, 6, 7);
+        assertTrue(component.isConnected(6, 7));
+    }
+
+    @RepeatedTest(5)
+    void isConnected_withMultipleAdjacentComponents() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Battery(1, connectors, 3);
+        Component adjacentComponent1 = new Battery(2, connectors, 3);
+        Component adjacentComponent2 = new Battery(3, connectors, 3);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent1, 6, 8);
+        ship.placeComponent(adjacentComponent2, 5, 7);
+        assertTrue(component.isConnected(6, 7));
+    }
+
+    @RepeatedTest(5)
+    void isFixed_initiallyFalse() {
+        Component component = new Battery(1, connectors, 3);
+        assertFalse(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isFixed_afterFixing() {
+        Component component = new Battery(1, connectors, 3);
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isFixed_afterMultipleFixCalls() {
+        Component component = new Battery(1, connectors, 3);
+        component.fix();
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void fix_setsFixedToTrue() {
+        Component component = new Battery(1, connectors, 3);
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void fix_doesNotChangeFixedStateIfAlreadyFixed() {
+        Component component = new Battery(1, connectors, 3);
+        component.fix();
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withAllValidConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Battery(1, connectors, 3);
+        Component adjacentComponent = new Battery(2, connectors, 3);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertTrue(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withInvalidConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY};
+        Component component = new Battery(1, connectors, 3);
+        Component adjacentComponent = new Battery(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 3);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertFalse(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withTripleConnector() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.TRIPLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Battery(1, connectors, 3);
+        Component adjacentComponent = new Battery(2, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.TRIPLE, ConnectorType.SINGLE}, 3);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertTrue(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withMixedConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Battery(1, connectors, 3);
+        Component adjacentComponent1 = new Battery(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 3);
+        Component adjacentComponent2 = new Battery(3, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 3);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent1, 6, 8);
+        ship.placeComponent(adjacentComponent2, 6, 6);
+        assertFalse(component.isValid());
+    }
+
+/*
     @RepeatedTest(10)
     void getComponentType() {
         Random rand = new Random();
@@ -258,4 +625,5 @@ class BatteryTest {
         }
         assertThrows(IllegalStateException.class, battery::removeEnergy);
     }
+ */
 }

@@ -20,6 +20,435 @@ class CannonTest {
     }
 
     @RepeatedTest(5)
+    void getCannonStrength_withNoRotation() {
+        Cannon cannon = new Cannon(1, connectors, 2);
+        assertEquals(2, cannon.getCannonStrength());
+        Cannon cannon1 = new Cannon(1, connectors, 1);
+        assertEquals(1, cannon1.getCannonStrength());
+    }
+
+    @RepeatedTest(5)
+    void getCannonStrength_withOneRotation() {
+        Cannon cannon = new Cannon(1, connectors, 2);
+        cannon.rotateClockwise();
+        assertEquals(1.0, cannon.getCannonStrength());
+        Cannon cannon1 = new Cannon(1, connectors, 1);
+        cannon1.rotateClockwise();
+        assertEquals(0.5, cannon1.getCannonStrength());
+    }
+
+    @RepeatedTest(5)
+    void getCannonStrength_withTwoRotations() {
+        Cannon cannon = new Cannon(1, connectors, 2);
+        cannon.rotateClockwise();
+        cannon.rotateClockwise();
+        assertEquals(1.0, cannon.getCannonStrength());
+        Cannon cannon1 = new Cannon(1, connectors, 1);
+        cannon1.rotateClockwise();
+        cannon1.rotateClockwise();
+        assertEquals(0.5, cannon1.getCannonStrength());
+    }
+
+    @RepeatedTest(5)
+    void getCannonStrength_withThreeRotations() {
+        Cannon cannon = new Cannon(1, connectors, 2);
+        cannon.rotateClockwise();
+        cannon.rotateClockwise();
+        cannon.rotateClockwise();
+        assertEquals(1.0, cannon.getCannonStrength());
+        Cannon cannon1 = new Cannon(1, connectors, 1);
+        cannon1.rotateClockwise();
+        cannon1.rotateClockwise();
+        cannon1.rotateClockwise();
+        assertEquals(0.5, cannon1.getCannonStrength());
+    }
+
+    @RepeatedTest(5)
+    void getCannonStrength_withFullRotation() {
+        Cannon cannon = new Cannon(1, connectors, 2);
+        for (int i = 0; i < 4; i++) {
+            cannon.rotateClockwise();
+        }
+        assertEquals(2, cannon.getCannonStrength());
+        Cannon cannon1 = new Cannon(1, connectors, 1);
+        for (int i = 0; i < 4; i++) {
+            cannon1.rotateClockwise();
+        }
+        assertEquals(1, cannon1.getCannonStrength());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withNoComponentInFront() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cannon cannon = new Cannon(1, connectors, 2);
+        ship.placeComponent(cannon, 6, 7);
+        assertTrue(cannon.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withComponentInFront() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cannon cannon = new Cannon(1, connectors, 2);
+        Storage storage = new Storage(2, connectors, true, 1);
+        ship.placeComponent(cannon, 6, 7);
+        ship.placeComponent(storage, 5, 7);
+        assertFalse(cannon.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withComponentOnSide() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cannon cannon = new Cannon(1, connectors, 2);
+        Storage storage = new Storage(2, connectors, true, 1);
+        ship.placeComponent(cannon, 6, 7);
+        ship.placeComponent(storage, 6, 8);
+        assertTrue(cannon.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withComponentInFrontAfterRotation() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cannon cannon = new Cannon(1, connectors, 2);
+        Storage storage = new Storage(2, connectors, true, 1);
+        ship.placeComponent(cannon, 6, 7);
+        ship.placeComponent(storage, 6, 6);
+        cannon.rotateClockwise();
+        assertFalse(cannon.isValid());
+    }
+
+    @RepeatedTest(5)
+    void getComponentType_withNoConnectors() {
+        Cannon cannon = new Cannon(3, connectors, 1);
+        assertEquals(ComponentType.SINGLE_CANNON, cannon.getComponentType());
+        Cannon cannon1 = new Cannon(4, connectors, 2);
+        assertEquals(ComponentType.DOUBLE_CANNON, cannon1.getComponentType());
+    }
+
+    @RepeatedTest(5)
+    void getConnection_northFace() {
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY};
+        Component component = new Cannon(1, connectors, 1);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(0));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_westFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.EMPTY};
+        Component component = new Cannon(1, connectors, 1);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(1));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_southFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY};
+        Component component = new Cannon(1, connectors, 1);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(2));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_eastFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.SINGLE};
+        Component component = new Cannon(1, connectors, 1);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(3));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_afterRotation() {
+        ConnectorType[] connectors1 = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.DOUBLE, ConnectorType.EMPTY};
+        Component component = new Cannon(1, connectors1, 1);
+        component.rotateClockwise();
+        assertEquals(ConnectorType.EMPTY, component.getConnection(0));
+        assertEquals(ConnectorType.DOUBLE, component.getConnection(1));
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_initialValue() {
+        Component component = new Cannon(1, connectors, 1);
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_afterOneRotation() {
+        Component component = new Cannon(1, connectors, 1);
+        component.rotateClockwise();
+        assertEquals(1, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_afterMultipleRotations() {
+        Component component = new Cannon(1, connectors, 1);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(3, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_fullRotation() {
+        Component component = new Cannon(1, connectors, 1);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getID_returnsCorrectID() {
+        Component component = new Cannon(1, connectors, 1);
+        assertEquals(1, component.getID());
+    }
+
+    @RepeatedTest(5)
+    void getID_differentID() {
+        Component component = new Cannon(2, connectors, 1);
+        assertEquals(2, component.getID());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_once() {
+        Component component = new Cannon(1, connectors, 1);
+        component.rotateClockwise();
+        assertEquals(1, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_twice() {
+        Component component = new Cannon(1, connectors, 1);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(2, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_threeTimes() {
+        Component component = new Cannon(1, connectors, 1);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(3, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_fourTimes() {
+        Component component = new Cannon(1, connectors, 1);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_multipleFullRotations() {
+        Component component = new Cannon(1, connectors, 1);
+        for (int i = 0; i < 8; i++) {
+            component.rotateClockwise();
+        }
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_whenAttachedToShip() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Cannon(1, connectors, 1);
+        ship.placeComponent(component, 6, 7);
+        assertEquals(3, component.getExposedConnectors());
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_whenNotAttachedToShip_throwsException() {
+        Component component = new Cannon(1, connectors, 1);
+        assertThrows(IllegalStateException.class, component::getExposedConnectors);
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_withSurroundingComponents() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Cannon(1, connectors, 1);
+        Component adjacentComponent = new Cannon(2, connectors, 1);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertEquals(2, component.getExposedConnectors());
+    }
+
+    @RepeatedTest(5)
+    void isConnected_withAdjacentComponent() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Cannon(1, connectors, 1);
+        Component adjacentComponent = new Cannon(2, connectors, 1);
+        ship.placeComponent(component, 6, 7);
+        assertTrue(component.isConnected(6, 7));
+    }
+
+    @RepeatedTest(5)
+    void isConnected_withMultipleAdjacentComponents() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Cannon(1, connectors, 1);
+        Component adjacentComponent1 = new Cannon(2, connectors, 1);
+        Component adjacentComponent2 = new Cannon(3, connectors, 1);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent1, 6, 8);
+        ship.placeComponent(adjacentComponent2, 5, 7);
+        assertTrue(component.isConnected(6, 7));
+    }
+
+    @RepeatedTest(5)
+    void isFixed_initiallyFalse() {
+        Component component = new Cannon(1, connectors, 1);
+        assertFalse(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isFixed_afterFixing() {
+        Component component = new Cannon(1, connectors, 1);
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isFixed_afterMultipleFixCalls() {
+        Component component = new Cannon(1, connectors, 1);
+        component.fix();
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void fix_setsFixedToTrue() {
+        Component component = new Cannon(1, connectors, 1);
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void fix_doesNotChangeFixedStateIfAlreadyFixed() {
+        Component component = new Cannon(1, connectors, 1);
+        component.fix();
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withAllValidConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Cannon(1, connectors, 1);
+        Component adjacentComponent = new Cannon(2, connectors, 1);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertTrue(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withInvalidConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY};
+        Component component = new Cannon(1, connectors, 1);
+        Component adjacentComponent = new Cannon(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertFalse(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withTripleConnector() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.TRIPLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Cannon(1, connectors, 1);
+        Component adjacentComponent = new Cannon(2, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.TRIPLE, ConnectorType.SINGLE}, 1);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertTrue(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withMixedConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Cannon(1, connectors, 1);
+        Component adjacentComponent1 = new Cannon(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1);
+        Component adjacentComponent2 = new Cannon(3, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent1, 6, 8);
+        ship.placeComponent(adjacentComponent2, 6, 6);
+        assertFalse(component.isValid());
+    }
+
+/*
+    @RepeatedTest(5)
     void getIDTest(){
         assertEquals(0, component.getID());
 
@@ -239,4 +668,5 @@ class CannonTest {
             assertEquals(2, i);
         }
     }
+ */
 }

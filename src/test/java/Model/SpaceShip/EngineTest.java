@@ -19,6 +19,388 @@ class EngineTest {
         assertNotNull(engine, "Component not initialized correctly");
     }
 
+    @RepeatedTest(5)
+    void getEngineStrength_withSingleStrength() {
+        Engine engine = new Engine(1, connectors, 1);
+        assertEquals(1, engine.getEngineStrength());
+    }
+
+    @RepeatedTest(5)
+    void getEngineStrength_withDoubleStrength() {
+        Engine engine = new Engine(1, connectors, 2);
+        assertEquals(2, engine.getEngineStrength());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withNoComponentBelowAndNoRotation() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Engine engine = new Engine(1, connectors, 1);
+        ship.placeComponent(engine, 6, 7);
+        assertTrue(engine.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withComponentBelow() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Engine engine = new Engine(1, connectors, 1);
+        Storage storage = new Storage(2, connectors, true, 1);
+        ship.placeComponent(engine, 8, 7);
+        ship.placeComponent(storage, 9, 7);
+        assertFalse(engine.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withRotation() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Engine engine = new Engine(1, connectors, 1);
+        ship.placeComponent(engine, 6, 7);
+        engine.rotateClockwise();
+        assertFalse(engine.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withComponentBelowAndRotation() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Engine engine = new Engine(1, connectors, 1);
+        Storage storage = new Storage(2, connectors, true, 1);
+        ship.placeComponent(engine, 8, 7);
+        ship.placeComponent(storage, 9, 7);
+        engine.rotateClockwise();
+        assertFalse(engine.isValid());
+    }
+
+    @RepeatedTest(5)
+    void getComponentType() {
+        Engine engine1 = new Engine(3, connectors, 1);
+        assertEquals(ComponentType.SINGLE_ENGINE, engine1.getComponentType());
+        Engine engine2 = new Engine(3, connectors, 2);
+        assertEquals(ComponentType.DOUBLE_ENGINE, engine2.getComponentType());
+    }
+
+    @RepeatedTest(5)
+    void getConnection_northFace() {
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY};
+        Component component = new Engine(1, connectors, 1);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(0));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_westFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.EMPTY};
+        Component component = new Engine(1, connectors, 1);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(1));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_southFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY};
+        Component component = new Engine(1, connectors, 1);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(2));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_eastFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.SINGLE};
+        Component component = new Engine(1, connectors, 1);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(3));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_afterRotation() {
+        ConnectorType[] connectors1 = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.DOUBLE, ConnectorType.EMPTY};
+        Component component = new Engine(1, connectors1, 1);
+        component.rotateClockwise();
+        assertEquals(ConnectorType.EMPTY, component.getConnection(0));
+        assertEquals(ConnectorType.DOUBLE, component.getConnection(1));
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_initialValue() {
+        Component component = new Engine(1, connectors, 1);
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_afterOneRotation() {
+        Component component = new Engine(1, connectors, 1);
+        component.rotateClockwise();
+        assertEquals(1, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_afterMultipleRotations() {
+        Component component = new Engine(1, connectors, 1);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(3, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_fullRotation() {
+        Component component = new Engine(1, connectors, 1);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getID_returnsCorrectID() {
+        Component component = new Engine(1, connectors, 1);
+        assertEquals(1, component.getID());
+    }
+
+    @RepeatedTest(5)
+    void getID_differentID() {
+        Component component = new Engine(2, connectors, 1);
+        assertEquals(2, component.getID());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_once() {
+        Component component = new Engine(1, connectors, 1);
+        component.rotateClockwise();
+        assertEquals(1, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_twice() {
+        Component component = new Engine(1, connectors, 1);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(2, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_threeTimes() {
+        Component component = new Engine(1, connectors, 1);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(3, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_fourTimes() {
+        Component component = new Engine(1, connectors, 1);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_multipleFullRotations() {
+        Component component = new Engine(1, connectors, 1);
+        for (int i = 0; i < 8; i++) {
+            component.rotateClockwise();
+        }
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_whenAttachedToShip() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Engine(1, connectors, 1);
+        ship.placeComponent(component, 6, 7);
+        assertEquals(3, component.getExposedConnectors());
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_whenNotAttachedToShip_throwsException() {
+        Component component = new Engine(1, connectors, 1);
+        assertThrows(IllegalStateException.class, component::getExposedConnectors);
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_withSurroundingComponents() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Engine(1, connectors, 1);
+        Component adjacentComponent = new Engine(2, connectors, 1);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertEquals(2, component.getExposedConnectors());
+    }
+
+    @RepeatedTest(5)
+    void isConnected_withAdjacentComponent() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Engine(1, connectors, 1);
+        Component adjacentComponent = new Engine(2, connectors, 1);
+        ship.placeComponent(component, 6, 7);
+        assertTrue(component.isConnected(6, 7));
+    }
+
+    @RepeatedTest(5)
+    void isConnected_withMultipleAdjacentComponents() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Engine(1, connectors, 1);
+        Component adjacentComponent1 = new Engine(2, connectors, 1);
+        Component adjacentComponent2 = new Engine(3, connectors, 1);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent1, 6, 8);
+        ship.placeComponent(adjacentComponent2, 5, 7);
+        assertTrue(component.isConnected(6, 7));
+    }
+
+    @RepeatedTest(5)
+    void isFixed_initiallyFalse() {
+        Component component = new Engine(1, connectors, 1);
+        assertFalse(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isFixed_afterFixing() {
+        Component component = new Engine(1, connectors, 1);
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isFixed_afterMultipleFixCalls() {
+        Component component = new Engine(1, connectors, 1);
+        component.fix();
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void fix_setsFixedToTrue() {
+        Component component = new Engine(1, connectors, 1);
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void fix_doesNotChangeFixedStateIfAlreadyFixed() {
+        Component component = new Engine(1, connectors, 1);
+        component.fix();
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withAllValidConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Engine(1, connectors, 1);
+        Component adjacentComponent = new Engine(2, connectors, 1);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertTrue(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withInvalidConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY};
+        Component component = new Engine(1, connectors, 1);
+        Component adjacentComponent = new Engine(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertFalse(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withTripleConnector() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.TRIPLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Engine(1, connectors, 1);
+        Component adjacentComponent = new Engine(2, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.TRIPLE, ConnectorType.SINGLE}, 1);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertTrue(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withMixedConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Engine(1, connectors, 1);
+        Component adjacentComponent1 = new Engine(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1);
+        Component adjacentComponent2 = new Engine(3, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent1, 6, 8);
+        ship.placeComponent(adjacentComponent2, 6, 6);
+        assertFalse(component.isValid());
+    }
+
+/*
     @RepeatedTest(10)
     void getComponentType() {
         Random rand = new Random();
@@ -251,4 +633,5 @@ class EngineTest {
         Engine engine = new Engine(1, connectors, power);
         assertEquals(power, engine.getEngineStrength());
     }
+ */
 }

@@ -22,6 +22,475 @@ class StorageTest {
         assertNotNull(s, "Component not initialized correctly");
     }
 
+    @RepeatedTest(5)
+    void isDangerous_returnsTrueForDangerousStorage() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        assertTrue(storage.isDangerous());
+    }
+
+    @RepeatedTest(5)
+    void isDangerous_returnsFalseForNonDangerousStorage() {
+        Storage storage = new Storage(1, connectors, false, 3);
+        assertFalse(storage.isDangerous());
+    }
+
+    @RepeatedTest(5)
+    void getGoodsCapacity_returnsCorrectCapacity() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        assertEquals(3, storage.getGoodsCapacity());
+    }
+
+    @RepeatedTest(5)
+    void getGoodsCapacity_withDifferentCapacities() {
+        Storage storage1 = new Storage(1, connectors, true, 2);
+        Storage storage2 = new Storage(2, connectors, false, 3);
+        assertEquals(2, storage1.getGoodsCapacity());
+        assertEquals(3, storage2.getGoodsCapacity());
+    }
+
+    @RepeatedTest(5)
+    void addGood_addsGoodToStorage() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        Good good = new Good(GoodType.GREEN);
+        storage.addGood(good);
+        assertTrue(storage.getGoods().contains(good));
+    }
+
+    @RepeatedTest(5)
+    void addGood_throwsExceptionWhenStorageIsFull() {
+        Storage storage = new Storage(1, connectors, true, 1);
+        Good good1 = new Good(GoodType.GREEN);
+        Good good2 = new Good(GoodType.YELLOW);
+        storage.addGood(good1);
+        assertThrows(IllegalStateException.class, () -> storage.addGood(good2));
+    }
+
+    @RepeatedTest(5)
+    void addGood_throwsExceptionWhenAddingRedGoodToNonDangerousStorage() {
+        Storage storage = new Storage(1, connectors, false, 3);
+        Good good = new Good(GoodType.RED);
+        assertThrows(IllegalStateException.class, () -> storage.addGood(good));
+    }
+
+    @RepeatedTest(5)
+    void addGood_increasesGoodsValue() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        Good good = new Good(GoodType.GREEN);
+        int initialGoodsValue = storage.getGoodsValue();
+        storage.addGood(good);
+        assertEquals(initialGoodsValue + good.getValue(), storage.getGoodsValue());
+    }
+
+    @RepeatedTest(5)
+    void removeGood_removesGoodFromStorage() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        Good good = new Good(GoodType.GREEN);
+        storage.addGood(good);
+        storage.removeGood(good);
+        assertFalse(storage.getGoods().contains(good));
+    }
+
+    @RepeatedTest(5)
+    void removeGood_throwsExceptionWhenGoodNotFound() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        Good good = new Good(GoodType.GREEN);
+        assertThrows(IllegalStateException.class, () -> storage.removeGood(good));
+    }
+
+    @RepeatedTest(5)
+    void removeGood_decreasesGoodsValue() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        Good good = new Good(GoodType.GREEN);
+        storage.addGood(good);
+        int initialGoodsValue = storage.getGoodsValue();
+        storage.removeGood(good);
+        assertEquals(initialGoodsValue - good.getValue(), storage.getGoodsValue());
+    }
+
+    @RepeatedTest(5)
+    void getGoods_returnsEmptyListWhenNoGoodsAdded() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        assertTrue(storage.getGoods().isEmpty());
+    }
+
+    @RepeatedTest(5)
+    void getGoods_returnsListWithAddedGoods() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        Good good1 = new Good(GoodType.GREEN);
+        Good good2 = new Good(GoodType.YELLOW);
+        storage.addGood(good1);
+        storage.addGood(good2);
+        assertEquals(2, storage.getGoods().size());
+        assertTrue(storage.getGoods().contains(good1));
+        assertTrue(storage.getGoods().contains(good2));
+    }
+
+    @RepeatedTest(5)
+    void getGoods_returnsListWithoutRemovedGoods() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        Good good1 = new Good(GoodType.GREEN);
+        Good good2 = new Good(GoodType.YELLOW);
+        storage.addGood(good1);
+        storage.addGood(good2);
+        storage.removeGood(good1);
+        assertEquals(1, storage.getGoods().size());
+        assertFalse(storage.getGoods().contains(good1));
+        assertTrue(storage.getGoods().contains(good2));
+    }
+
+    @RepeatedTest(5)
+    void getGoodsValue_returnsZeroWhenNoGoodsAdded() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        assertEquals(0, storage.getGoodsValue());
+    }
+
+    @RepeatedTest(5)
+    void getGoodsValue_returnsCorrectValueAfterAddingGoods() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        Good good1 = new Good(GoodType.GREEN);
+        Good good2 = new Good(GoodType.YELLOW);
+        storage.addGood(good1);
+        storage.addGood(good2);
+        assertEquals(good1.getValue() + good2.getValue(), storage.getGoodsValue());
+    }
+
+    @RepeatedTest(5)
+    void getGoodsValue_returnsCorrectValueAfterRemovingGoods() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        Good good1 = new Good(GoodType.GREEN);
+        Good good2 = new Good(GoodType.YELLOW);
+        storage.addGood(good1);
+        storage.addGood(good2);
+        storage.removeGood(good1);
+        assertEquals(good2.getValue(), storage.getGoodsValue());
+    }
+
+    @RepeatedTest(5)
+    void getGoodsValue_returnsZeroAfterRemovingAllGoods() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        Good good1 = new Good(GoodType.GREEN);
+        Good good2 = new Good(GoodType.YELLOW);
+        storage.addGood(good1);
+        storage.addGood(good2);
+        storage.removeGood(good1);
+        storage.removeGood(good2);
+        assertEquals(0, storage.getGoodsValue());
+    }
+
+    @RepeatedTest(5)
+    void getComponentType_returnsStorage() {
+        Storage storage = new Storage(1, connectors, true, 3);
+        assertEquals(ComponentType.STORAGE, storage.getComponentType());
+    }
+
+    @RepeatedTest(5)
+    void getComponentType_withDifferentIDs() {
+        Storage storage1 = new Storage(1, connectors, true, 3);
+        Storage storage2 = new Storage(2, connectors, false, 2);
+        assertEquals(ComponentType.STORAGE, storage1.getComponentType());
+        assertEquals(ComponentType.STORAGE, storage2.getComponentType());
+    }
+
+    @RepeatedTest(5)
+    void getConnection_northFace() {
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY};
+        Component component = new Storage(1, connectors, true, 3);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(0));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_westFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.EMPTY};
+        Component component = new Storage(1, connectors, true, 3);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(1));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_southFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY};
+        Component component = new Storage(1, connectors, true, 3);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(2));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_eastFace() {
+        ConnectorType[] connectors = {ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.SINGLE};
+        Component component = new Storage(1, connectors, true, 3);
+        assertEquals(ConnectorType.SINGLE, component.getConnection(3));
+    }
+
+    @RepeatedTest(5)
+    void getConnection_afterRotation() {
+        ConnectorType[] connectors1 = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.DOUBLE, ConnectorType.EMPTY};
+        Component component = new Storage(1, connectors1, true, 3);
+        component.rotateClockwise();
+        assertEquals(ConnectorType.EMPTY, component.getConnection(0));
+        assertEquals(ConnectorType.DOUBLE, component.getConnection(1));
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_initialValue() {
+        Component component = new Storage(1, connectors, true, 3);
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_afterOneRotation() {
+        Component component = new Storage(1, connectors, true, 3);
+        component.rotateClockwise();
+        assertEquals(1, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_afterMultipleRotations() {
+        Component component = new Storage(1, connectors, true, 3);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(3, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getClockwiseRotation_fullRotation() {
+        Component component = new Storage(1, connectors, true, 3);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getID_returnsCorrectID() {
+        Component component = new Storage(1, connectors, true, 3);
+        assertEquals(1, component.getID());
+    }
+
+    @RepeatedTest(5)
+    void getID_differentID() {
+        Component component = new Storage(2, connectors, true, 3);
+        assertEquals(2, component.getID());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_once() {
+        Component component = new Storage(1, connectors, true, 3);
+        component.rotateClockwise();
+        assertEquals(1, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_twice() {
+        Component component = new Storage(1, connectors, true, 3);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(2, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_threeTimes() {
+        Component component = new Storage(1, connectors, true, 3);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(3, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_fourTimes() {
+        Component component = new Storage(1, connectors, true, 3);
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void rotateClockwise_multipleFullRotations() {
+        Component component = new Storage(1, connectors, true, 3);
+        for (int i = 0; i < 8; i++) {
+            component.rotateClockwise();
+        }
+        assertEquals(0, component.getClockwiseRotation());
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_whenAttachedToShip() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Storage(1, connectors, true, 3);
+        ship.placeComponent(component, 6, 7);
+        assertEquals(3, component.getExposedConnectors());
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_whenNotAttachedToShip_throwsException() {
+        Component component = new Storage(1, connectors, true, 3);
+        assertThrows(IllegalStateException.class, component::getExposedConnectors);
+    }
+
+    @RepeatedTest(5)
+    void getExposedConnectors_withSurroundingComponents() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Storage(1, connectors, true, 3);
+        Component adjacentComponent = new Storage(2, connectors, true, 3);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertEquals(2, component.getExposedConnectors());
+    }
+
+    @RepeatedTest(5)
+    void isConnected_withAdjacentComponent() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Storage(1, connectors, true, 3);
+        Component adjacentComponent = new Storage(2, connectors, true, 3);
+        ship.placeComponent(component, 6, 7);
+        assertTrue(component.isConnected(6, 7));
+    }
+
+    @RepeatedTest(5)
+    void isConnected_withMultipleAdjacentComponents() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Component component = new Storage(1, connectors, true, 3);
+        Component adjacentComponent1 = new Storage(2, connectors, true, 3);
+        Component adjacentComponent2 = new Storage(3, connectors, true, 3);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent1, 6, 8);
+        ship.placeComponent(adjacentComponent2, 5, 7);
+        assertTrue(component.isConnected(6, 7));
+    }
+
+    @RepeatedTest(5)
+    void isFixed_initiallyFalse() {
+        Component component = new Storage(1, connectors, true, 3);
+        assertFalse(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isFixed_afterFixing() {
+        Component component = new Storage(1, connectors, true, 3);
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isFixed_afterMultipleFixCalls() {
+        Component component = new Storage(1, connectors, true, 3);
+        component.fix();
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void fix_setsFixedToTrue() {
+        Component component = new Storage(1, connectors, true, 3);
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void fix_doesNotChangeFixedStateIfAlreadyFixed() {
+        Component component = new Storage(1, connectors, true, 3);
+        component.fix();
+        component.fix();
+        assertTrue(component.isFixed());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withAllValidConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Storage(1, connectors, true, 3);
+        Component adjacentComponent = new Storage(2, connectors, true, 3);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertTrue(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withInvalidConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY};
+        Component component = new Storage(1, connectors, true, 3);
+        Component adjacentComponent = new Storage(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, true, 3);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertFalse(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withTripleConnector() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.TRIPLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Storage(1, connectors, true, 3);
+        Component adjacentComponent = new Storage(2, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.TRIPLE, ConnectorType.SINGLE}, true, 3);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
+        assertTrue(component.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_withMixedConnections() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        Component component = new Storage(1, connectors, true, 3);
+        Component adjacentComponent1 = new Storage(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, true, 3);
+        Component adjacentComponent2 = new Storage(3, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, true, 2);
+        ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent1, 6, 8);
+        ship.placeComponent(adjacentComponent2, 6, 6);
+        assertFalse(component.isValid());
+    }
+
+/*
     @RepeatedTest(10)
     void getComponentType() {
         s = new Storage(0, connectors, true, 2);
@@ -363,4 +832,6 @@ class StorageTest {
         assertEquals(0, s.getGoods().size());
         assertThrows((IllegalStateException.class), () -> s.removeGood(new Good(GoodType.RED)));
     }
+
+ */
 }
