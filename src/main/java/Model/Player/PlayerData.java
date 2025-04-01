@@ -2,8 +2,11 @@ package Model.Player;
 
 import Model.SpaceShip.SpaceShip;
 
+import java.util.UUID;
+
 public class PlayerData {
     private final String username;
+    private final UUID uuid;
     private final PlayerColor color;
     private int steps;
 
@@ -14,6 +17,8 @@ public class PlayerData {
 
     private boolean disconnected;
 
+    // TODO: creare UUID per i giocatori
+
     /**
      * Create a new player
      * @param username the username of the player
@@ -22,6 +27,7 @@ public class PlayerData {
      */
     public PlayerData(String username, PlayerColor color, SpaceShip ship) {
         this.username = username;
+        this.uuid = UUID.fromString(username);
         this.color = color;
         this.ship = ship;
         this.steps = 0;
@@ -37,6 +43,14 @@ public class PlayerData {
      */
     public String getUsername() {
         return this.username;
+    }
+
+    /**
+     * Get the UUID of the player
+     * @return the UUID of the player
+     */
+    public UUID getUUID() {
+        return this.uuid;
     }
 
     /**
@@ -97,7 +111,7 @@ public class PlayerData {
 
     /**
      * Get if the player has given up
-     * @return the ship of the player
+     * @return true if the player has given up, false otherwise
      */
     public boolean hasGivenUp() {
         return this.gaveUp;
@@ -149,7 +163,15 @@ public class PlayerData {
      * @param p the player to compare
      * @return true if the players are equal, false otherwise
      */
-    public boolean equals(PlayerData p) {
-        return this.color.equals(p.getColor());
+    @Override
+    public boolean equals(Object p) {
+        if (p == null) {
+            return false;
+        }
+        if (p instanceof PlayerData) {
+            PlayerData player = (PlayerData) p;
+            return this.uuid.equals(player.getUUID());
+        }
+        return false;
     }
 }

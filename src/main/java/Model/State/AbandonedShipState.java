@@ -2,17 +2,16 @@ package Model.State;
 
 import Model.Cards.AbandonedShip;
 import Model.Player.PlayerData;
+import Model.State.interfaces.RemovableCrew;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AbandonedShipState extends State {
+public class AbandonedShipState extends State implements RemovableCrew {
     private final AbandonedShip card;
-    private final Map<Integer, Integer> crewLoss = new HashMap<>();
-    private int crewLostTotal;
-    private int state;
+    private ArrayList<Pair<Integer, Integer>> crewLoss;
 
     /**
      * Constructor
@@ -22,18 +21,24 @@ public class AbandonedShipState extends State {
     public AbandonedShipState(ArrayList<PlayerData> players, AbandonedShip card) {
         super(players);
         this.card = card;
-        state = 0;
+        this.crewLoss = null;
     }
 
     /**
      * Set which cabin loses crew members
-     * @param ID ID of the card
-     * @param crewNumber Number of crew members lost: 1 or 2
+     * @param cabinsID Map of cabins ID and number of crew removed for cabins
+     * @throws IllegalStateException if not in the right state in order to do the action
      */
-    public void setCrewLoss(int ID, int crewNumber) {
-        crewLoss.put(ID, crewNumber);
-        crewLostTotal += crewNumber;
-        state = 1;
+    public void setCrewLoss(ArrayList<Pair<Integer, Integer>> cabinsID) throws IllegalStateException {
+        int crewRemoved = 0;
+        for (Pair<Integer, Integer> cabin : cabinsID) {
+            crewRemoved += cabin.getValue1();
+        }
+
+        if (crewRemoved != card.getCrewRequired()) {
+            throw new IllegalStateException("The crew removed is not equal to the crew lost");
+        }
+        this.crewLoss = cabinsID;
     }
 
     /**
@@ -54,25 +59,17 @@ public class AbandonedShipState extends State {
         if (super.played) {
             throw new IllegalStateException("State already played");
         }
-        if (crewLostTotal != card.getCrewRequired()) {
+        if (crewLoss == null) {
             throw new IllegalStateException("Crew loss does not match the card requirements");
         }
-        if (state == 0) {
-            throw new IllegalStateException("Crew loss not set");
-        }
 
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue0().equals(player)) {
-                if (p.getValue1().equals(PlayerStatus.PLAYING)) {
-                    played = true;
-                    crewLoss.forEach((ID, loss) -> {
-                        player.getSpaceShip().getCabin(ID).removeCrewMember(loss);
-                    });
-                    player.addCoins(card.getCredit());
-                    player.addSteps(-card.getFlightDays());
-                }
-                break;
-            }
+        if (playersStatus.get(player.getColor()).equals(PlayerStatus.PLAYING)) {
+            played = true;
+            crewLoss.forEach(cabin -> {
+                player.getSpaceShip().getCabin(cabin.getValue0()).removeCrewMember(cabin.getValue1());
+            });
+            player.addCoins(card.getCredit());
+            player.addSteps(-card.getFlightDays());
         }
         super.execute(player);
     }

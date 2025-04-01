@@ -6,7 +6,6 @@ import org.javatuples.Pair;
 import java.util.ArrayList;
 
 public class StardustState extends State {
-    private int numberExposedConnectors;
 
     /**
      * Constructor for StardustState
@@ -18,9 +17,9 @@ public class StardustState extends State {
 
     @Override
     public void entry(){
-        for(Pair<PlayerData, PlayerStatus> p : players){
-            numberExposedConnectors = p.getValue0().getSpaceShip().getExposedConnectors();
-            p.getValue0().addSteps(-numberExposedConnectors);
+        for(PlayerData p : players){
+            int numberExposedConnectors = p.getSpaceShip().getExposedConnectors();
+            p.addSteps(-numberExposedConnectors);
         }
     }
 }

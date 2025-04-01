@@ -2,8 +2,10 @@ package Model.SpaceShip;
 
 import java.util.*;
 
+import Model.Cards.Hits.Direction;
 import Model.Cards.Hits.Hit;
 import Model.Game.Board.Level;
+import Model.Good.Good;
 import org.javatuples.Pair;
 
 public class SpaceShip {
@@ -23,6 +25,7 @@ public class SpaceShip {
     private Map<Integer, Battery> batteries;
     private Map<Integer, Cabin> cabins;
     private Map<Integer, Cannon> cannons;
+    private PriorityQueue<Good> goods;
 
     private int singleEnginesStrength;
     private int doubleEnginesStrength;
@@ -44,11 +47,7 @@ public class SpaceShip {
 
     public SpaceShip(Level level, boolean[][] validSpots) {
         this.level = level;
-        components = new Component[rows][cols];
-        // TODO: Set the initial components of the ship with proper values
-        components[7][7] = new Cabin(1, 7, 7, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
-        components[7][7].ship = this;
-        numberOfComponents = 0;
+
         this.validSpots = validSpots;
         lostComponents = new ArrayList<>();
         reservedComponents = new ArrayList<>();
@@ -74,6 +73,110 @@ public class SpaceShip {
         batteries = new HashMap<>();
         cabins = new HashMap<>();
         cannons = new HashMap<>();
+        goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
+
+        // TODO: The center cabin should be 6 6 and not 7 7 (because of the 0 index)
+        components = new Component[rows][cols];
+        components[7][7] = new Cabin(1, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
+        components[7][7].ship = this;
+        components[7][7].setRow(7);
+        components[7][7].setColumn(7);
+        cabins.put(components[7][7].getID(), (Cabin) components[7][7]);
+        numberOfComponents = 1;
+    }
+
+    /**
+     * Find the component in the ship that is being hit from the given direction
+     * @param dice direction of the hit (Number picked by dice roll)
+     * @param direction direction of the hit (North, West, South, East)
+     * @return The component that is being hit from the given direction
+     */
+    private Component findComponent(int dice, Direction direction) {
+        switch (direction) {
+            case NORTH:
+                for (int i = 0; i < rows; i++) {
+                    if (components[i][dice] != null) return components[i][dice];
+                }
+                break;
+            case WEST:
+                for (int i = 0; i < cols; i++) {
+                    if (components[dice][i] != null) return components[dice][i];
+                }
+                break;
+            case SOUTH:
+                for (int i = rows - 1; i >= 0; i--) {
+                    if (components[i][dice] != null) return components[i][dice];
+                }
+                break;
+            case EAST:
+                for (int i = cols - 1; i >= 0; i--) {
+                    if (components[dice][i] != null) return components[dice][i];
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("The direction of the hit is not valid");
+        }
+        return null;
+    }
+
+    /**
+     * Check if the ship can shield from a hit
+     * @param direction direction of the hit (North, West, South, East)
+     * @return true if the ship can shield from the hit, false otherwise
+     */
+    private boolean canShield(int direction) {
+        for (Component[] row : components) {
+            for (Component comp : row) {
+                if (comp != null && comp.getComponentType() == ComponentType.SHIELD) {
+                    Shield shield = (Shield) comp;
+                    if (shield.canShield(direction)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if the ship can protect from a large meteor
+     * @param dice direction of the hit (Number picked by dice roll)
+     * @param direction direction of the hit (North, West, South, East)
+     * @return true if the ship can protect from the large meteor, false otherwise
+     */
+    private boolean canProtectFromLargeMeteor(int dice, int direction) {
+        if (level == Level.SECOND && direction % 2 != 0) {
+            for (int j = 0; j < 12; j++) {
+                if (isCannonProtecting(dice - 1, j, direction) || isCannonProtecting(dice + 1, j, direction)) {
+                    return true;
+                }
+            }
+        }
+        for (int j = 0; j < 12; j++) {
+            if (isCannonProtecting(direction % 2 == 0 ? j : dice, direction % 2 == 0 ? dice : j, direction)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if the cannon is protecting from the given direction
+     * @param row row of the cannon
+     * @param col column of the cannon
+     * @param direction direction of the hit (North, West, South, East)
+     * @return true if the cannon is protecting from the given direction, false otherwise
+     */
+    private boolean isCannonProtecting(int row, int col, int direction) {
+        Component comp = components[row][col];
+        if (comp != null) {
+            if (comp.getComponentType() == ComponentType.SINGLE_CANNON && comp.getClockwiseRotation() == direction) {
+                return true;
+            } else if (comp.getComponentType() == ComponentType.DOUBLE_CANNON && comp.getClockwiseRotation() == direction) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -157,23 +260,6 @@ public class SpaceShip {
     }
 
     /**
-     * Get the value of the goods of the ship by searching in the components matrix
-     */
-    public void refreshGoodsValue() {
-        goodsValue = 0;
-        for (Component[] c1 : components) {
-            for (Component c2 : c1) {
-                if (c2 != null) {
-                    if (c2.getComponentType() == ComponentType.STORAGE) {
-                        Storage storage = (Storage) c2;
-                        goodsValue += storage.getGoodsValue();
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Get the number of crew members of the ship
      * @return the number of crew members of the ship
      */
@@ -185,7 +271,7 @@ public class SpaceShip {
      * Get if there is a purple alien in the ship
      * @return true if there is a purple alien in the ship, false otherwise
      */
-    public boolean getPurpleAlien(){
+    public boolean hasPurpleAlien(){
         return purpleAlien;
     }
 
@@ -193,7 +279,7 @@ public class SpaceShip {
      * Get if there is a brown alien in the ship
      * @return true if there is a brown alien in the ship, false otherwise
      */
-    public boolean getBrownAlien(){
+    public boolean hasBrownAlien(){
         return brownAlien;
     }
 
@@ -226,15 +312,102 @@ public class SpaceShip {
     }
 
     /**
-     * Add crew members to the ship
-     * @param num number of crew members to add
-     * @throws IllegalArgumentException if the number of crew members is negative
+     * Get the goods of the ship ordered by value
+     * @return PriorityQueue of goods of the ship (The max value is at the top)
      */
-    public void addCrewMember(int num) throws IllegalArgumentException {
-        if (crewNumber + num < 0) {
-            throw new IllegalStateException("Cannot have negative crew members");
+    public PriorityQueue<Good> getGoods() {
+        return goods;
+    }
+
+    /**
+     * Add goods to the ship and the storage
+     * @param goodsToAdd goods to add to the storage
+     * @param goodsToRemove goods to remove from the storage
+     * @param storageID storage ID where to exchange the goods
+     * @throws IllegalArgumentException if the storage with the given ID does not exist
+     * @throws IllegalStateException if the storage is full or if the goods to remove are not in the storage
+     * @apiNote The conditions that the goods to remove are in the storage and that we are not adding more than
+     * the maximum capacity of the storage are checked in the Storage class. We assume that the goods to add had been
+     * correctly checked before calling this method.
+     */
+    public void exchangeGood(ArrayList<Good> goodsToAdd, ArrayList<Good> goodsToRemove, int storageID) {
+        Storage storage = storages.get(storageID);
+        if (storage == null) {
+            throw new IllegalArgumentException("The storage with the given ID does not exist");
         }
-        crewNumber += num;
+        // Remove the goods to leave from the storage and update the ships stats
+        if (goodsToRemove != null) {
+            for (Good good : goodsToRemove) {
+                storage.removeGood(good);
+                goods.remove(good);
+                goodsValue -= good.getValue();
+            }
+        }
+        // Add the goods to get to the storage and update the ships stats
+        if (goodsToAdd != null) {
+            for (Good good : goodsToAdd) {
+                storage.addGood(good);
+                goods.add(good);
+                goodsValue += good.getValue();
+            }
+        }
+    }
+
+    /**
+     * Add crew members to the ship at the given cabin
+     * @param cabinID ID of the cabin to add the crew members
+     * @param brownAlien true if the crew member to add is a brown alien, false otherwise
+     * @param purpleAlien true if the crew member to add is a purple alien, false otherwise
+     * @throws IllegalArgumentException if the brownAlien and purpleAlien are both true or if the cabin with the given ID does not exist
+     * @throws IllegalStateException if the cabin is full
+     */
+    public void addCrewMember(int cabinID, boolean brownAlien, boolean purpleAlien) throws IllegalArgumentException, IllegalStateException{
+        if (brownAlien && purpleAlien) {
+            throw new IllegalArgumentException("Cannot add both brown and purple alien to the cabin");
+        }
+
+        Cabin cabin = cabins.get(cabinID);
+        if (cabin == null) {
+            throw new IllegalArgumentException("The cabin with the given ID does not exist");
+        }
+
+        if (brownAlien) {
+            if (cabin.hasBrownAlien()) {
+                throw new IllegalStateException("The cabin already has a brown alien");
+            }
+            this.brownAlien = true;
+            cabin.addBrownAlien();
+        } else if (purpleAlien) {
+            if (cabin.hasPurpleAlien()) {
+                throw new IllegalStateException("The cabin already has a purple alien");
+            }
+            this.purpleAlien = true;
+            cabin.addPurpleAlien();
+        } else {
+            cabin.addCrewMember();
+        }
+        this.crewNumber += (brownAlien || purpleAlien) ? 1 : 2;
+    }
+
+    /**
+     * Remove crew members from the ship at the given cabin
+     * @param cabinID ID of the cabin to remove the crew members from
+     * @param num number of crew members to remove
+     * @throws IllegalArgumentException if the cabin with the given ID does not exist
+     * @throws IllegalStateException if the cabin does not have enough crew members to remove
+     */
+    public void removeCrewMember(int cabinID, int num) throws IllegalArgumentException, IllegalStateException {
+        Cabin cabin = cabins.get(cabinID);
+        if (cabin == null) {
+            throw new IllegalArgumentException("The cabin with the given ID does not exist");
+        }
+        if (cabin.hasBrownAlien()) {
+            brownAlien = false;
+        } else if (cabin.hasPurpleAlien()) {
+            purpleAlien = false;
+        }
+        cabin.removeCrewMember(num);
+        crewNumber -= num;
     }
 
     /**
@@ -245,89 +418,32 @@ public class SpaceShip {
      * @throws IllegalArgumentException if the direction or the type of the hit is not valid
      */
     public Pair<Component, Integer> canProtect(int dice, Hit hit) throws IllegalArgumentException {
-        Component component = null;
-        switch (hit.getDirection()) {
-            case NORTH:
-                for (int i = 0; i < rows && component == null; i++) {
-                    component = components[i][dice];
-                }
-                break;
-            case WEST:
-                for (int i = 0; i < cols && component == null; i++) {
-                    component = components[dice][i];
-                }
-                break;
-            case SOUTH:
-                for (int i = rows-1; i >= 0 && component == null; i--) {
-                    component = components[i][dice];
-                }
-                break;
-            case EAST:
-                for (int i = cols-1; i >= 0 && component == null; i--) {
-                    component = components[dice][i];
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("The direction of the hit is not valid");
-        }
+        Component component = findComponent(dice, hit.getDirection());
         if (component == null) {
             return new Pair<>(null, 1);
         }
 
         switch (hit.getType()) {
             case SMALLMETEOR:
-                // Check if the component has a smooth side (EMPTY) where the hit is coming from
-                int direction = hit.getDirection().getValue();
-                if (component.getConnection((direction + 2) % 4) == ConnectorType.EMPTY) {
+                if (component.getConnection(hit.getDirection().getValue()) == ConnectorType.EMPTY) {
                     return new Pair<>(null, 1);
                 }
             case LIGHTFIRE:
-                for (int i = 0; i < 12; i++) {
-                    for (int j = 0; j < 12; j++) {
-                        if (components[i][j] != null && components[i][j].getComponentType() == ComponentType.SHIELD) {
-                            Shield shield = (Shield) components[i][j];
-                            if (shield.canShield(hit.getDirection().getValue())) {
-                                return new Pair<>(component, 0);
-                            }
-                        }
-                    }
+                if (canShield(hit.getDirection().getValue())) {
+                    return new Pair<>(component, 0);
                 }
-                return new Pair<>(component, -1);
+                break;
             case LARGEMETEOR:
-                int targetRotation = 4 - hit.getDirection().getValue();
-                if (level == Level.SECOND && hit.getDirection().getValue() % 2 != 0) {
-                    for (int j = 0; j < 12; j++) {
-                        Component componentAbove = components[dice - 1][j];
-                        Component componentBelow = components[dice + 1][j];
-
-                        if (componentAbove.getComponentType() == ComponentType.SINGLE_CANNON && componentAbove.getClockwiseRotation() == targetRotation) {
-                            return new Pair<>(null, 1);
-                        } else if (componentAbove.getComponentType() == ComponentType.DOUBLE_CANNON && componentAbove.getClockwiseRotation() == targetRotation) {
-                            return new Pair<>(componentAbove, 0);
-                        }
-
-                        if (componentBelow.getComponentType() == ComponentType.SINGLE_CANNON && componentBelow.getClockwiseRotation() == targetRotation) {
-                            return new Pair<>(null, 1);
-                        } else if (componentBelow.getComponentType() == ComponentType.DOUBLE_CANNON && componentBelow.getClockwiseRotation() == targetRotation) {
-                            return new Pair<>(componentBelow, 0);
-                        }
-                    }
+                if (canProtectFromLargeMeteor(dice, hit.getDirection().getValue())) {
+                    return new Pair<>(null, 1);
                 }
-                for (int j = 0; j < 12; j++) {
-                    Component centerComponent = components[dice][j];
-
-                    if (centerComponent.getComponentType() == ComponentType.SINGLE_CANNON && centerComponent.getClockwiseRotation() == targetRotation) {
-                        return new Pair<>(null, 1);
-                    } else if (centerComponent.getComponentType() == ComponentType.DOUBLE_CANNON && centerComponent.getClockwiseRotation() == targetRotation) {
-                        return new Pair<>(centerComponent, 0);
-                    }
-                }
-                return new Pair<>(component, -1);
+                break;
             case HEAVYFIRE:
-                return new Pair<>(component, -1);
+                break;
             default:
                 throw new IllegalArgumentException("The type of the hit is not valid");
         }
+        return new Pair<>(component, -1);
     }
 
     /**
@@ -352,8 +468,8 @@ public class SpaceShip {
      * Check if the ship is valid by checking the validity of every component in the matrix
      * @return The list of indexes (Pair of Integer) of the invalid components of the ship
      */
-    public List<Pair<Integer, Integer>> getInvalidComponents() {
-        List<Pair<Integer, Integer>> invalidComponents = new ArrayList<>();
+    public ArrayList<Pair<Integer, Integer>> getInvalidComponents() {
+        ArrayList<Pair<Integer, Integer>> invalidComponents = new ArrayList<>();
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
                 if (c2 != null && !c2.isValid()) {
@@ -394,6 +510,14 @@ public class SpaceShip {
      */
     public Component getComponent(int row, int column) {
         return components[row][column];
+    }
+
+    /**
+     * Get the components of the ship
+     * @return components of the ship
+     */
+    public Component[][] getComponents() {
+        return components;
     }
 
     /**
@@ -446,6 +570,9 @@ public class SpaceShip {
      * @throws IllegalStateException if the component is not connected
      */
     public void placeComponent(Component c, int row, int column) throws IllegalStateException {
+        if (!validSpots[row][column]) {
+            throw new IllegalStateException("The component cannot be placed in the given row and column");
+        }
         components[row][column] = c;
         components[row][column].ship = this;
         if (components[row][column].isConnected(row, column)) {
@@ -490,7 +617,10 @@ public class SpaceShip {
      * Get the cabin in the ship by ID
      * @return cabin in the ship
      */
-    public Cabin getCabin(int ID) {
+    public Cabin getCabin(int ID) throws IllegalArgumentException {
+        if (cabins.get(ID) == null) {
+            throw new IllegalArgumentException("The ID of the cabin is not valid");
+        }
         return this.cabins.get(ID);
     }
 
@@ -506,7 +636,10 @@ public class SpaceShip {
      * Get the storage in the ship by ID
      * @return storage in the ship
      */
-    public Storage getStorage(int ID) {
+    public Storage getStorage(int ID) throws IllegalArgumentException {
+        if (storages.get(ID) == null) {
+            throw new IllegalArgumentException("The ID of the storage is not valid");
+        }
         return this.storages.get(ID);
     }
 
@@ -522,7 +655,10 @@ public class SpaceShip {
      * Get the battery in the ship by ID
      * @return battery in the ship
      */
-    public Battery getBattery(int ID) {
+    public Battery getBattery(int ID) throws IllegalArgumentException {
+        if (batteries.get(ID) == null) {
+            throw new IllegalArgumentException("The ID of the battery is not valid");
+        }
         return this.batteries.get(ID);
     }
 
@@ -538,7 +674,10 @@ public class SpaceShip {
      * Get the cannon in the ship by ID
      * @return cannon in the ship
      */
-    public Cannon getCannon(int ID) {
+    public Cannon getCannon(int ID) throws IllegalArgumentException {
+        if (cannons.get(ID) == null) {
+            throw new IllegalArgumentException("The ID of the cannon is not valid");
+        }
         return this.cannons.get(ID);
     }
 
@@ -607,6 +746,9 @@ public class SpaceShip {
             case STORAGE:
                 Storage storage = (Storage) destroyedComponent;
                 storages.remove(storage.getID());
+                for (Good good : storage.getGoods()) {
+                    goods.remove(good);
+                }
                 goodsValue -= storage.getGoodsValue();
                 break;
             case BATTERY:
@@ -625,13 +767,13 @@ public class SpaceShip {
      * Search if there is component that are no longer connected to the ship
      * @return List of List of Pair<Integer, Integer> representing the group of disconnected components
      */
-    public List<List<Pair<Integer, Integer>>> getDisconnectedComponents() {
-        List<List<Pair<Integer, Integer>>> disconnectedComponents = new ArrayList<>();
+    public ArrayList<ArrayList<Pair<Integer, Integer>>> getDisconnectedComponents() {
+        ArrayList<ArrayList<Pair<Integer, Integer>>> disconnectedComponents = new ArrayList<>();
         boolean[][] visited = new boolean[12][12];
         for (int i = 0; i < 12; i++) {
             for (int j = 0; j < 12; j++) {
                 if (components[i][j] != null && !visited[i][j]) {
-                    List<Pair<Integer, Integer>> disconnectedComponent = new ArrayList<>();
+                    ArrayList<Pair<Integer, Integer>> disconnectedComponent = new ArrayList<>();
                     Queue<Pair<Integer, Integer>> queue = new LinkedList<>();
                     queue.add(new Pair<Integer, Integer>(i, j));
                     visited[i][j] = true;

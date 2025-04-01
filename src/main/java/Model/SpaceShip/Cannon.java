@@ -1,11 +1,15 @@
 package Model.SpaceShip;
 
 public class Cannon extends Component{
-    private final int cannonStrength;
+    private int cannonStrength;
 
-    public Cannon(int ID, int row, int column, ConnectorType[] connectors, int cannonStrength) {
-        super(ID, row, column, connectors);
+    public Cannon(int ID, ConnectorType[] connectors, int cannonStrength) {
+        super(ID, connectors);
         this.cannonStrength = cannonStrength;
+    }
+
+    public Cannon(){
+        super();
     }
 
     /**
@@ -25,13 +29,16 @@ public class Cannon extends Component{
      */
     @Override
     public boolean isValid() {
-        Component c = switch (getClockwiseRotation()) {
-            case 0 -> ship.getComponent(row + 1, column);
-            case 1 -> ship.getComponent(row, column - 1);
-            case 2 -> ship.getComponent(row - 1, column);
-            case 3 -> ship.getComponent(row, column + 1);
-            default -> null;
-        };
+        Component c = null;
+        if (ship != null) {
+            c = switch (getClockwiseRotation()) {
+                case 0 -> ship.getComponent(row + 1, column);
+                case 1 -> ship.getComponent(row, column - 1);
+                case 2 -> ship.getComponent(row - 1, column);
+                case 3 -> ship.getComponent(row, column + 1);
+                default -> null;
+            };
+        }
         return c == null && super.isValid();
     }
 

@@ -2,15 +2,22 @@ package Model.State;
 
 import Model.Cards.OpenSpace;
 import Model.Player.PlayerData;
+import Model.SpaceShip.SpaceShip;
+import Model.State.interfaces.UsableEngine;
+import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class OpenSpaceState extends State {
-    private OpenSpace card;
-    private Map<PlayerData, Integer> stats;
-    private int state;
+enum OpenStateInternalState {
+    SET_ENGINES,
+    EXECUTE
+}
+
+public class OpenSpaceState extends State implements UsableEngine {
+    private Map<PlayerData, Float> stats;
+    private OpenStateInternalState internalState;
 
     /**
      * Constructor
@@ -19,34 +26,34 @@ public class OpenSpaceState extends State {
      */
     public OpenSpaceState(ArrayList<PlayerData> players, OpenSpace card) {
         super(players);
-        this.card = card;
-        stats = new HashMap<>();
-        for (PlayerData player : players) {
-            stats.put(player, player.getSpaceShip().getSingleEnginesStrength());
-        }
-        state = 0;
+        this.stats = new HashMap<>();
+        this.internalState = OpenStateInternalState.SET_ENGINES;
     }
 
     /**
-     * Add power engine to player
-     * @param player current player
-     * @param strength (number of double engine turned on) * 2
-     * @throws IndexOutOfBoundsException Required strength > max strength player
-     * @throws NullPointerException player == null
-     * @throws IllegalStateException Player has already set if adds strength
+     * Use the cannon
+     * @param player PlayerData of the player using the cannon
+     * @param strength Strength of the cannon to be used
      */
-    public void addStrength(PlayerData player, int strength) throws IndexOutOfBoundsException, NullPointerException, IllegalStateException {
-        if (state == 1) {
-            throw new IllegalStateException("Player has already set if adds strength");
-        }
-        if (player == null) {
-            throw new NullPointerException("Player is null");
-        }
+    public void useEngine(PlayerData player, Float strength) throws IllegalArgumentException {
         if (player.getSpaceShip().getDoubleEnginesStrength() < strength) {
-            throw new IndexOutOfBoundsException("Required strength > max strength player");
+            throw new IllegalArgumentException("Required strength > max strength player");
         }
-        stats.put(player, stats.get(player) + strength);
-        state = 1;
+        this.stats.merge(player, strength, Float::sum);
+        internalState = OpenStateInternalState.EXECUTE;
+    }
+
+    /**
+     * Entry method, set the stats for the players
+     */
+    @Override
+    public void entry() {
+        for (PlayerData player : super.players) {
+            this.useEngine(player, player.getSpaceShip().getSingleCannonsStrength());
+            if (player.getSpaceShip().hasPurpleAlien()) {
+                this.useEngine(player, SpaceShip.getAlienStrength());
+            }
+        }
     }
 
     /**
@@ -56,16 +63,16 @@ public class OpenSpaceState extends State {
      */
     @Override
     public void execute(PlayerData player) throws IllegalStateException {
-        if (state == 0){
-            throw new IllegalStateException("Player has not set if adds strength");
+        if (internalState == OpenStateInternalState.SET_ENGINES){
+            throw new IllegalStateException("Player has not set the engines");
         }
         if (stats.get(player) == 0) {
             player.setGaveUp(true);
         }
         else {
-            player.addSteps(stats.get(player));
+            player.addSteps( stats.get(player).intValue() );
         }
         super.execute(player);
-        state = 0;
+        this.internalState = OpenStateInternalState.SET_ENGINES;
     }
 }

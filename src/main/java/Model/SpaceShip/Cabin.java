@@ -1,5 +1,7 @@
 package Model.SpaceShip;
 
+import java.util.ArrayList;
+
 public class Cabin extends Component {
     private int crewNumber;
 
@@ -9,13 +11,17 @@ public class Cabin extends Component {
     private boolean purpleAlien;
     private boolean brownAlien;
 
-    public Cabin(int ID, int row, int column, ConnectorType[] connectors) {
-        super(ID, row, column, connectors);
+    public Cabin(int ID, ConnectorType[] connectors) {
+        super(ID, connectors);
         crewNumber = 0;
         purpleLifeSupport = false;
         brownLifeSupport = false;
         purpleAlien = false;
         brownAlien = false;
+    }
+
+    public Cabin(){
+        super();
     }
 
     /**
@@ -67,7 +73,6 @@ public class Cabin extends Component {
             throw new IllegalStateException("Cannot add crew member to the cabin");
         }
         crewNumber = 2;
-        super.ship.addCrewMember(2);
     }
 
     /**
@@ -80,7 +85,6 @@ public class Cabin extends Component {
         }
         purpleAlien = true;
         crewNumber = 1;
-        super.ship.addCrewMember(1);
     }
 
     /**
@@ -93,7 +97,6 @@ public class Cabin extends Component {
         }
         brownAlien = true;
         crewNumber = 1;
-        super.ship.addCrewMember(1);
     }
 
     /**
@@ -107,24 +110,28 @@ public class Cabin extends Component {
                 brownAlien = false;
             }
             crewNumber -= num;
-            super.ship.addCrewMember(-num);
         } else {
             throw new IllegalStateException("There isn't enough crew member in the cabin");
         }
     }
 
     /**
-     * Add purple life support to the cabin
+     * Extend the isValid method from the Component class to lock for life support in the surrounding components
+     * @return true if the cabin is valid, false otherwise
      */
-    public void addPurpleLifeSupport() {
-        purpleLifeSupport = true;
-    }
-
-    /**
-     * Add brown life support to the cabin
-     */
-    public void addBrownLifeSupport() {
-        brownLifeSupport = true;
+    @Override
+    public boolean isValid() {
+        ArrayList<Component> components = ship.getSurroundingComponents(row, column);
+        for (Component c : components) {
+            if (c != null) {
+                if (c.getComponentType() == ComponentType.BROWN_LIFE_SUPPORT) {
+                    brownLifeSupport = true;
+                } else if (c.getComponentType() == ComponentType.PURPLE_LIFE_SUPPORT) {
+                    purpleLifeSupport = true;
+                }
+            }
+        }
+        return super.isValid();
     }
 
     @Override

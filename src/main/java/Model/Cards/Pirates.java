@@ -5,11 +5,11 @@ import Model.Cards.Hits.Hit;
 import java.util.List;
 
 public class Pirates extends Card {
-    private final int cannonStrengthRequired;
-    private final int flightDays;
+    private int cannonStrengthRequired;
+    private int flightDays;
 
-    private final List<Hit> fires;
-    private final int credit;
+    private List<Hit> fires;
+    private int credit;
 
     /**
      * Constructor
@@ -30,6 +30,10 @@ public class Pirates extends Card {
         }
         this.fires = fires;
         this.credit = credit;
+    }
+
+    public Pirates(){
+        super();
     }
 
     /**

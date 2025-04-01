@@ -14,6 +14,7 @@ public class Hit {
         this.direction = direction;
     }
 
+    public Hit(){}
     /**
      * Get type of the hit
      * @return type of the hit

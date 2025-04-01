@@ -1,23 +1,29 @@
 package Model.SpaceShip;
 
 import Model.Good.Good;
+import Model.Good.GoodType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 
 public class Storage extends Component{
-    private final boolean dangerous;
-    private final int goodsCapacity;
+    private boolean dangerous;
+    @JsonProperty("goodsCapacity")
+    private int goodsCapacity;
     private int goodsValue;
     private ArrayList<Good> goods;
 
-    public Storage(int ID, int row, int column, ConnectorType[] connectors, boolean dangerous, int goodsCapacity) {
-        super(ID, row, column, connectors);
+    public Storage(int ID, ConnectorType[] connectors, boolean dangerous, int goodsCapacity) {
+        super(ID, connectors);
         this.dangerous = dangerous;
         this.goodsCapacity = goodsCapacity;
         this.goodsValue = 0;
         this.goods = new ArrayList<>();
     }
 
+    public Storage(){
+        super();
+    }
     /**
      * Check if the storage is dangerous
      * @return true if the storage is dangerous, false otherwise
@@ -29,14 +35,16 @@ public class Storage extends Component{
     /**
      * Add a good to the storage if there is enough space
      * @param good the Good to add
-     * @throws IllegalStateException if the storage is full
+     * @throws IllegalStateException if the storage is full or if the good is red and the storage is not dangerous
      */
     public void addGood(Good good) throws IllegalStateException {
+        if (good.getColor() == GoodType.RED && !dangerous) {
+            throw new IllegalStateException("Cannot add a red good to a non-dangerous storage");
+        }
         if (goods.size() < goodsCapacity) {
             goods.add(good);
             goodsValue += good.getValue();
         } else {
-            // TODO: understand what to do in this case
             throw new IllegalStateException("Storage is full");
         }
     }
@@ -51,23 +59,7 @@ public class Storage extends Component{
             goods.remove(good);
             goodsValue -= good.getValue();
         } else {
-            // TODO: understand what to do in this case
             throw new IllegalStateException("Good not found in storage");
-        }
-    }
-
-    /**
-     * Exchange goods in the storage with the given goods
-     * @param goodsToAdd Goods to add in the storage
-     * @param goodsToRemove Goods to remove from the storage
-     * @throws IllegalStateException if the storage is full or the good to remove is not found
-     */
-    public void exchangeGood(ArrayList<Good> goodsToAdd, ArrayList<Good> goodsToRemove) throws IllegalStateException {
-        for (Good good : goodsToAdd) {
-            removeGood(good);
-        }
-        for (Good good : goodsToRemove) {
-            addGood(good);
         }
     }
 

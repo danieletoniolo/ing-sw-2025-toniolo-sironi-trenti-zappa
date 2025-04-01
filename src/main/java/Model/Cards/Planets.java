@@ -1,13 +1,14 @@
 package Model.Cards;
 
 import Model.Good.Good;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Planets extends Card {
-    private Good[][] planets;
+    @JsonProperty("planets")
+    private List<List<Good>> planets;
     private int flightDays;
 
     /**
@@ -18,13 +19,17 @@ public class Planets extends Card {
      * @param flightDays number of flight days lost
      * @throws NullPointerException if planets == null
      */
-    public Planets(int level, int ID, Good[][] planets, int flightDays) throws NullPointerException {
+    public Planets(int level, int ID, List<List<Good>> planets, int flightDays) throws NullPointerException {
         super(level, ID);
-        if (planets == null || planets.length == 0 || planets[0].length == 0 ) {
+        this.planets = planets;
+        if (planets == null || planets.isEmpty()) {
             throw new NullPointerException("planets is null");
         }
-        this.planets = planets;
         this.flightDays = flightDays;
+    }
+
+    public Planets(){
+        super();
     }
 
     /**
@@ -32,7 +37,7 @@ public class Planets extends Card {
      * @return number of planets
      */
     public int getPlanetNumbers() {
-        return planets.length;
+        return planets.size();
     }
 
     /**
@@ -41,12 +46,12 @@ public class Planets extends Card {
      * @return ArrayList of goods that are on the "nPlanet" planet
      * @throws IndexOutOfBoundsException if nPlanet aut of bounds
      */
-    public /*@ pure @*/ List<Good> getPlanet(int nPlanet) throws IndexOutOfBoundsException {
-        if (nPlanet < 0 || nPlanet >= planets.length) {
+    public /*@ pure @*/ ArrayList<Good> getPlanet(int nPlanet) throws IndexOutOfBoundsException {
+        if (nPlanet < 0 || nPlanet >= planets.size()) {
             throw new IndexOutOfBoundsException("nPlanet: " + nPlanet + " is out of bounds");
         }
 
-        return new ArrayList<>(Arrays.asList(planets[nPlanet]));
+        return new ArrayList<>(planets.get(nPlanet));
     }
 
     /**

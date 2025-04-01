@@ -3,50 +3,43 @@ package Model.State;
 import Model.Cards.AbandonedStation;
 import Model.Good.Good;
 import Model.Player.PlayerData;
+import Model.State.interfaces.ExchangeableGoods;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import Model.SpaceShip.SpaceShip;
 import Model.SpaceShip.Storage;
 import org.javatuples.Pair;
+import org.javatuples.Triplet;
 
-public class AbandonedStationState extends State {
-    AbandonedStation card;
-    Map<PlayerData, Float> cannonStrength;
+public class AbandonedStationState extends State implements ExchangeableGoods {
+    private final AbandonedStation card;
+    private Map<UUID, Float> cannonStrength;
+    private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
 
     public AbandonedStationState(ArrayList<PlayerData> players, AbandonedStation card) {
         super(players);
         this.card = card;
+        this.cannonStrength = new java.util.HashMap<>();
+        this.exchangeData = new ArrayList<>();
     }
 
-    public void addCannonStrength(PlayerData player, float strength) {
-        float oldCannonStrength = cannonStrength.get(player);
-        cannonStrength.replace(player, oldCannonStrength + strength);
+    public void addCannonStrength(UUID uuid, float strength) {
+        float oldCannonStrength = cannonStrength.get(uuid);
+        cannonStrength.replace(uuid, oldCannonStrength + strength);
     }
 
-    public void exchangeGoods(PlayerData player, ArrayList<Good> goodsToGet, ArrayList<Good> goodsToLeave, int row, int column) throws IllegalStateException {
-        // Get the goods available in the station and check if the station has the goods that the player wants to get
-        List<Good> goodsAvailable = card.getGoods();
-        for (Good good : goodsToGet) {
-            if (!goodsAvailable.contains(good)) {
-                //TODO: consider throwing a custom exception
-                throw new IllegalStateException("The station does not have the good");
-            }
-        }
-
-        // Get the storage component of the player's spaceship and exchange the goods
-        SpaceShip ship = player.getSpaceShip();
-        Storage storage = (Storage) ship.getComponent(row, column);
-        storage.exchangeGood(goodsToGet, goodsToLeave);
+    public void setGoodsToExchange(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) {
+        this.exchangeData = exchangeData;
     }
 
     @Override
     public void entry() {
-        for (Pair<PlayerData, PlayerStatus> player : players) {
-            SpaceShip ship = player.getValue0().getSpaceShip();
-            cannonStrength.put(player.getValue0(), ship.getSingleCannonsStrength());
+        for (PlayerData player : players) {
+            SpaceShip ship = player.getSpaceShip();
+            cannonStrength.put(player.getUUID(), ship.getSingleCannonsStrength());
         }
     }
 
@@ -56,26 +49,31 @@ public class AbandonedStationState extends State {
         if (player == null) {
             throw new NullPointerException("player is null");
         }
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue0().equals(player)) {
-                if (p.getValue1() == PlayerStatus.PLAYING) {
-                    p.setAt1(PlayerStatus.PLAYED);
-                    super.played = true;
-                } else {
-                    p.setAt1(PlayerStatus.WAITING);
-                }
+
+        if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
+            playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
+
+            // Execute the exchange
+            for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
+                SpaceShip ship = player.getSpaceShip();
+                ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
             }
+
+            super.played = true;
+        } else {
+            playersStatus.replace(player.getColor(), PlayerStatus.WAITING);
         }
     }
 
     @Override
     public void exit() throws IllegalStateException{
-        for (Pair<PlayerData, PlayerStatus> player : players) {
-            if (player.getValue1() == PlayerStatus.PLAYED) {
+        for (PlayerData player : players) {
+            PlayerStatus status = playersStatus.get(player.getColor());
+            if (status == PlayerStatus.PLAYED) {
                 int flightDays = card.getFlightDays();
-                player.getValue0().addSteps(-flightDays);
+                player.addSteps(-flightDays);
                 break;
-            } else if (player.getValue1() == PlayerStatus.WAITING || player.getValue1() == PlayerStatus.PLAYING) {
+            } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");
             }
         }

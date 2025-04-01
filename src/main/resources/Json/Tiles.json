@@ -1,0 +1,1693 @@
+[
+  {
+    "type": "Battery",
+    "ID": 0,
+    "connectors": [
+      "TRIPLE",
+      "EMPTY",
+      "DOUBLE",
+      "SINGLE"
+    ],
+    "energyNumber": 2
+  },
+  {
+    "type": "Battery",
+    "ID": 1,
+    "connectors": [
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "energyNumber": 2
+  },
+  {
+    "type": "Battery",
+    "ID": 2,
+    "connectors": [
+      "TRIPLE",
+      "EMPTY",
+      "SINGLE",
+      "DOUBLE"
+    ],
+    "energyNumber": 2
+  },
+  {
+    "type": "Battery",
+    "ID": 3,
+    "connectors": [
+      "DOUBLE",
+      "SINGLE",
+      "DOUBLE",
+      "SINGLE"
+    ],
+    "energyNumber": 2
+  },
+  {
+    "type": "Battery",
+    "ID": 4,
+    "connectors": [
+      "TRIPLE",
+      "SINGLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "energyNumber": 2
+  },
+  {
+    "type": "Battery",
+    "ID": 5,
+    "connectors": [
+      "TRIPLE",
+      "SINGLE",
+      "SINGLE",
+      "SINGLE"
+    ],
+    "energyNumber": 2
+  },
+  {
+    "type": "Battery",
+    "ID": 6,
+    "connectors": [
+      "TRIPLE",
+      "DOUBLE",
+      "DOUBLE",
+      "DOUBLE"
+    ],
+    "energyNumber": 2
+  },
+  {
+    "type": "Battery",
+    "ID": 7,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "energyNumber": 2
+  },
+  {
+    "type": "Battery",
+    "ID": 8,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "energyNumber": 2
+  },
+  {
+    "type": "Battery",
+    "ID": 9,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "TRIPLE"
+    ],
+    "energyNumber": 2
+  },
+  {
+    "type": "Battery",
+    "ID": 10,
+    "connectors": [
+      "TRIPLE",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "energyNumber": 2
+  },
+  {
+    "type": "Battery",
+    "ID": 11,
+    "connectors": [
+      "SINGLE",
+      "EMPTY",
+      "DOUBLE",
+      "EMPTY"
+    ],
+    "energyNumber": 3
+  },
+  {
+    "type": "Battery",
+    "ID": 12,
+    "connectors": [
+      "SINGLE",
+      "EMPTY",
+      "DOUBLE",
+      "SINGLE"
+    ],
+    "energyNumber": 3
+  },
+  {
+    "type": "Battery",
+    "ID": 13,
+    "connectors": [
+      "DOUBLE",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "energyNumber": 3
+  },
+  {
+    "type": "Battery",
+    "ID": 14,
+    "connectors": [
+      "DOUBLE",
+      "EMPTY",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "energyNumber": 3
+  },
+  {
+    "type": "Battery",
+    "ID": 15,
+    "connectors": [
+      "DOUBLE",
+      "EMPTY",
+      "SINGLE",
+      "DOUBLE"
+    ],
+    "energyNumber": 3
+  },
+  {
+    "type": "Battery",
+    "ID": 16,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "energyNumber": 3
+  },
+  {
+    "type": "Storage",
+    "ID": 17,
+    "connectors": [
+      "DOUBLE",
+      "EMPTY",
+      "TRIPLE",
+      "SINGLE"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 2
+  },
+  {
+    "type": "Storage",
+    "ID": 18,
+    "connectors": [
+      "DOUBLE",
+      "SINGLE",
+      "TRIPLE",
+      "SINGLE"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 2
+  },
+  {
+    "type": "Storage",
+    "ID": 19,
+    "connectors": [
+      "DOUBLE",
+      "SINGLE",
+      "EMPTY",
+      "TRIPLE"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 2
+  },
+  {
+    "type": "Storage",
+    "ID": 20,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 2
+  },
+  {
+    "type": "Storage",
+    "ID": 21,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 2
+  },
+  {
+    "type": "Storage",
+    "ID": 22,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 2
+  },
+  {
+    "type": "Storage",
+    "ID": 23,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 2
+  },
+  {
+    "type": "Storage",
+    "ID": 24,
+    "connectors": [
+      "DOUBLE",
+      "TRIPLE",
+      "DOUBLE",
+      "SINGLE"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 2
+  },
+  {
+    "type": "Storage",
+    "ID": 25,
+    "connectors": [
+      "TRIPLE",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 2
+  },
+  {
+    "type": "Storage",
+    "ID": 26,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 3
+  },
+  {
+    "type": "Storage",
+    "ID": 27,
+    "connectors": [
+      "SINGLE",
+      "EMPTY",
+      "SINGLE",
+      "EMPTY"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 3
+  },
+  {
+    "type": "Storage",
+    "ID": 28,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 3
+  },
+  {
+    "type": "Storage",
+    "ID": 29,
+    "connectors": [
+      "DOUBLE",
+      "EMPTY",
+      "DOUBLE",
+      "EMPTY"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 3
+  },
+  {
+    "type": "Storage",
+    "ID": 30,
+    "connectors": [
+      "SINGLE",
+      "SINGLE",
+      "DOUBLE",
+      "EMPTY"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 3
+  },
+  {
+    "type": "Storage",
+    "ID": 31,
+    "connectors": [
+      "DOUBLE",
+      "DOUBLE",
+      "SINGLE",
+      "EMPTY"
+    ],
+    "dangerous": false,
+    "goodsCapacity": 3
+  },
+  {
+    "type": "Cabin",
+    "ID": 32,
+    "connectors": [
+      "TRIPLE",
+      "TRIPLE",
+      "TRIPLE",
+      "TRIPLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 33,
+    "connectors": [
+      "TRIPLE",
+      "TRIPLE",
+      "TRIPLE",
+      "TRIPLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 34,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "TRIPLE",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 35,
+    "connectors": [
+      "SINGLE",
+      "SINGLE",
+      "SINGLE",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 36,
+    "connectors": [
+      "SINGLE",
+      "SINGLE",
+      "DOUBLE",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 37,
+    "connectors": [
+      "DOUBLE",
+      "SINGLE",
+      "EMPTY",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 38,
+    "connectors": [
+      "DOUBLE",
+      "SINGLE",
+      "EMPTY",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 39,
+    "connectors": [
+      "DOUBLE",
+      "SINGLE",
+      "DOUBLE",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 40,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "TRIPLE",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 41,
+    "connectors": [
+      "SINGLE",
+      "DOUBLE",
+      "EMPTY",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 42,
+    "connectors": [
+      "DOUBLE",
+      "DOUBLE",
+      "DOUBLE",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 43,
+    "connectors": [
+      "TRIPLE",
+      "DOUBLE",
+      "EMPTY",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 44,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 45,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "SINGLE",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 46,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 47,
+    "connectors": [
+      "SINGLE",
+      "TRIPLE",
+      "SINGLE",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 48,
+    "connectors": [
+      "SINGLE",
+      "TRIPLE",
+      "DOUBLE",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 49,
+    "connectors": [
+      "DOUBLE",
+      "TRIPLE",
+      "DOUBLE",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 50,
+    "connectors": [
+      "DOUBLE",
+      "TRIPLE",
+      "EMPTY",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 51,
+    "connectors": [
+      "TRIPLE",
+      "TRIPLE",
+      "TRIPLE",
+      "TRIPLE"
+    ]
+  },
+  {
+    "type": "Connectors",
+    "ID": 52,
+    "connectors": [
+      "TRIPLE",
+      "SINGLE",
+      "EMPTY",
+      "TRIPLE"
+    ]
+  },
+  {
+    "type": "Connectors",
+    "ID": 53,
+    "connectors": [
+      "SINGLE",
+      "TRIPLE",
+      "EMPTY",
+      "TRIPLE"
+    ]
+  },
+  {
+    "type": "Connectors",
+    "ID": 54,
+    "connectors": [
+      "SINGLE",
+      "TRIPLE",
+      "SINGLE",
+      "TRIPLE"
+    ]
+  },
+  {
+    "type": "Connectors",
+    "ID": 55,
+    "connectors": [
+      "SINGLE",
+      "TRIPLE",
+      "DOUBLE",
+      "TRIPLE"
+    ]
+  },
+  {
+    "type": "Connectors",
+    "ID": 56,
+    "connectors": [
+      "DOUBLE",
+      "TRIPLE",
+      "EMPTY",
+      "TRIPLE"
+    ]
+  },
+  {
+    "type": "Connectors",
+    "ID": 57,
+    "connectors": [
+      "TRIPLE",
+      "TRIPLE",
+      "DOUBLE",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "Connectors",
+    "ID": 58,
+    "connectors": [
+      "TRIPLE",
+      "TRIPLE",
+      "EMPTY",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "Connectors",
+    "ID": 59,
+    "connectors": [
+      "TRIPLE",
+      "TRIPLE",
+      "DOUBLE",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "Cabin",
+    "ID": 60,
+    "connectors": [
+      "TRIPLE",
+      "TRIPLE",
+      "TRIPLE",
+      "TRIPLE"
+    ]
+  },
+  {
+    "type": "Storage",
+    "ID": 61,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "SINGLE",
+      "DOUBLE"
+    ],
+    "dangerous": true,
+    "goodsCapacity": 1
+  },
+  {
+    "type": "Storage",
+    "ID": 62,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "TRIPLE"
+    ],
+    "dangerous": true,
+    "goodsCapacity": 1
+  },
+  {
+    "type": "Storage",
+    "ID": 63,
+    "connectors": [
+      "SINGLE",
+      "TRIPLE",
+      "SINGLE",
+      "SINGLE"
+    ],
+    "dangerous": true,
+    "goodsCapacity": 1
+  },
+  {
+    "type": "Storage",
+    "ID": 64,
+    "connectors": [
+      "DOUBLE",
+      "TRIPLE",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "dangerous": true,
+    "goodsCapacity": 1
+  },
+  {
+    "type": "Storage",
+    "ID": 65,
+    "connectors": [
+      "DOUBLE",
+      "TRIPLE",
+      "DOUBLE",
+      "DOUBLE"
+    ],
+    "dangerous": true,
+    "goodsCapacity": 1
+  },
+  {
+    "type": "Storage",
+    "ID": 66,
+    "connectors": [
+      "TRIPLE",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "dangerous": true,
+    "goodsCapacity": 1
+  },
+  {
+    "type": "Storage",
+    "ID": 67,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "dangerous": true,
+    "goodsCapacity": 2
+  },
+  {
+    "type": "Storage",
+    "ID": 68,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "dangerous": true,
+    "goodsCapacity": 2
+  },
+  {
+    "type": "Storage",
+    "ID": 69,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "dangerous": true,
+    "goodsCapacity": 2
+  },
+  {
+    "type": "Engine",
+    "ID": 70,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "TRIPLE"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 71,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "TRIPLE"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 72,
+    "connectors": [
+      "SINGLE",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 73,
+    "connectors": [
+      "SINGLE",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 74,
+    "connectors": [
+      "SINGLE",
+      "EMPTY",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 75,
+    "connectors": [
+      "DOUBLE",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 76,
+    "connectors": [
+      "DOUBLE",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 77,
+    "connectors": [
+      "DOUBLE",
+      "EMPTY",
+      "EMPTY",
+      "TRIPLE"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 78,
+    "connectors": [
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 79,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "EMPTY",
+      "TRIPLE"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 80,
+    "connectors": [
+      "DOUBLE",
+      "SINGLE",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 81,
+    "connectors": [
+      "TRIPLE",
+      "SINGLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 82,
+    "connectors": [
+      "TRIPLE",
+      "SINGLE",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 83,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 84,
+    "connectors": [
+      "SINGLE",
+      "DOUBLE",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 85,
+    "connectors": [
+      "DOUBLE",
+      "DOUBLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 86,
+    "connectors": [
+      "TRIPLE",
+      "DOUBLE",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 87,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 88,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 89,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 90,
+    "connectors": [
+      "SINGLE",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "engineStrength": 1
+  },
+  {
+    "type": "Engine",
+    "ID": 91,
+    "connectors": [
+      "SINGLE",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "engineStrength": 2
+  },
+  {
+    "type": "Engine",
+    "ID": 92,
+    "connectors": [
+      "SINGLE",
+      "EMPTY",
+      "EMPTY",
+      "TRIPLE"
+    ],
+    "engineStrength": 2
+  },
+  {
+    "type": "Engine",
+    "ID": 93,
+    "connectors": [
+      "DOUBLE",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "engineStrength": 2
+  },
+  {
+    "type": "Engine",
+    "ID": 94,
+    "connectors": [
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "engineStrength": 2
+  },
+  {
+    "type": "Engine",
+    "ID": 95,
+    "connectors": [
+      "SINGLE",
+      "SINGLE",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "engineStrength": 2
+  },
+  {
+    "type": "Engine",
+    "ID": 96,
+    "connectors": [
+      "DOUBLE",
+      "DOUBLE",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "engineStrength": 2
+  },
+  {
+    "type": "Engine",
+    "ID": 97,
+    "connectors": [
+      "TRIPLE",
+      "DOUBLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "engineStrength": 2
+  },
+  {
+    "type": "Engine",
+    "ID": 98,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "TRIPLE"
+    ],
+    "engineStrength": 2
+  },
+  {
+    "type": "Engine",
+    "ID": 99,
+    "connectors": [
+      "DOUBLE",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "engineStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 100,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "SINGLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 101,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "SINGLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 102,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "DOUBLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 103,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "DOUBLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 104,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 105,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "DOUBLE",
+      "SINGLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 106,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "TRIPLE",
+      "SINGLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 107,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 108,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "SINGLE",
+      "DOUBLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 109,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "TRIPLE",
+      "DOUBLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 110,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "SINGLE",
+      "TRIPLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 111,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 112,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "DOUBLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 113,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "TRIPLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 114,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "SINGLE",
+      "SINGLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 115,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "TRIPLE",
+      "DOUBLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 116,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "EMPTY",
+      "TRIPLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 117,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 118,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "SINGLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 119,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "TRIPLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 120,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "EMPTY",
+      "SINGLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 121,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "TRIPLE",
+      "SINGLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 122,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "DOUBLE",
+      "DOUBLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 123,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "DOUBLE",
+      "SINGLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 124,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "cannonStrength": 1
+  },
+  {
+    "type": "Cannon",
+    "ID": 125,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "SINGLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 126,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "DOUBLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 127,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "TRIPLE",
+      "SINGLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 128,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "TRIPLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 129,
+    "connectors": [
+      "EMPTY",
+      "EMPTY",
+      "DOUBLE",
+      "TRIPLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 130,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "DOUBLE",
+      "SINGLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 131,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "EMPTY",
+      "DOUBLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 132,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "TRIPLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 133,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "SINGLE",
+      "DOUBLE"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 134,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "Cannon",
+    "ID": 135,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "SINGLE",
+      "EMPTY"
+    ],
+    "cannonStrength": 2
+  },
+  {
+    "type": "LifeSupportBrown",
+    "ID": 136,
+    "connectors": [
+      "SINGLE",
+      "SINGLE",
+      "EMPTY",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "LifeSupportBrown",
+    "ID": 137,
+    "connectors": [
+      "DOUBLE",
+      "SINGLE",
+      "EMPTY",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "LifeSupportBrown",
+    "ID": 138,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "LifeSupportBrown",
+    "ID": 139,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "SINGLE",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "LifeSupportBrown",
+    "ID": 140,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "LifeSupportBrown",
+    "ID": 141,
+    "connectors": [
+      "SINGLE",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "LifeSupportPurple",
+    "ID": 142,
+    "connectors": [
+      "SINGLE",
+      "DOUBLE",
+      "EMPTY",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "LifeSupportPurple",
+    "ID": 143,
+    "connectors": [
+      "DOUBLE",
+      "DOUBLE",
+      "EMPTY",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "LifeSupportPurple",
+    "ID": 144,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "LifeSupportPurple",
+    "ID": 145,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "DOUBLE",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "LifeSupportPurple",
+    "ID": 146,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "EMPTY",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "LifeSupportPurple",
+    "ID": 147,
+    "connectors": [
+      "DOUBLE",
+      "TRIPLE",
+      "EMPTY",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 148,
+    "connectors": [
+      "EMPTY",
+      "SINGLE",
+      "TRIPLE",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 149,
+    "connectors": [
+      "SINGLE",
+      "SINGLE",
+      "SINGLE",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 150,
+    "connectors": [
+      "DOUBLE",
+      "SINGLE",
+      "DOUBLE",
+      "SINGLE"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 151,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "TRIPLE",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 152,
+    "connectors": [
+      "EMPTY",
+      "DOUBLE",
+      "DOUBLE",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 153,
+    "connectors": [
+      "SINGLE",
+      "DOUBLE",
+      "SINGLE",
+      "DOUBLE"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 154,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "SINGLE",
+      "EMPTY"
+    ]
+  },
+  {
+    "type": "Shield",
+    "ID": 155,
+    "connectors": [
+      "EMPTY",
+      "TRIPLE",
+      "DOUBLE",
+      "DOUBLE"
+    ]
+  }
+]

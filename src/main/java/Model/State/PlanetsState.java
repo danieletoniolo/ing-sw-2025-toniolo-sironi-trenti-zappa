@@ -5,15 +5,18 @@ import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.SpaceShip.Storage;
+import Model.State.interfaces.ExchangeableGoods;
+import Model.State.interfaces.SelectablePlanet;
+
 import org.javatuples.Pair;
+import org.javatuples.Triplet;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class PlanetsState extends State {
+public class PlanetsState extends State implements SelectablePlanet, ExchangeableGoods {
     private final Planets card;
-
     private PlayerData[] planetSelected;
+    private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
     /**
      * Constructor for PlanetsState
      * @param players List of players in the current order to play
@@ -39,53 +42,13 @@ public class PlanetsState extends State {
         }
     }
 
-    /**
-     * Check if the exchange command is valid and store the command to be applied in the execute method.
-     * @param player Player that wants to exchange goods
-     * @param goodsToGet Goods that the player wants to get from the planet
-     * @param goodsToLeave Goods that the player wants to leave in the planet
-     * @param storageID ID of the cabin where the exchange is going to happen
-     * @throws IllegalStateException If the player does not have enough space in the storage component or the goods to leave are not in the storage component
-     * @apiNote This method should be called after the player has selected a planet
-     */
-    public void exchangeGoods(PlayerData player, ArrayList<Good> goodsToGet, ArrayList<Good> goodsToLeave, int storageID) throws IllegalStateException {
-        // Find the planet number that the player has selected
-        int planetNumber = 0;
-        while (planetNumber < planetSelected.length && planetSelected[planetNumber] != player) {
-            planetNumber++;
-        }
-        if (planetNumber == planetSelected.length) {
-            //TODO: consider throwing a custom exception
-            throw new IllegalStateException("Player has not selected a planet");
-        }
-
-        // Get the goods available in the planet and check if the planet has the goods that the player wants to get
-        List<Good> goodsAvailable = card.getPlanet(planetNumber);
-        for (Good good : goodsToGet) {
-            if (goodsAvailable.contains(good)) {
-                goodsAvailable.remove(good);
-            } else {
-                throw new IllegalStateException("Planet " + planetNumber + " has not the goods that the player wants to get");
-            }
-        }
-
-        SpaceShip ship = player.getSpaceShip();
-        Storage storage = ship.getStorage(storageID);
-        for (Good good : goodsToLeave) {
-            if (storage.getGoods().contains(good)) {
-                storage.removeGood(good);
-            } else {
-                throw new IllegalStateException("Storage does not contain the goods that the player wants to leave");
-            }
-        }
-
-        storage.exchangeGood(goodsToGet, goodsToLeave);
+    public void setGoodsToExchange(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) {
+        this.exchangeData = exchangeData;
     }
 
     @Override
     public void entry() {
         super.entry();
-        //TODO: Implement the entry method
     }
 
     /**
@@ -94,14 +57,17 @@ public class PlanetsState extends State {
      */
     @Override
     public void execute(PlayerData player) throws NullPointerException {
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue0().equals(player)) {
-                if (p.getValue1() == PlayerStatus.PLAYING) {
-                    p.setAt1(PlayerStatus.PLAYED);
-                } else if (p.getValue1() == PlayerStatus.WAITING) {
-                    p.setAt1(PlayerStatus.SKIPPED);
-                }
+        if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
+            playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
+
+            // Execute the exchange
+            for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
+                SpaceShip ship = player.getSpaceShip();
+                ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
             }
+
+        } else if (playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {
+            playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
         }
     }
 
@@ -114,10 +80,12 @@ public class PlanetsState extends State {
     public void exit() throws IllegalStateException{
         super.exit();
         int flightDays = card.getFlightDays();
-        for (Pair<PlayerData, PlayerStatus> p : players) {
-            if (p.getValue1() == PlayerStatus.PLAYED) {
-                p.getValue0().addSteps(-flightDays);
-            } else if (p.getValue1() == PlayerStatus.WAITING || p.getValue1() == PlayerStatus.PLAYING) {
+        PlayerStatus status;
+        for (PlayerData p : players) {
+            status = playersStatus.get(p.getColor());
+            if (status == PlayerStatus.PLAYED) {
+                p.addSteps(-flightDays);
+            } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");
             }
         }

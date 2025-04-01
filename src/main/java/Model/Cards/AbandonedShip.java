@@ -4,7 +4,6 @@ public class AbandonedShip extends Card {
     private int crewRequired;
     private int flightDays;
     private int credit;
-    private boolean played;
 
     /**
      *
@@ -19,6 +18,10 @@ public class AbandonedShip extends Card {
         this.crewRequired = crewRequired;
         this.flightDays = flightDays;
         this.credit = credit;
+    }
+
+    public AbandonedShip(){
+        super();
     }
 
     /**
@@ -44,14 +47,6 @@ public class AbandonedShip extends Card {
      */
     public int getCredit() {
         return credit;
-    }
-
-    /**
-     * Verify if the card is played by a player
-     * @return boolean value that verify if the card is played
-     */
-    public boolean isPlayed() {
-        return played;
     }
 
     /**

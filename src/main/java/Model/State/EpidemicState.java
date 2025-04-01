@@ -31,17 +31,17 @@ public class EpidemicState extends State {
      */
     @Override
     public void entry() {
-        for (Pair<PlayerData, PlayerStatus> p : players) {
+        for (PlayerData p : players) {
             for(int i = 0; i < SpaceShip.getRows(); i++){
                 for(int j = 0; j < SpaceShip.getCols(); j++){
                     check[i][j] = false;
                 }
             }
-            cabins = p.getValue0().getSpaceShip().getCabins();
+            cabins = p.getSpaceShip().getCabins();
             for(Map.Entry<Integer, Cabin> ca : cabins.entrySet()){
                 currentCabin = ca.getValue();
                 if(!check[currentCabin.getRow()][currentCabin.getColumn()]){
-                    surroundingComponents = p.getValue0().getSpaceShip().getSurroundingComponents(currentCabin.getRow(), currentCabin.getColumn());
+                    surroundingComponents = p.getSpaceShip().getSurroundingComponents(currentCabin.getRow(), currentCabin.getColumn());
                     for(Component co : surroundingComponents){
                         if(co.getComponentType() == ComponentType.CABIN){
                             check[currentCabin.getRow()][currentCabin.getColumn()] = true;

@@ -1,11 +1,11 @@
 package Model.Cards;
 
 public class Slavers extends Card {
-    private final int cannonStrengthRequired;
-    private final int flightDays;
+    private int cannonStrengthRequired;
+    private int flightDays;
 
-    private final int crewLost;
-    private final int credit;
+    private int crewLost;
+    private int credit;
 
     /**
      * Constructor
@@ -22,6 +22,10 @@ public class Slavers extends Card {
         this.flightDays = flightDays;
         this.crewLost = crewLost;
         this.credit = credit;
+    }
+
+    public Slavers(){
+        super();
     }
 
     /**
