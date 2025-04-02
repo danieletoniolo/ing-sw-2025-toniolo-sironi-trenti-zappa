@@ -52,13 +52,32 @@ class CardsManagerTest {
             assertNotNull(card);
         }
         assertTrue(shuffled.contains(CardsManager.getCard(number)));
+
     }
 
     @Test
     void createShuffledDeck() {
+        Deck[] decks = CardsManager.createDecks(Level.SECOND);
+        Stack<Card> shuffled = CardsManager.createShuffledDeck(decks);
+
+        assertEquals(decks.length * 3, shuffled.size());
+        for (Deck deck : decks) {
+            for (Card card : deck.getCards()) {
+                assertTrue(shuffled.contains(card));
+            }
+        }
+        assertEquals(2, shuffled.getFirst().getCardLevel());
     }
 
     @Test
     void getCard() {
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            CardsManager.getCard(40);
+        });
+        for (int i = 0; i < 40; i++) {
+            assertEquals(i, CardsManager.getCard(i).getID());
+            if (i < 20) assertEquals(1, CardsManager.getCard(i).getCardLevel());
+            else assertEquals(2, CardsManager.getCard(i).getCardLevel());
+        }
     }
 }
