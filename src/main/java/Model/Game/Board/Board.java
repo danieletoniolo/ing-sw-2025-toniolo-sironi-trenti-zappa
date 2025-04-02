@@ -2,7 +2,6 @@ package Model.Game.Board;
 
 import Model.Cards.Card;
 import Model.Cards.CardsManager;
-import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
 import Model.State.State;
@@ -11,12 +10,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.tools.javac.Main;
 
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-
 public class Board {
-    private State state;
     private final Level level;
     private final int stepsForALap;
 
@@ -25,25 +23,17 @@ public class Board {
 
     private final Component[] tiles;
 
-    private final PlayerData blue;
-    private final PlayerData red;
-    private final PlayerData green;
-    private final PlayerData yellow;
+    private ArrayList<PlayerData> inGamePlayers;
+    private ArrayList<PlayerData> gaveUpPlayers;
 
-    // TODO: da sistemare
 
     /**
      * Create a new board
      * @param level the level of the board
-     * @param blue the player data for the blue player
-     * @param red the player data for the red player
-     * @param green the player data for the green player
-     * @param yellow the player data for the yellow player
+     *
      * @throws IllegalArgumentException if the level is set to an unexpected value
      */
-    public Board(Level level, PlayerData blue, PlayerData red, PlayerData green, PlayerData yellow) throws IllegalArgumentException, JsonProcessingException {
-        // TODO: dichiarare state iniziale
-        this.state = null;
+    public Board(Level level) throws IllegalArgumentException, JsonProcessingException {
         this.level = level;
 
         if (level == null) {
@@ -65,11 +55,6 @@ public class Board {
                 throw new IllegalArgumentException("Unexpected value: " + level);
         }
 
-        this.blue = blue;
-        this.red = red;
-        this.green = green;
-        this.yellow = yellow;
-
         ClassLoader classLoader = Main.class.getClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream("Json/Tiles.json");
         if (inputStream == null) {
@@ -78,6 +63,9 @@ public class Board {
         String json = new Scanner(inputStream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
         ObjectMapper objectMapper = new ObjectMapper();
         this.tiles = objectMapper.readValue(json, Component[].class);
+
+        inGamePlayers = new ArrayList<>(Arrays.asList(null, null, null, null));
+        gaveUpPlayers = new ArrayList<>();
     }
 
     /**
@@ -94,21 +82,6 @@ public class Board {
      */
     public Level getBoardLevel() {
         return this.level;
-    }
-
-    /**
-     * Retrieves the player data associated with the specified player color.
-     * @param playerColor the color of the player to retrieve
-     * @return the player data for the specified color, or null if the color is not recognized
-     */
-    public PlayerData getPlayer(PlayerColor playerColor) {
-        return switch (playerColor) {
-            case BLUE -> this.blue;
-            case RED -> this.red;
-            case GREEN -> this.green;
-            case YELLOW -> this.yellow;
-            default -> null;
-        };
     }
 
     /**
@@ -138,13 +111,6 @@ public class Board {
     }
 
     /**
-     * Do the transition to the next state
-     */
-    public void stateTransition() {
-        // TODO: implementare transizione di stato
-    }
-
-    /**
      * Draws a card from the shuffled deck.
      * @return the card drawn from the deck
      * @throws IllegalStateException if there are no more cards in the deck
@@ -161,5 +127,105 @@ public class Board {
      */
     public Stack<Card> getShuffledDeck() {
         return shuffledDeck;
+    }
+
+    /**
+     * Initialize the players on the board
+     * @param player player to set
+     * @param position position where the player has chosen to start: 0 = leader, 1 = second, etc.
+     * @throws NullPointerException if player == null
+     * @throws IndexOutOfBoundsException if the position is out of bounds
+     * @throws IllegalStateException if the position is already set by another player
+     */
+    public void setPlayer(PlayerData player, int position) throws NullPointerException, IndexOutOfBoundsException, IllegalStateException{
+        if (player == null) {
+            throw new NullPointerException("Player is null");
+        }
+        if (position < 0 || position >= 4) {
+            throw new IndexOutOfBoundsException("The position is not acceptable");
+        }
+
+        switch (level) {
+            case LEARNING:
+                switch (position) {
+                    case 0 -> player.setStep(4);
+                    case 1 -> player.setStep(2);
+                    case 2 -> player.setStep(1);
+                    case 3 -> player.setStep(0);
+                    default -> throw new IllegalStateException("Unexpected value: " + position);
+                }
+            break;
+            case SECOND:
+                switch (position) {
+                    case 0 -> player.setStep(6);
+                    case 1 -> player.setStep(3);
+                    case 2 -> player.setStep(1);
+                    case 3 -> player.setStep(0);
+                    default -> throw new IllegalStateException("Unexpected value: " + position);
+                }
+                break;
+        }
+        inGamePlayers.set(position, player);
+    }
+
+    /**
+     * Update the status of players: 1 - players who are giveUp are moved to gaveUpPlayers, 2 - Set the correct position to the players, 3 - Sort the players by their position:
+     * (first of the list is the leader)
+     * @return ArrayList of sorted players
+     */
+    public ArrayList<PlayerData> updateInGamePlayers() {
+        inGamePlayers.removeAll(null);
+        for (int i = 0; i < inGamePlayers.size(); i++) {
+            if (inGamePlayers.get(i).hasGivenUp()) gaveUpPlayers.add(inGamePlayers.remove(i));
+        }
+
+        for (int i = 0; i < inGamePlayers.size(); i++) {
+            for (int j = i + 1; j < inGamePlayers.size(); j++) {
+                if (inGamePlayers.get(i).getStep() > inGamePlayers.get(j).getStep()) {
+                    Collections.swap(inGamePlayers, i, j);
+                }
+            }
+
+            inGamePlayers.get(i).setPosition(i);
+            if (i > 0) {
+                if (inGamePlayers.getFirst().getStep() - inGamePlayers.get(i).getStep() > this.stepsForALap) {
+                    gaveUpPlayers.add(inGamePlayers.remove(i));
+                }
+            }
+        }
+
+        return inGamePlayers;
+    }
+
+    /**
+     * Moves the player on the board: two player are never on the same step
+     * @param player player to move
+     * @param steps number of steps that moves the player: steps > 0 = player moves forth, steps < 0: players moves back, steps = 0, player doesn't move
+     * @throws NullPointerException if player == null
+     */
+    public void addSteps(PlayerData player, int steps) throws NullPointerException {
+        if (player == null) {
+            throw new NullPointerException("Player is null");
+        }
+
+        int i = 0;
+        while (i < Math.abs(steps)) {
+            if (steps > 0) player.setStep(player.getStep() + 1);
+            else player.setStep(player.getStep() - 1);
+            boolean found = false;
+            for (PlayerData p : inGamePlayers) {
+                if (!p.equals(player) && p.getStep() == player.getStep()) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                i++;
+            }
+        }
+    }
+
+    public ArrayList<PlayerData> getGaveUpPlayers() {
+        return gaveUpPlayers;
     }
 }
