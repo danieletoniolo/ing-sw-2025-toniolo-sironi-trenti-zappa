@@ -1,6 +1,7 @@
 package Model.State;
 
 import Model.Cards.Slavers;
+import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.AcceptableCredits;
@@ -30,8 +31,8 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
      * @param players List of players in the current order to play
      * @param card Slavers card associated with the state
      */
-    public SlaversState(ArrayList<PlayerData> players, Slavers card) {
-        super(players);
+    public SlaversState(ArrayList<PlayerData> players, Board board, Slavers card) {
+        super(players, board);
         this.internalState = SlaversInternalState.SET_CANNONS;
         this.card = card;
         this.stats = new HashMap<>();
@@ -138,7 +139,7 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
                     }
                     if (acceptCredits) {
                         player.addCoins(card.getCredit());
-                        player.addSteps(-card.getFlightDays());
+                        board.addSteps(player, -card.getFlightDays());
                     }
                 } else if (slaversDefeat != null) {
                     if (crewLoss == null) {

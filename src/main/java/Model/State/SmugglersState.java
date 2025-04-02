@@ -1,6 +1,7 @@
 package Model.State;
 
 import Model.Cards.Smugglers;
+import Model.Game.Board.Board;
 import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
@@ -27,8 +28,8 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
     private ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard;
     private ArrayList<Pair<Integer, Integer>> crewToLose;
 
-    public SmugglersState(ArrayList<PlayerData> players, Smugglers card) {
-        super(players);
+    public SmugglersState(ArrayList<PlayerData> players, Board board, Smugglers card) {
+        super(players, board);
         this.card = card;
         this.cannonStrength = new HashMap<>();
         this.internalState = SmugglerInternalState.DEFAULT;
@@ -176,7 +177,7 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
         for (PlayerData p : players) {
             if (playersStatus.get(p.getColor()) == PlayerStatus.PLAYED) {
                 int flightDays = card.getFlightDays();
-                p.addSteps(-flightDays);
+                board.addSteps(p, -flightDays);
             }
         }
     }

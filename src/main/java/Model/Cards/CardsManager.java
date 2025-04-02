@@ -144,7 +144,10 @@ public class CardsManager {
      * @param ID the ID of the card
      * @return the card with the specified ID
      */
-    public static Card getCard(int ID) {
+    public static Card getCard(int ID) throws IndexOutOfBoundsException {
+        if (ID < 0 || ID >= cards.length) {
+            throw new IndexOutOfBoundsException("ID is out of bounds");
+        }
         return cards[ID];
     }
 }

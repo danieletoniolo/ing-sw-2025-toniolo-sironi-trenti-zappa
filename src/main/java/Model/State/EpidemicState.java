@@ -1,5 +1,6 @@
 package Model.State;
 
+import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.Cabin;
 import Model.SpaceShip.Component;
@@ -21,8 +22,8 @@ public class EpidemicState extends State {
      * Constructor for EpidemicState
      * @param players List of players in the current order to play
      */
-    public EpidemicState(ArrayList<PlayerData> players) {
-        super(players);
+    public EpidemicState(ArrayList<PlayerData> players, Board board) {
+        super(players, board);
         check = new boolean[SpaceShip.getRows()][SpaceShip.getCols()];
     }
 

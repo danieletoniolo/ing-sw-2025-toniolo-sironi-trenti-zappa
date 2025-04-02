@@ -1,5 +1,6 @@
 package Model.State;
 
+import Model.Game.Board.Board;
 import Model.Game.Board.Level;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
@@ -21,8 +22,8 @@ public class EndState extends State {
     private final Level level;
     private EndInternalState endInternalState;
 
-    EndState (ArrayList<PlayerData> players, Level level) {
-        super(players);
+    EndState (ArrayList<PlayerData> players, Board board, Level level) {
+        super(players, board);
         this.scores = new HashMap<>();
         this.level = level;
     }

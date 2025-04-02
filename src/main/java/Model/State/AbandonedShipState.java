@@ -1,6 +1,7 @@
 package Model.State;
 
 import Model.Cards.AbandonedShip;
+import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.State.interfaces.RemovableCrew;
 import org.javatuples.Pair;
@@ -18,8 +19,8 @@ public class AbandonedShipState extends State implements RemovableCrew {
      * @param players Sorted list of players
      * @param card type of the card
      */
-    public AbandonedShipState(ArrayList<PlayerData> players, AbandonedShip card) {
-        super(players);
+    public AbandonedShipState(ArrayList<PlayerData> players, Board board, AbandonedShip card) {
+        super(players, board);
         this.card = card;
         this.crewLoss = null;
     }
@@ -69,7 +70,7 @@ public class AbandonedShipState extends State implements RemovableCrew {
                 player.getSpaceShip().getCabin(cabin.getValue0()).removeCrewMember(cabin.getValue1());
             });
             player.addCoins(card.getCredit());
-            player.addSteps(-card.getFlightDays());
+            board.addSteps(player, -card.getFlightDays());
         }
         super.execute(player);
     }

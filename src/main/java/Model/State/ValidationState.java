@@ -1,5 +1,6 @@
 package Model.State;
 
+import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.ChoosableFragment;
@@ -25,8 +26,8 @@ public class ValidationState extends State implements ChoosableFragment, Destroy
     // Tmp variable to store the choice of the component to destroy
     private ArrayList<Pair<Integer, Integer>> componentsToDestroy;
 
-    public ValidationState(ArrayList<PlayerData> players) {
-        super(players);
+    public ValidationState(ArrayList<PlayerData> players, Board board) {
+        super(players, board);
         this.invalidComponents = new HashMap<>();
         this.fragmentedComponents = null;
         this.fragmentChoice = -1;

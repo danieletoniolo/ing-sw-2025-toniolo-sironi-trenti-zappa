@@ -1,6 +1,7 @@
 package Model.State;
 
 import Model.Cards.Planets;
+import Model.Game.Board.Board;
 import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
@@ -22,8 +23,8 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
      * @param players List of players in the current order to play
      * @param card Planet card associated with the state
      */
-    public PlanetsState(ArrayList<PlayerData> players, Planets card) {
-        super(players);
+    public PlanetsState(ArrayList<PlayerData> players, Board board, Planets card) {
+        super(players, board);
         this.card = card;
         planetSelected = new PlayerData[card.getPlanetNumbers()];
     }
@@ -84,7 +85,7 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
         for (PlayerData p : players) {
             status = playersStatus.get(p.getColor());
             if (status == PlayerStatus.PLAYED) {
-                p.addSteps(-flightDays);
+                board.addSteps(p, -flightDays);
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");
             }

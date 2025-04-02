@@ -1,6 +1,7 @@
 package Model.State;
 
 import Model.Cards.MeteorSwarm;
+import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.State.handler.FightHandler;
 import Model.State.interfaces.ChoosableFragment;
@@ -18,8 +19,8 @@ public class MeteorSwarmState extends State implements Fightable, ChoosableFragm
      * @param players players list
      * @param card card type
      */
-    public MeteorSwarmState(ArrayList<PlayerData> players, MeteorSwarm card) {
-        super(players);
+    public MeteorSwarmState(ArrayList<PlayerData> players, Board board, MeteorSwarm card) {
+        super(players, board);
         this.card = card;
         this.fightHandler = new FightHandler();
     }

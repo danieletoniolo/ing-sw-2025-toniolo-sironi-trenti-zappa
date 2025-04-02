@@ -1,6 +1,7 @@
 package Model.State;
 
 import Model.Cards.OpenSpace;
+import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.UsableEngine;
@@ -24,8 +25,8 @@ public class OpenSpaceState extends State implements UsableEngine {
      * @param players players list
      * @param card card type
      */
-    public OpenSpaceState(ArrayList<PlayerData> players, OpenSpace card) {
-        super(players);
+    public OpenSpaceState(ArrayList<PlayerData> players, Board board, OpenSpace card) {
+        super(players, board);
         this.stats = new HashMap<>();
         this.internalState = OpenStateInternalState.SET_ENGINES;
     }
@@ -70,7 +71,7 @@ public class OpenSpaceState extends State implements UsableEngine {
             player.setGaveUp(true);
         }
         else {
-            player.addSteps( stats.get(player).intValue() );
+            board.addSteps(player, stats.get(player).intValue());
         }
         super.execute(player);
         this.internalState = OpenStateInternalState.SET_ENGINES;
