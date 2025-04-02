@@ -1,6 +1,7 @@
 package Model.State;
 
 import Model.Cards.AbandonedStation;
+import Model.Game.Board.Board;
 import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.State.interfaces.ExchangeableGoods;
@@ -19,8 +20,8 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
     private Map<UUID, Float> cannonStrength;
     private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
 
-    public AbandonedStationState(ArrayList<PlayerData> players, AbandonedStation card) {
-        super(players);
+    public AbandonedStationState(ArrayList<PlayerData> players, Board board, AbandonedStation card) {
+        super(players, board);
         this.card = card;
         this.cannonStrength = new java.util.HashMap<>();
         this.exchangeData = new ArrayList<>();
@@ -71,7 +72,7 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
             PlayerStatus status = playersStatus.get(player.getColor());
             if (status == PlayerStatus.PLAYED) {
                 int flightDays = card.getFlightDays();
-                player.addSteps(-flightDays);
+                board.addSteps(player, -flightDays);
                 break;
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");

@@ -1,6 +1,7 @@
 package Model.State;
 
 import Model.Cards.Pirates;
+import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.handler.FightHandler;
@@ -34,8 +35,8 @@ public class PiratesState extends State implements Fightable, ChoosableFragment,
      * @param players List of players in the current order to play
      * @param card Pirates card associated with the state
      */
-    public PiratesState(ArrayList<PlayerData> players, Pirates card) {
-        super(players);
+    public PiratesState(ArrayList<PlayerData> players, Board board, Pirates card) {
+        super(players, board);
         this.card = card;
         this.stats = new HashMap<>();
         this.piratesDefeat = false;
@@ -146,7 +147,7 @@ public class PiratesState extends State implements Fightable, ChoosableFragment,
                     }
                     if (acceptCredits) {
                         player.addCoins(card.getCredit());
-                        player.addSteps(-card.getFlightDays());
+                        board.addSteps(player, -card.getFlightDays());
                     }
                 } else {
                     this.playersDefeated.add(player);

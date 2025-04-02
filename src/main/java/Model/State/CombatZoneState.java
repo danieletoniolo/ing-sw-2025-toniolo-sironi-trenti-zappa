@@ -1,6 +1,7 @@
 package Model.State;
 
 import Model.Cards.CombatZone;
+import Model.Game.Board.Board;
 import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
@@ -54,8 +55,8 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      * @param players List of players in the current order to play
      * @param card CombatZone card associated with the state
      */
-    public CombatZoneState(ArrayList<PlayerData> players, CombatZone card) {
-        super(players);
+    public CombatZoneState(ArrayList<PlayerData> players, Board board, CombatZone card) {
+        super(players, board);
         this.card = card;
         this.stats = new ArrayList<>(3);
         this.internalState = CombatZoneInternalState.CREW;
@@ -148,7 +149,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      */
     private void executeSubStateFlightDays(PlayerData player) {
         int flightDays = card.getFlightDays();
-        player.addSteps(-flightDays);
+        board.addSteps(player, -flightDays);
     }
 
     /**

@@ -696,8 +696,11 @@ public class SpaceShip {
      * @param row row of the component to destroy
      * @param column column of the component to destroy
      */
-    public void destroyComponent(int row, int column) {
+    public void destroyComponent(int row, int column) throws IllegalArgumentException {
         Component destroyedComponent = components[row][column];
+        if (destroyedComponent == null) {
+            throw new IllegalArgumentException("The component at the given row and column is null");
+        }
         components[row][column] = null;
 
         switch (destroyedComponent.getComponentType()) {
@@ -709,10 +712,12 @@ public class SpaceShip {
                 break;
             case SINGLE_CANNON:
                 Cannon singlecannon = (Cannon) destroyedComponent;
+                cannons.remove(singlecannon.getID());
                 singleCannonsStrength -= singlecannon.getCannonStrength();
                 break;
             case DOUBLE_CANNON:
                 Cannon doublecannon = (Cannon) destroyedComponent;
+                cannons.remove(doublecannon.getID());
                 doubleCannonsStrength -= doublecannon.getCannonStrength();
                 doubleCannonsNumber--;
                 break;
