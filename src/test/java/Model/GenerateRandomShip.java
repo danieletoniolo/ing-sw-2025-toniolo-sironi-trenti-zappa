@@ -40,7 +40,7 @@ public class GenerateRandomShip {
         }
 
         SpaceShip s = new SpaceShip(Level.SECOND, vs);
-        Board b = new Board(Level.SECOND, null, null, null, null);
+        Board b = new Board(Level.SECOND);
         Component c = null;
 
         //Insert components
