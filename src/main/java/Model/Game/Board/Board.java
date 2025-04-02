@@ -105,8 +105,12 @@ public class Board {
      * Retrieves the tile with the specified ID.
      * @param ID the ID of the tile to retrieve
      * @return the tile with the specified ID, or null if no tile with that ID exists
+     * @throws IndexOutOfBoundsException ID is out of bounds
      */
-    public Component getTile(int ID) {
+    public Component getTile(int ID) throws IndexOutOfBoundsException {
+        if (ID < 0 || ID >= tiles.length) {
+            throw new IndexOutOfBoundsException("ID is out of bounds");
+        }
         return tiles[ID];
     }
 
