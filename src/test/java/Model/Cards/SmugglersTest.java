@@ -35,6 +35,16 @@ class SmugglersTest {
         assertEquals(level, randomCard.getCardLevel());
     }
 
+    @RepeatedTest(5)
+    void getCardID() {
+        assertEquals(0, card.getID());
+
+        Random random = new Random();
+        int id = random.nextInt(3) + 1;
+        Smugglers randomCard = new Smugglers(1, id, rewards, 1, 2, 3);
+        assertEquals(id, randomCard.getID());
+    }
+
     @Test
     void getCardType() {
         assertEquals(CardType.SMUGGLERS, card.getCardType());

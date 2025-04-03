@@ -64,4 +64,11 @@ class HitTest {
             }
         }
     }
+
+    @RepeatedTest(5)
+    void hitWithNullValues() {
+        Hit hit = new Hit();
+        assertNull(hit.getType());
+        assertNull(hit.getDirection());
+    }
 }

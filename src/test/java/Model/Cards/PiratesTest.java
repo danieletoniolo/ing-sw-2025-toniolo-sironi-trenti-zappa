@@ -37,6 +37,16 @@ class PiratesTest {
         assertEquals(level, randomCard.getCardLevel());
     }
 
+    @RepeatedTest(5)
+    void getCardID() {
+        assertEquals(0, card.getID());
+
+        Random random = new Random();
+        int id = random.nextInt(3) + 1;
+        Pirates randomCard = new Pirates(1, id, fires, 4, 2, 1);
+        assertEquals(id, randomCard.getID());
+    }
+
     @Test
     void getCardType() {
         assertEquals(CardType.PIRATES, card.getCardType());

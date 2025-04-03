@@ -42,6 +42,16 @@ class CombatZoneTest {
     }
 
     @RepeatedTest(5)
+    void getCardID() {
+        assertEquals(0,card.getID());
+
+        Random random = new Random();
+        int id = random.nextInt(3) + 1;
+        CombatZone randomCard = new CombatZone(2, 3, fires, 2, id);
+        assertEquals(id, randomCard.getID());
+    }
+
+    @RepeatedTest(5)
     void getFlightDays() {
         assertEquals(2,card.getFlightDays());
 

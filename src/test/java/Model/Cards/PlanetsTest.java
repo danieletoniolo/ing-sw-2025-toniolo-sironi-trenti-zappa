@@ -40,6 +40,16 @@ class PlanetsTest {
     }
 
     @RepeatedTest(5)
+    void getCardID() {
+        assertEquals(0,card.getID());
+
+        Random random = new Random();
+        int id = random.nextInt(3) + 1;
+        Planets randomCard = new Planets(1, id, planets, 3);
+        assertEquals(id, randomCard.getID());
+    }
+
+    @RepeatedTest(5)
     void getPlanetNumbers() {
         assertEquals(planets.size(), card.getPlanetNumbers());
 
@@ -47,7 +57,7 @@ class PlanetsTest {
         int numberOfPlanets = random.nextInt(3) + 1;
         List<List<Good>> randomPlanets = new ArrayList<>();
         for (int i = 0; i < numberOfPlanets; i++) {
-            randomPlanets.add(new ArrayList<>(Arrays.asList()));
+            randomPlanets.add(new ArrayList<>(List.of()));
             int numberOfGoods = random.nextInt(1, 5);
             for (int j = 0; j < numberOfGoods; j++) {
                 randomPlanets.get(i).add(new Good(GoodType.BLUE));
@@ -88,7 +98,7 @@ class PlanetsTest {
         GoodType[] values = GoodType.values();
 
         for (int i = 0; i < numberOfPlanets; i++) {
-            randomPlanets.add(new ArrayList<>(Arrays.asList()));
+            randomPlanets.add(new ArrayList<>(List.of()));
             int numberOfGoods = random.nextInt(3) + 1;
             for (int j = 0; j < numberOfGoods; j++) {
                 GoodType randomColor = values[random.nextInt(values.length)];

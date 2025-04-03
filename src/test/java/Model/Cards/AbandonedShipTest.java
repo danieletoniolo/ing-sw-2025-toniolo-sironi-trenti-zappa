@@ -17,21 +17,6 @@ class AbandonedShipTest {
         assertNotNull(card);
     }
 
-    @Test
-    void getCardType() {
-        assertEquals(CardType.ABANDONEDSHIP, card.getCardType());
-    }
-
-    @RepeatedTest(5)
-    void getCardLevel() {
-        assertEquals(2,card.getCardLevel());
-
-        Random random = new Random();
-        int level = random.nextInt(3) + 1;
-        AbandonedShip randomCard = new AbandonedShip(level, 3, 3, 2, 0);
-        assertEquals(level, randomCard.getCardLevel());
-    }
-
     @RepeatedTest(5)
     void getCrewRequired() {
         assertEquals(3,card.getCrewRequired());
@@ -60,5 +45,30 @@ class AbandonedShipTest {
         int credit = random.nextInt(3) + 1;
         AbandonedShip randomCard = new AbandonedShip(2, 3, 3, 2, credit);
         assertEquals(credit, randomCard.getCredit());
+    }
+
+    @Test
+    void getCardType() {
+        assertEquals(CardType.ABANDONEDSHIP, card.getCardType());
+    }
+
+    @RepeatedTest(5)
+    void getCardLevel() {
+        assertEquals(2,card.getCardLevel());
+
+        Random random = new Random();
+        int level = random.nextInt(3) + 1;
+        AbandonedShip randomCard = new AbandonedShip(level, 3, 3, 2, 0);
+        assertEquals(level, randomCard.getCardLevel());
+    }
+
+    @RepeatedTest(5)
+    void getCardID() {
+        assertEquals(3,card.getID());
+
+        Random random = new Random();
+        int id = random.nextInt(3) + 1;
+        AbandonedShip randomCard = new AbandonedShip(2, id, 3, 2, 0);
+        assertEquals(id, randomCard.getID());
     }
 }

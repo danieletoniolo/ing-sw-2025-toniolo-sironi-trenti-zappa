@@ -42,6 +42,16 @@ class AbandonedStationTest {
     }
 
     @RepeatedTest(5)
+    void getCardID() {
+        assertEquals(3,card.getID());
+
+        Random random = new Random();
+        int id = random.nextInt(3) + 1;
+        AbandonedStation randomCard = new AbandonedStation(2, id, 1, 0, goods);
+        assertEquals(id, randomCard.getID());
+    }
+
+    @RepeatedTest(5)
     void getCrewRequired() {
         assertEquals(1,card.getCrewRequired());
 
@@ -80,5 +90,15 @@ class AbandonedStationTest {
         AbandonedStation randomCard = new AbandonedStation(2, 3, 1, 0, randomGoods);
         assertEquals(randomGoods, randomCard.getGoods());
         assertEquals(goods,randomCard.getGoods());
+    }
+
+    @RepeatedTest(5)
+    void constructor_nullGoods_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new AbandonedStation(2, 3, 1, 0, null));
+    }
+
+    @RepeatedTest(5)
+    void constructor_emptyGoods_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new AbandonedStation(2, 3, 1, 0, new ArrayList<>()));
     }
 }

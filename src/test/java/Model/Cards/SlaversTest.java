@@ -38,6 +38,16 @@ class SlaversTest {
     }
 
     @RepeatedTest(5)
+    void getCardID() {
+        assertEquals(0, card.getID());
+
+        Random random = new Random();
+        int id = random.nextInt(3) + 1;
+        Slavers randomCard = new Slavers(1, id, 3, 2, 4, 5);
+        assertEquals(id, randomCard.getID());
+    }
+
+    @RepeatedTest(5)
     void getCannonStrengthRequired() {
         assertEquals(4,card.getCannonStrengthRequired());
 

@@ -27,6 +27,16 @@ class EpidemicTest {
         assertEquals(level, randomCard.getCardLevel());
     }
 
+    @RepeatedTest(5)
+    void getCardID() {
+        assertEquals(0,card.getID());
+
+        Random rand = new Random();
+        int id = rand.nextInt(3) + 1;
+        Epidemic randomCard = new Epidemic(1, id);
+        assertEquals(id, randomCard.getID());
+    }
+
     @Test
     void getCardType() {
         assertEquals(CardType.EPIDEMIC, card.getCardType());
