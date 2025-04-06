@@ -148,6 +148,9 @@ public class Board {
         if (position < 0 || position >= 4) {
             throw new IndexOutOfBoundsException("The position is not acceptable");
         }
+        if (inGamePlayers.get(position) != null) {
+            throw new IllegalStateException("There is already a player in this position");
+        }
 
         switch (level) {
             case LEARNING:
