@@ -52,11 +52,11 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
 
     /**
      * Constructor whit players and card
-     * @param players List of players in the current order to play
+     * @param board The board associated with the game
      * @param card CombatZone card associated with the state
      */
-    public CombatZoneState(ArrayList<PlayerData> players, Board board, CombatZone card) {
-        super(players, board);
+    public CombatZoneState(Board board, CombatZone card) {
+        super(board);
         this.card = card;
         this.stats = new ArrayList<>(3);
         this.internalState = CombatZoneInternalState.CREW;

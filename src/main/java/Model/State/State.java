@@ -23,17 +23,19 @@ public abstract class State {
 
     /**
      * Constructor for State
+     * @param board Board associated with the game
+     * @throws NullPointerException if board is null
      */
-    public State(ArrayList<PlayerData> players, Board board) throws NullPointerException {
-        if (players == null) {
+    public State(Board board) throws NullPointerException {
+        if (board == null) {
             throw new NullPointerException("players is null");
         }
-        this.players = players;
+        this.board = board;
+        this.players = board.updateInGamePlayers();
         for (PlayerData player : players) {
             this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
         }
         this.played = false;
-        this.board = board;
     }
 
     /**

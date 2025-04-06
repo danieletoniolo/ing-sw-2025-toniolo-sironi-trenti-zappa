@@ -28,8 +28,8 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
     private ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard;
     private ArrayList<Pair<Integer, Integer>> crewToLose;
 
-    public SmugglersState(ArrayList<PlayerData> players, Board board, Smugglers card) {
-        super(players, board);
+    public SmugglersState(Board board, Smugglers card) {
+        super(board);
         this.card = card;
         this.cannonStrength = new HashMap<>();
         this.internalState = SmugglerInternalState.DEFAULT;

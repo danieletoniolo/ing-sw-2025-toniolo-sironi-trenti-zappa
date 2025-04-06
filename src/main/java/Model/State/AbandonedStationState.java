@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import Model.SpaceShip.SpaceShip;
-import Model.SpaceShip.Storage;
-import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 public class AbandonedStationState extends State implements ExchangeableGoods {
@@ -20,8 +18,8 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
     private Map<UUID, Float> cannonStrength;
     private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
 
-    public AbandonedStationState(ArrayList<PlayerData> players, Board board, AbandonedStation card) {
-        super(players, board);
+    public AbandonedStationState(Board board, AbandonedStation card) {
+        super(board);
         this.card = card;
         this.cannonStrength = new java.util.HashMap<>();
         this.exchangeData = new ArrayList<>();

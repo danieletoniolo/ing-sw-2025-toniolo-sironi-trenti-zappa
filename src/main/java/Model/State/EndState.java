@@ -4,7 +4,6 @@ import Model.Game.Board.Board;
 import Model.Game.Board.Level;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,8 +21,8 @@ public class EndState extends State {
     private final Level level;
     private EndInternalState endInternalState;
 
-    EndState (ArrayList<PlayerData> players, Board board, Level level) {
-        super(players, board);
+    EndState (Board board, Level level) {
+        super(board);
         this.scores = new HashMap<>();
         this.level = level;
     }
@@ -85,7 +84,7 @@ public class EndState extends State {
                     // Calculate the new score based on the sale of goods
                     for (Map.Entry<PlayerData, Integer> entry : scores.entrySet()) {
                         PlayerData p = entry.getKey();
-                        int sales = 0;
+                        int sales;
                         if (!p.hasGivenUp()) {
                             sales = p.getSpaceShip().getGoodsValue();
                         } else {

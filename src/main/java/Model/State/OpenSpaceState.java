@@ -5,9 +5,7 @@ import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.UsableEngine;
-import org.javatuples.Pair;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,11 +20,11 @@ public class OpenSpaceState extends State implements UsableEngine {
 
     /**
      * Constructor
-     * @param players players list
+     * @param board The board associated with the game
      * @param card card type
      */
-    public OpenSpaceState(ArrayList<PlayerData> players, Board board, OpenSpace card) {
-        super(players, board);
+    public OpenSpaceState(Board board, OpenSpace card) {
+        super(board);
         this.stats = new HashMap<>();
         this.internalState = OpenStateInternalState.SET_ENGINES;
     }

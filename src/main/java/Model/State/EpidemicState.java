@@ -6,7 +6,6 @@ import Model.SpaceShip.Cabin;
 import Model.SpaceShip.Component;
 import Model.SpaceShip.ComponentType;
 import Model.SpaceShip.SpaceShip;
-import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -20,10 +19,10 @@ public class EpidemicState extends State {
 
     /**
      * Constructor for EpidemicState
-     * @param players List of players in the current order to play
+     * @param board The board associated with the game
      */
-    public EpidemicState(ArrayList<PlayerData> players, Board board) {
-        super(players, board);
+    public EpidemicState(Board board) {
+        super(board);
         check = new boolean[SpaceShip.getRows()][SpaceShip.getCols()];
     }
 

@@ -26,8 +26,8 @@ public class ValidationState extends State implements ChoosableFragment, Destroy
     // Tmp variable to store the choice of the component to destroy
     private ArrayList<Pair<Integer, Integer>> componentsToDestroy;
 
-    public ValidationState(ArrayList<PlayerData> players, Board board) {
-        super(players, board);
+    public ValidationState(Board board) {
+        super(board);
         this.invalidComponents = new HashMap<>();
         this.fragmentedComponents = null;
         this.fragmentChoice = -1;
