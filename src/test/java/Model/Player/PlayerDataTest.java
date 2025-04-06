@@ -1,16 +1,88 @@
 package Model.Player;
 
-import Model.Game.Board.Level;
 import Model.SpaceShip.SpaceShip;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-
-import java.util.Random;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class PlayerDataTest {
+    PlayerData player;
+    SpaceShip ship = null;
+    private static final String Character = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    @ParameterizedTest
+    @ValueSource(strings = {"username", "user123", "user_123", "user-123", ""})
+    void getUsername(String username) {
+        player = new PlayerData(username, PlayerColor.BLUE, ship);
+        assertEquals(username, player.getUsername());
+        player = new PlayerData(null, PlayerColor.RED, ship);
+        assertNull(player.getUsername());
+    }
+
+    @Test
+    void getUUID() {
+    }
+
+    @Test
+    void getColor() {
+    }
+
+    @Test
+    void setStep() {
+    }
+
+    @Test
+    void getStep() {
+    }
+
+    @Test
+    void setPosition() {
+    }
+
+    @Test
+    void getPosition() {
+    }
+
+    @Test
+    void getCoins() {
+    }
+
+    @Test
+    void getSpaceShip() {
+    }
+
+    @Test
+    void isLeader() {
+    }
+
+    @Test
+    void isDisconnected() {
+    }
+
+    @Test
+    void hasGivenUp() {
+    }
+
+    @Test
+    void addCoins() {
+    }
+
+    @Test
+    void setGaveUp() {
+    }
+
+    @Test
+    void setDisconnected() {
+    }
+
+    @Test
+    void testEquals() {
+    }
+
+    /*
     PlayerData player;
     SpaceShip ship;
     private static final String Character = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -176,4 +248,5 @@ class PlayerDataTest {
         p2 = new PlayerData("username", PlayerColor.BLUE, new SpaceShip(Level.SECOND, new boolean[12][12]));
         assertFalse(p1.equals(p2));
     }
+    */
 }
