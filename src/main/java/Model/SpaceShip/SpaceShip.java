@@ -26,6 +26,7 @@ public class SpaceShip {
     private Map<Integer, Cabin> cabins;
     private Map<Integer, Cannon> cannons;
     private PriorityQueue<Good> goods;
+    private Component lastPlacedComponent;
 
     private int singleEnginesStrength;
     private int doubleEnginesStrength;
@@ -74,6 +75,7 @@ public class SpaceShip {
         cabins = new HashMap<>();
         cannons = new HashMap<>();
         goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
+        lastPlacedComponent = null;
 
         // TODO: The center cabin should be 6 6 and not 7 7 (because of the 0 index)
         components = new Component[rows][cols];
@@ -91,7 +93,7 @@ public class SpaceShip {
      * @param direction direction of the hit (North, West, South, East)
      * @return The component that is being hit from the given direction
      */
-    private Component findComponent(int dice, Direction direction) {
+    private Component findHitComponent(int dice, Direction direction) {
         switch (direction) {
             case NORTH:
                 for (int i = 0; i < rows; i++) {
@@ -418,7 +420,7 @@ public class SpaceShip {
      * @throws IllegalArgumentException if the direction or the type of the hit is not valid
      */
     public Pair<Component, Integer> canProtect(int dice, Hit hit) throws IllegalArgumentException {
-        Component component = findComponent(dice, hit.getDirection());
+        Component component = findHitComponent(dice, hit.getDirection());
         if (component == null) {
             return new Pair<>(null, 1);
         }
@@ -608,6 +610,7 @@ public class SpaceShip {
                 default:
                     break;
             }
+            lastPlacedComponent = components[row][column];
             numberOfComponents++;
         } else {
             components[row][column].ship = null;
@@ -692,6 +695,38 @@ public class SpaceShip {
     }
 
     /**
+     * Get the last placed component
+     * @return last placed component
+     */
+    public Component getLastPlacedComponent() {
+        return lastPlacedComponent;
+    }
+
+    /**
+     * Set the last placed component
+     * @param component the component to set as last placed
+     */
+    public void setLastPlacedComponent(Component component) {
+        lastPlacedComponent = component;
+    }
+
+    /**
+     * Fix a component at the given row and column
+     * @param row row of the component to fix
+     * @param column column of the component to fix
+     * @throws IllegalStateException if the component is null or already fixed
+     */
+    public void fixComponent(int row, int column) throws IllegalStateException{
+        Component component = components[row][column];
+        if (component != null && !component.isFixed()) {
+            component.fix();
+            lastPlacedComponent = null;
+        } else {
+            throw new IllegalStateException("The component at the given row and column is null or already fixed");
+        }
+    }
+
+    /**
      * Destroy a component at the given row and column and update the stats of the ship
      * @param row row of the component to destroy
      * @param column column of the component to destroy
@@ -768,6 +803,7 @@ public class SpaceShip {
             default:
                 break;
         }
+        lastPlacedComponent = null;
         numberOfComponents--;
         lostComponents.add(destroyedComponent);
     }

@@ -4,13 +4,11 @@ import Model.Cards.Card;
 import Model.Cards.CardsManager;
 import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
-import Model.State.State;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.tools.javac.Main;
 
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -21,7 +19,7 @@ public class Board {
     private final Deck[] decks;
     private final Stack<Card> shuffledDeck;
 
-    private final Component[] tiles;
+    private Component[] tiles;
 
     private ArrayList<PlayerData> inGamePlayers;
     private ArrayList<PlayerData> gaveUpPlayers;
@@ -107,11 +105,20 @@ public class Board {
      * @return the tile with the specified ID, or null if no tile with that ID exists
      * @throws IndexOutOfBoundsException ID is out of bounds
      */
-    public Component getTile(int ID) throws IndexOutOfBoundsException {
+    public Component popTile(int ID) throws IndexOutOfBoundsException {
         if (ID < 0 || ID >= tiles.length) {
             throw new IndexOutOfBoundsException("ID is out of bounds");
         }
-        return tiles[ID];
+        Component component = tiles[ID];
+        tiles[ID] = null;
+        return component;
+    }
+
+    public void putTile(int ID, Component tile) throws IndexOutOfBoundsException {
+        if (ID < 0 || ID >= tiles.length) {
+            throw new IndexOutOfBoundsException("ID is out of bounds");
+        }
+        tiles[ID] = tile;
     }
 
     /**
