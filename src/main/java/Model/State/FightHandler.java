@@ -1,4 +1,4 @@
-package Model.State.handler;
+package Model.State;
 
 import Model.Cards.Hits.Hit;
 import Model.SpaceShip.Component;
