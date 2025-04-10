@@ -151,9 +151,9 @@ public class ComponentView {
         return switch (c.getComponentType()) {
             case SINGLE_ENGINE, DOUBLE_ENGINE -> "  Engine   ";
             case SINGLE_CANNON, DOUBLE_CANNON -> "  Cannon   ";
-            case BROWN_LIFE_SUPPORT, PURPLE_LIFE_SUPPORT -> "LifeSupport";
+            case BROWN_LIFE_SUPPORT, PURPLE_LIFE_SUPPORT -> "   Life    ";
             case CABIN -> "   Cabin   ";
-            case SHIELD -> "   Shield  ";
+            case SHIELD -> "  Shield   ";
             case BATTERY -> "  Battery  ";
             case STORAGE -> "  Storage  ";
             case CONNECTORS -> "   Conne-  ";
@@ -166,11 +166,22 @@ public class ComponentView {
         String middle = switch (c.getComponentType()) {
             case BATTERY -> "  Num: " + ((Battery) c).getEnergyNumber() + " ";
             case CABIN -> " Crew: " + ((Cabin) c).getCrewNumber() + " ";
-            case DOUBLE_CANNON, SINGLE_CANNON -> " Power:" + ((Cannon) c).getCannonStrength();
+            case DOUBLE_CANNON, SINGLE_CANNON -> " Pow:" + ((Cannon) c).getCannonStrength() + " ";
             case CONNECTORS -> "  ctors  ";
             case SINGLE_ENGINE, DOUBLE_ENGINE -> " Power:" + ((Engine) c).getEngineStrength() + " ";
             case BROWN_LIFE_SUPPORT, PURPLE_LIFE_SUPPORT -> " Support ";
-            case SHIELD -> " Shield  ";
+            case SHIELD -> {
+                String line = " ";
+                line += (((Shield) c).canShield(0) ? "^" : " ");
+                line += " ";
+                line += (((Shield) c).canShield(1) ? "<" : " ");
+                line += " ";
+                line += (((Shield) c).canShield(2) ? "v" : " ");
+                line += " ";
+                line += (((Shield) c).canShield(3) ? ">" : " ");
+                line += " ";
+                yield line;
+            }
             case STORAGE -> " Cap:" + ((Storage) c).getGoodsCapacity() + " " + (((Storage) c).isDangerous() ? "R " : "B ");
             default -> "Unknown";
         };
@@ -186,10 +197,10 @@ public class ComponentView {
             }
         }
         if (c instanceof Cannon) {
-            if (c.getClockwiseRotation() == 1) {
+            if (c.getClockwiseRotation() == 3) {
                 left = "<";
             }
-            if (c.getClockwiseRotation() == 3) {
+            if (c.getClockwiseRotation() == 1) {
                 right = ">";
             }
         }

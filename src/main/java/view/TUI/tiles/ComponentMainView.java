@@ -18,7 +18,7 @@ public class ComponentMainView {
 
             ArrayList<Component> toVisualize = new ArrayList<>();
 
-            for(int i = 0; i < 100; i++) {
+            for(int i = 0; i < 156; i++) {
                 toVisualize.add(board.getTile(i));
             }
 
@@ -27,9 +27,9 @@ public class ComponentMainView {
             ((Storage) toVisualize.get(31)).addGood(new Good(GoodType.YELLOW));
             ((Storage) toVisualize.get(31)).addGood(new Good(GoodType.YELLOW));
 
-            toVisualize.get(99).rotateClockwise();
+            toVisualize.get(155).rotateClockwise();
 
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 156; i++) {
                 componentView.setViewedTile(toVisualize.get(i), true);
             }
 
