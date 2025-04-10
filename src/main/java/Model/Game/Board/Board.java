@@ -242,4 +242,8 @@ public class Board {
     public ArrayList<PlayerData> getGaveUpPlayers() {
         return gaveUpPlayers;
     }
+
+    public Component getTile(int ID) {
+        return tiles[ID];
+    }
 }
