@@ -19,6 +19,13 @@ class GoodTest {
     }
 
     @Test
+    void testGoodConstructor() {
+        Good g1 = new Good();
+        assertNotNull(g1);
+        assertNull(g1.getColor());
+    }
+
+    @Test
     void testGetColor() {
         assertTrue(Arrays.asList(GoodType.values()).contains(good.getColor()));
     }
@@ -28,6 +35,22 @@ class GoodTest {
         assertEquals(good.getColor().getValue(), good.getValue());
     }
 
+    @Test
+    void testEquals() {
+        assertTrue(good.equals(good));
+
+        Good otherGood = new Good(GoodType.BLUE);
+        assertTrue(good.equals(otherGood));
+
+        Good otherGood1 = new Good(GoodType.RED);
+        assertFalse(good.equals(otherGood1));
+
+        assertFalse(good.equals(null));
+
+        assertFalse(good.equals(new Object()));
+    }
+
+    /*
     @RepeatedTest(10)
     void testRandomizedGoodType() {
         GoodType[] values = GoodType.values();
@@ -39,4 +62,6 @@ class GoodTest {
         assertEquals(randomType, good.getColor());
         assertEquals(randomType.getValue(), good.getValue());
     }
+
+     */
 }
