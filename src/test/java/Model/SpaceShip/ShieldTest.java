@@ -3,6 +3,7 @@ package Model.SpaceShip;
 import Model.Game.Board.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
@@ -17,6 +18,13 @@ class ShieldTest {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         s = new Shield(0, connectors);
         assertNotNull(s, "Component not initialized correctly");
+    }
+
+    @Test
+    void testShieldConstructor() {
+        Shield a = new Shield();
+        assertNotNull(a);
+        assertEquals(0, a.getID());
     }
 
     @RepeatedTest(5)

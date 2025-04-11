@@ -3,6 +3,7 @@ package Model.SpaceShip;
 import Model.Game.Board.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
@@ -17,6 +18,15 @@ class CannonTest {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE , ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         component = new Cannon(0, connectors, 1);
         assertNotNull(component, "Component not initialized correctly");
+    }
+
+    @Test
+    void testCannonConstructor() {
+        Cannon a = new Cannon();
+        assertNotNull(a);
+        assertEquals(0, a.getID());
+        assertFalse(a.isFixed());
+        assertEquals(0, a.getCannonStrength());
     }
 
     @RepeatedTest(5)
@@ -138,6 +148,45 @@ class CannonTest {
         ship.placeComponent(storage, 6, 6);
         cannon.rotateClockwise();
         assertFalse(cannon.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_after2Rotation() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cannon cannon = new Cannon(1, connectors, 2);
+        ship.placeComponent(cannon, 6, 7);
+        cannon.rotateClockwise();
+        cannon.rotateClockwise();
+        assertFalse(cannon.isValid());
+    }
+
+    @RepeatedTest(5)
+    void isValid_after3Rotation() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cannon cannon = new Cannon(1, connectors, 2);
+        ship.placeComponent(cannon, 6, 7);
+        cannon.rotateClockwise();
+        cannon.rotateClockwise();
+        cannon.rotateClockwise();
+        assertTrue(cannon.isValid());
+    }
+
+    @Test
+    void isValid_withoutShip() {
+        Cannon cannon = new Cannon(1, connectors, 2);
+        assertThrows(NullPointerException.class, cannon::isValid);
     }
 
     @RepeatedTest(5)

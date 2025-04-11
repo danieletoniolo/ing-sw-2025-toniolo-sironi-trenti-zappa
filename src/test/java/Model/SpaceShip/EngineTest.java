@@ -3,6 +3,7 @@ package Model.SpaceShip;
 import Model.Game.Board.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
@@ -17,6 +18,14 @@ class EngineTest {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         engine = new Engine(0, connectors, 1);
         assertNotNull(engine, "Component not initialized correctly");
+    }
+
+    @Test
+    void testEngineConstructor() {
+        Engine a = new Engine();
+        assertNotNull(a);
+        assertEquals(0, a.getID());
+        assertEquals(0, a.getEngineStrength());
     }
 
     @RepeatedTest(5)

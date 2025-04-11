@@ -5,9 +5,7 @@ import Model.Good.Good;
 import Model.Good.GoodType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
-
-import java.util.ArrayList;
-import java.util.Random;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,6 +18,15 @@ class StorageTest {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         s = new Storage(0, connectors, true, 3);
         assertNotNull(s, "Component not initialized correctly");
+    }
+
+    @Test
+    void testStorageConstructor() {
+        Storage a = new Storage();
+        assertNotNull(a);
+        assertEquals(0, a.getID());
+        assertEquals(0, a.getGoodsCapacity());
+        assertFalse(a.isDangerous());
     }
 
     @RepeatedTest(5)

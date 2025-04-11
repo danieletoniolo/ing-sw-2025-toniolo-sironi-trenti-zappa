@@ -3,8 +3,7 @@ package Model.SpaceShip;
 import Model.Game.Board.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
-
-import java.util.Random;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,6 +16,13 @@ class ConnectorsTest {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         c = new Connectors(0, connectors);
         assertNotNull(c, "Component not initialized correctly");
+    }
+
+    @Test
+    void testConnectorsConstructor() {
+        Connectors a = new Connectors();
+        assertNotNull(a);
+        assertEquals(0, a.getID());
     }
 
     @RepeatedTest(5)

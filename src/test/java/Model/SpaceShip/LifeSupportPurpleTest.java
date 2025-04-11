@@ -3,6 +3,7 @@ package Model.SpaceShip;
 import Model.Game.Board.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
@@ -17,6 +18,13 @@ class LifeSupportPurpleTest {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         lsp = new LifeSupportPurple(0, connectors);
         assertNotNull(lsp, "Component not initialized correctly");
+    }
+
+    @Test
+    void testLifeSupportPurpleConstructor() {
+        LifeSupportPurple a = new LifeSupportPurple();
+        assertNotNull(a);
+        assertEquals(0, a.getID());
     }
 
     @RepeatedTest(5)

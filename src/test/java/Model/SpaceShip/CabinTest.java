@@ -21,6 +21,13 @@ class CabinTest {
         assertNotNull(c);
     }
 
+    @Test
+    void testCabinConstructor() {
+        Cabin cabin = new Cabin();
+        assertNotNull(cabin);
+        assertEquals(0, cabin.getID());
+    }
+
     @RepeatedTest(5)
     void getCrewNumber_initiallyZero() {
         Cabin cabin = new Cabin(1, connectors);
@@ -52,6 +59,26 @@ class CabinTest {
         assertEquals(1, cabin.getCrewNumber());
     }
 
+    @Test
+    void addingPurpleAlienAfterAddingBrownAlien() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
+        LifeSupportPurple lifeSupportPurple = new LifeSupportPurple(3, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        ship.placeComponent(lifeSupportPurple, 6, 6);
+        cabin.isValid();
+        cabin.addBrownAlien();
+        assertThrows(IllegalStateException.class, cabin::addPurpleAlien);
+    }
+
     @RepeatedTest(5)
     void getCrewNumber_afterAddingBrownAlien() {
         boolean[][] vs = new boolean[12][12];
@@ -68,6 +95,26 @@ class CabinTest {
         cabin.isValid();
         cabin.addBrownAlien();
         assertEquals(1, cabin.getCrewNumber());
+    }
+
+    @Test
+    void addingBrownAlienAfterAddingPurpleAlien() {
+        boolean[][] vs = new boolean[12][12];
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                vs[i][j] = true;
+            }
+        }
+        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        Cabin cabin = new Cabin(1, connectors);
+        LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
+        LifeSupportBrown lifeSupportBrown = new LifeSupportBrown(3, connectors);
+        ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(lifeSupport, 6, 8);
+        ship.placeComponent(lifeSupportBrown, 6, 6);
+        cabin.isValid();
+        cabin.addPurpleAlien();
+        assertThrows(IllegalStateException.class, cabin::addBrownAlien);
     }
 
     @RepeatedTest(5)
