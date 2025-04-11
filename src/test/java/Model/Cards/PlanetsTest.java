@@ -25,6 +25,24 @@ class PlanetsTest {
     }
 
     @Test
+    void testConstructor() {
+        Planets c1 = new Planets();
+        assertNotNull(c1);
+        assertEquals(0, c1.getID());
+        assertEquals(0, c1.getCardLevel());
+        assertEquals(0, c1.getFlightDays());
+        assertThrows((NullPointerException.class), () -> c1.getPlanetNumbers());
+        assertEquals(CardType.PLANETS, c1.getCardType());
+    }
+
+    @Test
+    void testPlanetsEmptyOrNull() {
+        Planets c1;
+        assertThrows(NullPointerException.class, () -> new Planets(2, 3, null, 3));
+        assertThrows(NullPointerException.class, () -> new Planets(2, 3, new ArrayList<>(), 3));
+    }
+
+    @Test
     void getCardType() {
         assertEquals(CardType.PLANETS, card.getCardType());
     }

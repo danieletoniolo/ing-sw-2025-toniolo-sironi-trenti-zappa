@@ -17,6 +17,15 @@ class EpidemicTest {
         assertNotNull(card, "Card variable not initialized correctly");
     }
 
+    @Test
+    void testConstructor() {
+        Epidemic c1 = new Epidemic();
+        assertNotNull(c1);
+        assertEquals(0, c1.getID());
+        assertEquals(0, c1.getCardLevel());
+        assertEquals(CardType.EPIDEMIC, c1.getCardType());
+    }
+
     @RepeatedTest(5)
     void getCardLevel() {
         assertEquals(2,card.getCardLevel());

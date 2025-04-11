@@ -14,6 +14,16 @@ class OpenSpaceTest {
     @BeforeEach
     void setUp() {
         card = new OpenSpace(2, 0);
+        assertNotNull(card);
+    }
+
+    @Test
+    void testConstructor() {
+        OpenSpace c1 = new OpenSpace();
+        assertNotNull(c1);
+        assertEquals(0, c1.getID());
+        assertEquals(0, c1.getCardLevel());
+        assertEquals(CardType.OPENSPACE, c1.getCardType());
     }
 
     @RepeatedTest(5)

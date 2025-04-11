@@ -27,6 +27,26 @@ class PiratesTest {
         assertNotNull(card, "Card variable not inialized correctly");
     }
 
+    @Test
+    void testConstructor() {
+        Pirates c1 = new Pirates();
+        assertNotNull(c1);
+        assertEquals(0, c1.getID());
+        assertEquals(0, c1.getCardLevel());
+        assertEquals(0, c1.getCredit());
+        assertEquals(0, c1.getCannonStrengthRequired());
+        assertEquals(0, c1.getFlightDays());
+        assertNull(c1.getFires());
+        assertEquals(CardType.PIRATES, c1.getCardType());
+    }
+
+    @Test
+    void testFiresEmptyOrNull() {
+        Pirates c1;
+        assertThrows(NullPointerException.class, () -> new Pirates(2, 3, null, 4, 2, 1));
+        assertThrows(NullPointerException.class, () -> new Pirates(2, 3, new ArrayList<>(), 4, 2, 1));
+    }
+
     @RepeatedTest(5)
     void getCardLevel() {
         assertEquals(2, card.getCardLevel());

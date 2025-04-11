@@ -27,7 +27,13 @@ class HitTest {
         assertEquals(Direction.NORTH, hit.getDirection());
     }
 
-
+    @Test
+    void testGetTypeDirection() {
+        assertEquals(0, Direction.NORTH.getValue());
+        assertEquals(1, Direction.WEST.getValue());
+        assertEquals(2, Direction.SOUTH.getValue());
+        assertEquals(3, Direction.EAST.getValue());
+    }
 
     private static final Random RANDOM = new Random();
 

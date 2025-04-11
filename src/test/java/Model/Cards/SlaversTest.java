@@ -23,6 +23,19 @@ class SlaversTest {
     }
 
     @Test
+    void testConstructor() {
+        Slavers c1 = new Slavers();
+        assertNotNull(c1);
+        assertEquals(0, c1.getID());
+        assertEquals(0, c1.getCardLevel());
+        assertEquals(0, c1.getCannonStrengthRequired());
+        assertEquals(0, c1.getFlightDays());
+        assertEquals(0, c1.getCredit());
+        assertEquals(0, c1.getCrewLost());
+        assertEquals(CardType.SLAVERS, c1.getCardType());
+    }
+
+    @Test
     void getCardType() {
         assertEquals(CardType.SLAVERS,card.getCardType());
     }

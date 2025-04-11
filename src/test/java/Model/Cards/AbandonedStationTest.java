@@ -27,6 +27,18 @@ class AbandonedStationTest {
     }
 
     @Test
+    void testConstructor() {
+        AbandonedStation c1 = new AbandonedStation();
+        assertNotNull(c1);
+        assertEquals(0, c1.getID());
+        assertEquals(0, c1.getCardLevel());
+        assertEquals(0, c1.getCrewRequired());
+        assertEquals(0, c1.getFlightDays());
+        assertNull(c1.getGoods());
+        assertEquals(CardType.ABANDONEDSTATION, c1.getCardType());
+    }
+
+    @Test
     void getCardType() {
         assertEquals(CardType.ABANDONEDSTATION, card.getCardType());
     }

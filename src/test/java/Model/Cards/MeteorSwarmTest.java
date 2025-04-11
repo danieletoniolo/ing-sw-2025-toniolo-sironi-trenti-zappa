@@ -23,6 +23,23 @@ class MeteorSwarmTest {
         assertNotNull(card);
     }
 
+    @Test
+    void testConstructor() {
+        MeteorSwarm c1 = new MeteorSwarm();
+        assertNotNull(c1);
+        assertEquals(0, c1.getID());
+        assertEquals(0, c1.getCardLevel());
+        assertNull(c1.getMeteors());
+        assertEquals(CardType.METEORSWARM, c1.getCardType());
+    }
+
+    @Test
+    void testMeteorsEmptyOrNull() {
+        MeteorSwarm c1;
+        assertThrows(NullPointerException.class, () -> new MeteorSwarm(2, 3, null));
+        assertThrows(NullPointerException.class, () -> new MeteorSwarm(2, 3, new ArrayList<>()));
+    }
+
     @RepeatedTest(5)
     void getCardLevel() {
         assertEquals(2,card.getCardLevel());

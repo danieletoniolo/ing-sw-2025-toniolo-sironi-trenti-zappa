@@ -17,6 +17,18 @@ class AbandonedShipTest {
         assertNotNull(card);
     }
 
+    @Test
+    void testConstructor() {
+        AbandonedShip c1 = new AbandonedShip();
+        assertNotNull(c1);
+        assertEquals(0, c1.getID());
+        assertEquals(0, c1.getCardLevel());
+        assertEquals(0, c1.getCrewRequired());
+        assertEquals(0, c1.getFlightDays());
+        assertEquals(0, c1.getCredit());
+        assertEquals(CardType.ABANDONEDSHIP, c1.getCardType());
+    }
+
     @RepeatedTest(5)
     void getCrewRequired() {
         assertEquals(3,card.getCrewRequired());

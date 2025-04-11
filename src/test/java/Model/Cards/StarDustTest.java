@@ -17,6 +17,15 @@ class StarDustTest {
         assertNotNull(card);
     }
 
+    @Test
+    void testConstructor() {
+        StarDust c1 = new StarDust();
+        assertNotNull(c1);
+        assertEquals(0, c1.getID());
+        assertEquals(0, c1.getCardLevel());
+        assertEquals(CardType.STARDUST, c1.getCardType());
+    }
+
     @RepeatedTest(5)
     void getCardLevel() {
         assertEquals(2,card.getCardLevel());

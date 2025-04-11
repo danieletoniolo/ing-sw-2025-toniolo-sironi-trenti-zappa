@@ -25,6 +25,25 @@ class SmugglersTest {
         assertNotNull(card, "Card variable not initialized correctly");
     }
 
+    @Test
+    void testConstructor() {
+        Smugglers c1 = new Smugglers();
+        assertNotNull(c1);
+        assertEquals(0, c1.getID());
+        assertEquals(0, c1.getCardLevel());
+        assertEquals(0, c1.getCannonStrengthRequired());
+        assertEquals(0, c1.getFlightDays());
+        assertEquals(0, c1.getGoodsLoss());
+        assertNull(c1.getGoodsReward());
+        assertEquals(CardType.SMUGGLERS, c1.getCardType());
+    }
+
+    @Test
+    void testRewardsEmptyOrNull() {
+        Smugglers c1;
+        assertThrows(NullPointerException.class, () -> new Smugglers(2, 3, null, 1, 2, 3));
+    }
+
     @RepeatedTest(5)
     void getCardLevel() {
         assertEquals(2, card.getCardLevel());
