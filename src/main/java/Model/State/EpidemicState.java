@@ -27,6 +27,14 @@ public class EpidemicState extends State {
     }
 
     /**
+     * Getter for the check array
+     * @return The check array
+     */
+    public boolean[][] getCheck() {
+        return check;
+    }
+
+    /**
      * Function for eliminating the crew in two adjacent cabins
      */
     @Override
@@ -43,7 +51,7 @@ public class EpidemicState extends State {
                 if(!check[currentCabin.getRow()][currentCabin.getColumn()]){
                     surroundingComponents = p.getSpaceShip().getSurroundingComponents(currentCabin.getRow(), currentCabin.getColumn());
                     for(Component co : surroundingComponents){
-                        if(co.getComponentType() == ComponentType.CABIN){
+                        if(co != null && co.getComponentType() == ComponentType.CABIN){
                             check[currentCabin.getRow()][currentCabin.getColumn()] = true;
                             currentCabin.removeCrewMember(1);
 

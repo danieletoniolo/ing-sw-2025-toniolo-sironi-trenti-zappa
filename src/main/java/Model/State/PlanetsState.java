@@ -28,6 +28,22 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
     }
 
     /**
+     * Getter for the card
+     * @return The card
+     */
+    public Planets getCard() {
+        return card;
+    }
+
+    /**
+     * Getter for the planet selected
+     * @return The planet selected
+     */
+    public PlayerData[] getPlanetSelected() {
+        return planetSelected;
+    }
+
+    /**
      * Selects a planet for a player if it is not already selected
      * @param player Player that wants to select a planet
      * @param planetNumber Number (index) of the planet to select

@@ -19,6 +19,7 @@ public class StardustState extends State {
     @Override
     public void entry(){
         for(PlayerData p : players){
+            p.getSpaceShip().refreshExposedConnectors();
             int numberExposedConnectors = p.getSpaceShip().getExposedConnectors();
             board.addSteps(p, -numberExposedConnectors);
         }

@@ -24,6 +24,22 @@ public class AbandonedShipState extends State implements RemovableCrew {
     }
 
     /**
+     * Getter for the card
+     * @return The card
+     */
+    public AbandonedShip getCard() {
+        return card;
+    }
+
+    /**
+     * Getter for the crew loss
+     * @return The crew loss
+     */
+    public ArrayList<Pair<Integer, Integer>> getCrewLoss() {
+        return crewLoss;
+    }
+
+    /**
      * Set which cabin loses crew members
      * @param cabinsID Map of cabins ID and number of crew removed for cabins
      * @throws IllegalStateException if not in the right state in order to do the action

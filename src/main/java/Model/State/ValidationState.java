@@ -35,6 +35,42 @@ public class ValidationState extends State implements ChoosableFragment, Destroy
         this.internalState = ValidationInternalState.DEFAULT;
     }
 
+    /**
+     * Getter for the internal state
+     * @return The internal state
+     */
+    public ValidationInternalState getInternalState() {
+        return internalState;
+    }
+
+    /**
+     * Getter for the invalid components
+     * @return The invalid components
+     */
+    public Map<PlayerData, ArrayList<Pair<Integer, Integer>>> getInvalidComponents() {
+        return invalidComponents;
+    }
+
+    /**
+     * Getter for the fragmented components
+     * @return The fragmented components
+     */
+    public ArrayList<ArrayList<Pair<Integer, Integer>>> getFragmentedComponents() {
+        return fragmentedComponents;
+    }
+
+    /**
+     * Getter for the fragment choice
+     * @return The fragment choice
+     */
+    public int getFragmentChoice() {
+        return fragmentChoice;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> getComponentsToDestroy() {
+        return componentsToDestroy;
+    }
+
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
         if (internalState != ValidationInternalState.FRAGMENTED_SHIP) {
             throw new IllegalStateException("No fragment to choose");
