@@ -442,7 +442,20 @@ class SpaceShipTest {
     }
 
     @RepeatedTest(5)
-    void purpleAlien_initialState() {
+    void getAlienStrength(){
+        assertEquals(2.0f, ship.getAlienStrength());
+
+        Cabin c1 = new Cabin(2, connectors);
+        ship.placeComponent(c1, 6, 7);
+        LifeSupportPurple lsp = new LifeSupportPurple(3, connectors);
+        ship.placeComponent(lsp, 6, 8);
+        ship.getCabin(2).isValid();
+        ship.addCrewMember(c1.getID(), false, true);
+        assertEquals(2.0f, ship.getAlienStrength());
+    }
+
+    @RepeatedTest(5)
+    void purpleAlien() {
         assertFalse(ship.hasPurpleAlien());
     }
 
