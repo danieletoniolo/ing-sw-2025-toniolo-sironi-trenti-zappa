@@ -47,35 +47,35 @@ class ValidationStateTest {
 
     @RepeatedTest(5)
     void setFragmentChoice_withValidFragmentChoice() {
-        state.internalState = ValidationInternalState.FRAGMENTED_SHIP;
-        state.fragmentedComponents = new ArrayList<>();
-        state.fragmentedComponents.add(new ArrayList<>());
+        state.setInternalState(ValidationInternalState.FRAGMENTED_SHIP);
+        state.setFragmentedComponents(new ArrayList<>());
+        state.getFragmentedComponents().add(new ArrayList<>());
 
         assertDoesNotThrow(() -> state.setFragmentChoice(0));
-        assertEquals(0, state.fragmentChoice);
+        assertEquals(0, state.getFragmentChoice());
     }
 
     @RepeatedTest(5)
     void setFragmentChoice_withInvalidState() {
-        state.internalState = ValidationInternalState.DEFAULT;
+        state.setInternalState(ValidationInternalState.DEFAULT);
         assertThrows(IllegalStateException.class, () -> state.setFragmentChoice(0));
     }
 
     @RepeatedTest(5)
     void setComponentToDestroy_withValidComponents() {
-        state.internalState = ValidationInternalState.DEFAULT;
+        state.setInternalState(ValidationInternalState.DEFAULT);
         PlayerData player = state.getPlayers().getFirst();
         ArrayList<Pair<Integer, Integer>> components = new ArrayList<>();
         components.add(new Pair<>(0, 0));
         components.add(new Pair<>(1, 1));
 
         assertDoesNotThrow(() -> state.setComponentToDestroy(player, components));
-        assertEquals(components, state.componentsToDestroy);
+        assertEquals(components, state.getComponentsToDestroy());
     }
 
     @RepeatedTest(5)
     void setComponentToDestroy_withInvalidState() {
-        state.internalState = ValidationInternalState.FRAGMENTED_SHIP;
+        state.setInternalState(ValidationInternalState.FRAGMENTED_SHIP);
         PlayerData player = state.getPlayers().getFirst();
         ArrayList<org.javatuples.Pair<Integer, Integer>> components = new ArrayList<>();
         components.add(new Pair<>(0, 0));
@@ -109,7 +109,7 @@ class ValidationStateTest {
         state.getPlayers().clear();
 
         assertDoesNotThrow(() -> state.entry());
-        assertTrue(state.invalidComponents.isEmpty());
+        assertTrue(state.getInvalidComponents().isEmpty());
     }
 
     @RepeatedTest(5)
@@ -121,15 +121,15 @@ class ValidationStateTest {
         s2.addGood(new Good(GoodType.BLUE));
         player.getSpaceShip().placeComponent(s1, 6, 7);
         player.getSpaceShip().placeComponent(s2, 6, 8);
-        state.internalState = ValidationInternalState.DEFAULT;
+        state.setInternalState(ValidationInternalState.DEFAULT);
         ArrayList<Pair<Integer, Integer>> components = new ArrayList<>();
         components.add(new Pair<>(6, 8));
         components.add(new Pair<>(6, 7));
-        state.invalidComponents.put(player, new ArrayList<>(components));
+        state.getInvalidComponents().put(player, new ArrayList<>(components));
         state.setComponentToDestroy(player, components);
 
         assertDoesNotThrow(() -> state.execute(player));
-        assertTrue(state.invalidComponents.get(player).isEmpty());
+        assertTrue(state.getInvalidComponents().get(player).isEmpty());
         assertEquals(PlayerStatus.PLAYED, state.playersStatus.get(player.getColor()));
     }
 
@@ -142,24 +142,24 @@ class ValidationStateTest {
         s2.addGood(new Good(GoodType.BLUE));
         player.getSpaceShip().placeComponent(s1, 6, 7);
         player.getSpaceShip().placeComponent(s2, 6, 8);
-        state.internalState = ValidationInternalState.FRAGMENTED_SHIP;
+        state.setInternalState(ValidationInternalState.FRAGMENTED_SHIP);
         ArrayList<Pair<Integer, Integer>> fragment = new ArrayList<>();
         fragment.add(new Pair<>(6, 8));
         fragment.add(new Pair<>(6, 7));
-        state.fragmentedComponents = new ArrayList<>();
-        state.fragmentedComponents.add(fragment);
+        state.setFragmentedComponents(new ArrayList<>());
+        state.getFragmentedComponents().add(fragment);
         state.setFragmentChoice(0);
 
         assertDoesNotThrow(() -> state.execute(player));
-        assertNull(state.fragmentedComponents);
-        assertEquals(-1, state.fragmentChoice);
+        assertNull(state.getFragmentedComponents());
+        assertEquals(-1, state.getFragmentChoice());
         assertEquals(PlayerStatus.PLAYED, state.playersStatus.get(player.getColor()));
     }
 
     @RepeatedTest(5)
     void execute_withUnsetComponentsToDestroy() {
         PlayerData player = state.getPlayers().getFirst();
-        state.internalState = ValidationInternalState.DEFAULT;
+        state.setInternalState(ValidationInternalState.DEFAULT);
 
         assertThrows(IllegalStateException.class, () -> state.execute(player));
     }
@@ -167,7 +167,7 @@ class ValidationStateTest {
     @RepeatedTest(5)
     void execute_withUnsetFragmentChoice() {
         PlayerData player = state.getPlayers().getFirst();
-        state.internalState = ValidationInternalState.FRAGMENTED_SHIP;
+        state.setInternalState(ValidationInternalState.FRAGMENTED_SHIP);
 
         assertThrows(IllegalStateException.class, () -> state.execute(player));
     }
@@ -175,9 +175,9 @@ class ValidationStateTest {
     @RepeatedTest(5)
     void execute_withOutOfBoundsFragmentChoice() {
         PlayerData player = state.getPlayers().getFirst();
-        state.internalState = ValidationInternalState.FRAGMENTED_SHIP;
-        state.fragmentedComponents = new ArrayList<>();
-        state.fragmentedComponents.add(new ArrayList<>());
+        state.setInternalState(ValidationInternalState.FRAGMENTED_SHIP);
+        state.setFragmentedComponents(new ArrayList<>());
+        state.getFragmentedComponents().add(new ArrayList<>());
         state.setFragmentChoice(1);
 
         assertThrows(IndexOutOfBoundsException.class, () -> state.execute(player));

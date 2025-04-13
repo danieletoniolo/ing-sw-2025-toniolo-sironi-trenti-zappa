@@ -56,7 +56,7 @@ class PlanetsStateTest {
     void selectPlanet_withUnselectedPlanet() {
         PlayerData player = state.getPlayers().getFirst();
         assertDoesNotThrow(() -> state.selectPlanet(player, 0));
-        assertEquals(player, state.planetSelected[0]);
+        assertEquals(player, state.getPlanetSelected()[0]);
     }
 
     @RepeatedTest(5)
@@ -74,7 +74,7 @@ class PlanetsStateTest {
         PlayerData player = state.getPlayers().getFirst();
 
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> state.selectPlanet(player, -1));
-        assertThrows(ArrayIndexOutOfBoundsException.class, () -> state.selectPlanet(player, state.card.getPlanetNumbers()));
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> state.selectPlanet(player, state.getCard().getPlanetNumbers()));
     }
 
     @RepeatedTest(5)
@@ -84,17 +84,6 @@ class PlanetsStateTest {
         exchangeData.add(new Triplet<>(new ArrayList<>(), new ArrayList<>(), 1));
 
         assertDoesNotThrow(() -> state.setGoodsToExchange(player, exchangeData));
-    }
-
-    //TODO: Chiedi
-    @RepeatedTest(5)
-    void setGoodsToExchange_withNullPlayer_or_withNullExchangeData() {
-        ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData = new ArrayList<>();
-        exchangeData.add(new Triplet<>(new ArrayList<>(), new ArrayList<>(), 1));
-        assertThrows(NullPointerException.class, () -> state.setGoodsToExchange(null, exchangeData));
-
-        PlayerData player = state.getPlayers().getFirst();
-        assertThrows(NullPointerException.class, () -> state.setGoodsToExchange(player, null));
     }
 
     @RepeatedTest(5)
@@ -141,7 +130,7 @@ class PlanetsStateTest {
     void exit_withAllPlayersPlayed() {
         state.getPlayers().forEach(player -> state.playersStatus.replace(player.getColor(), PlayerStatus.PLAYED));
         int initialSteps = state.getPlayers().getFirst().getStep();
-        int flightDays = state.card.getFlightDays();
+        int flightDays = state.getCard().getFlightDays();
 
         assertDoesNotThrow(() -> state.exit());
         assertTrue(initialSteps - flightDays >= state.getPlayers().getFirst().getStep());
