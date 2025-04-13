@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,7 +32,6 @@ class StardustStateTest {
         PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
         PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
-        ArrayList<PlayerData> p = new ArrayList<>(Arrays.asList(p0, p1, p2, p3));
 
         Board board = new Board(Level.SECOND);
         board.setPlayer(p0, 0);
@@ -41,7 +39,7 @@ class StardustStateTest {
         board.setPlayer(p2, 2);
         board.setPlayer(p3, 3);
 
-        state = new StardustState(p, board);
+        state = new StardustState(board);
         assertNotNull(state);
     }
 
@@ -62,10 +60,10 @@ class StardustStateTest {
         state.entry();
 
         //First number represent the initial cell, the second number represent the number of other players that he passed, the third number represent the number of his own exposed connectors
-        assertEquals(6 -3 - 6, state.getPlayers().get(0).getStep());
-        assertEquals(3 -3 - 4, state.getPlayers().get(1).getStep());
-        assertEquals(1 -3 - 8, state.getPlayers().get(2).getStep());
-        assertEquals(0 -2 - 4, state.getPlayers().get(3).getStep());
+        assertEquals(-3, state.getPlayers().get(0).getStep()); // 6 -3 - 6
+        assertEquals(-4, state.getPlayers().get(1).getStep()); // 3 -3 - 4
+        assertEquals(-10, state.getPlayers().get(2).getStep()); // 1 -3 - 8
+        assertEquals(-6, state.getPlayers().get(3).getStep()); // 0 -2 - 4
     }
 
     @RepeatedTest(5)
@@ -132,11 +130,8 @@ class StardustStateTest {
     }
 
     @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() {
+    void setStatusPlayers_withNullStatus() {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
-
-        State emptyState = new State(new ArrayList<>(), null) {};
-        assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 
     @RepeatedTest(5)

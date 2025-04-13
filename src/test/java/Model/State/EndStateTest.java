@@ -13,7 +13,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +34,6 @@ class EndStateTest {
         PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
         PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
-        ArrayList<PlayerData> p = new ArrayList<>(Arrays.asList(p0, p1, p2, p3));
 
         Board board = new Board(Level.SECOND);
         board.setPlayer(p0, 0);
@@ -43,7 +41,7 @@ class EndStateTest {
         board.setPlayer(p2, 2);
         board.setPlayer(p3, 3);
 
-        state = new EndState(p, board, Level.SECOND);
+        state = new EndState(board, Level.SECOND);
         assertNotNull(state);
     }
 
@@ -51,15 +49,16 @@ class EndStateTest {
     void entry_initializesScoresWithPlayerCoins() {
         state.entry();
         for (PlayerData player : state.getPlayers()) {
-            assertEquals(player.getCoins(), state.scores.get(player));
+            assertEquals(player.getCoins(), state.getScores().get(player));
         }
     }
 
     @RepeatedTest(5)
-    void entry_withEmptyPlayerList_doesNotThrowException() {
-        EndState emptyState = new EndState(new ArrayList<>(), state.board, Level.SECOND);
+    void entry_withEmptyPlayerList() throws JsonProcessingException {
+        Board b1 = new Board(Level.SECOND);
+        EndState emptyState = new EndState(b1, Level.SECOND);
         assertDoesNotThrow(emptyState::entry);
-        assertTrue(emptyState.scores.isEmpty());
+        assertTrue(emptyState.getScores().isEmpty());
     }
 
     @RepeatedTest(5)
@@ -67,12 +66,12 @@ class EndStateTest {
         state.entry();
         for(PlayerData p : state.getPlayers()) {
             state.playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
-            state.endInternalState = EndInternalState.FINISH_ORDER;
+            state.setEndInternalState(EndInternalState.FINISH_ORDER);
 
             assertDoesNotThrow(() -> state.execute(p));
         }
 
-        assertEquals(EndInternalState.BEST_LOOKING_SHIP, state.endInternalState);
+        assertEquals(EndInternalState.BEST_LOOKING_SHIP, state.getEndInternalState());
     }
 
     @RepeatedTest(5)
@@ -88,12 +87,12 @@ class EndStateTest {
         player.setGaveUp(true);
         for(PlayerData p : state.getPlayers()) {
             state.playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
-            state.endInternalState = EndInternalState.SALE_OF_GOODS;
+            state.setEndInternalState(EndInternalState.SALE_OF_GOODS);
 
             assertDoesNotThrow(() -> state.execute(p));
         }
 
-        assertEquals(Math.round((float) player.getSpaceShip().getGoodsValue() / 2), state.scores.get(player));
+        assertEquals(Math.round((float) player.getSpaceShip().getGoodsValue() / 2), state.getScores().get(player));
     }
 
     @RepeatedTest(5)
@@ -104,12 +103,12 @@ class EndStateTest {
 
         for(PlayerData p : state.getPlayers()) {
             state.playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
-            state.endInternalState = EndInternalState.BEST_LOOKING_SHIP;
+            state.setEndInternalState(EndInternalState.BEST_LOOKING_SHIP);
 
             assertDoesNotThrow(() -> state.execute(p));
         }
 
-        assertEquals(player.getCoins() + 2 * state.level.getValue(), state.scores.get(player));
+        assertEquals(player.getCoins() + 2 * state.getLevel().getValue(), state.getScores().get(player));
     }
 
     @RepeatedTest(5)
@@ -119,7 +118,7 @@ class EndStateTest {
         int i = 0;
         for(PlayerData p : state.getPlayers()) {
             state.playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
-            state.endInternalState = null;
+            state.setEndInternalState(null);
 
             if(i == state.getPlayers().size() - 1) {
                 assertThrows(NullPointerException.class, () -> state.execute(p));
@@ -141,12 +140,12 @@ class EndStateTest {
 
         for(PlayerData p : state.getPlayers()) {
             state.playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
-            state.endInternalState = EndInternalState.LOSSES;
+            state.setEndInternalState(EndInternalState.LOSSES);
 
             assertDoesNotThrow(() -> state.execute(p));
         }
-        System.out.println(state.scores.get(player));
-        assertEquals(player.getCoins() - (lostComponents + reservedComponents), state.scores.get(player));
+        System.out.println(state.getScores().get(player));
+        assertEquals(player.getCoins() - (lostComponents + reservedComponents), state.getScores().get(player));
     }
 
     //----------
@@ -198,7 +197,7 @@ class EndStateTest {
     void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
 
-        State emptyState = new State(new ArrayList<>(), null) {};
+        EndState emptyState = new EndState(null, Level.SECOND);
         assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 

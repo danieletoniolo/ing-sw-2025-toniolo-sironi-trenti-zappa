@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,7 +28,6 @@ class EpidemicStateTest {
         PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
         PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship1);
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship1);
-        ArrayList<PlayerData> p = new ArrayList<>(Arrays.asList(p0, p1, p2, p3));
 
         Board board = new Board(Level.SECOND);
         board.setPlayer(p0, 0);
@@ -37,7 +35,7 @@ class EpidemicStateTest {
         board.setPlayer(p2, 2);
         board.setPlayer(p3, 3);
 
-        state = new EpidemicState(p, board);
+        state = new EpidemicState(board);
         assertNotNull(state);
     }
 
@@ -138,7 +136,7 @@ class EpidemicStateTest {
     void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
 
-        State emptyState = new State(new ArrayList<>(), null) {};
+        State emptyState = new EpidemicState(null);
         assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 

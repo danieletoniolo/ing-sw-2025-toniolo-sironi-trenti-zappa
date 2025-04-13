@@ -36,7 +36,6 @@ class AbandonedShipStateTest {
         PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship);
         PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship);
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship);
-        ArrayList<PlayerData> p = new ArrayList<>(Arrays.asList(p0, p1, p2, p3));
 
         Board board = new Board(Level.SECOND);
         board.setPlayer(p0, 0);
@@ -44,7 +43,7 @@ class AbandonedShipStateTest {
         board.setPlayer(p2, 2);
         board.setPlayer(p3, 3);
 
-        state = new AbandonedShipState(p, board, c1);
+        state = new AbandonedShipState(board, c1);
         assertNotNull(state);
     }
 
@@ -92,7 +91,7 @@ class AbandonedShipStateTest {
         }
         state.setCrewLoss(cabinsID);
         state.execute(player);
-        assertEquals(state.card.getCredit(), player.getCoins());
+        assertEquals(state.getCard().getCredit(), player.getCoins());
     }
 
     @Test
@@ -168,7 +167,7 @@ class AbandonedShipStateTest {
         assertFalse(state.haveAllPlayersPlayed());
 
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(0).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertFalse(state.haveAllPlayersPlayed());
     }
 
@@ -184,7 +183,7 @@ class AbandonedShipStateTest {
     void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
 
-        State emptyState = new State(new ArrayList<>(), null) {};
+        AbandonedShipState emptyState = new AbandonedShipState(null, null);
         assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 

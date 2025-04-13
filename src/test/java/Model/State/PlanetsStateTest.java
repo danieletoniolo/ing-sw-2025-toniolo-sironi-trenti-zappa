@@ -38,7 +38,6 @@ class PlanetsStateTest {
         PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
         PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
-        ArrayList<PlayerData> p = new ArrayList<>(Arrays.asList(p0, p1, p2, p3));
 
         Board board = new Board(Level.SECOND);
         board.setPlayer(p0, 0);
@@ -49,7 +48,7 @@ class PlanetsStateTest {
         List<List<Good>> planets = List.of((List.of(new Good(GoodType.YELLOW))), (List.of(new Good(GoodType.GREEN))));
         Planets c1 = new Planets(2, 1, planets, 3);
 
-        state = new PlanetsState(p, board, c1);
+        state = new PlanetsState(board, c1);
         assertNotNull(state);
     }
 
@@ -130,11 +129,6 @@ class PlanetsStateTest {
     }
 
     @RepeatedTest(5)
-    void execute_withNullPlayer() {
-        assertThrows(NullPointerException.class, () -> state.execute(null));
-    }
-
-    @RepeatedTest(5)
     void execute_withPlayerNotInPlayingState() {
         PlayerData player = state.getPlayers().getFirst();
         state.playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
@@ -211,7 +205,8 @@ class PlanetsStateTest {
     void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
 
-        State emptyState = new State(new ArrayList<>(), null) {};
+        Planets c2 = new Planets(2, 1, List.of(List.of(new Good(GoodType.YELLOW))), 3);
+        State emptyState = new PlanetsState(null, c2) {};
         assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 

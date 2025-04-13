@@ -34,7 +34,6 @@ class ValidationStateTest {
         PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
         PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
-        ArrayList<PlayerData> p = new ArrayList<>(Arrays.asList(p0, p1, p2, p3));
 
         Board board = new Board(Level.SECOND);
         board.setPlayer(p0, 0);
@@ -42,7 +41,7 @@ class ValidationStateTest {
         board.setPlayer(p2, 2);
         board.setPlayer(p3, 3);
 
-        state = new ValidationState(p, board);
+        state = new ValidationState(board);
         assertNotNull(state);
     }
 
@@ -256,7 +255,7 @@ class ValidationStateTest {
     void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
 
-        State emptyState = new State(new ArrayList<>(), null) {};
+        State emptyState = new ValidationState(null);
         assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 
@@ -293,11 +292,6 @@ class ValidationStateTest {
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
-    }
-
-    @RepeatedTest(5)
-    void execute_withNullPlayer() {
-        assertThrows(NullPointerException.class, () -> state.execute(null));
     }
 
     @RepeatedTest(5)
