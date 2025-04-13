@@ -7,8 +7,6 @@ import Model.State.interfaces.RemovableCrew;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AbandonedShipState extends State implements RemovableCrew {
     private final AbandonedShip card;
@@ -16,13 +14,29 @@ public class AbandonedShipState extends State implements RemovableCrew {
 
     /**
      * Constructor
-     * @param players Sorted list of players
+     * @param board The board associated with the game
      * @param card type of the card
      */
-    public AbandonedShipState(ArrayList<PlayerData> players, Board board, AbandonedShip card) {
-        super(players, board);
+    public AbandonedShipState(Board board, AbandonedShip card) {
+        super(board);
         this.card = card;
         this.crewLoss = null;
+    }
+
+    /**
+     * Getter for the card
+     * @return The card
+     */
+    public AbandonedShip getCard() {
+        return card;
+    }
+
+    /**
+     * Getter for the crew loss
+     * @return The crew loss
+     */
+    public ArrayList<Pair<Integer, Integer>> getCrewLoss() {
+        return crewLoss;
     }
 
     /**

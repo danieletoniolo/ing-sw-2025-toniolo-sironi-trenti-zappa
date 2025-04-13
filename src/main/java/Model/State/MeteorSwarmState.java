@@ -3,12 +3,8 @@ package Model.State;
 import Model.Cards.MeteorSwarm;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
-import Model.State.handler.FightHandler;
 import Model.State.interfaces.ChoosableFragment;
 import Model.State.interfaces.Fightable;
-import org.javatuples.Pair;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MeteorSwarmState extends State implements Fightable, ChoosableFragment {
     private final MeteorSwarm card;
@@ -16,11 +12,11 @@ public class MeteorSwarmState extends State implements Fightable, ChoosableFragm
 
     /**
      * Constructor
-     * @param players players list
+     * @param board The board associated with the game
      * @param card card type
      */
-    public MeteorSwarmState(ArrayList<PlayerData> players, Board board, MeteorSwarm card) {
-        super(players, board);
+    public MeteorSwarmState(Board board, MeteorSwarm card) {
+        super(board);
         this.card = card;
         this.fightHandler = new FightHandler();
     }

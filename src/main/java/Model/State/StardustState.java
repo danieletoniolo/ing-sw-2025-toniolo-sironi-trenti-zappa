@@ -10,15 +10,16 @@ public class StardustState extends State {
 
     /**
      * Constructor for StardustState
-     * @param players List of players in the current order to play
+     * @param board The board associated with the game
      */
-    public StardustState(ArrayList<PlayerData> players, Board board) {
-        super(players, board);
+    public StardustState(Board board) {
+        super(board);
     }
 
     @Override
     public void entry(){
         for(PlayerData p : players){
+            p.getSpaceShip().refreshExposedConnectors();
             int numberExposedConnectors = p.getSpaceShip().getExposedConnectors();
             board.addSteps(p, -numberExposedConnectors);
         }

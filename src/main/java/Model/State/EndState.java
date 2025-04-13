@@ -4,7 +4,6 @@ import Model.Game.Board.Board;
 import Model.Game.Board.Level;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,10 +21,34 @@ public class EndState extends State {
     private final Level level;
     private EndInternalState endInternalState;
 
-    EndState (ArrayList<PlayerData> players, Board board, Level level) {
-        super(players, board);
+    EndState (Board board, Level level) {
+        super(board);
         this.scores = new HashMap<>();
         this.level = level;
+    }
+
+    /**
+     * Getter for the players scores
+     * @return The players scores
+     */
+    public Map<PlayerData, Integer> getScores() {
+        return scores;
+    }
+
+    /**
+     * Getter for the level
+     * @return The level
+     */
+    public Level getLevel() {
+        return level;
+    }
+
+    /**
+     * Getter for the end internal state
+     * @return The end internal state
+     */
+    public EndInternalState getEndInternalState() {
+        return endInternalState;
     }
 
     @Override
@@ -56,12 +79,14 @@ public class EndState extends State {
 
                     // Go to the next scoring state
                     endInternalState = EndInternalState.BEST_LOOKING_SHIP;
+                    break;
                 case BEST_LOOKING_SHIP:
                     // Find the player (could be more than one) with the least exposed connectors (best looking ship)
                     int minExposedConnectors = Integer.MAX_VALUE;
                     ArrayList<PlayerData> playersWithLeastConnectors = new ArrayList<>();
                     for (PlayerData p : players) {
                         if (!p.hasGivenUp()) {
+                            p.getSpaceShip().refreshExposedConnectors();
                             int connectors = p.getSpaceShip().getExposedConnectors();
                             if (connectors < minExposedConnectors) {
                                 minExposedConnectors = connectors;
@@ -81,11 +106,12 @@ public class EndState extends State {
 
                     // Go to the next scoring state
                     endInternalState = EndInternalState.SALE_OF_GOODS;
+                    break;
                 case SALE_OF_GOODS:
                     // Calculate the new score based on the sale of goods
                     for (Map.Entry<PlayerData, Integer> entry : scores.entrySet()) {
                         PlayerData p = entry.getKey();
-                        int sales = 0;
+                        int sales;
                         if (!p.hasGivenUp()) {
                             sales = p.getSpaceShip().getGoodsValue();
                         } else {
@@ -93,6 +119,7 @@ public class EndState extends State {
                         }
                         scores.replace(p, entry.getValue() + sales);
                     }
+                    break;
                 case LOSSES:
                     // Calculate the new score based on the component losses
                     for (Map.Entry<PlayerData, Integer> entry : scores.entrySet()) {
@@ -102,6 +129,7 @@ public class EndState extends State {
                         scores.replace(p, entry.getValue() - penalty);
 
                     }
+                    break;
                 default:
                     throw new IllegalStateException("Unknown EndInternalState: " + endInternalState);
             }

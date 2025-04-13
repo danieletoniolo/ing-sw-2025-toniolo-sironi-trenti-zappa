@@ -26,13 +26,49 @@ public class ValidationState extends State implements ChoosableFragment, Destroy
     // Tmp variable to store the choice of the component to destroy
     private ArrayList<Pair<Integer, Integer>> componentsToDestroy;
 
-    public ValidationState(ArrayList<PlayerData> players, Board board) {
-        super(players, board);
+    public ValidationState(Board board) {
+        super(board);
         this.invalidComponents = new HashMap<>();
         this.fragmentedComponents = null;
         this.fragmentChoice = -1;
         this.componentsToDestroy = null;
         this.internalState = ValidationInternalState.DEFAULT;
+    }
+
+    /**
+     * Getter for the internal state
+     * @return The internal state
+     */
+    public ValidationInternalState getInternalState() {
+        return internalState;
+    }
+
+    /**
+     * Getter for the invalid components
+     * @return The invalid components
+     */
+    public Map<PlayerData, ArrayList<Pair<Integer, Integer>>> getInvalidComponents() {
+        return invalidComponents;
+    }
+
+    /**
+     * Getter for the fragmented components
+     * @return The fragmented components
+     */
+    public ArrayList<ArrayList<Pair<Integer, Integer>>> getFragmentedComponents() {
+        return fragmentedComponents;
+    }
+
+    /**
+     * Getter for the fragment choice
+     * @return The fragment choice
+     */
+    public int getFragmentChoice() {
+        return fragmentChoice;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> getComponentsToDestroy() {
+        return componentsToDestroy;
     }
 
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {

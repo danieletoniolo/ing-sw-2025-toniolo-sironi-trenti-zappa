@@ -28,11 +28,11 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
 
     /**
      * Constructor whit players and card
-     * @param players List of players in the current order to play
+     * @param board The board associated with the game
      * @param card Slavers card associated with the state
      */
-    public SlaversState(ArrayList<PlayerData> players, Board board, Slavers card) {
-        super(players, board);
+    public SlaversState(Board board, Slavers card) {
+        super(board);
         this.internalState = SlaversInternalState.SET_CANNONS;
         this.card = card;
         this.stats = new HashMap<>();

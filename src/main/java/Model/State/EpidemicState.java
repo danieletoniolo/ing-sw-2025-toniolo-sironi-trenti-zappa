@@ -6,7 +6,6 @@ import Model.SpaceShip.Cabin;
 import Model.SpaceShip.Component;
 import Model.SpaceShip.ComponentType;
 import Model.SpaceShip.SpaceShip;
-import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -20,11 +19,19 @@ public class EpidemicState extends State {
 
     /**
      * Constructor for EpidemicState
-     * @param players List of players in the current order to play
+     * @param board The board associated with the game
      */
-    public EpidemicState(ArrayList<PlayerData> players, Board board) {
-        super(players, board);
+    public EpidemicState(Board board) {
+        super(board);
         check = new boolean[SpaceShip.getRows()][SpaceShip.getCols()];
+    }
+
+    /**
+     * Getter for the check array
+     * @return The check array
+     */
+    public boolean[][] getCheck() {
+        return check;
     }
 
     /**
@@ -44,7 +51,7 @@ public class EpidemicState extends State {
                 if(!check[currentCabin.getRow()][currentCabin.getColumn()]){
                     surroundingComponents = p.getSpaceShip().getSurroundingComponents(currentCabin.getRow(), currentCabin.getColumn());
                     for(Component co : surroundingComponents){
-                        if(co.getComponentType() == ComponentType.CABIN){
+                        if(co != null && co.getComponentType() == ComponentType.CABIN){
                             check[currentCabin.getRow()][currentCabin.getColumn()] = true;
                             currentCabin.removeCrewMember(1);
 
