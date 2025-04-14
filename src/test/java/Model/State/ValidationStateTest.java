@@ -252,10 +252,11 @@ class ValidationStateTest {
     }
 
     @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() {
+    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() throws JsonProcessingException {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
 
-        State emptyState = new ValidationState(null);
+        Board b = new Board(Level.SECOND);
+        State emptyState = new ValidationState(b);
         assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 

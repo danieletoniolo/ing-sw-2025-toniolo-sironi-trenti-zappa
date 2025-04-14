@@ -52,8 +52,8 @@ class StardustStateTest {
         p.getSpaceShip().placeComponent(s, 6,7);
 
         PlayerData p2 = state.getPlayers().get(2);
-        Storage s2 = new Storage(2, connector, true, 2);
-        Storage s3 = new Storage(2, connector, true, 2);
+        Storage s2 = new Storage(3, connector, true, 2);
+        Storage s3 = new Storage(4, connector, true, 2);
         p2.getSpaceShip().placeComponent(s2, 6,7);
         p2.getSpaceShip().placeComponent(s3, 6,8);
 

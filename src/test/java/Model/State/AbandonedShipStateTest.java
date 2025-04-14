@@ -180,10 +180,12 @@ class AbandonedShipStateTest {
     }
 
     @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() {
+    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() throws JsonProcessingException {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
 
-        AbandonedShipState emptyState = new AbandonedShipState(null, null);
+        Board b = new Board(Level.SECOND);
+        AbandonedShip c2 = new AbandonedShip(2, 3, 3, 1, 4);
+        AbandonedShipState emptyState = new AbandonedShipState(b, c2);
         assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 

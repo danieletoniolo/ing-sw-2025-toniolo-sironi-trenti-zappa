@@ -194,10 +194,11 @@ class EndStateTest {
     }
 
     @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() {
+    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() throws JsonProcessingException {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
 
-        EndState emptyState = new EndState(null, Level.SECOND);
+        Board b = new Board(Level.SECOND);
+        EndState emptyState = new EndState(b, Level.SECOND);
         assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 

@@ -191,11 +191,12 @@ class PlanetsStateTest {
     }
 
     @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() {
+    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() throws JsonProcessingException {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
 
         Planets c2 = new Planets(2, 1, List.of(List.of(new Good(GoodType.YELLOW))), 3);
-        State emptyState = new PlanetsState(null, c2) {};
+        Board b = new Board(Level.SECOND);
+        State emptyState = new PlanetsState(b, c2) {};
         assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 

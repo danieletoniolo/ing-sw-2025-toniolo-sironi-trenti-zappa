@@ -133,10 +133,11 @@ class EpidemicStateTest {
     }
 
     @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() {
+    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() throws JsonProcessingException {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
 
-        State emptyState = new EpidemicState(null);
+        Board b = new Board(Level.SECOND);
+        State emptyState = new EpidemicState(b);
         assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 
