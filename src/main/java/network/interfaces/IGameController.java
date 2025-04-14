@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public interface IGameController extends Remote {
+    void addRMIUser() throws RemoteException;
     void startGame() throws RemoteException;
     void joinGame(int uuid) throws RemoteException;
     void leaveGame(int uuid) throws RemoteException;

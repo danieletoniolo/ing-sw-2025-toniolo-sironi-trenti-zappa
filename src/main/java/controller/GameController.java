@@ -7,21 +7,29 @@ import Model.State.State;
 import Model.State.interfaces.ExchangeableGoods;
 import Model.State.interfaces.UsableCannon;
 import Model.State.interfaces.UsableEngine;
+import network.User;
 import network.interfaces.IGameController;
 import org.javatuples.Triplet;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
 
 public class GameController extends UnicastRemoteObject implements IGameController {
     private final Board board;
     private State state;
+    private ArrayList<User> users;
 
     public GameController() throws RemoteException {
         board = null;
         state = null;
+        users = new ArrayList<>();
+    }
+
+    public void addRMIUser() throws RemoteException {
+        users.add(new User(UUID.randomUUID(), true));
     }
 
     public void startGame() throws RemoteException {
@@ -179,5 +187,4 @@ public class GameController extends UnicastRemoteObject implements IGameControll
     public void rollDice(UUID uuid) throws RemoteException {
         // TODO
     }
-
 }
