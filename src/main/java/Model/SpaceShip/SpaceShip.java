@@ -26,6 +26,7 @@ public class SpaceShip {
     private Map<Integer, Cabin> cabins;
     private Map<Integer, Cannon> cannons;
     private PriorityQueue<Good> goods;
+    private Component lastPlacedComponent;
 
     private int singleEnginesStrength;
     private int doubleEnginesStrength;
@@ -67,13 +68,13 @@ public class SpaceShip {
         brownAlien = false;
 
         goodsValue = 0;
-        exposedConnectors = 0;
 
         storages = new HashMap<>();
         batteries = new HashMap<>();
         cabins = new HashMap<>();
         cannons = new HashMap<>();
         goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
+        lastPlacedComponent = null;
 
         // TODO: The center cabin should be 6 6 and not 7 7 (because of the 0 index)
         components = new Component[rows][cols];
@@ -91,7 +92,7 @@ public class SpaceShip {
      * @param direction direction of the hit (North, West, South, East)
      * @return The component that is being hit from the given direction
      */
-    private Component findComponent(int dice, Direction direction) {
+    private Component findHitComponent(int dice, Direction direction) {
         switch (direction) {
             case NORTH:
                 for (int i = 0; i < rows; i++) {
@@ -418,7 +419,7 @@ public class SpaceShip {
      * @throws IllegalArgumentException if the direction or the type of the hit is not valid
      */
     public Pair<Component, Integer> canProtect(int dice, Hit hit) throws IllegalArgumentException {
-        Component component = findComponent(dice, hit.getDirection());
+        Component component = findHitComponent(dice, hit.getDirection());
         if (component == null) {
             return new Pair<>(null, 1);
         }
@@ -481,9 +482,11 @@ public class SpaceShip {
     }
 
     /**
-     * Refresh the exposed connectors of the ship by searching in the components matrix
+     * Get the total number of exposed connectors in the ship
+     * @implNote The method iterates over all the components in the ship and calls the getExposedConnectors method of each component
+     * @return The number of the exposed connectors
      */
-    public void refreshExposedConnectors() {
+    public int getExposedConnectors() {
         exposedConnectors = 0;
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
@@ -492,13 +495,6 @@ public class SpaceShip {
                 }
             }
         }
-    }
-
-    /**
-     * Calculate the exposed connectors of the ship by searching in the components matrix
-     * @return The number of the exposed connectors
-     */
-    public int getExposedConnectors() {
         return exposedConnectors;
     }
 
@@ -592,20 +588,25 @@ public class SpaceShip {
                     break;
                 case SINGLE_CANNON:
                     singleCannonsStrength += ((Cannon) components[row][column]).getCannonStrength();
+                    cannons.put(c.getID(), (Cannon) components[row][column]);
                     break;
                 case DOUBLE_CANNON:
                     doubleCannonsStrength += ((Cannon) components[row][column]).getCannonStrength();
+                    cannons.put(c.getID(), (Cannon) components[row][column]);
                     doubleCannonsNumber++;
                     break;
                 case SINGLE_ENGINE:
                     singleEnginesStrength++;
                     break;
                 case DOUBLE_ENGINE:
-                    doubleEnginesStrength++;
+                    doubleEnginesStrength+=2;
                     break;
                 default:
                     break;
             }
+            // Mark the component as the lasted placed component
+            lastPlacedComponent = components[row][column];
+            // Increase the number of placed components
             numberOfComponents++;
         } else {
             components[row][column].ship = null;
@@ -690,12 +691,47 @@ public class SpaceShip {
     }
 
     /**
+     * Get the last placed component
+     * @return last placed component
+     */
+    public Component getLastPlacedComponent() {
+        return lastPlacedComponent;
+    }
+
+    /**
+     * Set the last placed component
+     * @param component the component to set as last placed
+     */
+    public void setLastPlacedComponent(Component component) {
+        lastPlacedComponent = component;
+    }
+
+    /**
+     * Fix a component at the given row and column
+     * @param row row of the component to fix
+     * @param column column of the component to fix
+     * @throws IllegalStateException if the component is null or already fixed
+     */
+    public void fixComponent(int row, int column) throws IllegalStateException{
+        Component component = components[row][column];
+        if (component != null && !component.isFixed()) {
+            component.fix();
+            lastPlacedComponent = null;
+        } else {
+            throw new IllegalStateException("The component at the given row and column is null or already fixed");
+        }
+    }
+
+    /**
      * Destroy a component at the given row and column and update the stats of the ship
      * @param row row of the component to destroy
      * @param column column of the component to destroy
      */
-    public void destroyComponent(int row, int column) {
+    public void destroyComponent(int row, int column) throws IllegalArgumentException {
         Component destroyedComponent = components[row][column];
+        if (destroyedComponent == null) {
+            throw new IllegalArgumentException("The component at the given row and column is null");
+        }
         components[row][column] = null;
 
         switch (destroyedComponent.getComponentType()) {
@@ -703,14 +739,16 @@ public class SpaceShip {
                 singleEnginesStrength--;
                 break;
             case DOUBLE_ENGINE:
-                doubleEnginesStrength--;
+                doubleEnginesStrength-=2;
                 break;
             case SINGLE_CANNON:
                 Cannon singlecannon = (Cannon) destroyedComponent;
+                cannons.remove(singlecannon.getID());
                 singleCannonsStrength -= singlecannon.getCannonStrength();
                 break;
             case DOUBLE_CANNON:
                 Cannon doublecannon = (Cannon) destroyedComponent;
+                cannons.remove(doublecannon.getID());
                 doubleCannonsStrength -= doublecannon.getCannonStrength();
                 doubleCannonsNumber--;
                 break;
@@ -725,8 +763,9 @@ public class SpaceShip {
                         Cabin cabinBrown = (Cabin) c;
                         if (cabinBrown.hasBrownAlien()) {
                             brownAlien = false;
-                            cabinBrown.removeCrewMember(1);;
                             crewNumber -= cabinBrown.getCrewNumber();
+                            cabinBrown.removeCrewMember(1);;
+                            break;
                         }
                     }
                 }
@@ -737,19 +776,20 @@ public class SpaceShip {
                         Cabin cabinPurple = (Cabin) c;
                         if (cabinPurple.hasPurpleAlien()) {
                             purpleAlien = false;
-                            cabinPurple.removeCrewMember(1);
                             crewNumber -= cabinPurple.getCrewNumber();
+                            cabinPurple.removeCrewMember(1);
+                            break;
                         }
                     }
                 }
                 break;
             case STORAGE:
                 Storage storage = (Storage) destroyedComponent;
-                storages.remove(storage.getID());
                 for (Good good : storage.getGoods()) {
                     goods.remove(good);
                 }
                 goodsValue -= storage.getGoodsValue();
+                storages.remove(storage.getID());
                 break;
             case BATTERY:
                 Battery battery = (Battery) destroyedComponent;
@@ -759,13 +799,14 @@ public class SpaceShip {
             default:
                 break;
         }
+        lastPlacedComponent = null;
         numberOfComponents--;
         lostComponents.add(destroyedComponent);
     }
 
     /**
      * Search if there is component that are no longer connected to the ship
-     * @return List of List of Pair<Integer, Integer> representing the group of disconnected components
+     * @return ArrayList of ArrayList of Pair<Integer, Integer> representing the group of disconnected components
      */
     public ArrayList<ArrayList<Pair<Integer, Integer>>> getDisconnectedComponents() {
         ArrayList<ArrayList<Pair<Integer, Integer>>> disconnectedComponents = new ArrayList<>();

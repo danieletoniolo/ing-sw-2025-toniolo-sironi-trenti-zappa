@@ -41,7 +41,7 @@ public class CardsManager {
      * Create decks of cards for the board
      * @return an array of decks
      */
-    public static Deck[] createDecks(Level gameLevel) {
+    public static Deck[] createDecks(Level gameLevel)  throws IllegalStateException {
         if (gameLevel == Level.LEARNING) {
             throw new IllegalStateException("Decks are not available in LEARNING mode");
         }
@@ -101,7 +101,7 @@ public class CardsManager {
 
         learningDeck.push(cards[1]);
         learningDeck.push(cards[3]);
-        learningDeck.push(cards[5]);
+        learningDeck.push(cards[4]);
         learningDeck.push(cards[8]);
         learningDeck.push(cards[12]);
         learningDeck.push(cards[15]);
@@ -144,7 +144,10 @@ public class CardsManager {
      * @param ID the ID of the card
      * @return the card with the specified ID
      */
-    public static Card getCard(int ID) {
+    public static Card getCard(int ID) throws IndexOutOfBoundsException {
+        if (ID < 0 || ID >= cards.length) {
+            throw new IndexOutOfBoundsException("ID is out of bounds");
+        }
         return cards[ID];
     }
 }

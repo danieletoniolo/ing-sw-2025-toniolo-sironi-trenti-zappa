@@ -1,6 +1,7 @@
 package Model.State;
 
 import Model.Cards.AbandonedStation;
+import Model.Game.Board.Board;
 import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.State.interfaces.ExchangeableGoods;
@@ -10,8 +11,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import Model.SpaceShip.SpaceShip;
-import Model.SpaceShip.Storage;
-import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 public class AbandonedStationState extends State implements ExchangeableGoods {
@@ -19,11 +18,35 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
     private Map<UUID, Float> cannonStrength;
     private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
 
-    public AbandonedStationState(ArrayList<PlayerData> players, AbandonedStation card) {
-        super(players);
+    public AbandonedStationState(Board board, AbandonedStation card) {
+        super(board);
         this.card = card;
         this.cannonStrength = new java.util.HashMap<>();
         this.exchangeData = new ArrayList<>();
+    }
+
+    /**
+     * Getter for the card
+     * @return The card
+     */
+    public AbandonedStation getCard() {
+        return card;
+    }
+
+    /**
+     * Getter for the cannon strength
+     * @return The cannon strength
+     */
+    public Map<UUID, Float> getCannonStrength() {
+        return cannonStrength;
+    }
+
+    /**
+     * Getter for the exchange data
+     * @return The exchange data
+     */
+    public ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> getExchangeData() {
+        return exchangeData;
     }
 
     public void addCannonStrength(UUID uuid, float strength) {
@@ -71,7 +94,7 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
             PlayerStatus status = playersStatus.get(player.getColor());
             if (status == PlayerStatus.PLAYED) {
                 int flightDays = card.getFlightDays();
-                player.addSteps(-flightDays);
+                board.addSteps(player, -flightDays);
                 break;
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");

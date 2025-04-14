@@ -8,16 +8,14 @@ public class PlayerData {
     private final String username;
     private final UUID uuid;
     private final PlayerColor color;
-    private int steps;
+    private int step;
+    private int position;
 
     private int coins;
     private final SpaceShip ship;
-    private boolean leader;
     private boolean gaveUp;
 
     private boolean disconnected;
-
-    // TODO: creare UUID per i giocatori
 
     /**
      * Create a new player
@@ -30,9 +28,7 @@ public class PlayerData {
         this.uuid = UUID.fromString(username);
         this.color = color;
         this.ship = ship;
-        this.steps = 0;
         this.coins = 0;
-        this.leader = false;
         this.gaveUp = false;
         this.disconnected = false;
     }
@@ -62,11 +58,35 @@ public class PlayerData {
     }
 
     /**
+     * Set the position of the player
+     * @param step step of the player
+     */
+    public void setStep(int step) {
+        this.step = step;
+    }
+
+    /**
      * Get the steps of the player
      * @return the steps of the player
      */
-    public int getSteps() {
-        return this.steps;
+    public int getStep() {
+        return this.step;
+    }
+
+    /**
+     * Set position: 0 = leader, 1 = second, ...
+     * @param position
+     */
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    /**
+     * Get the position of the player: 0 = leader, 1 = second, ...
+     * @return position of the player
+     */
+    public int getPosition() {
+        return this.position;
     }
 
     /**
@@ -75,14 +95,6 @@ public class PlayerData {
      */
     public int getCoins() {
         return this.coins;
-    }
-
-    /**
-     * Get the laps of the player
-     * @return the laps of the player
-     */
-    public int getNumberOfLaps(int numberOfCells) {
-        return (int) (this.steps % numberOfCells);
     }
 
     /**
@@ -98,7 +110,7 @@ public class PlayerData {
      * @return the leader of the game
      */
     public boolean isLeader() {
-        return this.leader;
+        return position == 0;
     }
 
     /**
@@ -123,23 +135,6 @@ public class PlayerData {
      */
     public void addCoins(int coins) {
         this.coins += coins;
-    }
-
-    /**
-     * Adds the specified number of steps to the player's step count.
-     * @param x the number of steps to add
-     */
-    public void addSteps(int x) {
-        // TODO: due player non possono essere nella stessa posizione
-        this.steps += x;
-    }
-
-    /**
-     * Set the leader of the game
-     * @param leader the leader of the game
-     */
-    public void setLeader(boolean leader) {
-        this.leader = leader;
     }
 
     /**

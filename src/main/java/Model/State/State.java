@@ -1,10 +1,11 @@
 package Model.State;
 
+import Model.Game.Board.Board;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
-import org.javatuples.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 enum PlayerStatus {
@@ -17,16 +18,21 @@ enum PlayerStatus {
 public abstract class State {
     protected ArrayList<PlayerData> players;
     protected Map<PlayerColor, PlayerStatus> playersStatus;
+    protected Board board;
     protected Boolean played;
 
     /**
      * Constructor for State
+     * @param board Board associated with the game
+     * @throws NullPointerException if board is null
      */
-    public State(ArrayList<PlayerData> players) throws NullPointerException {
-        if (players == null) {
+    public State(Board board) throws NullPointerException {
+        if (board == null) {
             throw new NullPointerException("players is null");
         }
-        this.players = players;
+        this.board = board;
+        this.players = board.updateInGamePlayers();
+        this.playersStatus = new HashMap<>();
         for (PlayerData player : players) {
             this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
         }

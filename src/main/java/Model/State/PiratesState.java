@@ -1,14 +1,13 @@
 package Model.State;
 
 import Model.Cards.Pirates;
+import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.State.handler.FightHandler;
 import Model.State.interfaces.AcceptableCredits;
 import Model.State.interfaces.ChoosableFragment;
 import Model.State.interfaces.Fightable;
 import Model.State.interfaces.UsableCannon;
-import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,11 +30,11 @@ public class PiratesState extends State implements Fightable, ChoosableFragment,
 
     /**
      * Constructor whit players and card
-     * @param players List of players in the current order to play
+     * @param board The board associated with the game
      * @param card Pirates card associated with the state
      */
-    public PiratesState(ArrayList<PlayerData> players, Pirates card) {
-        super(players);
+    public PiratesState(Board board, Pirates card) {
+        super(board);
         this.card = card;
         this.stats = new HashMap<>();
         this.piratesDefeat = false;
@@ -146,7 +145,7 @@ public class PiratesState extends State implements Fightable, ChoosableFragment,
                     }
                     if (acceptCredits) {
                         player.addCoins(card.getCredit());
-                        player.addSteps(-card.getFlightDays());
+                        board.addSteps(player, -card.getFlightDays());
                     }
                 } else {
                     this.playersDefeated.add(player);

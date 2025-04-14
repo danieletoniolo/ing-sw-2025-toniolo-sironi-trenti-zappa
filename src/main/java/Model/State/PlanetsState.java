@@ -1,14 +1,13 @@
 package Model.State;
 
 import Model.Cards.Planets;
+import Model.Game.Board.Board;
 import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.SpaceShip.Storage;
 import Model.State.interfaces.ExchangeableGoods;
 import Model.State.interfaces.SelectablePlanet;
 
-import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import java.util.ArrayList;
@@ -19,13 +18,29 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
     private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
     /**
      * Constructor for PlanetsState
-     * @param players List of players in the current order to play
+     * @param board The board associated with the game
      * @param card Planet card associated with the state
      */
-    public PlanetsState(ArrayList<PlayerData> players, Planets card) {
-        super(players);
+    public PlanetsState(Board board, Planets card) {
+        super(board);
         this.card = card;
         planetSelected = new PlayerData[card.getPlanetNumbers()];
+    }
+
+    /**
+     * Getter for the card
+     * @return The card
+     */
+    public Planets getCard() {
+        return card;
+    }
+
+    /**
+     * Getter for the planet selected
+     * @return The planet selected
+     */
+    public PlayerData[] getPlanetSelected() {
+        return planetSelected;
     }
 
     /**
@@ -84,7 +99,7 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
         for (PlayerData p : players) {
             status = playersStatus.get(p.getColor());
             if (status == PlayerStatus.PLAYED) {
-                p.addSteps(-flightDays);
+                board.addSteps(p, -flightDays);
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");
             }
