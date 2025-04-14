@@ -22,7 +22,17 @@ public class EndState extends State {
     private EndInternalState endInternalState;
 
     EndState (Board board, Level level) {
+        // Super constructor to initialize the board and players
+        // Note: the super constructor will get only the players that have not given up
         super(board);
+        // Add the player that has given up to the players list
+        players.addAll(board.getGaveUpPlayers());
+        // Set the player status to waiting for the players that have given up
+        for (PlayerData player : players) {
+            if (player.hasGivenUp()) {
+                playersStatus.put(player.getColor(), PlayerStatus.WAITING);
+            }
+        }
         this.scores = new HashMap<>();
         this.level = level;
     }
@@ -86,7 +96,6 @@ public class EndState extends State {
                     ArrayList<PlayerData> playersWithLeastConnectors = new ArrayList<>();
                     for (PlayerData p : players) {
                         if (!p.hasGivenUp()) {
-                            p.getSpaceShip().refreshExposedConnectors();
                             int connectors = p.getSpaceShip().getExposedConnectors();
                             if (connectors < minExposedConnectors) {
                                 minExposedConnectors = connectors;

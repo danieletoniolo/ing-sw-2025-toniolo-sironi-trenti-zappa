@@ -12,7 +12,6 @@ import java.util.Map;
 
 public class EpidemicState extends State {
     private ArrayList<Component> surroundingComponents;
-    private Component component;
     private Map<Integer, Cabin> cabins;
     private Cabin currentCabin;
     private boolean[][] check;

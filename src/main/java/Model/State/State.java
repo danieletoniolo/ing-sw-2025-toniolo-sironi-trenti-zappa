@@ -3,7 +3,6 @@ package Model.State;
 import Model.Game.Board.Board;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
-import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
