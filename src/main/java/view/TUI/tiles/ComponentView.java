@@ -10,6 +10,8 @@ import java.util.Arrays;
 public class ComponentView {
     private final String covered = "|  Covered  |";
     private final String clean = "|           |";
+    private final String line = ". _ _ _ _ _ .";
+    private final String spaces = "             ";
 
     /**
      * Draw one line with tot tiles. If component == null draw spaces, if Boolean of component is set false draw a covered tile
@@ -24,32 +26,32 @@ public class ComponentView {
                     switch (i) {
                         case 0, 6:
                             if (j == 0) {
-                                System.out.print(". _ _ _ _ _ .");
+                                System.out.print(tile != null ? line : spaces);
                             }
                             break;
                         case 1:
                             if (j == 0) {
-                                System.out.print(tile != null && check ? firstLine(tile) : clean);
+                                System.out.print(tile != null ? check ? firstLine(tile) : clean : spaces);
                             }
                             break;
                         case 2:
                             if (j == 0) {
-                                System.out.print(tile != null && check ? secondLine(tile) : clean);
+                                System.out.print(tile != null ? check ? secondLine(tile) : clean : spaces);
                             }
                             break;
                         case 3:
                             if (j == 0) {
-                                System.out.print(tile != null ? check ? middleLine(tile) : covered : clean);
+                                System.out.print(tile != null ? check ? middleLine(tile) : covered : spaces);
                             }
                             break;
                         case 4:
                             if (j == 0) {
-                                System.out.print(tile != null && check ? fourthLine(tile) : clean);
+                                System.out.print(tile != null ? check ? fourthLine(tile) : clean : spaces);
                             }
                             break;
                         case 5:
                             if (j == 0) {
-                                System.out.print(tile != null && check ? fifthLine(tile) : clean);
+                                System.out.print(tile != null ? check ? fifthLine(tile) : clean : spaces);
                             }
                             break;
                     }
