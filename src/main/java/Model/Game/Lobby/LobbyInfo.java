@@ -3,10 +3,12 @@ package Model.Game.Lobby;
 import Model.Player.PlayerData;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class LobbyInfo {
     private final ArrayList<PlayerData> player;
     private String name;
+    private final UUID uuid;
     private final int totalPlayers;
     private int numberOfPlayersEntered;
 
@@ -19,6 +21,7 @@ public class LobbyInfo {
         this.numberOfPlayersEntered = 0;
         this.totalPlayers = totalPlayers;
         this.name = name;
+        this.uuid = UUID.fromString(name);
         this.player = new ArrayList<>();
     }
 
@@ -28,6 +31,14 @@ public class LobbyInfo {
      */
     public String getName() {
         return this.name;
+    }
+
+    /**
+     * Get the UUID of the lobby
+     * @return the UUID of the lobby
+     */
+    public UUID getUUID() {
+        return this.uuid;
     }
 
     /**
@@ -78,5 +89,13 @@ public class LobbyInfo {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Check if the game has started
+     * @return true if the game has started, false otherwise
+     */
+    public boolean isGameStarted() {
+        return this.numberOfPlayersEntered == this.totalPlayers;
     }
 }
