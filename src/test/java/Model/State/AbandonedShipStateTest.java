@@ -134,9 +134,6 @@ class AbandonedShipStateTest {
         assertThrows(IllegalStateException.class, () -> state.execute(player));
     }
 
-    //----------
-    //Test di state
-
     @RepeatedTest(5)
     void getPlayerPosition() {
         PlayerData player = state.getPlayers().getFirst();

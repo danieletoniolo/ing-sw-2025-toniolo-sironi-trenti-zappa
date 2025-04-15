@@ -536,9 +536,6 @@ class BuildingStateTest {
         assertTrue(state.getPlayersHandQueue().isEmpty());
     }
 
-    //----------
-    //Test di state
-
     @RepeatedTest(5)
     void getPlayerPosition() {
         PlayerData player = state.getPlayers().getFirst();

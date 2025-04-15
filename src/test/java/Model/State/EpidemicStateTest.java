@@ -87,9 +87,6 @@ class EpidemicStateTest {
         assertEquals(1, cabin3.getCrewNumber());
     }
 
-    //----------
-    //Test di state
-
     @RepeatedTest(5)
     void getPlayerPosition() {
         PlayerData player = state.getPlayers().getFirst();

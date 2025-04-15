@@ -145,9 +145,6 @@ class PlanetsStateTest {
         assertThrows(IllegalStateException.class, () -> state.exit());
     }
 
-    //----------
-    //Test di state
-
     @RepeatedTest(5)
     void getPlayerPosition() {
         PlayerData player = state.getPlayers().getFirst();

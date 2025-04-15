@@ -148,9 +148,6 @@ class EndStateTest {
         assertEquals(player.getCoins() - (lostComponents + reservedComponents), state.getScores().get(player));
     }
 
-    //----------
-    //Test di state
-
     @RepeatedTest(5)
     void getPlayerPosition() {
         PlayerData player = state.getPlayers().getFirst();

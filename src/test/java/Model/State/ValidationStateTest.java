@@ -206,9 +206,6 @@ class ValidationStateTest {
         assertDoesNotThrow(() -> state.exit());
     }
 
-    //----------
-    //Test di state
-
     @RepeatedTest(5)
     void getPlayerPosition() {
         PlayerData player = state.getPlayers().getFirst();

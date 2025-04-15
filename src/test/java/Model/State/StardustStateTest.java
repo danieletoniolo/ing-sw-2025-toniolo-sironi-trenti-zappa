@@ -84,9 +84,6 @@ class StardustStateTest {
         assertEquals(6, state.getPlayers().getFirst().getStep());
     }
 
-    //----------
-    //Test di state
-
     @RepeatedTest(5)
     void getPlayerPosition() {
         PlayerData player = state.getPlayers().getFirst();
