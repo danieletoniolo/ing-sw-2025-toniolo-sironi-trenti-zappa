@@ -68,7 +68,6 @@ public class SpaceShip {
         brownAlien = false;
 
         goodsValue = 0;
-        exposedConnectors = 0;
 
         storages = new HashMap<>();
         batteries = new HashMap<>();
@@ -497,9 +496,11 @@ public class SpaceShip {
     }
 
     /**
-     * Refresh the exposed connectors of the ship by searching in the components matrix
+     * Get the total number of exposed connectors in the ship
+     * @implNote The method iterates over all the components in the ship and calls the getExposedConnectors method of each component
+     * @return The number of the exposed connectors
      */
-    public void refreshExposedConnectors() {
+    public int getExposedConnectors() {
         exposedConnectors = 0;
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
@@ -508,13 +509,6 @@ public class SpaceShip {
                 }
             }
         }
-    }
-
-    /**
-     * Calculate the exposed connectors of the ship by searching in the components matrix
-     * @return The number of the exposed connectors
-     */
-    public int getExposedConnectors() {
         return exposedConnectors;
     }
 
@@ -624,7 +618,9 @@ public class SpaceShip {
                 default:
                     break;
             }
+            // Mark the component as the lasted placed component
             lastPlacedComponent = components[row][column];
+            // Increase the number of placed components
             numberOfComponents++;
         } else {
             components[row][column].ship = null;
