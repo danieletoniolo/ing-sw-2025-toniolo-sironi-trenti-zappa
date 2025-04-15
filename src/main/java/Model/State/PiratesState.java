@@ -4,7 +4,6 @@ import Model.Cards.Pirates;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.State.handler.FightHandler;
 import Model.State.interfaces.AcceptableCredits;
 import Model.State.interfaces.ChoosableFragment;
 import Model.State.interfaces.Fightable;

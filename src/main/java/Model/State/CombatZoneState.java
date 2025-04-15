@@ -5,7 +5,6 @@ import Model.Game.Board.Board;
 import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.State.handler.FightHandler;
 import Model.State.interfaces.*;
 import org.javatuples.Pair;
 

@@ -1,4 +1,4 @@
-package Model.State.handler;
+package Model.State;
 
 import Model.Cards.Hits.Hit;
 import Model.SpaceShip.Component;
@@ -172,8 +172,13 @@ public class FightHandler {
                 if (fragmentChoice == null) {
                     throw new IllegalStateException("FragmentChoice not set");
                 }
-                for (Pair<Integer, Integer> fragment : fragments.get(fragmentChoice)) {
-                    spaceShip.destroyComponent(fragment.getValue0(), fragment.getValue1());
+                for (int i = 0; i < fragments.size(); i++) {
+                    if (i != fragmentChoice) {
+                        ArrayList<Pair<Integer, Integer>> fragment = fragments.get(i);
+                        for (Pair<Integer, Integer> component : fragment) {
+                            spaceShip.destroyComponent(component.getValue0(), component.getValue1());
+                        }
+                    }
                 }
                 transitionHit();
                 break;

@@ -3,9 +3,9 @@ package Model.State;
 import Model.Game.Board.Board;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
-import org.javatuples.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 enum PlayerStatus {
@@ -32,6 +32,7 @@ public abstract class State {
         }
         this.board = board;
         this.players = board.updateInGamePlayers();
+        this.playersStatus = new HashMap<>();
         for (PlayerData player : players) {
             this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
         }

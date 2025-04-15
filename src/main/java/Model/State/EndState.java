@@ -22,9 +22,43 @@ public class EndState extends State {
     private EndInternalState endInternalState;
 
     EndState (Board board, Level level) {
+        // Super constructor to initialize the board and players
+        // Note: the super constructor will get only the players that have not given up
         super(board);
+        // Add the player that has given up to the players list
+        players.addAll(board.getGaveUpPlayers());
+        // Set the player status to waiting for the players that have given up
+        for (PlayerData player : players) {
+            if (player.hasGivenUp()) {
+                playersStatus.put(player.getColor(), PlayerStatus.WAITING);
+            }
+        }
         this.scores = new HashMap<>();
         this.level = level;
+    }
+
+    /**
+     * Getter for the players scores
+     * @return The players scores
+     */
+    public Map<PlayerData, Integer> getScores() {
+        return scores;
+    }
+
+    /**
+     * Getter for the level
+     * @return The level
+     */
+    public Level getLevel() {
+        return level;
+    }
+
+    /**
+     * Getter for the end internal state
+     * @return The end internal state
+     */
+    public EndInternalState getEndInternalState() {
+        return endInternalState;
     }
 
     @Override
@@ -55,6 +89,7 @@ public class EndState extends State {
 
                     // Go to the next scoring state
                     endInternalState = EndInternalState.BEST_LOOKING_SHIP;
+                    break;
                 case BEST_LOOKING_SHIP:
                     // Find the player (could be more than one) with the least exposed connectors (best looking ship)
                     int minExposedConnectors = Integer.MAX_VALUE;
@@ -80,6 +115,7 @@ public class EndState extends State {
 
                     // Go to the next scoring state
                     endInternalState = EndInternalState.SALE_OF_GOODS;
+                    break;
                 case SALE_OF_GOODS:
                     // Calculate the new score based on the sale of goods
                     for (Map.Entry<PlayerData, Integer> entry : scores.entrySet()) {
@@ -92,6 +128,7 @@ public class EndState extends State {
                         }
                         scores.replace(p, entry.getValue() + sales);
                     }
+                    break;
                 case LOSSES:
                     // Calculate the new score based on the component losses
                     for (Map.Entry<PlayerData, Integer> entry : scores.entrySet()) {
@@ -101,6 +138,7 @@ public class EndState extends State {
                         scores.replace(p, entry.getValue() - penalty);
 
                     }
+                    break;
                 default:
                     throw new IllegalStateException("Unknown EndInternalState: " + endInternalState);
             }

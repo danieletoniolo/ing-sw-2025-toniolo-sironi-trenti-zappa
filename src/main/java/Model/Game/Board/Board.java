@@ -188,7 +188,7 @@ public class Board {
      * @return ArrayList of sorted players
      */
     public ArrayList<PlayerData> updateInGamePlayers() {
-        inGamePlayers.removeAll(null);
+        inGamePlayers.removeIf(Objects::isNull);
         for (int i = 0; i < inGamePlayers.size(); i++) {
             if (inGamePlayers.get(i).hasGivenUp()) gaveUpPlayers.add(inGamePlayers.remove(i));
         }

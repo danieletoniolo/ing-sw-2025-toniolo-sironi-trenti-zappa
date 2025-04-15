@@ -25,6 +25,30 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
         this.exchangeData = new ArrayList<>();
     }
 
+    /**
+     * Getter for the card
+     * @return The card
+     */
+    public AbandonedStation getCard() {
+        return card;
+    }
+
+    /**
+     * Getter for the cannon strength
+     * @return The cannon strength
+     */
+    public Map<UUID, Float> getCannonStrength() {
+        return cannonStrength;
+    }
+
+    /**
+     * Getter for the exchange data
+     * @return The exchange data
+     */
+    public ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> getExchangeData() {
+        return exchangeData;
+    }
+
     public void addCannonStrength(UUID uuid, float strength) {
         float oldCannonStrength = cannonStrength.get(uuid);
         cannonStrength.replace(uuid, oldCannonStrength + strength);

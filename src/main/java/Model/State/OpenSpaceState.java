@@ -9,14 +9,8 @@ import Model.State.interfaces.UsableEngine;
 import java.util.HashMap;
 import java.util.Map;
 
-enum OpenStateInternalState {
-    SET_ENGINES,
-    EXECUTE
-}
-
 public class OpenSpaceState extends State implements UsableEngine {
     private Map<PlayerData, Float> stats;
-    private OpenStateInternalState internalState;
 
     /**
      * Constructor
@@ -26,7 +20,6 @@ public class OpenSpaceState extends State implements UsableEngine {
     public OpenSpaceState(Board board, OpenSpace card) {
         super(board);
         this.stats = new HashMap<>();
-        this.internalState = OpenStateInternalState.SET_ENGINES;
     }
 
     /**
@@ -34,12 +27,8 @@ public class OpenSpaceState extends State implements UsableEngine {
      * @param player PlayerData of the player using the cannon
      * @param strength Strength of the cannon to be used
      */
-    public void useEngine(PlayerData player, Float strength) throws IllegalArgumentException {
-        if (player.getSpaceShip().getDoubleEnginesStrength() < strength) {
-            throw new IllegalArgumentException("Required strength > max strength player");
-        }
+    public void useEngine(PlayerData player, Float strength) {
         this.stats.merge(player, strength, Float::sum);
-        internalState = OpenStateInternalState.EXECUTE;
     }
 
     /**
@@ -48,8 +37,8 @@ public class OpenSpaceState extends State implements UsableEngine {
     @Override
     public void entry() {
         for (PlayerData player : super.players) {
-            this.useEngine(player, player.getSpaceShip().getSingleCannonsStrength());
-            if (player.getSpaceShip().hasPurpleAlien()) {
+            this.useEngine(player, (float) player.getSpaceShip().getSingleEnginesStrength());
+            if (player.getSpaceShip().hasBrownAlien()) {
                 this.useEngine(player, SpaceShip.getAlienStrength());
             }
         }
@@ -62,9 +51,6 @@ public class OpenSpaceState extends State implements UsableEngine {
      */
     @Override
     public void execute(PlayerData player) throws IllegalStateException {
-        if (internalState == OpenStateInternalState.SET_ENGINES){
-            throw new IllegalStateException("Player has not set the engines");
-        }
         if (stats.get(player) == 0) {
             player.setGaveUp(true);
         }
@@ -72,6 +58,5 @@ public class OpenSpaceState extends State implements UsableEngine {
             board.addSteps(player, stats.get(player).intValue());
         }
         super.execute(player);
-        this.internalState = OpenStateInternalState.SET_ENGINES;
     }
 }
