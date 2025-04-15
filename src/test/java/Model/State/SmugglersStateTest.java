@@ -262,6 +262,30 @@ class SmugglersStateTest {
     }
 
     @Test
+    void execute_withExchangeData() {
+        state.entry();
+        PlayerData player = state.getPlayers().getFirst();
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        Storage s1 = new Storage(2, connectors, true, 2);
+        ArrayList<Good> g1 = new ArrayList<>(List.of(new Good(GoodType.YELLOW)));
+        player.getSpaceShip().placeComponent(s1, 6, 7);
+        player.getSpaceShip().exchangeGood(g1, null, 2);
+        ArrayList<Good> goodsToAdd = new ArrayList<>(List.of(new Good(GoodType.GREEN)));
+        ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData = new ArrayList<>();
+        exchangeData.add(new Triplet<>(goodsToAdd, g1, s1.getID()));
+        state.setGoodsToExchange(player, exchangeData);
+        state.useCannon(player, (float) state.getCard().getCannonStrengthRequired() + 1);
+
+        state.execute(player);
+
+        assertEquals(PlayerStatus.PLAYED, state.playersStatus.get(player.getColor()));
+
+        SpaceShip ship = player.getSpaceShip();
+        assertTrue(ship.getGoods().containsAll(goodsToAdd));
+        assertFalse(ship.getGoods().containsAll(g1));
+    }
+
+    @Test
     void exit_allPlayersPlayed() {
         state.entry();
         for (PlayerData player : state.getPlayers()) {

@@ -184,6 +184,47 @@ class ValidationStateTest {
     }
 
     @RepeatedTest(5)
+    void execute_setsInternalStateToFragmentedShip_whenShipIsFragmented() {
+        PlayerData player = state.getPlayers().getFirst();
+        SpaceShip ship = player.getSpaceShip();
+        ConnectorType[] connector = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        Component c = new Connectors(2, connector);
+        Component c2 = new Connectors(3, connector);
+        Component c3 = new Connectors(4, connector);
+        Component c4 = new Connectors(5, connector);
+        Component c5 = new Connectors(6, connector);
+        ship.placeComponent(c, 6, 7);
+        ship.placeComponent(c2, 6, 8);
+        ship.placeComponent(c3, 6, 9);
+        ship.placeComponent(c4, 8, 7);
+        ship.placeComponent(c5, 5, 7);
+
+        ArrayList<Pair<Integer, Integer>> fragment1 = new ArrayList<>();
+        fragment1.add(new Pair<>(6, 8));
+        fragment1.add(new Pair<>(6, 9));
+
+        ArrayList<Pair<Integer, Integer>> fragment2 = new ArrayList<>();
+        fragment2.add(new Pair<>(8, 7));
+        fragment2.add(new Pair<>(7, 7));
+
+        ArrayList<Pair<Integer, Integer>> fragment3 = new ArrayList<>();
+        fragment2.add(new Pair<>(5, 7));
+
+        state.setInternalState(ValidationInternalState.DEFAULT);
+        state.getInvalidComponents().put(player, new ArrayList<>(fragment1));
+        state.setComponentToDestroy(player, new ArrayList<>(fragment1));
+
+        ship.destroyComponent(6, 7);
+        ship.getDisconnectedComponents().add(fragment1);
+        ship.getDisconnectedComponents().add(fragment2);
+        ship.getDisconnectedComponents().add(fragment3);
+
+        state.execute(player);
+
+        assertEquals(ValidationInternalState.FRAGMENTED_SHIP, state.getInternalState());
+    }
+
+    @RepeatedTest(5)
     void exit_withAllPlayersHavingValidComponents() {
         state.getPlayers().forEach(player -> player.getSpaceShip().getInvalidComponents().clear());
         state.getPlayers().forEach(player -> state.playersStatus.replace(player.getColor(), PlayerStatus.PLAYED));
@@ -194,7 +235,9 @@ class ValidationStateTest {
     @RepeatedTest(5)
     void exit_withPlayerHavingInvalidComponents() {
         PlayerData player = state.getPlayers().getFirst();
-        player.getSpaceShip().getInvalidComponents().add(new Pair<>(0, 0));
+        ConnectorType[] connector = new ConnectorType[]{ ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY};
+        Component c = new Connectors(2, connector);
+        player.getSpaceShip().placeComponent(c, 6, 7);
 
         assertThrows(IllegalStateException.class, () -> state.exit());
     }

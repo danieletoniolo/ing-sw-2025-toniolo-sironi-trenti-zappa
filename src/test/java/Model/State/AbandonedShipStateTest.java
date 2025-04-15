@@ -292,4 +292,9 @@ class AbandonedShipStateTest {
         assertDoesNotThrow(() -> state.exit());
         assertTrue(state.played);
     }
+
+    @Test
+    void testConstructorWhenBoardIsNull() {
+        assertThrows(NullPointerException.class, () -> {new State(null) {};});
+    }
 }
