@@ -8,10 +8,7 @@ import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.*;
 import org.javatuples.Pair;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.*;
 
 enum CombatZoneInternalState {
     CREW(0),
@@ -58,6 +55,9 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         super(board);
         this.card = card;
         this.stats = new ArrayList<>(3);
+        for (int i = 0; i < 3; i++) {
+            stats.add(new HashMap<>());
+        }
         this.internalState = CombatZoneInternalState.CREW;
         this.minPlayerCannons = null;
         this.minPlayerEngines = null;
@@ -65,6 +65,46 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         this.crewLoss = null;
         this.goodsToDiscard = null;
         this.fightHandler = new FightHandler();
+    }
+
+    public CombatZoneInternalState getInternalState() {
+        return internalState;
+    }
+
+    public void setInternalState(CombatZoneInternalState internalState) {
+        this.internalState = internalState;
+    }
+
+    public FightHandler getFightHandler() {
+        return fightHandler;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> getCrewLoss() {
+        return crewLoss;
+    }
+
+    public PlayerData getMinPlayerCannons() {
+        return minPlayerCannons;
+    }
+
+    public PlayerData getMinPlayerEngines() {
+        return minPlayerEngines;
+    }
+
+    public PlayerData getMinPlayerCrew() {
+        return minPlayerCrew;
+    }
+
+    public CombatZone getCard() {
+        return card;
+    }
+
+    public ArrayList<Map<PlayerData, Float>> getStats() {
+        return stats;
+    }
+
+    public ArrayList<Pair<ArrayList<Good>, Integer>> getGoodsToDiscard() {
+        return goodsToDiscard;
     }
 
     /**

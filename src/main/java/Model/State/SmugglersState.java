@@ -1,5 +1,6 @@
 package Model.State;
 
+import Model.Cards.Card;
 import Model.Cards.Smugglers;
 import Model.Game.Board.Board;
 import Model.Good.Good;
@@ -36,6 +37,34 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
         this.exchangeData = null;
         this.goodsToDiscard = null;
         this.crewToLose = null;
+    }
+
+    public Smugglers getCard() {
+        return card;
+    }
+
+    public SmugglerInternalState getInternalState() {
+        return internalState;
+    }
+
+    public Map<PlayerData, Float> getCannonStrength() {
+        return cannonStrength;
+    }
+
+    public void setInternalState(SmugglerInternalState internalState) {
+        this.internalState = internalState;
+    }
+
+    public ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> getExchangeData() {
+        return exchangeData;
+    }
+
+    public ArrayList<Pair<ArrayList<Good>, Integer>> getGoodsToDiscard() {
+        return goodsToDiscard;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> getCrewToLose() {
+        return crewToLose;
     }
 
     /**
@@ -123,6 +152,7 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
                         // Change the internal state to PENALTY
                         this.internalState = SmugglerInternalState.PENALTY;
                     }
+                    break;
                 case PENALTY:
                     // If the player has not set the goods to discard, we throw an exception
                     if (goodsToDiscard == null && crewToLose == null) {
@@ -138,7 +168,7 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
                         for (Pair<ArrayList<Good>, Integer> pair : goodsToDiscard) {
                             goodsToDiscardQueue.addAll(pair.getValue0());
                         }
-                        PriorityQueue<Good> mostValuableGoods = new PriorityQueue<>(new ArrayList<>(ship.getGoods()));
+                        PriorityQueue<Good> mostValuableGoods = new PriorityQueue<>(ship.getGoods());
                         for (int i = 0; i < goodsToDiscardQueue.size(); i++) {
                             if (goodsToDiscardQueue.peek().getValue() != mostValuableGoods.peek().getValue()) {
                                 throw new IllegalStateException("The goods to discard are not the most valuable");
@@ -162,10 +192,13 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
 
                     // Reset the goods to discard
                     this.goodsToDiscard = null;
+                    // Reset the crew to lose
+                    this.crewToLose = null;
                     // Set the player as played
                     playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
                     // Change back the internal state to DEFAULT
                     this.internalState = SmugglerInternalState.DEFAULT;
+                    break;
                 default:
                     throw new IllegalStateException("Unknown internal state" + internalState);
             }

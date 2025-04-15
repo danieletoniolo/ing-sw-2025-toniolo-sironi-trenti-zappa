@@ -27,14 +27,6 @@ public class EpidemicState extends State {
     }
 
     /**
-     * Getter for the check array
-     * @return The check array
-     */
-    public boolean[][] getCheck() {
-        return check;
-    }
-
-    /**
      * Function for eliminating the crew in two adjacent cabins
      */
     @Override

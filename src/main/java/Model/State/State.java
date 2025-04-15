@@ -40,6 +40,10 @@ public abstract class State {
         this.played = false;
     }
 
+    public ArrayList<PlayerData> getPlayers() {
+        return players;
+    }
+
     /**
      * Get the position of the player
      * @param player PlayerData of the player to get the position
@@ -73,7 +77,10 @@ public abstract class State {
      * Set the status of all players
      * @param status PlayerStatus to set to all players
      */
-    protected void setStatusPlayers(PlayerStatus status) {
+    protected void setStatusPlayers(PlayerStatus status) throws NullPointerException {
+        if(status == null) {
+            throw new NullPointerException("status is null");
+        }
         for (PlayerData p : players) {
             playersStatus.put(p.getColor(), status);
         }
