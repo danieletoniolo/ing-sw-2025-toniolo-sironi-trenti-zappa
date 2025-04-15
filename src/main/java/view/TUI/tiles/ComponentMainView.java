@@ -15,7 +15,6 @@ public class ComponentMainView {
     public static void main(String[] args) {
         try{
             int COLS = 13;
-            int n = 156;
             Board board = new Board(Level.LEARNING);
 
             ComponentView componentView = new ComponentView();
@@ -46,7 +45,7 @@ public class ComponentMainView {
         for (i = 0; i < toVisualize.size() / COLS; i++) {
             ArrayList<Pair<Component, Boolean>> components = new ArrayList<>();
             for (Component component : toVisualize.subList(i * COLS, i * COLS + COLS)) {
-                components.add(new Pair<>(component, false));
+                components.add(new Pair<>(component, true));
             }
             componentView.drawTilesOnOneLine(components);
         }
