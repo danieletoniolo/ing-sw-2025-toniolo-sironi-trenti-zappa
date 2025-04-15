@@ -63,7 +63,7 @@ public class GenerateRandomShip {
                         id = rand.nextInt(0, 156);
                     }while(used_id.contains(id));
                     used_id.add(id);
-                    c = b.getTile(id);
+                    //c = b.getTile(id);
                     s.placeComponent(c, minRiga, i);
                     vs[minRiga][i] = false;
                     count++;
@@ -78,7 +78,7 @@ public class GenerateRandomShip {
                         id = rand.nextInt(0, 156);
                     }while(used_id.contains(id));
                     used_id.add(id);
-                    c = b.getTile(id);
+                    //c = b.getTile(id);
                     s.placeComponent(c, i, maxColonna);
                     vs[i][maxColonna] = false;
                     count++;
@@ -93,7 +93,7 @@ public class GenerateRandomShip {
                         id = rand.nextInt(0, 156);
                     }while(used_id.contains(id));
                     used_id.add(id);
-                    c = b.getTile(id);
+                    //c = b.getTile(id);
                     s.placeComponent(c, maxRiga, i);
                     vs[maxRiga][i] = false;
                     count++;
@@ -108,7 +108,7 @@ public class GenerateRandomShip {
                         id = rand.nextInt(0, 156);
                     }while(used_id.contains(id));
                     used_id.add(id);
-                    c = b.getTile(id);
+                    //c = b.getTile(id);
                     s.placeComponent(c, i, minColonna);
                     vs[i][minColonna] = false;
                     count++;

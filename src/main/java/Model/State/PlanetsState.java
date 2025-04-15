@@ -100,9 +100,8 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
             status = playersStatus.get(p.getColor());
             if (status == PlayerStatus.PLAYED) {
                 board.addSteps(p, -flightDays);
-            } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
-                throw new IllegalStateException("Not all players have played");
             }
+            //Togliere else if pk lo fa il super
         }
     }
 }

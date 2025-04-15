@@ -22,6 +22,10 @@ public class OpenSpaceState extends State implements UsableEngine {
         this.stats = new HashMap<>();
     }
 
+    public Map<PlayerData, Float> getStats() {
+        return stats;
+    }
+
     /**
      * Use the cannon
      * @param player PlayerData of the player using the cannon

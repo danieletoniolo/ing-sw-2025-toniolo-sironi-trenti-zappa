@@ -66,6 +66,10 @@ public class Board {
         gaveUpPlayers = new ArrayList<>();
     }
 
+    public Component[] getTiles() {
+        return tiles;
+    }
+
     /**
      * Get the number of steps for a lap
      * @return the number of steps for a lap
@@ -80,6 +84,13 @@ public class Board {
      */
     public Level getBoardLevel() {
         return this.level;
+    }
+
+    public int getStepsOfAPlayer(PlayerData player) {
+        if (player == null) {
+            throw new NullPointerException("Player is null");
+        }
+        return player.getStep();
     }
 
     /**
@@ -188,18 +199,12 @@ public class Board {
      * @return ArrayList of sorted players
      */
     public ArrayList<PlayerData> updateInGamePlayers() {
-        inGamePlayers.removeAll(null);
+        inGamePlayers.removeIf(Objects::isNull);
         for (int i = 0; i < inGamePlayers.size(); i++) {
             if (inGamePlayers.get(i).hasGivenUp()) gaveUpPlayers.add(inGamePlayers.remove(i));
         }
 
         for (int i = 0; i < inGamePlayers.size(); i++) {
-            for (int j = i + 1; j < inGamePlayers.size(); j++) {
-                if (inGamePlayers.get(i).getStep() > inGamePlayers.get(j).getStep()) {
-                    Collections.swap(inGamePlayers, i, j);
-                }
-            }
-
             inGamePlayers.get(i).setPosition(i);
             if (i > 0) {
                 if (inGamePlayers.getFirst().getStep() - inGamePlayers.get(i).getStep() > this.stepsForALap) {

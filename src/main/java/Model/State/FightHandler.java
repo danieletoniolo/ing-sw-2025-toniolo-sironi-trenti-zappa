@@ -36,6 +36,34 @@ public class FightHandler {
         this.internalState = FightHandlerInternalState.CAN_PROTECT;
     }
 
+    public void setHitIndex(int hitIndex) {
+        this.hitIndex = hitIndex;
+    }
+
+    public int getDice() {
+        return dice;
+    }
+
+    public Boolean getProtect() {
+        return protect;
+    }
+
+    public Integer getBatteryID() {
+        return batteryID;
+    }
+
+    public Integer getFragmentChoice() {
+        return fragmentChoice;
+    }
+
+    public FightHandlerInternalState getInternalState() {
+        return internalState;
+    }
+
+    public void setProtectionResult(Pair<Component, Integer> protectionResult) {
+        this.protectionResult = protectionResult;
+    }
+
     /**
      * Initialize or reset the handler
      * @param startIndex The hit index to start with
@@ -59,6 +87,14 @@ public class FightHandler {
         protect = null;
         batteryID = null;
         fragmentChoice = null;
+    }
+
+    public void setInternalState(FightHandlerInternalState internalState) {
+        this.internalState = internalState;
+    }
+
+    public void setFragments(ArrayList<ArrayList<Pair<Integer, Integer>>> fragments) {
+        this.fragments = fragments;
     }
 
     /**
