@@ -28,7 +28,7 @@ public class BuildingState extends State implements Buildable {
         this.timerRunning = false;
     }
 
-    public void flipTimer(UUID uuid) throws InterruptedException, IllegalStateException{
+    public void flipTimer(UUID uuid) throws IllegalStateException{
         if (board.getBoardLevel() == Level.LEARNING) {
             throw new IllegalStateException("Cannot flip timer in learning level");
         }
