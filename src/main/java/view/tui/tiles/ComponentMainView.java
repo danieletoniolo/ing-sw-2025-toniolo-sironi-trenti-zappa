@@ -1,11 +1,10 @@
-package view.TUI.tiles;
+package view.tui.tiles;
 
 import Model.Game.Board.Board;
 import Model.Game.Board.Level;
 import Model.Good.Good;
 import Model.Good.GoodType;
 import Model.SpaceShip.Component;
-import Model.SpaceShip.SpaceShip;
 import Model.SpaceShip.Storage;
 import org.javatuples.Pair;
 

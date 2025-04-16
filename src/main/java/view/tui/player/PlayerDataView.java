@@ -1,4 +1,4 @@
-package view.TUI.player;
+package view.tui.player;
 
 public class PlayerDataView {
 }

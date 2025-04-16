@@ -1,4 +1,4 @@
-package view.TUI.game;
+package view.tui.game;
 
 import Model.Game.Board.Board;
 import Model.Game.Board.Level;

@@ -1,4 +1,4 @@
-package view.TUI.game;
+package view.tui.game;
 
 public class DeckView {
 }

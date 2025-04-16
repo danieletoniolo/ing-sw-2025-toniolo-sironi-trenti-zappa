@@ -1,11 +1,10 @@
-package view.TUI.tiles;
+package view.tui.tiles;
 
 import Model.Good.Good;
 import Model.SpaceShip.*;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class ComponentView {
     private final String covered = "|  Covered  |";
