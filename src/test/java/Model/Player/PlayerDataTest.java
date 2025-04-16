@@ -1,5 +1,6 @@
 package Model.Player;
 
+import Model.Game.Board.Level;
 import Model.SpaceShip.SpaceShip;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,22 +68,40 @@ class PlayerDataTest {
 
     @Test
     void getCoins() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.addCoins(5);
+        assertEquals(5, player.getCoins());
     }
 
     @Test
     void getSpaceShip() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        assertEquals(ship, player.getSpaceShip());
     }
 
     @Test
     void isLeader() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setPosition(0);
+        assertTrue(player.isLeader());
     }
 
     @Test
     void isDisconnected() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setDisconnected(true);
+        assertTrue(player.isDisconnected());
+        player.setDisconnected(false);
+        assertFalse(player.isDisconnected());
     }
 
     @Test
     void hasGivenUp() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setGaveUp(true);
+        assertTrue(player.hasGivenUp());
+        player.setGaveUp(false);
+        assertFalse(player.hasGivenUp());
     }
 
     @Test
@@ -94,14 +113,33 @@ class PlayerDataTest {
 
     @Test
     void setGaveUp() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setGaveUp(true);
+        assertTrue(player.hasGivenUp());
+        player.setGaveUp(false);
+        assertFalse(player.hasGivenUp());
     }
 
     @Test
     void setDisconnected() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setDisconnected(true);
+        assertTrue(player.isDisconnected());
+        player.setDisconnected(false);
+        assertFalse(player.isDisconnected());
     }
 
     @Test
     void testEquals() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        PlayerData player2 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        assertEquals(player, player2);
+
+        player2 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.BLUE, ship);
+        assertNotEquals(player, player2);
+
+        assertNotEquals(null, player);
+        assertNotEquals(player, new Object());
     }
 
     /*
