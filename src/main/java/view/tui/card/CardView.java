@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CardView {
-    private final String clean =   "|                   |";
+    private final String clean =   "|                     |";
 
     public void drawCardsOnOneLine(ArrayList<Pair<Card, Boolean>> cards) {
         for (int i = 0; i < 15; i++) {
@@ -18,11 +18,11 @@ public class CardView {
                 Card c = card.getValue0();
                 Boolean check = card.getValue1();
                 for (int j = 0; j < 11; j++) {
-                    String spaces = "                     ";
+                    String spaces = "                       ";
                     switch (i) {
                         case 0, 14:
                             if (j == 0) {
-                                String line = ". _ _ _ _ _ _ _ _ _ .";
+                                String line = ". _ _ _ _ _ _ _ _ _ _ .";
                                 System.out.print(c != null ? line : spaces);
                             }
                             break;
@@ -38,7 +38,7 @@ public class CardView {
                             break;
                         case 3:
                             if (j == 0) {
-                                String covered = "|      Covered      |";
+                                String covered = "|       Covered       |";
                                 System.out.print(c != null ? check ? thirdLine(c) : covered : spaces);
                             }
                             break;
@@ -123,17 +123,17 @@ public class CardView {
     private String firstLine(Card c) {
         CardType t = c.getCardType();
         return switch (t) {
-            case PLANETS ->          "|      PLANETS      |";
-            case ABANDONEDSHIP ->    "|   ABANDONEDSHIP   |";
-            case ABANDONEDSTATION -> "| ABANDONEDSTATION  |";
-            case SMUGGLERS ->        "|     SMUGGLERS     |";
-            case SLAVERS ->          "|      SLAVERS      |";
-            case PIRATES ->          "|      PIRATES      |";
-            case OPENSPACE ->        "|     OPENSPACE     |";
-            case METEORSWARM ->      "|    METEORSWARM    |";
-            case COMBATZONE ->       "|     COMBATZONE    |";
-            case STARDUST ->         "|      STARDUST     |";
-            case EPIDEMIC ->         "|      EPIDEMIC     |";
+            case PLANETS ->          "|       PLANETS       |";
+            case ABANDONEDSHIP ->    "|    ABANDONEDSHIP    |";
+            case ABANDONEDSTATION -> "|  ABANDONEDSTATION   |";
+            case SMUGGLERS ->        "|      SMUGGLERS      |";
+            case SLAVERS ->          "|       SLAVERS       |";
+            case PIRATES ->          "|       PIRATES       |";
+            case OPENSPACE ->        "|      OPENSPACE      |";
+            case METEORSWARM ->      "|     METEORSWARM     |";
+            case COMBATZONE ->       "|      COMBATZONE     |";
+            case STARDUST ->         "|       STARDUST      |";
+            case EPIDEMIC ->         "|       EPIDEMIC      |";
         };
     }
 
@@ -145,7 +145,7 @@ public class CardView {
                     yield clean;
                 } else {
                     String line = "|  P1: " + printGoods(0, (Planets) c);
-                    while (line.length() < 20) {
+                    while (line.length() < 22) {
                         line += " ";
                     }
                     line += "|";
@@ -155,7 +155,7 @@ public class CardView {
             case ABANDONEDSHIP -> {
                 AbandonedShip a = (AbandonedShip) c;
                 String line = "|  CrewLost: " + a.getCrewRequired();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -164,7 +164,7 @@ public class CardView {
             case ABANDONEDSTATION -> {
                 AbandonedStation a = (AbandonedStation) c;
                 String line = "|  CrewRequired: " + a.getCrewRequired();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -173,7 +173,7 @@ public class CardView {
             case SMUGGLERS -> {
                 Smugglers a = (Smugglers) c;
                 String line = "|  StrenghtReq: " + a.getCannonStrengthRequired();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -182,7 +182,7 @@ public class CardView {
             case SLAVERS -> {
                 Slavers a = (Slavers) c;
                 String line = "|  StrenghtReq: " + a.getCannonStrengthRequired();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -191,7 +191,7 @@ public class CardView {
             case PIRATES -> {
                 Pirates a = (Pirates) c;
                 String line = "|  StrenghtReq: " + a.getCannonStrengthRequired();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -201,7 +201,7 @@ public class CardView {
             case METEORSWARM -> {
                 MeteorSwarm a = (MeteorSwarm) c;
                 String line = "|  Hit1: " + printHit(a.getMeteors(), 0);
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -209,8 +209,14 @@ public class CardView {
             }
             case COMBATZONE -> {
                 CombatZone a = (CombatZone) c;
-                String line = "|  Can => FDays: " + a.getFlightDays();
-                while (line.length() < 20) {
+                String line = "";
+                if(a.getID() == 15){
+                    line = "|  Cr ";
+                } else {
+                    line = "|  Ca ";
+                }
+                line += "=> FDays: " + a.getFlightDays();
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -229,7 +235,7 @@ public class CardView {
                     yield clean;
                 } else {
                     String line = "|  P2: " + printGoods(1, (Planets) c);
-                    while (line.length() < 20) {
+                    while (line.length() < 22) {
                         line += " ";
                     }
                     line += "|";
@@ -239,7 +245,7 @@ public class CardView {
             case ABANDONEDSHIP -> {
                 AbandonedShip a = (AbandonedShip) c;
                 String line = "|  Credit: " + a.getCredit();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -248,7 +254,7 @@ public class CardView {
             case ABANDONEDSTATION -> {
                 AbandonedStation a = (AbandonedStation) c;
                 String line = "|  Goods: " + printGoodsStation(a.getGoods());
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -257,7 +263,7 @@ public class CardView {
             case SMUGGLERS -> {
                 Smugglers a = (Smugglers) c;
                 String line = "|  GoodLost: " + a.getGoodsLoss();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -266,7 +272,7 @@ public class CardView {
             case SLAVERS -> {
                 Slavers a = (Slavers) c;
                 String line = "|  CrewLost: " + a.getCrewLost();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -275,7 +281,7 @@ public class CardView {
             case PIRATES -> {
                 Pirates a = (Pirates) c;
                 String line = "|  Hit1: " + printHit(a.getFires(), 0);
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -285,7 +291,7 @@ public class CardView {
             case METEORSWARM -> {
                 MeteorSwarm a = (MeteorSwarm) c;
                 String line = "|  Hit2: " + printHit(a.getMeteors(), 1);
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -293,8 +299,8 @@ public class CardView {
             }
             case COMBATZONE -> {
                 CombatZone a = (CombatZone) c;
-                String line = "|  Eng => GoodL: " + a.getLost();
-                while (line.length() < 20) {
+                String line = "|  En => GoodL: " + a.getLost();
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -313,7 +319,7 @@ public class CardView {
                     yield clean;
                 } else {
                     String line = "|  P3: " + printGoods(2, (Planets) c);
-                    while (line.length() < 20) {
+                    while (line.length() < 22) {
                         line += " ";
                     }
                     line += "|";
@@ -325,7 +331,7 @@ public class CardView {
             case SMUGGLERS -> {
                 Smugglers a = (Smugglers) c;
                 String line = "|  Good: " + printGoodsStation(a.getGoodsReward());
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -334,7 +340,7 @@ public class CardView {
             case SLAVERS -> {
                 Slavers a = (Slavers) c;
                 String line = "|  Credit: " + a.getCredit();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -343,7 +349,7 @@ public class CardView {
             case PIRATES -> {
                 Pirates a = (Pirates) c;
                 String line = "|  Hit2: " + printHit(a.getFires(), 1);
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -353,7 +359,7 @@ public class CardView {
             case METEORSWARM -> {
                 MeteorSwarm a = (MeteorSwarm) c;
                 String line = "|  Hit3: " + printHit(a.getMeteors(), 2);
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -361,8 +367,14 @@ public class CardView {
             }
             case COMBATZONE -> {
                 CombatZone a = (CombatZone) c;
-                String line = "|  C => H1: " + printHit(a.getFires(), 0);
-                while (line.length() < 20) {
+                String line = "";
+                if(a.getID() == 15){
+                    line += "|  Ca ";
+                } else {
+                    line += "|  Cr ";
+                }
+                line += "=> H1: " + printHit(a.getFires(), 0);
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -381,7 +393,7 @@ public class CardView {
                     yield clean;
                 } else {
                     String line = "|  P4: " + printGoods(3, (Planets) c);
-                    while (line.length() < 20) {
+                    while (line.length() < 22) {
                         line += " ";
                     }
                     line += "|";
@@ -395,7 +407,7 @@ public class CardView {
             case PIRATES -> {
                 Pirates a = (Pirates) c;
                 String line = "|  Hit3: " + printHit(a.getFires(), 2);
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -407,7 +419,7 @@ public class CardView {
                     yield clean;
                 } else {
                     String line = "|  Hit4: " + printHit(((MeteorSwarm) c).getMeteors(), 3);
-                    while (line.length() < 20) {
+                    while (line.length() < 22) {
                         line += " ";
                     }
                     line += "|";
@@ -416,8 +428,8 @@ public class CardView {
             }
             case COMBATZONE -> {
                 CombatZone a = (CombatZone) c;
-                String line = "|       H2: " + printHit(a.getFires(), 1);
-                while (line.length() < 20) {
+                String line = "|        H2: " + printHit(a.getFires(), 1);
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -439,7 +451,7 @@ public class CardView {
             case PIRATES -> {
                 Pirates a = (Pirates) c;
                 String line = "|  Credit: " + a.getCredit();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -451,7 +463,7 @@ public class CardView {
                     yield clean;
                 } else {
                     String line = "|  Hit5: " + printHit(((MeteorSwarm) c).getMeteors(), 4);
-                    while (line.length() < 20) {
+                    while (line.length() < 22) {
                         line += " ";
                     }
                     line += "|";
@@ -463,8 +475,8 @@ public class CardView {
                 if (a.getFires().size() < 3) {
                     yield clean;
                 } else {
-                    String line = "|       H3: " + printHit(a.getFires(), 2);
-                    while (line.length() < 20) {
+                    String line = "|        H3: " + printHit(a.getFires(), 2);
+                    while (line.length() < 22) {
                         line += " ";
                     }
                     line += "|";
@@ -482,7 +494,7 @@ public class CardView {
             case PLANETS -> {
                 Planets p = (Planets) c;
                 String line = "|  FlightDays: " + p.getFlightDays();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -491,7 +503,7 @@ public class CardView {
             case ABANDONEDSHIP -> {
                 AbandonedShip a = (AbandonedShip) c;
                 String line = "|  FlightDays: " + a.getFlightDays();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -500,7 +512,7 @@ public class CardView {
             case ABANDONEDSTATION -> {
                 AbandonedStation a = (AbandonedStation) c;
                 String line = "|  FlightDays: " + a.getFlightDays();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -509,7 +521,7 @@ public class CardView {
             case SMUGGLERS -> {
                 Smugglers a = (Smugglers) c;
                 String line = "|  FlightDays: " + a.getFlightDays();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -518,7 +530,7 @@ public class CardView {
             case SLAVERS -> {
                 Slavers a = (Slavers) c;
                 String line = "|  FlightDays: " + a.getFlightDays();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -527,7 +539,7 @@ public class CardView {
             case PIRATES -> {
                 Pirates a = (Pirates) c;
                 String line = "|  FlightDays: " + a.getFlightDays();
-                while (line.length() < 20) {
+                while (line.length() < 22) {
                     line += " ";
                 }
                 line += "|";
@@ -540,8 +552,8 @@ public class CardView {
                 if (a.getFires().size() < 4) {
                     yield clean;
                 } else {
-                    String line = "|       H4: " + printHit(a.getFires(), 3);
-                    while (line.length() < 20) {
+                    String line = "|        H4: " + printHit(a.getFires(), 3);
+                    while (line.length() < 22) {
                         line += " ";
                     }
                     line += "|";
