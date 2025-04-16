@@ -300,11 +300,11 @@
     "fires": [
       {
         "type": "LIGHTFIRE",
-        "direction": "NORTH"
+        "direction": "SOUTH"
       },
       {
         "type": "HEAVYFIRE",
-        "direction": "NORTH"
+        "direction": "SOUTH"
       }
     ]
   },
