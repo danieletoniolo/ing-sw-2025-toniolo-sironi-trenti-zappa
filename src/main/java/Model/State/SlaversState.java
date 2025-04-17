@@ -62,16 +62,6 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
         // Update the cannon strength stats
         this.stats.merge(player, value, Float::sum);
 
-
-        int cardValue = card.getCannonStrengthRequired();
-        if (stats.get(player) > cardValue) {
-            slaversDefeat = true;
-        } else if (stats.get(player) < cardValue) {
-            slaversDefeat = false;
-        } else {
-            slaversDefeat = null;
-        }
-
         internalState = SlaversInternalState.PENALTY;
     }
 
@@ -144,6 +134,15 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
             case SET_CANNONS:
                 throw new IllegalStateException("Cannons need to be set");
             case PENALTY:
+                int cardValue = card.getCannonStrengthRequired();
+                if (stats.get(player) > cardValue) {
+                    slaversDefeat = true;
+                } else if (stats.get(player) < cardValue) {
+                    slaversDefeat = false;
+                } else {
+                    slaversDefeat = null;
+                }
+
                 if (slaversDefeat != null && slaversDefeat) {
                     if (acceptCredits == null) {
                         throw new IllegalStateException("acceptCredits not set");
