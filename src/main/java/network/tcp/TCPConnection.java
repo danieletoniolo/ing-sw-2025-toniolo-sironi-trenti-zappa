@@ -53,6 +53,32 @@ public class TCPConnection implements Connection {
         hearBeat();
     }
 
+    /**
+     * Creates a TCPConnection object from an already created socket. This constructor is used server-side.
+     * @param socket Socket object to be used for the connection
+     * @throws SocketCreationException if an error occurs while setting the input and output streams for the socket
+     */
+    public TCPConnection(Socket socket) throws SocketCreationException {
+        disconnected = false;
+        pendingMessages = new LinkedList<>();
+
+        this.socket = socket;
+
+        try {
+            in = new ObjectInputStream(socket.getInputStream());
+            out = new ObjectOutputStream(socket.getOutputStream());
+            socket.setSoTimeout(5000);
+        } catch (IOException ioException) {
+            throw new SocketCreationException("error while setting input and output streams", ioException);
+        }
+
+        // Start the heartbeat thread
+        hearBeat();
+
+        // Start the reader thread
+        reader();
+    }
+
     private void reader() {
         Thread reader = new Thread(() -> {
             while(true) {
