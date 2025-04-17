@@ -58,19 +58,17 @@ public class ConnectionAcceptor extends UnicastRemoteObject implements IRemoteSe
         this.RMIPort = RMIPort;
 
         try {
-            // TODO: Initialize the RMI registry
             registry = LocateRegistry.createRegistry(RMIPort);
-            // registry.bind("SERVER", this);
+            registry.bind("SERVER", this);
             serverSocket = new ServerSocket(TCPPort);
         } catch (Exception exception) {
             throw new ConnectException();
         }
     }
 
-    // TODO: Implement the RMI initialization
-    // public static void initialize(String hostName) {
-    //     System.setProperty("java.rmi.server.hostname", hostName);
-    // }
+    public static void initialize(String hostName) {
+         System.setProperty("java.rmi.server.hostname", hostName);
+    }
 
     public Connection accept() {
         // Thread that will accept a TCP connection
@@ -88,13 +86,41 @@ public class ConnectionAcceptor extends UnicastRemoteObject implements IRemoteSe
         });
         tcpThread.start();
 
-        // TODO: Implement RMI support
-        return null;
+        synchronized (lock) {
+            while (connectionQueue.isEmpty()) {
+                try {
+                    lock.wait();
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                }
+            }
+            return connectionQueue.poll();
+        }
     }
 
-    // TODO: Redefine the getBoundName
     @Override
     public String getBoundName() {
-        return "ConnectionAcceptor";
+        synchronized (lock) {
+            String boundName = "QUEUE" + nextBoundIndex++;
+
+            try {
+                registry.bind("SENDER_" + boundName, new RemoteQueue());
+                registry.bind("RECEIVER_" + boundName, new RemoteQueue());
+            } catch (AlreadyBoundException alreadyBoundException) {
+                throw new RuntimeException("queue already bound");
+            } catch (RemoteException remoteException) {
+                throw new RuntimeException("Remote exception while binding queue", remoteException);
+            }
+
+            try {
+                RMIConnection rmiConnection = new RMIConnection("localhost", RMIPort, boundName);
+                connectionQueue.add(rmiConnection);
+                lock.notifyAll();
+            } catch (Exception e) {
+                // TODO: Replace with a custom exception or custom logging
+            }
+
+            return boundName;
+        }
     }
 }

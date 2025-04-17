@@ -13,9 +13,9 @@ import java.rmi.registry.Registry;
 import java.util.*;
 
 public class RMIConnection implements Connection {
-    private final IRemoteQueue toServer;
+    private final IRemoteQueue sender;
 
-    private final IRemoteQueue fromServer;
+    private final IRemoteQueue receiver;
 
     private final Queue<Message> pendingMessages;
 
@@ -46,8 +46,24 @@ public class RMIConnection implements Connection {
             IRemoteServer server = (IRemoteServer) registry.lookup("SERVER");
 
             String boundName = server.getBoundName();
-            toServer = (IRemoteQueue) registry.lookup("toServer_" + boundName);
-            fromServer = (IRemoteQueue) registry.lookup("fromServer_" + boundName);
+            sender = (IRemoteQueue) registry.lookup("SENDER_" + boundName);
+            receiver = (IRemoteQueue) registry.lookup("RECEIVER_" + boundName);
+        } catch (NotBoundException e) {
+            throw new NotBoundException(e.getMessage());
+        }
+
+        heartbeat();
+        read();
+    }
+
+    public RMIConnection(String address, int port, String boundName) throws RemoteException, NotBoundException, BadPortException {
+        pendingMessages = new LinkedList<>();
+        disconnected = false;
+
+        try {
+            Registry registry = LocateRegistry.getRegistry(address, port);
+            sender = (IRemoteQueue) registry.lookup("RECEIVER_" + boundName);
+            receiver = (IRemoteQueue) registry.lookup("SENDER_" + boundName);
         } catch (NotBoundException e) {
             throw new NotBoundException(e.getMessage());
         }
@@ -76,7 +92,7 @@ public class RMIConnection implements Connection {
         new Thread(() -> {
             synchronized (lockSendTimeout) {
                 try {
-                    toServer.add(message);
+                    sender.add(message);
 
                     synchronized (lockSendTimeout) {
                         sent = true;
@@ -105,7 +121,7 @@ public class RMIConnection implements Connection {
         new Thread(() -> {
             synchronized (lockReadTimeout) {
                 try {
-                    Message message = fromServer.poll();
+                    Message message = receiver.poll();
 
                     synchronized (lockReadTimeout) {
                         read = message;
