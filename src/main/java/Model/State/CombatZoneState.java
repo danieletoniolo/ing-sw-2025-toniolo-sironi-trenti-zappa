@@ -8,10 +8,7 @@ import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.*;
 import org.javatuples.Pair;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.*;
 
 enum CombatZoneInternalState {
     CREW(0),
@@ -287,12 +284,19 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      * Use the cannon with a given strength
      * @param player PlayerData of the player using the cannon
      * @param strength Strength of the cannon to be used
+     * @param batteriesID List of Integers representing the batteryID from which we use the energy to use the cannon
      * @throws IllegalStateException not in the right state
      */
-    public void useCannon(PlayerData player, Float strength) throws IllegalStateException {
+    public void useCannon(PlayerData player, Float strength, List<Integer> batteriesID) throws IllegalStateException {
         if (internalState != CombatZoneInternalState.CANNONS) {
             throw new IllegalStateException("useCannon not allowed in this state");
         }
+        // Use the energy tu use the cannon
+        SpaceShip ship = player.getSpaceShip();
+        for (Integer batteryID : batteriesID) {
+            ship.useEnergy(batteryID);
+        }
+        // Update the cannon strength stats
         this.addStats(player, strength);
     }
 
@@ -302,10 +306,18 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      * @param strength Strength of the engine to be used
      * @throws IllegalStateException not in the right state
      */
-    public void useEngine(PlayerData player, Float strength) throws IllegalStateException {
+    public void useEngine(PlayerData player, Float strength, List<Integer> batteriesID) throws IllegalStateException {
         if (internalState != CombatZoneInternalState.ENGINES) {
             throw new IllegalStateException("useEngine not allowed in this state");
         }
+
+        // Use the energy to power the engine
+        SpaceShip ship = player.getSpaceShip();
+        for (Integer batteryID : batteriesID) {
+            ship.useEnergy(batteryID);
+        }
+
+        // Update the engine strength stats
         this.addStats(player, strength);
     }
 
