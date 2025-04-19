@@ -41,12 +41,20 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
     /**
      * @throws IllegalStateException if we are in the penalty state
      */
-    public void useCannon(PlayerData player, Float strength) throws IllegalStateException {
+    public void useCannon(PlayerData player, Float strength, List<Integer> batteriesID) throws IllegalStateException {
         if (internalState == SmugglerInternalState.PENALTY) {
             throw new IllegalStateException("There is a penalty to serve.");
         }
+
+        // Use the energy to power the cannon
+        SpaceShip ship = player.getSpaceShip();
+        for (Integer batteryID : batteriesID) {
+            ship.useEnergy(batteryID);
+        }
+
+        // Update the cannon strength stats
         float oldCannonStrength = cannonStrength.get(player);
-        cannonStrength.replace(player, oldCannonStrength + strength);
+        this.cannonStrength.replace(player, oldCannonStrength + strength);
     }
 
     /**
@@ -87,7 +95,11 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
     public void entry() {
         for (PlayerData player : players) {
             SpaceShip ship = player.getSpaceShip();
-            cannonStrength.put(player, ship.getSingleCannonsStrength());
+            float initialStrength = ship.getSingleCannonsStrength();
+            if (ship.hasPurpleAlien()) {
+                initialStrength += SpaceShip.getAlienStrength();
+            }
+            cannonStrength.put(player, initialStrength);
         }
     }
 
