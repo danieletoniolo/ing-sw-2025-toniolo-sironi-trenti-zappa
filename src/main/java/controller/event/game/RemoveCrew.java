@@ -5,7 +5,7 @@ import controller.event.Event;
 
 import java.io.Serializable;
 
-public record UseEngine(
-    SpaceShip spaceShip
+public record RemoveCrew(
+        SpaceShip spaceShip
 ) implements Event, Serializable {
 }
