@@ -7,12 +7,14 @@ import java.util.*;
 public class MatchController {
     private static MatchController instance;
     private final Map<LobbyInfo, GameController> gameControllers;
+    private LobbyInfo lobbyNotStarted;
     // TODO: mappa <id, user>, fare controllo quando faccio il generateUUID che non sia già stato creato
-    private final Set<String> users; // TODO: create a user class to manage users
+    private final ArrayList<String> users; // TODO: this will be a map of Lobby and ArrayList of connection
 
     public MatchController() {
         gameControllers = new HashMap<>();
-        users = Set.of();
+        users = new ArrayList<>();
+        lobbyNotStarted = null;
     }
 
     public static MatchController getInstance() {
@@ -30,22 +32,22 @@ public class MatchController {
     }
 
     public void joinLobby(UUID userID) {
-        boolean found = false;
-
-        for (LobbyInfo lobby : gameControllers.keySet()) {
-            if (!lobby.isGameStarted()) {
-                GameController gameController = gameControllers.get(lobby);
-                if (gameController != null) {
-                    gameController.joinGame(userID);
-                    found = true;
-                    break;
-                }
-            }
-        }
-
-        if (!found) {
+        if (lobbyNotStarted != null) {
+            gameControllers.get(lobbyNotStarted).joinGame(userID);
+        } else {
             // TODO: send to user that no lobby is available, so starting the process to create it
+            // TODO: ADD LOBBY TO LOBBY NOT STARTED
         }
+
+        if (lobbyNotStarted.canGameStart()) {
+            // TODO: send to user that the game is starting
+            gameControllers.get(lobbyNotStarted).startGame();
+            lobbyNotStarted = null;
+        }
+    }
+
+    public void sendEachConnection(LobbyInfo lobbyInfo) {
+        // TODO: merge with network, for on the connection of that lobby
     }
 
 }

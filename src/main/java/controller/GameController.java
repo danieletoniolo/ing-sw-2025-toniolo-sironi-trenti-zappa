@@ -8,6 +8,8 @@ import Model.State.interfaces.*;
 import controller.event.Event;
 import controller.event.EventType;
 import controller.event.game.GameEvents;
+import controller.event.game.RemoveCrew;
+import controller.event.game.UseCannons;
 import controller.event.game.UseEngine;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
@@ -231,11 +233,13 @@ public class GameController {
      * @param uuid player's uuid
      * @param cannonsPowerToUse cannons power to use (float)
      */
-    public void useCannons(UUID uuid, float cannonsPowerToUse) {
+    public void useCannons(UUID uuid, float cannonsPowerToUse, List<Integer> batteriesID) {
         if (state instanceof UsableCannon) {
             PlayerData player = state.getCurrentPlayer();
             if (player.getUUID().equals(uuid)) {
-                ((UsableCannon) state).useCannon(player, cannonsPowerToUse);
+                ((UsableCannon) state).useCannon(player, cannonsPowerToUse, batteriesID);
+                UseCannons info = new UseCannons(player.getSpaceShip());
+                executeHandlers(GameEvents.USE_CANNONS, info);
             }
         }
     }
@@ -245,12 +249,12 @@ public class GameController {
      * @param uuid player's uuid
      * @param enginesPowerToUse engines power to use (float)
      */
-    public void useEngines(UUID uuid, float enginesPowerToUse) {
+    public void useEngines(UUID uuid, float enginesPowerToUse, List<Integer> batteriesIDs) {
         if (state instanceof UsableEngine) {
             PlayerData player = state.getCurrentPlayer();
             if (player.getUUID().equals(uuid)) {
-                ((UsableEngine) state).useEngine(player, enginesPowerToUse);
-                UseEngine info = new UseEngine(1); // TODO: add variable energyUse
+                ((UsableEngine) state).useEngine(player, enginesPowerToUse, batteriesIDs);
+                UseEngine info = new UseEngine(player.getSpaceShip());
                 executeHandlers(GameEvents.USE_ENGINE, info);
             }
         }
@@ -261,6 +265,8 @@ public class GameController {
             PlayerData player = state.getCurrentPlayer();
             if (player.getUUID().equals(uuid)) {
                 ((RemovableCrew) state).setCrewLoss(cabinID);
+                RemoveCrew info = new RemoveCrew(player.getSpaceShip());
+                executeHandlers(GameEvents.REMOVE_CREW, info);
             }
         }
     }
@@ -273,6 +279,7 @@ public class GameController {
             PlayerData player = state.getCurrentPlayer();
             if (player.getUUID().equals(uuid)) {
                 ((Fightable) state).setDice(numberOfDice);
+                // TODO: SHOULD THE VIEW ROLL THE DICE?
             }
         } else {
             throw new IllegalStateException("State is not a Fightable");

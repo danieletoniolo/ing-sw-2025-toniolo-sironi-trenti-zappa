@@ -95,7 +95,7 @@ public class LobbyInfo {
      * Check if the game has started
      * @return true if the game has started, false otherwise
      */
-    public boolean isGameStarted() {
+    public boolean canGameStart() {
         return this.numberOfPlayersEntered == this.totalPlayers;
     }
 }
