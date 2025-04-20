@@ -11,6 +11,7 @@ import controller.event.game.GameEvents;
 import controller.event.game.RemoveCrew;
 import controller.event.game.UseCannons;
 import controller.event.game.UseEngine;
+import network.User;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -38,6 +39,11 @@ public class GameController {
                     .map(EventHandler::handler)
                     .toList();
         }
+        return new ArrayList<>();
+    }
+
+    public ArrayList<User> getUsers() {
+        // TODO: RETURN FROM BOARD OF PLAYERS, USE A MAP TO REMAP PLAYER_DATA TO USER
         return new ArrayList<>();
     }
 
@@ -286,9 +292,9 @@ public class GameController {
         }
     }
 
-    public<T extends Event> void addEventHandler(EventType<T> type, EventHandler<T> handler) {
-        eventHandlers.computeIfAbsent(type, k -> new ArrayList<>()).add(handler);
-        eventHandlers.get(type).add(handler);
+    public<T extends Event> void addEventHandler(UUID userID, EventType<T> type, Consumer<T> consumer) {
+        eventHandlers.computeIfAbsent(type, k -> new ArrayList<>());
+        eventHandlers.get(type).add(new EventHandler<>(consumer, userID));
     }
 
     public<T extends Event> void removeEventHandlersOfUser(UUID userID) {

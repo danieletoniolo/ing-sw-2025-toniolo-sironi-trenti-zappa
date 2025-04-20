@@ -1,19 +1,30 @@
 package controller;
 
 import Model.Game.Lobby.LobbyInfo;
+import controller.event.EventType;
+import controller.event.game.GameEvents;
+import controller.event.game.UseCannons;
+import controller.event.game.UseEngine;
+import network.Connection;
+import network.User;
+import network.messages.Message;
+import network.messages.MessageType;
+import network.messages.SingleArgMessage;
+import network.messages.ZeroArgMessage;
 
 import java.util.*;
 
 public class MatchController {
     private static MatchController instance;
     private final Map<LobbyInfo, GameController> gameControllers;
-    private LobbyInfo lobbyNotStarted;
     // TODO: mappa <id, user>, fare controllo quando faccio il generateUUID che non sia già stato creato
-    private final ArrayList<String> users; // TODO: this will be a map of Lobby and ArrayList of connection
+    private Map<UUID, User> users;
+    private Map<User, Connection> connections;
+    private LobbyInfo lobbyNotStarted;
 
     public MatchController() {
         gameControllers = new HashMap<>();
-        users = new ArrayList<>();
+        users = new HashMap<>();
         lobbyNotStarted = null;
     }
 
@@ -32,22 +43,35 @@ public class MatchController {
     }
 
     public void joinLobby(UUID userID) {
+        GameController gc = gameControllers.get(lobbyNotStarted);
         if (lobbyNotStarted != null) {
-            gameControllers.get(lobbyNotStarted).joinGame(userID);
+            gc.joinGame(userID);
+
+            gc.addEventHandler(userID, GameEvents.GAME_START, (e) ->
+                    sendEachConnection(lobbyNotStarted, new ZeroArgMessage(MessageType.GAME_START)));
+            gc.addEventHandler(userID, GameEvents.USE_ENGINE, (e) ->
+                    sendEachConnection(lobbyNotStarted, new SingleArgMessage<>(MessageType.USE_ENGINE, e)));
+            gc.addEventHandler(userID, GameEvents.USE_CANNONS, (e) ->
+                    sendEachConnection(lobbyNotStarted, new SingleArgMessage<>(MessageType.USE_CANNONS, e)));
+            gc.addEventHandler(userID, GameEvents.REMOVE_CREW, (e) ->
+                    sendEachConnection(lobbyNotStarted, new SingleArgMessage<>(MessageType.REMOVE_CREW, e)));
+
         } else {
             // TODO: send to user that no lobby is available, so starting the process to create it
             // TODO: ADD LOBBY TO LOBBY NOT STARTED
         }
 
         if (lobbyNotStarted.canGameStart()) {
-            // TODO: send to user that the game is starting
-            gameControllers.get(lobbyNotStarted).startGame();
+            gc.startGame();
+            gc.executeHandlers(GameEvents.GAME_START, null);
             lobbyNotStarted = null;
         }
     }
 
-    public void sendEachConnection(LobbyInfo lobbyInfo) {
-        // TODO: merge with network, for on the connection of that lobby
+    public void sendEachConnection(LobbyInfo lobbyInfo, Message message) {
+        for (User user: gameControllers.get(lobbyInfo).getUsers()) {
+            connections.get(user).send(message);
+        }
     }
 
 }
