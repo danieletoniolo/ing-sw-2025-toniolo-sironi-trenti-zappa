@@ -1,10 +1,8 @@
 package controller;
 
 import Model.Game.Lobby.LobbyInfo;
-import controller.event.EventType;
 import controller.event.game.GameEvents;
-import controller.event.game.UseCannons;
-import controller.event.game.UseEngine;
+import controller.event.lobby.LobbyEvents;
 import network.Connection;
 import network.User;
 import network.messages.Message;
@@ -35,30 +33,45 @@ public class MatchController {
         return instance;
     }
 
-    public void createLobby(UUID userID, String lobbyName, int totalPlayers) {
-        LobbyInfo lobbyInfo = new LobbyInfo(lobbyName, totalPlayers);
-        GameController gameController = new GameController();
-        gameController.joinGame(userID);
-        gameControllers.put(lobbyInfo, gameController);
+    public void createLobby(UUID userID, String lobbyName, int totalPlayers) throws IllegalArgumentException {
+        if (totalPlayers > 4) {
+            throw new IllegalArgumentException("Total players cannot be greater than 4");
+        }
+        lobbyNotStarted = new LobbyInfo(lobbyName, totalPlayers);
+        GameController gc = new GameController();
+        gc.joinGame(users.get(userID), lobbyNotStarted);
+        gameControllers.put(lobbyNotStarted, gc);
     }
 
     public void joinLobby(UUID userID) {
         GameController gc = gameControllers.get(lobbyNotStarted);
         if (lobbyNotStarted != null) {
-            gc.joinGame(userID);
+            gc.joinGame(users.get(userID), lobbyNotStarted);
 
+            // single user event
+            gc.addEventHandler(userID, LobbyEvents.JOIN_LOBBY_SUCCESSFUL, (e) ->
+                    sendToConnection(userID, new SingleArgMessage<>(MessageType.JOIN_LOBBY_SUCCESSFUL, e)));
+            // lobby event
+            gc.addEventHandler(userID, LobbyEvents.USER_JOINED_LOBBY, (e) ->
+                    sendEachConnection(lobbyNotStarted, new SingleArgMessage<>(MessageType.USER_JOINED_LOBBY, e)));
+            gc.addEventHandler(userID, LobbyEvents.USER_LEFT_LOBBY, (e) ->
+                    sendEachConnection(lobbyNotStarted, new SingleArgMessage<>(MessageType.USER_LEFT_LOBBY, e)));
+            // game event
             gc.addEventHandler(userID, GameEvents.GAME_START, (e) ->
                     sendEachConnection(lobbyNotStarted, new ZeroArgMessage(MessageType.GAME_START)));
+            gc.addEventHandler(userID, GameEvents.GAME_END, (e) ->
+                    sendEachConnection(lobbyNotStarted, new ZeroArgMessage(MessageType.GAME_END)));
             gc.addEventHandler(userID, GameEvents.USE_ENGINE, (e) ->
                     sendEachConnection(lobbyNotStarted, new SingleArgMessage<>(MessageType.USE_ENGINE, e)));
             gc.addEventHandler(userID, GameEvents.USE_CANNONS, (e) ->
                     sendEachConnection(lobbyNotStarted, new SingleArgMessage<>(MessageType.USE_CANNONS, e)));
             gc.addEventHandler(userID, GameEvents.REMOVE_CREW, (e) ->
                     sendEachConnection(lobbyNotStarted, new SingleArgMessage<>(MessageType.REMOVE_CREW, e)));
+            gc.addEventHandler(userID, GameEvents.SWAP_GOODS, (e) ->
+                    sendEachConnection(lobbyNotStarted, new SingleArgMessage<>(MessageType.SWAP_GOODS, e)));
 
         } else {
-            // TODO: send to user that no lobby is available, so starting the process to create it
-            // TODO: ADD LOBBY TO LOBBY NOT STARTED
+            sendToConnection(userID, new ZeroArgMessage(MessageType.NO_LOBBY_AVAILABLE));
         }
 
         if (lobbyNotStarted.canGameStart()) {
@@ -71,6 +84,13 @@ public class MatchController {
     public void sendEachConnection(LobbyInfo lobbyInfo, Message message) {
         for (User user: gameControllers.get(lobbyInfo).getUsers()) {
             connections.get(user).send(message);
+        }
+    }
+
+    public void sendToConnection(UUID userID, Message message) {
+        Connection connection = connections.get(users.get(userID));
+        if (connection != null) {
+            connection.send(message);
         }
     }
 
