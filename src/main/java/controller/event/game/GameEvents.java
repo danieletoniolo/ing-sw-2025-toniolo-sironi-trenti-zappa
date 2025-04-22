@@ -2,6 +2,9 @@ package controller.event.game;
 
 import controller.event.EventType;
 
+/**
+ * This class contains all the events that can be triggered during the game.
+ */
 public class GameEvents {
     public static EventType<NoPayload> GAME_START = new EventType<>();
     public static EventType<NoPayload> GAME_END = new EventType<>();
