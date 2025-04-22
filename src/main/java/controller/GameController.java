@@ -242,7 +242,7 @@ public class GameController {
             if (player.getUUID().equals(uuid)) {
                 player.getSpaceShip().exchangeGood(goods2to1, goods1to2, storageID1);
                 player.getSpaceShip().exchangeGood(goods1to2, goods2to1, storageID2);
-                SwapGoods info = new SwapGoods(player.getSpaceShip());
+                SwapGoods info = new SwapGoods(uuid, player.getSpaceShip());
                 executeHandlers(GameEvents.SWAP_GOODS, info);
             }
         }
@@ -258,7 +258,7 @@ public class GameController {
             PlayerData player = state.getCurrentPlayer();
             if (player.getUUID().equals(uuid)) {
                 ((UsableCannon) state).useCannon(player, cannonsPowerToUse, batteriesID);
-                UseCannons info = new UseCannons(player.getSpaceShip());
+                UseCannons info = new UseCannons(uuid, player.getSpaceShip());
                 executeHandlers(GameEvents.USE_CANNONS, info);
             }
         }
@@ -274,7 +274,7 @@ public class GameController {
             PlayerData player = state.getCurrentPlayer();
             if (player.getUUID().equals(uuid)) {
                 ((UsableEngine) state).useEngine(player, enginesPowerToUse, batteriesIDs);
-                UseEngine info = new UseEngine(player.getSpaceShip());
+                UseEngine info = new UseEngine(uuid, player.getSpaceShip());
                 executeHandlers(GameEvents.USE_ENGINE, info);
             }
         }
@@ -285,7 +285,7 @@ public class GameController {
             PlayerData player = state.getCurrentPlayer();
             if (player.getUUID().equals(uuid)) {
                 ((RemovableCrew) state).setCrewLoss(cabinID);
-                RemoveCrew info = new RemoveCrew(player.getSpaceShip());
+                RemoveCrew info = new RemoveCrew(uuid, player.getSpaceShip());
                 executeHandlers(GameEvents.REMOVE_CREW, info);
             }
         }

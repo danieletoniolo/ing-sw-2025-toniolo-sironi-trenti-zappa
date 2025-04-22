@@ -15,5 +15,8 @@ public interface Connection {
      */
     Message receive();
 
+    /**
+     * This method will be called when the connection is closed.
+     */
     void disconnect();
 }
