@@ -11,6 +11,7 @@ import Model.State.interfaces.UsableCannon;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 enum PiratesInternalState {
@@ -110,7 +111,17 @@ public class PiratesState extends State implements Fightable, ChoosableFragment,
      * @param player PlayerData of the player using the cannon
      * @param strength Strength of the cannon to be used
      */
-    public void useCannon(PlayerData player, Float strength) {
+    public void useCannon(PlayerData player, Float strength, List<Integer> batteriesID) throws IllegalStateException {
+        if (internalState == PiratesInternalState.DEFAULT) {
+            throw new IllegalStateException("useCannon not allowed in this state");
+        }
+        // Use the energy to power the cannon
+        SpaceShip ship = player.getSpaceShip();
+        for (Integer batteryID : batteriesID) {
+            ship.useEnergy(batteryID);
+        }
+
+        // Update the cannon strength stats
         this.stats.merge(player, strength, Float::sum);
     }
 
@@ -120,10 +131,11 @@ public class PiratesState extends State implements Fightable, ChoosableFragment,
     @Override
     public void entry() {
         for (PlayerData player : super.players) {
-            this.useCannon(player, player.getSpaceShip().getSingleCannonsStrength());
+            float initialStrength = player.getSpaceShip().getSingleCannonsStrength();
             if (player.getSpaceShip().hasPurpleAlien()) {
-                this.useCannon(player, SpaceShip.getAlienStrength());
+                initialStrength += SpaceShip.getAlienStrength();
             }
+            this.stats.put(player, initialStrength);
         }
     }
 
