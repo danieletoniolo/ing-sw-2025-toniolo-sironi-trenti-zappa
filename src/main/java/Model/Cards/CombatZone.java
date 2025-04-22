@@ -3,7 +3,6 @@ package Model.Cards;
 import Model.Cards.Hits.Hit;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class CombatZone extends Card {
     private int flightDays;

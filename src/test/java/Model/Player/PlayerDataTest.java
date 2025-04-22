@@ -1,10 +1,14 @@
 package Model.Player;
 
+import Model.Game.Board.Level;
 import Model.SpaceShip.SpaceShip;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,72 +18,128 @@ class PlayerDataTest {
     private static final String Character = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     @ParameterizedTest
-    @ValueSource(strings = {"username", "user123", "user_123", "user-123", ""})
-    void getUsername(String username) {
-        player = new PlayerData(username, PlayerColor.BLUE, ship);
-        assertEquals(username, player.getUsername());
-        player = new PlayerData(null, PlayerColor.RED, ship);
-        assertNull(player.getUsername());
+    @ValueSource(strings = {"123e4567-e89b-12d3-a456-426614174001", "123e4567-e89b-12d3-a456-426614174002", "123e4567-e89b-12d3-a456-426614174003", "123e4567-e89b-12d3-a456-426614174004"})
+    void getUsername(UUID username) {
+        player = new PlayerData(username.toString(), PlayerColor.BLUE, ship);
+        assertEquals(username.toString(), player.getUsername());
     }
 
-    @Test
-    void getUUID() {
+    @ParameterizedTest
+    @ValueSource(strings = {"123e4567-e89b-12d3-a456-426614174001", "123e4567-e89b-12d3-a456-426614174002", "123e4567-e89b-12d3-a456-426614174003", "123e4567-e89b-12d3-a456-426614174004"})
+    void getUUID(UUID username) {
+        player = new PlayerData(username.toString(), PlayerColor.BLUE, ship);
+        assertEquals(player.getUUID(), username);
     }
 
-    @Test
-    void getColor() {
+    @ParameterizedTest
+    @EnumSource(PlayerColor.class)
+    void getColor(PlayerColor color) {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", color, ship);
+        assertEquals(color, player.getColor());
     }
 
     @Test
     void setStep() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setStep(5);
+        assertEquals(5, player.getStep());
     }
 
     @Test
     void getStep() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setStep(5);
+        assertEquals(5, player.getStep());
     }
 
     @Test
     void setPosition() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setPosition(5);
+        assertEquals(5, player.getPosition());
     }
 
     @Test
     void getPosition() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setPosition(5);
+        assertEquals(5, player.getPosition());
     }
 
     @Test
     void getCoins() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.addCoins(5);
+        assertEquals(5, player.getCoins());
     }
 
     @Test
     void getSpaceShip() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        assertEquals(ship, player.getSpaceShip());
     }
 
     @Test
     void isLeader() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setPosition(0);
+        assertTrue(player.isLeader());
     }
 
     @Test
     void isDisconnected() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setDisconnected(true);
+        assertTrue(player.isDisconnected());
+        player.setDisconnected(false);
+        assertFalse(player.isDisconnected());
     }
 
     @Test
     void hasGivenUp() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setGaveUp(true);
+        assertTrue(player.hasGivenUp());
+        player.setGaveUp(false);
+        assertFalse(player.hasGivenUp());
     }
 
     @Test
     void addCoins() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.addCoins(5);
+        assertEquals(5, player.getCoins());
     }
 
     @Test
     void setGaveUp() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setGaveUp(true);
+        assertTrue(player.hasGivenUp());
+        player.setGaveUp(false);
+        assertFalse(player.hasGivenUp());
     }
 
     @Test
     void setDisconnected() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        player.setDisconnected(true);
+        assertTrue(player.isDisconnected());
+        player.setDisconnected(false);
+        assertFalse(player.isDisconnected());
     }
 
     @Test
     void testEquals() {
+        player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        PlayerData player2 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        assertEquals(player, player2);
+
+        player2 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.BLUE, ship);
+        assertNotEquals(player, player2);
+
+        assertNotEquals(null, player);
+        assertNotEquals(player, new Object());
     }
 
     /*
