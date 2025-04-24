@@ -1,6 +1,5 @@
 package Model.State;
 
-import Model.Cards.OpenSpace;
 import Model.Cards.Slavers;
 import Model.Game.Board.Board;
 import Model.Game.Board.Level;
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,40 +42,81 @@ class SlaversStateTest {
         board.setPlayer(p2, 2);
         board.setPlayer(p3, 3);
 
-        Slavers c1 = new Slavers(2, 3, 4, 5, 6, 7);
+        Slavers c1 = new Slavers(2, 3, 4, 5, 2, 7);
 
         state = new SlaversState(board, c1);
         assertNotNull(state);
     }
 
     @Test
-    void useCannon_validStateAndPositiveValue() {
-        state.setInternalState(SlaversInternalState.SET_CANNONS);
-        PlayerData player = state.getPlayers().getFirst();
-        Float initialStrength = state.getStats().getOrDefault(player, 0f);
-        state.useCannon(player, 5.0f);
-        assertEquals(initialStrength + 5.0f, state.getStats().get(player));
-    }
-
-    @Test
-    void useCannon_invalidState() {
+    void useCannon_invalidState(){
         state.setInternalState(SlaversInternalState.PENALTY);
         PlayerData player = state.getPlayers().getFirst();
-        assertThrows(IllegalStateException.class, () -> state.useCannon(player, 5.0f));
+        List<Integer> batteriesID = Arrays.asList(1, 2, 3);
+
+        assertThrows(IllegalStateException.class, () -> state.useCannon(player, 5.0f, batteriesID));
     }
 
-    @Test
-    void useCannon_nullValue() {
-        state.setInternalState(SlaversInternalState.SET_CANNONS);
+    @RepeatedTest(5)
+    void useCannon_withValidBatteriesAndPositiveStrength() {
         PlayerData player = state.getPlayers().getFirst();
-        assertThrows(NullPointerException.class, () -> state.useCannon(player, null));
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+        player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 8, 8);
+        player.getSpaceShip().placeComponent(new Battery(5, connectors, 3), 8, 9);
+
+        assertDoesNotThrow(() -> state.useCannon(player, 5.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()));
+        assertEquals(5.0f, state.getStats().get(player));
+    }
+
+    @RepeatedTest(5)
+    void useCannon_withInvalidBatteryIDs() {
+        PlayerData player = state.getPlayers().getFirst();
+        List<Integer> invalidBatteriesID = Arrays.asList(99, 100);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+
+        assertThrows(NullPointerException.class, () -> state.useCannon(player, 5.0f, invalidBatteriesID));
+    }
+
+    @RepeatedTest(5)
+    void useCannon_withNullBatteriesList() {
+        PlayerData player = state.getPlayers().getFirst();
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+
+        assertThrows(NullPointerException.class, () -> state.useCannon(player, 5.0f, null));
+    }
+
+    @RepeatedTest(5)
+    void useCannon_withZeroStrength() {
+        PlayerData player = state.getPlayers().getFirst();
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+
+        assertDoesNotThrow(() -> state.useCannon(player, 0.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()));
+        assertEquals(0.0f, state.getStats().get(player));
+    }
+
+    @RepeatedTest(5)
+    void useCannon_withNullPlayer() {
+        List<Integer> batteriesID = Arrays.asList(1, 2, 3);
+
+        assertThrows(NullPointerException.class, () -> state.useCannon(null, 5.0f, batteriesID));
     }
 
     @Test
     void useCannon_valueEqualToCardRequirement() {
         state.setInternalState(SlaversInternalState.SET_CANNONS);
         PlayerData player = state.getPlayers().getFirst();
-        state.useCannon(player, (float) state.getCard().getCannonStrengthRequired());
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+
+        assertDoesNotThrow(() -> state.useCannon(player, (float) state.getCard().getCannonStrengthRequired(), player.getSpaceShip().getBatteries().keySet().stream().toList()));
+        state.execute(player);
         assertNull(state.isSlaversDefeat());
     }
 
@@ -83,7 +124,13 @@ class SlaversStateTest {
     void useCannon_valueGreaterThanCardRequirement() {
         state.setInternalState(SlaversInternalState.SET_CANNONS);
         PlayerData player = state.getPlayers().getFirst();
-        state.useCannon(player, state.getCard().getCannonStrengthRequired() + 1f);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+
+        assertDoesNotThrow(() -> state.useCannon(player, (float) state.getCard().getCannonStrengthRequired() + 1f, player.getSpaceShip().getBatteries().keySet().stream().toList()));
+        state.setAcceptCredits(false);
+        state.execute(player);
         assertTrue(state.isSlaversDefeat());
     }
 
@@ -91,7 +138,11 @@ class SlaversStateTest {
     void useCannon_valueLessThanCardRequirement() {
         state.setInternalState(SlaversInternalState.SET_CANNONS);
         PlayerData player = state.getPlayers().getFirst();
-        state.useCannon(player, state.getCard().getCannonStrengthRequired() - 1f);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+
+        assertDoesNotThrow(() -> state.useCannon(player, (float) state.getCard().getCannonStrengthRequired() - 1f, player.getSpaceShip().getBatteries().keySet().stream().toList()));
         assertFalse(state.isSlaversDefeat());
     }
 
@@ -146,7 +197,13 @@ class SlaversStateTest {
     void isSlaversDefeat_returnsTrueWhenSlaversDefeated() {
         state.setInternalState(SlaversInternalState.SET_CANNONS);
         PlayerData player = state.getPlayers().getFirst();
-        state.useCannon(player, state.getCard().getCannonStrengthRequired() + 1f);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+
+        state.useCannon(player, state.getCard().getCannonStrengthRequired() + 1f, player.getSpaceShip().getBatteries().keySet().stream().toList());
+        state.setAcceptCredits(false);
+        state.execute(player);
         assertTrue(state.isSlaversDefeat());
     }
 
@@ -154,7 +211,11 @@ class SlaversStateTest {
     void isSlaversDefeat_returnsFalseWhenSlaversNotDefeated() {
         state.setInternalState(SlaversInternalState.SET_CANNONS);
         PlayerData player = state.getPlayers().getFirst();
-        state.useCannon(player, state.getCard().getCannonStrengthRequired() - 1f);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+
+        state.useCannon(player, state.getCard().getCannonStrengthRequired() - 1f, player.getSpaceShip().getBatteries().keySet().stream().toList());
         assertFalse(state.isSlaversDefeat());
     }
 
@@ -162,7 +223,13 @@ class SlaversStateTest {
     void isSlaversDefeat_returnsNullWhenCannonStrengthEqualsRequirement() {
         state.setInternalState(SlaversInternalState.SET_CANNONS);
         PlayerData player = state.getPlayers().getFirst();
-        state.useCannon(player, (float) state.getCard().getCannonStrengthRequired());
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Cannon(3, connectors, 1), 6, 8);
+        player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 8, 7);
+
+        state.useCannon(player, (float) state.getCard().getCannonStrengthRequired(), player.getSpaceShip().getBatteries().keySet().stream().toList());
+        state.execute(player);
         assertNull(state.isSlaversDefeat());
     }
 
@@ -198,7 +265,11 @@ class SlaversStateTest {
     @Test
     void execute_slaversDefeatedAndAcceptCredits() {
         PlayerData player = state.getPlayers().getFirst();
-        state.useCannon(player, state.getCard().getCannonStrengthRequired() + 1f);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+
+        state.useCannon(player, state.getCard().getCannonStrengthRequired() + 1f, player.getSpaceShip().getBatteries().keySet().stream().toList());
         state.setInternalState(SlaversInternalState.PENALTY);
         state.setAcceptCredits(true);
         int initialCoins = player.getCoins();
@@ -211,7 +282,11 @@ class SlaversStateTest {
     @Test
     void execute_slaversDefeatedAndDeclineCredits() {
         PlayerData player = state.getPlayers().getFirst();
-        state.useCannon(player, state.getCard().getCannonStrengthRequired() + 1f);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+
+        state.useCannon(player, state.getCard().getCannonStrengthRequired() + 1f, player.getSpaceShip().getBatteries().keySet().stream().toList());
         state.setInternalState(SlaversInternalState.PENALTY);
         state.setAcceptCredits(false);
         int initialCoins = player.getCoins();
@@ -224,9 +299,12 @@ class SlaversStateTest {
     @Test
     void execute_slaversNotDefeatedAndCrewLossSet_removesCrewMembersCorrectly() {
         PlayerData player = state.getPlayers().getFirst();
-        state.useCannon(player, state.getCard().getCannonStrengthRequired() - 1f);
-        state.setInternalState(SlaversInternalState.PENALTY);
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+
+        state.useCannon(player, state.getCard().getCannonStrengthRequired() - 1f, player.getSpaceShip().getBatteries().keySet().stream().toList());
+        state.setInternalState(SlaversInternalState.PENALTY);
         Cabin c1 = new Cabin(2, connectors);
         Cabin c2 = new Cabin(3, connectors);
         player.getSpaceShip().addCrewMember(1, false, false);
@@ -246,7 +324,11 @@ class SlaversStateTest {
     @Test
     void execute_slaversNotDefeatedAndCrewLossNotSet() {
         PlayerData player = state.getPlayers().getFirst();
-        state.useCannon(player, state.getCard().getCannonStrengthRequired() - 1f);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+
+        state.useCannon(player, state.getCard().getCannonStrengthRequired() - 1f, player.getSpaceShip().getBatteries().keySet().stream().toList());
         state.setInternalState(SlaversInternalState.PENALTY);
         assertThrows(IllegalStateException.class, () -> state.execute(player));
     }
@@ -254,7 +336,11 @@ class SlaversStateTest {
     @Test
     void execute_slaversDefeatedAndAcceptCreditsNotSet() {
         PlayerData player = state.getPlayers().getFirst();
-        state.useCannon(player, state.getCard().getCannonStrengthRequired() + 1f);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+
+        state.useCannon(player, state.getCard().getCannonStrengthRequired() + 1f, player.getSpaceShip().getBatteries().keySet().stream().toList());
         state.setInternalState(SlaversInternalState.PENALTY);
         assertThrows(IllegalStateException.class, () -> state.execute(player));
     }

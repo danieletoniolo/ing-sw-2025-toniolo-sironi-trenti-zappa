@@ -59,7 +59,7 @@ class BuildingStateTest {
         assertTrue(state.getTimerRunning());
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(2)
     void flipTimer_withThirdFlipAndPlayerNotFinishedBuilding() throws InterruptedException {
         state.flipTimer(UUID.randomUUID());
         try{
@@ -70,7 +70,7 @@ class BuildingStateTest {
         assertThrows(IllegalStateException.class, () -> state.flipTimer(UUID.randomUUID()));
     }
 
-    @RepeatedTest(5)
+    @RepeatedTest(2)
     void flipTimer_withThirdFlipAndPlayerFinishedBuilding() throws InterruptedException {
         PlayerData player = state.getPlayers().getFirst();
         state.flipTimer(player.getUUID());

@@ -995,7 +995,6 @@ class SpaceShipTest {
 
     @RepeatedTest(5)
     void ExposedConnectors_noComponents() {
-        ship.refreshExposedConnectors();
         assertEquals(4, ship.getExposedConnectors());
     }
 
@@ -1003,7 +1002,6 @@ class SpaceShipTest {
     void ExposedConnectors_singleComponent() {
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
-        ship.refreshExposedConnectors();
         assertEquals(6, ship.getExposedConnectors());
     }
 
@@ -1013,7 +1011,6 @@ class SpaceShipTest {
         ship.placeComponent(cabin, 6, 7);
         Battery battery = new Battery(2, connectors, 3);
         ship.placeComponent(battery, 6, 8);
-        ship.refreshExposedConnectors();
         assertEquals(8, ship.getExposedConnectors());
     }
 
@@ -1025,7 +1022,6 @@ class SpaceShipTest {
         ship.placeComponent(battery, 6, 8);
         Shield shield = new Shield(3, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.TRIPLE});
         ship.placeComponent(shield, 6, 6);
-        ship.refreshExposedConnectors();
         assertEquals(3, ship.getExposedConnectors());
     }
 
@@ -1037,7 +1033,6 @@ class SpaceShipTest {
         ship.placeComponent(battery, 6, 8);
         Shield shield = new Shield(3, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.TRIPLE, ConnectorType.EMPTY, ConnectorType.TRIPLE});
         ship.placeComponent(shield, 6, 6);
-        ship.refreshExposedConnectors();
         assertEquals(6, ship.getExposedConnectors());
     }
 

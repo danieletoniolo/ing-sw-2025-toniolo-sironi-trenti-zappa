@@ -5,23 +5,19 @@ import Model.Game.Board.Board;
 import Model.Game.Board.Level;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
-import Model.SpaceShip.ConnectorType;
-import Model.SpaceShip.Engine;
-import Model.SpaceShip.LifeSupportBrown;
-import Model.SpaceShip.SpaceShip;
+import Model.SpaceShip.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class OpenSpaceStateTest {
     OpenSpaceState state;
 
-    //TODO: Da testare
     @BeforeEach
     void setUp() throws JsonProcessingException {
         boolean[][] vs = new boolean[12][12];
@@ -50,27 +46,53 @@ class OpenSpaceStateTest {
     }
 
     @RepeatedTest(5)
-    void useEngine_withPositiveStrength() {
-        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+    void useEngine_withValidBatteriesAndPositiveStrength() {
         PlayerData player = state.getPlayers().getFirst();
-        Engine e1 = new Engine(2, connectors, 1);
-        Engine e2 = new Engine(3, connectors, 2);
-        player.getSpaceShip().placeComponent(e1, 8, 7);
-        player.getSpaceShip().placeComponent(e2, 8, 8);
-        float strength_max = (float) player.getSpaceShip().getSingleEnginesStrength() + (float) player.getSpaceShip().getDoubleEnginesStrength() / 2;
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 8, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 6, 8);
+        player.getSpaceShip().placeComponent(new Battery(5, connectors, 3), 6, 9);
 
-        assertDoesNotThrow(() -> state.useEngine(player, strength_max));
-        assertEquals(strength_max, state.getStats().get(player));
+        assertDoesNotThrow(() -> state.useEngine(player, 5.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()));
+        assertEquals(5.0f, state.getStats().get(player));
+    }
+
+    @RepeatedTest(5)
+    void useEngine_withInvalidBatteryIDs() {
+        PlayerData player = state.getPlayers().getFirst();
+        List<Integer> invalidBatteriesID = Arrays.asList(99, 100);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 8, 7);
+
+        assertThrows(NullPointerException.class, () -> state.useEngine(player, 5.0f, invalidBatteriesID));
+    }
+
+    @RepeatedTest(5)
+    void useEngine_withNullBatteriesList() {
+        PlayerData player = state.getPlayers().getFirst();
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 8, 7);
+
+        assertThrows(NullPointerException.class, () -> state.useEngine(player, 5.0f, null));
     }
 
     @RepeatedTest(5)
     void useEngine_withZeroStrength() {
-        state.entry();
         PlayerData player = state.getPlayers().getFirst();
-        float initialStrength = state.getStats().get(player);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 8, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 6, 7);
 
-        assertDoesNotThrow(() -> state.useEngine(player, 0.0f));
-        assertEquals(initialStrength, state.getStats().get(player));
+        assertDoesNotThrow(() -> state.useEngine(player, 0.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()));
+        assertEquals(0.0f, state.getStats().get(player));
+    }
+
+    @RepeatedTest(5)
+    void useEngine_withNullPlayer() {
+        List<Integer> batteriesID = Arrays.asList(1, 2, 3);
+
+        assertThrows(NullPointerException.class, () -> state.useEngine(null, 5.0f, batteriesID));
     }
 
     @RepeatedTest(5)

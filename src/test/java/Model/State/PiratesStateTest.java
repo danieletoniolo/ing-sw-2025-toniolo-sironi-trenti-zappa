@@ -114,19 +114,66 @@ class PiratesStateTest {
     }
 
     @Test
-    void useCannon_validPlayerAndStrength() {
-        PlayerData player = state.players.getFirst();
-        Float initialStrength = state.getStats().getOrDefault(player, 0f);
-        state.entry();
-        state.useCannon(player, 5.0f);
-        assertEquals(initialStrength + 5.0f, state.getStats().get(player));
+    void useCannon_invalidState(){
+        PlayerData player = state.getPlayers().getFirst();
+        List<Integer> batteriesID = Arrays.asList(1, 2, 3);
+
+        assertThrows(IllegalStateException.class, () -> state.useCannon(player, 5.0f, batteriesID));
     }
 
-    @Test
-    void useCannon_nullStrength() {
-        PlayerData player = state.players.getFirst();
-        state.entry();
-        assertThrows(NullPointerException.class, () -> state.useCannon(player, null));
+    @RepeatedTest(5)
+    void useCannon_withValidBatteriesAndPositiveStrength() {
+        state.setInternalStatePirates(PiratesInternalState.PENALTY);
+        PlayerData player = state.getPlayers().getFirst();
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+        player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 8, 8);
+        player.getSpaceShip().placeComponent(new Battery(5, connectors, 3), 8, 9);
+
+        assertDoesNotThrow(() -> state.useCannon(player, 5.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()));
+        assertEquals(5.0f, state.getStats().get(player));
+    }
+
+    @RepeatedTest(5)
+    void useCannon_withInvalidBatteryIDs() {
+        state.setInternalStatePirates(PiratesInternalState.PENALTY);
+        PlayerData player = state.getPlayers().getFirst();
+        List<Integer> invalidBatteriesID = Arrays.asList(99, 100);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+
+        assertThrows(NullPointerException.class, () -> state.useCannon(player, 5.0f, invalidBatteriesID));
+    }
+
+    @RepeatedTest(5)
+    void useCannon_withNullBatteriesList() {
+        state.setInternalStatePirates(PiratesInternalState.PENALTY);
+        PlayerData player = state.getPlayers().getFirst();
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+
+        assertThrows(NullPointerException.class, () -> state.useCannon(player, 5.0f, null));
+    }
+
+    @RepeatedTest(5)
+    void useCannon_withZeroStrength() {
+        state.setInternalStatePirates(PiratesInternalState.PENALTY);
+        PlayerData player = state.getPlayers().getFirst();
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+
+        assertDoesNotThrow(() -> state.useCannon(player, 0.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()));
+        assertEquals(0.0f, state.getStats().get(player));
+    }
+
+    @RepeatedTest(5)
+    void useCannon_withNullPlayer() {
+        state.setInternalStatePirates(PiratesInternalState.PENALTY);
+        List<Integer> batteriesID = Arrays.asList(1, 2, 3);
+
+        assertThrows(NullPointerException.class, () -> state.useCannon(null, 5.0f, batteriesID));
     }
 
     @RepeatedTest(5)

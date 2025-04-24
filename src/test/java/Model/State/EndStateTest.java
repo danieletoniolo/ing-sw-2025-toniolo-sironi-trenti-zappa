@@ -99,7 +99,6 @@ class EndStateTest {
     void execute_withBestLookingShip() {
         state.entry();
         PlayerData player = state.getPlayers().getFirst();
-        player.getSpaceShip().refreshExposedConnectors();
 
         for(PlayerData p : state.getPlayers()) {
             state.playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
