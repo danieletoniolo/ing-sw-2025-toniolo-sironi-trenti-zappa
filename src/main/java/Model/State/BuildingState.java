@@ -7,25 +7,23 @@ import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
 import Model.State.interfaces.Buildable;
 
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 
 
 public class BuildingState extends State implements Buildable {
-    private Timer timer;
+    private final Timer timer;
     private boolean timerRunning;
     private int numberOfTimerFlips;
-    private static long timerDuration = 90000;
+    private static final long timerDuration = 90000;
 
-    private Map<PlayerColor, Component> playersHandQueue;
+    private final Map<PlayerColor, Component> playersHandQueue;
 
     public BuildingState(Board board) {
         super(board);
         this.timer = new Timer();
         this.numberOfTimerFlips = 0;
         this.timerRunning = false;
+        this.playersHandQueue = new HashMap<>();
     }
 
     public void flipTimer(UUID uuid) throws InterruptedException, IllegalStateException{
@@ -328,9 +326,23 @@ public class BuildingState extends State implements Buildable {
         playersHandQueue.put(player.getColor(), component);
    }
 
+    /**
+     * The entry method in this state is called when the state is entered.
+     * <p>
+     * In this state we have to remove all the players from the board since they are in a casual order
+     * after the {@link LobbyState} state. To do so we call the {@link Board#removeInGamePlayer(PlayerData)}.
+     * <p>
+     * This can be done because we have the list of players in the
+     * {@link State#players} attribute set in the {@link State#State(Board)} constructor.
+     * @see State#entry()
+     */
     @Override
     public void entry() {
         super.entry();
+
+        for (PlayerData player : players) {
+            board.removeInGamePlayer(player);
+        }
     }
 
     @Override

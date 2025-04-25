@@ -19,10 +19,10 @@ public class Board {
     private final Deck[] decks;
     private final Stack<Card> shuffledDeck;
 
-    private Component[] tiles;
+    private final Component[] tiles;
 
-    private ArrayList<PlayerData> inGamePlayers;
-    private ArrayList<PlayerData> gaveUpPlayers;
+    private final ArrayList<PlayerData> inGamePlayers;
+    private final ArrayList<PlayerData> gaveUpPlayers;
 
 
     /**
@@ -209,6 +209,14 @@ public class Board {
         }
 
         return inGamePlayers;
+    }
+
+    public void addInGamePlayer(PlayerData player) {
+        inGamePlayers.add(player);
+    }
+
+    public void removeInGamePlayer(PlayerData player) {
+        inGamePlayers.remove(player);
     }
 
     /**
