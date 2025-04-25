@@ -45,7 +45,7 @@ public class PiratesState extends State implements Fightable, ChoosableFragment,
         this.fightHandler = new FightHandler();
     }
 
-    public void setInternalState(PiratesInternalState internalState) {
+    public void setInternalStatePirates(PiratesInternalState internalState) {
         this.internalState = internalState;
     }
 
