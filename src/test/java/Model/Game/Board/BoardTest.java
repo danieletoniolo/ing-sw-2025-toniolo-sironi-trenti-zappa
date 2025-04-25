@@ -13,6 +13,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.Arrays;
 import java.util.Stack;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,30 +35,6 @@ class BoardTest {
     @EnumSource(Level.class)
     void getBoardLevel(Level level) throws JsonProcessingException {
         assertEquals(level, new Board(level).getBoardLevel());
-    }
-
-    @Test
-    void getDeck() {
-    }
-
-    @ParameterizedTest
-    @EnumSource(Level.class)
-    void getTile(Level level) throws JsonProcessingException {
-        /*Board board = new Board(level);
-        for (int i = -1; i < 157; i++) {
-            final int index = i;
-            if (i < 0) {
-                assertThrows(IndexOutOfBoundsException.class, () -> board.getTile(index));
-            }
-            if (i > 0 && i < 156) {
-                assertEquals(i, board.getTile(i).getID());
-            }
-            if (i > 155) {
-                assertThrows(IndexOutOfBoundsException.class, () -> board.getTile(index));
-            }
-        }
-
-         */
     }
 
     @ParameterizedTest
@@ -92,6 +69,57 @@ class BoardTest {
             board.drawCard();
         }
         assertTrue(board.getShuffledDeck().isEmpty());
+    }
+
+    @ParameterizedTest
+    @EnumSource(Level.class)
+    void getTiles(Level level) throws JsonProcessingException {
+        Board board = new Board(level);
+        assertNotNull(board.getTiles());
+        assertEquals(156, board.getTiles().length);
+        for (int i = 0; i < board.getTiles().length; i++) {
+            assertNotNull(board.getTiles()[i]);
+            assertEquals(i, board.getTiles()[i].getID());
+        }
+    }
+
+    @Test
+    void getDeck() throws JsonProcessingException {
+        assertThrows(IllegalStateException.class, () -> {
+            Board board = new Board(Level.LEARNING);
+            board.getDeck(0, new PlayerData("123e4567-e89b-12d3-a456-426614174001", null, null));
+        });
+
+        Board board = new Board(Level.SECOND);
+        assertThrows(NullPointerException.class, () -> {
+            board.getDeck(0, null);
+        });
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            board.getDeck(-1, new PlayerData("123e4567-e89b-12d3-a456-426614174001", null, null));
+        });
+        assertThrows(IndexOutOfBoundsException.class, () -> {
+            board.getDeck(5, new PlayerData("123e4567-e89b-12d3-a456-426614174001", null, null));
+        });
+
+        for (int i = 0; i < 3; i++) {
+            int index = i;
+            assertThrows(IllegalArgumentException.class, () -> {
+                boolean[][] matrix = new boolean[12][12];
+                for (boolean[] booleans : matrix) {
+                    Arrays.fill(booleans, true);
+                }
+                SpaceShip spaceShip = new SpaceShip(Level.SECOND, matrix);
+                PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", null, spaceShip);
+                spaceShip.placeComponent(board.getTiles()[7], 6, 7);
+                board.getDeck(index, player);
+            });
+        }
+
+        assertThrows(IllegalStateException.class, () -> {
+            board.getDeck(4, new PlayerData("123e4567-e89b-12d3-a456-426614174001", null, null));
+        });
+
+
     }
 
     @ParameterizedTest

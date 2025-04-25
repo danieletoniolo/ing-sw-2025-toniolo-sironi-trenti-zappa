@@ -86,13 +86,6 @@ public class Board {
         return this.level;
     }
 
-    public int getStepsOfAPlayer(PlayerData player) {
-        if (player == null) {
-            throw new NullPointerException("Player is null");
-        }
-        return player.getStep();
-    }
-
     /**
      * Retrieves the deck at the specified index if it is pickable.
      * @param index the index of the deck to retrieve
@@ -100,14 +93,20 @@ public class Board {
      * @throws IllegalStateException if the deck at the specified index is not pickable
      */
     public Deck getDeck(int index, PlayerData player) throws IllegalStateException, NullPointerException {
+        if (level == Level.LEARNING) {
+            throw new IllegalStateException("There is no deck in this level");
+        }
         if (player == null) {
             throw new NullPointerException("Player is null");
+        }
+        if (index < 0 || index >= this.decks.length) {
+            throw new IndexOutOfBoundsException("Index is out of bounds");
         }
         if (!this.decks[index].isPickable() || player.getSpaceShip().getNumberOfComponents() <= 1) {
             throw new IllegalStateException("Deck is not pickable");
         }
 
-        return this.decks[index];
+        return decks[index];
     }
 
     /**
