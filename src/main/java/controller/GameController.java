@@ -96,9 +96,9 @@ public class GameController {
         }
     }
 
-    void pickTileFromPile(UUID uuid, int tileID) {
+    void pickTileFromBoard(UUID uuid, int tileID) {
         if (state instanceof Buildable) {
-            ((Buildable) state).pickTileFromPile(uuid, tileID);
+            ((Buildable) state).pickTileFromBoard(uuid, tileID);
         } else {
             throw new IllegalStateException("State is not a Buildable");
         }
@@ -112,9 +112,9 @@ public class GameController {
         }
     }
 
-    void pickTileFromBoard(UUID uuid, int tileID) {
+    void pickTileFromSpaceShip(UUID uuid, int tileID) {
         if (state instanceof Buildable) {
-            ((Buildable) state).pickTileFromBoard(uuid, tileID);
+            ((Buildable) state).pickTileFromSpaceShip(uuid, tileID);
         } else {
             throw new IllegalStateException("State is not a Buildable");
         }
