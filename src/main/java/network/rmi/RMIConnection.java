@@ -62,7 +62,7 @@ public class RMIConnection implements Connection {
     private Message read;
 
     /**
-     * Timeout for the heartbeat.
+     * Timeout for the heartbeat and read/send messages.
      */
     private final static long TIMEOUT = 5000;
 
