@@ -61,6 +61,14 @@ public class EndState extends State {
         return endInternalState;
     }
 
+    /**
+     * Setter for the end internal state
+     * @param endInternalState
+     */
+    public void setEndInternalState(EndInternalState endInternalState) {
+        this.endInternalState = endInternalState;
+    }
+
     @Override
     public void entry() {
          for (PlayerData player : players) {

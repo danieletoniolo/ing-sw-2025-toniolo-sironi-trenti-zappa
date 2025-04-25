@@ -21,11 +21,11 @@ public interface Buildable {
 
     void placeMarker(UUID uuid, int position) throws IllegalStateException;
 
-    void pickTileFromPile(UUID uuid, int tileID);
+    void pickTileFromBoard(UUID uuid, int tileID);
 
     void pickTileFromReserve(UUID uuid, int tileID);
 
-    void pickTileFromBoard(UUID uuid, int tileID);
+    void pickTileFromSpaceShip(UUID uuid, int tileID);
 
     void leaveTile(UUID uuid);
 
