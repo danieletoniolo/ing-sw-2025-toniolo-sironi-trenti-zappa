@@ -23,7 +23,6 @@ public class BuildingState extends State implements Buildable {
         this.numberOfTimerFlips = 0;
         this.timerRunning = false;
         this.playersHandQueue = new HashMap<>();
-        this.playersHandQueue = new HashMap<>();
     }
 
     public boolean getTimerRunning() {
@@ -269,6 +268,9 @@ public class BuildingState extends State implements Buildable {
         if (player.getSpaceShip().getReservedComponents().contains(component)) {
             player.getSpaceShip().unreserveComponent(component);
         }
+
+        // Remove the tile from the player's hand
+        playersHandQueue.remove(player.getColor());
     }
 
     /**
@@ -292,6 +294,9 @@ public class BuildingState extends State implements Buildable {
 
         // Reserve the tile in the board
         player.getSpaceShip().reserveComponent(component);
+
+        // Remove the tile from the player's hand
+        playersHandQueue.remove(player.getColor());
     }
 
     /**
