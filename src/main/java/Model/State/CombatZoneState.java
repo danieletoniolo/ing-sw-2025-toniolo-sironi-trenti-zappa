@@ -186,7 +186,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
     private void executeSubStateRemoveCrew(PlayerData player) throws IllegalArgumentException {
         int crewLost = card.getLost();
 
-        SpaceShip spaceShip = minPlayerEngines.getSpaceShip();
+        SpaceShip spaceShip = player.getSpaceShip();
         if (spaceShip.getCrewNumber() <= crewLost) {
             player.setGaveUp(true);
         } else {
@@ -198,13 +198,13 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         fightHandler.initialize(0);
     }
 
-    private void executeSubStateHits() throws IndexOutOfBoundsException {
+    private void executeSubStateHits(PlayerData player) throws IndexOutOfBoundsException {
         int currentHitIndex = fightHandler.getHitIndex();
         if (currentHitIndex >= card.getFires().size()) {
             throw new IndexOutOfBoundsException("Hit index out of bounds");
         }
 
-        fightHandler.executeFight(minPlayerCannons.getSpaceShip(), () -> card.getFires().get(currentHitIndex));
+        fightHandler.executeFight(player.getSpaceShip(), () -> card.getFires().get(currentHitIndex));
     }
 
     private void executeSubStateRemoveGoods(PlayerData player) throws IllegalStateException {
@@ -230,7 +230,6 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
                 goodsToDiscardQueue.poll();
                 mostValuableGoods.poll();
             }
-
             // Remove the goods from the ship
             for (Pair<ArrayList<Good>, Integer> pair : goodsToDiscard) {
                 ship.exchangeGood(null, pair.getValue0(), pair.getValue1());
@@ -257,7 +256,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      */
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
         if ((internalState != CombatZoneInternalState.CANNONS && card.getCardLevel() != 2) ||
-                (internalState != CombatZoneInternalState.ENGINES && card.getCardLevel() == 2)) {
+                (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
             throw new IllegalStateException("Fragment choice not allowed in this state");
         }
         fightHandler.setFragmentChoice(fragmentChoice);
@@ -272,7 +271,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      */
     public void setProtect(boolean protect_, Integer batteryID_) throws IllegalStateException, IllegalArgumentException {
         if ((internalState != CombatZoneInternalState.CANNONS && card.getCardLevel() != 2) ||
-                (internalState != CombatZoneInternalState.ENGINES && card.getCardLevel() == 2)) {
+                (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
             throw new IllegalStateException("Battery ID not allowed in this state");
         }
         fightHandler.setProtect(protect_, batteryID_);
@@ -284,7 +283,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      */
     public void setDice(int dice) throws IllegalStateException{
         if ((internalState != CombatZoneInternalState.CANNONS && card.getCardLevel() != 2) ||
-                (internalState != CombatZoneInternalState.ENGINES && card.getCardLevel() == 2)) {
+                (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
             throw new IllegalStateException("Dice not allowed in this state");
         }
         fightHandler.setDice(dice);
@@ -398,7 +397,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         switch (internalState) {
             case CombatZoneInternalState.CREW:
                 if (card.getCardLevel() == 2) {
-                    executeSubStateHits();
+                    executeSubStateHits(minPlayerCrew);
                 } else {
                     executeSubStateFlightDays(minPlayerCrew);
                     transition();
@@ -411,7 +410,13 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
                 }
 
                 if (card.getCardLevel() == 2) {
-                    executeSubStateRemoveGoods(minPlayerEngines);
+                    int crewFulfillment = minPlayerEngines.getSpaceShip().getGoods().size() - card.getLost();
+                    if (crewFulfillment < 0 && minPlayerEngines.getSpaceShip().getCrewNumber() < Math.abs(crewFulfillment)) {
+                        minPlayerEngines.setGaveUp(true);
+                        this.players = super.board.updateInGamePlayers();
+                    } else {
+                        executeSubStateRemoveGoods(minPlayerEngines);
+                    }
                 } else {
                     if (crewLoss == null) {
                         throw new IllegalStateException("The min player have not set their crew loss");
@@ -430,7 +435,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
                     executeSubStateFlightDays(minPlayerCannons);
                     transition();
                 } else {
-                    executeSubStateHits();
+                    executeSubStateHits(minPlayerCannons);
                 }
                 break;
         }
