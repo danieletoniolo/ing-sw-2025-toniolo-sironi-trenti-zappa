@@ -42,6 +42,19 @@ public class PiratesState extends State implements Fightable, ChoosableFragment,
         this.acceptCredits = false;
         this.internalState = PiratesInternalState.DEFAULT;
         this.playersDefeated = new ArrayList<>();
+        this.fightHandler = new FightHandler();
+    }
+
+    public void setInternalState(PiratesInternalState internalState) {
+        this.internalState = internalState;
+    }
+
+    public Map<PlayerData, Float> getStats() {
+        return stats;
+    }
+
+    public Pirates getCard() {
+        return card;
     }
 
     /**

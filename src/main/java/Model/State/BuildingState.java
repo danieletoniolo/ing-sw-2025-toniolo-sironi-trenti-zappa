@@ -7,10 +7,7 @@ import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
 import Model.State.interfaces.Buildable;
 
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 
 
 public class BuildingState extends State implements Buildable {
@@ -18,7 +15,6 @@ public class BuildingState extends State implements Buildable {
     private boolean timerRunning;
     private int numberOfTimerFlips;
     private static long timerDuration = 90000;
-
     private Map<PlayerColor, Component> playersHandQueue;
 
     public BuildingState(Board board) {
@@ -26,6 +22,23 @@ public class BuildingState extends State implements Buildable {
         this.timer = new Timer();
         this.numberOfTimerFlips = 0;
         this.timerRunning = false;
+        this.playersHandQueue = new HashMap<>();
+    }
+
+    public boolean getTimerRunning() {
+        return timerRunning;
+    }
+
+    public Map<PlayerColor, Component> getPlayersHandQueue() {
+        return playersHandQueue;
+    }
+
+    public int getNumberOfTimerFlips() {
+        return numberOfTimerFlips;
+    }
+
+    public static long getTimerDuration() {
+        return timerDuration;
     }
 
     public void flipTimer(UUID uuid) throws InterruptedException, IllegalStateException{
@@ -51,7 +64,7 @@ public class BuildingState extends State implements Buildable {
                 }, timerDuration);
                 break;
             case 2:
-                // This is the second flit that can be done by anyone after the time has run out
+                // This is the second flip that can be done by anyone after the time has run out
                 timerRunning = true;
                 timer.schedule(new TimerTask() {
                     @Override
@@ -102,11 +115,6 @@ public class BuildingState extends State implements Buildable {
         // Get the player who is showing the deck
         PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
 
-        // Check if the player has placed at least one tile
-        if (player.getSpaceShip().getNumberOfComponents() < 1) {
-            throw new IllegalStateException("Player has not placed any tile");
-        }
-
         // TODO: we have to decide how we want to notify the client that the deck is shown
         board.getDeck(deckIndex, player);
     }
@@ -135,7 +143,7 @@ public class BuildingState extends State implements Buildable {
      * @param uuid UUID of the player who is picking the tile
      * @param tileID ID of the tile to be picked
      */
-    public void pickTileFromPile(UUID uuid, int tileID) {
+    public void pickTileFromBoard(UUID uuid, int tileID) {
         // Get the player who is placing the tile
         PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
 
@@ -179,7 +187,7 @@ public class BuildingState extends State implements Buildable {
         playersHandQueue.put(player.getColor(), component);
     }
 
-    public void pickTileFromBoard(UUID uuid, int tileID) {
+    public void pickTileFromSpaceShip(UUID uuid, int tileID) {
         // Get the player who is placing the tile
         PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
 
@@ -255,6 +263,9 @@ public class BuildingState extends State implements Buildable {
         if (player.getSpaceShip().getReservedComponents().contains(component)) {
             player.getSpaceShip().unreserveComponent(component);
         }
+
+        // Remove the tile from the player's hand
+        this.leaveTile(uuid);
     }
 
     /**
@@ -278,6 +289,9 @@ public class BuildingState extends State implements Buildable {
 
         // Reserve the tile in the board
         player.getSpaceShip().reserveComponent(component);
+
+        // Remove the tile from the player's hand
+        this.leaveTile(uuid);
     }
 
     /**

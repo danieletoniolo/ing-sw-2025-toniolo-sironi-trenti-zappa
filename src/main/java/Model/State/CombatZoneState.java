@@ -56,6 +56,9 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         super(board);
         this.card = card;
         this.stats = new ArrayList<>(3);
+        for (int i = 0; i < 3; i++) {
+            stats.add(new HashMap<>());
+        }
         this.internalState = CombatZoneInternalState.CREW;
         this.minPlayerCannons = null;
         this.minPlayerEngines = null;
@@ -64,6 +67,47 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         this.goodsToDiscard = null;
         this.fightHandler = new FightHandler();
     }
+
+    public void setInternalState(CombatZoneInternalState internalState) {
+        this.internalState = internalState;
+    }
+
+    public CombatZoneInternalState getinternalState() {
+        return internalState;
+    }
+
+    public CombatZone getCard() {
+        return card;
+    }
+
+    public ArrayList<Map<PlayerData, Float>> getStats() {
+        return stats;
+    }
+
+    public PlayerData getMinPlayerEngines() {
+        return minPlayerEngines;
+    }
+
+    public PlayerData getMinPlayerCannons() {
+        return minPlayerCannons;
+    }
+
+    public PlayerData getMinPlayerCrew() {
+        return minPlayerCrew;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> getCrewLoss() {
+        return crewLoss;
+    }
+
+    public ArrayList<Pair<ArrayList<Good>, Integer>> getGoodsToDiscard() {
+        return goodsToDiscard;
+    }
+
+    public FightHandler getFightHandler() {
+        return fightHandler;
+    }
+
 
     /**
      * Transition to the next state

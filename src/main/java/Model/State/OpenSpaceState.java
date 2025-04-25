@@ -23,6 +23,10 @@ public class OpenSpaceState extends State implements UsableEngine {
         this.stats = new HashMap<>();
     }
 
+    public Map<PlayerData, Float> getStats() {
+        return stats;
+    }
+
     /**
      * Use the cannon
      * @param player PlayerData of the player using the cannon
@@ -48,7 +52,7 @@ public class OpenSpaceState extends State implements UsableEngine {
             SpaceShip ship = player.getSpaceShip();
             float initialStrength = ship.getSingleEnginesStrength();
             if (player.getSpaceShip().hasBrownAlien()) {
-                initialStrength += ship.getSingleEnginesStrength();
+                initialStrength += SpaceShip.getAlienStrength();
             }
             this.stats.put(player, initialStrength);
         }
