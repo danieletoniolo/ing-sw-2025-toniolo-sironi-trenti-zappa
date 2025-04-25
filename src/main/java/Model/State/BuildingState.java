@@ -15,7 +15,6 @@ public class BuildingState extends State implements Buildable {
     private boolean timerRunning;
     private int numberOfTimerFlips;
     private static final long timerDuration = 90000;
-
     private final Map<PlayerColor, Component> playersHandQueue;
 
     public BuildingState(Board board) {
@@ -24,6 +23,23 @@ public class BuildingState extends State implements Buildable {
         this.numberOfTimerFlips = 0;
         this.timerRunning = false;
         this.playersHandQueue = new HashMap<>();
+        this.playersHandQueue = new HashMap<>();
+    }
+
+    public boolean getTimerRunning() {
+        return timerRunning;
+    }
+
+    public Map<PlayerColor, Component> getPlayersHandQueue() {
+        return playersHandQueue;
+    }
+
+    public int getNumberOfTimerFlips() {
+        return numberOfTimerFlips;
+    }
+
+    public static long getTimerDuration() {
+        return timerDuration;
     }
 
     public void flipTimer(UUID uuid) throws InterruptedException, IllegalStateException{
@@ -49,7 +65,7 @@ public class BuildingState extends State implements Buildable {
                 }, timerDuration);
                 break;
             case 2:
-                // This is the second flit that can be done by anyone after the time has run out
+                // This is the second flip that can be done by anyone after the time has run out
                 timerRunning = true;
                 timer.schedule(new TimerTask() {
                     @Override
@@ -133,7 +149,7 @@ public class BuildingState extends State implements Buildable {
      * @param uuid UUID of the player who is picking the tile
      * @param tileID ID of the tile to be picked
      */
-    public void pickTileFromPile(UUID uuid, int tileID) {
+    public void pickTileFromBoard(UUID uuid, int tileID) {
         // Get the player who is placing the tile
         PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
 
@@ -177,7 +193,7 @@ public class BuildingState extends State implements Buildable {
         playersHandQueue.put(player.getColor(), component);
     }
 
-    public void pickTileFromBoard(UUID uuid, int tileID) {
+    public void pickTileFromSpaceShip(UUID uuid, int tileID) {
         // Get the player who is placing the tile
         PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
 

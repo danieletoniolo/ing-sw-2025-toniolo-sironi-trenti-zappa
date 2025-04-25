@@ -74,6 +74,10 @@ public class Board {
         return stepsForALap;
     }
 
+    public Component[] getTiles() {
+        return tiles;
+    }
+
     /**
      * Retrieves the level of the board.
      * @return the board level
@@ -195,7 +199,7 @@ public class Board {
 
         for (int i = 0; i < inGamePlayers.size(); i++) {
             for (int j = i + 1; j < inGamePlayers.size(); j++) {
-                if (inGamePlayers.get(i).getStep() > inGamePlayers.get(j).getStep()) {
+                if (inGamePlayers.get(i).getStep() < inGamePlayers.get(j).getStep()) {
                     Collections.swap(inGamePlayers, i, j);
                 }
             }

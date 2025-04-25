@@ -21,6 +21,14 @@ public class MeteorSwarmState extends State implements Fightable, ChoosableFragm
         this.fightHandler = new FightHandler();
     }
 
+    public FightHandler getFightHandler() {
+        return fightHandler;
+    }
+
+    public MeteorSwarm getCard() {
+        return card;
+    }
+
     /**
      * Set the fragment choice
      * @param fragmentChoice fragment choice
