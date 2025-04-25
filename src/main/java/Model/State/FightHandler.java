@@ -64,6 +64,14 @@ public class FightHandler {
         this.protectionResult = protectionResult;
     }
 
+    public void setInternalState(FightHandlerInternalState internalState) {
+        this.internalState = internalState;
+    }
+
+    public void setFragments(ArrayList<ArrayList<Pair<Integer, Integer>>> fragments) {
+        this.fragments = fragments;
+    }
+
     /**
      * Initialize or reset the handler
      * @param startIndex The hit index to start with
@@ -87,14 +95,6 @@ public class FightHandler {
         protect = null;
         batteryID = null;
         fragmentChoice = null;
-    }
-
-    public void setInternalState(FightHandlerInternalState internalState) {
-        this.internalState = internalState;
-    }
-
-    public void setFragments(ArrayList<ArrayList<Pair<Integer, Integer>>> fragments) {
-        this.fragments = fragments;
     }
 
     /**

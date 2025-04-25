@@ -63,7 +63,7 @@ public class EndState extends State {
 
     /**
      * Setter for the end internal state
-     * @param endInternalState The end internal state
+     * @param endInternalState
      */
     public void setEndInternalState(EndInternalState endInternalState) {
         this.endInternalState = endInternalState;

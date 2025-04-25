@@ -93,7 +93,6 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
      */
     @Override
     public void exit() throws IllegalStateException{
-        super.exit();
         int flightDays = card.getFlightDays();
         PlayerStatus status;
         for (PlayerData p : players) {
@@ -103,5 +102,6 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
             }
             //Togliere else if pk lo fa il super
         }
+        super.played = true;
     }
 }

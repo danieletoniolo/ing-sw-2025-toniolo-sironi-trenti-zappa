@@ -66,16 +66,16 @@ public class Board {
         gaveUpPlayers = new ArrayList<>();
     }
 
-    public Component[] getTiles() {
-        return tiles;
-    }
-
     /**
      * Get the number of steps for a lap
      * @return the number of steps for a lap
      */
     public int getStepsForALap() {
         return stepsForALap;
+    }
+
+    public Component[] getTiles() {
+        return tiles;
     }
 
     /**
@@ -93,20 +93,14 @@ public class Board {
      * @throws IllegalStateException if the deck at the specified index is not pickable
      */
     public Deck getDeck(int index, PlayerData player) throws IllegalStateException, NullPointerException {
-        if (level == Level.LEARNING) {
-            throw new IllegalStateException("There is no deck in this level");
-        }
         if (player == null) {
             throw new NullPointerException("Player is null");
-        }
-        if (index < 0 || index >= this.decks.length) {
-            throw new IndexOutOfBoundsException("Index is out of bounds");
         }
         if (!this.decks[index].isPickable() || player.getSpaceShip().getNumberOfComponents() <= 1) {
             throw new IllegalStateException("Deck is not pickable");
         }
 
-        return decks[index];
+        return this.decks[index];
     }
 
     /**
@@ -204,6 +198,12 @@ public class Board {
         }
 
         for (int i = 0; i < inGamePlayers.size(); i++) {
+            for (int j = i + 1; j < inGamePlayers.size(); j++) {
+                if (inGamePlayers.get(i).getStep() < inGamePlayers.get(j).getStep()) {
+                    Collections.swap(inGamePlayers, i, j);
+                }
+            }
+
             inGamePlayers.get(i).setPosition(i);
             if (i > 0) {
                 if (inGamePlayers.getFirst().getStep() - inGamePlayers.get(i).getStep() > this.stepsForALap) {

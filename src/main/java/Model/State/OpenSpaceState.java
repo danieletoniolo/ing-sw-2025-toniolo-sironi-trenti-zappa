@@ -52,7 +52,7 @@ public class OpenSpaceState extends State implements UsableEngine {
             SpaceShip ship = player.getSpaceShip();
             float initialStrength = ship.getSingleEnginesStrength();
             if (player.getSpaceShip().hasBrownAlien()) {
-                initialStrength += ship.getSingleEnginesStrength();
+                initialStrength += SpaceShip.getAlienStrength();
             }
             this.stats.put(player, initialStrength);
         }

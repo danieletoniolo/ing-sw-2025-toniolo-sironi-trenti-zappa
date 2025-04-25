@@ -100,6 +100,6 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
                 throw new IllegalStateException("Not all players have played");
             }
         }
-        super.exit();
+        super.played = true;
     }
 }

@@ -14,8 +14,7 @@ public class BuildingState extends State implements Buildable {
     private Timer timer;
     private boolean timerRunning;
     private int numberOfTimerFlips;
-    private static long timerDuration = 900;
-
+    private static long timerDuration = 90000;
     private Map<PlayerColor, Component> playersHandQueue;
 
     public BuildingState(Board board) {
@@ -42,7 +41,7 @@ public class BuildingState extends State implements Buildable {
         return timerDuration;
     }
 
-    public void flipTimer(UUID uuid) throws IllegalStateException{
+    public void flipTimer(UUID uuid) throws InterruptedException, IllegalStateException{
         if (board.getBoardLevel() == Level.LEARNING) {
             throw new IllegalStateException("Cannot flip timer in learning level");
         }
@@ -65,7 +64,7 @@ public class BuildingState extends State implements Buildable {
                 }, timerDuration);
                 break;
             case 2:
-                // This is the second flit that can be done by anyone after the time has run out
+                // This is the second flip that can be done by anyone after the time has run out
                 timerRunning = true;
                 timer.schedule(new TimerTask() {
                     @Override
@@ -90,7 +89,7 @@ public class BuildingState extends State implements Buildable {
                                 if (playersStatus.get(p.getColor()) != PlayerStatus.PLAYED) {
                                     playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
                                 }
-                                // If someone has something in his hand it must be added to the lost components
+                                // If some one has something in his hand it must be added to the lost components
                                 if (playersHandQueue.get(p.getColor()) != null) {
                                     p.getSpaceShip().getLostComponents().add(playersHandQueue.get(p.getColor()));
                                 }
@@ -116,11 +115,6 @@ public class BuildingState extends State implements Buildable {
         // Get the player who is showing the deck
         PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
 
-        // Check if the player has placed at least one tile
-        if (player.getSpaceShip().getNumberOfComponents() < 1) {
-            throw new IllegalStateException("Player has not placed any tile");
-        }
-
         // TODO: we have to decide how we want to notify the client that the deck is shown
         board.getDeck(deckIndex, player);
     }
@@ -128,11 +122,6 @@ public class BuildingState extends State implements Buildable {
     public void leaveDeck(UUID uuid, int deckIndex) {
         // Get the player who is showing the deck
         PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
-
-        // Check if the player has placed at least one tile
-        if (player.getSpaceShip().getNumberOfComponents() < 1) {
-            throw new IllegalStateException("Player has not placed any tile");
-        }
 
         // Leave the deck
         // TODO: we miss the method to leave the deck
@@ -154,7 +143,7 @@ public class BuildingState extends State implements Buildable {
      * @param uuid UUID of the player who is picking the tile
      * @param tileID ID of the tile to be picked
      */
-    public void pickTileFromPile(UUID uuid, int tileID) {
+    public void pickTileFromBoard(UUID uuid, int tileID) {
         // Get the player who is placing the tile
         PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
 
@@ -198,7 +187,7 @@ public class BuildingState extends State implements Buildable {
         playersHandQueue.put(player.getColor(), component);
     }
 
-    public void pickTileFromBoard(UUID uuid, int tileID) {
+    public void pickTileFromSpaceShip(UUID uuid, int tileID) {
         // Get the player who is placing the tile
         PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
 
@@ -276,7 +265,7 @@ public class BuildingState extends State implements Buildable {
         }
 
         // Remove the tile from the player's hand
-        playersHandQueue.remove(player.getColor());
+        this.leaveTile(uuid);
     }
 
     /**
@@ -302,7 +291,7 @@ public class BuildingState extends State implements Buildable {
         player.getSpaceShip().reserveComponent(component);
 
         // Remove the tile from the player's hand
-        playersHandQueue.remove(player.getColor());
+        this.leaveTile(uuid);
     }
 
     /**

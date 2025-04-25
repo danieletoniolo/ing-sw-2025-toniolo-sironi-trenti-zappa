@@ -35,12 +35,20 @@ public class ValidationState extends State implements ChoosableFragment, Destroy
         this.internalState = ValidationInternalState.DEFAULT;
     }
 
-    public ValidationInternalState getInternalState() {
-        return internalState;
-    }
-
     public void setInternalState(ValidationInternalState internalState) {
         this.internalState = internalState;
+    }
+
+    public void setFragmentedComponents(ArrayList<ArrayList<Pair<Integer, Integer>>> fragmentedComponents) {
+        this.fragmentedComponents = fragmentedComponents;
+    }
+
+    /**
+     * Getter for the internal state
+     * @return The internal state
+     */
+    public ValidationInternalState getInternalState() {
+        return internalState;
     }
 
     /**
@@ -57,14 +65,6 @@ public class ValidationState extends State implements ChoosableFragment, Destroy
      */
     public ArrayList<ArrayList<Pair<Integer, Integer>>> getFragmentedComponents() {
         return fragmentedComponents;
-    }
-
-    /**
-     * Setter for the fragmented components
-     * @param fragmentedComponents The fragmented components
-     */
-    public void setFragmentedComponents(ArrayList<ArrayList<Pair<Integer, Integer>>> fragmentedComponents) {
-        this.fragmentedComponents = fragmentedComponents;
     }
 
     /**
