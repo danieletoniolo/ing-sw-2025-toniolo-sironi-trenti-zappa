@@ -19,10 +19,10 @@ public class Board {
     private final Deck[] decks;
     private final Stack<Card> shuffledDeck;
 
-    private final Component[] tiles;
+    private Component[] tiles;
 
-    private final ArrayList<PlayerData> inGamePlayers;
-    private final ArrayList<PlayerData> gaveUpPlayers;
+    private ArrayList<PlayerData> inGamePlayers;
+    private ArrayList<PlayerData> gaveUpPlayers;
 
 
     /**
@@ -92,14 +92,19 @@ public class Board {
      * @return the deck at the specified index
      * @throws IllegalStateException if the deck at the specified index is not pickable
      */
-    public Deck getDeck(int index, PlayerData player) throws IllegalStateException, NullPointerException {
+    public Deck getDeck(int index, PlayerData player) throws IllegalStateException, NullPointerException, IndexOutOfBoundsException {
+        if (level == Level.LEARNING) {
+            throw new IllegalStateException("There is no deck in the learning level");
+        }
         if (player == null) {
             throw new NullPointerException("Player is null");
+        }
+        if (index < 0 || index >= this.decks.length) {
+            throw new IndexOutOfBoundsException("Index is out of bounds");
         }
         if (!this.decks[index].isPickable() || player.getSpaceShip().getNumberOfComponents() <= 1) {
             throw new IllegalStateException("Deck is not pickable");
         }
-
         return this.decks[index];
     }
 
@@ -118,9 +123,13 @@ public class Board {
         return component;
     }
 
-    public void putTile(int ID, Component tile) throws IndexOutOfBoundsException {
-        if (ID < 0 || ID >= tiles.length) {
-            throw new IndexOutOfBoundsException("ID is out of bounds");
+    public void putTile(Component tile) throws IllegalStateException {
+        if (tile == null) {
+            throw new NullPointerException("Tile is null");
+        }
+        int ID = tile.getID();
+        if (tiles[ID] != null) {
+            throw new IllegalStateException("Tile is already in the board");
         }
         tiles[ID] = tile;
     }
@@ -170,16 +179,14 @@ public class Board {
                     case 1 -> player.setStep(2);
                     case 2 -> player.setStep(1);
                     case 3 -> player.setStep(0);
-                    default -> throw new IllegalStateException("Unexpected value: " + position);
                 }
-            break;
+                break;
             case SECOND:
                 switch (position) {
                     case 0 -> player.setStep(6);
                     case 1 -> player.setStep(3);
                     case 2 -> player.setStep(1);
                     case 3 -> player.setStep(0);
-                    default -> throw new IllegalStateException("Unexpected value: " + position);
                 }
                 break;
         }
@@ -213,14 +220,6 @@ public class Board {
         }
 
         return inGamePlayers;
-    }
-
-    public void addInGamePlayer(PlayerData player) {
-        inGamePlayers.add(player);
-    }
-
-    public void removeInGamePlayer(PlayerData player) {
-        inGamePlayers.remove(player);
     }
 
     /**

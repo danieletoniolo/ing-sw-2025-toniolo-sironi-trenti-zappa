@@ -233,7 +233,7 @@ public class BuildingState extends State implements Buildable {
 
         // If the tile was not from the reserve it must be put back in the board
         if (!player.getSpaceShip().getReservedComponents().contains(component)) {
-            board.putTile(component.getID(), component);
+            board.putTile(component);
         }
 
         // Remove the tile from the player's hand
