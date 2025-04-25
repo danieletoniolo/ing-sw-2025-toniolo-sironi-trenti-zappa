@@ -13,26 +13,69 @@ import java.rmi.registry.Registry;
 import java.util.*;
 
 public class RMIConnection implements Connection {
-    private final IRemoteQueue sender;
 
-    private final IRemoteQueue receiver;
+    /**
+     * The queue of messages that will be sent to the other end of the connection.
+     */
+    private final RemoteQueue sender;
 
+    /**
+     * The queue of messages that will be received from the other end of the connection.
+     */
+    private final RemoteQueue receiver;
+
+    /**
+     * Saved messages that are yet to be returned by the "receive" method.
+     */
     private final Queue<Message> pendingMessages;
 
+    /**
+     * Used to keep track of connection state. Methods "send" and "receive" can only work if this
+     * boolean is false.
+     */
     private boolean disconnected;
 
+    /**
+     * Lock needed to protect portions of object state that need to be modified by threads, such as
+     * the "disconnected" boolean, and both remote queues.
+     */
     private final Object lock = new Object();
 
+    /**
+     * Lock used to handle concurrently send by multiple threads.
+     */
     private final Object lockSendTimeout = new Object();
 
+    /**
+     * Lock used to handle concurrently read by multiple threads.
+     */
     private final Object lockReadTimeout = new Object();
 
+    /**
+     * Indicates if the message was sent.
+     */
     private boolean sent;
 
+    /**
+     * Indicates which message has been read.
+     */
     private Message read;
 
+    /**
+     * Timeout for the heartbeat.
+     */
     private final static long TIMEOUT = 5000;
 
+    /**
+     * Constructor of the class when it is instanced on the client. Initializes the inner lock, the connection object, and the
+     * connection queue.
+     *
+     * @param address is the address of the server's host.
+     * @param port    is the port used by {@link network.ConnectionAcceptor the server} for RMI communication.
+     * @throws RemoteException will be thrown in case of network problems, or server communication issues.
+     * @throws NotBoundException will be thrown if a failure occurs in the process of connecting to the server.
+     * @throws BadPortException will be thrown if a failure occurs in the process of connecting to the server.
+     */
     public RMIConnection(String address, int port) throws RemoteException, NotBoundException, BadPortException {
         if (port < 1024 || port > 49151) {
             throw new BadPortException("port " + port + " out of range");
@@ -43,11 +86,11 @@ public class RMIConnection implements Connection {
 
         try {
             Registry registry = LocateRegistry.getRegistry(address, port);
-            IRemoteServer server = (IRemoteServer) registry.lookup("SERVER");
+            RemoteServer server = (RemoteServer) registry.lookup("SERVER");
 
             String boundName = server.getBoundName();
-            sender = (IRemoteQueue) registry.lookup("SENDER_" + boundName);
-            receiver = (IRemoteQueue) registry.lookup("RECEIVER_" + boundName);
+            sender = (RemoteQueue) registry.lookup("SENDER_" + boundName);
+            receiver = (RemoteQueue) registry.lookup("RECEIVER_" + boundName);
         } catch (NotBoundException e) {
             throw new NotBoundException(e.getMessage());
         }
@@ -56,14 +99,24 @@ public class RMIConnection implements Connection {
         read();
     }
 
+    /**
+     * Constructor of the class when it is instanced on the server. Initializes the inner lock, the connection object, and the
+     * connection queue.
+     * @param address is the address of the server's host.
+     * @param port is the port used by {@link network.ConnectionAcceptor the server} for RMI communication.
+     * @param boundName is the name of the remote queue pair.
+     * @throws RemoteException will be thrown in case of network problems, or server communication issues.
+     * @throws NotBoundException will be thrown if a failure occurs in the process of connecting to the server.
+     * @throws BadPortException will be thrown if a failure occurs in the process of connecting to the server.
+     */
     public RMIConnection(String address, int port, String boundName) throws RemoteException, NotBoundException, BadPortException {
         pendingMessages = new LinkedList<>();
         disconnected = false;
 
         try {
             Registry registry = LocateRegistry.getRegistry(address, port);
-            sender = (IRemoteQueue) registry.lookup("RECEIVER_" + boundName);
-            receiver = (IRemoteQueue) registry.lookup("SENDER_" + boundName);
+            sender = (RemoteQueue) registry.lookup("RECEIVER_" + boundName);
+            receiver = (RemoteQueue) registry.lookup("SENDER_" + boundName);
         } catch (NotBoundException e) {
             throw new NotBoundException(e.getMessage());
         }
@@ -72,6 +125,9 @@ public class RMIConnection implements Connection {
         read();
     }
 
+    /**
+     * This method is used to send a heartbeat message to the other end of the connection in order to check if the connection is still alive.
+     */
     private void heartbeat() {
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -86,6 +142,14 @@ public class RMIConnection implements Connection {
         }, 0, TIMEOUT);
     }
 
+    /**
+     * This method is used to send a message to the other end of the connection.
+     * It has a timeout of TIMEOUT seconds, if the message is not sent in this time,
+     * the connection is considered closed.
+     *
+     * @param message is the message to be sent.
+     * @return true if the message was sent, false otherwise.
+     */
     private boolean sendWithTimeout(Message message) {
         sent = false;
 
@@ -115,6 +179,13 @@ public class RMIConnection implements Connection {
         }
     }
 
+    /**
+     * This method is used to read a message from the other end of the connection.
+     * It has a timeout of TIMEOUT seconds, if the message is not read in this time,
+     * the connection is considered closed.
+     *
+     * @return an Optional containing the message read, or an empty Optional if the connection is closed.
+     */
     private Optional<Message> readWithTimeout() {
         read = null;
 
@@ -144,6 +215,11 @@ public class RMIConnection implements Connection {
         }
     }
 
+    /**
+     * This method is used to read messages from the other end of the connection.
+     * It runs in a separate thread and will keep reading messages until the connection is closed.
+     * If a message is read and it is not a heartbeat, it is added to the pendingMessages queue.
+     */
     private void read() {
         new Thread(() -> {
             while (true) {
@@ -170,6 +246,13 @@ public class RMIConnection implements Connection {
         }).start();
     }
 
+    /**
+     * This method is used to send a message to the other end of the connection.
+     * It will throw a DisconnectedConnection exception if the connection is closed.
+     *
+     * @param message is the message to be sent.
+     * @throws DisconnectedConnection will be thrown if the connection is closed.
+     */
     @Override
     public void send(Message message) throws DisconnectedConnection {
         synchronized (lock) {
@@ -184,6 +267,13 @@ public class RMIConnection implements Connection {
         }
     }
 
+    /**
+     * This method is used to receive a message from the other end of the connection.
+     * It will throw a DisconnectedConnection exception if the connection is closed.
+     *
+     * @return the message received from the other end of the connection.
+     * @throws DisconnectedConnection will be thrown if the connection is closed.
+     */
     @Override
     public Message receive() throws DisconnectedConnection {
         synchronized (lock) {
@@ -207,6 +297,10 @@ public class RMIConnection implements Connection {
         }
     }
 
+    /**
+     * This method is used to close the connection.
+     * It will set the disconnected boolean to true and notify all waiting threads.
+     */
     @Override
     public void disconnect() {
         synchronized (lock) {

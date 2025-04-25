@@ -5,11 +5,13 @@ import java.util.UUID;
 public class User {
     private UUID uuid;
     private boolean RMI;
-    private Connection connection;
 
-    public User(UUID uuid, boolean RMI, Connection connection) {
+    public User(UUID uuid, boolean RMI) {
         this.uuid = uuid;
         this.RMI = RMI;
-        this.connection = connection;
+    }
+
+    public UUID getUUID() {
+        return uuid;
     }
 }

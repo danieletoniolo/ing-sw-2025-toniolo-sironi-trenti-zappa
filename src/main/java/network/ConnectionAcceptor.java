@@ -1,8 +1,8 @@
 package network;
 
-import network.rmi.IRemoteServer;
+import network.rmi.RemoteServer;
 import network.rmi.RMIConnection;
-import network.rmi.RemoteQueue;
+import network.rmi.RemoteLinkedList;
 import network.tcp.TCPConnection;
 
 import java.net.ConnectException;
@@ -20,7 +20,7 @@ import java.util.Queue;
  * A new {@link Connection} will be created for each request to communicate back. This object
  * also acts as a server, and has a remotely invokable method.
  */
-public class ConnectionAcceptor extends UnicastRemoteObject implements IRemoteServer {
+public class ConnectionAcceptor extends UnicastRemoteObject implements RemoteServer {
     /**
      * ServerSocket object used to accept incoming connections.
      */
@@ -52,8 +52,18 @@ public class ConnectionAcceptor extends UnicastRemoteObject implements IRemoteSe
     private final Registry registry;
 
 
+    /**
+     * Queue of connections that are waiting to be accepted.
+     */
     private final Queue<Connection> connectionQueue = new LinkedList<>();
 
+    /**
+     * Constructor of the class. Initializes the inner lock, the connection object, and the
+     * @param TCPPort is the port used for TCP connections.
+     * @param RMIPort is the port used for RMI connections.
+     * @throws RemoteException will be thrown in case of network problems, or server communication issues.
+     * @throws ConnectException will be thrown if the server socket cannot be created.
+     */
     public ConnectionAcceptor(int TCPPort, int RMIPort) throws RemoteException, ConnectException {
         this.RMIPort = RMIPort;
 
@@ -66,10 +76,18 @@ public class ConnectionAcceptor extends UnicastRemoteObject implements IRemoteSe
         }
     }
 
+    /**
+     * This method will be called remotely by the connection that wants to be paired.
+     * @param hostName is the host name of the client that wants to be paired.
+     */
     public static void initialize(String hostName) {
          System.setProperty("java.rmi.server.hostname", hostName);
     }
 
+    /**
+     * This method will be called by the server to accept a TCP connection.
+     * @return a {@link Connection} object that represents the accepted connection.
+     */
     public Connection accept() {
         // Thread that will accept a TCP connection
         Thread tcpThread = new Thread(() -> {
@@ -98,14 +116,18 @@ public class ConnectionAcceptor extends UnicastRemoteObject implements IRemoteSe
         }
     }
 
+    /**
+     * This method will be called remotely by the connection that wants to be paired via RMI.
+     * @return a string which represents the name of the newly created connection pair in RMI.
+     */
     @Override
     public String getBoundName() {
         synchronized (lock) {
             String boundName = "QUEUE" + nextBoundIndex++;
 
             try {
-                registry.bind("SENDER_" + boundName, new RemoteQueue());
-                registry.bind("RECEIVER_" + boundName, new RemoteQueue());
+                registry.bind("SENDER_" + boundName, new RemoteLinkedList());
+                registry.bind("RECEIVER_" + boundName, new RemoteLinkedList());
             } catch (AlreadyBoundException alreadyBoundException) {
                 throw new RuntimeException("queue already bound");
             } catch (RemoteException remoteException) {

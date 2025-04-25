@@ -1,18 +1,24 @@
 package network.messages;
 
-import controller.event.EventType;
-import controller.event.game.RemoveCrew;
-import controller.event.game.UseCannons;
-
 import java.io.Serializable;
 
 public enum MessageType implements Serializable {
-    // Type of message
     HEARTBEAT,
+
+    // Single user events
+    JOIN_LOBBY_SUCCESSFUL,
+
+    // Lobby events
+    USER_JOINED_LOBBY,
+    USER_LEFT_LOBBY,
+    NO_LOBBY_AVAILABLE,
+
 
     // Game events
     GAME_START,
+    GAME_END,
     USE_ENGINE,
     USE_CANNONS,
-    REMOVE_CREW
+    REMOVE_CREW,
+    SWAP_GOODS
 }

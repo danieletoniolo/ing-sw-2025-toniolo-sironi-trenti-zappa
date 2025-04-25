@@ -72,7 +72,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         this.internalState = internalState;
     }
 
-    public CombatZoneInternalState getinternalState() {
+    public CombatZoneInternalState getInternalState() {
         return internalState;
     }
 
