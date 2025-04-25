@@ -42,6 +42,26 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
         this.acceptCredits = null;
     }
 
+    public void setInternalState(SlaversInternalState internalState) {
+        this.internalState = internalState;
+    }
+
+    public Slavers getCard() {
+        return card;
+    }
+
+    public Map<PlayerData, Float> getStats() {
+        return stats;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> getCrewLoss() {
+        return crewLoss;
+    }
+
+    public Boolean getAcceptCredits() {
+        return acceptCredits;
+    }
+
     /**
      * Add stats to the player
      * @param player PlayerData
@@ -156,7 +176,7 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
                         throw new IllegalStateException("crewLost not set");
                     }
                     for (Pair<Integer, Integer> cabin : crewLoss) {
-                        spaceShip.getCabin(cabin.getValue0()).removeCrewMember(cabin.getValue1());
+                        spaceShip.removeCrewMember(cabin.getValue0(), cabin.getValue1());
                     }
                     if (spaceShip.getCrewNumber() <= card.getCrewLost()) {
                         player.setGaveUp(true);
