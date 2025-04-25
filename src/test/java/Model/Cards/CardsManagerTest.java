@@ -66,7 +66,7 @@ class CardsManagerTest {
                 assertTrue(shuffled.contains(card));
             }
         }
-        assertEquals(2, shuffled.getFirst().getCardLevel());
+        assertEquals(2, shuffled.getLast().getCardLevel());
     }
 
     @Test
