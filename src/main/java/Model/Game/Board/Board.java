@@ -180,7 +180,7 @@ public class Board {
                     case 2 -> player.setStep(1);
                     case 3 -> player.setStep(0);
                 }
-            break;
+                break;
             case SECOND:
                 switch (position) {
                     case 0 -> player.setStep(6);
