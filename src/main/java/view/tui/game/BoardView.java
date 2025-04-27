@@ -5,47 +5,136 @@ import Model.Game.Board.Level;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class BoardView {
     public void drawBoard(Board board) {
-        int rows = board.getStepsForALap() / 4;
-        int cols = board.getStepsForALap() / 2 - rows + 2;
-        int up = 1;
-        int down = board.getStepsForALap();
-        Map<Integer, PlayerData> positions = new HashMap<>();
+        int rows = (board.getStepsForALap()/4)*3 - 2;
+        System.out.println("Rows: " + rows);
 
-        board.setPlayer(new PlayerData("pino", PlayerColor.BLUE, null), 0);
-        //board.setPlayer(new PlayerData("gino", PlayerColor.RED, null), 1);
-        //board.setPlayer(new PlayerData("vino", PlayerColor.YELLOW, null), 3);
+        int cols = (board.getStepsForALap()/2 - (board.getStepsForALap()/4) + 2) * 7 - 2;
+        int up = 0;
+        int down = board.getStepsForALap() - 1;
+        String[] steps = new String[board.getStepsForALap()];
 
+        System.out.println("Cols: " + cols);
 
-        board.updateInGamePlayers().forEach(player -> {
-            positions.put(player.getPosition(), player);
-        });
+        PlayerData player1 = new PlayerData("d290f1ee-6c54-4b01-90e6-d701748f0851", PlayerColor.BLUE, null);
+        PlayerData player2 = new PlayerData("d290f1ee-6c54-4b01-90e6-d701748f0852", PlayerColor.RED, null);
+        PlayerData player3 = new PlayerData("d290f1ee-6c54-4b01-90e6-d701748f0853", PlayerColor.GREEN, null);
+        PlayerData player4 = new PlayerData("d290f1ee-6c54-4b01-90e6-d701748f0854", PlayerColor.YELLOW, null);
+
+        board.setPlayer(player1, 0);
+        board.setPlayer(player2, 1);
+        board.setPlayer(player3, 2);
+        board.setPlayer(player4, 3);
+
+        board.addSteps(player4, 25);
+
+        for (int i = 0; i < board.getStepsForALap(); i++) {
+            switch (board.getBoardLevel()) {
+                case LEARNING:
+                    switch (i){
+                        case 0 -> steps[i] = "4";
+                        case 1 -> steps[i] = "3";
+                        case 2 -> steps[i] = "2";
+                        case 4 -> steps[i] = "1";
+                        default -> steps[i] = " ";
+                    }
+                    break;
+                case SECOND:
+                    switch (i){
+                        case 0 -> steps[i] = "4";
+                        case 1 -> steps[i] = "3";
+                        case 3 -> steps[i] = "2";
+                        case 6 -> steps[i] = "1";
+                        default -> steps[i] = " ";
+                    }
+                    break;
+            }
+        }
+        board.updateInGamePlayers().forEach(player -> steps[player.getStep() % board.getStepsForALap()] = getPlayerColor(player));
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                if (i == 0 || j == cols - 1) {
-                    System.out.print("[ " + (positions.containsKey(up) ? positions.get(up).getColor().toString() : (up/10 == 0 ? " " + up : up)) + " ]");
-                    up++;
-                }
-                else if (i == rows - 1 || j == 0) {
-                    System.out.print("[ " + (down/10 == 0 ? " " + down : down) + " ]");
-                    down--;
-                }
-                else {
-                    System.out.print("      ");
+                switch (i % 3) {
+                    case 0:
+                        if (i == 0) {
+                            switch (j % 7) {
+                                case 0:
+                                    System.out.print("[ " + steps[up] + " ]");
+                                    up++;
+                                    break;
+                                case 5:
+                                    System.out.print("->");
+                                    break;
+                            }
+                        }
+                        else if (i == rows - 1) {
+                            switch (j % 7) {
+                                case 0:
+                                    System.out.print("[ " + steps[down] + " ]");
+                                    down--;
+                                    break;
+                                case 5:
+                                    System.out.print("<-");
+                                    break;
+                            }
+                        }
+                        else {
+                            if (j == cols - 5) {
+                                System.out.print("[ " + steps[up] + " ]");
+                                up++;
+                            }
+                            else if (j == 0) {
+                                System.out.print("[ " + steps[down] + " ]");
+                                down--;
+                            }
+                            else{
+                                if (j > 4 && j < cols - 5) {
+                                    System.out.print(" ");
+                                }
+                            }
+                        }
+                        break;
+                    case 1:
+                        if (j == 2) {
+                            System.out.print("^");
+                        }
+                        else if (j == cols - 3) {
+                            System.out.print("|");
+                        }
+                        else{
+                            System.out.print(" ");
+                        }
+                        break;
+                    case 2:
+                        if (j == 2) {
+                            System.out.print("|");
+                        }
+                        else if (j == cols - 3) {
+                            System.out.print("v");
+                        }
+                        else{
+                            System.out.print(" ");
+                        }
+                        break;
                 }
             }
             System.out.println();
         }
     }
 
+    private String getPlayerColor(PlayerData player) {
+        return switch (player.getColor()) {
+            case BLUE -> "B";
+            case RED -> "R";
+            case YELLOW -> "Y";
+            case GREEN -> "G";
+        };
+    }
+
     public static void main(String[] args) {
         try {
-            Board board = new Board(Level.SECOND);
+            Board board = new Board(Level.LEARNING);
             BoardView boardView = new BoardView();
             boardView.drawBoard(board);
         } catch (Exception e) {
