@@ -187,8 +187,9 @@ public class FightHandler {
      * @param hitSupplier Supplier that provides the current Hit
      * @throws IndexOutOfBoundsException If hitIndex is out of bounds
      * @throws IllegalStateException If required state variables are not set
+     * @return If the execution is complete for the current hit
      */
-    public void executeFight(SpaceShip spaceShip, Supplier<Hit> hitSupplier) throws IndexOutOfBoundsException, IllegalStateException {
+    public boolean executeFight(SpaceShip spaceShip, Supplier<Hit> hitSupplier) throws IndexOutOfBoundsException, IllegalStateException {
         switch (internalState) {
             case CAN_PROTECT:
                 if (dice == null) {
@@ -217,7 +218,8 @@ public class FightHandler {
                     }
                 }
                 transitionHit();
-                break;
+                return true;
         }
+        return false;
     }
 }

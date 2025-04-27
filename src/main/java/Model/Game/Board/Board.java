@@ -180,7 +180,7 @@ public class Board {
                     case 2 -> player.setStep(1);
                     case 3 -> player.setStep(0);
                 }
-            break;
+                break;
             case SECOND:
                 switch (position) {
                     case 0 -> player.setStep(6);
@@ -210,13 +210,17 @@ public class Board {
                     Collections.swap(inGamePlayers, i, j);
                 }
             }
-
             inGamePlayers.get(i).setPosition(i);
-            if (i > 0) {
-                if (inGamePlayers.getFirst().getStep() - inGamePlayers.get(i).getStep() > this.stepsForALap) {
-                    gaveUpPlayers.add(inGamePlayers.remove(i));
-                }
+        }
+
+        for (PlayerData player : inGamePlayers) {
+            if (inGamePlayers.getFirst().getStep() - player.getStep() > this.stepsForALap) {
+                gaveUpPlayers.add(player);
             }
+        }
+
+        for (PlayerData player : gaveUpPlayers) {
+            inGamePlayers.remove(player);
         }
 
         return inGamePlayers;
