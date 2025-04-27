@@ -210,12 +210,12 @@ public class Board {
                     Collections.swap(inGamePlayers, i, j);
                 }
             }
-
             inGamePlayers.get(i).setPosition(i);
-            if (i > 0) {
-                if (inGamePlayers.getFirst().getStep() - inGamePlayers.get(i).getStep() > this.stepsForALap) {
-                    gaveUpPlayers.add(inGamePlayers.remove(i));
-                }
+        }
+
+        for (int i = 0; i < inGamePlayers.size(); i++) {
+            if (inGamePlayers.getFirst().getStep() - inGamePlayers.get(i).getStep() > this.stepsForALap) {
+                gaveUpPlayers.add(inGamePlayers.remove(i));
             }
         }
 
