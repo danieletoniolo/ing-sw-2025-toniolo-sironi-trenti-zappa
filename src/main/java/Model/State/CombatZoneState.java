@@ -8,10 +8,8 @@ import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.*;
 import org.javatuples.Pair;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 enum CombatZoneInternalState {
     CREW(0),
@@ -58,6 +56,9 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         super(board);
         this.card = card;
         this.stats = new ArrayList<>(3);
+        for (int i = 0; i < 3; i++) {
+            stats.add(new HashMap<>());
+        }
         this.internalState = CombatZoneInternalState.CREW;
         this.minPlayerCannons = null;
         this.minPlayerEngines = null;
@@ -66,6 +67,47 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         this.goodsToDiscard = null;
         this.fightHandler = new FightHandler();
     }
+
+    public void setInternalState(CombatZoneInternalState internalState) {
+        this.internalState = internalState;
+    }
+
+    public CombatZoneInternalState getInternalState() {
+        return internalState;
+    }
+
+    public CombatZone getCard() {
+        return card;
+    }
+
+    public ArrayList<Map<PlayerData, Float>> getStats() {
+        return stats;
+    }
+
+    public PlayerData getMinPlayerEngines() {
+        return minPlayerEngines;
+    }
+
+    public PlayerData getMinPlayerCannons() {
+        return minPlayerCannons;
+    }
+
+    public PlayerData getMinPlayerCrew() {
+        return minPlayerCrew;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> getCrewLoss() {
+        return crewLoss;
+    }
+
+    public ArrayList<Pair<ArrayList<Good>, Integer>> getGoodsToDiscard() {
+        return goodsToDiscard;
+    }
+
+    public FightHandler getFightHandler() {
+        return fightHandler;
+    }
+
 
     /**
      * Transition to the next state
@@ -96,35 +138,21 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      * @param value value to add to the stats
      */
     private void addStats(PlayerData player, Float value) {
-        boolean allPlayerPlayed = true;
-        boolean isStateCrew = internalState == CombatZoneInternalState.CREW;
-        boolean isStateCannon = internalState == CombatZoneInternalState.CANNONS;
-        boolean isStateEngine = internalState == CombatZoneInternalState.ENGINES;
-
         addDefaultStats(internalState, player, value);
-        if (!isStateCrew) {
-            super.playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
-            for (PlayerData playerTemp : super.players) {
-                if (super.playersStatus.get(playerTemp.getColor()) != PlayerStatus.PLAYED) {
-                    allPlayerPlayed = false;
-                    break;
-                }
-            }
-        }
+    }
 
-        if (isStateEngine || isStateCannon) {
-            if (allPlayerPlayed) {
-                stats.get(internalState.getIndex(card.getCardLevel())).entrySet().stream().min(this::comparePlayers).ifPresent(entry -> {
-                    if (isStateCannon) {
-                        minPlayerCannons = entry.getKey();
-                    }
-                    if (isStateEngine) {
-                        minPlayerEngines = entry.getKey();
-                    }
-                });
-                super.setStatusPlayers(PlayerStatus.WAITING);
-            }
-        }
+    /**
+     * Get the minimum player for the engines or cannons
+     * @return the player with the minimum stats
+     */
+    private PlayerData getMinPlayer() {
+        AtomicReference<PlayerData> out = new AtomicReference<>();
+
+        stats.get(internalState.getIndex(card.getCardLevel())).entrySet().stream().min(this::comparePlayers).ifPresent(entry -> {
+            out.set(entry.getKey());
+        });
+
+        return out.get();
     }
 
     /**
@@ -158,7 +186,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
     private void executeSubStateRemoveCrew(PlayerData player) throws IllegalArgumentException {
         int crewLost = card.getLost();
 
-        SpaceShip spaceShip = minPlayerEngines.getSpaceShip();
+        SpaceShip spaceShip = player.getSpaceShip();
         if (spaceShip.getCrewNumber() <= crewLost) {
             player.setGaveUp(true);
         } else {
@@ -176,7 +204,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
             throw new IndexOutOfBoundsException("Hit index out of bounds");
         }
 
-        fightHandler.executeFight(minPlayerCannons.getSpaceShip(), () -> card.getFires().get(currentHitIndex));
+        fightHandler.executeFight(player.getSpaceShip(), () -> card.getFires().get(currentHitIndex));
     }
 
     private void executeSubStateRemoveGoods(PlayerData player) throws IllegalStateException {
@@ -202,7 +230,6 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
                 goodsToDiscardQueue.poll();
                 mostValuableGoods.poll();
             }
-
             // Remove the goods from the ship
             for (Pair<ArrayList<Good>, Integer> pair : goodsToDiscard) {
                 ship.exchangeGood(null, pair.getValue0(), pair.getValue1());
@@ -229,7 +256,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      */
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
         if ((internalState != CombatZoneInternalState.CANNONS && card.getCardLevel() != 2) ||
-                (internalState != CombatZoneInternalState.ENGINES && card.getCardLevel() == 2)) {
+                (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
             throw new IllegalStateException("Fragment choice not allowed in this state");
         }
         fightHandler.setFragmentChoice(fragmentChoice);
@@ -244,7 +271,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      */
     public void setProtect(boolean protect_, Integer batteryID_) throws IllegalStateException, IllegalArgumentException {
         if ((internalState != CombatZoneInternalState.CANNONS && card.getCardLevel() != 2) ||
-                (internalState != CombatZoneInternalState.ENGINES && card.getCardLevel() == 2)) {
+                (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
             throw new IllegalStateException("Battery ID not allowed in this state");
         }
         fightHandler.setProtect(protect_, batteryID_);
@@ -256,7 +283,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      */
     public void setDice(int dice) throws IllegalStateException{
         if ((internalState != CombatZoneInternalState.CANNONS && card.getCardLevel() != 2) ||
-                (internalState != CombatZoneInternalState.ENGINES && card.getCardLevel() == 2)) {
+                (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
             throw new IllegalStateException("Dice not allowed in this state");
         }
         fightHandler.setDice(dice);
@@ -287,12 +314,19 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      * Use the cannon with a given strength
      * @param player PlayerData of the player using the cannon
      * @param strength Strength of the cannon to be used
+     * @param batteriesID List of Integers representing the batteryID from which we use the energy to use the cannon
      * @throws IllegalStateException not in the right state
      */
-    public void useCannon(PlayerData player, Float strength) throws IllegalStateException {
+    public void useCannon(PlayerData player, Float strength, List<Integer> batteriesID) throws IllegalStateException {
         if (internalState != CombatZoneInternalState.CANNONS) {
             throw new IllegalStateException("useCannon not allowed in this state");
         }
+        // Use the energy tu use the cannon
+        SpaceShip ship = player.getSpaceShip();
+        for (Integer batteryID : batteriesID) {
+            ship.useEnergy(batteryID);
+        }
+        // Update the cannon strength stats
         this.addStats(player, strength);
     }
 
@@ -302,10 +336,18 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      * @param strength Strength of the engine to be used
      * @throws IllegalStateException not in the right state
      */
-    public void useEngine(PlayerData player, Float strength) throws IllegalStateException {
+    public void useEngine(PlayerData player, Float strength, List<Integer> batteriesID) throws IllegalStateException {
         if (internalState != CombatZoneInternalState.ENGINES) {
             throw new IllegalStateException("useEngine not allowed in this state");
         }
+
+        // Use the energy to power the engine
+        SpaceShip ship = player.getSpaceShip();
+        for (Integer batteryID : batteriesID) {
+            ship.useEnergy(batteryID);
+        }
+
+        // Update the engine strength stats
         this.addStats(player, strength);
     }
 
@@ -362,12 +404,19 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
                 }
                 break;
             case CombatZoneInternalState.ENGINES:
+                minPlayerEngines = getMinPlayer();
                 if (minPlayerEngines == null) {
                     throw new IllegalStateException("Not all player have set their engines");
                 }
 
                 if (card.getCardLevel() == 2) {
-                    executeSubStateRemoveGoods(minPlayerEngines);
+                    int crewFulfillment = minPlayerEngines.getSpaceShip().getGoods().size() - card.getLost();
+                    if (crewFulfillment < 0 && minPlayerEngines.getSpaceShip().getCrewNumber() < Math.abs(crewFulfillment)) {
+                        minPlayerEngines.setGaveUp(true);
+                        this.players = super.board.updateInGamePlayers();
+                    } else {
+                        executeSubStateRemoveGoods(minPlayerEngines);
+                    }
                 } else {
                     if (crewLoss == null) {
                         throw new IllegalStateException("The min player have not set their crew loss");
@@ -377,6 +426,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
                 transition();
                 break;
             case CombatZoneInternalState.CANNONS:
+                minPlayerCannons = getMinPlayer();
                 if (minPlayerCannons == null) {
                     throw new IllegalStateException("Not all player have set their cannons");
                 }

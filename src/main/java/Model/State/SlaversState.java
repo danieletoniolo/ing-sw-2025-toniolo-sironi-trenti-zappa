@@ -11,6 +11,7 @@ import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 enum SlaversInternalState {
@@ -41,27 +42,45 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
         this.acceptCredits = null;
     }
 
+    public void setInternalState(SlaversInternalState internalState) {
+        this.internalState = internalState;
+    }
+
+    public Slavers getCard() {
+        return card;
+    }
+
+    public Map<PlayerData, Float> getStats() {
+        return stats;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> getCrewLoss() {
+        return crewLoss;
+    }
+
+    public Boolean getAcceptCredits() {
+        return acceptCredits;
+    }
+
     /**
      * Add stats to the player
      * @param player PlayerData
      * @param value Float value to add
+     * @param batteriesID List of Integers representing the batteryID from which we take the energy to power the cannon
      * @throws IllegalStateException if execForPlayer != 0
      */
-    public void useCannon(PlayerData player, Float value) throws IllegalStateException {
+    public void useCannon(PlayerData player, Float value, List<Integer> batteriesID) throws IllegalStateException {
         if (internalState != SlaversInternalState.SET_CANNONS) {
             throw new IllegalStateException("Use cannon not allowed in this state");
         }
-        stats.merge(player, value, Float::sum);
-
-
-        int cardValue = card.getCannonStrengthRequired();
-        if (stats.get(player) > cardValue) {
-            slaversDefeat = true;
-        } else if (stats.get(player) < cardValue) {
-            slaversDefeat = false;
-        } else {
-            slaversDefeat = null;
+        // Use the energy to power the cannon
+        SpaceShip ship = player.getSpaceShip();
+        for (Integer batteryID : batteriesID) {
+            ship.useEnergy(batteryID);
         }
+
+        // Update the cannon strength stats
+        this.stats.merge(player, value, Float::sum);
 
         internalState = SlaversInternalState.PENALTY;
     }
@@ -113,10 +132,12 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
     @Override
     public void entry() {
         for (PlayerData player : super.players) {
-            useCannon(player, player.getSpaceShip().getSingleCannonsStrength());
-            if (player.getSpaceShip().hasPurpleAlien()) {
-                useCannon(player, SpaceShip.getAlienStrength());
+            SpaceShip ship = player.getSpaceShip();
+            float initialStrength = ship.getSingleCannonsStrength();
+            if (ship.hasPurpleAlien()) {
+                initialStrength += SpaceShip.getAlienStrength();
             }
+            stats.put(player, initialStrength);
         }
     }
 
@@ -133,6 +154,15 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
             case SET_CANNONS:
                 throw new IllegalStateException("Cannons need to be set");
             case PENALTY:
+                int cardValue = card.getCannonStrengthRequired();
+                if (stats.get(player) > cardValue) {
+                    slaversDefeat = true;
+                } else if (stats.get(player) < cardValue) {
+                    slaversDefeat = false;
+                } else {
+                    slaversDefeat = null;
+                }
+
                 if (slaversDefeat != null && slaversDefeat) {
                     if (acceptCredits == null) {
                         throw new IllegalStateException("acceptCredits not set");
@@ -146,7 +176,7 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
                         throw new IllegalStateException("crewLost not set");
                     }
                     for (Pair<Integer, Integer> cabin : crewLoss) {
-                        spaceShip.getCabin(cabin.getValue0()).removeCrewMember(cabin.getValue1());
+                        spaceShip.removeCrewMember(cabin.getValue0(), cabin.getValue1());
                     }
                     if (spaceShip.getCrewNumber() <= card.getCrewLost()) {
                         player.setGaveUp(true);

@@ -7,10 +7,11 @@ import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.UsableEngine;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class OpenSpaceState extends State implements UsableEngine {
-    private Map<PlayerData, Float> stats;
+    private final Map<PlayerData, Float> stats;
 
     /**
      * Constructor
@@ -22,12 +23,23 @@ public class OpenSpaceState extends State implements UsableEngine {
         this.stats = new HashMap<>();
     }
 
+    public Map<PlayerData, Float> getStats() {
+        return stats;
+    }
+
     /**
      * Use the cannon
      * @param player PlayerData of the player using the cannon
      * @param strength Strength of the cannon to be used
      */
-    public void useEngine(PlayerData player, Float strength) {
+    public void useEngine(PlayerData player, Float strength, List<Integer> batteriesID) {
+        // Use the energy to power the engines
+        SpaceShip ship = player.getSpaceShip();
+        for (Integer batteryID : batteriesID) {
+            ship.useEnergy(batteryID);
+        }
+
+        // Update the engine strength stats
         this.stats.merge(player, strength, Float::sum);
     }
 
@@ -37,10 +49,12 @@ public class OpenSpaceState extends State implements UsableEngine {
     @Override
     public void entry() {
         for (PlayerData player : super.players) {
-            this.useEngine(player, (float) player.getSpaceShip().getSingleEnginesStrength());
+            SpaceShip ship = player.getSpaceShip();
+            float initialStrength = ship.getSingleEnginesStrength();
             if (player.getSpaceShip().hasBrownAlien()) {
-                this.useEngine(player, SpaceShip.getAlienStrength());
+                initialStrength += SpaceShip.getAlienStrength();
             }
+            this.stats.put(player, initialStrength);
         }
     }
 

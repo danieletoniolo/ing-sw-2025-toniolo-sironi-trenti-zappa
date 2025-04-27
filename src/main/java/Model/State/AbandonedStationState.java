@@ -84,7 +84,7 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
 
             super.played = true;
         } else {
-            playersStatus.replace(player.getColor(), PlayerStatus.WAITING);
+            playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
         }
     }
 
@@ -100,5 +100,6 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
                 throw new IllegalStateException("Not all players have played");
             }
         }
+        super.played = true;
     }
 }
