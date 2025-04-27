@@ -51,7 +51,13 @@ public class BoardView {
                     break;
             }
         }
-        board.updateInGamePlayers().forEach(player -> steps[player.getStep() % board.getStepsForALap()] = getPlayerColor(player));
+        player1.setGaveUp(true);
+        board.updateInGamePlayers().forEach(player -> {
+            System.out.println("Player: " + getPlayerColor(player) + " Step: " + player.getStep());
+            steps[player.getStep() % board.getStepsForALap()] = getPlayerColor(player);
+        });
+
+
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
