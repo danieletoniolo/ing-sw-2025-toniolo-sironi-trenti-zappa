@@ -213,10 +213,14 @@ public class Board {
             inGamePlayers.get(i).setPosition(i);
         }
 
-        for (int i = 0; i < inGamePlayers.size(); i++) {
-            if (inGamePlayers.getFirst().getStep() - inGamePlayers.get(i).getStep() > this.stepsForALap) {
-                gaveUpPlayers.add(inGamePlayers.remove(i));
+        for (PlayerData player : inGamePlayers) {
+            if (inGamePlayers.getFirst().getStep() - player.getStep() > this.stepsForALap) {
+                gaveUpPlayers.add(player);
             }
+        }
+
+        for (PlayerData player : gaveUpPlayers) {
+            inGamePlayers.remove(player);
         }
 
         return inGamePlayers;
