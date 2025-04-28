@@ -223,9 +223,12 @@ class BoardTest {
             assertEquals(i, players.get(i).getPosition());
         }
 
+        assertTrue(player3.getStep() - player2.getStep() < board.getStepsForALap());
         board.addSteps(player3, 20);
         players.remove(player2);
+        assertTrue(player3.getStep() - player2.getStep() > board.getStepsForALap());
         assertEquals(players, board.updateInGamePlayers());
+        assertEquals(1, board.updateInGamePlayers().size());
         assertTrue(board.getGaveUpPlayers().contains(player1));
         assertEquals(2, board.getGaveUpPlayers().size());
     }

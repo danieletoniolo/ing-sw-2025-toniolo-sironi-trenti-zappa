@@ -67,8 +67,7 @@ public class OpenSpaceState extends State implements UsableEngine {
     public void execute(PlayerData player) throws IllegalStateException {
         if (stats.get(player) == 0) {
             player.setGaveUp(true);
-        }
-        else {
+        } else {
             board.addSteps(player, stats.get(player).intValue());
         }
         super.execute(player);
