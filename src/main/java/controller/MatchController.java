@@ -74,11 +74,14 @@ public class MatchController {
             sendToConnection(userID, new ZeroArgMessage(MessageType.NO_LOBBY_AVAILABLE));
         }
 
+        // TODO: players have to set 'ok' in order to start the game
+        /*
         if (lobbyNotStarted.canGameStart()) {
             gc.startGame();
             gc.executeHandlers(GameEvents.GAME_START, null);
             lobbyNotStarted = null;
         }
+        */
     }
 
     public void sendEachConnection(LobbyInfo lobbyInfo, Message message) {

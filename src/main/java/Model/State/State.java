@@ -28,10 +28,10 @@ public abstract class State {
      */
     public State(Board board) throws NullPointerException {
         if (board == null) {
-            throw new NullPointerException("players is null");
+            throw new NullPointerException("board is null");
         }
         this.board = board;
-        this.players = board.updateInGamePlayers();
+        this.players = board.getInGamePlayers();
         this.playersStatus = new HashMap<>();
         for (PlayerData player : players) {
             this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
@@ -145,5 +145,6 @@ public abstract class State {
             }
         }
         this.played = true;
+        board.refreshInGamePlayers();
     }
 }
