@@ -3,12 +3,10 @@ package Model.Game.Lobby;
 import Model.Player.PlayerData;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 public class LobbyInfo {
-    private final ArrayList<PlayerData> player;
+    private final ArrayList<PlayerData> players;
     private String name;
-    private final UUID uuid;
     private final int totalPlayers;
     private int numberOfPlayersEntered;
 
@@ -17,12 +15,17 @@ public class LobbyInfo {
      * @param name the name of the lobby
      * @param totalPlayers the total number of players in the lobby
      */
-    public LobbyInfo(String name, int totalPlayers) {
+    public LobbyInfo(String name, int totalPlayers) throws IllegalArgumentException, IndexOutOfBoundsException {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Lobby name cannot be null or empty");
+        }
+        if (totalPlayers <= 0 || totalPlayers > 4) {
+            throw new IndexOutOfBoundsException("Total players must be between 1 and 4");
+        }
         this.numberOfPlayersEntered = 0;
         this.totalPlayers = totalPlayers;
         this.name = name;
-        this.uuid = UUID.fromString(name);
-        this.player = new ArrayList<>();
+        this.players = new ArrayList<>();
     }
 
     /**
@@ -31,14 +34,6 @@ public class LobbyInfo {
      */
     public String getName() {
         return this.name;
-    }
-
-    /**
-     * Get the UUID of the lobby
-     * @return the UUID of the lobby
-     */
-    public UUID getUUID() {
-        return this.uuid;
     }
 
     /**
@@ -62,15 +57,24 @@ public class LobbyInfo {
      * @return the players in the lobby
      */
     public ArrayList<PlayerData> getPlayers() {
-        return this.player;
+        return this.players;
     }
 
     /**
      * Add a player to the lobby
-     * @param playerData the player to add
+     * @param player the player to add
      */
-    public void addPlayer(PlayerData playerData) {
-        this.player.add(playerData);
+    public void addPlayer(PlayerData player) throws NullPointerException, IllegalStateException {
+        if (player == null) {
+            throw new NullPointerException("Player cannot be null");
+        }
+        if (this.numberOfPlayersEntered >= this.totalPlayers) {
+            throw new IllegalStateException("Lobby is full");
+        }
+        if (players.contains(player)) {
+            throw new IllegalStateException("Player already in lobby");
+        }
+        this.players.add(player);
         this.numberOfPlayersEntered++;
     }
 
@@ -78,8 +82,14 @@ public class LobbyInfo {
      * Remove a player from the lobby
      * @param playerData the player to remove
      */
-    public void removePlayer(PlayerData playerData) {
-        this.player.remove(playerData);
+    public void removePlayer(PlayerData playerData) throws NullPointerException, IllegalStateException{
+        if (playerData == null) {
+            throw new NullPointerException("Player cannot be null");
+        }
+        if (!this.players.contains(playerData)) {
+            throw new IllegalStateException("Player not in lobby");
+        }
+        this.players.remove(playerData);
         this.numberOfPlayersEntered--;
     }
 
@@ -89,13 +99,5 @@ public class LobbyInfo {
      */
     public void setName(String name) {
         this.name = name;
-    }
-
-    /**
-     * Check if the game has started
-     * @return true if the game has started, false otherwise
-     */
-    public boolean canGameStart() {
-        return this.numberOfPlayersEntered == this.totalPlayers;
     }
 }
