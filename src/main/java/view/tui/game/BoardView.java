@@ -23,7 +23,7 @@ public class BoardView {
         board.setPlayer(player3, 2);
         board.setPlayer(player4, 3);
 
-        board.addSteps(player4, 15);
+        board.addSteps(player4, 30);
 
         for (int i = 0; i < board.getStepsForALap(); i++) {
             switch (board.getBoardLevel()) {
@@ -123,7 +123,7 @@ public class BoardView {
         System.out.println();
         System.out.println("InGame players:");
         board.updateInGamePlayers().forEach(player -> {
-            System.out.print(player.getPosition() + ") " + player.getUsername() + ": " + player.getStep() + " with color " + player.getColor().toString() + "\n");
+            System.out.print(player.getPosition() + ") " + player.getUsername() + ": " + (player.getStep() % board.getStepsForALap()) + " step with color " + player.getColor().toString() + "\n");
         });
 
         System.out.println();
