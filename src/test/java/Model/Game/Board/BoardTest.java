@@ -202,7 +202,8 @@ class BoardTest {
         board.setPlayer(player1, 0);
         board.setPlayer(player2, 1);
         board.setPlayer(player3, 3);
-        assertEquals(players, board.updateInGamePlayers());
+        board.refreshInGamePlayers();
+        assertEquals(players, board.getInGamePlayers());
 
 
         board.addSteps(player3, 10);
@@ -210,12 +211,14 @@ class BoardTest {
         players.add(0, player3);
         players.add(1, player1);
         players.add(2, player2);
-        assertEquals(players, board.updateInGamePlayers());
+        board.refreshInGamePlayers();
+        assertEquals(players, board.getInGamePlayers());
 
 
         player1.setGaveUp(true);
         players.remove(player1);
-        assertEquals(players, board.updateInGamePlayers());
+        board.refreshInGamePlayers();
+        assertEquals(players, board.getInGamePlayers());
         assertTrue(board.getGaveUpPlayers().contains(player1));
         assertEquals(1, board.getGaveUpPlayers().size());
 
@@ -227,8 +230,9 @@ class BoardTest {
         board.addSteps(player3, 20);
         players.remove(player2);
         assertTrue(player3.getStep() - player2.getStep() > board.getStepsForALap());
-        assertEquals(players, board.updateInGamePlayers());
-        assertEquals(1, board.updateInGamePlayers().size());
+        board.refreshInGamePlayers();
+        assertEquals(players, board.getInGamePlayers());
+        assertEquals(1, board.getInGamePlayers().size());
         assertTrue(board.getGaveUpPlayers().contains(player1));
         assertEquals(2, board.getGaveUpPlayers().size());
     }
