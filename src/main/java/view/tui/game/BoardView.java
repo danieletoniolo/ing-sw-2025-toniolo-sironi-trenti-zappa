@@ -8,14 +8,10 @@ import Model.Player.PlayerData;
 public class BoardView {
     public void drawBoard(Board board) {
         int rows = (board.getStepsForALap()/4)*3 - 2;
-        System.out.println("Rows: " + rows);
-
         int cols = (board.getStepsForALap()/2 - (board.getStepsForALap()/4) + 2) * 7 - 2;
         int up = 0;
         int down = board.getStepsForALap() - 1;
         String[] steps = new String[board.getStepsForALap()];
-
-        System.out.println("Cols: " + cols);
 
         PlayerData player1 = new PlayerData("d290f1ee-6c54-4b01-90e6-d701748f0851", PlayerColor.BLUE, null);
         PlayerData player2 = new PlayerData("d290f1ee-6c54-4b01-90e6-d701748f0852", PlayerColor.RED, null);
@@ -27,7 +23,7 @@ public class BoardView {
         board.setPlayer(player3, 2);
         board.setPlayer(player4, 3);
 
-        board.addSteps(player4, 25);
+        board.addSteps(player4, 15);
 
         for (int i = 0; i < board.getStepsForALap(); i++) {
             switch (board.getBoardLevel()) {
@@ -51,13 +47,9 @@ public class BoardView {
                     break;
             }
         }
-        player1.setGaveUp(true);
         board.updateInGamePlayers().forEach(player -> {
-            System.out.println("Player: " + getPlayerColor(player) + " Step: " + player.getStep());
             steps[player.getStep() % board.getStepsForALap()] = getPlayerColor(player);
         });
-
-
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -127,6 +119,18 @@ public class BoardView {
             }
             System.out.println();
         }
+
+        System.out.println();
+        System.out.println("InGame players:");
+        board.updateInGamePlayers().forEach(player -> {
+            System.out.print(player.getPosition() + ") " + player.getUsername() + ": " + player.getStep() + " with color " + player.getColor().toString() + "\n");
+        });
+
+        System.out.println();
+        System.out.println("GaveUp players:");
+        board.getGaveUpPlayers().forEach(player -> {;
+            System.out.print((player.getUsername() + 1) + " with color " + player.getColor().toString() + "\n");
+        });
     }
 
     private String getPlayerColor(PlayerData player) {
@@ -140,7 +144,7 @@ public class BoardView {
 
     public static void main(String[] args) {
         try {
-            Board board = new Board(Level.LEARNING);
+            Board board = new Board(Level.SECOND);
             BoardView boardView = new BoardView();
             boardView.drawBoard(board);
         } catch (Exception e) {
