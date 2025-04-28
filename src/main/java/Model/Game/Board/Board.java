@@ -195,10 +195,9 @@ public class Board {
 
     /**
      * Update the status of players: 1 - players who are giveUp are moved to gaveUpPlayers, 2 - Set the correct position to the players, 3 - Sort the players by their position:
-     * (first of the list is the leader)
-     * @return ArrayList of sorted players
+     * (first of the list is the leader).
      */
-    public ArrayList<PlayerData> updateInGamePlayers() {
+    public void refreshInGamePlayers() {
         inGamePlayers.removeIf(Objects::isNull);
         for (int i = 0; i < inGamePlayers.size(); i++) {
             if (inGamePlayers.get(i).hasGivenUp()) gaveUpPlayers.add(inGamePlayers.remove(i));
@@ -222,8 +221,6 @@ public class Board {
         for (PlayerData player : gaveUpPlayers) {
             inGamePlayers.remove(player);
         }
-
-        return inGamePlayers;
     }
 
     /**
@@ -254,7 +251,19 @@ public class Board {
         }
     }
 
+    public ArrayList<PlayerData> getInGamePlayers() {
+        return inGamePlayers;
+    }
+
     public ArrayList<PlayerData> getGaveUpPlayers() {
         return gaveUpPlayers;
+    }
+
+    public void addInGamePlayer(PlayerData player) {
+        inGamePlayers.add(player);
+    }
+
+    public void removeInGamePlayer(PlayerData player) {
+        inGamePlayers.remove(player);
     }
 }
