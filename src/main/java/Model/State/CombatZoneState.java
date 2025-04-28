@@ -9,7 +9,6 @@ import Model.State.interfaces.*;
 import org.javatuples.Pair;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 enum CombatZoneInternalState {
     CREW(0),
@@ -413,7 +412,8 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
                     int crewFulfillment = minPlayerEngines.getSpaceShip().getGoods().size() - card.getLost();
                     if (crewFulfillment < 0 && minPlayerEngines.getSpaceShip().getCrewNumber() < Math.abs(crewFulfillment)) {
                         minPlayerEngines.setGaveUp(true);
-                        this.players = super.board.updateInGamePlayers();
+                        super.board.refreshInGamePlayers();
+                        this.players = super.board.getInGamePlayers();
                     } else {
                         executeSubStateRemoveGoods(minPlayerEngines);
                     }
