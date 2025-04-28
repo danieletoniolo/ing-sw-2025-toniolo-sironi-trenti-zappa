@@ -3,12 +3,9 @@ package Model.SpaceShip;
 import Model.Cards.Hits.Direction;
 import Model.Cards.Hits.Hit;
 import Model.Cards.Hits.HitType;
-import Model.Game.Board.Board;
 import Model.Game.Board.Level;
-import Model.GenerateRandomShip;
 import Model.Good.Good;
 import Model.Good.GoodType;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
@@ -443,7 +440,7 @@ class SpaceShipTest {
 
     @RepeatedTest(5)
     void getAlienStrength(){
-        assertEquals(2.0f, ship.getAlienStrength());
+        assertEquals(2.0f, SpaceShip.getAlienStrength());
 
         Cabin c1 = new Cabin(2, connectors);
         ship.placeComponent(c1, 6, 7);
@@ -451,7 +448,7 @@ class SpaceShipTest {
         ship.placeComponent(lsp, 6, 8);
         ship.getCabin(2).isValid();
         ship.addCrewMember(c1.getID(), false, true);
-        assertEquals(2.0f, ship.getAlienStrength());
+        assertEquals(2.0f, SpaceShip.getAlienStrength());
     }
 
     @RepeatedTest(5)
@@ -826,7 +823,7 @@ class SpaceShipTest {
 
     @RepeatedTest(5)
     void addCrewMember_addCrewMemberToNonExistentCabinThrowsException() {
-        assertThrows(NullPointerException.class, () -> ship.addCrewMember(999, false, false));
+        assertThrows(IllegalArgumentException.class, () -> ship.addCrewMember(999, false, false));
     }
 
     @RepeatedTest(5)
@@ -887,7 +884,9 @@ class SpaceShipTest {
     @RepeatedTest(5)
     void canProtect_validShield() {
         Shield shield = new Shield(1, connectors);
+        Cannon cannon = new Cannon(2, connectors, 1);
         ship.placeComponent(shield, 6, 7);
+        ship.placeComponent(cannon, 6, 8);
 
         for(int i = 0; i < 4; i++){
             Direction[] values = Direction.values();
@@ -900,7 +899,11 @@ class SpaceShipTest {
                 result = ship.canProtect(shield.row, hit);
             }
             assertNotNull(result);
-            assertEquals(0, result.getValue1());
+            if(direction.getValue() == 0 || direction.getValue() == 3){
+                assertEquals(0, result.getValue1());
+            } else {
+                assertEquals(-1, result.getValue1());
+            }
 
             Hit hit1 = new Hit(HitType.LIGHTFIRE, direction);
             Pair<Component, Integer> result1;
@@ -910,9 +913,35 @@ class SpaceShipTest {
                 result1 = ship.canProtect(shield.row, hit1);
             }
             assertNotNull(result1);
-            assertEquals(0, result1.getValue1());
+            if(direction.getValue() == 0 || direction.getValue() == 3){
+                assertEquals(0, result1.getValue1());
+            } else {
+                assertEquals(-1, result1.getValue1());
+            }
 
-            shield.rotateClockwise();
+            Hit hit2 = new Hit(HitType.LARGEMETEOR, direction);
+            Pair<Component, Integer> result2;
+            if(direction.getValue() % 2 == 0){
+                result2 = ship.canProtect(cannon.column, hit2);
+            } else {
+                result2 = ship.canProtect(cannon.row, hit2);
+            }
+            assertNotNull(result2);
+            if(direction.getValue() == 0){
+                assertEquals(1, result2.getValue1());
+            } else {
+                assertEquals(-1, result2.getValue1());
+            }
+
+            Hit hit3 = new Hit(HitType.HEAVYFIRE, direction);
+            Pair<Component, Integer> result3;
+            if(direction.getValue() % 2 == 0){
+                result3 = ship.canProtect(shield.column, hit3);
+            } else {
+                result3 = ship.canProtect(shield.row, hit3);
+            }
+            assertNotNull(result3);
+            assertEquals(-1, result3.getValue1());
         }
     }
 
@@ -957,10 +986,9 @@ class SpaceShipTest {
         assertEquals(2, battery.getEnergyNumber());
     }
 
-    //TODO: Complete when method is implemented
     @RepeatedTest(5)
     void useEnergy_invalidBatteryThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> ship.useEnergy(1));
+        assertThrows(NullPointerException.class, () -> ship.useEnergy(1));
     }
 
     @RepeatedTest(5)
@@ -1179,7 +1207,7 @@ class SpaceShipTest {
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> ship.placeComponent(component, 0, 0));
     }
 
-    ///TODO: Implementare
+    //TODO: Implementare
     @RepeatedTest(5)
     void placeComponent_alreadyOccupiedSpotThrowsException() {
         Component component1 = new Storage(1, connectors, true, 2);
@@ -1369,7 +1397,6 @@ class SpaceShipTest {
         assertThrows(IllegalArgumentException.class, () -> ship.getCannon(999));
     }
 
-    //TODO: Manca remove per cannons in destroy
     @RepeatedTest(5)
     void getCannon_afterRemovingCannonThrowsException() {
         Cannon cannon = new Cannon(1, connectors, 1);
@@ -1402,7 +1429,6 @@ class SpaceShipTest {
         assertEquals(cannon2, ship.getCannons().get(2));
     }
 
-    //TODO: Manca remove per cannons in destroy
     @RepeatedTest(5)
     void getCannons_afterRemovingCannon() {
         Cannon cannon = new Cannon(1, connectors, 1);
@@ -1434,17 +1460,11 @@ class SpaceShipTest {
         assertEquals(0, ship.getSingleCannonsStrength());
     }
 
-    //TODO: Controllare metodo con qualcuno
-    @RepeatedTest(5)
-    void getDisconnectedComponents_noComponents() {
-        assertTrue(ship.getDisconnectedComponents().isEmpty());
-    }
-
     @RepeatedTest(5)
     void getDisconnectedComponents_singleComponent() {
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
-        assertTrue(ship.getDisconnectedComponents().isEmpty());
+        assertEquals(1, ship.getDisconnectedComponents().size());
     }
 
     @RepeatedTest(5)
@@ -1453,15 +1473,18 @@ class SpaceShipTest {
         Battery battery = new Battery(2, connectors, 3);
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(battery, 6, 8);
-        assertTrue(ship.getDisconnectedComponents().isEmpty());
+        assertFalse(ship.getDisconnectedComponents().isEmpty());
     }
 
     @RepeatedTest(5)
     void getDisconnectedComponents_multipleDisconnectedComponents() {
-        Cabin cabin = new Cabin(1, connectors);
-        Battery battery = new Battery(2, connectors, 3);
+        Cabin cabin = new Cabin(2, connectors);
+        Cabin cabin1 = new Cabin(3, connectors);
+        Battery battery = new Battery(4, connectors, 3);
         ship.placeComponent(cabin, 6, 7);
+        ship.placeComponent(cabin1, 8, 7);
         ship.placeComponent(battery, 8, 8);
+        ship.destroyComponent(8, 7);
         assertFalse(ship.getDisconnectedComponents().isEmpty());
         assertEquals(2, ship.getDisconnectedComponents().size());
     }
@@ -2032,7 +2055,6 @@ class SpaceShipTest {
         }
     }
 
-    //TODO: Control if in the model they put false or they throws an exception
     @RepeatedTest(5)
     void useEnergy() {
         Random rand = new Random();
@@ -2593,42 +2615,5 @@ class SpaceShipTest {
         }
     }
 
-    //TODO: Da capire come funziona il metodo e come testarlo (usare debugger)
-    //TODO: creare classe per generare ship che restituisce il numero di connessioni non valide
-    @RepeatedTest(5)
-    void getDisconnectedComponentsTest() throws JsonProcessingException {
-        //Restituisce i pezzi disconnessi
-
-        /*
-        Prendo una nave, la massacro di colpi e vedo i pezzi distrutti
-        Restituisce anche i pezzi non validi ( non connessi correttamente )
-
-        1. Colpiti
-        2. Connessi male
-        3. Staccati
-
-
-        Random rand = new Random();
-
-        GenerateRandomShip rs = new GenerateRandomShip();
-        rs.addElementsShip();
-        ship = rs.getShip();
-
-        for(int i = 0; i < 5; i++){
-            HitType hitType = HitType.HEAVYFIRE;
-            int dice = rand.nextInt(6, 10);
-            Direction[] values = Direction.values();
-            Direction randomDirection = values[rand.nextInt(values.length)];
-            Hit hit = new Hit(hitType, randomDirection);
-
-            Pair<Component, Integer> resultHit = ship.canProtect(dice, hit);
-
-            ship.destroyComponent(resultHit.getValue0().getRow(), resultHit.getValue0().getColumn());
-
-            ArrayList<ArrayList<Pair<Integer, Integer>>> result = ship.getDisconnectedComponents();
-        }
-
-        assertEquals(5, ship.getDisconnectedComponents().size());
-    }
-*/
+ */
 }

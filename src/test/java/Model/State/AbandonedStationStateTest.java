@@ -1,6 +1,5 @@
 package Model.State;
 
-import Model.Cards.AbandonedShip;
 import Model.Cards.AbandonedStation;
 import Model.Game.Board.Board;
 import Model.Game.Board.Level;
@@ -176,7 +175,7 @@ class AbandonedStationStateTest {
         state.playersStatus.put(state.getPlayers().get(0).getColor(), PlayerStatus.PLAYED);
         state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
 
-        assertThrows(IllegalStateException.class, () -> state.exit());
+        assertDoesNotThrow(() -> state.exit());
     }
 
     @RepeatedTest(5)

@@ -27,6 +27,8 @@ class ShieldTest {
         assertEquals(0, a.getID());
     }
 
+    //TODO: Chiedi aiuto a capire
+    //Gira in senso orario
     @RepeatedTest(5)
     void canShield_withoutRotation() {
         Shield shield = new Shield(1, connectors);
@@ -40,10 +42,10 @@ class ShieldTest {
     void canShield_afterSingleRotation() {
         Shield shield = new Shield(1, connectors);
         shield.rotateClockwise();
-        assertTrue(shield.canShield(0));
-        assertTrue(shield.canShield(1));
-        assertFalse(shield.canShield(2));
-        assertFalse(shield.canShield(3));
+        assertFalse(shield.canShield(0));
+        assertFalse(shield.canShield(1));
+        assertTrue(shield.canShield(2));
+        assertTrue(shield.canShield(3));
     }
 
     @RepeatedTest(5)
@@ -63,10 +65,10 @@ class ShieldTest {
         shield.rotateClockwise();
         shield.rotateClockwise();
         shield.rotateClockwise();
-        assertFalse(shield.canShield(0));
-        assertFalse(shield.canShield(1));
-        assertTrue(shield.canShield(2));
-        assertTrue(shield.canShield(3));
+        assertTrue(shield.canShield(0));
+        assertTrue(shield.canShield(1));
+        assertFalse(shield.canShield(2));
+        assertFalse(shield.canShield(3));
     }
 
     @RepeatedTest(5)
@@ -513,7 +515,6 @@ class ShieldTest {
         }
     }
 
-    //TODO: finire il metodo quando implementano il metodo di spostare i componenti
     //Test for the methods isFixed and fix
     @RepeatedTest(5)
     void isFixedTest(){

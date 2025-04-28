@@ -103,7 +103,7 @@ class BuildingStateTest {
         Connectors c = new Connectors(2, new ConnectorType[4]);
         player.getSpaceShip().placeComponent(c, 6, 7);
         int invalidDeckIndex = -1;
-        assertThrows(ArrayIndexOutOfBoundsException.class, () -> state.showDeck(player.getUUID(), invalidDeckIndex));
+        assertThrows(IndexOutOfBoundsException.class, () -> state.showDeck(player.getUUID(), invalidDeckIndex));
     }
 
     @RepeatedTest(5)
@@ -154,7 +154,7 @@ class BuildingStateTest {
     }
     //Fine TODO
 
-    //TODO: Capire come debuggare il metodo
+    //TODO: Capire come funziona placeMarker - è uguale a setPlayer, solo che con lo stato non posso settare un giocatore in una posizione con zero giocatori
     @RepeatedTest(5)
     void placeMarker_withValidPosition() throws JsonProcessingException {
         boolean[][] vs = new boolean[12][12];
@@ -169,11 +169,8 @@ class BuildingStateTest {
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship);
 
         BuildingState s = new BuildingState(b1);
-        b1.setPlayer(p0, 0);
-        b1.setPlayer(p1, 1);
-        b1.setPlayer(p2, 2);
-        b1.setPlayer(p3, 3);
 
+        //TODO: Devo prima passare per building state
         assertDoesNotThrow(() -> s.placeMarker(p0.getUUID(), 0));
         assertDoesNotThrow(() -> s.placeMarker(p1.getUUID(), 1));
         assertDoesNotThrow(() -> s.placeMarker(p2.getUUID(), 2));
@@ -309,10 +306,8 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void leaveTile_withValidTileInHand() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         PlayerData player = state.getPlayers().getFirst();
-        Component component = new Connectors(1, c);
-        state.getPlayersHandQueue().put(player.getColor(), component);
+        state.getPlayersHandQueue().put(player.getColor(), state.board.popTile(1));
         assertDoesNotThrow(() -> state.leaveTile(player.getUUID()));
         assertNull(state.getPlayersHandQueue().get(player.getColor()));
     }
@@ -331,12 +326,10 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void leaveTile_withTileNotFromReserve_putItBackInBoard() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         PlayerData player = state.getPlayers().getFirst();
-        Component component = new Connectors(1, c);
-        state.getPlayersHandQueue().put(player.getColor(), component);
+        state.getPlayersHandQueue().put(player.getColor(), state.board.popTile(2));
         assertDoesNotThrow(() -> state.leaveTile(player.getUUID()));
-        assertTrue(Arrays.asList(state.board.getTiles()).contains(component));
+        assertTrue(Arrays.asList(state.board.getTiles()).contains(state.board.getTiles()[3]));
     }
 
     @RepeatedTest(5)

@@ -9,10 +9,76 @@ import org.junit.jupiter.api.RepeatedTest;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class LobbyInfoTest {
+    LobbyInfo lobbyInfo;
+
+    @BeforeEach
+    void setUp() {
+        lobbyInfo = new LobbyInfo("123e4567-e89b-12d3-a456-426616578345", 4);
+    }
+
+    @RepeatedTest(5)
+    void addPlayer_validPlayer() {
+        PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        lobbyInfo.addPlayer(player);
+        assertTrue(lobbyInfo.getPlayers().contains(player));
+        assertEquals(1, lobbyInfo.getNumberOfPlayersEntered());
+    }
+
+    //TODO: Implementare
+    @RepeatedTest(5)
+    void addPlayer_duplicatePlayer() {
+        PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        lobbyInfo.addPlayer(player);
+        assertThrows(IllegalArgumentException.class, () -> lobbyInfo.addPlayer(player));
+    }
+
+    @RepeatedTest(5)
+    void removePlayer_validPlayer() {
+        PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        lobbyInfo.addPlayer(player);
+        lobbyInfo.removePlayer(player);
+        assertFalse(lobbyInfo.getPlayers().contains(player));
+        assertEquals(0, lobbyInfo.getNumberOfPlayersEntered());
+    }
+
+    @RepeatedTest(5)
+    void canGameStart_returnsTrue() {
+        for (int i = 0; i < lobbyInfo.getTotalPlayers(); i++) {
+            PlayerData player = new PlayerData(UUID.randomUUID().toString(), PlayerColor.values()[i % PlayerColor.values().length], new SpaceShip(Level.SECOND, new boolean[12][12]));
+            lobbyInfo.addPlayer(player);
+        }
+        assertTrue(lobbyInfo.canGameStart());
+    }
+
+    @RepeatedTest(5)
+    void canGameStart_returnsFalse() {
+        for (int i = 0; i < lobbyInfo.getTotalPlayers() - 1; i++) {
+            PlayerData player = new PlayerData(UUID.randomUUID().toString(), PlayerColor.values()[i % PlayerColor.values().length], new SpaceShip(Level.SECOND, new boolean[12][12]));
+            lobbyInfo.addPlayer(player);
+        }
+        assertFalse(lobbyInfo.canGameStart());
+    }
+
+    @RepeatedTest(5)
+    void canGameStart_returnsFalseWhenNoPlayersHaveJoined() {
+        assertFalse(lobbyInfo.canGameStart());
+    }
+
+
+
+
+
+
+
+
+
+
+    /*
     LobbyInfo lobbyInfo;
     private static final String Character = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -98,4 +164,5 @@ class LobbyInfoTest {
         }
         assertEquals(numberOfPlayersEntered, lobbyInfo.getNumberOfPlayersEntered());
     }
+    */
 }

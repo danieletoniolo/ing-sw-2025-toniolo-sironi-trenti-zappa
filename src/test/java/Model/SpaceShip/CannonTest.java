@@ -530,8 +530,6 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isValidTest(){
-        //TODO: METODO NON FINITO
-        //TODO: Da controllare ma è sbagliato il risultato - sbaglia quando è true add, quindi è sbagliato il metodo - chiedi a toni
         //Potrei fare un test con un componente davanti e uno senza, ma in modo randomico aggiungere un componente davanti
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
         Storage storage = new Storage(1, connectors, true, 1);
@@ -554,7 +552,6 @@ class CannonTest {
         }
     }
 
-    //TODO: finire il metodo quando implementano il metodo di spostare i componenti
     //Test for the methods isFixed and fix
     @RepeatedTest(5)
     void isFixedTest(){
