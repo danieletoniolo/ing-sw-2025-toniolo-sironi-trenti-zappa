@@ -258,12 +258,4 @@ public class Board {
     public ArrayList<PlayerData> getGaveUpPlayers() {
         return gaveUpPlayers;
     }
-
-    public void addInGamePlayer(PlayerData player) {
-        inGamePlayers.add(player);
-    }
-
-    public void removeInGamePlayer(PlayerData player) {
-        inGamePlayers.remove(player);
-    }
 }
