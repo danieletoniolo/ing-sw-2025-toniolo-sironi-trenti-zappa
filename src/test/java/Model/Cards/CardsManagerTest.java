@@ -1,12 +1,15 @@
 package Model.Cards;
 
+import Model.Game.Board.Board;
 import Model.Game.Board.Deck;
 import Model.Game.Board.Level;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.ArrayList;
 import java.util.Stack;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -78,6 +81,30 @@ class CardsManagerTest {
             assertEquals(i, CardsManager.getCard(i).getID());
             if (i < 20) assertEquals(1, CardsManager.getCard(i).getCardLevel());
             else assertEquals(2, CardsManager.getCard(i).getCardLevel());
+        }
+    }
+
+    @Test
+    void multiGame() throws JsonProcessingException {
+        ArrayList<Board> boards = new ArrayList<>();
+        boards.add(new Board(Level.SECOND));
+        boards.add(new Board(Level.SECOND));
+        boards.add(new Board(Level.SECOND));
+        boards.add(new Board(Level.SECOND));
+
+
+        for (Board board : boards) {
+            for(Board board2 : boards) {
+                if (!board.equals(board2)) {
+                    for(Card card : board.getShuffledDeck()) {
+                        for (Card card2 : board2.getShuffledDeck()) {
+                            if (card.getID() == card2.getID()) {
+                                assertEquals(card, card2);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
