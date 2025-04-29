@@ -6,6 +6,7 @@ import Model.Cards.Hits.Direction;
 import Model.Cards.Hits.Hit;
 import Model.Game.Board.Level;
 import Model.Good.Good;
+import Model.Player.PlayerColor;
 import org.javatuples.Pair;
 
 public class SpaceShip {
@@ -16,7 +17,7 @@ public class SpaceShip {
     private static final int cols = 12;
     private Component[][] components;
     private int numberOfComponents;
-    private final boolean[][] validSpots;
+    private boolean[][] validSpots;
 
     private List<Component> lostComponents;
     private ArrayList<Component> reservedComponents;
@@ -46,13 +47,51 @@ public class SpaceShip {
     private int goodsValue;
     private int exposedConnectors;
 
-    public SpaceShip(Level level, boolean[][] validSpots) {
+    public SpaceShip(Level level, PlayerColor color) throws IllegalArgumentException{
         this.level = level;
 
-        this.validSpots = validSpots;
+        // Init valid spots of the spaceship
+        switch (level){
+            case LEARNING:
+                validSpots = new boolean[][]{
+                        {false, false, false, false, false, false, false, false, false, false, false, false},
+                        {false, false, false, false, false, false, false, false, false, false, false, false},
+                        {false, false, false, false, false, false, false, false, false, false, false, false},
+                        {false, false, false, false, false, false, false, false, false, false, false, false},
+                        {false, false, false, false, false, false, true , false, false, false, false, false},
+                        {false, false, false, false, false, true , true , true , false, false, false, false},
+                        {false, false, false, false, true , true , true , true , true , false, false, false},
+                        {false, false, false, false, true , true , true , true , true , false, false, false},
+                        {false, false, false, false, true , true , false, true , true , false, false, false},
+                        {false, false, false, false, false, false, false, false, false, false, false, false},
+                        {false, false, false, false, false, false, false, false, false, false, false, false},
+                        {false, false, false, false, false, false, false, false, false, false, false, false}
+                };
+                break;
+            case SECOND:
+                validSpots = new boolean[][]{
+                        {false, false, false, false, false, false, false, false, false, false, false, false},
+                        {false, false, false, false, false, false, false, false, false, false, false, false},
+                        {false, false, false, false, false, false, false, false, false, false, false, false},
+                        {false, false, false, false, false, false, false, false, false, false, false, false},
+                        {false, false, false, false, false, true , false, true , false, false, false, false},
+                        {false, false, false, false, true , true , true , true , true , false, false, false},
+                        {false, false, false, true , true , true , true , true , true , true , false, false},
+                        {false, false, false, true , true , true , true , true , true , true , false, false},
+                        {false, false, false, true , true , true , false, true , true , true , false, false},
+                        {false, false, false, false, false, false, false, false, false, false, false, false},
+                        {false, false, false, false, false, false, false, false, false, false, false, false},
+                        {false, false, false, false, false, false, false, false, false, false, false, false}
+                };
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected value: " + level);
+        }
+
         lostComponents = new ArrayList<>();
         reservedComponents = new ArrayList<>();
 
+        // Init stats
         singleEnginesStrength = 0;
         doubleEnginesStrength = 0;
         singleCannonsStrength = 0;
@@ -76,13 +115,15 @@ public class SpaceShip {
         goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
         lastPlacedComponent = null;
 
-        // TODO: The center cabin should be 6 6 and not 7 7 (because of the 0 index)
+        // Spaceship creation
         components = new Component[rows][cols];
-        components[7][7] = new Cabin(1, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
-        components[7][7].ship = this;
-        components[7][7].setRow(7);
-        components[7][7].setColumn(7);
-        cabins.put(components[7][7].getID(), (Cabin) components[7][7]);
+
+        // Adding the main cabin in the center of the ship
+        components[6][6] = TilesManager.getMainCabin(color);
+        components[6][6].ship = this;
+        components[6][6].setRow(6);
+        components[6][6].setColumn(6);
+        cabins.put(components[6][6].getID(), (Cabin) components[6][6]);
         numberOfComponents = 1;
     }
 

@@ -37,7 +37,7 @@ public class LobbyState extends State implements JoinableGame {
      */
     public void joinGame(PlayerData player) {
         // Add the player to the board
-        board.addInGamePlayer(player);
+        board.addInGamePlayers(player);
 
         // Add the player to the list of players in the LobbyState
         players.add(player);

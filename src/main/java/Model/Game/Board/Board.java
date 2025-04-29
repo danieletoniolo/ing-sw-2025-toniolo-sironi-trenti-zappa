@@ -2,15 +2,11 @@ package Model.Game.Board;
 
 import Model.Cards.Card;
 import Model.Cards.CardsManager;
-import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
+import Model.SpaceShip.TilesManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.tools.javac.Main;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class Board {
@@ -54,15 +50,7 @@ public class Board {
                 throw new IllegalArgumentException("Unexpected value: " + level);
         }
 
-        ClassLoader classLoader = Main.class.getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("Json/Tiles.json");
-        if (inputStream == null) {
-            throw new IllegalArgumentException("File not found!");
-        }
-        String json = new Scanner(inputStream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
-        ObjectMapper objectMapper = new ObjectMapper();
-        this.tiles = objectMapper.readValue(json, Component[].class);
-
+        this.tiles = TilesManager.getTiles();
         inGamePlayers = new ArrayList<>(Arrays.asList(null, null, null, null));
         gaveUpPlayers = new ArrayList<>();
     }
@@ -262,5 +250,9 @@ public class Board {
 
     public void addInGamePlayers(PlayerData player) {
         inGamePlayers.add(player);
+    }
+
+    public void removeInGamePlayer(PlayerData player) {
+        inGamePlayers.remove(player);
     }
 }

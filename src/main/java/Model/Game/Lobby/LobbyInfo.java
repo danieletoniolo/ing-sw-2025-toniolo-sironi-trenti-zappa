@@ -4,29 +4,27 @@ import java.util.UUID;
 
 public class LobbyInfo {
     private String name;
-    private UUID uuid;
     private final int totalPlayers;
     private int numberOfPlayersEntered;
 
     /**
      * Create a new lobby
      *
-     * @param name         the name of the lobby
-     * @param uuid         UUID of the lobby
-     * @param totalPlayers the total number of players in the lobby
-     * @throws IllegalArgumentException if the name is null or empty
+     * @param founderNickname the name of the lobby's founder
+     * @param totalPlayers    the total number of players in the lobby
+     * @throws IllegalArgumentException  if the name is null or empty
      * @throws IndexOutOfBoundsException if the total players is less than 1 or greater than 4
      */
-    public LobbyInfo(String name, UUID uuid, int totalPlayers) throws IllegalArgumentException, IndexOutOfBoundsException {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("Lobby name cannot be null or empty");
+    public LobbyInfo(String founderNickname, int totalPlayers) throws IllegalArgumentException, IndexOutOfBoundsException {
+        if (founderNickname == null || founderNickname.isEmpty()) {
+            throw new IllegalArgumentException("Founder's nickname cannot be null or empty");
         }
         if (totalPlayers <= 0 || totalPlayers > 4) {
             throw new IndexOutOfBoundsException("Total players must be between 1 and 4");
         }
+        this.name = founderNickname + "'s lobby";
         this.numberOfPlayersEntered = 0;
         this.totalPlayers = totalPlayers;
-        this.name = name;
     }
 
     /**
