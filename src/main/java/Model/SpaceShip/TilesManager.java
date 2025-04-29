@@ -1,0 +1,107 @@
+package Model.SpaceShip;
+
+import Model.Player.PlayerColor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.tools.javac.Main;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+
+public class TilesManager {
+    private static final ClassLoader classLoader = Main.class.getClassLoader();
+    private static final InputStream inputStream = classLoader.getResourceAsStream("Json/Tiles.json");
+    private static final String json;
+    static {
+        if (inputStream == null) {
+            throw new IllegalArgumentException("File not found!");
+        }
+        json = new Scanner(inputStream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
+    }
+    static ObjectMapper objectMapper = new ObjectMapper();
+
+    private static final Component[] allTiles;
+    private static final Component[] tiles;
+    private static final Cabin[] mainCabins;
+
+    static {
+        try {
+            allTiles = objectMapper.readValue(json, Component[].class);
+            tiles = new Component[allTiles.length - 4];
+            mainCabins = new Cabin[4];
+
+            int cont = 0;
+            for (int i = 0; i < allTiles.length; i++) {
+                if (i == 32 || i == 33 || i == 51 || i == 60) {
+                    mainCabins[cont] = (Cabin) allTiles[i];
+                    cont++;
+                } else {
+                    tiles[i - cont] = allTiles[i];
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Get 152 tiles of the spaceship (Main cabins are not included)
+     * @return an array of tiles
+     */
+    public static Component[] getTiles() {
+        Component[] copy = new Component[tiles.length];
+        for(int i = 0; i < tiles.length; i++){
+            copy[i] = deepClone(tiles[i]);
+        }
+        return copy;
+    }
+
+    /**
+     * Get the main cabin of the same color
+     * @param color color of the player
+     * @return a Cabin object
+     */
+    public static Cabin getMainCabin(PlayerColor color) {
+        if (color == null) {
+            throw new NullPointerException("color is null");
+        }
+        return switch (color) {
+            case RED -> deepClone(mainCabins[2]);
+            case GREEN -> deepClone(mainCabins[1]);
+            case BLUE -> deepClone(mainCabins[0]);
+            case YELLOW -> deepClone(mainCabins[3]);
+        };
+    }
+
+    /**
+     * Get all tiles of the spaceship (main cabins included)
+     * @return an array of tiles
+     */
+    public static Component[] getAllTiles() {
+        Component[] copy = new Component[allTiles.length];
+        for(int i = 0; i < allTiles.length; i++){
+            copy[i] = deepClone(allTiles[i]);
+        }
+        return copy;
+    }
+
+    /**
+     * Duplicate an object
+     * @param oggetto the object to duplicate
+     * @return the duplicated object
+     * @param <T> the type of the object
+     */
+    public static <T extends Serializable> T deepClone(T oggetto) {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(bos);
+            out.writeObject(oggetto);
+
+            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+            ObjectInputStream in = new ObjectInputStream(bis);
+            return (T) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}

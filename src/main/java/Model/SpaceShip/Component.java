@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 // 📌 Allows Jackson to understand which subclass to use.
@@ -19,7 +20,7 @@ import java.util.ArrayList;
         @JsonSubTypes.Type(value = LifeSupportPurple.class, name = "LifeSupportPurple"),
         @JsonSubTypes.Type(value = Shield.class, name = "Shield"),
 })
-public abstract class Component {
+public abstract class Component implements Serializable {
     protected SpaceShip ship;
     @JsonProperty
     protected int ID;

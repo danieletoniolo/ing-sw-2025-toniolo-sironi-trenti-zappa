@@ -25,7 +25,7 @@ public class Engine extends Component {
      */
     @Override
     public boolean isValid() {
-        Component c = ship.getComponent(row-1, column);
+        Component c = ship.getComponent(row + 1, column);
         if (c != null || getClockwiseRotation() != 0) {
             return false;
         }
