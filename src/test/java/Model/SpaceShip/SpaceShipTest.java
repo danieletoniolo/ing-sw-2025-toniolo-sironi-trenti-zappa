@@ -46,8 +46,8 @@ class SpaceShipTest {
             }
         }
         SpaceShip ship = new SpaceShip(Level.SECOND, vs);
-        ship.placeComponent(new Storage(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 2), 8, 7);
-        ship.placeComponent(new Battery(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, 3), 8, 8);
+        ship.placeComponent(new Storage(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 2), 6, 7);
+        ship.placeComponent(new Battery(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, 3), 6, 8);
         assertEquals(3, ship.getNumberOfComponents());
     }
 
@@ -62,7 +62,7 @@ class SpaceShipTest {
         SpaceShip ship = new SpaceShip(Level.SECOND, vs);
         ship.placeComponent(new Storage(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 2), 6, 7);
         ship.placeComponent(new Battery(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, 3), 6, 8);
-        ship.destroyComponent(6, 7);
+        ship.destroyComponent(6, 8);
         assertEquals(2, ship.getNumberOfComponents());
     }
 
@@ -77,8 +77,8 @@ class SpaceShipTest {
         SpaceShip ship = new SpaceShip(Level.SECOND, vs);
         ship.placeComponent(new Storage(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 2), 6, 7);
         ship.placeComponent(new Battery(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, 3), 6, 8);
-        ship.destroyComponent(6, 7);
-        ship.placeComponent(new Cannon(4, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, 1), 6, 9);
+        ship.destroyComponent(6, 8);
+        ship.placeComponent(new Cannon(4, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, 1), 6, 8);
         assertEquals(3, ship.getNumberOfComponents());
     }
 
@@ -1048,8 +1048,8 @@ class SpaceShipTest {
         ship.placeComponent(cabin, 6, 7);
         Battery battery = new Battery(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.TRIPLE, ConnectorType.EMPTY, ConnectorType.EMPTY}, 3);
         ship.placeComponent(battery, 6, 8);
-        Shield shield = new Shield(3, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.TRIPLE});
-        ship.placeComponent(shield, 6, 6);
+        Shield shield = new Shield(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY});
+        ship.placeComponent(shield, 7, 7);
         assertEquals(3, ship.getExposedConnectors());
     }
 
@@ -1059,9 +1059,9 @@ class SpaceShipTest {
         ship.placeComponent(cabin, 6, 7);
         Battery battery = new Battery(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.EMPTY, ConnectorType.TRIPLE}, 3);
         ship.placeComponent(battery, 6, 8);
-        Shield shield = new Shield(3, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.TRIPLE, ConnectorType.EMPTY, ConnectorType.TRIPLE});
-        ship.placeComponent(shield, 6, 6);
-        assertEquals(6, ship.getExposedConnectors());
+        Shield shield = new Shield(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.EMPTY, ConnectorType.TRIPLE});
+        ship.placeComponent(shield, 7, 7);
+        assertEquals(7, ship.getExposedConnectors());
     }
 
     @RepeatedTest(5)
@@ -1126,15 +1126,15 @@ class SpaceShipTest {
         Battery battery = new Battery(2, connectors, 3);
         ship.placeComponent(battery, 5, 7); // North
         Storage storage = new Storage(3, connectors, true, 2);
-        ship.placeComponent(storage, 6, 6); // West
+        ship.placeComponent(storage, 7, 7); // South
         Shield shield = new Shield(5, connectors);
         ship.placeComponent(shield, 6, 8); // East
 
         ArrayList<Component> surroundingComponents = ship.getSurroundingComponents(6, 7);
         assertEquals(4, surroundingComponents.size());
         assertEquals(battery, surroundingComponents.get(0)); // North
-        assertEquals(storage, surroundingComponents.get(1)); // West
-        assertEquals(ComponentType.CABIN, surroundingComponents.get(2).getComponentType()); // South
+        assertEquals(ComponentType.CABIN, surroundingComponents.get(1).getComponentType()); // West
+        assertEquals(storage, surroundingComponents.get(2)); // South
         assertEquals(shield, surroundingComponents.get(3)); // East
     }
 
@@ -1482,9 +1482,9 @@ class SpaceShipTest {
         Cabin cabin1 = new Cabin(3, connectors);
         Battery battery = new Battery(4, connectors, 3);
         ship.placeComponent(cabin, 6, 7);
-        ship.placeComponent(cabin1, 8, 7);
-        ship.placeComponent(battery, 8, 8);
-        ship.destroyComponent(8, 7);
+        ship.placeComponent(cabin1, 7, 6);
+        ship.placeComponent(battery, 8, 6);
+        ship.destroyComponent(7, 6);
         assertFalse(ship.getDisconnectedComponents().isEmpty());
         assertEquals(2, ship.getDisconnectedComponents().size());
     }
