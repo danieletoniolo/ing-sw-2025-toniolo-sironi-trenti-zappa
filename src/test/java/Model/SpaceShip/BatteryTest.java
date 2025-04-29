@@ -389,7 +389,7 @@ class BatteryTest {
         Component adjacentComponent2 = new Battery(3, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 3);
         ship.placeComponent(component, 6, 7);
         ship.placeComponent(adjacentComponent1, 6, 8);
-        ship.placeComponent(adjacentComponent2, 8, 7);
+        ship.placeComponent(adjacentComponent2, 7, 7);
         assertFalse(component.isValid());
     }
 

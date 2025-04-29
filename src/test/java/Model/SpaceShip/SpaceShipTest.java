@@ -948,7 +948,7 @@ class SpaceShipTest {
     @RepeatedTest(5)
     void canProtect_noShield() {
         Hit hit = new Hit(HitType.SMALLMETEOR, Direction.NORTH);
-        Pair<Component, Integer> result = ship.canProtect(7, hit);
+        Pair<Component, Integer> result = ship.canProtect(6, hit);
         assertNotNull(result.getValue0());
         assertEquals(-1, result.getValue1());
 
@@ -1113,9 +1113,9 @@ class SpaceShipTest {
         ArrayList<Component> surroundingComponents = ship.getSurroundingComponents(6, 7);
         assertEquals(4, surroundingComponents.size());
         assertNull(surroundingComponents.get(0)); // North
-        assertNull(surroundingComponents.get(1)); // West
-        assertNotNull(surroundingComponents.get(2)); // South
-        assertEquals(ComponentType.CABIN, surroundingComponents.get(2).getComponentType());
+        assertNotNull(surroundingComponents.get(1)); // West
+        assertEquals(ComponentType.CABIN, surroundingComponents.get(1).getComponentType());
+        assertNull(surroundingComponents.get(2)); // South
         assertNull(surroundingComponents.get(3)); // East
     }
 

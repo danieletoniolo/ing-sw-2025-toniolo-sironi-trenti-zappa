@@ -485,10 +485,10 @@ class CannonTest {
             }
         }
         SpaceShip ship = new SpaceShip(Level.SECOND, vs);
-        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE};
+        ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
         Component component = new Cannon(1, connectors, 1);
-        Component adjacentComponent1 = new Cannon(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1);
-        Component adjacentComponent2 = new Cannon(3, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1);
+        Component adjacentComponent1 = new Cannon(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.EMPTY}, 1);
+        Component adjacentComponent2 = new Cannon(3, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY}, 1);
         ship.placeComponent(component, 6, 7);
         ship.placeComponent(adjacentComponent1, 6, 8);
         ship.placeComponent(adjacentComponent2, 7, 7);
