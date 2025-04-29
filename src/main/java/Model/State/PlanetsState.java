@@ -102,6 +102,6 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
             }
             //Togliere else if pk lo fa il super
         }
-        super.played = true;
+        super.exit();
     }
 }
