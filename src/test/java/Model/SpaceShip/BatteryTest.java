@@ -232,7 +232,7 @@ class BatteryTest {
     }
 
     @RepeatedTest(5)
-    void getExposedConnectors_whenNotAttachedToShip_throwsException() {
+    void getExposedConnectors_whenNotAttachedToShip() {
         Component component = new Battery(1, connectors, 3);
         assertThrows(IllegalStateException.class, component::getExposedConnectors);
     }
@@ -265,6 +265,7 @@ class BatteryTest {
         Component component = new Battery(1, connectors, 3);
         Component adjacentComponent = new Battery(2, connectors, 3);
         ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
         assertTrue(component.isConnected(6, 7));
     }
 
@@ -388,7 +389,7 @@ class BatteryTest {
         Component adjacentComponent2 = new Battery(3, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 3);
         ship.placeComponent(component, 6, 7);
         ship.placeComponent(adjacentComponent1, 6, 8);
-        ship.placeComponent(adjacentComponent2, 6, 6);
+        ship.placeComponent(adjacentComponent2, 8, 7);
         assertFalse(component.isValid());
     }
 

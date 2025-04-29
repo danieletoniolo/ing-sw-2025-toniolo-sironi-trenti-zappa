@@ -73,7 +73,7 @@ class CabinTest {
         LifeSupportPurple lifeSupportPurple = new LifeSupportPurple(3, connectors);
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(lifeSupport, 6, 8);
-        ship.placeComponent(lifeSupportPurple, 6, 6);
+        ship.placeComponent(lifeSupportPurple, 5, 7);
         cabin.isValid();
         cabin.addBrownAlien();
         assertThrows(IllegalStateException.class, cabin::addPurpleAlien);
@@ -111,7 +111,7 @@ class CabinTest {
         LifeSupportBrown lifeSupportBrown = new LifeSupportBrown(3, connectors);
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(lifeSupport, 6, 8);
-        ship.placeComponent(lifeSupportBrown, 6, 6);
+        ship.placeComponent(lifeSupportBrown, 5, 7);
         cabin.isValid();
         cabin.addPurpleAlien();
         assertThrows(IllegalStateException.class, cabin::addBrownAlien);
@@ -817,7 +817,7 @@ class CabinTest {
         Component adjacentComponent2 = new Cabin(3, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE});
         ship.placeComponent(component, 6, 7);
         ship.placeComponent(adjacentComponent1, 6, 8);
-        ship.placeComponent(adjacentComponent2, 6, 6);
+        ship.placeComponent(adjacentComponent2, 5, 7);
         assertFalse(component.isValid());
     }
 

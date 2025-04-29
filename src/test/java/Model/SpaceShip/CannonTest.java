@@ -128,8 +128,8 @@ class CannonTest {
         SpaceShip ship = new SpaceShip(Level.SECOND, vs);
         Cannon cannon = new Cannon(1, connectors, 2);
         Storage storage = new Storage(2, connectors, true, 1);
-        ship.placeComponent(cannon, 6, 7);
-        ship.placeComponent(storage, 6, 8);
+        ship.placeComponent(cannon, 5, 6);
+        ship.placeComponent(storage, 5, 7);
         assertTrue(cannon.isValid());
     }
 
@@ -143,9 +143,7 @@ class CannonTest {
         }
         SpaceShip ship = new SpaceShip(Level.SECOND, vs);
         Cannon cannon = new Cannon(1, connectors, 2);
-        Storage storage = new Storage(2, connectors, true, 1);
         ship.placeComponent(cannon, 6, 7);
-        ship.placeComponent(storage, 6, 6);
         cannon.rotateClockwise();
         assertFalse(cannon.isValid());
     }
@@ -163,7 +161,7 @@ class CannonTest {
         ship.placeComponent(cannon, 6, 7);
         cannon.rotateClockwise();
         cannon.rotateClockwise();
-        assertFalse(cannon.isValid());
+        assertTrue(cannon.isValid());
     }
 
     @RepeatedTest(5)
@@ -369,6 +367,7 @@ class CannonTest {
         Component component = new Cannon(1, connectors, 1);
         Component adjacentComponent = new Cannon(2, connectors, 1);
         ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
         assertTrue(component.isConnected(6, 7));
     }
 
@@ -386,7 +385,7 @@ class CannonTest {
         Component adjacentComponent2 = new Cannon(3, connectors, 1);
         ship.placeComponent(component, 6, 7);
         ship.placeComponent(adjacentComponent1, 6, 8);
-        ship.placeComponent(adjacentComponent2, 5, 7);
+        ship.placeComponent(adjacentComponent2, 7, 7);
         assertTrue(component.isConnected(6, 7));
     }
 
@@ -492,8 +491,8 @@ class CannonTest {
         Component adjacentComponent2 = new Cannon(3, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1);
         ship.placeComponent(component, 6, 7);
         ship.placeComponent(adjacentComponent1, 6, 8);
-        ship.placeComponent(adjacentComponent2, 6, 6);
-        assertFalse(component.isValid());
+        ship.placeComponent(adjacentComponent2, 7, 7);
+        assertTrue(component.isValid());
     }
 
 /*

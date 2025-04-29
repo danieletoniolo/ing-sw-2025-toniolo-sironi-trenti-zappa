@@ -493,7 +493,7 @@ class StorageTest {
         Component adjacentComponent2 = new Storage(3, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, true, 2);
         ship.placeComponent(component, 6, 7);
         ship.placeComponent(adjacentComponent1, 6, 8);
-        ship.placeComponent(adjacentComponent2, 6, 6);
+        ship.placeComponent(adjacentComponent2, 5, 7);
         assertFalse(component.isValid());
     }
 

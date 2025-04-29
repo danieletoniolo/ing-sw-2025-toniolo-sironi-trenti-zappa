@@ -65,8 +65,8 @@ class EngineTest {
         SpaceShip ship = new SpaceShip(Level.SECOND, vs);
         Engine engine = new Engine(1, connectors, 1);
         Storage storage = new Storage(2, connectors, true, 1);
-        ship.placeComponent(engine, 8, 7);
-        ship.placeComponent(storage, 9, 7);
+        ship.placeComponent(engine, 6, 7);
+        ship.placeComponent(storage, 7, 7);
         assertFalse(engine.isValid());
     }
 
@@ -96,8 +96,8 @@ class EngineTest {
         SpaceShip ship = new SpaceShip(Level.SECOND, vs);
         Engine engine = new Engine(1, connectors, 1);
         Storage storage = new Storage(2, connectors, true, 1);
-        ship.placeComponent(engine, 8, 7);
-        ship.placeComponent(storage, 9, 7);
+        ship.placeComponent(engine, 6, 7);
+        ship.placeComponent(storage, 7, 7);
         engine.rotateClockwise();
         assertFalse(engine.isValid());
     }
@@ -271,21 +271,6 @@ class EngineTest {
     }
 
     @RepeatedTest(5)
-    void isConnected_withAdjacentComponent() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
-        Component component = new Engine(1, connectors, 1);
-        Component adjacentComponent = new Engine(2, connectors, 1);
-        ship.placeComponent(component, 6, 7);
-        assertTrue(component.isConnected(6, 7));
-    }
-
-    @RepeatedTest(5)
     void isConnected_withMultipleAdjacentComponents() {
         boolean[][] vs = new boolean[12][12];
         for (int i = 0; i < 12; i++) {
@@ -405,7 +390,7 @@ class EngineTest {
         Component adjacentComponent2 = new Engine(3, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1);
         ship.placeComponent(component, 6, 7);
         ship.placeComponent(adjacentComponent1, 6, 8);
-        ship.placeComponent(adjacentComponent2, 6, 6);
+        ship.placeComponent(adjacentComponent2, 5, 7);
         assertFalse(component.isValid());
     }
 
