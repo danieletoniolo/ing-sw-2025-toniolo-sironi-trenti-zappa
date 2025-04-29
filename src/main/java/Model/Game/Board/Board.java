@@ -2,6 +2,7 @@ package Model.Game.Board;
 
 import Model.Cards.Card;
 import Model.Cards.CardsManager;
+import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -257,5 +258,9 @@ public class Board {
 
     public ArrayList<PlayerData> getGaveUpPlayers() {
         return gaveUpPlayers;
+    }
+
+    public void addInGamePlayers(PlayerData player) {
+        inGamePlayers.add(player);
     }
 }
