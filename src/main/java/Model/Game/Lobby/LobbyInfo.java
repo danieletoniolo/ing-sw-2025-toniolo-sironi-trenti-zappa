@@ -1,25 +1,30 @@
 package Model.Game.Lobby;
 
-import Model.Player.PlayerData;
-
-import java.util.ArrayList;
+import java.util.UUID;
 
 public class LobbyInfo {
-    private final ArrayList<PlayerData> player;
     private String name;
     private final int totalPlayers;
     private int numberOfPlayersEntered;
 
     /**
      * Create a new lobby
-     * @param name the name of the lobby
-     * @param totalPlayers the total number of players in the lobby
+     *
+     * @param founderNickname the name of the lobby's founder
+     * @param totalPlayers    the total number of players in the lobby
+     * @throws IllegalArgumentException  if the name is null or empty
+     * @throws IndexOutOfBoundsException if the total players is less than 1 or greater than 4
      */
-    public LobbyInfo(String name, int totalPlayers) {
+    public LobbyInfo(String founderNickname, int totalPlayers) throws IllegalArgumentException, IndexOutOfBoundsException {
+        if (founderNickname == null || founderNickname.isEmpty()) {
+            throw new IllegalArgumentException("Founder's nickname cannot be null or empty");
+        }
+        if (totalPlayers <= 0 || totalPlayers > 4) {
+            throw new IndexOutOfBoundsException("Total players must be between 1 and 4");
+        }
+        this.name = founderNickname + "'s lobby";
         this.numberOfPlayersEntered = 0;
         this.totalPlayers = totalPlayers;
-        this.name = name;
-        this.player = new ArrayList<>();
     }
 
     /**
@@ -39,37 +44,11 @@ public class LobbyInfo {
     }
 
     /**
-     * Get the number of players entered in the lobby
-     * @return the number of players entered in the lobby
+     * Get the number of players in the lobby
+     * @return the number of players in the lobby
      */
     public int getNumberOfPlayersEntered() {
         return this.numberOfPlayersEntered;
-    }
-
-    /**
-     * Get the players in the lobby
-     * @return the players in the lobby
-     */
-    public ArrayList<PlayerData> getPlayers() {
-        return this.player;
-    }
-
-    /**
-     * Add a player to the lobby
-     * @param playerData the player to add
-     */
-    public void addPlayer(PlayerData playerData) {
-        this.player.add(playerData);
-        this.numberOfPlayersEntered++;
-    }
-
-    /**
-     * Remove a player from the lobby
-     * @param playerData the player to remove
-     */
-    public void removePlayer(PlayerData playerData) {
-        this.player.remove(playerData);
-        this.numberOfPlayersEntered--;
     }
 
     /**
@@ -78,5 +57,9 @@ public class LobbyInfo {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean canGameStart() {
+        return this.numberOfPlayersEntered == this.totalPlayers;
     }
 }

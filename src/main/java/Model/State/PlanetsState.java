@@ -103,6 +103,6 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
                 throw new IllegalStateException("Not all players have played");
             }
         }
-        super.played = true;
+        super.exit();
     }
 }

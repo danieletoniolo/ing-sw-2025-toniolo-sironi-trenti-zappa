@@ -4,12 +4,9 @@ import Model.Cards.Card;
 import Model.Cards.CardsManager;
 import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
+import Model.SpaceShip.TilesManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.tools.javac.Main;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class Board {
@@ -53,15 +50,7 @@ public class Board {
                 throw new IllegalArgumentException("Unexpected value: " + level);
         }
 
-        ClassLoader classLoader = Main.class.getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("Json/Tiles.json");
-        if (inputStream == null) {
-            throw new IllegalArgumentException("File not found!");
-        }
-        String json = new Scanner(inputStream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
-        ObjectMapper objectMapper = new ObjectMapper();
-        this.tiles = objectMapper.readValue(json, Component[].class);
-
+        this.tiles = TilesManager.getTiles();
         inGamePlayers = new ArrayList<>(Arrays.asList(null, null, null, null));
         gaveUpPlayers = new ArrayList<>();
     }
@@ -195,10 +184,9 @@ public class Board {
 
     /**
      * Update the status of players: 1 - players who are giveUp are moved to gaveUpPlayers, 2 - Set the correct position to the players, 3 - Sort the players by their position:
-     * (first of the list is the leader)
-     * @return ArrayList of sorted players
+     * (first of the list is the leader).
      */
-    public ArrayList<PlayerData> updateInGamePlayers() {
+    public void refreshInGamePlayers() {
         inGamePlayers.removeIf(Objects::isNull);
         for (int i = 0; i < inGamePlayers.size(); i++) {
             if (inGamePlayers.get(i).hasGivenUp()) gaveUpPlayers.add(inGamePlayers.remove(i));
@@ -222,8 +210,6 @@ public class Board {
         for (PlayerData player : gaveUpPlayers) {
             inGamePlayers.remove(player);
         }
-
-        return inGamePlayers;
     }
 
     /**
@@ -254,11 +240,19 @@ public class Board {
         }
     }
 
+    public ArrayList<PlayerData> getInGamePlayers() {
+        return inGamePlayers;
+    }
+
     public ArrayList<PlayerData> getGaveUpPlayers() {
         return gaveUpPlayers;
     }
 
-    public Component getTile(int ID) {
-        return tiles[ID];
+    public void addInGamePlayers(PlayerData player) {
+        inGamePlayers.add(player);
+    }
+
+    public void removeInGamePlayer(PlayerData player) {
+        inGamePlayers.remove(player);
     }
 }

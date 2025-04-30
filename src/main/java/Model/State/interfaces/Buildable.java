@@ -13,7 +13,7 @@ public interface Buildable {
      * we are in the learning level and the timer cannot be flipped, the timer is already running, or we are
      * in the last flip and the player has not finished building.
      */
-    void flipTimer(UUID uuid) throws InterruptedException, IllegalStateException;
+    void flipTimer(UUID uuid) throws IllegalStateException;
 
     void showDeck(UUID uuid, int deckIndex);
 
