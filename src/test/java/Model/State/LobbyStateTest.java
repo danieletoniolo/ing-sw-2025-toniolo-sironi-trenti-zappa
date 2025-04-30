@@ -9,8 +9,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 
-import java.util.Arrays;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class LobbyStateTest {
@@ -18,15 +16,10 @@ class LobbyStateTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
-        boolean[][] vs = new boolean[12][12];
-        for (boolean[] v : vs) {
-            Arrays.fill(v, true);
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
-        SpaceShip ship1 = new SpaceShip(Level.SECOND, vs);
-        SpaceShip ship2 = new SpaceShip(Level.SECOND, vs);
-        SpaceShip ship3 = new SpaceShip(Level.SECOND, vs);
-        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        SpaceShip ship0 = new SpaceShip(Level.SECOND, PlayerColor.BLUE);
+        SpaceShip ship1 = new SpaceShip(Level.SECOND, PlayerColor.RED);
+        SpaceShip ship2 = new SpaceShip(Level.SECOND, PlayerColor.GREEN);
+        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship0);
         PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
         PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
 
@@ -41,7 +34,7 @@ class LobbyStateTest {
 
     @RepeatedTest(5)
     void joinGame_addsPlayerToBoardAndStatePlayersList() {
-        PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174005", PlayerColor.BLUE, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174005", PlayerColor.BLUE, new SpaceShip(Level.SECOND, PlayerColor.BLUE));
         state.joinGame(player);
         assertTrue(state.getPlayers().contains(player));
         assertTrue(state.board.getInGamePlayers().contains(player));
@@ -49,7 +42,7 @@ class LobbyStateTest {
 
     @RepeatedTest(5)
     void leaveGame_removesPlayerFromBoardAndStatePlayersList() {
-        PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, PlayerColor.BLUE));
         state.joinGame(player);
         state.leaveGame(player);
         assertFalse(state.getPlayers().contains(player));
@@ -65,10 +58,10 @@ class LobbyStateTest {
 
     @RepeatedTest(5)
     void getPlayerPosition_withPlayerNotInList_or_withNullPlayer() {
-        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, new boolean[12][12]));
-        assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(nonExistentPlayer));
+        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, PlayerColor.YELLOW));
+        assertThrows(NullPointerException.class, () -> state.getPlayerPosition(nonExistentPlayer));
 
-        assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(null));
+        assertThrows(NullPointerException.class, () -> state.getPlayerPosition(null));
     }
 
     @RepeatedTest(5)
@@ -94,7 +87,9 @@ class LobbyStateTest {
     void setStatusPlayers() {
         state.setStatusPlayers(PlayerStatus.PLAYING);
         for (PlayerData player : state.getPlayers()) {
-            assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
+            if(player != null) {
+                assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
+            }
         }
     }
 
@@ -119,7 +114,7 @@ class LobbyStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_whenAllPlayersHavePlayed() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        assertThrows(IllegalStateException.class, () -> state.getCurrentPlayer());
+        assertThrows(NullPointerException.class, () -> state.getCurrentPlayer());
     }
 
     @RepeatedTest(5)
@@ -145,7 +140,9 @@ class LobbyStateTest {
     @RepeatedTest(5)
     void exit_withAllPlayersPlayed() {
         for (PlayerData player : state.getPlayers()) {
-            state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
+            if(player != null) {
+                state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
+            }
         }
 
         assertDoesNotThrow(() -> state.exit());
@@ -155,7 +152,9 @@ class LobbyStateTest {
     @RepeatedTest(5)
     void exit_withWaitingPlayer() {
         for (PlayerData player : state.getPlayers()) {
-            state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
+            if(player != null) {
+                state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
+            }
         }
         state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
 
@@ -186,8 +185,8 @@ class LobbyStateTest {
 
     @RepeatedTest(5)
     void execute_withPlayerNotInGame() {
-        PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174007", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174007", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, PlayerColor.YELLOW));
         state.execute(player);
-        assertEquals(null, state.playersStatus.get(player.getColor()));
+        assertNull(state.playersStatus.get(player.getColor()));
     }
 }

@@ -4,6 +4,7 @@ import Model.Game.Board.Board;
 import Model.Game.Board.Level;
 import Model.Good.Good;
 import Model.Good.GoodType;
+import Model.Player.PlayerColor;
 import Model.SpaceShip.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -39,7 +40,7 @@ public class GenerateRandomShip {
             vs[9][j] = true;
         }
 
-        SpaceShip s = new SpaceShip(Level.SECOND, vs);
+        SpaceShip s = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Board b = new Board(Level.SECOND);
         Component c = null;
 

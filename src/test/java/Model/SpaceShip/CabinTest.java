@@ -1,12 +1,10 @@
 package Model.SpaceShip;
 
 import Model.Game.Board.Level;
+import Model.Player.PlayerColor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,13 +41,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void getCrewNumber_afterAddingPurpleAlien() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -61,13 +53,7 @@ class CabinTest {
 
     @Test
     void addingPurpleAlienAfterAddingBrownAlien() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
         LifeSupportPurple lifeSupportPurple = new LifeSupportPurple(3, connectors);
@@ -81,13 +67,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void getCrewNumber_afterAddingBrownAlien() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -99,13 +79,7 @@ class CabinTest {
 
     @Test
     void addingBrownAlienAfterAddingPurpleAlien() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
         LifeSupportBrown lifeSupportBrown = new LifeSupportBrown(3, connectors);
@@ -135,13 +109,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void hasPurpleLifeSupport_afterAddingPurpleLifeSupport() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -152,13 +120,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void hasPurpleLifeSupport_withNoAdjacentLifeSupport() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
         cabin.isValid();
@@ -167,13 +129,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void hasPurpleLifeSupport_withMultipleAdjacentComponents() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport1 = new LifeSupportPurple(2, connectors);
         LifeSupportPurple lifeSupport2 = new LifeSupportPurple(3, connectors);
@@ -192,13 +148,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void hasBrownLifeSupport_afterAddingBrownLifeSupport() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -209,13 +159,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void hasBrownLifeSupport_withNoAdjacentLifeSupport() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
         cabin.isValid();
@@ -224,13 +168,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void hasBrownLifeSupport_withMultipleAdjacentComponents() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport1 = new LifeSupportBrown(2, connectors);
         LifeSupportBrown lifeSupport2 = new LifeSupportBrown(3, connectors);
@@ -249,13 +187,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void hasPurpleAlien_afterAddingPurpleAlien() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -274,13 +206,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void hasPurpleAlien_withBrownAlienPresent() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -299,13 +225,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void hasBrownAlien_afterAddingBrownAlien() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -324,13 +244,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void hasBrownAlien_withPurpleAlienPresent() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -350,13 +264,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void addCrewMember_withPurpleAlien() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -368,13 +276,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void addCrewMember_withBrownAlien() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -402,13 +304,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void removeCrewMember_withPurpleAlien() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -422,13 +318,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void removeCrewMember_withBrownAlien() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -442,13 +332,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void isValid_withNoAdjacentLifeSupport() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
         assertTrue(cabin.isValid());
@@ -458,13 +342,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void isValid_withAdjacentPurpleLifeSupport() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -475,13 +353,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void isValid_withAdjacentBrownLifeSupport() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
         ship.placeComponent(cabin, 6, 7);
@@ -492,13 +364,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void isValid_withMultipleAdjacentLifeSupports() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport1 = new LifeSupportPurple(2, connectors);
         LifeSupportBrown lifeSupport2 = new LifeSupportBrown(3, connectors);
@@ -648,13 +514,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void getExposedConnectors_whenAttachedToShip() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Component component = new Cabin(1, connectors);
         ship.placeComponent(component, 6, 7);
         assertEquals(3, component.getExposedConnectors());
@@ -668,13 +528,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void getExposedConnectors_withSurroundingComponents() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Component component = new Cabin(1, connectors);
         Component adjacentComponent = new Cabin(2, connectors);
         ship.placeComponent(component, 6, 7);
@@ -684,28 +538,17 @@ class CabinTest {
 
     @RepeatedTest(5)
     void isConnected_withAdjacentComponent() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Component component = new Cabin(1, connectors);
         Component adjacentComponent = new Cabin(2, connectors);
         ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
         assertTrue(component.isConnected(6, 7));
     }
 
     @RepeatedTest(5)
     void isConnected_withMultipleAdjacentComponents() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Component component = new Cabin(1, connectors);
         Component adjacentComponent1 = new Cabin(2, connectors);
         Component adjacentComponent2 = new Cabin(3, connectors);
@@ -753,13 +596,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void isValid_withAllValidConnections() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
         Component component = new Cabin(1, connectors);
         Component adjacentComponent = new Cabin(2, connectors);
@@ -770,13 +607,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void isValid_withInvalidConnections() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY};
         Component component = new Cabin(1, connectors);
         Component adjacentComponent = new Cabin(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE});
@@ -787,13 +618,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void isValid_withTripleConnector() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ConnectorType[] connectors = {ConnectorType.TRIPLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
         Component component = new Cabin(1, connectors);
         Component adjacentComponent = new Cabin(2, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.TRIPLE, ConnectorType.SINGLE});
@@ -804,13 +629,7 @@ class CabinTest {
 
     @RepeatedTest(5)
     void isValid_withMixedConnections() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE};
         Component component = new Cabin(1, connectors);
         Component adjacentComponent1 = new Cabin(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE});
@@ -963,7 +782,6 @@ class CabinTest {
         }
     }
 
-    //TODO: finire il metodo quando implementano il metodo di spostare i componenti
     //Test for the methods isFixed and fix
     @RepeatedTest(5)
     void isFixedTest(){

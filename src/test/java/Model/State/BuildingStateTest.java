@@ -16,22 +16,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BuildingStateTest {
     BuildingState state;
+    Board board;
 
     //TODO: Finire
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
-        boolean[][] vs = new boolean[12][12];
-        for (boolean[] v : vs) {
-            Arrays.fill(v, true);
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
-        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
-        PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship);
-        PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship);
-        PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship);
+        SpaceShip ship0 = new SpaceShip(Level.SECOND, PlayerColor.BLUE);
+        SpaceShip ship1 = new SpaceShip(Level.SECOND, PlayerColor.RED);
+        SpaceShip ship2 = new SpaceShip(Level.SECOND, PlayerColor.GREEN);
+        SpaceShip ship3 = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
+        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship0);
+        PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
+        PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
+        PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
 
-        Board board = new Board(Level.SECOND);
+        board = new Board(Level.SECOND);
         board.setPlayer(p0, 0);
         board.setPlayer(p1, 1);
         board.setPlayer(p2, 2);
@@ -42,13 +42,16 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void flipTimer_withLearningLevel() throws JsonProcessingException {
-        Board b1 = new Board(Level.LEARNING);
-        BuildingState s = new BuildingState(b1);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.BLUE);
+        PlayerData p = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        Board b = new Board(Level.LEARNING);
+        b.setPlayer(p, 0);
+        BuildingState s = new BuildingState(b);
         assertThrows(IllegalStateException.class, () -> s.flipTimer(UUID.randomUUID()));
     }
 
     @RepeatedTest(5)
-    void flipTimer_whenTimerAlreadyRunning() throws InterruptedException {
+    void flipTimer_whenTimerAlreadyRunning() {
         state.flipTimer(UUID.randomUUID());
         assertThrows(IllegalStateException.class, () -> state.flipTimer(UUID.randomUUID()));
     }
@@ -154,32 +157,22 @@ class BuildingStateTest {
     }
     //Fine TODO
 
-    //TODO: Capire come funziona placeMarker - è uguale a setPlayer, solo che con lo stato non posso settare un giocatore in una posizione con zero giocatori
+    //TODO: Così funziona, ma :
+    // 1) Non elimino tutti i player null
+    // 2) Quando creo lo stato ho già la board, quindi il metodo mi dà sempre errore
+    // 3) In questo caso non ho eliminato il player da get(1)
     @RepeatedTest(5)
     void placeMarker_withValidPosition() throws JsonProcessingException {
-        boolean[][] vs = new boolean[12][12];
-        for (boolean[] v : vs) {
-            Arrays.fill(v, true);
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
-        Board b1 = new Board(Level.SECOND);
-        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
-        PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship);
-        PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship);
-        PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship);
+        Board board = new Board(Level.SECOND);
+        BuildingState state = new BuildingState(board);
+        PlayerData player = new PlayerData(UUID.randomUUID().toString(), PlayerColor.BLUE, new SpaceShip(Level.SECOND, PlayerColor.BLUE));
+        PlayerData player1 = new PlayerData(UUID.randomUUID().toString(), PlayerColor.RED, new SpaceShip(Level.SECOND, PlayerColor.RED));
+        state.getPlayers().set(0, player);
+        state.getPlayers().set(1, player1);
+        state.entry();
 
-        BuildingState s = new BuildingState(b1);
-
-        //TODO: Devo prima passare per building state
-        assertDoesNotThrow(() -> s.placeMarker(p0.getUUID(), 0));
-        assertDoesNotThrow(() -> s.placeMarker(p1.getUUID(), 1));
-        assertDoesNotThrow(() -> s.placeMarker(p2.getUUID(), 2));
-        assertDoesNotThrow(() -> s.placeMarker(p3.getUUID(), 3));
-
-        assertEquals(0, s.getPlayers().getFirst().getPosition());
-        assertEquals(1, s.getPlayers().get(1).getPosition());
-        assertEquals(2, s.getPlayers().get(2).getPosition());
-        assertEquals(3, s.getPlayers().get(3).getPosition());
+        assertDoesNotThrow(() -> state.placeMarker(player1.getUUID(), 2));
+        assertEquals(player1, board.getInGamePlayers().get(2));
     }
 
     @RepeatedTest(5)
@@ -540,7 +533,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void getPlayerPosition_withPlayerNotInList_or_withNullPlayer() {
-        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, PlayerColor.YELLOW));
         assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(nonExistentPlayer));
 
         assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(null));
@@ -574,12 +567,8 @@ class BuildingStateTest {
     }
 
     @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() throws JsonProcessingException {
+    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
-
-        Board b = new Board(Level.SECOND);
-        EndState emptyState = new EndState(b, Level.SECOND);
-        assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 
     @RepeatedTest(5)

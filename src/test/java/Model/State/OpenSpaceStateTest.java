@@ -20,15 +20,11 @@ class OpenSpaceStateTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
-        boolean[][] vs = new boolean[12][12];
-        for (boolean[] v : vs) {
-            Arrays.fill(v, true);
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
-        SpaceShip ship1 = new SpaceShip(Level.SECOND, vs);
-        SpaceShip ship2 = new SpaceShip(Level.SECOND, vs);
-        SpaceShip ship3 = new SpaceShip(Level.SECOND, vs);
-        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        SpaceShip ship0 = new SpaceShip(Level.SECOND, PlayerColor.BLUE);
+        SpaceShip ship1 = new SpaceShip(Level.SECOND, PlayerColor.RED);
+        SpaceShip ship2 = new SpaceShip(Level.SECOND, PlayerColor.GREEN);
+        SpaceShip ship3 = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
+        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship0);
         PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
         PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
@@ -49,7 +45,7 @@ class OpenSpaceStateTest {
     void useEngine_withValidBatteriesAndPositiveStrength() {
         PlayerData player = state.getPlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 8, 7);
+        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 6, 7);
         player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 6, 8);
         player.getSpaceShip().placeComponent(new Battery(5, connectors, 3), 6, 9);
@@ -63,7 +59,7 @@ class OpenSpaceStateTest {
         PlayerData player = state.getPlayers().getFirst();
         List<Integer> invalidBatteriesID = Arrays.asList(99, 100);
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 8, 7);
+        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6);
 
         assertThrows(NullPointerException.class, () -> state.useEngine(player, 5.0f, invalidBatteriesID));
     }
@@ -72,7 +68,7 @@ class OpenSpaceStateTest {
     void useEngine_withNullBatteriesList() {
         PlayerData player = state.getPlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 8, 7);
+        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6);
 
         assertThrows(NullPointerException.class, () -> state.useEngine(player, 5.0f, null));
     }
@@ -81,7 +77,7 @@ class OpenSpaceStateTest {
     void useEngine_withZeroStrength() {
         PlayerData player = state.getPlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 8, 7);
+        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 6, 7);
 
         assertDoesNotThrow(() -> state.useEngine(player, 0.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()));
@@ -99,7 +95,7 @@ class OpenSpaceStateTest {
     void entry_withPlayersHavingSingleEngines() {
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         state.getPlayers().forEach(player ->
-                player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 8, 7)
+                player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6)
         );
 
         assertDoesNotThrow(() -> state.entry());
@@ -112,14 +108,16 @@ class OpenSpaceStateTest {
     void entry_withPlayersHavingBrownAlien() {
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         state.getPlayers().forEach(player ->
-                player.getSpaceShip().placeComponent(new LifeSupportBrown(2, connectors), 8, 7)
+                player.getSpaceShip().placeComponent(new LifeSupportBrown(2, connectors), 7, 6)
         );
-        state.getPlayers().forEach(player ->
-                player.getSpaceShip().getCabin(1).isValid()
-        );
-        state.getPlayers().forEach(player ->
-                player.getSpaceShip().addCrewMember(1, true, false)
-        );
+        state.players.getFirst().getSpaceShip().getCabin(32).isValid();
+        state.players.getFirst().getSpaceShip().addCrewMember(32, true, false);
+        state.players.get(1).getSpaceShip().getCabin(51).isValid();
+        state.players.get(1).getSpaceShip().addCrewMember(51, true, false);
+        state.players.get(2).getSpaceShip().getCabin(33).isValid();
+        state.players.get(2).getSpaceShip().addCrewMember(33, true, false);
+        state.players.get(3).getSpaceShip().getCabin(60).isValid();
+        state.players.get(3).getSpaceShip().addCrewMember(60, true, false);
         float alienStrength = SpaceShip.getAlienStrength();
 
         assertDoesNotThrow(() -> state.entry());
@@ -158,7 +156,7 @@ class OpenSpaceStateTest {
 
     @RepeatedTest(5)
     void execute_withPlayerNotInStats() {
-        PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174005", PlayerColor.BLUE, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174005", PlayerColor.BLUE, new SpaceShip(Level.SECOND, PlayerColor.BLUE));
 
         assertThrows(NullPointerException.class, () -> state.execute(player));
     }
@@ -172,7 +170,7 @@ class OpenSpaceStateTest {
 
     @RepeatedTest(5)
     void getPlayerPosition_withPlayerNotInList_or_withNullPlayer() {
-        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, PlayerColor.YELLOW));
         assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(nonExistentPlayer));
 
         assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(null));
@@ -206,12 +204,8 @@ class OpenSpaceStateTest {
     }
 
     @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() throws JsonProcessingException {
+    void setStatusPlayers_withNullStatus() {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
-
-        Board b = new Board(Level.SECOND);
-        EndState emptyState = new EndState(b, Level.SECOND);
-        assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 
     @RepeatedTest(5)

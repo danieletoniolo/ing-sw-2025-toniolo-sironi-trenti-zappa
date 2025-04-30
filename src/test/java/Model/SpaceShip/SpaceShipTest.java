@@ -6,6 +6,7 @@ import Model.Cards.Hits.HitType;
 import Model.Game.Board.Level;
 import Model.Good.Good;
 import Model.Good.GoodType;
+import Model.Player.PlayerColor;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
@@ -16,36 +17,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SpaceShipTest {
     SpaceShip ship;
-    boolean[][] spots;
     ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
 
     @BeforeEach
     void setUp() {
-        spots = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                spots[i][j] = true;
-            }
-        }
-        ship = new SpaceShip(Level.SECOND, spots);
-        assertNotNull(ship, "Ship not initialized correctly");
+        ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
+        assertNotNull(ship);
     }
 
     @RepeatedTest(5)
     void getNumberOfComponents_initialState() {
-        SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         assertEquals(1, ship.getNumberOfComponents());
     }
 
     @RepeatedTest(5)
     void getNumberOfComponents_afterAddingComponents() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ship.placeComponent(new Storage(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 2), 6, 7);
         ship.placeComponent(new Battery(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, 3), 6, 8);
         assertEquals(3, ship.getNumberOfComponents());
@@ -53,13 +41,7 @@ class SpaceShipTest {
 
     @RepeatedTest(5)
     void getNumberOfComponents_afterRemovingComponents() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ship.placeComponent(new Storage(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 2), 6, 7);
         ship.placeComponent(new Battery(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, 3), 6, 8);
         ship.destroyComponent(6, 8);
@@ -68,13 +50,7 @@ class SpaceShipTest {
 
     @RepeatedTest(5)
     void getNumberOfComponents_afterAddingAndRemovingComponents() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ship.placeComponent(new Storage(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 2), 6, 7);
         ship.placeComponent(new Battery(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, 3), 6, 8);
         ship.destroyComponent(6, 8);
@@ -1002,7 +978,7 @@ class SpaceShipTest {
 
     @RepeatedTest(5)
     void getInvalidComponents_noInvalidComponents() {
-        SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         assertTrue(ship.getInvalidComponents().isEmpty());
     }
 
@@ -1204,7 +1180,7 @@ class SpaceShipTest {
     @RepeatedTest(5)
     void placeComponent_invalidSpotThrowsException() {
         Component component = new Storage(1, connectors, true, 2);
-        assertThrows(ArrayIndexOutOfBoundsException.class, () -> ship.placeComponent(component, 0, 0));
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> ship.placeComponent(component, -1, -1));
     }
 
     //TODO: Implementare
@@ -1258,7 +1234,7 @@ class SpaceShipTest {
     void getCabins_afterAddingSingleCabin() {
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
-        assertEquals(1, ship.getCabins().size());
+        assertEquals(2, ship.getCabins().size());
         assertEquals(cabin, ship.getCabins().get(1));
     }
 
@@ -1268,7 +1244,7 @@ class SpaceShipTest {
         Cabin cabin2 = new Cabin(2, connectors);
         ship.placeComponent(cabin1, 6, 7);
         ship.placeComponent(cabin2, 6, 8);
-        assertEquals(2, ship.getCabins().size());
+        assertEquals(3, ship.getCabins().size());
         assertEquals(cabin1, ship.getCabins().get(1));
         assertEquals(cabin2, ship.getCabins().get(2));
     }
@@ -1277,6 +1253,7 @@ class SpaceShipTest {
     void getCabins_afterRemovingCabin() {
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
+        ship.destroyComponent(6, 6);
         ship.destroyComponent(6, 7);
         assertTrue(ship.getCabins().isEmpty());
     }
@@ -1481,10 +1458,10 @@ class SpaceShipTest {
         Cabin cabin = new Cabin(2, connectors);
         Cabin cabin1 = new Cabin(3, connectors);
         Battery battery = new Battery(4, connectors, 3);
-        ship.placeComponent(cabin, 6, 7);
-        ship.placeComponent(cabin1, 7, 6);
-        ship.placeComponent(battery, 8, 6);
-        ship.destroyComponent(7, 6);
+        ship.placeComponent(cabin, 5, 6);
+        ship.placeComponent(cabin1, 6, 5);
+        ship.placeComponent(battery, 7, 5);
+        ship.destroyComponent(6, 5);
         assertFalse(ship.getDisconnectedComponents().isEmpty());
         assertEquals(2, ship.getDisconnectedComponents().size());
     }

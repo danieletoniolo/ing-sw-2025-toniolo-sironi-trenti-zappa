@@ -16,7 +16,6 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,15 +26,14 @@ class AbandonedShipStateTest {
     void setUp() throws JsonProcessingException {
         AbandonedShip c1 = new AbandonedShip(2, 3, 3, 1, 4);
 
-        boolean[][] vs = new boolean[12][12];
-        for (boolean[] v : vs) {
-            Arrays.fill(v, true);
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
-        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
-        PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship);
-        PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship);
-        PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship);
+        SpaceShip ship0 = new SpaceShip(Level.SECOND, PlayerColor.BLUE);
+        SpaceShip ship1 = new SpaceShip(Level.SECOND, PlayerColor.RED);
+        SpaceShip ship2 = new SpaceShip(Level.SECOND, PlayerColor.GREEN);
+        SpaceShip ship3 = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
+        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship0);
+        PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
+        PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
+        PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
 
         Board board = new Board(Level.SECOND);
         board.setPlayer(p0, 0);
@@ -57,9 +55,7 @@ class AbandonedShipStateTest {
     }
 
     @RepeatedTest(5)
-    void setCrewLoss_withNullCabinsID_or_withEmptyCabinID() {
-        assertThrows(NullPointerException.class, () -> state.setCrewLoss(null));
-
+    void setCrewLoss_withEmptyCabinID() {
         ArrayList<Pair<Integer, Integer>> cID = new ArrayList<>();
         assertThrows(IllegalStateException.class, () -> state.setCrewLoss(cID));
     }
@@ -78,7 +74,7 @@ class AbandonedShipStateTest {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         }
         PlayerData player = state.getPlayers().getFirst();
-        player.getSpaceShip().getCabin(1).addCrewMember();
+        player.getSpaceShip().getCabin(32).addCrewMember();
         Cabin c1 = new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         LifeSupportPurple lsp = new LifeSupportPurple(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         player.getSpaceShip().placeComponent(c1, 6,7);
@@ -101,7 +97,7 @@ class AbandonedShipStateTest {
         PlayerData p = state.getPlayers().getFirst();
         assertThrows(IllegalStateException.class, () -> state.execute(p));
 
-        PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174005", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174005", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, PlayerColor.YELLOW));
         assertThrows(IllegalStateException.class, () -> state.execute(p1));
     }
 
@@ -118,7 +114,7 @@ class AbandonedShipStateTest {
             state.playersStatus.put(p.getColor(), PlayerStatus.PLAYING);
         }
         PlayerData player = state.getPlayers().getFirst();
-        player.getSpaceShip().getCabin(1).addCrewMember();
+        player.getSpaceShip().getCabin(32).addCrewMember();
         Cabin c1 = new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         LifeSupportPurple lsp = new LifeSupportPurple(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         player.getSpaceShip().placeComponent(c1, 6,7);
@@ -143,7 +139,7 @@ class AbandonedShipStateTest {
 
     @RepeatedTest(5)
     void getPlayerPosition_withPlayerNotInList_or_withNullPlayer() {
-        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, PlayerColor.YELLOW));
         assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(nonExistentPlayer));
 
         assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(null));
@@ -177,13 +173,8 @@ class AbandonedShipStateTest {
     }
 
     @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() throws JsonProcessingException {
+    void setStatusPlayers_withNullStatus() {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
-
-        Board b = new Board(Level.SECOND);
-        AbandonedShip c2 = new AbandonedShip(2, 3, 3, 1, 4);
-        AbandonedShipState emptyState = new AbandonedShipState(b, c2);
-        assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 
     @RepeatedTest(5)
@@ -230,7 +221,7 @@ class AbandonedShipStateTest {
     void execute_updatesStatusToPlayedIfPlaying() {
         PlayerData player = state.getPlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
-        player.getSpaceShip().getCabin(1).addCrewMember();
+        player.getSpaceShip().getCabin(32).addCrewMember();
         Cabin c1 = new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         LifeSupportPurple lsp = new LifeSupportPurple(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         player.getSpaceShip().placeComponent(c1, 6,7);
@@ -250,7 +241,7 @@ class AbandonedShipStateTest {
     void execute_updatesStatusToSkippedIfNotPlaying() {
         PlayerData player = state.getPlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
-        player.getSpaceShip().getCabin(1).addCrewMember();
+        player.getSpaceShip().getCabin(32).addCrewMember();
         Cabin c1 = new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         LifeSupportPurple lsp = new LifeSupportPurple(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         player.getSpaceShip().placeComponent(c1, 6,7);

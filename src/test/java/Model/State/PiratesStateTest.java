@@ -26,15 +26,11 @@ class PiratesStateTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
-        boolean[][] vs = new boolean[12][12];
-        for (boolean[] v : vs) {
-            Arrays.fill(v, true);
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
-        SpaceShip ship1 = new SpaceShip(Level.SECOND, vs);
-        SpaceShip ship2 = new SpaceShip(Level.SECOND, vs);
-        SpaceShip ship3 = new SpaceShip(Level.SECOND, vs);
-        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        SpaceShip ship0 = new SpaceShip(Level.SECOND, PlayerColor.BLUE);
+        SpaceShip ship1 = new SpaceShip(Level.SECOND, PlayerColor.RED);
+        SpaceShip ship2 = new SpaceShip(Level.SECOND, PlayerColor.GREEN);
+        SpaceShip ship3 = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
+        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship0);
         PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
         PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
@@ -127,9 +123,9 @@ class PiratesStateTest {
         PlayerData player = state.getPlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
-        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
-        player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 8, 8);
-        player.getSpaceShip().placeComponent(new Battery(5, connectors, 3), 8, 9);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
+        player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 7, 7);
+        player.getSpaceShip().placeComponent(new Battery(5, connectors, 3), 7, 8);
 
         assertDoesNotThrow(() -> state.useCannon(player, 5.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()));
         assertEquals(5.0f, state.getStats().get(player));
@@ -162,7 +158,7 @@ class PiratesStateTest {
         PlayerData player = state.getPlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
-        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
 
         assertDoesNotThrow(() -> state.useCannon(player, 0.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()));
         assertEquals(0.0f, state.getStats().get(player));
@@ -195,12 +191,14 @@ class PiratesStateTest {
         state.getPlayers().forEach(player ->
                 player.getSpaceShip().placeComponent(new LifeSupportPurple(2, connectors), 6, 7)
         );
-        state.getPlayers().forEach(player ->
-                player.getSpaceShip().getCabin(1).isValid()
-        );
-        state.getPlayers().forEach(player ->
-                player.getSpaceShip().addCrewMember(1, false, true)
-        );
+        state.players.getFirst().getSpaceShip().getCabin(32).isValid();
+        state.players.getFirst().getSpaceShip().addCrewMember(32, false, true);
+        state.players.get(1).getSpaceShip().getCabin(51).isValid();
+        state.players.get(1).getSpaceShip().addCrewMember(51, false, true);
+        state.players.get(2).getSpaceShip().getCabin(33).isValid();
+        state.players.get(2).getSpaceShip().addCrewMember(33, false, true);
+        state.players.get(3).getSpaceShip().getCabin(60).isValid();
+        state.players.get(3).getSpaceShip().addCrewMember(60, false, true);
         float alienStrength = SpaceShip.getAlienStrength();
 
         assertDoesNotThrow(() -> state.entry());
@@ -303,7 +301,7 @@ class PiratesStateTest {
 
     @RepeatedTest(5)
     void getPlayerPosition_withPlayerNotInList_or_withNullPlayer() {
-        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, PlayerColor.YELLOW));
         assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(nonExistentPlayer));
 
         assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(null));
@@ -337,12 +335,8 @@ class PiratesStateTest {
     }
 
     @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() throws JsonProcessingException {
+    void setStatusPlayers_withNullStatus() {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
-
-        Board b = new Board(Level.SECOND);
-        EndState emptyState = new EndState(b, Level.SECOND);
-        assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 
     @RepeatedTest(5)

@@ -1,6 +1,7 @@
 package Model.State;
 
 import Model.Game.Board.Level;
+import Model.Player.PlayerColor;
 import Model.SpaceShip.*;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,7 +10,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -110,12 +110,8 @@ class FightHandlerTest {
 
     @Test
     void executeProtection_protectTrue() {
-        boolean[][] vs = new boolean[12][12];
-        for (boolean[] v : vs) {
-            Arrays.fill(v, true);
-        }
         ConnectorType[] c = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        SpaceShip spaceShip = new SpaceShip(Level.SECOND, vs);
+        SpaceShip spaceShip = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Battery component = new Battery(2, c, 3);
         fh.setInternalState(FightHandlerInternalState.PROTECTION);
         fh.setProtect(true, 2);
@@ -131,12 +127,8 @@ class FightHandlerTest {
 
     @Test
     void executeProtection_protectFalse() {
-        boolean[][] vs = new boolean[12][12];
-        for (boolean[] v : vs) {
-            Arrays.fill(v, true);
-        }
         ConnectorType[] c = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        SpaceShip spaceShip = new SpaceShip(Level.SECOND, vs);
+        SpaceShip spaceShip = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Battery component = new Battery(2, c, 3);
         fh.setInternalState(FightHandlerInternalState.PROTECTION);
         fh.setProtect(false, null);
@@ -183,12 +175,8 @@ class FightHandlerTest {
 
     @Test
     void executeProtection_withProtection1() {
-        boolean[][] vs = new boolean[12][12];
-        for (boolean[] v : vs) {
-            Arrays.fill(v, true);
-        }
         ConnectorType[] c = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        SpaceShip spaceShip = new SpaceShip(Level.SECOND, vs);
+        SpaceShip spaceShip = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Battery component = new Battery(2, c, 3);
         fh.setInternalState(FightHandlerInternalState.PROTECTION);
         fh.setProtect(false, null);

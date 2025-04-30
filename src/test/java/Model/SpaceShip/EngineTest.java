@@ -1,11 +1,10 @@
 package Model.SpaceShip;
 
 import Model.Game.Board.Level;
+import Model.Player.PlayerColor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,13 +41,7 @@ class EngineTest {
 
     @RepeatedTest(5)
     void isValid_withNoComponentBelowAndNoRotation() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Engine engine = new Engine(1, connectors, 1);
         ship.placeComponent(engine, 6, 7);
         assertTrue(engine.isValid());
@@ -56,13 +49,7 @@ class EngineTest {
 
     @RepeatedTest(5)
     void isValid_withComponentBelow() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Engine engine = new Engine(1, connectors, 1);
         Storage storage = new Storage(2, connectors, true, 1);
         ship.placeComponent(engine, 6, 7);
@@ -72,13 +59,7 @@ class EngineTest {
 
     @RepeatedTest(5)
     void isValid_withRotation() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Engine engine = new Engine(1, connectors, 1);
         ship.placeComponent(engine, 6, 7);
         engine.rotateClockwise();
@@ -87,13 +68,7 @@ class EngineTest {
 
     @RepeatedTest(5)
     void isValid_withComponentBelowAndRotation() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Engine engine = new Engine(1, connectors, 1);
         Storage storage = new Storage(2, connectors, true, 1);
         ship.placeComponent(engine, 6, 7);
@@ -236,13 +211,7 @@ class EngineTest {
 
     @RepeatedTest(5)
     void getExposedConnectors_whenAttachedToShip() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Component component = new Engine(1, connectors, 1);
         ship.placeComponent(component, 6, 7);
         assertEquals(3, component.getExposedConnectors());
@@ -256,13 +225,7 @@ class EngineTest {
 
     @RepeatedTest(5)
     void getExposedConnectors_withSurroundingComponents() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Component component = new Engine(1, connectors, 1);
         Component adjacentComponent = new Engine(2, connectors, 1);
         ship.placeComponent(component, 6, 7);
@@ -272,13 +235,7 @@ class EngineTest {
 
     @RepeatedTest(5)
     void isConnected_withMultipleAdjacentComponents() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Component component = new Engine(1, connectors, 1);
         Component adjacentComponent1 = new Engine(2, connectors, 1);
         Component adjacentComponent2 = new Engine(3, connectors, 1);
@@ -326,13 +283,7 @@ class EngineTest {
 
     @RepeatedTest(5)
     void isValid_withAllValidConnections() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
         Component component = new Engine(1, connectors, 1);
         Component adjacentComponent = new Engine(2, connectors, 1);
@@ -343,13 +294,7 @@ class EngineTest {
 
     @RepeatedTest(5)
     void isValid_withInvalidConnections() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY};
         Component component = new Engine(1, connectors, 1);
         Component adjacentComponent = new Engine(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1);
@@ -360,13 +305,7 @@ class EngineTest {
 
     @RepeatedTest(5)
     void isValid_withTripleConnector() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ConnectorType[] connectors = {ConnectorType.TRIPLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
         Component component = new Engine(1, connectors, 1);
         Component adjacentComponent = new Engine(2, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.TRIPLE, ConnectorType.SINGLE}, 1);
@@ -377,13 +316,7 @@ class EngineTest {
 
     @RepeatedTest(5)
     void isValid_withMixedConnections() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE};
         Component component = new Engine(1, connectors, 1);
         Component adjacentComponent1 = new Engine(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1);
@@ -540,7 +473,6 @@ class EngineTest {
         }
     }
 
-    //TODO: finire il metodo quando implementano il metodo di spostare i componenti
     //Test for the methods isFixed and fix
     @RepeatedTest(5)
     void isFixedTest(){
@@ -568,7 +500,6 @@ class EngineTest {
         }
     }
 
-    //TODO: Fare prima isValid di engine
     @RepeatedTest(500)
     void isValidTest() {
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);

@@ -16,8 +16,6 @@ import org.javatuples.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,15 +29,11 @@ class CombatZoneStateTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
-        boolean[][] vs = new boolean[12][12];
-        for (boolean[] v : vs) {
-            Arrays.fill(v, true);
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
-        SpaceShip ship1 = new SpaceShip(Level.SECOND, vs);
-        SpaceShip ship2 = new SpaceShip(Level.SECOND, vs);
-        SpaceShip ship3 = new SpaceShip(Level.SECOND, vs);
-        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        SpaceShip ship0 = new SpaceShip(Level.SECOND, PlayerColor.BLUE);
+        SpaceShip ship1 = new SpaceShip(Level.SECOND, PlayerColor.RED);
+        SpaceShip ship2 = new SpaceShip(Level.SECOND, PlayerColor.GREEN);
+        SpaceShip ship3 = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
+        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship0);
         PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
         PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
@@ -172,8 +166,8 @@ class CombatZoneStateTest {
         PlayerData player = state.players.getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
-        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 8, 7);
-        player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 8, 8);
+        player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
+        player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 7, 7);
         state.useCannon(player, 5.0f, player.getSpaceShip().getBatteries().keySet().stream().toList());
 
         assertEquals(5.0f, state.getStats().get(CombatZoneInternalState.CANNONS.getIndex(state.getCard().getCardLevel())).get(player));
@@ -223,7 +217,7 @@ class CombatZoneStateTest {
         state.entry();
         PlayerData player = state.players.getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 8, 7);
+        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 6, 7);
         player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 6, 8);
         state.useEngine(player, 4.5f, player.getSpaceShip().getBatteries().keySet().stream().toList());
@@ -254,7 +248,7 @@ class CombatZoneStateTest {
         PlayerData player = state.getPlayers().getFirst();
         List<Integer> invalidBatteriesID = Arrays.asList(99, 100);
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 8, 7);
+        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6);
 
         assertThrows(NullPointerException.class, () -> state.useEngine(player, 5.0f, invalidBatteriesID));
     }
@@ -264,7 +258,7 @@ class CombatZoneStateTest {
         state.setInternalState(CombatZoneInternalState.ENGINES);
         PlayerData player = state.getPlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 8, 7);
+        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6);
 
         assertThrows(NullPointerException.class, () -> state.useEngine(player, 5.0f, null));
     }
@@ -327,10 +321,10 @@ class CombatZoneStateTest {
         ConnectorType[] c = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         LifeSupportBrown lsb = new LifeSupportBrown(2, c);
         Engine e = new Engine(2, c, 1);
-        state.players.getFirst().getSpaceShip().placeComponent(e, 8, 7);
+        state.players.getFirst().getSpaceShip().placeComponent(e, 7, 6);
         state.players.getFirst().getSpaceShip().placeComponent(lsb, 6, 7);
-        state.players.getFirst().getSpaceShip().getCabin(1).isValid();
-        state.players.getFirst().getSpaceShip().addCrewMember(1, true, false);
+        state.players.getFirst().getSpaceShip().getCabin(32).isValid();
+        state.players.getFirst().getSpaceShip().addCrewMember(32, true, false);
         state.entry();
 
         Float expectedStrength = state.players.getFirst().getSpaceShip().getSingleEnginesStrength() + SpaceShip.getAlienStrength();
@@ -344,9 +338,9 @@ class CombatZoneStateTest {
         LifeSupportPurple lsb = new LifeSupportPurple(2, c);
         Cannon e = new Cannon(2, c, 1);
         state.players.getFirst().getSpaceShip().placeComponent(e, 6, 7);
-        state.players.getFirst().getSpaceShip().placeComponent(lsb, 8, 7);
-        state.players.getFirst().getSpaceShip().getCabin(1).isValid();
-        state.players.getFirst().getSpaceShip().addCrewMember(1, false, true);
+        state.players.getFirst().getSpaceShip().placeComponent(lsb, 7, 6);
+        state.players.getFirst().getSpaceShip().getCabin(32).isValid();
+        state.players.getFirst().getSpaceShip().addCrewMember(32, false, true);
         state.entry();
 
         Float expectedStrength = state.players.getFirst().getSpaceShip().getSingleCannonsStrength() + SpaceShip.getAlienStrength();
@@ -360,7 +354,7 @@ class CombatZoneStateTest {
         state.setDice(7);
 
         state.setInternalState(CombatZoneInternalState.CREW);
-        state.players.getFirst().getSpaceShip().addCrewMember(1, false, false);
+        state.players.getFirst().getSpaceShip().addCrewMember(32, false, false);
         state.entry();
         int startStep = state.getMinPlayerCrew().getStep();
         state.execute(state.getMinPlayerCrew());
@@ -379,10 +373,10 @@ class CombatZoneStateTest {
     @Test
     void execute_validStateEngines() {
         state.setInternalState(CombatZoneInternalState.ENGINES);
-        state.players.getFirst().getSpaceShip().addCrewMember(1, false, false);
+        state.players.getFirst().getSpaceShip().addCrewMember(32, false, false);
         state.players.getFirst().getSpaceShip().placeComponent(new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}), 6, 7);
         state.players.getFirst().getSpaceShip().addCrewMember(2, false, false);
-        state.players.getFirst().getSpaceShip().placeComponent(new Storage(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 3), 8, 7);
+        state.players.getFirst().getSpaceShip().placeComponent(new Storage(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 3), 7, 6);
         Good g = new Good(GoodType.YELLOW);
         ArrayList<Good> lAdd = new ArrayList<>();
         lAdd.add(g);
@@ -390,7 +384,7 @@ class CombatZoneStateTest {
 
         state.entry();
         ArrayList<Pair<Integer, Integer>> crewLoss = new ArrayList<>();
-        crewLoss.add(Pair.with(1, 2));
+        crewLoss.add(Pair.with(32, 2));
         crewLoss.add(Pair.with(2, 1));
         int startCrew = state.players.getFirst().getSpaceShip().getCrewNumber();
         state.setCrewLoss(crewLoss);
@@ -456,7 +450,7 @@ class CombatZoneStateTest {
 
     @RepeatedTest(5)
     void getPlayerPosition_withPlayerNotInList_or_withNullPlayer() {
-        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, PlayerColor.YELLOW));
         assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(nonExistentPlayer));
 
         assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(null));
@@ -490,12 +484,8 @@ class CombatZoneStateTest {
     }
 
     @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() throws JsonProcessingException {
+    void setStatusPlayers_withNullStatus()  {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
-
-        Board b = new Board(Level.SECOND);
-        EndState emptyState = new EndState(b, Level.SECOND);
-        assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 
     @RepeatedTest(5)

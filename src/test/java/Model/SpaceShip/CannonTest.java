@@ -1,11 +1,10 @@
 package Model.SpaceShip;
 
 import Model.Game.Board.Level;
+import Model.Player.PlayerColor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -89,13 +88,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isValid_withNoComponentInFront() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cannon cannon = new Cannon(1, connectors, 2);
         ship.placeComponent(cannon, 6, 7);
         assertTrue(cannon.isValid());
@@ -103,13 +96,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isValid_withComponentInFront() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cannon cannon = new Cannon(1, connectors, 2);
         Storage storage = new Storage(2, connectors, true, 1);
         ship.placeComponent(cannon, 6, 7);
@@ -119,13 +106,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isValid_withComponentOnSide() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cannon cannon = new Cannon(1, connectors, 2);
         Storage storage = new Storage(2, connectors, true, 1);
         ship.placeComponent(cannon, 5, 6);
@@ -135,13 +116,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isValid_withComponentInFrontAfterRotation() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cannon cannon = new Cannon(1, connectors, 2);
         ship.placeComponent(cannon, 6, 7);
         cannon.rotateClockwise();
@@ -150,13 +125,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isValid_after2Rotation() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cannon cannon = new Cannon(1, connectors, 2);
         ship.placeComponent(cannon, 6, 7);
         cannon.rotateClockwise();
@@ -166,13 +135,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isValid_after3Rotation() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cannon cannon = new Cannon(1, connectors, 2);
         ship.placeComponent(cannon, 6, 7);
         cannon.rotateClockwise();
@@ -321,13 +284,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void getExposedConnectors_whenAttachedToShip() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Component component = new Cannon(1, connectors, 1);
         ship.placeComponent(component, 6, 7);
         assertEquals(3, component.getExposedConnectors());
@@ -341,13 +298,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void getExposedConnectors_withSurroundingComponents() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Component component = new Cannon(1, connectors, 1);
         Component adjacentComponent = new Cannon(2, connectors, 1);
         ship.placeComponent(component, 6, 7);
@@ -357,13 +308,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isConnected_withAdjacentComponent() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Component component = new Cannon(1, connectors, 1);
         Component adjacentComponent = new Cannon(2, connectors, 1);
         ship.placeComponent(component, 6, 7);
@@ -373,13 +318,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isConnected_withMultipleAdjacentComponents() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Component component = new Cannon(1, connectors, 1);
         Component adjacentComponent1 = new Cannon(2, connectors, 1);
         Component adjacentComponent2 = new Cannon(3, connectors, 1);
@@ -427,13 +366,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isValid_withAllValidConnections() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
         Component component = new Cannon(1, connectors, 1);
         Component adjacentComponent = new Cannon(2, connectors, 1);
@@ -444,13 +377,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isValid_withInvalidConnections() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY};
         Component component = new Cannon(1, connectors, 1);
         Component adjacentComponent = new Cannon(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1);
@@ -461,13 +388,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isValid_withTripleConnector() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ConnectorType[] connectors = {ConnectorType.TRIPLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
         Component component = new Cannon(1, connectors, 1);
         Component adjacentComponent = new Cannon(2, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.TRIPLE, ConnectorType.SINGLE}, 1);
@@ -478,13 +399,7 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isValid_withMixedConnections() {
-        boolean[][] vs = new boolean[12][12];
-        for (int i = 0; i < 12; i++) {
-            for (int j = 0; j < 12; j++) {
-                vs[i][j] = true;
-            }
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         ConnectorType[] connectors = {ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
         Component component = new Cannon(1, connectors, 1);
         Component adjacentComponent1 = new Cannon(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.SINGLE, ConnectorType.EMPTY, ConnectorType.EMPTY}, 1);

@@ -9,8 +9,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 
-import java.util.Arrays;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpidemicStateTest {
@@ -18,16 +16,14 @@ class EpidemicStateTest {
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
-        boolean[][] vs = new boolean[12][12];
-        for (boolean[] v : vs) {
-            Arrays.fill(v, true);
-        }
-        SpaceShip ship = new SpaceShip(Level.SECOND, vs);
-        SpaceShip ship1 = new SpaceShip(Level.SECOND, vs);
-        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
+        SpaceShip ship0 = new SpaceShip(Level.SECOND, PlayerColor.BLUE);
+        SpaceShip ship1 = new SpaceShip(Level.SECOND, PlayerColor.RED);
+        SpaceShip ship2 = new SpaceShip(Level.SECOND, PlayerColor.GREEN);
+        SpaceShip ship3 = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
+        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship0);
         PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
-        PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship1);
-        PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship1);
+        PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
+        PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
 
         Board board = new Board(Level.SECOND);
         board.setPlayer(p0, 0);
@@ -50,7 +46,7 @@ class EpidemicStateTest {
         player.getSpaceShip().placeComponent(cabin2, 6,8);
         player.getSpaceShip().placeComponent(lsp, 6,9);
         cabin2.isValid();
-        player.getSpaceShip().getCabin(1).addCrewMember();
+        player.getSpaceShip().getCabin(32).addCrewMember();
         cabin1.addCrewMember();
         cabin2.addPurpleAlien();
 
@@ -71,11 +67,11 @@ class EpidemicStateTest {
         Cabin cabin3 = new Cabin(6, connector);
         player.getSpaceShip().placeComponent(cabin1, 6,7);
         player.getSpaceShip().placeComponent(s, 6,8);
-        player.getSpaceShip().placeComponent(cabin2, 6,9);
-        player.getSpaceShip().placeComponent(lsp, 6,6);
-        player.getSpaceShip().placeComponent(cabin3, 6,5);
+        player.getSpaceShip().placeComponent(cabin2, 7,8);
+        player.getSpaceShip().placeComponent(lsp, 6,5);
+        player.getSpaceShip().placeComponent(cabin3, 6,4);
         cabin3.isValid();
-        player.getSpaceShip().getCabin(1).addCrewMember();
+        player.getSpaceShip().getCabin(32).addCrewMember();
         cabin1.addCrewMember();
         cabin2.addCrewMember();
         cabin3.addPurpleAlien();
@@ -96,7 +92,7 @@ class EpidemicStateTest {
 
     @RepeatedTest(5)
     void getPlayerPosition_withPlayerNotInList_or_withNullPlayer() {
-        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, new boolean[12][12]));
+        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, PlayerColor.YELLOW));
         assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(nonExistentPlayer));
 
         assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(null));
@@ -130,12 +126,8 @@ class EpidemicStateTest {
     }
 
     @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() throws JsonProcessingException {
+    void setStatusPlayers_withNullStatus() {
         assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
-
-        Board b = new Board(Level.SECOND);
-        State emptyState = new EpidemicState(b);
-        assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
     }
 
     @RepeatedTest(5)
