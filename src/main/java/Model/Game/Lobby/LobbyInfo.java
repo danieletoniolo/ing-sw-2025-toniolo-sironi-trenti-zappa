@@ -36,14 +36,6 @@ public class LobbyInfo {
     }
 
     /**
-     * Get the UUID of the lobby
-     * @return the UUID of the lobby
-     */
-    public UUID getUUID() {
-        return this.uuid;
-    }
-
-    /**
      * Get the total number of players in the lobby
      * @return the total number of players in the lobby
      */

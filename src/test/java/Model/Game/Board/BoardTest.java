@@ -111,11 +111,7 @@ class BoardTest {
         for (int i = 0; i < 3; i++) {
             int index = i;
             assertThrows(IllegalStateException.class, () -> {
-                boolean[][] matrix = new boolean[12][12];
-                for (boolean[] booleans : matrix) {
-                    Arrays.fill(booleans, true);
-                }
-                SpaceShip spaceShip = new SpaceShip(Level.SECOND, matrix);
+                SpaceShip spaceShip = new SpaceShip(Level.SECOND, PlayerColor.RED);
                 PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", null, spaceShip);
                 board.getDeck(index, player);
             });
@@ -126,11 +122,7 @@ class BoardTest {
         });
 
         for (int i = 0; i < 3; i++) {
-            boolean[][] matrix = new boolean[12][12];
-            for (boolean[] booleans : matrix) {
-                Arrays.fill(booleans, true);
-            }
-            SpaceShip spaceShip = new SpaceShip(Level.SECOND, matrix);
+            SpaceShip spaceShip = new SpaceShip(Level.SECOND, PlayerColor.RED);
             PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", null, spaceShip);
             spaceShip.placeComponent(board.getTiles()[7], 6, 7);
             assertNotNull(board.getDeck(i, player));
