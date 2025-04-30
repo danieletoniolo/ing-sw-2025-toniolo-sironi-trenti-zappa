@@ -16,7 +16,7 @@ class BatteryTest {
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         b = new Battery(0, connectors, 3);
-        assertNotNull(b, "Component not initialized correctly");
+        assertNotNull(b);
     }
 
     @Test

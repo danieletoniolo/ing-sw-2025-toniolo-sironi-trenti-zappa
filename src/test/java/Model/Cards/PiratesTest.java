@@ -24,7 +24,7 @@ class PiratesTest {
         fires.add(new Hit(HitType.LIGHTFIRE, Direction.SOUTH));
         assertFalse(fires.contains(null));
         card = new Pirates(2, 0, fires, 4, 2, 1);
-        assertNotNull(card, "Card variable not inialized correctly");
+        assertNotNull(card);
     }
 
     @Test
@@ -42,7 +42,6 @@ class PiratesTest {
 
     @Test
     void testFiresEmptyOrNull() {
-        Pirates c1;
         assertThrows(NullPointerException.class, () -> new Pirates(2, 3, null, 4, 2, 1));
         assertThrows(NullPointerException.class, () -> new Pirates(2, 3, new ArrayList<>(), 4, 2, 1));
     }

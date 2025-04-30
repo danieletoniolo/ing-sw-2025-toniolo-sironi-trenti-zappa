@@ -16,7 +16,7 @@ import java.util.Random;
 class PlanetsTest {
     Planets card;
     List<List<Good>> planets = Arrays.asList( Arrays.asList(new Good(GoodType.BLUE), new Good(GoodType.RED)),
-            Arrays.asList(new Good(GoodType.YELLOW)) );
+            List.of(new Good(GoodType.YELLOW)));
 
     @BeforeEach
     void setUp() {
@@ -31,13 +31,12 @@ class PlanetsTest {
         assertEquals(0, c1.getID());
         assertEquals(0, c1.getCardLevel());
         assertEquals(0, c1.getFlightDays());
-        assertThrows((NullPointerException.class), () -> c1.getPlanetNumbers());
+        assertThrows((NullPointerException.class), c1::getPlanetNumbers);
         assertEquals(CardType.PLANETS, c1.getCardType());
     }
 
     @Test
     void testPlanetsEmptyOrNull() {
-        Planets c1;
         assertThrows(NullPointerException.class, () -> new Planets(2, 3, null, 3));
         assertThrows(NullPointerException.class, () -> new Planets(2, 3, new ArrayList<>(), 3));
     }

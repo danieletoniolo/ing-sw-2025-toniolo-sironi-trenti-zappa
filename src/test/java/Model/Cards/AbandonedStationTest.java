@@ -23,7 +23,7 @@ class AbandonedStationTest {
         goods.add(new Good(GoodType.BLUE));
         assertFalse(goods.contains(null));
         card = new AbandonedStation(2,3,1, 0, goods);
-        assertNotNull(card, "Card variable not initialized correctly");
+        assertNotNull(card);
     }
 
     @Test

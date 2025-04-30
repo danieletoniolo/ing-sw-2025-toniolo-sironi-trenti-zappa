@@ -16,7 +16,7 @@ class EngineTest {
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         engine = new Engine(0, connectors, 1);
-        assertNotNull(engine, "Component not initialized correctly");
+        assertNotNull(engine);
     }
 
     @Test

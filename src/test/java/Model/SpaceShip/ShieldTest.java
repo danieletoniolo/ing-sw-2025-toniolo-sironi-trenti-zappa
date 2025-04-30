@@ -16,7 +16,7 @@ class ShieldTest {
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         s = new Shield(0, connectors);
-        assertNotNull(s, "Component not initialized correctly");
+        assertNotNull(s);
     }
 
     @Test
@@ -228,6 +228,7 @@ class ShieldTest {
         Component component = new Shield(1, connectors);
         Component adjacentComponent = new Shield(2, connectors);
         ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
         assertTrue(component.isConnected(6, 7));
     }
 

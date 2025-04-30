@@ -19,7 +19,7 @@ class SlaversTest {
     void setUp() {
         fires = new ArrayList<>();
         card = new Slavers(1, 0, 3, 2, 4, 5);
-        assertNotNull(card, "Card variable not inialized correctly");
+        assertNotNull(card);
     }
 
     @Test

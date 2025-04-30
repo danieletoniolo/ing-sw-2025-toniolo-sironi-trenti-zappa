@@ -16,7 +16,7 @@ class CannonTest {
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE , ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         component = new Cannon(0, connectors, 1);
-        assertNotNull(component, "Component not initialized correctly");
+        assertNotNull(component);
     }
 
     @Test
@@ -444,7 +444,6 @@ class CannonTest {
 
     @RepeatedTest(5)
     void isValidTest(){
-        //Potrei fare un test con un componente davanti e uno senza, ma in modo randomico aggiungere un componente davanti
         SpaceShip ship = new SpaceShip(Level.SECOND, new boolean[12][12]);
         Storage storage = new Storage(1, connectors, true, 1);
         ship.placeComponent(storage, 8, 7);
@@ -457,7 +456,6 @@ class CannonTest {
             boolean add = rand.nextBoolean();
             System.out.println(add);
             if(add){
-                //If true, add a component in front of the cannon
                 Cannon cannon1 = new Cannon(5 + j, connectors, 1);
                 ship.placeComponent(cannon1, 7, 8 + j);
             }

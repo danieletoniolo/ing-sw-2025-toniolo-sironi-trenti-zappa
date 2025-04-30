@@ -16,7 +16,7 @@ class ConnectorsTest {
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         c = new Connectors(0, connectors);
-        assertNotNull(c, "Component not initialized correctly");
+        assertNotNull(c);
     }
 
     @Test
@@ -186,6 +186,7 @@ class ConnectorsTest {
         Component component = new Connectors(1, connectors);
         Component adjacentComponent = new Connectors(2, connectors);
         ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
         assertTrue(component.isConnected(6, 7));
     }
 

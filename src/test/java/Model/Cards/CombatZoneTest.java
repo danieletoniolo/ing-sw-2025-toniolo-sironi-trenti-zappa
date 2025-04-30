@@ -6,7 +6,6 @@ import Model.Cards.Hits.HitType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,7 +23,7 @@ class CombatZoneTest {
         fires.add(new Hit(HitType.LARGEMETEOR, Direction.NORTH));
         assertFalse(fires.contains(null));
         card = new CombatZone(2, 3, fires, 2, 0);
-        assertNotNull(card, "Card variable not initialized correctly");
+        assertNotNull(card);
     }
 
     @Test
@@ -41,7 +40,6 @@ class CombatZoneTest {
 
     @Test
     void testFiresEmptyOrNull() {
-        CombatZone c1;
         assertThrows(NullPointerException.class, () -> new CombatZone(2, 3, null, 2, 0));
         assertThrows(NullPointerException.class, () -> new CombatZone(2, 3, new ArrayList<>(), 2, 0));
     }

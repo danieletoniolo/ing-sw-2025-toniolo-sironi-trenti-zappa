@@ -286,6 +286,6 @@ class AbandonedShipStateTest {
 
     @Test
     void testConstructorWhenBoardIsNull() {
-        assertThrows(NullPointerException.class, () -> {new State(null) {};});
+        assertThrows(NullPointerException.class, () -> new State(null) {});
     }
 }

@@ -22,7 +22,7 @@ class SmugglersTest {
         rewards.add(new Good(GoodType.BLUE));
         rewards.add(new Good(GoodType.RED));
         card = new Smugglers(2, 0, rewards, 1, 2, 3);
-        assertNotNull(card, "Card variable not initialized correctly");
+        assertNotNull(card);
     }
 
     @Test
@@ -39,8 +39,7 @@ class SmugglersTest {
     }
 
     @Test
-    void testRewardsEmptyOrNull() {
-        Smugglers c1;
+    void testRewardsNull() {
         assertThrows(NullPointerException.class, () -> new Smugglers(2, 3, null, 1, 2, 3));
     }
 

@@ -18,7 +18,7 @@ class StorageTest {
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         s = new Storage(0, connectors, true, 3);
-        assertNotNull(s, "Component not initialized correctly");
+        assertNotNull(s);
     }
 
     @Test
@@ -353,6 +353,7 @@ class StorageTest {
         Component component = new Storage(1, connectors, true, 3);
         Component adjacentComponent = new Storage(2, connectors, true, 3);
         ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
         assertTrue(component.isConnected(6, 7));
     }
 

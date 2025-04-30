@@ -1,16 +1,13 @@
 package Model.Good;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class GoodTest {
     Good good;
-    Random random = new Random();
 
     @BeforeEach
     void setUp() {
@@ -37,17 +34,15 @@ class GoodTest {
 
     @Test
     void testEquals() {
-        assertTrue(good.equals(good));
-
         Good otherGood = new Good(GoodType.BLUE);
-        assertTrue(good.equals(otherGood));
+        assertEquals(good, otherGood);
 
         Good otherGood1 = new Good(GoodType.RED);
-        assertFalse(good.equals(otherGood1));
+        assertNotEquals(good, otherGood1);
 
-        assertFalse(good.equals(null));
+        assertNotEquals(null, good);
 
-        assertFalse(good.equals(new Object()));
+        assertNotEquals(new Object(), good);
     }
 
     /*

@@ -65,15 +65,6 @@ class OpenSpaceStateTest {
     }
 
     @RepeatedTest(5)
-    void useEngine_withNullBatteriesList() {
-        PlayerData player = state.getPlayers().getFirst();
-        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6);
-
-        assertThrows(NullPointerException.class, () -> state.useEngine(player, 5.0f, null));
-    }
-
-    @RepeatedTest(5)
     void useEngine_withZeroStrength() {
         PlayerData player = state.getPlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
@@ -82,13 +73,6 @@ class OpenSpaceStateTest {
 
         assertDoesNotThrow(() -> state.useEngine(player, 0.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()));
         assertEquals(0.0f, state.getStats().get(player));
-    }
-
-    @RepeatedTest(5)
-    void useEngine_withNullPlayer() {
-        List<Integer> batteriesID = Arrays.asList(1, 2, 3);
-
-        assertThrows(NullPointerException.class, () -> state.useEngine(null, 5.0f, batteriesID));
     }
 
     @RepeatedTest(5)

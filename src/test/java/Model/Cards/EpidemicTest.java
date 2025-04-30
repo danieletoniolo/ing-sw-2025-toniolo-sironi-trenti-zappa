@@ -14,7 +14,7 @@ class EpidemicTest {
     @BeforeEach
     void setUp() {
         card = new Epidemic(2, 0);
-        assertNotNull(card, "Card variable not initialized correctly");
+        assertNotNull(card);
     }
 
     @Test

@@ -106,8 +106,6 @@ class EndStateTest {
 
     @RepeatedTest(5)
     void execute_withUnknownEndInternalState() {
-        PlayerData player = state.getPlayers().getFirst();
-
         int i = 0;
         for(PlayerData p : state.getPlayers()) {
             state.playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);

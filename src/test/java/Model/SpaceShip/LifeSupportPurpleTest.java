@@ -16,7 +16,7 @@ class LifeSupportPurpleTest {
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         lsp = new LifeSupportPurple(0, connectors);
-        assertNotNull(lsp, "Component not initialized correctly");
+        assertNotNull(lsp);
     }
 
     @Test
@@ -186,6 +186,7 @@ class LifeSupportPurpleTest {
         Component component = new LifeSupportPurple(1, connectors);
         Component adjacentComponent = new LifeSupportPurple(2, connectors);
         ship.placeComponent(component, 6, 7);
+        ship.placeComponent(adjacentComponent, 6, 8);
         assertTrue(component.isConnected(6, 7));
     }
 

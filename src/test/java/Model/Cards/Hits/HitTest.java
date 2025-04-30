@@ -14,7 +14,7 @@ class HitTest {
     @BeforeEach
     void setUp() {
         hit = new Hit(HitType.HEAVYFIRE, Direction.NORTH);
-        assertNotNull(hit, "Hit variable not initialized correctly");
+        assertNotNull(hit);
     }
 
     @Test

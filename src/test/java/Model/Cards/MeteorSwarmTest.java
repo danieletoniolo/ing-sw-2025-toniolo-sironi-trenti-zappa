@@ -35,7 +35,6 @@ class MeteorSwarmTest {
 
     @Test
     void testMeteorsEmptyOrNull() {
-        MeteorSwarm c1;
         assertThrows(NullPointerException.class, () -> new MeteorSwarm(2, 3, null));
         assertThrows(NullPointerException.class, () -> new MeteorSwarm(2, 3, new ArrayList<>()));
     }

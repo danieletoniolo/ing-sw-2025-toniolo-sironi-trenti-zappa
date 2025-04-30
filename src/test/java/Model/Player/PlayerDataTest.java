@@ -1,8 +1,6 @@
 package Model.Player;
 
-import Model.Game.Board.Level;
 import Model.SpaceShip.SpaceShip;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -15,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class PlayerDataTest {
     PlayerData player;
     SpaceShip ship = null;
-    private static final String Character = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     @ParameterizedTest
     @ValueSource(strings = {"123e4567-e89b-12d3-a456-426614174001", "123e4567-e89b-12d3-a456-426614174002", "123e4567-e89b-12d3-a456-426614174003", "123e4567-e89b-12d3-a456-426614174004"})
@@ -139,7 +136,7 @@ class PlayerDataTest {
         assertNotEquals(player, player2);
 
         assertNotEquals(null, player);
-        assertNotEquals(player, new Object());
+        assertNotEquals(new Object(), player);
     }
 
     /*
@@ -252,7 +249,6 @@ class PlayerDataTest {
     }
 
     //Test for isDisconnected and setDisconnected
-    //TODO: Devo dire che se sono disconnesso sono cmq in lobby? Tutto per renderlo diverso da give up
     @RepeatedTest(5)
     void Disconnected() {
         assertFalse(player.isDisconnected());
