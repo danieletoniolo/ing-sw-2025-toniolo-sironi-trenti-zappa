@@ -28,9 +28,7 @@ public class gameInput {
     private Scanner input = new Scanner(System.in);
 
     public String getInput() {
-        do {
 
-        }while()
 
         return input.nextLine();
     }

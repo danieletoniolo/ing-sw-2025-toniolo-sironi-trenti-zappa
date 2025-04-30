@@ -20,7 +20,7 @@ public class ComponentMainView {
 
             ArrayList<Component> toVisualize = new ArrayList<>();
             for(int i = 0; i < 156; i++) {
-                toVisualize.add(board.getTile(i));
+                toVisualize.add(board.getTiles()[i]);
             }
 
             ((Storage) toVisualize.get(31)).addGood(new Good(GoodType.YELLOW));

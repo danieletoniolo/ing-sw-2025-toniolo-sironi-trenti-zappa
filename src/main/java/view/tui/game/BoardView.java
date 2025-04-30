@@ -47,7 +47,8 @@ public class BoardView {
                     break;
             }
         }
-        board.updateInGamePlayers().forEach(player -> {
+        board.refreshInGamePlayers();
+        board.getInGamePlayers().forEach(player -> {
             steps[player.getStep() % board.getStepsForALap()] = getPlayerColor(player);
         });
 
@@ -122,7 +123,8 @@ public class BoardView {
 
         System.out.println();
         System.out.println("InGame players:");
-        board.updateInGamePlayers().forEach(player -> {
+        board.refreshInGamePlayers();
+        board.getInGamePlayers().forEach(player -> {
             System.out.print(player.getPosition() + ") " + player.getUsername() + ": " + (player.getStep() % board.getStepsForALap()) + " step with color " + player.getColor().toString() + "\n");
         });
 
