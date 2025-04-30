@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CombatZoneStateTest {
     CombatZoneState state;
+    CombatZoneState stateL;
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
@@ -38,17 +39,31 @@ class CombatZoneStateTest {
         PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
 
+        PlayerData p00 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship0);
+        PlayerData p11 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
+        PlayerData p22 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
+        PlayerData p33 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
+
         Board board = new Board(Level.SECOND);
         board.setPlayer(p0, 0);
         board.setPlayer(p1, 1);
         board.setPlayer(p2, 2);
         board.setPlayer(p3, 3);
 
+        Board board1 = new Board(Level.LEARNING);
+        board1.setPlayer(p00, 0);
+        board1.setPlayer(p11, 1);
+        board1.setPlayer(p22, 2);
+        board1.setPlayer(p33, 3);
+
         ArrayList<Hit> fires = new ArrayList<>(List.of(new Hit(HitType.HEAVYFIRE, Direction.NORTH), new Hit(HitType.LIGHTFIRE, Direction.SOUTH), new Hit(HitType.SMALLMETEOR, Direction.EAST)));
         CombatZone c1 = new CombatZone(2, 3, fires, 2, 4);
+        CombatZone c2 = new CombatZone(2, 3, fires, 1, 4);
 
         state = new CombatZoneState(board, c1);
+        stateL = new CombatZoneState(board1, c2);
         assertNotNull(state);
+        assertNotNull(stateL);
     }
 
     @Test
@@ -347,6 +362,7 @@ class CombatZoneStateTest {
         assertEquals(expectedStrength, state.getStats().get(CombatZoneInternalState.CANNONS.getIndex(state.getCard().getCardLevel())).get(state.players.getFirst()));
     }
 
+    //Execute with card level 2
     @Test
     void execute_validStateCrew() {
         state.setInternalState(CombatZoneInternalState.CREW);
@@ -359,13 +375,8 @@ class CombatZoneStateTest {
         int startStep = state.getMinPlayerCrew().getStep();
         state.execute(state.getMinPlayerCrew());
 
-        if(state.getCard().getCardLevel() == 2){
-            assertEquals(CombatZoneInternalState.CREW, state.getInternalState());
-            assertEquals(0, state.getFightHandler().getHitIndex());
-        } else {
-            assertEquals(CombatZoneInternalState.ENGINES, state.getInternalState());
-            assertEquals(startStep - state.getCard().getFlightDays(), state.getMinPlayerCrew().getStep());
-        }
+        assertEquals(CombatZoneInternalState.CREW, state.getInternalState());
+        assertEquals(0, state.getFightHandler().getHitIndex());
 
         //TODO: Non dovremmo aggiornare status del player a played?
     }
@@ -395,15 +406,10 @@ class CombatZoneStateTest {
 
         state.execute(state.getMinPlayerEngines());
 
-        if(state.getCard().getCardLevel() == 2){
-            assertEquals(CombatZoneInternalState.CREW, state.getInternalState());
-            assertFalse(state.getMinPlayerEngines().getSpaceShip().getGoods().stream().anyMatch(lAdd::contains));
-            //assertEquals(state.getCard().getLost(), startCrew - state.getMinPlayerEngines().getSpaceShip().getCrewNumber());
-                //TODO: Non dovrebbe essere sui goods? -> vedi sotto
-        } else {
-            assertEquals(CombatZoneInternalState.CANNONS, state.getInternalState());
-            assertEquals(state.getCard().getLost(), startCrew - state.getMinPlayerEngines().getSpaceShip().getCrewNumber());
-        }
+        assertEquals(CombatZoneInternalState.CREW, state.getInternalState());
+        assertFalse(state.getMinPlayerEngines().getSpaceShip().getGoods().stream().anyMatch(lAdd::contains));
+        //assertEquals(state.getCard().getLost(), startCrew - state.getMinPlayerEngines().getSpaceShip().getCrewNumber());
+            //TODO: Non dovrebbe essere sui goods? -> vedi sotto
     }
 
     @Test
@@ -416,13 +422,71 @@ class CombatZoneStateTest {
 
         state.execute(state.getMinPlayerCannons());
 
-        if(state.getCard().getCardLevel() == 2){
-            assertEquals(CombatZoneInternalState.ENGINES, state.getInternalState());
-            assertEquals(startStep - state.getCard().getFlightDays(), state.getMinPlayerCannons().getStep());
-        } else {
-            assertEquals(CombatZoneInternalState.CANNONS, state.getInternalState());
-            assertEquals(0, state.getFightHandler().getHitIndex());
-        }
+        assertEquals(CombatZoneInternalState.ENGINES, state.getInternalState());
+        assertEquals(startStep - state.getCard().getFlightDays(), state.getMinPlayerCannons().getStep());
+    }
+
+    //Execute with card level Learning
+    @Test
+    void execute_validStateCrew_Learning() {
+        stateL.setInternalState(CombatZoneInternalState.CREW);
+        stateL.players.getFirst().getSpaceShip().addCrewMember(32, false, false);
+        stateL.players.get(2).getSpaceShip().addCrewMember(33, false, false);
+        stateL.players.get(3).getSpaceShip().addCrewMember(60, false, false);
+        stateL.entry();
+        int startStep = stateL.getMinPlayerCrew().getStep();
+        stateL.execute(stateL.getMinPlayerCrew());
+
+        assertEquals(CombatZoneInternalState.ENGINES, stateL.getInternalState());
+        assertEquals(startStep - stateL.getCard().getFlightDays() - 2, stateL.getMinPlayerCrew().getStep());
+
+        //TODO: Non dovremmo aggiornare status del player a played?
+    }
+
+    @Test
+    void execute_validStateEngines_Learning() {
+        stateL.setInternalState(CombatZoneInternalState.ENGINES);
+        stateL.players.getFirst().getSpaceShip().addCrewMember(32, false, false);
+        stateL.players.getFirst().getSpaceShip().placeComponent(new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}), 6, 7);
+        stateL.players.getFirst().getSpaceShip().addCrewMember(2, false, false);
+        stateL.players.getFirst().getSpaceShip().placeComponent(new Storage(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 3), 7, 6);
+        Good g = new Good(GoodType.YELLOW);
+        ArrayList<Good> lAdd = new ArrayList<>();
+        lAdd.add(g);
+        stateL.players.getFirst().getSpaceShip().exchangeGood(lAdd, null, 3);
+
+        stateL.entry();
+        ArrayList<Pair<Integer, Integer>> crewLoss = new ArrayList<>();
+        crewLoss.add(Pair.with(32, 2));
+        crewLoss.add(Pair.with(2, 1));
+        int startCrew = stateL.players.getFirst().getSpaceShip().getCrewNumber();
+        stateL.setCrewLoss(crewLoss);
+
+        ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard = new ArrayList<>();
+        goodsToDiscard.add(Pair.with(lAdd, 3));
+        stateL.setGoodsToDiscard(stateL.getMinPlayerEngines(), goodsToDiscard);
+
+        stateL.execute(stateL.getMinPlayerEngines());
+
+        assertEquals(CombatZoneInternalState.CANNONS, stateL.getInternalState());
+        assertEquals(stateL.getCard().getLost(), startCrew - stateL.getMinPlayerEngines().getSpaceShip().getCrewNumber());
+    }
+
+    @Test
+    void execute_validStateCannons_Learning(){
+        stateL.setInternalState(CombatZoneInternalState.CANNONS);
+        stateL.getFightHandler().setInternalState(FightHandlerInternalState.CAN_PROTECT);
+        stateL.setDice(7);
+
+        stateL.setInternalState(CombatZoneInternalState.CANNONS);
+        stateL.entry();
+
+        stateL.players.getFirst().getSpaceShip().placeComponent(new Cannon(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, 1), 6, 7);
+
+        stateL.execute(stateL.getMinPlayerCannons());
+
+        assertEquals(CombatZoneInternalState.CANNONS, stateL.getInternalState());
+        assertEquals(0, stateL.getFightHandler().getHitIndex());
     }
 
     @Test
@@ -438,8 +502,6 @@ class CombatZoneStateTest {
 
         assertThrows(NullPointerException.class, () -> state.execute(state.getMinPlayerCannons()));
     }
-
-    //TODO: Fare test con execute con carta livello 1
 
     @RepeatedTest(5)
     void getPlayerPosition() {
