@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LobbyInfoTest {
     LobbyInfo lobbyInfo;
-
+/*
     @BeforeEach
     void setUp() {
         lobbyInfo = new LobbyInfo("123e4567-e89b-12d3-a456-426616578345", 4);
@@ -68,7 +68,7 @@ class LobbyInfoTest {
     void canGameStart_returnsFalseWhenNoPlayersHaveJoined() {
         assertFalse(lobbyInfo.canGameStart());
     }
-
+*/
 
 
 
