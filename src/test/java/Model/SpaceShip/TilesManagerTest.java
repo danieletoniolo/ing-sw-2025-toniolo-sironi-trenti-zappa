@@ -32,7 +32,7 @@ class TilesManagerTest {
         }
 
         for (int i = 0; i < 156; i++) {
-            if (i == 32 || i == 33 || i == 51 || i == 60) assertFalse(IDs.contains(i));
+            if (i == 152 || i == 153 || i == 154 || i == 155) assertFalse(IDs.contains(i));
             else assertTrue(IDs.contains(i));
         }
 
@@ -58,10 +58,10 @@ class TilesManagerTest {
         assertNotSame(mainCabin, mainCabin2);
 
         switch (color) {
-            case RED -> assertEquals(51, mainCabin.getID());
-            case BLUE -> assertEquals(32, mainCabin.getID());
-            case YELLOW -> assertEquals(60, mainCabin.getID());
-            case GREEN -> assertEquals(33, mainCabin.getID());
+            case BLUE -> assertEquals(152, mainCabin.getID());
+            case GREEN -> assertEquals(153, mainCabin.getID());
+            case RED -> assertEquals(154, mainCabin.getID());
+            case YELLOW -> assertEquals(155, mainCabin.getID());
         }
     }
 
@@ -70,7 +70,7 @@ class TilesManagerTest {
         ArrayList<Integer> IDs = new ArrayList<>();
 
         // Test if the method returns an array of tiles
-        Component[] allTiles = TilesManager.getTiles();
+        Component[] allTiles = TilesManager.getAllTiles();
         assertNotNull(allTiles);
         assertEquals(156, allTiles.length);
 
@@ -89,7 +89,7 @@ class TilesManagerTest {
             assertTrue(IDs.contains(i));
         }
 
-        Component[] allTiles2 = TilesManager.getTiles();
+        Component[] allTiles2 = TilesManager.getAllTiles();
         for (int i = 0; i < allTiles.length; i++) {
             assertNotSame(allTiles[i], allTiles2[i]);
         }

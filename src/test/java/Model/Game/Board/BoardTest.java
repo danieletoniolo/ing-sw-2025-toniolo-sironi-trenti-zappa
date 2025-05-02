@@ -83,7 +83,7 @@ class BoardTest {
     void getTiles(Level level) throws JsonProcessingException {
         Board board = new Board(level);
         assertNotNull(board.getTiles());
-        assertEquals(156, board.getTiles().length);
+        assertEquals(152, board.getTiles().length);
         for (int i = 0; i < board.getTiles().length; i++) {
             assertNotNull(board.getTiles()[i]);
             assertEquals(i, board.getTiles()[i].getID());
@@ -258,15 +258,14 @@ class BoardTest {
         assertThrows(NullPointerException.class, () -> {
             board.addSteps(null, 2);
         });
-
     }
 
     @ParameterizedTest
     @EnumSource(Level.class)
     void popTile(Level level) throws JsonProcessingException {
         Board board = new Board(level);
-        for (int i = -1; i < 157; i++) {
-            if (i == -1 || i == 156) {
+        for (int i = -1; i < 153; i++) {
+            if (i == -1 || i == 152) {
                 int index = i;
                 assertThrows(IndexOutOfBoundsException.class, () -> {
                     board.popTile(index);
@@ -288,14 +287,14 @@ class BoardTest {
             board.putTile(null);
         });
 
-        for (int i = 0; i < 156; i++) {
+        for (int i = 0; i < 152; i++) {
             int index = i;
             assertThrows(IllegalStateException.class, () -> {
                 board.putTile(board.getTiles()[index]);
             });
         }
 
-        for (int i = 0; i < 156; i++) {
+        for (int i = 0; i < 152; i++) {
             components.add(board.popTile(i));
         }
 
@@ -305,7 +304,7 @@ class BoardTest {
             assertEquals(component, board.getTiles()[component.getID()]);
         }
 
-        for (int i = 0; i < 156; i++) {
+        for (int i = 0; i < 152; i++) {
             assertEquals(i, board.getTiles()[i].getID());
         }
 
