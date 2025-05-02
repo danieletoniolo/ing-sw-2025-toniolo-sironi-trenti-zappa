@@ -27,7 +27,7 @@ public class TilesManager {
     static {
         try {
             allTiles = objectMapper.readValue(json, Component[].class);
-            tiles = new Component[allTiles.length - 4];
+            tiles = new Component[allTiles.length];
             mainCabins = new Cabin[4];
 
             int cont = 0;
@@ -36,7 +36,7 @@ public class TilesManager {
                     mainCabins[cont] = (Cabin) allTiles[i];
                     cont++;
                 } else {
-                    tiles[i - cont] = allTiles[i];
+                    tiles[i] = allTiles[i];
                 }
             }
         } catch (Exception e) {
