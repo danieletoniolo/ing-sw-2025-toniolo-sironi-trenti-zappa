@@ -27,12 +27,12 @@ public class TilesManager {
     static {
         try {
             allTiles = objectMapper.readValue(json, Component[].class);
-            tiles = new Component[allTiles.length];
+            tiles = new Component[allTiles.length - 4];
             mainCabins = new Cabin[4];
 
             int cont = 0;
             for (int i = 0; i < allTiles.length; i++) {
-                if (i == 32 || i == 33 || i == 51 || i == 60) {
+                if (i >= allTiles.length - 4) {
                     mainCabins[cont] = (Cabin) allTiles[i];
                     cont++;
                 } else {
@@ -66,9 +66,9 @@ public class TilesManager {
             throw new NullPointerException("color is null");
         }
         return switch (color) {
-            case RED -> deepClone(mainCabins[2]);
-            case GREEN -> deepClone(mainCabins[1]);
             case BLUE -> deepClone(mainCabins[0]);
+            case GREEN -> deepClone(mainCabins[1]);
+            case RED -> deepClone(mainCabins[2]);
             case YELLOW -> deepClone(mainCabins[3]);
         };
     }
