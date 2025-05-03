@@ -6,6 +6,7 @@ import view.tui.input.Parser;
 public class TuiManager {
     private Parser parser = new Parser();
     private Command command;
+    private Menu menu;
 
     public void startTui(){
         System.out.println("Welcome to Space Trucker!");
@@ -19,5 +20,8 @@ public class TuiManager {
         String nickname = command.name();
         System.out.println("Your nickname is: " + nickname);
 
+        TerminalUtils.clearTerminal();
+        menu = new Menu(nickname);
+        menu.drawMenu();
     }
 }
