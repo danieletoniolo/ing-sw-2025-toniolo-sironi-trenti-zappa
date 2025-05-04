@@ -94,14 +94,14 @@ class OpenSpaceStateTest {
         state.getPlayers().forEach(player ->
                 player.getSpaceShip().placeComponent(new LifeSupportBrown(2, connectors), 7, 6)
         );
-        state.players.getFirst().getSpaceShip().getCabin(32).isValid();
-        state.players.getFirst().getSpaceShip().addCrewMember(32, true, false);
-        state.players.get(1).getSpaceShip().getCabin(51).isValid();
-        state.players.get(1).getSpaceShip().addCrewMember(51, true, false);
-        state.players.get(2).getSpaceShip().getCabin(33).isValid();
-        state.players.get(2).getSpaceShip().addCrewMember(33, true, false);
-        state.players.get(3).getSpaceShip().getCabin(60).isValid();
-        state.players.get(3).getSpaceShip().addCrewMember(60, true, false);
+        state.players.getFirst().getSpaceShip().getCabin(152).isValid();
+        state.players.getFirst().getSpaceShip().addCrewMember(152, true, false);
+        state.players.get(1).getSpaceShip().getCabin(154).isValid();
+        state.players.get(1).getSpaceShip().addCrewMember(154, true, false);
+        state.players.get(2).getSpaceShip().getCabin(153).isValid();
+        state.players.get(2).getSpaceShip().addCrewMember(153, true, false);
+        state.players.get(3).getSpaceShip().getCabin(155).isValid();
+        state.players.get(3).getSpaceShip().addCrewMember(155, true, false);
         float alienStrength = SpaceShip.getAlienStrength();
 
         assertDoesNotThrow(() -> state.entry());

@@ -29,7 +29,7 @@ public class EndState extends State {
         players.addAll(board.getGaveUpPlayers());
         // Set the player status to waiting for the players that have given up
         for (PlayerData player : players) {
-            if (player.hasGivenUp()) {
+            if (player != null && player.hasGivenUp()) {
                 playersStatus.put(player.getColor(), PlayerStatus.WAITING);
             }
         }
@@ -72,7 +72,9 @@ public class EndState extends State {
     @Override
     public void entry() {
          for (PlayerData player : players) {
-             scores.put(player, player.getCoins());
+             if(player != null) {
+                 scores.put(player, player.getCoins());
+             }
          }
     }
 

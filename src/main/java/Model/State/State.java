@@ -34,7 +34,10 @@ public abstract class State {
         this.players = board.getInGamePlayers();
         this.playersStatus = new HashMap<>();
         for (PlayerData player : players) {
-            this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
+            //TODO: player != null
+            if(player != null) {
+                this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
+            }
         }
         this.played = false;
     }
@@ -65,7 +68,7 @@ public abstract class State {
      */
     protected boolean haveAllPlayersPlayed() {
         for (PlayerData p : players) {
-            if (playersStatus.get(p.getColor()) != PlayerStatus.PLAYED && playersStatus.get(p.getColor()) != PlayerStatus.SKIPPED) {
+            if (p != null && playersStatus.get(p.getColor()) != PlayerStatus.PLAYED && playersStatus.get(p.getColor()) != PlayerStatus.SKIPPED) {
                 return false;
             }
         }
@@ -81,7 +84,9 @@ public abstract class State {
             throw new NullPointerException("status is null");
         }
         for (PlayerData p : players) {
-            playersStatus.put(p.getColor(), status);
+            if (p != null) {
+                playersStatus.put(p.getColor(), status);
+            }
         }
     }
 
@@ -140,7 +145,7 @@ public abstract class State {
      */
     public void exit() throws IllegalStateException {
         for (PlayerData p : players) {
-            if (playersStatus.get(p.getColor()) == PlayerStatus.WAITING) {
+            if (p != null && playersStatus.get(p.getColor()) == PlayerStatus.WAITING) {
                 throw new IllegalStateException("Not all players have played");
             }
         }

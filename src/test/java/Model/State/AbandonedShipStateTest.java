@@ -74,7 +74,7 @@ class AbandonedShipStateTest {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         }
         PlayerData player = state.getPlayers().getFirst();
-        player.getSpaceShip().getCabin(32).addCrewMember();
+        player.getSpaceShip().getCabin(152).addCrewMember();
         Cabin c1 = new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         LifeSupportPurple lsp = new LifeSupportPurple(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         player.getSpaceShip().placeComponent(c1, 6,7);
@@ -114,7 +114,7 @@ class AbandonedShipStateTest {
             state.playersStatus.put(p.getColor(), PlayerStatus.PLAYING);
         }
         PlayerData player = state.getPlayers().getFirst();
-        player.getSpaceShip().getCabin(32).addCrewMember();
+        player.getSpaceShip().getCabin(152).addCrewMember();
         Cabin c1 = new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         LifeSupportPurple lsp = new LifeSupportPurple(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         player.getSpaceShip().placeComponent(c1, 6,7);
@@ -221,7 +221,7 @@ class AbandonedShipStateTest {
     void execute_updatesStatusToPlayedIfPlaying() {
         PlayerData player = state.getPlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
-        player.getSpaceShip().getCabin(32).addCrewMember();
+        player.getSpaceShip().getCabin(152).addCrewMember();
         Cabin c1 = new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         LifeSupportPurple lsp = new LifeSupportPurple(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         player.getSpaceShip().placeComponent(c1, 6,7);
@@ -241,7 +241,7 @@ class AbandonedShipStateTest {
     void execute_updatesStatusToSkippedIfNotPlaying() {
         PlayerData player = state.getPlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
-        player.getSpaceShip().getCabin(32).addCrewMember();
+        player.getSpaceShip().getCabin(152).addCrewMember();
         Cabin c1 = new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         LifeSupportPurple lsp = new LifeSupportPurple(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         player.getSpaceShip().placeComponent(c1, 6,7);

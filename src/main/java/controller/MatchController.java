@@ -24,6 +24,23 @@ public class MatchController {
         gameControllers = new HashMap<>();
         users = new HashMap<>();
         lobbyNotStarted = null;
+        connections = new HashMap<>();
+    }
+
+    public Map<User, Connection> getConnections() {
+        return connections;
+    }
+
+    public Map<UUID, User> getUsers() {
+        return users;
+    }
+
+    public LobbyInfo getLobbyNotStarted() {
+        return lobbyNotStarted;
+    }
+
+    public Map<LobbyInfo, GameController> getGameControllers() {
+        return gameControllers;
     }
 
     public static MatchController getInstance() {
@@ -39,6 +56,8 @@ public class MatchController {
         }
         lobbyNotStarted = new LobbyInfo(lobbyName, totalPlayers);
         GameController gc = new GameController();
+        //TODO: In lobbyNotStarted non aumenta i player entrati (Ma noi vogliamo che chi crea la lobby entri automaticamente?)
+        //Dovremo aggiungere anche il fatto che le connessioni sono aumentate
         gc.joinGame(users.get(userID), lobbyNotStarted);
         gameControllers.put(lobbyNotStarted, gc);
     }

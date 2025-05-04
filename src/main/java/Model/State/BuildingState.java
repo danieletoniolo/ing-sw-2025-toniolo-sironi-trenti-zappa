@@ -14,7 +14,7 @@ public class BuildingState extends State implements Buildable {
     private final Timer timer;
     private boolean timerRunning;
     private int numberOfTimerFlips;
-    private static final long timerDuration = 90000;
+    private static final long timerDuration = 900;
     private final Map<PlayerColor, Component> playersHandQueue;
 
     public BuildingState(Board board) {
@@ -362,7 +362,9 @@ public class BuildingState extends State implements Buildable {
         super.entry();
 
         for (PlayerData player : players) {
-            board.removeInGamePlayer(player);
+            if(player == null) {
+                board.removeInGamePlayer(player);
+            }
         }
     }
 

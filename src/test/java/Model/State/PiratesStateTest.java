@@ -191,14 +191,14 @@ class PiratesStateTest {
         state.getPlayers().forEach(player ->
                 player.getSpaceShip().placeComponent(new LifeSupportPurple(2, connectors), 6, 7)
         );
-        state.players.getFirst().getSpaceShip().getCabin(32).isValid();
-        state.players.getFirst().getSpaceShip().addCrewMember(32, false, true);
-        state.players.get(1).getSpaceShip().getCabin(51).isValid();
-        state.players.get(1).getSpaceShip().addCrewMember(51, false, true);
-        state.players.get(2).getSpaceShip().getCabin(33).isValid();
-        state.players.get(2).getSpaceShip().addCrewMember(33, false, true);
-        state.players.get(3).getSpaceShip().getCabin(60).isValid();
-        state.players.get(3).getSpaceShip().addCrewMember(60, false, true);
+        state.players.getFirst().getSpaceShip().getCabin(152).isValid();
+        state.players.getFirst().getSpaceShip().addCrewMember(152, false, true);
+        state.players.get(1).getSpaceShip().getCabin(154).isValid();
+        state.players.get(1).getSpaceShip().addCrewMember(154, false, true);
+        state.players.get(2).getSpaceShip().getCabin(153).isValid();
+        state.players.get(2).getSpaceShip().addCrewMember(153, false, true);
+        state.players.get(3).getSpaceShip().getCabin(155).isValid();
+        state.players.get(3).getSpaceShip().addCrewMember(155, false, true);
         float alienStrength = SpaceShip.getAlienStrength();
 
         assertDoesNotThrow(() -> state.entry());

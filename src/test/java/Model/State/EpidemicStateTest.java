@@ -46,7 +46,7 @@ class EpidemicStateTest {
         player.getSpaceShip().placeComponent(cabin2, 6,8);
         player.getSpaceShip().placeComponent(lsp, 6,9);
         cabin2.isValid();
-        player.getSpaceShip().getCabin(32).addCrewMember();
+        player.getSpaceShip().getCabin(152).addCrewMember();
         cabin1.addCrewMember();
         cabin2.addPurpleAlien();
 
@@ -71,7 +71,7 @@ class EpidemicStateTest {
         player.getSpaceShip().placeComponent(lsp, 6,5);
         player.getSpaceShip().placeComponent(cabin3, 6,4);
         cabin3.isValid();
-        player.getSpaceShip().getCabin(32).addCrewMember();
+        player.getSpaceShip().getCabin(152).addCrewMember();
         cabin1.addCrewMember();
         cabin2.addCrewMember();
         cabin3.addPurpleAlien();
