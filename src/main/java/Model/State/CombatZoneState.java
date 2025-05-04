@@ -223,7 +223,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         // Remove the crew to lose if there is any
         if (crewLoss != null) {
             for (Pair<Integer, Integer> pair : crewLoss) {
-                ship.removeCrewMember(pair.getValue1(), pair.getValue0());
+                ship.removeCrewMember(pair.getValue0(), pair.getValue1());
             }
         }
 

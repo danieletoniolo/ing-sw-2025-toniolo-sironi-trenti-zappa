@@ -43,8 +43,10 @@ public class EpidemicState extends State {
                     surroundingComponents = p.getSpaceShip().getSurroundingComponents(currentCabin.getRow(), currentCabin.getColumn());
                     for(Component co : surroundingComponents){
                         if(co != null && co.getComponentType() == ComponentType.CABIN){
-                            check[currentCabin.getRow()][currentCabin.getColumn()] = true;
-                            currentCabin.removeCrewMember(1);
+                            if (!check[currentCabin.getRow()][currentCabin.getColumn()]) {
+                                check[currentCabin.getRow()][currentCabin.getColumn()] = true;
+                                currentCabin.removeCrewMember(1);
+                            }
 
                             Cabin cabin = (Cabin) co;
                             if(!check[cabin.getRow()][cabin.getColumn()]){

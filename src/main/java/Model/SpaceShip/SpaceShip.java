@@ -624,6 +624,9 @@ public class SpaceShip {
         if (!validSpots[row][column]) {
             throw new IllegalStateException("The component cannot be placed in the given row and column");
         }
+        if (components[row][column] != null) {
+            throw new IllegalStateException("The component is already placed in the given row and column");
+        }
         components[row][column] = c;
         components[row][column].ship = this;
         if (components[row][column].isConnected(row, column)) {

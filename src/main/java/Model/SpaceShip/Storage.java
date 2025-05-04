@@ -49,9 +49,6 @@ public class Storage extends Component{
         if (good.getColor() == GoodType.RED && !dangerous) {
             throw new IllegalStateException("Cannot add a red good to a non-dangerous storage");
         }
-        if (goods == null) {
-            goods = new ArrayList<>();
-        }
         if (goods.size() < goodsCapacity) {
             goods.add(good);
             goodsValue += good.getValue();
