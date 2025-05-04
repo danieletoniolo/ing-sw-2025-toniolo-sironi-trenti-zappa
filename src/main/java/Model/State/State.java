@@ -34,10 +34,7 @@ public abstract class State {
         this.players = board.getInGamePlayers();
         this.playersStatus = new HashMap<>();
         for (PlayerData player : players) {
-            //TODO: player != null
-            if(player != null) {
-                this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
-            }
+            this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
         }
         this.played = false;
     }
@@ -79,14 +76,9 @@ public abstract class State {
      * Set the status of all players
      * @param status PlayerStatus to set to all players
      */
-    protected void setStatusPlayers(PlayerStatus status) throws NullPointerException {
-        if(status == null) {
-            throw new NullPointerException("status is null");
-        }
+    protected void setStatusPlayers(PlayerStatus status) {
         for (PlayerData p : players) {
-            if (p != null) {
-                playersStatus.put(p.getColor(), status);
-            }
+            playersStatus.put(p.getColor(), status);
         }
     }
 
@@ -145,7 +137,7 @@ public abstract class State {
      */
     public void exit() throws IllegalStateException {
         for (PlayerData p : players) {
-            if (p != null && playersStatus.get(p.getColor()) == PlayerStatus.WAITING) {
+            if (playersStatus.get(p.getColor()) == PlayerStatus.WAITING) {
                 throw new IllegalStateException("Not all players have played");
             }
         }

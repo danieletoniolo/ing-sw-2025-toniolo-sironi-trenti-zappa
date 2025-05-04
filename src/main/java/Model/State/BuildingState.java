@@ -351,7 +351,7 @@ public class BuildingState extends State implements Buildable {
      * The entry method in this state is called when the state is entered.
      * <p>
      * In this state we have to remove all the players from the board since they are in a casual order
-     * after the {@link LobbyState} state. To do so we call the {@link Board#removeInGamePlayer(PlayerData)}.
+     * after the {@link LobbyState} state. To do so we call the {@link Board#clearInGamePlayers()} (PlayerData)}.
      * <p>
      * This can be done because we have the list of players in the
      * {@link State#players} attribute set in the {@link State#State(Board)} constructor.
@@ -361,11 +361,7 @@ public class BuildingState extends State implements Buildable {
     public void entry() {
         super.entry();
 
-        for (PlayerData player : players) {
-            if(player == null) {
-                board.removeInGamePlayer(player);
-            }
-        }
+        board.clearInGamePlayers();
     }
 
     @Override
