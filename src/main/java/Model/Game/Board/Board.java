@@ -51,7 +51,7 @@ public class Board {
         }
 
         this.tiles = TilesManager.getTiles();
-        inGamePlayers = new ArrayList<>(Arrays.asList(null, null, null, null));
+        inGamePlayers = new ArrayList<>();
         gaveUpPlayers = new ArrayList<>();
     }
 
@@ -112,6 +112,11 @@ public class Board {
         return component;
     }
 
+    /**
+     * Puts a tile on the board.
+     * @param tile the tile to put on the board
+     * @throws IllegalStateException if the tile is already in the board
+     */
     public void putTile(Component tile) throws IllegalStateException {
         if (tile == null) {
             throw new NullPointerException("Tile is null");
@@ -240,19 +245,45 @@ public class Board {
         }
     }
 
+    /**
+     * get the players who are in game
+     * @return the players who are in game
+     */
     public ArrayList<PlayerData> getInGamePlayers() {
         return inGamePlayers;
     }
 
+    /**
+     * get the players who have given up
+     * @return the players who have given up
+     */
     public ArrayList<PlayerData> getGaveUpPlayers() {
         return gaveUpPlayers;
     }
 
+    /**
+     * Add the player to the inGamePlayers list
+     * @param player player to add
+     */
     public void addInGamePlayers(PlayerData player) {
         inGamePlayers.add(player);
     }
 
+    /**
+     * Remove the player from the inGamePlayers list
+     * @param player player to remove
+     */
     public void removeInGamePlayer(PlayerData player) {
         inGamePlayers.remove(player);
+    }
+
+    /**
+     * Clear the inGamePlayers list and set it to null
+     */
+    public void clearInGamePlayers() {
+        inGamePlayers.clear();
+        for (int i = 0; i < 4; i++) {
+            inGamePlayers.add(null);
+        }
     }
 }
