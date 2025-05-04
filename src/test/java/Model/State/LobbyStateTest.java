@@ -24,6 +24,7 @@ class LobbyStateTest {
         PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
 
         Board board = new Board(Level.SECOND);
+        board.clearInGamePlayers();
         board.setPlayer(p0, 0);
         board.setPlayer(p1, 1);
         board.setPlayer(p2, 2);

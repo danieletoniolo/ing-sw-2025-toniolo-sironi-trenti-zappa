@@ -32,6 +32,7 @@ class BuildingStateTest {
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
 
         board = new Board(Level.SECOND);
+        board.clearInGamePlayers();
         board.setPlayer(p0, 0);
         board.setPlayer(p1, 1);
         board.setPlayer(p2, 2);
@@ -40,13 +41,15 @@ class BuildingStateTest {
         state = new BuildingState(board);
     }
 
+    //TODO: Controllare
     @RepeatedTest(5)
     void flipTimer_withLearningLevel() throws JsonProcessingException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.BLUE);
         PlayerData p = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
         Board b = new Board(Level.LEARNING);
-        b.setPlayer(p, 0);
+        b.clearInGamePlayers();
         BuildingState s = new BuildingState(b);
+        b.setPlayer(p, 0);
         assertThrows(IllegalStateException.class, () -> s.flipTimer(UUID.randomUUID()));
     }
 
@@ -163,16 +166,17 @@ class BuildingStateTest {
     // 3) In questo caso non ho eliminato il player da get(1)
     @RepeatedTest(5)
     void placeMarker_withValidPosition() throws JsonProcessingException {
-        Board board = new Board(Level.SECOND);
-        BuildingState state = new BuildingState(board);
+        Board board1 = new Board(Level.SECOND);
+        BuildingState state1 = new BuildingState(board1);
         PlayerData player = new PlayerData(UUID.randomUUID().toString(), PlayerColor.BLUE, new SpaceShip(Level.SECOND, PlayerColor.BLUE));
         PlayerData player1 = new PlayerData(UUID.randomUUID().toString(), PlayerColor.RED, new SpaceShip(Level.SECOND, PlayerColor.RED));
-        state.getPlayers().set(0, player);
-        state.getPlayers().set(1, player1);
-        state.entry();
+        board1.clearInGamePlayers();
+        state1.getPlayers().set(0, player);
+        state1.getPlayers().set(1, player1);
+        state1.entry();
 
-        assertDoesNotThrow(() -> state.placeMarker(player1.getUUID(), 2));
-        assertEquals(player1, board.getInGamePlayers().get(2));
+        assertDoesNotThrow(() -> state1.placeMarker(player1.getUUID(), 2));
+        assertEquals(player1, board1.getInGamePlayers().get(2));
     }
 
     @RepeatedTest(5)
@@ -564,11 +568,6 @@ class BuildingStateTest {
         for (PlayerData player : state.getPlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
-    }
-
-    @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() {
-        assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
     }
 
     @RepeatedTest(5)

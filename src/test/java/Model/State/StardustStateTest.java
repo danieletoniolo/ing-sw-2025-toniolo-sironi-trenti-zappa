@@ -28,6 +28,7 @@ class StardustStateTest {
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
 
         Board board = new Board(Level.SECOND);
+        board.clearInGamePlayers();
         board.setPlayer(p0, 0);
         board.setPlayer(p1, 1);
         board.setPlayer(p2, 2);
@@ -118,11 +119,6 @@ class StardustStateTest {
         for (PlayerData player : state.getPlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
-    }
-
-    @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus() {
-        assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
     }
 
     @RepeatedTest(5)

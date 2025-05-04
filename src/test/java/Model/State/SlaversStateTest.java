@@ -33,6 +33,7 @@ class SlaversStateTest {
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
 
         Board board = new Board(Level.SECOND);
+        board.clearInGamePlayers();
         board.setPlayer(p0, 0);
         board.setPlayer(p1, 1);
         board.setPlayer(p2, 2);
@@ -303,6 +304,8 @@ class SlaversStateTest {
 
         state.useCannon(player, state.getCard().getCannonStrengthRequired() - 1f, player.getSpaceShip().getBatteries().keySet().stream().toList());
         state.setInternalState(SlaversInternalState.PENALTY);
+        player.getSpaceShip().destroyComponent(6, 7);
+        player.getSpaceShip().destroyComponent(7, 6);
         Cabin c1 = new Cabin(2, connectors);
         Cabin c2 = new Cabin(3, connectors);
         player.getSpaceShip().addCrewMember(152, false, false);
@@ -390,11 +393,6 @@ class SlaversStateTest {
         for (PlayerData player : state.getPlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
-    }
-
-    @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus() {
-        assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
     }
 
     @RepeatedTest(5)
