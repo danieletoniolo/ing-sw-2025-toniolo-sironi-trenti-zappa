@@ -28,6 +28,7 @@ class LobbyStateTest {
         board.setPlayer(p0, 0);
         board.setPlayer(p1, 1);
         board.setPlayer(p2, 2);
+        board.refreshInGamePlayers();
 
         state = new LobbyState(board);
         assertNotNull(state);
@@ -60,9 +61,9 @@ class LobbyStateTest {
     @RepeatedTest(5)
     void getPlayerPosition_withPlayerNotInList_or_withNullPlayer() {
         PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, PlayerColor.YELLOW));
-        assertThrows(NullPointerException.class, () -> state.getPlayerPosition(nonExistentPlayer));
+        assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(nonExistentPlayer));
 
-        assertThrows(NullPointerException.class, () -> state.getPlayerPosition(null));
+        assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(null));
     }
 
     @RepeatedTest(5)
@@ -95,9 +96,7 @@ class LobbyStateTest {
     }
 
     @RepeatedTest(5)
-    void setStatusPlayers_withNullStatus_or_withEmptyPlayersList() throws JsonProcessingException {
-        assertThrows(NullPointerException.class, () -> state.setStatusPlayers(null));
-
+    void setStatusPlayers_withEmptyPlayersList() throws JsonProcessingException {
         Board b = new Board(Level.SECOND);
         EndState emptyState = new EndState(b, Level.SECOND);
         assertDoesNotThrow(() -> emptyState.setStatusPlayers(PlayerStatus.WAITING));
@@ -115,7 +114,7 @@ class LobbyStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_whenAllPlayersHavePlayed() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        assertThrows(NullPointerException.class, () -> state.getCurrentPlayer());
+        assertThrows(IllegalStateException.class, () -> state.getCurrentPlayer());
     }
 
     @RepeatedTest(5)

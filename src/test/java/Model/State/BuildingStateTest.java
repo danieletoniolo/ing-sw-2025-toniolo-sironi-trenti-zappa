@@ -48,8 +48,9 @@ class BuildingStateTest {
         PlayerData p = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship);
         Board b = new Board(Level.LEARNING);
         b.clearInGamePlayers();
-        BuildingState s = new BuildingState(b);
         b.setPlayer(p, 0);
+        b.refreshInGamePlayers();
+        BuildingState s = new BuildingState(b);
         assertThrows(IllegalStateException.class, () -> s.flipTimer(UUID.randomUUID()));
     }
 
