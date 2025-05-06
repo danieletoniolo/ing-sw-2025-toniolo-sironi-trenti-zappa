@@ -13,4 +13,12 @@ public class MeteorSwarmView extends CardView {
     public void drawCardGui(){
 
     }
+
+    public List<Pair<HitType, Direction>> getHits() {
+        return hits;
+    }
+
+    public void setHits(List<Pair<HitType, Direction>> hits) {
+        this.hits = hits;
+    }
 }

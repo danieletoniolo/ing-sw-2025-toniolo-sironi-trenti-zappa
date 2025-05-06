@@ -16,4 +16,36 @@ public class PiratesView extends CardView {
     public void drawCardGui() {
 
     }
+
+    public int getCannonRequires() {
+        return cannonRequires;
+    }
+
+    public void setCannonRequires(int cannonRequires) {
+        this.cannonRequires = cannonRequires;
+    }
+
+    public int getCredits() {
+        return credits;
+    }
+
+    public void setCredits(int credits) {
+        this.credits = credits;
+    }
+
+    public int getFlightDays() {
+        return flightDays;
+    }
+
+    public void setFlightDays(int flightDays) {
+        this.flightDays = flightDays;
+    }
+
+    public List<Pair<HitType, Direction>> getHits() {
+        return hits;
+    }
+
+    public void setHits(List<Pair<HitType, Direction>> hits) {
+        this.hits = hits;
+    }
 }
