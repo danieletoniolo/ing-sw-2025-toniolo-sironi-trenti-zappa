@@ -5,9 +5,53 @@ public class AbandonedShipView extends CardView {
     private int credit;
     private int flightDays;
 
+    public AbandonedShipView(int ID, boolean covered, int crewLoss, int credit, int flightDays) {
+        super(ID, covered);
+        this.crewLoss = crewLoss;
+        this.credit = credit;
+        this.flightDays = flightDays;
+    }
+
     @Override
     public void drawCardGui(){
 
+    }
+
+    @Override
+    public String drawLineTui(int l){
+        if(isCovered()) return super.drawLineTui(l);
+
+        return switch(l) {
+            case 0 -> Up;
+            case 1 -> "│    ABANDONEDSHIP    │";
+            case 2,5,6,7 -> Clear;
+            case 3 -> {
+                String line = "│  CrewLost: " + getCrewLoss();
+                while (line.length() < 22) {
+                    line += " ";
+                }
+                line += "│";
+                yield line;
+            }
+            case 4 -> {
+                String line = "│  Credit: " + getCredit();
+                while (line.length() < 22) {
+                    line += " ";
+                }
+                line += "│";
+                yield line;
+            }
+            case 8 -> {
+                String line = "│  FlightDays: " + getFlightDays();
+                while (line.length() < 22) {
+                    line += " ";
+                }
+                line += "│";
+                yield line;
+            }
+            case 9 -> Down;
+            default -> null;
+        };
     }
 
     public int getFlightDays() {

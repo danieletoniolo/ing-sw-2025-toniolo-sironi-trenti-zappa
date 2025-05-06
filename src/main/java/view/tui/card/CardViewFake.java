@@ -9,20 +9,28 @@ import org.javatuples.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CardView {
-    private final String clean =   "|                     |";
+//TODO: Da eliminare classe
+
+public class CardViewFake {
+    private final String clean =   "│                     │";
 
     public void drawCardsOnOneLine(ArrayList<Pair<Card, Boolean>> cards) {
         for (int i = 0; i < 15; i++) {
             for (Pair<Card, Boolean> card : cards) {
                 Card c = card.getValue0();
                 Boolean check = card.getValue1();
-                for (int j = 0; j < 11; j++) {
+                for (int j = 0; j < 9; j++) {
                     String spaces = "                       ";
                     switch (i) {
-                        case 0, 14:
+                        case 0:
                             if (j == 0) {
-                                String line = ". _ _ _ _ _ _ _ _ _ _ .";
+                                String line = "╭─────────────────────╮";
+                                System.out.print(c != null ? line : spaces);
+                            }
+                            break;
+                        case 8:
+                            if (j == 0) {
+                                String line = "╰─────────────────────╯";
                                 System.out.print(c != null ? line : spaces);
                             }
                             break;
@@ -31,38 +39,33 @@ public class CardView {
                                 System.out.print(c != null ? check ? firstLine(c) : clean : spaces);
                             }
                             break;
-                        case 2, 4, 6, 8, 10, 12:
+                        case 2:
                             if (j == 0) {
-                                System.out.print(c != null ? clean : spaces);
+                                String covered = "│       Covered       │";
+                                System.out.print(c != null ? check ? thirdLine(c) : covered : spaces);
                             }
                             break;
                         case 3:
                             if (j == 0) {
-                                String covered = "|       Covered       |";
-                                System.out.print(c != null ? check ? thirdLine(c) : covered : spaces);
-                            }
-                            break;
-                        case 5:
-                            if (j == 0) {
                                 System.out.print(c != null ? check ? fifthLine(c) : clean : spaces);
                             }
                             break;
-                        case 7:
+                        case 4:
                             if (j == 0) {
                                 System.out.print(c != null ? check ? seventhLine(c) : clean : spaces);
                             }
                             break;
-                        case 9:
+                        case 5:
                             if (j == 0) {
                                 System.out.print(c != null ? check ? ninthLine(c) : clean : spaces);
                             }
                             break;
-                        case 11:
+                        case 6:
                             if (j == 0) {
                                 System.out.print(c != null ? check ? eleventhLine(c) : clean : spaces);
                             }
                             break;
-                        case 13:
+                        case 7:
                             if (j == 0) {
                                 System.out.print(c != null ? check ? thirteenthLine(c) : clean : spaces);
                             }
@@ -123,7 +126,7 @@ public class CardView {
     private String firstLine(Card c) {
         CardType t = c.getCardType();
         return switch (t) {
-            case PLANETS ->          "|       PLANETS       |";
+            case PLANETS ->          "│       PLANETS       │";
             case ABANDONEDSHIP ->    "|    ABANDONEDSHIP    |";
             case ABANDONEDSTATION -> "|  ABANDONEDSTATION   |";
             case SMUGGLERS ->        "|      SMUGGLERS      |";
@@ -132,7 +135,7 @@ public class CardView {
             case OPENSPACE ->        "|      OPENSPACE      |";
             case METEORSWARM ->      "|     METEORSWARM     |";
             case COMBATZONE ->       "|      COMBATZONE     |";
-            case STARDUST ->         "|       STARDUST      |";
+            case STARDUST ->         "│       STARDUST      │";
             case EPIDEMIC ->         "|       EPIDEMIC      |";
         };
     }
@@ -144,11 +147,11 @@ public class CardView {
                 if (((Planets) c).getPlanetNumbers() < 1) {
                     yield clean;
                 } else {
-                    String line = "|  P1: " + printGoods(0, (Planets) c);
+                    String line = "│  P1: " + printGoods(0, (Planets) c);
                     while (line.length() < 22) {
                         line += " ";
                     }
-                    line += "|";
+                    line += "│";
                     yield line;
                 }
             }
