@@ -80,97 +80,51 @@ public class GameController {
 
     // Game actions
 
-    void showDeck(UUID uuid, int deckIndex) {
-        if (state instanceof Buildable) {
-            ((Buildable) state).showDeck(uuid, deckIndex);
-        } else {
-            throw new IllegalStateException("State is not a Buildable");
+    public void useDeck(PlayerData player, int usage, int deckIndex) throws IllegalStateException{
+        try {
+            state.useDeck(player, usage, deckIndex);
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot use deck in this state");
         }
     }
 
-    void leaveDeck(UUID uuid, int deckIndex) {
-        if (state instanceof Buildable) {
-            ((Buildable) state).leaveDeck(uuid, deckIndex);
-        } else {
-            throw new IllegalStateException("State is not a Buildable");
+    public void pickTile(PlayerData player, int fromWhere, int tileID) throws IllegalStateException {
+        try {
+            state.pickTile(player, fromWhere, tileID);
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot pick tile in this state");
         }
     }
 
-    void pickTileFromBoard(UUID uuid, int tileID) {
-        if (state instanceof Buildable) {
-            ((Buildable) state).pickTileFromBoard(uuid, tileID);
-        } else {
-            throw new IllegalStateException("State is not a Buildable");
+    public void placeTile(PlayerData player, int toWhere, int row, int col) throws IllegalStateException {
+        try {
+            state.placeTile(player, toWhere, row, col);
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot place tile in this state");
         }
     }
 
-    void pickTileFromReserve(UUID uuid, int tileID) {
-        if (state instanceof Buildable) {
-            ((Buildable) state).pickTileFromReserve(uuid, tileID);
-        } else {
-            throw new IllegalStateException("State is not a Buildable");
+    public void rotateTile(PlayerData player) throws IllegalStateException {
+        try {
+            state.rotateTile(player);
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot rotate tile in this state");
         }
     }
 
-    void pickTileFromSpaceShip(UUID uuid, int tileID) {
-        if (state instanceof Buildable) {
-            ((Buildable) state).pickTileFromSpaceShip(uuid, tileID);
-        } else {
-            throw new IllegalStateException("State is not a Buildable");
+    public void placeMarker(PlayerData player, int position) throws IllegalStateException {
+        try {
+            state.placeMarker(player, position);
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot place marker in this state");
         }
     }
 
-    void leaveTile(UUID uuid) {
-        if (state instanceof Buildable) {
-            ((Buildable) state).leaveTile(uuid);
-        } else {
-            throw new IllegalStateException("State is not a Buildable");
-        }
-    }
-
-    /**
-     * Place a tile on the spaceship at the given row and column
-     * @param uuid player's uuid
-     * @param row row to place the tile
-     * @param col column to place the tile
-     */
-    public void placeTile(UUID uuid, int row, int col) {
-        if (state instanceof Buildable) {
-            ((Buildable) state).placeTile(uuid, row, col);
-        } else {
-            throw new IllegalStateException("State is not a Buildable");
-        }
-    }
-
-    public void reserveTile(UUID uuid) {
-        if (state instanceof Buildable) {
-            ((Buildable) state).reserveTile(uuid);
-        } else {
-            throw new IllegalStateException("State is not a Buildable");
-        }
-    }
-
-    public void rotateTile(UUID uuid) {
-        if (state instanceof Buildable) {
-            ((Buildable) state).rotateTile(uuid);
-        } else {
-            throw new IllegalStateException("State is not a Buildable");
-        }
-    }
-
-    public void placeMarker(UUID uuid, int position) {
-        if (state instanceof Buildable) {
-            ((Buildable) state).placeMarker(uuid, position);
-        } else {
-            throw new IllegalStateException("State is not a Buildable");
-        }
-    }
-
-    public void flipTimer(UUID uuid) {
-        if (state instanceof Buildable) {
-            ((Buildable) state).flipTimer(uuid);
-        } else {
-            throw new IllegalStateException("State is not a Buildable");
+    public void flipTimer(PlayerData player) throws IllegalStateException {
+        try {
+            state.flipTimer(player);
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot flip timer in this state");
         }
     }
 

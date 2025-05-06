@@ -592,11 +592,17 @@ public class SpaceShip {
 
     /**
      * Unreserve a component in the reservedComponents ArrayList
-     * @apiNote Should only be called when the component is placed
-     * @param c the component to unreserve
+     * @param tileID The ID of component to unreserve
+     * @return The component that was unreserved
      */
-    public void unreserveComponent(Component c) {
-        reservedComponents.remove(c);
+    public Component unreserveComponent(int tileID) {
+        for (Component c : reservedComponents) {
+            if (c.getID() == tileID) {
+                reservedComponents.remove(c);
+                return c;
+            }
+        }
+        return null;
     }
 
     /**
