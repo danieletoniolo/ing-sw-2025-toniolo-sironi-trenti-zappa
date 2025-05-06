@@ -3,6 +3,7 @@ package Model.State;
 import Model.Game.Board.Board;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
+import controller.EventManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ public abstract class State {
     protected Map<PlayerColor, PlayerStatus> playersStatus;
     protected Board board;
     protected Boolean played;
+    protected final EventManager eventManager;
 
     /**
      * Constructor for State
@@ -37,6 +39,7 @@ public abstract class State {
             this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
         }
         this.played = false;
+        this.eventManager = new EventManager();
     }
 
     // TODO: If the method is used only in pirates state, remove it from here
@@ -97,6 +100,7 @@ public abstract class State {
     /**
      * Make the player play in the state
      * @param player PlayerData of the player to play
+     * @return Pair of EventType and Object which contains the record that will be sent to the client. In the super.execute(PlayerData player) method we return null
      * @throws NullPointerException player == null
      */
     public void execute(PlayerData player) throws NullPointerException {

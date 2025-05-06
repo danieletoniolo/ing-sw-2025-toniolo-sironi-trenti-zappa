@@ -184,7 +184,7 @@ public class PiratesState extends State implements Fightable, ChoosableFragment,
                 if (currentHitIndex >= card.getFires().size()) {
                     throw new IndexOutOfBoundsException("Hit index out of bounds");
                 }
-                fightHandler.executeFight(player.getSpaceShip(), () -> card.getFires().get(currentHitIndex));
+                fightHandler.executeFight(player, () -> card.getFires().get(currentHitIndex));
                 break;
         }
 

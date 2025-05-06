@@ -1,12 +1,10 @@
 package controller;
 
-import Model.Game.Board.Board;
 import Model.Game.Lobby.LobbyInfo;
 import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.State.State;
 import Model.State.interfaces.*;
-import controller.event.Event;
 import controller.event.EventType;
 import controller.event.game.*;
 import controller.event.lobby.JoinLobbySuccessful;
@@ -14,36 +12,26 @@ import controller.event.lobby.LobbyEvents;
 import controller.event.lobby.UserJoinedLobby;
 import controller.event.lobby.UserLeftLobby;
 import network.User;
-import network.messages.MessageType;
-import network.messages.SingleArgMessage;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 public class GameController {
-    private final Board board;
     private State state;
-    private final Map<EventType<? extends Event>, List<EventHandler<? extends Event>>> eventHandlers;
 
     public GameController() {
-        this.board = null;
         this.state = null;
-        this.eventHandlers = new HashMap<>();
     }
 
-    private <T extends Event> List<Consumer<T>> getEventHandlers(UUID userID, EventType<T> type) {
-        List<EventHandler<? extends Event>> presentConsumers = eventHandlers.get(type);
-        if (presentConsumers != null) {
-            return presentConsumers
-                    .stream()
-                    .map(h -> (EventHandler<T>) h)
-                    .filter(h -> h.userID().equals(userID) || userID == null)
-                    .map(EventHandler::handler)
-                    .toList();
+    // TODO: add the list of states already initialize to the game controller?
+    public void nextState(State newState) {
+        if (state != null) {
+            state.exit();
         }
-        return new ArrayList<>();
+
+        state = newState;
+        state.entry();
     }
 
     public ArrayList<User> getUsers() {
@@ -52,30 +40,23 @@ public class GameController {
     }
 
     public void startGame() {
-        // state = new BuildingState(board);
-        NoPayload info = new NoPayload();
-        executeHandlers(GameEvents.GAME_START, info);
     }
 
     public void joinGame(User user, LobbyInfo lobby) {
-        // TODO
-        UserJoinedLobby info = new UserJoinedLobby(user);
-        executeOthersHandlers(user.getUUID(), LobbyEvents.USER_JOINED_LOBBY, info);
-        JoinLobbySuccessful info_user = new JoinLobbySuccessful(lobby);
-        executeUserHandler(user.getUUID(), LobbyEvents.JOIN_LOBBY_SUCCESSFUL, info_user);
     }
 
     public void leaveGame(UUID uuid) {
-        // TODO
-        UserLeftLobby info = new UserLeftLobby(uuid);
-        removeEventHandlersOfUser(uuid);
-        executeHandlers(LobbyEvents.USER_LEFT_LOBBY, info);
+        if (state instanceof JoinableGame) {
+            PlayerData player = state.getCurrentPlayer();
+            if (player.getUUID().equals(uuid)) {
+                ((JoinableGame) state).leaveGame(player);
+            }
+        } else {
+            throw new IllegalStateException("State is not a JoinableGame");
+        }
     }
 
     public void endGame() {
-        // TODO
-        NoPayload info = new NoPayload();
-        executeHandlers(GameEvents.GAME_END, info);
     }
 
     // Game actions
@@ -196,8 +177,6 @@ public class GameController {
             if (player.getUUID().equals(uuid)) {
                 player.getSpaceShip().exchangeGood(goods2to1, goods1to2, storageID1);
                 player.getSpaceShip().exchangeGood(goods1to2, goods2to1, storageID2);
-                SwapGoods info = new SwapGoods(uuid, player.getSpaceShip());
-                executeHandlers(GameEvents.SWAP_GOODS, info);
             }
         }
     }
@@ -212,8 +191,6 @@ public class GameController {
             PlayerData player = state.getCurrentPlayer();
             if (player.getUUID().equals(uuid)) {
                 ((UsableCannon) state).useCannon(player, cannonsPowerToUse, batteriesID);
-                UseCannons info = new UseCannons(uuid, player.getSpaceShip());
-                executeHandlers(GameEvents.USE_CANNONS, info);
             }
         }
     }
@@ -228,19 +205,15 @@ public class GameController {
             PlayerData player = state.getCurrentPlayer();
             if (player.getUUID().equals(uuid)) {
                 ((UsableEngine) state).useEngine(player, enginesPowerToUse, batteriesIDs);
-                UseEngine info = new UseEngine(uuid, player.getSpaceShip());
-                executeHandlers(GameEvents.USE_ENGINE, info);
             }
         }
     }
 
-    public void removeCrew(UUID uuid, ArrayList<Pair<Integer, Integer>> cabinID) {
+    public void removeCrew(UUID uuid, ArrayList<Pair<Integer, Integer>> cabinsIDs) {
         if (state instanceof RemovableCrew) {
             PlayerData player = state.getCurrentPlayer();
             if (player.getUUID().equals(uuid)) {
-                ((RemovableCrew) state).setCrewLoss(cabinID);
-                RemoveCrew info = new RemoveCrew(uuid, player.getSpaceShip());
-                executeHandlers(GameEvents.REMOVE_CREW, info);
+                ((RemovableCrew) state).setCrewLoss(cabinsIDs);
             }
         }
     }
@@ -258,30 +231,5 @@ public class GameController {
         } else {
             throw new IllegalStateException("State is not a Fightable");
         }
-    }
-
-    public<T extends Event> void addEventHandler(UUID userID, EventType<T> type, Consumer<T> consumer) {
-        eventHandlers.computeIfAbsent(type, k -> new ArrayList<>());
-        eventHandlers.get(type).add(new EventHandler<>(consumer, userID));
-    }
-
-    public<T extends Event> void removeEventHandlersOfUser(UUID userID) {
-        eventHandlers.values().forEach(handlers -> handlers.removeIf(handler -> handler.userID().equals(userID)));
-    }
-
-    public <T extends Event> void executeHandlers(EventType<T> type, T info) {
-        getEventHandlers(null, type).forEach(handler -> (new Thread(() -> handler.accept(info))).start());
-    }
-
-    private <T extends Event> void executeUserHandler(UUID userID, EventType<T> type, T info) {
-        getEventHandlers(userID, type).forEach(consumer -> (new Thread(() -> consumer.accept(info))).start());
-    }
-
-    private <T extends Event> void executeOthersHandlers(UUID excludedUsername, EventType<T> type, T info) {
-        List<Consumer<T>> allEventHandlers = new ArrayList<>(this.getEventHandlers(null, type));
-        List<Consumer<T>> mineEventHandlers = this.getEventHandlers(excludedUsername, type);
-        allEventHandlers.removeAll(mineEventHandlers);
-
-        allEventHandlers.forEach(consumer -> (new Thread(() -> consumer.accept(info))).start());
     }
 }

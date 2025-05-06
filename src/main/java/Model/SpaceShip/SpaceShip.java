@@ -115,15 +115,13 @@ public class SpaceShip {
         goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
         lastPlacedComponent = null;
 
-        // Spaceship creation
+        int pos = 6;
         components = new Component[rows][cols];
-
-        // Adding the main cabin in the center of the ship
-        components[6][6] = TilesManager.getMainCabin(color);
-        components[6][6].ship = this;
-        components[6][6].setRow(6);
-        components[6][6].setColumn(6);
-        cabins.put(components[6][6].getID(), (Cabin) components[6][6]);
+        components[pos][pos] = new Cabin(1, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
+        components[pos][pos].ship = this;
+        components[pos][pos].setRow(pos);
+        components[pos][pos].setColumn(pos);
+        cabins.put(components[pos][pos].getID(), (Cabin) components[pos][pos]);
         numberOfComponents = 1;
     }
 

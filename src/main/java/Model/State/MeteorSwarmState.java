@@ -70,6 +70,6 @@ public class MeteorSwarmState extends State implements Fightable, ChoosableFragm
             throw new IndexOutOfBoundsException("Hit index out of bounds");
         }
 
-        fightHandler.executeFight(player.getSpaceShip(), () -> card.getMeteors().get(currentHitIndex));
+        fightHandler.executeFight(player, () -> card.getMeteors().get(currentHitIndex));
     }
 }

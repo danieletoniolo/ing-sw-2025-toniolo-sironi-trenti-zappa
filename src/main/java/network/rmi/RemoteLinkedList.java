@@ -1,7 +1,7 @@
 package network.rmi;
 
+import controller.event.Event;
 import network.exceptions.DisconnectedConnection;
-import network.messages.Message;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class RemoteLinkedList extends UnicastRemoteObject implements RemoteQueue {
-    private final Queue<Message> queue;
+    private final Queue<Event> queue;
 
     private final Object lock = new Object();
 
@@ -29,7 +29,7 @@ public class RemoteLinkedList extends UnicastRemoteObject implements RemoteQueue
      * @throws RemoteException will be thrown in case of network problems, or server communication issues.
      */
     @Override
-    public void add(Message message) throws RemoteException {
+    public void add(Event message) throws RemoteException {
         synchronized (lock) {
             queue.add(message);
             lock.notifyAll();
@@ -43,7 +43,7 @@ public class RemoteLinkedList extends UnicastRemoteObject implements RemoteQueue
      * @throws RemoteException will be thrown in case of network problems, or server communication issues.
      */
     @Override
-    public Message poll() throws RemoteException {
+    public Event poll() throws RemoteException {
         synchronized (lock) {
             while (queue.isEmpty()) {
                 try {

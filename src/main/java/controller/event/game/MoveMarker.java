@@ -4,11 +4,9 @@ import Model.Player.PlayerColor;
 import controller.event.Event;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
-public record UseCannons(
+public record MoveMarker(
         PlayerColor player,
-        float cannonsPowerToUse,
-        ArrayList<Integer> batteriesID
+        int steps
 ) implements Event, Serializable {
 }

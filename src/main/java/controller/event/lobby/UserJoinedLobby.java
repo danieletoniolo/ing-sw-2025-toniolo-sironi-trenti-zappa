@@ -4,8 +4,9 @@ import controller.event.Event;
 import network.User;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public record UserJoinedLobby(
-        User user
+        UUID userID
 ) implements Event, Serializable {
 }
