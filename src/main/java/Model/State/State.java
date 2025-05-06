@@ -44,22 +44,6 @@ public abstract class State {
     }
 
     /**
-     * Get the position of the player
-     * @param player PlayerData of the player to get the position
-     * @return position of the player
-     * @throws IllegalArgumentException if the player is not found
-     */
-    protected int getPlayerPosition(PlayerData player) throws IllegalArgumentException {
-        for (int i = 0; i < players.size(); i++) {
-            if (players.get(i).equals(player)) {
-                return i;
-            }
-        }
-        throw new IllegalArgumentException("Player not found");
-    }
-
-    // TODO: If the method is used only in pirates state, remove it from here
-    /**
      * Check if all players have played
      * @return Boolean value if all players have played
      */

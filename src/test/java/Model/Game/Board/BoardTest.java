@@ -150,6 +150,7 @@ class BoardTest {
 
         players[2] = new PlayerData("123e4567-e89b-12d3-a456-426614174003", null, null);
 
+        board.clearInGamePlayers();
         board.setPlayer(players[0], 0);
         board.setPlayer(players[1], 1);
         board.setPlayer(players[2], 2);
@@ -181,6 +182,7 @@ class BoardTest {
     @EnumSource(Level.class)
     void updateInGamePlayers(Level level) throws JsonProcessingException {
         Board board = new Board(level);
+        board.clearInGamePlayers();
         ArrayList<PlayerData> players = new ArrayList<>(3);
 
         PlayerData player1 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", null, null);
@@ -232,6 +234,7 @@ class BoardTest {
     @Test
     void addSteps() throws JsonProcessingException {
         Board board = new Board(Level.LEARNING);
+        board.clearInGamePlayers();
 
         PlayerData[] players = new PlayerData[4];
         players[0] = new PlayerData("123e4567-e89b-12d3-a456-426614174001", null, null);

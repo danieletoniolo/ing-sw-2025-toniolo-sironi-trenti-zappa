@@ -85,21 +85,6 @@ class EpidemicStateTest {
     }
 
     @RepeatedTest(5)
-    void getPlayerPosition() {
-        PlayerData player = state.getPlayers().getFirst();
-        int position = state.getPlayerPosition(player);
-        assertEquals(0, position);
-    }
-
-    @RepeatedTest(5)
-    void getPlayerPosition_withPlayerNotInList_or_withNullPlayer() {
-        PlayerData nonExistentPlayer = new PlayerData("123e4567-e89b-12d3-a456-426614174006", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, PlayerColor.YELLOW));
-        assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(nonExistentPlayer));
-
-        assertThrows(IllegalArgumentException.class, () -> state.getPlayerPosition(null));
-    }
-
-    @RepeatedTest(5)
     void haveAllPlayersPlayed_withAllPlayersPlayed_or_whenAllPlayersSkipped() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
         assertTrue(state.haveAllPlayersPlayed());

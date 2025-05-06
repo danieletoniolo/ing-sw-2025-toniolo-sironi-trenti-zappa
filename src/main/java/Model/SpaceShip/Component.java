@@ -171,12 +171,10 @@ public abstract class Component implements Serializable {
      */
     public boolean isValid() {
         ArrayList<Component> components = ship.getSurroundingComponents(row, column);
-        System.out.println(components);
 
         for (int face = 0; face < 4; face++) {
             Component adjacent = components.get(face);
             if (adjacent != null) {
-                System.out.println(face);
                 ConnectorType currentConnection = getConnection(face);
                 ConnectorType adjacentConnection = adjacent.getConnection((face + 2) % 4);
 
