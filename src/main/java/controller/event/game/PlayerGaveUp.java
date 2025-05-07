@@ -4,11 +4,8 @@ import Model.Player.PlayerColor;
 import controller.event.Event;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
-public record UseCannons(
-        PlayerColor player,
-        float cannonsPowerToUse,
-        ArrayList<Integer> batteriesID
+public record PlayerGaveUp(
+        PlayerColor player
 ) implements Event, Serializable {
 }

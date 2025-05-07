@@ -8,6 +8,7 @@ import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.ExchangeableGoods;
 import Model.State.interfaces.SelectablePlanet;
 
+import controller.event.game.MoveMarker;
 import org.javatuples.Triplet;
 
 import java.util.ArrayList;
@@ -81,6 +82,8 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
                 ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
             }
 
+            // TODO: EVENT EXCHANGEGOODS
+
         } else if (playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {
             playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
         }
@@ -99,8 +102,12 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
             status = playersStatus.get(p.getColor());
             if (status == PlayerStatus.PLAYED) {
                 board.addSteps(p, -flightDays);
+
+                // TODO:
+                MoveMarker stepsEvent = new MoveMarker(p.getColor(), p.getStep());
+            } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
+                throw new IllegalStateException("Not all players have played");
             }
-            //Togliere else if pk lo fa il super
         }
         super.exit();
     }

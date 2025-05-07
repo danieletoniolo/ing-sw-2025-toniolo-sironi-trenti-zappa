@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import Model.SpaceShip.SpaceShip;
+import controller.event.game.MoveMarker;
 import org.javatuples.Triplet;
 
 public class AbandonedStationState extends State implements ExchangeableGoods {
@@ -83,6 +84,9 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
             }
 
             super.played = true;
+
+            // TODO: EVENT EXCHANGEGOODS
+
         } else {
             playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
         }
@@ -95,6 +99,10 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
             if (status == PlayerStatus.PLAYED) {
                 int flightDays = card.getFlightDays();
                 board.addSteps(player, -flightDays);
+
+                // TODO: EVENT ADD STEPS
+                MoveMarker stepEvent = new MoveMarker(player.getColor(), player.getStep());
+
                 break;
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");

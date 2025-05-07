@@ -2,6 +2,7 @@ package Model.State;
 
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
+import controller.event.game.MoveMarker;
 
 
 public class StardustState extends State {
@@ -19,6 +20,9 @@ public class StardustState extends State {
         for(PlayerData p : players){
             int numberExposedConnectors = p.getSpaceShip().getExposedConnectors();
             board.addSteps(p, -numberExposedConnectors);
+
+            // TODO: EVENT STEPS
+            MoveMarker stepsEvent = new MoveMarker(p.getColor(), p.getStep());
         }
     }
 }

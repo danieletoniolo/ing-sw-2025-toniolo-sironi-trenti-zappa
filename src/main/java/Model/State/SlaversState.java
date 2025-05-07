@@ -7,6 +7,7 @@ import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.AcceptableCredits;
 import Model.State.interfaces.RemovableCrew;
 import Model.State.interfaces.UsableCannon;
+import controller.event.game.*;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 enum SlaversInternalState {
-    SET_CANNONS,
+    ENEMY_DEFEAT,
     PENALTY
 }
 
@@ -34,7 +35,7 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
      */
     public SlaversState(Board board, Slavers card) {
         super(board);
-        this.internalState = SlaversInternalState.SET_CANNONS;
+        this.internalState = SlaversInternalState.ENEMY_DEFEAT;
         this.card = card;
         this.stats = new HashMap<>();
         this.crewLoss = null;
@@ -70,7 +71,7 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
      * @throws IllegalStateException if execForPlayer != 0
      */
     public void useCannon(PlayerData player, Float value, List<Integer> batteriesID) throws IllegalStateException {
-        if (internalState != SlaversInternalState.SET_CANNONS) {
+        if (internalState != SlaversInternalState.ENEMY_DEFEAT) {
             throw new IllegalStateException("Use cannon not allowed in this state");
         }
         // Use the energy to power the cannon
@@ -81,8 +82,6 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
 
         // Update the cannon strength stats
         this.stats.merge(player, value, Float::sum);
-
-        internalState = SlaversInternalState.PENALTY;
     }
 
     /**
@@ -151,9 +150,7 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
         SpaceShip spaceShip = player.getSpaceShip();
 
         switch (internalState) {
-            case SET_CANNONS:
-                throw new IllegalStateException("Cannons need to be set");
-            case PENALTY:
+            case ENEMY_DEFEAT:
                 int cardValue = card.getCannonStrengthRequired();
                 if (stats.get(player) > cardValue) {
                     slaversDefeat = true;
@@ -163,33 +160,60 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
                     slaversDefeat = null;
                 }
 
+                // TODO: EVENT ENEMYDEFEAT
+                EnemyDefeat enemyEvent = new EnemyDefeat(Boolean.TRUE.equals(slaversDefeat));
+            case PENALTY:
                 if (slaversDefeat != null && slaversDefeat) {
                     if (acceptCredits == null) {
                         throw new IllegalStateException("acceptCredits not set");
                     }
                     if (acceptCredits) {
                         player.addCoins(card.getCredit());
-                        board.addSteps(player, -card.getFlightDays());
+
+                        // TODO: EVENT ADDCOINS
+                        AddCoins coinsEvent = new AddCoins(player.getCoins());
                     }
+                    super.execute(player);
                 } else if (slaversDefeat != null) {
                     if (crewLoss == null) {
                         throw new IllegalStateException("crewLost not set");
                     }
-                    for (Pair<Integer, Integer> cabin : crewLoss) {
-                        spaceShip.removeCrewMember(cabin.getValue0(), cabin.getValue1());
-                    }
                     if (spaceShip.getCrewNumber() <= card.getCrewLost()) {
                         player.setGaveUp(true);
+                        this.players = super.board.getInGamePlayers();
+
+                        // TODO: EVENT LOSE
+                        PlayerLose loseEvent = new PlayerLose(player.getColor());
+                    } else {
+                        for (Pair<Integer, Integer> cabin : crewLoss) {
+                            spaceShip.removeCrewMember(cabin.getValue0(), cabin.getValue1());
+                        }
+
+                        // TODO: EVENT CREWLOSS
+                        CrewLoss crewEvent = new CrewLoss(player.getColor(), crewLoss);
                     }
+                    playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
                 }
-                internalState = SlaversInternalState.SET_CANNONS;
+                internalState = SlaversInternalState.ENEMY_DEFEAT;
                 break;
         }
+    }
 
-        if (slaversDefeat != null && slaversDefeat) {
-            super.setStatusPlayers(PlayerStatus.PLAYED);
-        } else {
-            super.execute(player);
+    @Override
+    public void exit() throws IllegalStateException{
+        int flightDays = card.getFlightDays();
+        PlayerStatus status;
+        for (PlayerData p : players) {
+            status = playersStatus.get(p.getColor());
+            if (status == PlayerStatus.PLAYED) {
+                board.addSteps(p, -flightDays);
+
+                // TODO: EVENT STEPS
+                MoveMarker stepsEvent = new MoveMarker(p.getColor(), p.getStep());
+            } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
+                throw new IllegalStateException("Not all players have played");
+            }
         }
+        super.exit();
     }
 }

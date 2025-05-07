@@ -69,7 +69,7 @@ public class Cabin extends Component {
      * @throws IllegalStateException if there is purple alien or brown alien in the cabin
      */
     public void addCrewMember() throws IllegalStateException {
-        if (brownAlien || purpleAlien) {
+        if (brownAlien || purpleAlien || crewNumber > 0) {
             throw new IllegalStateException("Cannot add crew member to the cabin");
         }
         crewNumber = 2;
@@ -80,7 +80,7 @@ public class Cabin extends Component {
      * @throws IllegalStateException if there is no purple life support or there is a brown alien in the cabin
      */
     public void addPurpleAlien() throws IllegalStateException {
-        if (!purpleLifeSupport || brownAlien) {
+        if (!purpleLifeSupport || brownAlien || crewNumber > 0) {
             throw new IllegalStateException("Cannot add purple alien to the cabin");
         }
         purpleAlien = true;
@@ -92,7 +92,7 @@ public class Cabin extends Component {
      * @throws IllegalStateException if there is no brown life support or there is a purple alien in the cabin
      */
     public void addBrownAlien() throws IllegalStateException {
-        if (!brownLifeSupport || purpleAlien) {
+        if (!brownLifeSupport || purpleAlien || crewNumber > 0) {
             throw new IllegalStateException("Cannot add brown alien to the cabin");
         }
         brownAlien = true;
