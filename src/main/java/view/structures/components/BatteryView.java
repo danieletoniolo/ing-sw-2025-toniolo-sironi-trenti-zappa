@@ -1,12 +1,38 @@
 package view.structures.components;
 
-public class BatteryView {
+public class BatteryView extends ComponentView {
     private int numberOfBatteries;
-    private int ID;
-    private int[] connectors = new int[4];
 
+    public BatteryView(int ID, int[] connectors) {
+        super(ID, connectors);
+    }
+
+    public int getNumberOfBatteries() {
+        return numberOfBatteries;
+    }
+
+    public void setNumberOfBatteries(int numberOfBatteries) {
+        this.numberOfBatteries = numberOfBatteries;
+    }
+
+    /**
+     * Draws the component GUI.
+     * This method is called to draw the component GUI.
+     */
     @Override
     public void drawComponentGui() {
+        //TODO: Implement the GUI drawing logic for the Battery component here
+    }
 
+    @Override
+    public String drawLineTui(int line) throws IndexOutOfBoundsException {
+        if (isCovered()) return super.drawLineTui(line);
+
+        return switch (line) {
+            case 0, 4, 3 -> super.drawLineTui(line);
+            case 1 -> super.drawLeft(line) + "  Battery  " + super.drawRight(line);
+            case 2 -> super.drawLeft(line) + "  Num: " + getNumberOfBatteries() + "   " + super.drawRight(line);
+            default -> throw new IndexOutOfBoundsException("Unexpected value: " + line);
+        };
     }
 }
