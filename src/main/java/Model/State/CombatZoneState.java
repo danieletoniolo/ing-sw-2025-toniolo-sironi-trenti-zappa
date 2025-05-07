@@ -6,6 +6,10 @@ import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.*;
+import controller.event.game.CrewLoss;
+import controller.event.game.MoveMarker;
+import controller.event.game.PlayerGaveUp;
+import controller.event.game.PlayerLose;
 import org.javatuples.Pair;
 
 import java.util.*;
@@ -158,6 +162,9 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         int flightDays = card.getFlightDays();
         board.addSteps(player, -flightDays);
         playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.WAITING);
+
+        // TODO: EVENT STEPS
+        MoveMarker stepsEvent = new MoveMarker(player.getColor(), player.getStep());
     }
 
     /**
@@ -170,11 +177,18 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         SpaceShip spaceShip = player.getSpaceShip();
         if (spaceShip.getCrewNumber() <= crewLost) {
             player.setGaveUp(true);
+            this.players = super.board.getInGamePlayers();
+
+            // TODO: EVENT GAVEUP
+            PlayerLose gaveUpEvent = new PlayerLose(player.getColor());
         } else {
             for (Pair<Integer, Integer> cabin : crewLoss) {
                 spaceShip.removeCrewMember(cabin.getValue0(), cabin.getValue1());
             }
             playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.WAITING);
+
+            // TODO: EVENT CREWLOSS
+            CrewLoss crewLossEvent = new CrewLoss(player.getColor(), crewLoss);
         }
     }
 
@@ -184,7 +198,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
             throw new IndexOutOfBoundsException("Hit index out of bounds");
         }
 
-        boolean complete = fightHandler.executeFight(player.getSpaceShip(), () -> card.getFires().get(currentHitIndex));
+        boolean complete = fightHandler.executeFight(player, () -> card.getFires().get(currentHitIndex));
         if (complete && currentHitIndex == card.getFires().size() - 1) {
             super.execute(player);
             transition();
@@ -218,13 +232,18 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
             for (Pair<ArrayList<Good>, Integer> pair : goodsToDiscard) {
                 ship.exchangeGood(null, pair.getValue0(), pair.getValue1());
             }
+
+            // TODO: EVENT EXCHANGEGOODS
         }
 
         // Remove the crew to lose if there is any
         if (crewLoss != null) {
             for (Pair<Integer, Integer> pair : crewLoss) {
-                ship.removeCrewMember(pair.getValue1(), pair.getValue0());
+                ship.removeCrewMember(pair.getValue0(), pair.getValue1());
             }
+
+            // TODO: EVENT CREWLOSS
+            CrewLoss crewLossEvent = new CrewLoss(player.getColor(), crewLoss);
         }
 
         // Reset the goods to discard
@@ -412,8 +431,10 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
                     int crewFulfillment = minPlayerEngines.getSpaceShip().getGoods().size() - card.getLost();
                     if (crewFulfillment < 0 && minPlayerEngines.getSpaceShip().getCrewNumber() < Math.abs(crewFulfillment)) {
                         minPlayerEngines.setGaveUp(true);
-                        super.board.refreshInGamePlayers();
                         this.players = super.board.getInGamePlayers();
+
+                        // TODO: EVENT GAVEUP
+                        PlayerLose gaveUpEvent = new PlayerLose(player.getColor());
                     } else {
                         executeSubStateRemoveGoods(minPlayerEngines);
                     }

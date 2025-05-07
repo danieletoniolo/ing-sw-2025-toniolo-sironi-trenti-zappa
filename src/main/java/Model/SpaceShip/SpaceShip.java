@@ -115,15 +115,13 @@ public class SpaceShip {
         goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
         lastPlacedComponent = null;
 
-        // Spaceship creation
+        int pos = 6;
         components = new Component[rows][cols];
-
-        // Adding the main cabin in the center of the ship
-        components[6][6] = TilesManager.getMainCabin(color);
-        components[6][6].ship = this;
-        components[6][6].setRow(6);
-        components[6][6].setColumn(6);
-        cabins.put(components[6][6].getID(), (Cabin) components[6][6]);
+        components[pos][pos] = new Cabin(1, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
+        components[pos][pos].ship = this;
+        components[pos][pos].setRow(pos);
+        components[pos][pos].setColumn(pos);
+        cabins.put(components[pos][pos].getID(), (Cabin) components[pos][pos]);
         numberOfComponents = 1;
     }
 
@@ -592,11 +590,17 @@ public class SpaceShip {
 
     /**
      * Unreserve a component in the reservedComponents ArrayList
-     * @apiNote Should only be called when the component is placed
-     * @param c the component to unreserve
+     * @param tileID The ID of component to unreserve
+     * @return The component that was unreserved
      */
-    public void unreserveComponent(Component c) {
-        reservedComponents.remove(c);
+    public Component unreserveComponent(int tileID) {
+        for (Component c : reservedComponents) {
+            if (c.getID() == tileID) {
+                reservedComponents.remove(c);
+                return c;
+            }
+        }
+        return null;
     }
 
     /**
@@ -609,6 +613,9 @@ public class SpaceShip {
     public void placeComponent(Component c, int row, int column) throws IllegalStateException {
         if (!validSpots[row][column]) {
             throw new IllegalStateException("The component cannot be placed in the given row and column");
+        }
+        if (components[row][column] != null) {
+            throw new IllegalStateException("The component is already placed in the given row and column");
         }
         components[row][column] = c;
         components[row][column].ship = this;

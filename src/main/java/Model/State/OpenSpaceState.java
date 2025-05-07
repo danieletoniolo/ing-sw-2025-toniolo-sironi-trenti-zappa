@@ -5,6 +5,7 @@ import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.UsableEngine;
+import controller.event.game.MoveMarker;
 
 import java.util.HashMap;
 import java.util.List;
@@ -67,8 +68,12 @@ public class OpenSpaceState extends State implements UsableEngine {
     public void execute(PlayerData player) throws IllegalStateException {
         if (stats.get(player) == 0) {
             player.setGaveUp(true);
+            this.players = super.board.getInGamePlayers();
         } else {
             board.addSteps(player, stats.get(player).intValue());
+
+            // TODO: EVENT STEPS
+            MoveMarker stepEvent = new MoveMarker(player.getColor(), player.getStep());
         }
         super.execute(player);
     }

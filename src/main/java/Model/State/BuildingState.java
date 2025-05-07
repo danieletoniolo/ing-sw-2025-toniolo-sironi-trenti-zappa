@@ -5,12 +5,11 @@ import Model.Game.Board.Level;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
-import Model.State.interfaces.Buildable;
 
 import java.util.*;
 
 
-public class BuildingState extends State implements Buildable {
+public class BuildingState extends State {
     private final Timer timer;
     private boolean timerRunning;
     private int numberOfTimerFlips;
@@ -41,7 +40,12 @@ public class BuildingState extends State implements Buildable {
         return timerDuration;
     }
 
-    public void flipTimer(UUID uuid) throws IllegalStateException{
+    /**
+     * Implementation of the method to flip the timer.
+     * @see State#flipTimer(PlayerData)
+     */
+    @Override
+    public void flipTimer(PlayerData player) throws IllegalStateException{
         if (board.getBoardLevel() == Level.LEARNING) {
             throw new IllegalStateException("Cannot flip timer in learning level");
         }
@@ -50,9 +54,8 @@ public class BuildingState extends State implements Buildable {
             throw new IllegalStateException("Cannot flip timer because is already running");
         }
 
-        numberOfTimerFlips++;
         switch (numberOfTimerFlips) {
-            case 1:
+            case 0:
                 // First flip that is done when the building phase starts
                 timerRunning = true;
                 timer.schedule(new TimerTask() {
@@ -63,7 +66,7 @@ public class BuildingState extends State implements Buildable {
                     }
                 }, timerDuration);
                 break;
-            case 2:
+            case 1:
                 // This is the second flip that can be done by anyone after the time has run out
                 timerRunning = true;
                 timer.schedule(new TimerTask() {
@@ -74,10 +77,9 @@ public class BuildingState extends State implements Buildable {
                     }
                 }, timerDuration);
                 break;
-            case 3:
+            case 2:
                 // This is the third flip that can be done only by the player who has finished building
 
-                PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
                 // Check if the player has finished building
                 if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
                     timerRunning = true;
@@ -109,117 +111,76 @@ public class BuildingState extends State implements Buildable {
             default:
                 throw new IllegalStateException("Cannot flip timer more than twice");
         }
+        numberOfTimerFlips++;
     }
 
-    public void showDeck(UUID uuid, int deckIndex) {
-        // Get the player who is showing the deck
-        PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
-
+    /**
+     * Implementation of the method to use a deck.
+     * @see State#useDeck(PlayerData, int, int)
+     */
+    @Override
+    public void useDeck(PlayerData player, int usage,int deckIndex) throws IllegalStateException {
         // Check if the player has placed at least one tile
         if (player.getSpaceShip().getNumberOfComponents() < 1) {
             throw new IllegalStateException("Player has not placed any tile");
         }
 
-        // TODO: we have to decide how we want to notify the client that the deck is shown
-        board.getDeck(deckIndex, player);
-    }
-
-    public void leaveDeck(UUID uuid, int deckIndex) {
-        // Get the player who is showing the deck
-        PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
-
-        // Leave the deck
-        // TODO: we miss the method to leave the deck
+        switch (usage) {
+            case 0 -> board.getDeck(deckIndex, player);
+            case 1 -> {
+                // TODO: we miss the method to leave the deck
+            }
+        }
     }
 
     /**
-     * Place the marker of the player in the board
-     * @param uuid UUID of the player who is placing the marker
-     * @param position the position where the player is placing the marker
+     * Implementation of the method to place a marker on the board.
+     * @see State#placeMarker(PlayerData, int)
      */
-    public void placeMarker(UUID uuid, int position) throws IllegalStateException {
-        // TODO: check if the player has to met more conditions
-        PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
+    @Override
+    public void placeMarker(PlayerData player, int position) throws IllegalStateException {
         board.setPlayer(player, position);
     }
 
     /**
-     * Pick a tile from the pile and put it in the player's hand
-     * @param uuid UUID of the player who is picking the tile
-     * @param tileID ID of the tile to be picked
+     * Implementation of the method to pick a tile from the board, reserve or spaceship.
+     * @see State#pickTile(PlayerData, int, int)
      */
-    public void pickTileFromBoard(UUID uuid, int tileID) {
-        // Get the player who is placing the tile
-        PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
-
+    @Override
+    public void pickTile(PlayerData player, int fromWhere, int tileID) {
         // Check if the player has finished building
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
             throw new IllegalStateException("Player has finished building");
         }
 
-        // Get the tile from the pile
-        Component component = board.popTile(tileID);
+        Component component = switch (fromWhere) {
+            case 0 ->
+                // Get the tile from the board
+                    board.popTile(tileID);
+            case 1 ->
+                // Get the tile from the reserve
+                    player.getSpaceShip().unreserveComponent(tileID);
+            case 2 ->
+                // Get the last placed component
+                    player.getSpaceShip().getLastPlacedComponent();
+            default -> throw new IllegalStateException("Invalid fromWhere value");
+        };
 
-        // Put the tile in the player's hand
-        if (component != null) {
-            playersHandQueue.put(player.getColor(), component);
-        } else {
-            throw new IllegalStateException("Tile not found in pile");
+        // Check if the component is null or if the ID of the component is not the same as the tileID
+        if (component == null || component.getID() != tileID) {
+            throw new IllegalStateException("No tile matching the ID found in fromWhere" + fromWhere);
         }
-    }
-
-    /**
-     * Pick a tile from the reserve and put it in the player's hand
-     * @param uuid UUID of the player who is picking the tile
-     * @param tileID ID of the tile to be picked
-     */
-    public void pickTileFromReserve(UUID uuid, int tileID) {
-        // Get the player who is placing the tile
-        PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
-
-        // Check if the player has finished building
-        if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("Player has finished building");
-        }
-
-        // Get the tile from the reserve
-        Component component = player.getSpaceShip().getReservedComponents().stream()
-                .filter(c -> c.getID() == tileID)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Tile not found in reserve"));
 
         // Put the tile in the player's hand
         playersHandQueue.put(player.getColor(), component);
     }
 
-    public void pickTileFromSpaceShip(UUID uuid, int tileID) {
-        // Get the player who is placing the tile
-        PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
-
-        // Check if the player has finished building
-        if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("Player has finished building");
-        }
-
-        // Get the last placed component
-        Component component = player.getSpaceShip().getLastPlacedComponent();
-
-        // Put the tile in the player's hand
-        if (component != null && component.getID() == tileID) {
-            playersHandQueue.put(player.getColor(), component);
-        } else {
-            throw new IllegalStateException("No tile matching the ID found in the last placed component");
-        }
-    }
-
     /**
-     * Leave the tile the player has in his hand and put it in the board or in the reserve if it was from the reserve
-     * @param uuid UUID of the player who is leaving the tile
+     * Implementation of the method to place a tile in the board, reserve or spaceship.
+     * @see State#placeTile(PlayerData, int, int, int)
      */
-    public void leaveTile(UUID uuid) {
-        // Get the player who is placing the tile
-        PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
-
+    @Override
+    public void placeTile(PlayerData player, int toWhere, int row, int col) {
         // Check if the player has finished building
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
             throw new IllegalStateException("Player has finished building");
@@ -231,9 +192,17 @@ public class BuildingState extends State implements Buildable {
             throw new IllegalStateException("Player has no tile in his hand");
         }
 
-        // If the tile was not from the reserve it must be put back in the board
-        if (!player.getSpaceShip().getReservedComponents().contains(component)) {
-            board.putTile(component);
+        switch (toWhere) {
+            case 0 ->
+                // Place the tile in the board
+                    board.putTile(component);
+            case 1 ->
+                // Place the tile in the reserve
+                    player.getSpaceShip().reserveComponent(component);
+            case 2 ->
+                // Place the tile in the spaceship
+                    player.getSpaceShip().placeComponent(component, row, col);
+            default -> throw new IllegalStateException("Invalid toWhere value");
         }
 
         // Remove the tile from the player's hand
@@ -241,72 +210,11 @@ public class BuildingState extends State implements Buildable {
     }
 
     /**
-     * Place the tile the player has in his hand in the board
-     * @param uuid UUID of the player who is placing the tile
-     * @param row row where the player is placing the tile
-     * @param col column where the player is placing the tile
+     * Implementation of the method to rotate a tile in the board.
+     * @see State#rotateTile(PlayerData)
      */
-    public void placeTile(UUID uuid, int row, int col) {
-        // Get the player who is placing the tile
-        PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
-
-        // Check if the player has finished building
-        if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("Player has finished building");
-        }
-
-        // Has the player a tile in his hand?
-        Component component = playersHandQueue.get(player.getColor());
-        if (component == null) {
-            throw new IllegalStateException("Player has no tile in his hand");
-        }
-
-        // Place the tile in the board
-        player.getSpaceShip().placeComponent(component, row, col);
-
-        // If the tile was from the reserve, remove it from the reserve
-        if (player.getSpaceShip().getReservedComponents().contains(component)) {
-            player.getSpaceShip().unreserveComponent(component);
-        }
-
-        // Remove the tile from the player's hand
-        playersHandQueue.remove(player.getColor());
-    }
-
-    /**
-     * Put the tile the player has in his hand and put it in the reserved tiles of the player
-     * @param uuid UUID of the player who is reserving the tile
-     */
-    public void reserveTile(UUID uuid) {
-        // Get the player who is reserving the tile
-        PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
-
-        // Check if the player has finished building
-        if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("Player has finished building");
-        }
-
-        // Has the player a tile in his hand?
-        Component component = playersHandQueue.get(player.getColor());
-        if (component == null) {
-            throw new IllegalStateException("Player has no tile in his hand");
-        }
-
-        // Reserve the tile in the board
-        player.getSpaceShip().reserveComponent(component);
-
-        // Remove the tile from the player's hand
-        playersHandQueue.remove(player.getColor());
-    }
-
-    /**
-     * Rotate the tile the player has in his hand
-     * @param uuid UUID of the player who is rotating the tile
-     */
-    public void rotateTile(UUID uuid) {
-        // Get the player who is rotating the tile
-        PlayerData player = players.stream().filter(p -> p.getUUID().equals(uuid)).findFirst().orElseThrow(() -> new IllegalStateException("Player not found"));
-
+    @Override
+    public void rotateTile(PlayerData player) {
         // Check if the player has finished building
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
             throw new IllegalStateException("Player has finished building");
@@ -322,36 +230,11 @@ public class BuildingState extends State implements Buildable {
         component.rotateClockwise();
     }
 
-    // TODO: Could be that we pass the UUID instead of the player because this state is not played in turn
-    public void pickTile(PlayerData player, int tileID) {
-        // Check if the player has already picked a tile
-        if (playersHandQueue.containsKey(player.getColor())) {
-            throw new IllegalStateException("Player has already picked a tile");
-        }
-
-        Component component = board.popTile(tileID);
-        if (component == null) {
-            component = player.getSpaceShip().getLastPlacedComponent();
-            if (component == null || component.getID() != tileID) {
-                for (Component[] row : player.getSpaceShip().getComponents()) {
-                    for (Component c : row) {
-                        if (c != null && c.getID() == tileID) {
-                            component = c;
-                            break;
-                        }
-                    }
-                    if (component != null) break;
-                }
-            }
-        }
-        playersHandQueue.put(player.getColor(), component);
-   }
-
     /**
      * The entry method in this state is called when the state is entered.
      * <p>
      * In this state we have to remove all the players from the board since they are in a casual order
-     * after the {@link LobbyState} state. To do so we call the {@link Board#removeInGamePlayer(PlayerData)}.
+     * after the {@link LobbyState} state. To do so we call the {@link Board#clearInGamePlayers()} (PlayerData)}.
      * <p>
      * This can be done because we have the list of players in the
      * {@link State#players} attribute set in the {@link State#State(Board)} constructor.
@@ -361,9 +244,7 @@ public class BuildingState extends State implements Buildable {
     public void entry() {
         super.entry();
 
-        for (PlayerData player : players) {
-            board.removeInGamePlayer(player);
-        }
+        board.clearInGamePlayers();
     }
 
     @Override

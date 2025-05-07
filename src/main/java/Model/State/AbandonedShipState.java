@@ -4,6 +4,9 @@ import Model.Cards.AbandonedShip;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.State.interfaces.RemovableCrew;
+import controller.event.game.AddCoins;
+import controller.event.game.CrewLoss;
+import controller.event.game.MoveMarker;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -60,8 +63,10 @@ public class AbandonedShipState extends State implements RemovableCrew {
      * Execute: Remove crew members from cabins.
      * Add credits to player.
      * Change player steps.
+     *
      * @param player PlayerData of the player to play
-     * @throws NullPointerException if player == null
+     * @return Pair of EventType and Object which contains the record that will be sent to the client
+     * @throws NullPointerException  if player == null
      * @throws IllegalStateException if played == true: Card playable just once
      * @throws IllegalStateException if crew loss does not match the card requirements
      * @throws IllegalStateException if crew loss not set
@@ -79,13 +84,37 @@ public class AbandonedShipState extends State implements RemovableCrew {
         }
 
         if (playersStatus.get(player.getColor()).equals(PlayerStatus.PLAYING)) {
-            played = true;
             crewLoss.forEach(cabin -> {
                 player.getSpaceShip().getCabin(cabin.getValue0()).removeCrewMember(cabin.getValue1());
             });
             player.addCoins(card.getCredit());
-            board.addSteps(player, -card.getFlightDays());
+
+            // TODO: EVENT CREWLOSS
+            CrewLoss crewEvent = new CrewLoss(getCurrentPlayer().getColor(), crewLoss);
+            // TODO: EVENT COINS
+            AddCoins coinsEvent = new AddCoins(card.getCredit());
+
+            played = true;
         }
         super.execute(player);
+    }
+
+    @Override
+    public void exit() throws IllegalStateException{
+        for (PlayerData player : players) {
+            PlayerStatus status = playersStatus.get(player.getColor());
+            if (status == PlayerStatus.PLAYED) {
+                int flightDays = card.getFlightDays();
+                board.addSteps(player, -flightDays);
+
+                // TODO: EVENT ADD STEPS
+                MoveMarker stepEvent = new MoveMarker(player.getColor(), player.getStep());
+
+                break;
+            } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
+                throw new IllegalStateException("Not all players have played");
+            }
+        }
+        super.played = true;
     }
 }
