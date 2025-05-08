@@ -48,7 +48,7 @@ public class TilesManager {
     }
 
     /**
-     * Get 152 tiles of the spaceship (Main cabins are not included)
+     * Get 152 random sorted tiles of the spaceship (Main cabins are not included)
      * @return an array of tiles
      */
     public static ArrayList<Component> getTiles() {
@@ -84,18 +84,6 @@ public class TilesManager {
             case RED -> deepClone(mainCabins[2]);
             case YELLOW -> deepClone(mainCabins[3]);
         };
-    }
-
-    /**
-     * Get all tiles of the spaceship (main cabins included)
-     * @return an array of tiles
-     */
-    public static Component[] getAllTiles() {
-        Component[] copy = new Component[allTiles.length];
-        for(int i = 0; i < allTiles.length; i++){
-            copy[i] = deepClone(allTiles[i]);
-        }
-        return copy;
     }
 
     /**

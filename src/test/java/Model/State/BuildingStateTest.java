@@ -327,7 +327,7 @@ class BuildingStateTest {
         PlayerData player = state.getPlayers().getFirst();
         state.getPlayersHandQueue().put(player.getColor(), state.board.popTile(2));
         assertDoesNotThrow(() -> state.leaveTile(player.getUUID()));
-        assertTrue(Arrays.asList(state.board.getTiles()).contains(state.board.getTiles()[3]));
+        assertTrue(Arrays.asList(state.board.getTiles()).contains(state.board.getTiles().get(3)));
     }
 
     @RepeatedTest(5)
@@ -462,7 +462,7 @@ class BuildingStateTest {
     void pickTile_withValidTileIDFromBoard() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         PlayerData player = state.getPlayers().getFirst();
-        Component component = state.board.getTiles()[1];
+        Component component = state.board.getTiles().get(1);
         player.getSpaceShip().placeComponent(component, 6, 7);
         assertDoesNotThrow(() -> state.pickTile(player, component.getID()));
         assertEquals(component, state.getPlayersHandQueue().get(player.getColor()));

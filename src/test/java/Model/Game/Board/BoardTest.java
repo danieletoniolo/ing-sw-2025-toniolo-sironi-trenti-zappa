@@ -6,6 +6,7 @@ import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
 import Model.SpaceShip.SpaceShip;
+import Model.SpaceShip.TilesManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,7 @@ class BoardTest {
     void getBoardLevel(Level level) throws JsonProcessingException {
         assertEquals(level, new Board(level).getBoardLevel());
 
+        // Check if the level is set to an unexpected value
         assertThrows(IllegalArgumentException.class, () -> {
             new Board(null);
         });
@@ -53,6 +55,7 @@ class BoardTest {
             case LEARNING -> assertEquals(1, board.drawCard().getCardLevel());
             case SECOND -> assertEquals(2, board.drawCard().getCardLevel());
         }
+        // Check if the deck is empty
         assertEquals(board.getShuffledDeck().peek(), board.drawCard());
         int before = board.getShuffledDeck().size();
         board.drawCard();
@@ -83,10 +86,9 @@ class BoardTest {
     void getTiles(Level level) throws JsonProcessingException {
         Board board = new Board(level);
         assertNotNull(board.getTiles());
-        assertEquals(152, board.getTiles().length);
-        for (int i = 0; i < board.getTiles().length; i++) {
-            assertNotNull(board.getTiles()[i]);
-            assertEquals(i, board.getTiles()[i].getID());
+        assertEquals(152, board.getTiles().size());
+        for (int i = 0; i < board.getTiles().size(); i++) {
+            assertNotNull(board.getTiles().get(i));
         }
     }
 
@@ -124,7 +126,7 @@ class BoardTest {
         for (int i = 0; i < 3; i++) {
             SpaceShip spaceShip = new SpaceShip(Level.SECOND, PlayerColor.RED);
             PlayerData player = new PlayerData("123e4567-e89b-12d3-a456-426614174001", null, spaceShip);
-            spaceShip.placeComponent(board.getTiles()[7], 6, 7);
+            spaceShip.placeComponent(TilesManager.getTiles().get(7), 6, 7);
             assertNotNull(board.getDeck(i, player));
         }
     }
@@ -275,7 +277,7 @@ class BoardTest {
                 });
             } else {
                 assertEquals(i, board.popTile(i).getID());
-                assertNull(board.getTiles()[i]);
+                assertNull(board.getTiles().get(i));
             }
         }
     }
@@ -293,22 +295,12 @@ class BoardTest {
         for (int i = 0; i < 152; i++) {
             int index = i;
             assertThrows(IllegalStateException.class, () -> {
-                board.putTile(board.getTiles()[index]);
+                board.putTile(board.getTiles().get(index));
             });
         }
 
         for (int i = 0; i < 152; i++) {
             components.add(board.popTile(i));
-        }
-
-        Collections.shuffle(components);
-        for (Component component : components) {
-            board.putTile(component);
-            assertEquals(component, board.getTiles()[component.getID()]);
-        }
-
-        for (int i = 0; i < 152; i++) {
-            assertEquals(i, board.getTiles()[i].getID());
         }
 
     }
