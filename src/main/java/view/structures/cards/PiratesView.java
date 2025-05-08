@@ -10,8 +10,8 @@ public class PiratesView extends CardView {
     private int flightDays;
     private List<HitView> hits;
 
-    public PiratesView(int ID, boolean covered, int cannonRequires, int credits, int flightDays, List<HitView> hits) {
-        super(ID, covered);
+    public PiratesView(int ID, boolean covered, int level, int cannonRequires, int credits, int flightDays, List<HitView> hits) {
+        super(ID, covered, level);
         this.cannonRequires = cannonRequires;
         this.credits = credits;
         this.flightDays = flightDays;

@@ -8,7 +8,6 @@ import view.structures.cards.*;
 import view.structures.cards.hit.HitDirectionView;
 import view.structures.cards.hit.HitTypeView;
 import view.structures.cards.hit.HitView;
-import view.structures.components.ComponentView;
 import view.structures.deck.DeckView;
 import view.structures.good.GoodView;
 
@@ -41,7 +40,7 @@ public class CardMainView {
                         for (Hit hit : ((Pirates) card).getFires()) {
                             hits.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
                         }
-                        cards.add(new PiratesView(card.getID(), false, cannon, credits, flight, hits));
+                        cards.add(new PiratesView(card.getID(), false, card.getCardLevel(), cannon, credits, flight, hits));
                         break;
                     case PLANETS:
                         int numberOfPlanets = ((Planets) card).getPlanetNumbers();
@@ -53,19 +52,19 @@ public class CardMainView {
                             }
                             goodViews.add(goodList);
                         }
-                        cards.add(new PlanetsView(card.getID(), false, ((Planets) card).getFlightDays(), goodViews));
+                        cards.add(new PlanetsView(card.getID(), false, card.getCardLevel(), ((Planets) card).getFlightDays(), goodViews));
                         break;
                     case SLAVERS:
-                        cards.add(new SlaversView(card.getID(), false, ((Slavers) card).getCannonStrengthRequired(), ((Slavers) card).getCredit(), ((Slavers) card).getFlightDays(), ((Slavers) card).getCrewLost()));
+                        cards.add(new SlaversView(card.getID(), false, card.getCardLevel(), ((Slavers) card).getCannonStrengthRequired(), ((Slavers) card).getCredit(), ((Slavers) card).getFlightDays(), ((Slavers) card).getCrewLost()));
                         break;
                     case EPIDEMIC:
-                        cards.add(new EpidemicView(card.getID(), false));
+                        cards.add(new EpidemicView(card.getID(), false, card.getCardLevel()));
                         break;
                     case STARDUST:
-                        cards.add(new StarDustView(card.getID(), false));
+                        cards.add(new StarDustView(card.getID(), false, card.getCardLevel()));
                         break;
                     case OPENSPACE:
-                        cards.add(new OpenSpaceView(card.getID(), false));
+                        cards.add(new OpenSpaceView(card.getID(), false, card.getCardLevel()));
                         break;
                     case SMUGGLERS:
                         int cannonStrength = ((Smugglers) card).getCannonStrengthRequired();
@@ -75,7 +74,7 @@ public class CardMainView {
                         for (Good good : ((Smugglers) card).getGoodsReward()) {
                             goods.add(GoodView.valueOf(good.getColor().name()));
                         }
-                        cards.add(new SmugglersView(card.getID(), false, cannonStrength, goodsLost, flightDays, goods));
+                        cards.add(new SmugglersView(card.getID(), false, card.getCardLevel(), cannonStrength, goodsLost, flightDays, goods));
                         break;
                     case COMBATZONE:
                         int loss = ((CombatZone) card).getLost();
@@ -84,20 +83,20 @@ public class CardMainView {
                         for (Hit hit : ((CombatZone) card).getFires()) {
                             hitsList.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
                         }
-                        cards.add(new CombatZoneView(card.getID(), false, loss, flights, hitsList));
+                        cards.add(new CombatZoneView(card.getID(), false, card.getCardLevel(), loss, flights, hitsList));
                         break;
                     case METEORSWARM:
                         List<HitView> meteorHits = new ArrayList<>();
                         for (Hit hit : ((MeteorSwarm) card).getMeteors()) {
                             meteorHits.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
                         }
-                        cards.add(new MeteorSwarmView(card.getID(), false, meteorHits));
+                        cards.add(new MeteorSwarmView(card.getID(), false, card.getCardLevel(), meteorHits));
                         break;
                     case ABANDONEDSHIP:
                         int crewLost = ((AbandonedShip) card).getCrewRequired();
                         int creditsRequired = ((AbandonedShip) card).getCredit();
                         int flightDaysRequired = ((AbandonedShip) card).getFlightDays();
-                        cards.add(new AbandonedShipView(card.getID(), false, crewLost, creditsRequired, flightDaysRequired));
+                        cards.add(new AbandonedShipView(card.getID(), false, card.getCardLevel(), crewLost, creditsRequired, flightDaysRequired));
                         break;
                     case ABANDONEDSTATION:
                         int crew = ((AbandonedStation) card).getCrewRequired();
@@ -106,7 +105,7 @@ public class CardMainView {
                         for (Good good : ((AbandonedStation) card).getGoods()) {
                             goodsList.add(GoodView.valueOf(good.getColor().name()));
                         }
-                        cards.add(new AbandonedStationView(card.getID(), false, crew, days, goodsList));
+                        cards.add(new AbandonedStationView(card.getID(), false, card.getCardLevel(), crew, days, goodsList));
                         break;
                 }
             }
@@ -115,6 +114,9 @@ public class CardMainView {
             deckView.setCovered(true);
             printDeck(deckView);
 
+            for (CardView card : cards) {
+                card.setCovered(true);
+            }
             printCards(cards, 7);
 
 
@@ -145,7 +147,6 @@ public class CardMainView {
 
         for (int i = 0; i < CardView.getRowsToDraw(); i++) {
             for (int k = 0; k < cards.size() % cols; k++) {
-                cards.get(cards.size() / cols * cols + k).setCovered(false);
                 System.out.print(cards.get((cards.size() / cols) * cols + k).drawLineTui(i));
             }
             System.out.println();

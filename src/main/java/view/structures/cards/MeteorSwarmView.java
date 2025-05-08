@@ -7,8 +7,8 @@ import java.util.List;
 public class MeteorSwarmView extends CardView {
     public List<HitView> hits;
 
-    public MeteorSwarmView(int ID, boolean covered, List<HitView> hits) {
-        super(ID, covered);
+    public MeteorSwarmView(int ID, boolean covered, int level, List<HitView> hits) {
+        super(ID, covered, level);
         this.hits = hits;
     }
 

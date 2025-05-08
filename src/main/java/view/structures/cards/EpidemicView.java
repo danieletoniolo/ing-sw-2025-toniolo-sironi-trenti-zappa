@@ -1,8 +1,8 @@
 package view.structures.cards;
 
 public class EpidemicView extends CardView {
-    public EpidemicView(int ID, boolean covered) {
-        super(ID, covered);
+    public EpidemicView(int ID, boolean covered, int level) {
+        super(ID, covered, level);
     }
 
     @Override

@@ -1,8 +1,8 @@
 package view.structures.cards;
 
 public class OpenSpaceView extends CardView {
-    public OpenSpaceView(int ID, boolean covered) {
-        super(ID, covered);
+    public OpenSpaceView(int ID, boolean covered, int level) {
+        super(ID, covered, level);
     }
 
     @Override

@@ -6,8 +6,8 @@ public class SlaversView extends CardView {
     private int flightDays;
     private int crewLoss;
 
-    public SlaversView(int ID, boolean covered, int cannonRequired, int credits, int flightDays, int crewLoss) {
-        super(ID, covered);
+    public SlaversView(int ID, boolean covered, int level, int cannonRequired, int credits, int flightDays, int crewLoss) {
+        super(ID, covered, level);
         this.cannonRequired = cannonRequired;
         this.credits = credits;
         this.flightDays = flightDays;

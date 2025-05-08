@@ -10,8 +10,8 @@ public class PlanetsView extends CardView{
     private int flightDays;
     private List<List<GoodView>> planets;
 
-    public PlanetsView(int ID, boolean covered, int flightDays, List<List<GoodView>> planets) {
-        super(ID, covered);
+    public PlanetsView(int ID, boolean covered, int level, int flightDays, List<List<GoodView>> planets) {
+        super(ID, covered, level);
         this.numberOfPlanets = planets.size();
         this.flightDays = flightDays;
         this.planets = planets;

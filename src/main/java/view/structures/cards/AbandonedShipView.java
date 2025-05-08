@@ -5,8 +5,8 @@ public class AbandonedShipView extends CardView {
     private int credit;
     private int flightDays;
 
-    public AbandonedShipView(int ID, boolean covered, int crewLoss, int credit, int flightDays) {
-        super(ID, covered);
+    public AbandonedShipView(int ID, boolean covered, int level, int crewLoss, int credit, int flightDays) {
+        super(ID, covered, level);
         this.crewLoss = crewLoss;
         this.credit = credit;
         this.flightDays = flightDays;

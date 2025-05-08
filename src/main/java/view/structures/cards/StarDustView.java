@@ -1,8 +1,8 @@
 package view.structures.cards;
 
 public class StarDustView extends CardView {
-    public StarDustView(int ID, boolean covered) {
-        super(ID, covered);
+    public StarDustView(int ID, boolean covered, int level) {
+        super(ID, covered, level);
     }
 
     @Override

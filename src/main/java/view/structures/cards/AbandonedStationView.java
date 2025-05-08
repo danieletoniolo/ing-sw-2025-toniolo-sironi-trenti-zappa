@@ -9,8 +9,8 @@ public class AbandonedStationView extends CardView {
     private List<GoodView> goods;
     private int flightDays;
 
-    public AbandonedStationView(int ID, boolean covered, int crewRequired, int flightDays, List<GoodView> goods) {
-        super(ID, covered);
+    public AbandonedStationView(int ID, boolean covered, int level, int crewRequired, int flightDays, List<GoodView> goods) {
+        super(ID, covered, level);
         this.crewRequired = crewRequired;
         this.goods = goods;
         this.flightDays = flightDays;

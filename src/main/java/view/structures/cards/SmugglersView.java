@@ -10,8 +10,8 @@ public class SmugglersView extends CardView{
     private int flightDays;
     private List<GoodView> goods;
 
-    public SmugglersView(int ID, boolean covered, int cannonRequired, int goodsLoss, int flightDays, List<GoodView> goods) {
-        super(ID, covered);
+    public SmugglersView(int ID, boolean covered, int level, int cannonRequired, int goodsLoss, int flightDays, List<GoodView> goods) {
+        super(ID, covered, level);
         this.cannonRequired = cannonRequired;
         this.goodsLoss = goodsLoss;
         this.flightDays = flightDays;

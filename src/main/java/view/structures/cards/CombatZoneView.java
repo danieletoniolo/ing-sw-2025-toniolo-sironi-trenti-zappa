@@ -9,8 +9,8 @@ public class CombatZoneView extends CardView {
     private int flightDays;
     private List<HitView> hits;
 
-    public CombatZoneView(int ID, boolean covered, int loss, int flightDays, List<HitView> hits) {
-        super(ID, covered);
+    public CombatZoneView(int ID, boolean covered, int level, int loss, int flightDays, List<HitView> hits) {
+        super(ID, covered, level);
         this.loss = loss;
         this.flightDays = flightDays;
         this.hits = hits;
