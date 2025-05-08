@@ -1,16 +1,14 @@
 package view.tui.tiles;
 
 import Model.SpaceShip.*;
-import view.structures.board.LevelView;
 import view.structures.components.*;
-import view.structures.spaceship.SpaceShipView;
 
 import java.util.ArrayList;
 
 public class TilesMain {
     public static void main(String[] args) {
         ArrayList<ComponentView> tiles = new ArrayList<>();
-        Component[] modelTiles = TilesManager.getAllTiles();
+        ArrayList<Component> modelTiles = TilesManager.getTiles();
 
         for (Component tile : modelTiles) {
             int[] connectors = new int[4];

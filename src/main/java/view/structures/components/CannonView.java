@@ -28,7 +28,7 @@ public class CannonView extends ComponentView {
         return switch (line) {
             case 0, 4 -> super.drawLineTui(line);
             case 1 -> super.drawLeft(line) + "  Cannon   " + super.drawRight(line);
-            case 3 -> super.drawLeft(line) + "  Pow:" + (getClockwiseRotation() == 0 ? getPower() : getPower()/2) + "  " + super.drawRight(line);
+            case 3 -> super.drawLeft(line) + "  Pow:" + getPower() + "  " + super.drawRight(line);
             case 2 -> super.drawLeft(line) + "     " + drawCannon() + "     " + super.drawRight(line);
             default -> throw new IndexOutOfBoundsException("Unexpected value: " + line);
         };

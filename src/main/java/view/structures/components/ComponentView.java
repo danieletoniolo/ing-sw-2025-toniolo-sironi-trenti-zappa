@@ -82,7 +82,6 @@ public abstract class ComponentView {
             "."
     };
 
-    private int[] originalConnectors;
     private int[] currentConnectors;
     private int ID;
     private int clockwiseRotation;
@@ -90,9 +89,7 @@ public abstract class ComponentView {
 
     public ComponentView(int ID, int[] connectors) {
         this.ID = ID;
-        this.originalConnectors = connectors;
-        this.currentConnectors = new int[4];
-        System.arraycopy(connectors, 0, this.currentConnectors, 0, 4);
+        this.currentConnectors = connectors;
         this.clockwiseRotation = 0;
         this.covered = true;
     }
@@ -144,14 +141,7 @@ public abstract class ComponentView {
     }
 
     public void setClockwiseRotation(int clockwiseRotation) {
-        if (clockwiseRotation < 0 || clockwiseRotation > 3) {
-            throw new IllegalArgumentException("Clockwise rotation must be between 0 and 3");
-        }
         this.clockwiseRotation = clockwiseRotation;
-
-        for (int i = 0; i < 4; i++) {
-            currentConnectors[i] = originalConnectors[(i + clockwiseRotation) % 4];
-        }
     }
 
     public int getClockwiseRotation() {
