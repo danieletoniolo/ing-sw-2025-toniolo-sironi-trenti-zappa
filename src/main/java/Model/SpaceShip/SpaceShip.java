@@ -117,7 +117,7 @@ public class SpaceShip {
 
         int pos = 6;
         components = new Component[rows][cols];
-        components[pos][pos] = new Cabin(1, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
+        components[pos][pos] = TilesManager.getMainCabin(color);
         components[pos][pos].ship = this;
         components[pos][pos].setRow(pos);
         components[pos][pos].setColumn(pos);

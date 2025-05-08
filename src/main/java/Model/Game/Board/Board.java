@@ -16,7 +16,7 @@ public class Board {
     private final Deck[] decks;
     private final Stack<Card> shuffledDeck;
 
-    private Component[] tiles;
+    private ArrayList<Component> tiles;
 
     private ArrayList<PlayerData> inGamePlayers;
     private ArrayList<PlayerData> gaveUpPlayers;
@@ -63,7 +63,7 @@ public class Board {
         return stepsForALap;
     }
 
-    public Component[] getTiles() {
+    public ArrayList<Component> getTiles() {
         return tiles;
     }
 
@@ -99,17 +99,16 @@ public class Board {
 
     /**
      * Retrieves the tile with the specified ID.
-     * @param ID the ID of the tile to retrieve
+     * @param index the ID of the tile to retrieve
      * @return the tile with the specified ID, or null if no tile with that ID exists
      * @throws IndexOutOfBoundsException ID is out of bounds
      */
-    public Component popTile(int ID) throws IndexOutOfBoundsException {
-        if (ID < 0 || ID >= tiles.length) {
-            throw new IndexOutOfBoundsException("ID is out of bounds");
+    public Component popTile(int index) throws IndexOutOfBoundsException {
+        if (index < 0 || index >= tiles.size()) {
+            throw new IndexOutOfBoundsException("index is out of bounds");
         }
-        Component component = tiles[ID];
-        tiles[ID] = null;
-        return component;
+
+        return this.tiles.remove(index);
     }
 
     /**
@@ -121,11 +120,10 @@ public class Board {
         if (tile == null) {
             throw new NullPointerException("Tile is null");
         }
-        int ID = tile.getID();
-        if (tiles[ID] != null) {
+        if (tiles.contains(tile)) {
             throw new IllegalStateException("Tile is already in the board");
         }
-        tiles[ID] = tile;
+        tiles.add(tile);
     }
 
     /**
