@@ -117,7 +117,7 @@ public class SpaceShip {
 
         int pos = 6;
         components = new Component[rows][cols];
-        components[pos][pos] = new Cabin(1, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
+        components[pos][pos] = TilesManager.getMainCabin(color);
         components[pos][pos].ship = this;
         components[pos][pos].setRow(pos);
         components[pos][pos].setColumn(pos);
@@ -396,12 +396,11 @@ public class SpaceShip {
     /**
      * Add crew members to the ship at the given cabin
      * @param cabinID ID of the cabin to add the crew members
-     * @param brownAlien true if the crew member to add is a brown alien, false otherwise
-     * @param purpleAlien true if the crew member to add is a purple alien, false otherwise
+     * @param crewType Type of crew member to add: 0 = crew, 1 = brown alien, 2 = purple alien
      * @throws IllegalArgumentException if the brownAlien and purpleAlien are both true or if the cabin with the given ID does not exist
      * @throws IllegalStateException if the cabin is full
      */
-    public void addCrewMember(int cabinID, boolean brownAlien, boolean purpleAlien) throws IllegalArgumentException, IllegalStateException{
+    public void addCrewMember(int cabinID, int crewType) throws IllegalArgumentException, IllegalStateException{
         if (brownAlien && purpleAlien) {
             throw new IllegalArgumentException("Cannot add both brown and purple alien to the cabin");
         }
@@ -411,22 +410,29 @@ public class SpaceShip {
             throw new IllegalArgumentException("The cabin with the given ID does not exist");
         }
 
-        if (brownAlien) {
-            if (cabin.hasBrownAlien()) {
-                throw new IllegalStateException("The cabin already has a brown alien");
-            }
-            this.brownAlien = true;
-            cabin.addBrownAlien();
-        } else if (purpleAlien) {
-            if (cabin.hasPurpleAlien()) {
-                throw new IllegalStateException("The cabin already has a purple alien");
-            }
-            this.purpleAlien = true;
-            cabin.addPurpleAlien();
-        } else {
-            cabin.addCrewMember();
+        switch (crewType) {
+            case 0:
+                cabin.addCrewMember();
+                break;
+            case 1:
+                if (cabin.hasBrownAlien()) {
+                    throw new IllegalStateException("The cabin already has a brown alien");
+                }
+                this.brownAlien = true;
+                cabin.addBrownAlien();
+                break;
+            case 2:
+                if (cabin.hasPurpleAlien()) {
+                    throw new IllegalStateException("The cabin already has a purple alien");
+                }
+                this.purpleAlien = true;
+                cabin.addPurpleAlien();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid crew type");
         }
-        this.crewNumber += (brownAlien || purpleAlien) ? 1 : 2;
+
+        this.crewNumber += (crewType == 0) ? 2 : 1;
     }
 
     /**
