@@ -3,12 +3,12 @@ package view.structures.components;
 public abstract class ComponentView {
     public static String Up0 = "╭───────────╮";
     public static String Up1 = "╭──── ↑ ────╮";
-    public static String Up2 = "╭── ↑ ─ ↑ ──╮";
+    public static String Up2 = "╭ ↑ ───── ↑ ╮";
     public static String Up3 = "╭ ↑ ─ ↑ ─ ↑ ╮";
 
     public static String Down0 = "╰───────────╯";
     public static String Down1 = "╰──── ↓ ────╯";
-    public static String Down2 = "╰── ↓ ─ ↓ ──╯";
+    public static String Down2 = "╰ ↓ ───── ↓ ╯";
     public static String Down3 = "╰ ↓ ─ ↓ ─ ↓ ╯";
 
     public static String ArrowRight = "→";
@@ -16,7 +16,7 @@ public abstract class ComponentView {
     public static String ArrowLeft = "←";
     public static String ArrowUp = "↑";
 
-    public static String DoubleArrowUp = "⇈";
+    public static String clean = "│           │";
 
     public static String[] Left0 = {
             ".",
@@ -98,6 +98,10 @@ public abstract class ComponentView {
     }
 
     public void drawComponentGui(){}
+
+    public static int getRowsToDraw() {
+        return 5;
+    }
 
     public String drawLineTui(int line) throws IndexOutOfBoundsException{
         return switch (line) {

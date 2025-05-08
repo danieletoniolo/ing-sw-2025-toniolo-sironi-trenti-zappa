@@ -1,15 +1,15 @@
 package view.structures.cards;
 
-import Model.Cards.Hits.Hit;
+import view.structures.cards.hit.HitView;
 
 import java.util.List;
 
 public class CombatZoneView extends CardView {
     private int loss;
     private int flightDays;
-    private List<Hit> hits;
+    private List<HitView> hits;
 
-    public CombatZoneView(int ID, boolean covered, int loss, int flightDays, List<Hit> hits) {
+    public CombatZoneView(int ID, boolean covered, int loss, int flightDays, List<HitView> hits) {
         super(ID, covered);
         this.loss = loss;
         this.flightDays = flightDays;
@@ -58,7 +58,7 @@ public class CombatZoneView extends CardView {
                 } else {
                     line += "│ Cr ";
                 }
-                line += "=> H1: " + printHit(getHits(), 0);
+                line += "=> H1: " + hits.get(0).drawHitTui();
                 while (line.length() < 22) {
                     line += " ";
                 }
@@ -66,7 +66,7 @@ public class CombatZoneView extends CardView {
                 yield line;
             }
             case 6 -> {
-                String line = "│       H2: " + printHit(getHits(), 1);
+                String line = "│       H2: " + hits.get(1).drawHitTui();
                 while (line.length() < 22) {
                     line += " ";
                 }
@@ -77,7 +77,7 @@ public class CombatZoneView extends CardView {
                 if (getHits().size() < 3) {
                     yield Clear;
                 } else {
-                    String line = "│       H3: " + printHit(getHits(), 2);
+                    String line = "│       H3: " + hits.get(2).drawHitTui();
                     while (line.length() < 22) {
                         line += " ";
                     }
@@ -89,7 +89,7 @@ public class CombatZoneView extends CardView {
                 if (getHits().size() < 4) {
                     yield Clear;
                 } else {
-                    String line = "│       H4: " + printHit(getHits(), 3);
+                    String line = "│       H4: " + hits.get(3).drawHitTui();
                     while (line.length() < 22) {
                         line += " ";
                     }
@@ -118,11 +118,11 @@ public class CombatZoneView extends CardView {
         this.flightDays = flightDaysLoss;
     }
 
-    public List<Hit> getHits() {
+    public List<HitView> getHits() {
         return hits;
     }
 
-    public void setHits(List<Hit> hits) {
+    public void setHits(List<HitView> hits) {
         this.hits = hits;
     }
 }

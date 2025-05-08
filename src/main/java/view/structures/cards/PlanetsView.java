@@ -1,6 +1,6 @@
 package view.structures.cards;
 
-import Model.Good.Good;
+import view.structures.good.GoodView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,11 +8,11 @@ import java.util.List;
 public class PlanetsView extends CardView{
     private int numberOfPlanets;
     private int flightDays;
-    private List<List<Good>> planets;
+    private List<List<GoodView>> planets;
 
-    public PlanetsView(int ID, boolean covered, int numberOfPlanets, int flightDays, List<List<Good>> planets) {
+    public PlanetsView(int ID, boolean covered, int flightDays, List<List<GoodView>> planets) {
         super(ID, covered);
-        this.numberOfPlanets = numberOfPlanets;
+        this.numberOfPlanets = planets.size();
         this.flightDays = flightDays;
         this.planets = planets;
     }
@@ -31,10 +31,10 @@ public class PlanetsView extends CardView{
             case 1 -> "│       PLANETS       │";
             case 2,7 -> Clear;
             case 3 -> {
-                if (getNumberOfPlanets() < 1) {
+                if (numberOfPlanets < 1) {
                     yield Clear;
                 } else {
-                    String line = "│  P1: " + printGoods(getPlanet(0));
+                    String line = "│  P1: " + printPlanet(getPlanet(0));
                     while (line.length() < 22) {
                         line += " ";
                     }
@@ -43,10 +43,10 @@ public class PlanetsView extends CardView{
                 }
             }
             case 4 -> {
-                if (getNumberOfPlanets() < 2) {
+                if (numberOfPlanets < 2) {
                     yield Clear;
                 } else {
-                    String line = "│  P2: " + printGoods(getPlanet(1));
+                    String line = "│  P2: " + printPlanet(getPlanet(1));
                     while (line.length() < 22) {
                         line += " ";
                     }
@@ -55,10 +55,10 @@ public class PlanetsView extends CardView{
                 }
             }
             case 5 -> {
-                if (getNumberOfPlanets() < 3) {
+                if (numberOfPlanets < 3) {
                     yield Clear;
                 } else {
-                    String line = "│  P3: " + printGoods(getPlanet(2));
+                    String line = "│  P3: " + printPlanet(getPlanet(2));
                     while (line.length() < 22) {
                         line += " ";
                     }
@@ -67,10 +67,10 @@ public class PlanetsView extends CardView{
                 }
             }
             case 6 -> {
-                if (getNumberOfPlanets() < 4) {
+                if (numberOfPlanets < 4) {
                     yield Clear;
                 } else {
-                    String line = "│  P4: " + printGoods(getPlanet(3));
+                    String line = "│  P4: " + printPlanet(getPlanet(3));
                     while (line.length() < 22) {
                         line += " ";
                     }
@@ -91,14 +91,6 @@ public class PlanetsView extends CardView{
         };
     }
 
-    public int getNumberOfPlanets() {
-        return numberOfPlanets;
-    }
-
-    public void setNumberOfPlanets(int numberOfPlanets) {
-        this.numberOfPlanets = numberOfPlanets;
-    }
-
     public int getFlightDays() {
         return flightDays;
     }
@@ -107,11 +99,19 @@ public class PlanetsView extends CardView{
         this.flightDays = flightDays;
     }
 
-    public List<Good> getPlanet(int n) {
+    public List<GoodView> getPlanet(int n) {
         return new ArrayList<>(planets.get(n));
     }
 
-    public void setPlanet(List<Good> planet) {
+    public void setPlanet(List<GoodView> planet) {
         this.planets.add(planet);
+    }
+
+    private String printPlanet(List<GoodView> planet) {
+        StringBuilder line = new StringBuilder();
+        for (GoodView good : planet) {
+            line.append(good.drawTui()).append(" ");
+        }
+        return line.toString();
     }
 }

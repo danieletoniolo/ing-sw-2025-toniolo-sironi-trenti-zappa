@@ -1,9 +1,16 @@
 package view.structures.components;
 
 public class ShieldView extends ComponentView {
+    public static String UpShield = " ⌢ ";
+    public static String DownShield = " ⌣ ";
+    public static String LeftShield = "(";
+    public static String RightShield = ")";
 
-    public ShieldView(int ID, int[] connecotrs) {
-        super(ID, connecotrs);
+    private boolean[] shields;
+
+    public ShieldView(int ID, int[] connectors, boolean[] shields) {
+        super(ID, connectors);
+        this.shields = shields;
     }
 
     @Override
@@ -24,12 +31,19 @@ public class ShieldView extends ComponentView {
     }
 
     private String drawShield() {
-        return switch (getClockwiseRotation()) {
-            case 0 -> "    ⌢  )    ";
-            case 1 -> "    ⌣  )    ";
-            case 2 -> "   (  ⌣     ";
-            case 3 -> "   (  ⌢     ";
-            default -> throw new IllegalStateException("Unexpected value: " + getClockwiseRotation());
-        };
+        StringBuilder str = new StringBuilder();
+        str.append("   ");
+        for (int i = 0; i < shields.length; i += 2) {
+            if (i == 0 && shields[i]) str.append(UpShield);
+            if (i == 2 && shields[i]) str.append(DownShield);
+        }
+        str.append("  ");
+        for (int i = 1; i < shields.length; i += 2) {
+            if (i == 1 && shields[i]) str.append(LeftShield);
+            if (i == 3 && shields[i]) str.append(RightShield);
+        }
+        str.append("   ");
+
+        return str.toString();
     }
 }

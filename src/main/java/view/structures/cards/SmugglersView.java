@@ -1,6 +1,6 @@
 package view.structures.cards;
 
-import Model.Good.Good;
+import view.structures.good.GoodView;
 
 import java.util.List;
 
@@ -8,9 +8,9 @@ public class SmugglersView extends CardView{
     private int cannonRequired;
     private int goodsLoss;
     private int flightDays;
-    private List<Good> goods;
+    private List<GoodView> goods;
 
-    public SmugglersView(int ID, boolean covered, int cannonRequired, int goodsLoss, int flightDays, List<Good> goods) {
+    public SmugglersView(int ID, boolean covered, int cannonRequired, int goodsLoss, int flightDays, List<GoodView> goods) {
         super(ID, covered);
         this.cannonRequired = cannonRequired;
         this.goodsLoss = goodsLoss;
@@ -48,7 +48,7 @@ public class SmugglersView extends CardView{
                 yield line;
             }
             case 5 -> {
-                String line = "│  Good: " + printGoodsStation(getGoods());
+                String line = "│  Good: " + printGoods();
                 while (line.length() < 22) {
                     line += " ";
                 }
@@ -92,11 +92,19 @@ public class SmugglersView extends CardView{
         this.flightDays = flightDays;
     }
 
-    public List<Good> getGoods() {
+    public List<GoodView> getGoods() {
         return goods;
     }
 
-    public void setGoods(List<Good> goods) {
+    public void setGoods(List<GoodView> goods) {
         this.goods = goods;
+    }
+
+    private String printGoods() {
+        StringBuilder sb = new StringBuilder();
+        for (GoodView good : goods) {
+            sb.append(good.drawTui()).append(" ");
+        }
+        return sb.toString();
     }
 }

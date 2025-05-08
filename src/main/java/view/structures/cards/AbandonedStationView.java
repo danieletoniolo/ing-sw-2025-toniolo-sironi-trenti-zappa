@@ -1,15 +1,15 @@
 package view.structures.cards;
 
-import Model.Good.Good;
+import view.structures.good.GoodView;
 
 import java.util.List;
 
 public class AbandonedStationView extends CardView {
     private int crewRequired;
-    private List<Good> goods;
+    private List<GoodView> goods;
     private int flightDays;
 
-    public AbandonedStationView(int ID, boolean covered, int crewRequired, int flightDays, List<Good> goods) {
+    public AbandonedStationView(int ID, boolean covered, int crewRequired, int flightDays, List<GoodView> goods) {
         super(ID, covered);
         this.crewRequired = crewRequired;
         this.goods = goods;
@@ -18,7 +18,7 @@ public class AbandonedStationView extends CardView {
 
     @Override
     public void drawCardGui(){
-
+        //TODO: Implement GUI drawing logic
     }
 
     @Override
@@ -38,7 +38,7 @@ public class AbandonedStationView extends CardView {
                 yield line;
             }
             case 4 -> {
-                String line = "│  Goods: " + super.printGoodsStation(getGoods());
+                String line = "│  Goods: " + printGoods();
                 while (line.length() < 22) {
                     line += " ";
                 }
@@ -74,11 +74,19 @@ public class AbandonedStationView extends CardView {
         this.crewRequired = crewNeeded;
     }
 
-    public List<Good> getGoods() {
+    public List<GoodView> getGoods() {
         return goods;
     }
 
-    public void setGoods(List<Good> goods) {
+    public void setGoods(List<GoodView> goods) {
         this.goods = goods;
+    }
+
+    private String printGoods() {
+        StringBuilder goodsString = new StringBuilder();
+        for (GoodView good : goods) {
+            goodsString.append(good.drawTui());
+        }
+        return goodsString.toString().trim();
     }
 }

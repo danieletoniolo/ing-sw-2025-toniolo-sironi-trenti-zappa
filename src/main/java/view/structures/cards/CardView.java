@@ -1,11 +1,5 @@
 package view.structures.cards;
 
-import Model.Cards.Hits.Hit;
-import Model.Good.Good;
-import Model.Good.GoodType;
-
-import java.util.List;
-
 public abstract class CardView {
     public String Up =      "╭─────────────────────╮";
     public String Clear =   "│                     │";
@@ -21,53 +15,11 @@ public abstract class CardView {
     }
 
     public void drawCardGui(){
-
+        //TODO: Implement GUI drawing logic
     }
 
-    public String printGoodsStation(List<Good> goods){
-        StringBuilder good = new StringBuilder();
-        for (Good g : goods) {
-            GoodType type = g.getColor();
-            switch (type) {
-                case RED -> good.append("R ");
-                case GREEN -> good.append("G ");
-                case BLUE -> good.append("B ");
-                case YELLOW -> good.append("Y ");
-            }
-        }
-        return good.toString().trim();
-    }
-
-    public String printGoods(List<Good> good) {
-        StringBuilder goods = new StringBuilder();
-        for (Good g : good) {
-            GoodType type = g.getColor();
-            switch (type) {
-                case RED -> goods.append("R ");
-                case GREEN -> goods.append("G ");
-                case BLUE -> goods.append("B ");
-                case YELLOW -> goods.append("Y ");
-            }
-        }
-        return goods.toString().trim();
-    }
-
-    public String printHit(List<Hit> a, int n) {
-        StringBuilder goods = new StringBuilder();
-        Hit h = a.get(n);
-        switch (h.getType()) {
-            case LARGEMETEOR -> goods.append("LMeteor ");
-            case SMALLMETEOR -> goods.append("SMeteor ");
-            case HEAVYFIRE -> goods.append("HFire ");
-            case LIGHTFIRE -> goods.append("LFire ");
-        }
-        switch (h.getDirection()) {
-            case NORTH -> goods.append("^ ");
-            case SOUTH -> goods.append("v ");
-            case EAST -> goods.append("> ");
-            case WEST -> goods.append("< ");
-        }
-        return goods.toString().trim();
+    public static int getRowsToDraw() {
+        return 10;
     }
 
     public String drawLineTui(int line){

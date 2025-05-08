@@ -1,6 +1,6 @@
 package view.structures.cards;
 
-import Model.Cards.Hits.Hit;
+import view.structures.cards.hit.HitView;
 
 import java.util.List;
 
@@ -8,9 +8,9 @@ public class PiratesView extends CardView {
     private int cannonRequires;
     private int credits;
     private int flightDays;
-    private List<Hit> hits;
+    private List<HitView> hits;
 
-    public PiratesView(int ID, boolean covered, int cannonRequires, int credits, int flightDays, List<Hit> hits) {
+    public PiratesView(int ID, boolean covered, int cannonRequires, int credits, int flightDays, List<HitView> hits) {
         super(ID, covered);
         this.cannonRequires = cannonRequires;
         this.credits = credits;
@@ -40,7 +40,7 @@ public class PiratesView extends CardView {
                 yield line;
             }
             case 4 -> {
-                String line = "│  Hit1: " + printHit(getHits(), 0);
+                String line = "│  Hit1: " + hits.get(0).drawHitTui();
                 while (line.length() < 22) {
                     line += " ";
                 }
@@ -48,7 +48,7 @@ public class PiratesView extends CardView {
                 yield line;
             }
             case 5 -> {
-                String line = "│  Hit2: " + printHit(getHits(), 1);
+                String line = "│  Hit2: " + hits.get(1).drawHitTui();
                 while (line.length() < 22) {
                     line += " ";
                 }
@@ -56,7 +56,7 @@ public class PiratesView extends CardView {
                 yield line;
             }
             case 6 -> {
-                String line = "│  Hit3: " + printHit(getHits(), 2);
+                String line = "│  Hit3: " + hits.get(2).drawHitTui();
                 while (line.length() < 22) {
                     line += " ";
                 }
@@ -108,11 +108,11 @@ public class PiratesView extends CardView {
         this.flightDays = flightDays;
     }
 
-    public List<Hit> getHits() {
+    public List<HitView> getHits() {
         return hits;
     }
 
-    public void setHits(List<Hit> hits) {
+    public void setHits(List<HitView> hits) {
         this.hits = hits;
     }
 }

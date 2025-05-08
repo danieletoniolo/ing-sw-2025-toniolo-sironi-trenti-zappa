@@ -1,114 +1,153 @@
 package view.tui.card;
 
-import Model.Cards.Card;
-import Model.Cards.CardsManager;
-import Model.Cards.Hits.Direction;
+import Model.Cards.*;
 import Model.Cards.Hits.Hit;
-import Model.Cards.Hits.HitType;
 import Model.Game.Board.Deck;
-import Model.Game.Board.Level;
 import Model.Good.Good;
-import Model.Good.GoodType;
-import org.javatuples.Pair;
 import view.structures.cards.*;
+import view.structures.cards.hit.HitDirectionView;
+import view.structures.cards.hit.HitTypeView;
+import view.structures.cards.hit.HitView;
+import view.structures.components.ComponentView;
+import view.structures.deck.DeckView;
+import view.structures.good.GoodView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Stack;
+
+import static Model.Game.Board.Level.SECOND;
 
 public class CardMainView {
     public static void main(String[] args) {
-        try{
-            CardView c1 = new AbandonedShipView(1, false, 2, 3, 4);
-            CardView c2 = new AbandonedShipView(2, true, 2, 3, 4);
-            CardView c3 = new AbandonedStationView(3, false, 2, 3, new ArrayList<>(Arrays.asList(new Good(GoodType.RED), new Good(GoodType.GREEN))));
-            CardView c4 = new CombatZoneView(4, false, 3, 4, new ArrayList<>(Arrays.asList(new Hit(HitType.LARGEMETEOR, Direction.NORTH), new Hit(HitType.SMALLMETEOR, Direction.SOUTH))));
-            CardView c5 = new EpidemicView(5, false);
-            CardView c6 = new EpidemicView(6, true);
-            CardView c7 = new MeteorSwarmView(7, false, new ArrayList<>(Arrays.asList(new Hit(HitType.LIGHTFIRE, Direction.WEST), new Hit(HitType.HEAVYFIRE, Direction.EAST), new Hit(HitType.LIGHTFIRE, Direction.SOUTH))));
-            CardView c8 = new OpenSpaceView(8, false);
-            CardView c9 = new PiratesView(9, false, 2, 3, 4, new ArrayList<>(Arrays.asList(new Hit(HitType.LARGEMETEOR, Direction.NORTH), new Hit(HitType.SMALLMETEOR, Direction.SOUTH), new Hit(HitType.LIGHTFIRE, Direction.EAST))));
-            List<Good> goodsList1 = new ArrayList<>(Arrays.asList(new Good(GoodType.GREEN), new Good(GoodType.YELLOW)));
-            List<Good> goodsList2 = new ArrayList<>(Arrays.asList(new Good(GoodType.BLUE), new Good(GoodType.RED)));
-            List<List<Good>> goodsMatrix = new ArrayList<>();
-            goodsMatrix.add(goodsList1);
-            goodsMatrix.add(goodsList2);
-            CardView c10 = new PlanetsView(10, false, 2, 3, goodsMatrix);
-            CardView c11 = new SlaversView(11, false, 2, 3, 4, 5);
-            CardView c12 = new SmugglersView(12, false, 2, 3, 4, goodsList1);
-            CardView c13 = new StarDustView(13, false);
-            for(int i = 0; i < 10; i++){
-                System.out.print(c1.drawLineTui(i));
-                System.out.print(c2.drawLineTui(i));
-                System.out.print(c3.drawLineTui(i));
-                System.out.print(c4.drawLineTui(i));
-                System.out.print(c5.drawLineTui(i));
-                System.out.print(c6.drawLineTui(i));
-                System.out.println();
+        try {
+            Stack<CardView> cards = new Stack<>();
+            Deck[] decks = CardsManager.createDecks(SECOND);
+            Stack<Card> shuffledDeck = CardsManager.createShuffledDeck(decks);
+
+            ArrayList<Card> allCards = new ArrayList<>();
+            for (int i = 0; i < 40; i++){
+                allCards.add(CardsManager.getCard(i));
             }
-            for(int i = 0; i < 10; i++){
-                System.out.print(c7.drawLineTui(i));
-                System.out.print(c8.drawLineTui(i));
-                System.out.print(c9.drawLineTui(i));
-                System.out.print(c10.drawLineTui(i));
-                System.out.print(c11.drawLineTui(i));
-                System.out.print(c12.drawLineTui(i));
-                System.out.println();
+
+            // For per convertire le carte dal model alla view -> modificare solo le condizioni nel for
+            for (Card card : allCards) {
+                switch (card.getCardType()) {
+                    case PIRATES:
+                        int cannon = ((Pirates) card).getCannonStrengthRequired();
+                        int credits = ((Pirates) card).getCredit();
+                        int flight = ((Pirates) card).getFlightDays();
+                        ArrayList<HitView> hits = new ArrayList<>();
+                        for (Hit hit : ((Pirates) card).getFires()) {
+                            hits.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
+                        }
+                        cards.add(new PiratesView(card.getID(), false, cannon, credits, flight, hits));
+                        break;
+                    case PLANETS:
+                        int numberOfPlanets = ((Planets) card).getPlanetNumbers();
+                        List<List<GoodView>> goodViews = new ArrayList<>();
+                        for (int i = 0; i < numberOfPlanets; i++) {
+                            List<GoodView> goodList = new ArrayList<>();
+                            for (Good good : ((Planets) card).getPlanet(i)) {
+                                goodList.add(GoodView.valueOf(good.getColor().name()));
+                            }
+                            goodViews.add(goodList);
+                        }
+                        cards.add(new PlanetsView(card.getID(), false, ((Planets) card).getFlightDays(), goodViews));
+                        break;
+                    case SLAVERS:
+                        cards.add(new SlaversView(card.getID(), false, ((Slavers) card).getCannonStrengthRequired(), ((Slavers) card).getCredit(), ((Slavers) card).getFlightDays(), ((Slavers) card).getCrewLost()));
+                        break;
+                    case EPIDEMIC:
+                        cards.add(new EpidemicView(card.getID(), false));
+                        break;
+                    case STARDUST:
+                        cards.add(new StarDustView(card.getID(), false));
+                        break;
+                    case OPENSPACE:
+                        cards.add(new OpenSpaceView(card.getID(), false));
+                        break;
+                    case SMUGGLERS:
+                        int cannonStrength = ((Smugglers) card).getCannonStrengthRequired();
+                        int goodsLost = ((Smugglers) card).getGoodsLoss();
+                        int flightDays = ((Smugglers) card).getFlightDays();
+                        List<GoodView> goods = new ArrayList<>();
+                        for (Good good : ((Smugglers) card).getGoodsReward()) {
+                            goods.add(GoodView.valueOf(good.getColor().name()));
+                        }
+                        cards.add(new SmugglersView(card.getID(), false, cannonStrength, goodsLost, flightDays, goods));
+                        break;
+                    case COMBATZONE:
+                        int loss = ((CombatZone) card).getLost();
+                        int flights = ((CombatZone) card).getFlightDays();
+                        List<HitView> hitsList = new ArrayList<>();
+                        for (Hit hit : ((CombatZone) card).getFires()) {
+                            hitsList.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
+                        }
+                        cards.add(new CombatZoneView(card.getID(), false, loss, flights, hitsList));
+                        break;
+                    case METEORSWARM:
+                        List<HitView> meteorHits = new ArrayList<>();
+                        for (Hit hit : ((MeteorSwarm) card).getMeteors()) {
+                            meteorHits.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
+                        }
+                        cards.add(new MeteorSwarmView(card.getID(), false, meteorHits));
+                        break;
+                    case ABANDONEDSHIP:
+                        int crewLost = ((AbandonedShip) card).getCrewRequired();
+                        int creditsRequired = ((AbandonedShip) card).getCredit();
+                        int flightDaysRequired = ((AbandonedShip) card).getFlightDays();
+                        cards.add(new AbandonedShipView(card.getID(), false, crewLost, creditsRequired, flightDaysRequired));
+                        break;
+                    case ABANDONEDSTATION:
+                        int crew = ((AbandonedStation) card).getCrewRequired();
+                        int days = ((AbandonedStation) card).getFlightDays();
+                        List<GoodView> goodsList = new ArrayList<>();
+                        for (Good good : ((AbandonedStation) card).getGoods()) {
+                            goodsList.add(GoodView.valueOf(good.getColor().name()));
+                        }
+                        cards.add(new AbandonedStationView(card.getID(), false, crew, days, goodsList));
+                        break;
+                }
             }
-            for(int i = 0; i < 10; i++){
-                System.out.print(c13.drawLineTui(i));
-                System.out.println();
-            }
-        } catch (Exception e) {
+
+            DeckView deckView = new DeckView(cards, false);
+            deckView.setCovered(true);
+            printDeck(deckView);
+
+            printCards(cards, 7);
+
+
+
+
+        }
+        catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
-        /*try{
-            int COLS = 7;
-            CardView cardView = new CardView();
-
-            ArrayList<Card> toVisualize = new ArrayList<>();
-            for(int i = 0; i < 40; i++) {
-                toVisualize.add(CardsManager.getCard(i));
-            }
-
-            drawToVisualize(COLS, toVisualize, cardView);
-
-            Deck[] decks = CardsManager.createDecks(Level.SECOND);
-            drawDecks(decks, cardView);
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-
-         */
     }
 
-    private static void drawToVisualize(int COLS, ArrayList<Card> toVisualize, CardViewFake cv) {
-        int i;
-        for (i = 0; i < toVisualize.size() / COLS; i++) {
-            ArrayList<Pair<Card, Boolean>> cards = new ArrayList<>();
-            for (Card c : toVisualize.subList(i * COLS, i * COLS + COLS)) {
-                cards.add(new Pair<>(c, true));
-            }
-            cv.drawCardsOnOneLine(cards);
+    private static void printDeck(DeckView deck) {
+        for (int i = 0; i < DeckView.getRowsToDraw(); i++) {
+            System.out.print(deck.drawLineTui(i));
+            System.out.println();
         }
-        ArrayList<Pair<Card, Boolean>> cards = new ArrayList<>();
-        for (Card c : toVisualize.subList(i * COLS, toVisualize.size())) {
-            cards.add(new Pair<>(c, true));
-        }
-        cv.drawCardsOnOneLine(cards);
     }
 
-    private static void drawDecks(Deck[] toVisualize, CardView cv) {
-        for (int i = 0; i < toVisualize.length; i++) {
-            ArrayList<Pair<Card, Boolean>> deck = new ArrayList<>();
-            for (Card c : toVisualize[i].getCards()) {
-                deck.add(new Pair<>(c, true));
+    private static void printCards(Stack<CardView> cards, int cols) {
+        for (int h = 0; h < cards.size() / cols; h++) {
+            for (int i = 0; i < CardView.getRowsToDraw(); i++) {
+                for (int k = 0; k < cols; k++) {
+                    System.out.print(cards.get(h * cols + k).drawLineTui(i));
+                }
+                System.out.println();
             }
-            int j = i + 1;
-            System.out.println("Deck " + j + " ( pickable: " + toVisualize[i].isPickable() + " ) " + ":");
-            //cv.drawCardsOnOneLine(deck);
+        }
+
+        for (int i = 0; i < CardView.getRowsToDraw(); i++) {
+            for (int k = 0; k < cards.size() % cols; k++) {
+                cards.get(cards.size() / cols * cols + k).setCovered(false);
+                System.out.print(cards.get((cards.size() / cols) * cols + k).drawLineTui(i));
+            }
             System.out.println();
         }
     }
