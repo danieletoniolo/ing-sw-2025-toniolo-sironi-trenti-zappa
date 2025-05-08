@@ -115,15 +115,13 @@ public class SpaceShip {
         goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
         lastPlacedComponent = null;
 
-        // Spaceship creation
+        int pos = 6;
         components = new Component[rows][cols];
-
-        // Adding the main cabin in the center of the ship
-        components[6][6] = TilesManager.getMainCabin(color);
-        components[6][6].ship = this;
-        components[6][6].setRow(6);
-        components[6][6].setColumn(6);
-        cabins.put(components[6][6].getID(), (Cabin) components[6][6]);
+        components[pos][pos] = TilesManager.getMainCabin(color);
+        components[pos][pos].ship = this;
+        components[pos][pos].setRow(pos);
+        components[pos][pos].setColumn(pos);
+        cabins.put(components[pos][pos].getID(), (Cabin) components[pos][pos]);
         numberOfComponents = 1;
     }
 
@@ -412,12 +410,11 @@ public class SpaceShip {
     /**
      * Add crew members to the ship at the given cabin
      * @param cabinID ID of the cabin to add the crew members
-     * @param brownAlien true if the crew member to add is a brown alien, false otherwise
-     * @param purpleAlien true if the crew member to add is a purple alien, false otherwise
+     * @param crewType Type of crew member to add: 0 = crew, 1 = brown alien, 2 = purple alien
      * @throws IllegalArgumentException if the brownAlien and purpleAlien are both true or if the cabin with the given ID does not exist
      * @throws IllegalStateException if the cabin is full
      */
-    public void addCrewMember(int cabinID, boolean brownAlien, boolean purpleAlien) throws IllegalArgumentException, IllegalStateException{
+    public void addCrewMember(int cabinID, int crewType) throws IllegalArgumentException, IllegalStateException{
         if (brownAlien && purpleAlien) {
             throw new IllegalArgumentException("Cannot add both brown and purple alien to the cabin");
         }
@@ -427,22 +424,29 @@ public class SpaceShip {
             throw new IllegalArgumentException("The cabin with the given ID does not exist");
         }
 
-        if (brownAlien) {
-            if (cabin.hasBrownAlien()) {
-                throw new IllegalStateException("The cabin already has a brown alien");
-            }
-            this.brownAlien = true;
-            cabin.addBrownAlien();
-        } else if (purpleAlien) {
-            if (cabin.hasPurpleAlien()) {
-                throw new IllegalStateException("The cabin already has a purple alien");
-            }
-            this.purpleAlien = true;
-            cabin.addPurpleAlien();
-        } else {
-            cabin.addCrewMember();
+        switch (crewType) {
+            case 0:
+                cabin.addCrewMember();
+                break;
+            case 1:
+                if (cabin.hasBrownAlien()) {
+                    throw new IllegalStateException("The cabin already has a brown alien");
+                }
+                this.brownAlien = true;
+                cabin.addBrownAlien();
+                break;
+            case 2:
+                if (cabin.hasPurpleAlien()) {
+                    throw new IllegalStateException("The cabin already has a purple alien");
+                }
+                this.purpleAlien = true;
+                cabin.addPurpleAlien();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid crew type");
         }
-        this.crewNumber += (brownAlien || purpleAlien) ? 1 : 2;
+
+        this.crewNumber += (crewType == 0) ? 2 : 1;
     }
 
     /**
@@ -606,11 +610,17 @@ public class SpaceShip {
 
     /**
      * Unreserve a component in the reservedComponents ArrayList
-     * @apiNote Should only be called when the component is placed
-     * @param c the component to unreserve
+     * @param tileID The ID of component to unreserve
+     * @return The component that was unreserved
      */
-    public void unreserveComponent(Component c) {
-        reservedComponents.remove(c);
+    public Component unreserveComponent(int tileID) {
+        for (Component c : reservedComponents) {
+            if (c.getID() == tileID) {
+                reservedComponents.remove(c);
+                return c;
+            }
+        }
+        return null;
     }
 
     /**

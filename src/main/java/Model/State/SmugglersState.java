@@ -10,6 +10,9 @@ import Model.State.interfaces.DiscardableGoods;
 import Model.State.interfaces.ExchangeableGoods;
 import Model.State.interfaces.UsableCannon;
 
+import controller.event.game.CardPlayed;
+import controller.event.game.CrewLoss;
+import controller.event.game.MoveMarker;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -150,10 +153,16 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
                                 SpaceShip ship = player.getSpaceShip();
                                 ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
                             }
+
+                            // TODO: EVENT EXCHANGEGOODS
                         }
                         // Set the player as played
                         playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
                         // Set the state as finished
+
+                        // TODO: EVENT CARDPLAYED
+                        CardPlayed cardPlayedEvent = new CardPlayed();
+
                         super.played = true;
                     } else if (cannonStrength.get(player) == card.getCannonStrengthRequired()) {
                         // Set the player as played
@@ -193,6 +202,7 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
                         for (Pair<ArrayList<Good>, Integer> pair : goodsToDiscard) {
                             ship.exchangeGood(null, pair.getValue0(), pair.getValue1());
                         }
+                        // TODO: EVENT EXCHANGEGOODS
                     }
 
                     // Remove the crew to lose if there is any
@@ -200,6 +210,9 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
                         for (Pair<Integer, Integer> pair : crewToLose) {
                             ship.removeCrewMember(pair.getValue1(), pair.getValue0());
                         }
+
+                        // TODO: EVENT CREWLOSS
+                        CrewLoss crewEvent = new CrewLoss(player.getColor(), crewToLose);
                     }
 
                     // Reset the goods to discard
@@ -223,6 +236,9 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
             if (playersStatus.get(p.getColor()) == PlayerStatus.PLAYED) {
                 int flightDays = card.getFlightDays();
                 board.addSteps(p, -flightDays);
+
+                // TODO: EVENT STEPS
+                MoveMarker stepsEvent = new MoveMarker(p.getColor(), flightDays);
             }
         }
     }

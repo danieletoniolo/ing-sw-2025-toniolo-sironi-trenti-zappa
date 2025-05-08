@@ -1,10 +1,11 @@
 package network.rmi;
 
+import controller.event.Event;
+import controller.event.game.HeartBeat;
+import controller.event.game.NoPayload;
 import network.Connection;
 import network.exceptions.BadPortException;
 import network.exceptions.DisconnectedConnection;
-import network.messages.HearBeat;
-import network.messages.Message;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -27,7 +28,7 @@ public class RMIConnection implements Connection {
     /**
      * Saved messages that are yet to be returned by the "receive" method.
      */
-    private final Queue<Message> pendingMessages;
+    private final Queue<Event> pendingMessages;
 
     /**
      * Used to keep track of connection state. Methods "send" and "receive" can only work if this
@@ -59,7 +60,7 @@ public class RMIConnection implements Connection {
     /**
      * Indicates which message has been read.
      */
-    private Message read;
+    private Event read;
 
     /**
      * Timeout for the heartbeat and read/send messages.
@@ -134,7 +135,7 @@ public class RMIConnection implements Connection {
             @Override
             public void run() {
                 try {
-                    send(new HearBeat());
+                    send(new HeartBeat());
                 } catch (DisconnectedConnection e) {
                     throw new DisconnectedConnection("Connection is closed", e);
                 }
@@ -150,7 +151,7 @@ public class RMIConnection implements Connection {
      * @param message is the message to be sent.
      * @return true if the message was sent, false otherwise.
      */
-    private boolean sendWithTimeout(Message message) {
+    private boolean sendWithTimeout(Event message) {
         sent = false;
 
         new Thread(() -> {
@@ -186,13 +187,13 @@ public class RMIConnection implements Connection {
      *
      * @return an Optional containing the message read, or an empty Optional if the connection is closed.
      */
-    private Optional<Message> readWithTimeout() {
+    private Optional<Event> readWithTimeout() {
         read = null;
 
         new Thread(() -> {
             synchronized (lockReadTimeout) {
                 try {
-                    Message message = receiver.poll();
+                    Event message = receiver.poll();
 
                     synchronized (lockReadTimeout) {
                         read = message;
@@ -229,14 +230,14 @@ public class RMIConnection implements Connection {
                     }
                 }
 
-                Optional<Message> message = readWithTimeout();
+                Optional<Event> message = readWithTimeout();
 
                 if (message.isEmpty()) {
                     disconnect();
                     return;
                 }
 
-                if (!message.get().equals(new HearBeat())) {
+                if (!message.get().equals(new HeartBeat())) {
                     synchronized (lock) {
                         pendingMessages.add(message.get());
                         lock.notifyAll();
@@ -254,7 +255,7 @@ public class RMIConnection implements Connection {
      * @throws DisconnectedConnection will be thrown if the connection is closed.
      */
     @Override
-    public void send(Message message) throws DisconnectedConnection {
+    public void send(Event message) throws DisconnectedConnection {
         synchronized (lock) {
             if (disconnected) {
                 throw new DisconnectedConnection("Connection is closed");
@@ -275,7 +276,7 @@ public class RMIConnection implements Connection {
      * @throws DisconnectedConnection will be thrown if the connection is closed.
      */
     @Override
-    public Message receive() throws DisconnectedConnection {
+    public Event receive() throws DisconnectedConnection {
         synchronized (lock) {
             if (disconnected) {
                 throw new DisconnectedConnection("Connection is closed");

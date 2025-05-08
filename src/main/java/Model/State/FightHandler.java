@@ -1,8 +1,10 @@
 package Model.State;
 
 import Model.Cards.Hits.Hit;
+import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
 import Model.SpaceShip.SpaceShip;
+import controller.event.game.*;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -95,6 +97,9 @@ public class FightHandler {
         protect = null;
         batteryID = null;
         fragmentChoice = null;
+
+        // TODO: NEXTHIT EVENT
+        NextHit nextHitEvent = new NextHit();
     }
 
     /**
@@ -157,21 +162,35 @@ public class FightHandler {
 
     /**
      * Execute protection logic
-     * @param spaceShip The spaceship to protect
+     * @param player Player that is playing
      */
-    public void executeProtection(SpaceShip spaceShip) {
+    public void executeProtection(PlayerData player) {
+        SpaceShip spaceShip = player.getSpaceShip();
         Component component = protectionResult.getValue0();
         int protectionType = protectionResult.getValue1();
 
         if (protectionType == 0 || protectionType == -1) {
             if (protect) {
                 spaceShip.useEnergy(batteryID);
+
+                // TODO: EVENT USEENERGY
+                UseEnergy useEnergy = new UseEnergy(batteryID);
+
                 transitionHit();
             } else {
                 spaceShip.destroyComponent(component.getRow(), component.getColumn());
+
+                // TODO: EVENT DESTROYCOMPONENTS
+                ArrayList<Pair<Integer, Integer>> destroyedComponents = new ArrayList<>();
+                destroyedComponents.add(new Pair<>(component.getRow(), component.getColumn()));
+                DestroyedComponents destroyedComponentsEvent = new DestroyedComponents(player.getColor(), destroyedComponents);
+
                 fragments = spaceShip.getDisconnectedComponents();
                 if (fragments.size() > 1) {
                     internalState = FightHandlerInternalState.DESTROY_FRAGMENT;
+
+                    // TODO: EVENT FRAGMENTCHOICE
+                    FragmentChoice fragmentChoiceEvent = new FragmentChoice(fragments);
                 } else {
                     transitionHit();
                 }
@@ -183,13 +202,14 @@ public class FightHandler {
 
     /**
      * Execute fight state machine
-     * @param spaceShip The spaceship to fight with
+     * @param player The player who is fighting
      * @param hitSupplier Supplier that provides the current Hit
      * @throws IndexOutOfBoundsException If hitIndex is out of bounds
      * @throws IllegalStateException If required state variables are not set
      * @return If the execution is complete for the current hit
      */
-    public boolean executeFight(SpaceShip spaceShip, Supplier<Hit> hitSupplier) throws IndexOutOfBoundsException, IllegalStateException {
+    public boolean executeFight(PlayerData player, Supplier<Hit> hitSupplier) throws IndexOutOfBoundsException, IllegalStateException {
+        SpaceShip spaceShip = player.getSpaceShip();
         switch (internalState) {
             case CAN_PROTECT:
                 if (dice == null) {
@@ -198,25 +218,35 @@ public class FightHandler {
                 Hit hit = hitSupplier.get();
                 protectionResult = spaceShip.canProtect(dice, hit);
                 internalState = FightHandlerInternalState.PROTECTION;
+
+                // TODO: CANPROTECT EVENT
+                CanProtect canProtectEvent = new CanProtect(new Pair<>(protectionResult.getValue0().getID(), protectionResult.getValue1()));
+
                 break;
             case PROTECTION:
                 if (protect == null) {
                     throw new IllegalStateException("Protect not set");
                 }
-                executeProtection(spaceShip);
+                executeProtection(player);
                 break;
             case DESTROY_FRAGMENT:
                 if (fragmentChoice == null) {
                     throw new IllegalStateException("FragmentChoice not set");
                 }
+                ArrayList<Pair<Integer, Integer>> destroyedComponents = new ArrayList<>();
                 for (int i = 0; i < fragments.size(); i++) {
                     if (i != fragmentChoice) {
                         ArrayList<Pair<Integer, Integer>> fragment = fragments.get(i);
                         for (Pair<Integer, Integer> component : fragment) {
                             spaceShip.destroyComponent(component.getValue0(), component.getValue1());
+                            destroyedComponents.add(new Pair<>(component.getValue0(), component.getValue1()));
                         }
                     }
                 }
+
+                // TODO: EVENT DESTROYCOMPONENTS
+                DestroyedComponents destroyedComponentsEvent = new DestroyedComponents(player.getColor(), destroyedComponents);
+
                 transitionHit();
                 return true;
         }

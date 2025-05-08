@@ -1,12 +1,11 @@
 package network.tcp;
 
+import controller.event.Event;
+import controller.event.game.HeartBeat;
 import network.Connection;
 import network.exceptions.BadHostException;
 import network.exceptions.DisconnectedConnection;
 import network.exceptions.SocketCreationException;
-import network.messages.HearBeat;
-import network.messages.Message;
-
 
 import java.io.*;
 import java.net.Socket;
@@ -25,7 +24,7 @@ public class TCPConnection implements Connection {
 
     private boolean disconnected;
 
-    private Queue<Message> pendingMessages;
+    private Queue<Event> pendingMessages;
 
     private final Object lock = new Object();
 
@@ -98,15 +97,15 @@ public class TCPConnection implements Connection {
                     read = in.readObject();
 
                     // Check if the read object is Message
-                    if (read instanceof Message) {
+                    if (read instanceof Event) {
                         synchronized (lock) {
-                            pendingMessages.add((Message) read);
+                            pendingMessages.add((Event) read);
                             lock.notifyAll();
                         }
                     }
 
                     // If the read object is not Message and neither a Heartbeat we consider the connection broken
-                    if (!(read instanceof HearBeat)) {
+                    if (!(read instanceof HeartBeat)) {
                         disconnect();
                     }
 
@@ -129,7 +128,7 @@ public class TCPConnection implements Connection {
             @Override
             public void run() {
                 try {
-                    send(new HearBeat());
+                    send(new HeartBeat());
                 } catch (DisconnectedConnection e) {
                     timer.cancel();
                 }
@@ -139,7 +138,7 @@ public class TCPConnection implements Connection {
     }
 
     @Override
-    public void send(Message message) {
+    public void send(Event message) {
         synchronized (lock) {
             // If the connection is broken, throw a DisconnectedConnection exception
             if (disconnected) {
@@ -148,6 +147,8 @@ public class TCPConnection implements Connection {
             // Send the message to the other end of the connection
             try {
                 out.writeObject(message);
+                out.reset();
+                // TODO: RESET
                 out.flush();
             } catch (IOException e) {
                 // If a IOException is thrown, we consider the connection broken
@@ -157,7 +158,7 @@ public class TCPConnection implements Connection {
     }
 
     @Override
-    public Message receive() {
+    public Event receive() {
         synchronized (lock) {
             // If the connection is broken, throw a DisconnectedConnection exception
             if (disconnected) {
