@@ -6,13 +6,15 @@ import view.structures.components.ComponentView;
 import java.util.ArrayList;
 
 public class SpaceShipView {
-    public static String UpReserved1 =    "╭────────────";
-    public static String LeftReserved =   "│            ";
-    public static String DownReserved1 =  "╰────────────";
+    public static String UpReserved1 =     "╭────────────";
+    public static String LeftReserved =    "│            ";
+    public static String LeftReserved2 =   "│       Disca";
+    public static String DownReserved1 =   "╰────────────";
 
-    public static String UpReserved2 =   "────────────╮";
-    public static String RightReserved = "            │";
-    public static String DownReserved2 = "────────────╯";
+    public static String UpReserved2 =    "────────────╮";
+    public static String RightReserved =  "            │";
+    public static String RightReserved2 = "d pile      │";
+    public static String DownReserved2 =  "────────────╯";
 
 
     private LevelView level;
@@ -48,6 +50,7 @@ public class SpaceShipView {
 
     public void placeComponent(ComponentView component, int row, int col) {
         spaceShip[row-4][col-3] = component;
+        spaceShip[row-4][col-3].setCovered(false);
     }
 
     public void removeComponent(int row, int col) {
@@ -96,7 +99,11 @@ public class SpaceShipView {
                                 if (reserved.isEmpty()) str.append(UpReserved1);
                                 else str.append(reserved.getFirst().drawLineTui(0));
                                 break;
-                            case 1, 2, 3:
+                            case 2:
+                                if (reserved.isEmpty()) str.append(LeftReserved2);
+                                else str.append(reserved.getFirst().drawLineTui(line % 5));
+                                break;
+                            case 1, 3:
                                 if (reserved.isEmpty()) str.append(LeftReserved);
                                 else str.append(reserved.getFirst().drawLineTui(line % 5));
                                 break;
@@ -112,7 +119,11 @@ public class SpaceShipView {
                                 if (reserved.isEmpty() || reserved.size() == 1) str.append(UpReserved2);
                                 else str.append(reserved.getLast().drawLineTui(0));
                                 break;
-                            case 1, 2, 3:
+                            case 2:
+                                if (reserved.isEmpty() || reserved.size() == 1) str.append(RightReserved2);
+                                else str.append(reserved.getLast().drawLineTui(line % 5));
+                                break;
+                            case 1, 3:
                                 if (reserved.isEmpty() || reserved.size() == 1) str.append(RightReserved);
                                 else str.append(reserved.getLast().drawLineTui(line % 5));
                                 break;

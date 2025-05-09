@@ -23,6 +23,23 @@ enum StartCommands {
 public class ViewMain {
     public static void main(String[] args) {
         Parser parser = new Parser();
+        Thread parserThread = new Thread(() -> {
+            while (true) {
+                Command command = parser.readCommand();
+            }
+        });
+
+        Thread viewThread = new Thread(() -> {
+
+        });
+
+
+        viewThread.start();
+        parserThread.start();
+
+
+
+
         System.out.println("""
                      ________  ________  ___       ________     ___    ___ ___    ___      _________  ________  ___  ___  ________  ___  __    _______   ________    \s
                     |\\   ____\\|\\   __  \\|\\  \\     |\\   __  \\   |\\  \\  /  /|\\  \\  /  /|    |\\___   ___\\\\   __  \\|\\  \\|\\  \\|\\   ____\\|\\  \\|\\  \\ |\\  ___ \\ |\\   __  \\   \s
@@ -35,7 +52,13 @@ public class ViewMain {
                     
                     """);
 
-        while (true) {
+
+
+
+
+
+
+        /*while (true) {
             System.out.println("Lost? Type 'HELP' to get a rundown of all commands and what they do.");
             System.out.println();
             System.out.println("To start select the mode: 'Tui' or 'Gui', or 'Exit' to exit.");
@@ -68,6 +91,6 @@ public class ViewMain {
                     System.out.println("To start the game, type 'tui' or 'gui'. To exit, type 'exit'.");
                     break;
             }
-        }
+        }*/
     }
 }

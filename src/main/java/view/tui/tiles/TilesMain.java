@@ -1,8 +1,13 @@
 package view.tui.tiles;
 
+import Model.Player.PlayerColor;
 import Model.SpaceShip.*;
+import Model.SpaceShip.Component;
+import view.structures.board.LevelView;
 import view.structures.components.*;
+import view.structures.spaceship.SpaceShipView;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class TilesMain {
@@ -11,47 +16,7 @@ public class TilesMain {
         ArrayList<Component> modelTiles = TilesManager.getTiles();
 
         for (Component tile : modelTiles) {
-            int[] connectors = new int[4];
-            for (int j = 0; j < 4; j++) {
-                switch (tile.getConnection(j)) {
-                    case EMPTY -> connectors[j] = 0;
-                    case SINGLE -> connectors[j] = 1;
-                    case DOUBLE -> connectors[j] = 2;
-                    case TRIPLE -> connectors[j] = 3;
-                }
-            }
-
-            switch (tile.getComponentType()) {
-                case BATTERY:
-                    tiles.add(new BatteryView(tile.getID(), connectors));
-                    break;
-                case CABIN:
-                    tiles.add(new CabinView(tile.getID(), connectors));
-                    break;
-                case STORAGE:
-                    tiles.add(new StorageView(tile.getID(), connectors, ((Storage) tile).isDangerous(), ((Storage) tile).getGoodsCapacity()));
-                    break;
-                case BROWN_LIFE_SUPPORT:
-                    tiles.add(new LifeSupportBrownView(tile.getID(), connectors));
-                    break;
-                case PURPLE_LIFE_SUPPORT:
-                    tiles.add(new LifeSupportPurpleView(tile.getID(), connectors));
-                    break;
-                case SINGLE_CANNON, DOUBLE_CANNON:
-                    tiles.add(new CannonView(tile.getID(), connectors, ((Cannon) tile).getCannonStrength()));
-                    break;
-                case SINGLE_ENGINE, DOUBLE_ENGINE:
-                    tiles.add(new EngineView(tile.getID(), connectors, ((Engine) tile).getEngineStrength()));
-                    break;
-                case SHIELD:
-                    boolean[] shields = new boolean[4];
-                    for (int i = 0; i < 4; i++) shields[i] = ((Shield) tile).canShield(i);
-                    tiles.add(new ShieldView(tile.getID(), connectors, shields));
-                    break;
-                case CONNECTORS:
-                    tiles.add(new ConnectorsView(tile.getID(), connectors));
-                    break;
-            }
+            tiles.add(converter(tile));
         }
 
 
@@ -60,16 +25,16 @@ public class TilesMain {
             tile.setClockwiseRotation(3);
         }
         drawTiles(tiles, 13);
-        /*
+
         SpaceShipView spaceShipView = new SpaceShipView(LevelView.SECOND);
-        spaceShipView.placeComponent(tiles.get(155), 6, 6);
-        spaceShipView.addReservedComponent(tiles.get(123));
+        spaceShipView.placeComponent(converter(TilesManager.getMainCabin(PlayerColor.GREEN)), 6, 6);
+        //spaceShipView.addReservedComponent(tiles.get(123));
         spaceShipView.addReservedComponent(tiles.get(1));
-        spaceShipView.addReservedComponent(tiles.get(56));
+        //spaceShipView.addReservedComponent(tiles.get(56));
 
         for (int i = 0; i < SpaceShipView.getRowToDraw(); i++) {
             System.out.println(spaceShipView.drawTui(i));
-        }*/
+        }
     }
 
     public static void drawTile(ComponentView tile) {
@@ -96,5 +61,34 @@ public class TilesMain {
             }
             System.out.println();
         }
+    }
+
+    public static ComponentView converter(Component tile) {
+        int[] connectors = new int[4];
+        for (int j = 0; j < 4; j++) {
+            switch (tile.getConnection(j)) {
+                case EMPTY -> connectors[j] = 0;
+                case SINGLE -> connectors[j] = 1;
+                case DOUBLE -> connectors[j] = 2;
+                case TRIPLE -> connectors[j] = 3;
+            }
+        }
+
+        return switch (tile.getComponentType()) {
+            case BATTERY -> new BatteryView(tile.getID(), connectors, ((Battery) tile).getEnergyNumber());
+            case CABIN -> new CabinView(tile.getID(), connectors);
+            case STORAGE -> new StorageView(tile.getID(), connectors, ((Storage) tile).isDangerous(), ((Storage) tile).getGoodsCapacity());
+            case BROWN_LIFE_SUPPORT -> new LifeSupportBrownView(tile.getID(), connectors);
+            case PURPLE_LIFE_SUPPORT -> new LifeSupportPurpleView(tile.getID(), connectors);
+            case SINGLE_CANNON, DOUBLE_CANNON -> new CannonView(tile.getID(), connectors, ((Cannon) tile).getCannonStrength());
+            case SINGLE_ENGINE, DOUBLE_ENGINE -> new EngineView(tile.getID(), connectors, ((Engine) tile).getEngineStrength());
+            case SHIELD -> {
+                boolean[] shields = new boolean[4];
+                for (int i = 0; i < 4; i++) shields[i] = ((Shield) tile).canShield(i);
+                yield new ShieldView(tile.getID(), connectors, shields);
+            }
+            case CONNECTORS -> new ConnectorsView(tile.getID(), connectors);
+            default -> throw new IllegalStateException("Unexpected value: " + tile.getComponentType());
+        };
     }
 }

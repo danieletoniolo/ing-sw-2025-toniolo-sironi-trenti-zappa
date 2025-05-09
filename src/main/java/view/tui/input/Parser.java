@@ -3,9 +3,9 @@ package view.tui.input;
 import java.util.Scanner;
 
 public class Parser {
-    private Scanner scanner = new Scanner(System.in);
+    private static Scanner scanner = new Scanner(System.in);
 
-    public Command readCommand() {
+    public static Command readCommand() {
         System.out.print("> ");
         String line = scanner.nextLine().trim();
         String[] strings = line.split("\\s+");

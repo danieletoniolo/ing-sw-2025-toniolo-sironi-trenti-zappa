@@ -2,6 +2,8 @@ package view.tui;
 
 import view.tui.input.Command;
 import view.tui.input.Parser;
+import view.tui.states.StartingState;
+import view.tui.states.ViewState;
 
 public class TuiManager {
     private Parser parser = new Parser();
@@ -9,19 +11,36 @@ public class TuiManager {
     private Menu menu;
 
     public void startTui(){
-        System.out.println("Welcome to Space Trucker!");
+        ViewState currentState = new StartingState();
 
-        System.out.println("This is the TUI version of the game.");
+        Thread parserThread = new Thread(() -> {
+            while (true) {
+                Command command = Parser.readCommand();
+                try {
+                    ViewState state = currentState.validCommand(command);
+                    if (state!=null){
+                        currentState = state;
+                    }
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        });
 
+        Thread viewThread = new Thread(() -> {
+            while (true) {
 
-        System.out.println("Insert your nickname:");
-        command = parser.readCommand();
+            }
+        });
 
-        String nickname = command.name();
-        System.out.println("Your nickname is: " + nickname);
+        Thread communicationThread = new Thread(() -> {
+            while (true) {
 
-        TerminalUtils.clearTerminal();
-        menu = new Menu(nickname);
-        menu.drawMenu();
+            }
+        });
+
+        viewThread.start();
+        parserThread.start();
+        communicationThread.start();
     }
 }
