@@ -5,7 +5,7 @@ import view.tui.input.Command;
 
 import java.util.ArrayList;
 
-public class StartingState extends ViewState {
+public class StartingState extends StateView {
     ArrayList<String> validCommands;
 
     public StartingState() {
@@ -17,7 +17,7 @@ public class StartingState extends ViewState {
     }
 
     @Override
-    public ViewState validCommand(Command command) {
+    public StateView isValidCommand(Command command) {
         if (validCommands.contains(command.name())) {
             throw new IllegalStateException("Invalid command: " + command.name());
         }

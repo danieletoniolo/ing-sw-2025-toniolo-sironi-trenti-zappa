@@ -31,11 +31,20 @@ public class LobbyView {
     }
 
     public void setPlayerStatus(String playerName, boolean status) {
-        if (players.containsKey(playerName)) {
-            players.put(playerName, status);
-        }
+        players.put(playerName, status);
     }
 
+    public Map<String, Boolean> getPlayers() {
+        return players;
+    }
+
+    public String getLobbyName() {
+        return lobbyName;
+    }
+
+    public int getMaxPlayer() {
+        return maxPlayer;
+    }
 
     public void drawGui() {
         //TODO: Implement the GUI drawing logic for the lobby here
@@ -105,6 +114,5 @@ public class LobbyView {
         str.append(String.valueOf(" ").repeat(width - 1));
         str.append(Vertical);
         return str.toString();
-
     }
 }
