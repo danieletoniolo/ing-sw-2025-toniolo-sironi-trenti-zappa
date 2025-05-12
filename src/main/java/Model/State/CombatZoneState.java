@@ -8,7 +8,6 @@ import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.*;
 import controller.event.game.CrewLoss;
 import controller.event.game.MoveMarker;
-import controller.event.game.PlayerGaveUp;
 import controller.event.game.PlayerLose;
 import org.javatuples.Pair;
 
@@ -39,7 +38,7 @@ enum CombatZoneInternalState {
 }
 
 
-public class CombatZoneState extends State implements Fightable, ChoosableFragment, RemovableCrew, UsableCannon, UsableEngine, DiscardableGoods {
+public class CombatZoneState extends State implements Fightable, ChoosableFragment, RemovableCrew, DiscardableGoods {
     private CombatZoneInternalState internalState;
     private final CombatZone card;
     private final ArrayList<Map<PlayerData, Float>> stats;
@@ -130,29 +129,8 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      * @param player player to add to the stats
      * @param value value to add to the stats
      */
-    private void addDefaultStats(CombatZoneInternalState statsType, PlayerData player, Float value) {
+    private void addStats(CombatZoneInternalState statsType, PlayerData player, Float value) {
         stats.get(statsType.getIndex(card.getCardLevel())).merge(player, value, Float::sum);
-    }
-
-    /**
-     * Add stats to the player, and if all the player have set their stats, find the player with the lowest stats
-     * @param player player to add to the stats
-     * @param value value to add to the stats
-     */
-    private void addStats(PlayerData player, Float value) {
-        addDefaultStats(internalState, player, value);
-    }
-
-    /**
-     * Use the batteries to power the engines
-     * @param player PlayerData of the player using the engine
-     * @param batteriesID List of Integers representing the batteryID from which we use the energy to use the engine
-     */
-    private void useBatteries(PlayerData player, List<Integer> batteriesID) {
-        SpaceShip ship = player.getSpaceShip();
-        for (Integer batteryID : batteriesID) {
-            ship.useEnergy(batteryID);
-        }
     }
 
     /**
@@ -314,51 +292,39 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
     }
 
     /**
-     * Use the cannon with a given strength
-     * @param player PlayerData of the player using the cannon
-     * @param strength Strength of the cannon to be used
-     * @param batteriesID List of Integers representing the batteryID from which we use the energy to use the cannon
-     * @throws IllegalStateException not in the right state
+     * Implementation of the {@link State#useExtraStrength(PlayerData, int, float, List)} to use double engines
+     * or double cannons based on the {@link CombatZoneInternalState} of the state.
+     * @throws IllegalArgumentException if the type is not 0 or 1.
      */
-    public void useCannon(PlayerData player, Float strength, List<Integer> batteriesID) throws IllegalStateException {
-        if (internalState != CombatZoneInternalState.CANNONS) {
-            throw new IllegalStateException("useCannon not allowed in this state");
+    @Override
+    public void useExtraStrength(PlayerData player, int type, float strength, List<Integer> batteriesID) throws IllegalStateException, IllegalArgumentException {
+        switch (type) {
+            case 0 -> {
+                if (internalState != CombatZoneInternalState.ENGINES) {
+                    throw new IllegalStateException("useEngine not allowed in this state");
+                }
+            }
+            case 1 -> {
+                if (internalState != CombatZoneInternalState.CANNONS) {
+                    throw new IllegalStateException("useCannon not allowed in this state");
+                }
+            }
+            default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
         }
 
-        // Use the energy tu use the cannon
-        useBatteries(player, batteriesID);
+        // Use the energy to power the engine
+        SpaceShip ship = player.getSpaceShip();
+        for (Integer batteryID : batteriesID) {
+            ship.useEnergy(batteryID);
+        }
 
-        // Update the cannon strength stats
-        this.addStats(player, strength);
+        // Update the engine or cannons strength stats
+        this.addStats(internalState, player, strength);
 
         if (stats.get(internalState.getIndex(card.getCardLevel())).get(player) > stats.get(internalState.getIndex(card.getCardLevel())).get(minPlayerCannons)) {
             playersStatus.replace(minPlayerCannons.getColor(), PlayerStatus.WAITING);
             playersStatus.replace(player.getColor(), PlayerStatus.PLAYING);
             minPlayerCannons = player;
-        }
-    }
-
-    /**
-     * Use the engine with a given strength
-     * @param player PlayerData of the player using the engine
-     * @param strength Strength of the engine to be used
-     * @throws IllegalStateException not in the right state
-     */
-    public void useEngine(PlayerData player, Float strength, List<Integer> batteriesID) throws IllegalStateException {
-        if (internalState != CombatZoneInternalState.ENGINES) {
-            throw new IllegalStateException("useEngine not allowed in this state");
-        }
-
-        // Use the energy to power the engine
-        useBatteries(player, batteriesID);
-
-        // Update the engine strength stats
-        this.addStats(player, strength);
-
-        if (stats.get(internalState.getIndex(card.getCardLevel())).get(player) > stats.get(internalState.getIndex(card.getCardLevel())).get(minPlayerEngines)) {
-            playersStatus.replace(minPlayerEngines.getColor(), PlayerStatus.WAITING);
-            playersStatus.replace(player.getColor(), PlayerStatus.PLAYING);
-            minPlayerEngines = player;
         }
     }
 
@@ -382,22 +348,22 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         SpaceShip spaceShip;
         for (PlayerData player : super.players) {
             spaceShip = player.getSpaceShip();
-            this.addDefaultStats(CombatZoneInternalState.CREW, player, (float) spaceShip.getCrewNumber());
+            this.addStats(CombatZoneInternalState.CREW, player, (float) spaceShip.getCrewNumber());
             if (minPlayerCrew == null || minPlayerCrew.getSpaceShip().getCrewNumber() > spaceShip.getCrewNumber()) {
                 minPlayerCrew = player;
             }
 
-            this.addDefaultStats(CombatZoneInternalState.ENGINES, player, (float) spaceShip.getSingleEnginesStrength());
+            this.addStats(CombatZoneInternalState.ENGINES, player, (float) spaceShip.getSingleEnginesStrength());
             if (spaceShip.hasBrownAlien()) {
-                this.addDefaultStats(CombatZoneInternalState.ENGINES, player, SpaceShip.getAlienStrength());
+                this.addStats(CombatZoneInternalState.ENGINES, player, SpaceShip.getAlienStrength());
             }
             if (minPlayerEngines == null || minPlayerEngines.getSpaceShip().getSingleEnginesStrength() > spaceShip.getSingleEnginesStrength()) {
                 minPlayerEngines = player;
             }
 
-            this.addDefaultStats(CombatZoneInternalState.CANNONS, player, spaceShip.getSingleCannonsStrength());
+            this.addStats(CombatZoneInternalState.CANNONS, player, spaceShip.getSingleCannonsStrength());
             if (spaceShip.hasPurpleAlien()) {
-                this.addDefaultStats(CombatZoneInternalState.CANNONS, player, SpaceShip.getAlienStrength());
+                this.addStats(CombatZoneInternalState.CANNONS, player, SpaceShip.getAlienStrength());
             }
             if (minPlayerCannons == null || minPlayerCannons.getSpaceShip().getSingleCannonsStrength() > spaceShip.getSingleCannonsStrength()) {
                 minPlayerCannons = player;

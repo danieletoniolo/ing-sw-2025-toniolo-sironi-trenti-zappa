@@ -7,7 +7,6 @@ import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.AcceptableCredits;
 import Model.State.interfaces.ChoosableFragment;
 import Model.State.interfaces.Fightable;
-import Model.State.interfaces.UsableCannon;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +19,7 @@ enum PiratesInternalState {
     PENALTY
 }
 
-public class PiratesState extends State implements Fightable, ChoosableFragment, AcceptableCredits, UsableCannon {
+public class PiratesState extends State implements Fightable, ChoosableFragment, AcceptableCredits {
     private final Pirates card;
     private final Map<PlayerData, Float> stats;
     private PiratesInternalState internalState;
@@ -107,22 +106,29 @@ public class PiratesState extends State implements Fightable, ChoosableFragment,
     }
 
     /**
-     * Use the cannon
-     * @param player PlayerData of the player using the cannon
-     * @param strength Strength of the cannon to be used
+     * Implementation of the {@link State#useExtraStrength(PlayerData, int, float, List)} to use double engines
+     * in this state.
+     * @throws IllegalArgumentException if the type is not 0 or 1.
      */
-    public void useCannon(PlayerData player, Float strength, List<Integer> batteriesID) throws IllegalStateException {
-        if (internalState == PiratesInternalState.DEFAULT) {
-            throw new IllegalStateException("useCannon not allowed in this state");
-        }
-        // Use the energy to power the cannon
-        SpaceShip ship = player.getSpaceShip();
-        for (Integer batteryID : batteriesID) {
-            ship.useEnergy(batteryID);
-        }
+    @Override
+    public void useExtraStrength(PlayerData player, int type, float strength, List<Integer> batteriesID) throws IllegalStateException, IllegalArgumentException {
+        switch (type) {
+            case 0 -> throw new IllegalStateException("Cannot use double engine in this state");
+            case 1 -> {
+                if (internalState == PiratesInternalState.DEFAULT) {
+                    throw new IllegalStateException("Cannot use double cannons in this state");
+                }
+                // Use the energy to power the cannon
+                SpaceShip ship = player.getSpaceShip();
+                for (Integer batteryID : batteriesID) {
+                    ship.useEnergy(batteryID);
+                }
 
-        // Update the cannon strength stats
-        this.stats.merge(player, strength, Float::sum);
+                // Update the cannon strength stats
+                this.stats.merge(player, strength, Float::sum);
+            }
+            default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
+        }
     }
 
     /**

@@ -6,7 +6,6 @@ import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.AcceptableCredits;
 import Model.State.interfaces.RemovableCrew;
-import Model.State.interfaces.UsableCannon;
 import controller.event.game.*;
 import org.javatuples.Pair;
 
@@ -20,7 +19,7 @@ enum SlaversInternalState {
     PENALTY
 }
 
-public class SlaversState extends State implements AcceptableCredits, UsableCannon, RemovableCrew {
+public class SlaversState extends State implements AcceptableCredits, RemovableCrew {
     private SlaversInternalState internalState;
     private final Slavers card;
     private final Map<PlayerData, Float> stats;
@@ -64,24 +63,29 @@ public class SlaversState extends State implements AcceptableCredits, UsableCann
     }
 
     /**
-     * Add stats to the player
-     * @param player PlayerData
-     * @param value Float value to add
-     * @param batteriesID List of Integers representing the batteryID from which we take the energy to power the cannon
-     * @throws IllegalStateException if execForPlayer != 0
+     * Implementation of the {@link State#useExtraStrength(PlayerData, int, float, List)} to use double engines
+     * in this state.
+     * @throws IllegalArgumentException if the type is not 0 or 1.
      */
-    public void useCannon(PlayerData player, Float value, List<Integer> batteriesID) throws IllegalStateException {
-        if (internalState != SlaversInternalState.ENEMY_DEFEAT) {
-            throw new IllegalStateException("Use cannon not allowed in this state");
-        }
-        // Use the energy to power the cannon
-        SpaceShip ship = player.getSpaceShip();
-        for (Integer batteryID : batteriesID) {
-            ship.useEnergy(batteryID);
-        }
+    @Override
+    public void useExtraStrength(PlayerData player, int type, float strength, List<Integer> batteriesID) throws IllegalStateException, IllegalArgumentException {
+        switch (type) {
+            case 0 -> throw new IllegalStateException("Cannot use double engines in this state");
+            case 1 -> {
+                if (internalState != SlaversInternalState.ENEMY_DEFEAT) {
+                    throw new IllegalStateException("Use cannon not allowed in this state");
+                }
+                // Use the energy to power the cannon
+                SpaceShip ship = player.getSpaceShip();
+                for (Integer batteryID : batteriesID) {
+                    ship.useEnergy(batteryID);
+                }
 
-        // Update the cannon strength stats
-        this.stats.merge(player, value, Float::sum);
+                // Update the cannon strength stats
+                this.stats.merge(player, strength, Float::sum);
+            }
+            default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
+        }
     }
 
     /**
