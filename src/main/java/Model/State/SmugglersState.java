@@ -7,7 +7,6 @@ import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.DiscardableGoods;
 import Model.State.interfaces.ExchangeableGoods;
-import Model.State.interfaces.UsableCannon;
 
 import controller.event.game.CardPlayed;
 import controller.event.game.CrewLoss;
@@ -22,7 +21,7 @@ enum SmugglerInternalState {
     PENALTY
 }
 
-public class SmugglersState extends State implements UsableCannon, ExchangeableGoods, DiscardableGoods {
+public class SmugglersState extends State implements ExchangeableGoods, DiscardableGoods {
     private final Smugglers card;
     private SmugglerInternalState internalState;
 
@@ -70,22 +69,32 @@ public class SmugglersState extends State implements UsableCannon, ExchangeableG
     }
 
     /**
-     * @throws IllegalStateException if we are in the penalty state
+     * Implementation of the {@link State#useExtraStrength(PlayerData, int, float, List)} to use the extra strength
+     * of the double cannons.
+     * @throws IllegalArgumentException if the type is not 0 or 1.
      */
-    public void useCannon(PlayerData player, Float strength, List<Integer> batteriesID) throws IllegalStateException {
-        if (internalState == SmugglerInternalState.PENALTY) {
-            throw new IllegalStateException("There is a penalty to serve.");
+    @Override
+    public void useExtraStrength(PlayerData player, int type, float strength, List<Integer> batteriesID) throws IllegalStateException, IllegalArgumentException {
+        switch (type) {
+            case 0 -> throw new IllegalStateException("Cannot use double engines in this state");
+            case 1 -> {
+                if (internalState == SmugglerInternalState.PENALTY) {
+                    throw new IllegalStateException("There is a penalty to serve.");
+                }
+
+                // Use the energy to power the cannon
+                SpaceShip ship = player.getSpaceShip();
+                for (Integer batteryID : batteriesID) {
+                    ship.useEnergy(batteryID);
+                }
+
+                // Update the cannon strength stats
+                float oldCannonStrength = cannonStrength.get(player);
+                this.cannonStrength.replace(player, oldCannonStrength + strength);
+            }
+            default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
         }
 
-        // Use the energy to power the cannon
-        SpaceShip ship = player.getSpaceShip();
-        for (Integer batteryID : batteriesID) {
-            ship.useEnergy(batteryID);
-        }
-
-        // Update the cannon strength stats
-        float oldCannonStrength = cannonStrength.get(player);
-        this.cannonStrength.replace(player, oldCannonStrength + strength);
     }
 
     /**

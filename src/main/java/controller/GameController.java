@@ -182,29 +182,21 @@ public class GameController {
     }
 
     /**
-     * Use the cannons of the spaceship
+     * Use double engines or double cannons in the state.
      * @param uuid player's uuid
-     * @param cannonsPowerToUse cannons power to use (float)
+     * @param type type of the extra strength to use: 0 = engine, 1 = cannon
+     * @param strength strength of the extra strength to use
+     * @param batteriesID List of Integers representing the batteryID from which we take the energy to use the cannon
      */
-    public void useCannons(UUID uuid, float cannonsPowerToUse, List<Integer> batteriesID) {
-        if (state instanceof UsableCannon) {
-            PlayerData player = state.getCurrentPlayer();
-            if (player.getUUID().equals(uuid)) {
-                ((UsableCannon) state).useCannon(player, cannonsPowerToUse, batteriesID);
-            }
-        }
-    }
-
-    /**
-     * Use the engines of the spaceship
-     * @param uuid player's uuid
-     * @param enginesPowerToUse engines power to use (float)
-     */
-    public void useEngines(UUID uuid, float enginesPowerToUse, List<Integer> batteriesIDs) {
-        if (state instanceof UsableEngine) {
-            PlayerData player = state.getCurrentPlayer();
-            if (player.getUUID().equals(uuid)) {
-                ((UsableEngine) state).useEngine(player, enginesPowerToUse, batteriesIDs);
+    public void useExtraStrength(UUID uuid, int type, float strength, List<Integer> batteriesID) {
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            try {
+                state.useExtraStrength(player, type, strength, batteriesID);
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException("Cannot use extra power in this state");
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
             }
         }
     }
