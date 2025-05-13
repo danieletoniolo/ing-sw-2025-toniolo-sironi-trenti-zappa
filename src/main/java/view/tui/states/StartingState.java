@@ -5,7 +5,7 @@ import view.tui.input.Command;
 
 import java.util.ArrayList;
 
-public class StartingState extends StateView {
+public class StartingState implements StateView {
     ArrayList<String> validCommands;
 
     public StartingState() {

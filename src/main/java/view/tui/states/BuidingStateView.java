@@ -5,7 +5,7 @@ import view.tui.input.Command;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BuidingStateView extends StateView{
+public class BuidingStateView implements StateView{
     private ArrayList<String> validCommands = (ArrayList<String>) List.of("view");
 
 

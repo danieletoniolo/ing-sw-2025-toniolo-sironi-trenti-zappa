@@ -3,7 +3,6 @@ package view.tui;
 import Model.Game.Lobby.LobbyInfo;
 import view.tui.input.Command;
 import view.tui.input.Parser;
-import view.tui.lobby.LobbyView;
 
 import java.util.ArrayList;
 
@@ -65,8 +64,8 @@ public class Menu {
                         if (lobby.getName().equals(name)) {
                             System.out.println("You are joining " + name);
                             TerminalUtils.clearTerminal();
-                            LobbyView lobbyView = new LobbyView(nickname, lobby.getTotalPlayers(), lobby.getName());
-                            lobbyView.drawLobby();
+                            //LobbyView lobbyView = new LobbyView(nickname, lobby.getTotalPlayers(), lobby.getName());
+                            //lobbyView.drawLobby();
                         }
                     }
                     System.out.println("Lobby not found. Please try again.");

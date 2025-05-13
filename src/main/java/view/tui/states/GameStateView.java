@@ -1,8 +1,20 @@
 package view.tui.states;
 
+import view.structures.board.BoardView;
+import view.structures.deck.DeckView;
+import view.structures.player.PlayerDataView;
 import view.tui.input.Command;
 
-public class GameStateView extends StateView{
+import java.util.ArrayList;
+
+public class GameStateView implements StateView{
+    private BoardView boardView;
+    private ArrayList<PlayerDataView> playersView;
+    private ArrayList<DeckView> decksView;
+
+    public GameStateView() {
+
+    }
 
     @Override
     public StateView isValidCommand(Command command) {

@@ -3,16 +3,34 @@ package view.tui.translater;
 import view.tui.input.Command;
 import view.tui.states.StateView;
 
-import java.util.function.Consumer;
-
 public class CommandHandler {
-    public void processCommand(Command command, Consumer<StateView> collback) {
-        switch (command) {
-            case "ready":
-                try {
-                    // Comunica con controller
-                    // Ricevo dati e aggiorno strutture dati
-                }
+    //TODO: Deve avere la comunicazione con il controller
+
+    public Event createEvent(Command command) {
+
+        StateView possibleNewState = currentState.isValidCommand(command);
+        if (possibleNewState != null) {
+            return possibleNewState;
         }
+
+        try {
+            switch (command.name()) {
+                case "/login":
+                    ///TODO: Comunica con controller
+                    //create a structure
+
+                case "/ready":
+                    //TODO: Comunica con controller
+
+
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid command: " + command.name());
+            }
+        } catch (Exception e) {
+            System.out.println("Elaboration error: " + e.getMessage());
+        }
+
+        return currentState;
     }
 }

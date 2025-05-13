@@ -1,9 +1,8 @@
 package view.tui.states;
 
-import view.tui.Menu;
 import view.tui.input.Command;
 
-public class MenuStateView extends StateView {
+public class MenuStateView implements StateView {
 
     public MenuStateView() {
 
