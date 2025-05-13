@@ -21,7 +21,6 @@ class BuildingStateTest {
 
     //TODO: Finire
 
-    /*
     @BeforeEach
     void setUp() throws JsonProcessingException {
         SpaceShip ship0 = new SpaceShip(Level.SECOND, PlayerColor.BLUE);
@@ -97,72 +96,6 @@ class BuildingStateTest {
         assertTrue(state.getTimerRunning());
     }
 
-    @RepeatedTest(5)
-    void showDeck_withValidDeckIndex() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Connectors c = new Connectors(2, new ConnectorType[4]);
-        player.getSpaceShip().placeComponent(c, 6, 7);
-        int validDeckIndex = 0;
-        assertDoesNotThrow(() -> state.showDeck(player.getUUID(), validDeckIndex));
-    }
-
-    @RepeatedTest(5)
-    void showDeck_withInvalidDeckIndex() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Connectors c = new Connectors(2, new ConnectorType[4]);
-        player.getSpaceShip().placeComponent(c, 6, 7);
-        int invalidDeckIndex = -1;
-        assertThrows(IndexOutOfBoundsException.class, () -> state.showDeck(player.getUUID(), invalidDeckIndex));
-    }
-
-    @RepeatedTest(5)
-    void showDeck_withPlayerNotPlacedAnyTile() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        int validDeckIndex = 0;
-        assertThrows(IllegalStateException.class, () -> state.showDeck(player.getUUID(), validDeckIndex));
-    }
-
-    @RepeatedTest(5)
-    void showDeck_withNonExistentPlayerUUID() {
-        UUID nonExistentUUID = UUID.randomUUID();
-        int validDeckIndex = 0;
-        assertThrows(IllegalStateException.class, () -> state.showDeck(nonExistentUUID, validDeckIndex));
-    }
-
-    //TODO: Controllare che abbiano finito il metodo nel model
-    @RepeatedTest(5)
-    void leaveDeck_withValidDeckIndex() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Connectors c = new Connectors(2, new ConnectorType[4]);
-        player.getSpaceShip().placeComponent(c, 6, 7);
-        int validDeckIndex = 0;
-        state.showDeck(player.getUUID(), validDeckIndex);
-        assertDoesNotThrow(() -> state.leaveDeck(player.getUUID(), validDeckIndex));
-    }
-
-    /*@RepeatedTest(5)
-    void leaveDeck_withInvalidDeckIndex() {
-        PlayerData player = state.getPlayers().getFirst();
-        Connectors c = new Connectors(2, new ConnectorType[4]);
-        player.getSpaceShip().placeComponent(c, 6, 7);
-        int validDeckIndex = 0;
-        state.showDeck(player.getUUID(), validDeckIndex);
-        int invalidDeckIndex = -1;
-        assertThrows(IllegalStateException.class, () -> state.leaveDeck(player.getUUID(), invalidDeckIndex));
-    }
-
-    @RepeatedTest(5)
-    void leaveDeck_withNonExistentPlayerUUID() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Connectors c = new Connectors(2, new ConnectorType[4]);
-        player.getSpaceShip().placeComponent(c, 6, 7);
-        int validDeckIndex = 0;
-        state.showDeck(player.getUUID(), validDeckIndex);
-        UUID nonExistentUUID = UUID.randomUUID();
-        assertThrows(IllegalStateException.class, () -> state.leaveDeck(nonExistentUUID, validDeckIndex));
-    }
-    //Fine TODO
-
     //TODO: Così funziona, ma :
     // 1) Non elimino tutti i player null
     // 2) Quando creo lo stato ho già la board, quindi il metodo mi dà sempre errore
@@ -192,305 +125,136 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void placeMarker_withNonExistentPlayerUUID() {
         UUID nonExistentUUID = UUID.randomUUID();
+        SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.BLUE);
+        PlayerData newPlayer = new PlayerData(nonExistentUUID.toString(), PlayerColor.BLUE, ship);
         int validPosition = 1;
-        assertThrows(IllegalStateException.class, () -> state.placeMarker(nonExistentUUID, validPosition));
+        assertThrows(IllegalStateException.class, () -> state.placeMarker(newPlayer, validPosition));
     }
 
     @RepeatedTest(5)
-    void pickTileFromBoard_withValidTileID() {
+    void placeTile_placesTileInBoardWhenToWhereIsZero() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        int validTileID = 1;
-        assertDoesNotThrow(() -> state.pickTileFromBoard(player.getUUID(), validTileID));
-        assertNotNull(state.getPlayersHandQueue().get(player.getColor()));
-    }
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        Component component = new Connectors(1, connectors);
+        state.getPlayersHandQueue().put(player.getColor(), component);
 
-    @RepeatedTest(5)
-    void pickTileFromBoard_withInvalidTileID() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        int invalidTileID = -1;
-        assertThrows(IndexOutOfBoundsException.class, () -> state.pickTileFromBoard(player.getUUID(), invalidTileID));
-    }
-
-    @RepeatedTest(5)
-    void pickTileFromBoard_withPlayerFinishedBuilding() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
-        int validTileID = 1;
-        assertThrows(IllegalStateException.class, () -> state.pickTileFromBoard(player.getUUID(), validTileID));
-    }
-
-    @RepeatedTest(5)
-    void pickTileFromBoard_withNonExistentPlayerUUID() {
-        UUID nonExistentUUID = UUID.randomUUID();
-        int validTileID = 1;
-        assertThrows(IllegalStateException.class, () -> state.pickTileFromBoard(nonExistentUUID, validTileID));
-    }
-
-    @RepeatedTest(5)
-    void pickTileFromReserve_withValidTileID() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component reservedComponent = new Connectors(1, new ConnectorType[4]);
-        player.getSpaceShip().reserveComponent(reservedComponent);
-        assertDoesNotThrow(() -> state.pickTileFromReserve(player.getUUID(), reservedComponent.getID()));
-        assertEquals(reservedComponent, state.getPlayersHandQueue().get(player.getColor()));
-    }
-
-    @RepeatedTest(5)
-    void pickTileFromReserve_withInvalidTileID() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component reservedComponent = new Connectors(1, new ConnectorType[4]);
-        player.getSpaceShip().reserveComponent(reservedComponent);
-        int invalidTileID = -1;
-        assertThrows(IllegalStateException.class, () -> state.pickTileFromReserve(player.getUUID(), invalidTileID));
-    }
-
-    @RepeatedTest(5)
-    void pickTileFromReserve_withNonExistentPlayerUUID() {
-        UUID nonExistentUUID = UUID.randomUUID();
-        int validTileID = 1;
-        assertThrows(IllegalStateException.class, () -> state.pickTileFromReserve(nonExistentUUID, validTileID));
-    }
-
-    @RepeatedTest(5)
-    void pickTileFromReserve_withPlayerFinishedBuilding() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
-        Component reservedComponent = new Connectors(1, new ConnectorType[4]);
-        player.getSpaceShip().reserveComponent(reservedComponent);
-        assertThrows(IllegalStateException.class, () -> state.pickTileFromReserve(player.getUUID(), reservedComponent.getID()));
-    }
-
-    @RepeatedTest(5)
-    void pickTileFromSpaceship_withValidTileID() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component lastPlacedComponent = new Connectors(1, c);
-        player.getSpaceShip().placeComponent(lastPlacedComponent, 6, 7);
-        assertDoesNotThrow(() -> state.pickTileFromSpaceShip(player.getUUID(), lastPlacedComponent.getID()));
-        assertEquals(lastPlacedComponent, state.getPlayersHandQueue().get(player.getColor()));
-    }
-
-    @RepeatedTest(5)
-    void pickTileFromSpaceship_withInvalidTileID() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component lastPlacedComponent = new Connectors(1, c);
-        player.getSpaceShip().placeComponent(lastPlacedComponent, 6, 7);
-        int invalidTileID = -1;
-        assertThrows(IllegalStateException.class, () -> state.pickTileFromSpaceShip(player.getUUID(), invalidTileID));
-    }
-
-    @RepeatedTest(5)
-    void pickTileFromSpaceship_withNonExistentPlayerUUID() {
-        UUID nonExistentUUID = UUID.randomUUID();
-        int validTileID = 1;
-        assertThrows(IllegalStateException.class, () -> state.pickTileFromSpaceShip(nonExistentUUID, validTileID));
-    }
-
-    @RepeatedTest(5)
-    void pickTileFromSpaceship_withPlayerFinishedBuilding() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component lastPlacedComponent = new Connectors(1, c);
-        player.getSpaceShip().placeComponent(lastPlacedComponent, 6, 7);
-        state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
-        assertThrows(IllegalStateException.class, () -> state.pickTileFromSpaceShip(player.getUUID(), lastPlacedComponent.getID()));
-    }
-
-    @RepeatedTest(5)
-    void pickTileFromSpaceship_withNoLastPlacedComponent() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        int validTileID = 1;
-        assertThrows(IllegalStateException.class, () -> state.pickTileFromSpaceShip(player.getUUID(), validTileID));
-    }
-
-    @RepeatedTest(5)
-    void leaveTile_withValidTileInHand() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        state.getPlayersHandQueue().put(player.getColor(), state.board.popTile(1));
-        assertDoesNotThrow(() -> state.leaveTile(player.getUUID()));
+        assertDoesNotThrow(() -> state.placeTile(player, 0, 0, 0));
+        assertTrue(state.board.getTiles().contains(component));
         assertNull(state.getPlayersHandQueue().get(player.getColor()));
     }
 
     @RepeatedTest(5)
-    void leaveTile_withNoTileInHand() {
+    void placeTile_placesTileInReserveWhenToWhereIsOne() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        assertThrows(IllegalStateException.class, () -> state.leaveTile(player.getUUID()));
-    }
-
-    @RepeatedTest(5)
-    void leaveTile_withNonExistentPlayerUUID() {
-        UUID nonExistentUUID = UUID.randomUUID();
-        assertThrows(IllegalStateException.class, () -> state.leaveTile(nonExistentUUID));
-    }
-
-    @RepeatedTest(5)
-    void leaveTile_withTileNotFromReserve_putItBackInBoard() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        state.getPlayersHandQueue().put(player.getColor(), state.board.popTile(2));
-        assertDoesNotThrow(() -> state.leaveTile(player.getUUID()));
-        assertTrue(Arrays.asList(state.board.getTiles()).contains(state.board.getTiles().get(3)));
-    }
-
-    @RepeatedTest(5)
-    void leaveTile_withTileFromReserve_doesNotPutTileBackInBoard() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component component = new Connectors(1, c);
-        player.getSpaceShip().reserveComponent(component);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        Component component = new Connectors(1, connectors);
         state.getPlayersHandQueue().put(player.getColor(), component);
-        assertDoesNotThrow(() -> state.leaveTile(player.getUUID()));
-        assertFalse(Arrays.asList(state.board.getTiles()).contains(component));
-    }
 
-    @RepeatedTest(5)
-    void placeTile_withValidTileInHand() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component component = new Connectors(1, c);
-        state.getPlayersHandQueue().put(player.getColor(), component);
-        assertDoesNotThrow(() -> state.placeTile(player.getUUID(), 6, 7));
-        assertEquals(component, player.getSpaceShip().getComponents()[6][7]);
-        assertNull(state.getPlayersHandQueue().get(player.getColor()));
-    }
-
-    @RepeatedTest(5)
-    void placeTile_withNoTileInHand() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        assertThrows(IllegalStateException.class, () -> state.placeTile(player.getUUID(), 0, 0));
-    }
-
-    @RepeatedTest(5)
-    void placeTile_withNonExistentPlayerUUID() {
-        UUID nonExistentUUID = UUID.randomUUID();
-        assertThrows(IllegalStateException.class, () -> state.placeTile(nonExistentUUID, 0, 0));
-    }
-
-    @RepeatedTest(5)
-    void placeTile_withPlayerFinishedBuilding() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component component = new Connectors(1, c);
-        state.getPlayersHandQueue().put(player.getColor(), component);
-        state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
-        assertThrows(IllegalStateException.class, () -> state.placeTile(player.getUUID(), 6, 7));
-    }
-
-    @RepeatedTest(5)
-    void placeTile_withTileFromReserve() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component component = new Connectors(1, c);
-        player.getSpaceShip().reserveComponent(component);
-        state.getPlayersHandQueue().put(player.getColor(), component);
-        assertDoesNotThrow(() -> state.placeTile(player.getUUID(), 6, 7));
-        assertFalse(player.getSpaceShip().getReservedComponents().contains(component));
-    }
-
-    @RepeatedTest(5)
-    void reserveTile_withValidTileInHand() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component component = new Connectors(1, c);
-        state.getPlayersHandQueue().put(player.getColor(), component);
-        assertDoesNotThrow(() -> state.reserveTile(player.getUUID()));
+        assertDoesNotThrow(() -> state.placeTile(player, 1, 0, 0));
         assertTrue(player.getSpaceShip().getReservedComponents().contains(component));
         assertNull(state.getPlayersHandQueue().get(player.getColor()));
     }
 
     @RepeatedTest(5)
-    void reserveTile_withNoTileInHand() {
+    void placeTile_placesTileInSpaceShipWhenToWhereIsTwo() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        assertThrows(IllegalStateException.class, () -> state.reserveTile(player.getUUID()));
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        Component component = new Connectors(1, connectors);
+        state.getPlayersHandQueue().put(player.getColor(), component);
+
+        assertDoesNotThrow(() -> state.placeTile(player, 2, 6, 7));
+        assertEquals(component, player.getSpaceShip().getComponents()[6][7]);
+        assertNull(state.getPlayersHandQueue().get(player.getColor()));
     }
 
     @RepeatedTest(5)
-    void reserveTile_withNonExistentPlayerUUID() {
-        UUID nonExistentUUID = UUID.randomUUID();
-        assertThrows(IllegalStateException.class, () -> state.reserveTile(nonExistentUUID));
+    void placeTile_throwsExceptionWhenPlayerHasNoTileInHand() {
+        PlayerData player = state.board.getInGamePlayers().getFirst();
+
+        assertThrows(IllegalStateException.class, () -> state.placeTile(player, 2, 6, 7));
     }
 
     @RepeatedTest(5)
-    void reserveTile_withPlayerFinishedBuilding() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+    void placeTile_throwsExceptionWhenPlayerHasFinishedBuilding() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component component = new Connectors(1, c);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        Component component = new Connectors(1, connectors);
         state.getPlayersHandQueue().put(player.getColor(), component);
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
-        assertThrows(IllegalStateException.class, () -> state.reserveTile(player.getUUID()));
+
+        assertThrows(IllegalStateException.class, () -> state.placeTile(player, 2, 6, 7));
     }
 
     @RepeatedTest(5)
-    void rotateTile_withValidTileInHand() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+    void placeTile_throwsExceptionWhenToWhereIsInvalid() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component component = new Connectors(1, c);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        Component component = new Connectors(1, connectors);
         state.getPlayersHandQueue().put(player.getColor(), component);
-        assertDoesNotThrow(() -> state.rotateTile(player.getUUID()));
+
+        assertThrows(IllegalStateException.class, () -> state.placeTile(player, 3, 6, 7));
+    }
+
+    @RepeatedTest(5)
+    void rotateTile_rotatesTileClockwiseWhenPlayerHasTileInHand() {
+        PlayerData player = state.board.getInGamePlayers().getFirst();
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        Component component = new Connectors(1, connectors);
+        state.getPlayersHandQueue().put(player.getColor(), component);
+
+        assertDoesNotThrow(() -> state.rotateTile(player));
         assertEquals(1, component.getClockwiseRotation());
     }
 
     @RepeatedTest(5)
-    void rotateTile_withNoTileInHand() {
+    void rotateTile_throwsExceptionWhenPlayerHasNoTileInHand() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        assertThrows(IllegalStateException.class, () -> state.rotateTile(player.getUUID()));
+
+        assertThrows(IllegalStateException.class, () -> state.rotateTile(player));
     }
 
     @RepeatedTest(5)
-    void rotateTile_withNonExistentPlayerUUID() {
-        UUID nonExistentUUID = UUID.randomUUID();
-        assertThrows(IllegalStateException.class, () -> state.rotateTile(nonExistentUUID));
-    }
-
-    @RepeatedTest(5)
-    void rotateTile_withPlayerFinishedBuilding() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+    void rotateTile_throwsExceptionWhenPlayerHasFinishedBuilding() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component component = new Connectors(1, c);
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        Component component = new Connectors(1, connectors);
         state.getPlayersHandQueue().put(player.getColor(), component);
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
-        assertThrows(IllegalStateException.class, () -> state.rotateTile(player.getUUID()));
+
+        assertThrows(IllegalStateException.class, () -> state.rotateTile(player));
     }
 
     @RepeatedTest(5)
-    void pickTile_withValidTileIDFromPile() {
+    void pickTile_picksTileFromBoardWhenValidTileIDProvided() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        int validTileID = 1;
-        assertDoesNotThrow(() -> state.pickTile(player, validTileID));
-        assertNotNull(state.getPlayersHandQueue().get(player.getColor()));
+
+        assertDoesNotThrow(() -> state.pickTile(player, 0, 1));
     }
 
     @RepeatedTest(5)
-    void pickTile_withValidTileIDFromBoard() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+    void pickTile_throwsExceptionWhenInvalidFromWhereProvided() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component component = state.board.getTiles().get(1);
-        player.getSpaceShip().placeComponent(component, 6, 7);
-        assertDoesNotThrow(() -> state.pickTile(player, component.getID()));
-        assertEquals(component, state.getPlayersHandQueue().get(player.getColor()));
+        int invalidFromWhere = 3;
+
+        assertThrows(IllegalStateException.class, () -> state.pickTile(player, invalidFromWhere, 1));
     }
 
     @RepeatedTest(5)
-    void pickTile_withInvalidTileID() {
+    void pickTile_throwsExceptionWhenPlayerHasFinishedBuilding() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        int invalidTileID = -1;
-        assertThrows(IndexOutOfBoundsException.class, () -> state.pickTile(player, invalidTileID));
+        state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
+
+        assertThrows(IllegalStateException.class, () -> state.pickTile(player, 0, 1));
     }
 
     @RepeatedTest(5)
-    void pickTile_withAlreadyPickedTile() {
-        ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+    void pickTile_throwsExceptionWhenTileIDDoesNotMatch() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        Component component = new Connectors(1, c);
-        state.getPlayersHandQueue().put(player.getColor(), component);
-        assertThrows(IllegalStateException.class, () -> state.pickTile(player, component.getID()));
-    }
+        ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        Component component = new Connectors(1, connectors);
+        state.board.putTile(component);
 
-    @RepeatedTest(5)
-    void pickTile_withNonExistentTileID() {
-        PlayerData player = state.board.getInGamePlayers().getFirst();
-        int nonExistentTileID = -1;
-        assertThrows(IndexOutOfBoundsException.class, () -> state.pickTile(player, nonExistentTileID));
+        assertThrows(IndexOutOfBoundsException.class, () -> state.pickTile(player, 0, 999));
     }
 
     @RepeatedTest(5)
@@ -621,5 +385,4 @@ class BuildingStateTest {
         assertDoesNotThrow(() -> state.exit());
         assertTrue(state.played);
     }
-    */
 }
