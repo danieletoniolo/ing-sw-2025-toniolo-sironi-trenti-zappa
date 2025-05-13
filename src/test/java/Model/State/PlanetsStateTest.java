@@ -50,15 +50,15 @@ class PlanetsStateTest {
 
     @RepeatedTest(5)
     void selectPlanet_withUnselectedPlanet() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         assertDoesNotThrow(() -> state.selectPlanet(player, 0));
         assertEquals(player, state.getPlanetSelected()[0]);
     }
 
     @RepeatedTest(5)
     void selectPlanet_withAlreadySelectedPlanet() {
-        PlayerData player1 = state.getPlayers().get(0);
-        PlayerData player2 = state.getPlayers().get(1);
+        PlayerData player1 = state.board.getInGamePlayers().get(0);
+        PlayerData player2 = state.board.getInGamePlayers().get(1);
         state.selectPlanet(player1, 0);
 
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> state.selectPlanet(player2, 0));
@@ -67,7 +67,7 @@ class PlanetsStateTest {
 
     @RepeatedTest(5)
     void selectPlanet_withInvalidPlanetIndex() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
 
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> state.selectPlanet(player, -1));
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> state.selectPlanet(player, state.getCard().getPlanetNumbers()));
@@ -75,7 +75,7 @@ class PlanetsStateTest {
 
     @RepeatedTest(5)
     void setGoodsToExchange_withValidExchangeData() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData = new ArrayList<>();
         exchangeData.add(new Triplet<>(new ArrayList<>(), new ArrayList<>(), 1));
 
@@ -89,7 +89,7 @@ class PlanetsStateTest {
 
     @RepeatedTest(5)
     void execute_withValidExchangeData() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.replace(player.getColor(), PlayerStatus.PLAYING);
         ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData = new ArrayList<>();
         ConnectorType[] connector = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
@@ -106,7 +106,7 @@ class PlanetsStateTest {
 
     @RepeatedTest(5)
     void execute_withWaitingPlayer() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.replace(player.getColor(), PlayerStatus.WAITING);
 
         assertDoesNotThrow(() -> state.execute(player));
@@ -115,7 +115,7 @@ class PlanetsStateTest {
 
     @RepeatedTest(5)
     void execute_withPlayerNotInPlayingState() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
 
         assertDoesNotThrow(() -> state.execute(player));
@@ -124,20 +124,20 @@ class PlanetsStateTest {
 
     @RepeatedTest(5)
     void exit_withAllPlayersPlayed() {
-        state.getPlayers().forEach(player -> state.playersStatus.replace(player.getColor(), PlayerStatus.PLAYED));
-        int initialSteps = state.getPlayers().getFirst().getStep();
+        state.board.getInGamePlayers().forEach(player -> state.playersStatus.replace(player.getColor(), PlayerStatus.PLAYED));
+        int initialSteps = state.board.getInGamePlayers().getFirst().getStep();
         int flightDays = state.getCard().getFlightDays();
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(initialSteps - flightDays >= state.getPlayers().getFirst().getStep());
+        assertTrue(initialSteps - flightDays >= state.board.getInGamePlayers().getFirst().getStep());
     }
 
     @RepeatedTest(5)
     void exit_withPlayerInWaitingState_or_withPlayerInPlayingState() {
-        state.playersStatus.replace(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.replace(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertThrows(IllegalStateException.class, () -> state.exit());
 
-        state.playersStatus.replace(state.getPlayers().getFirst().getColor(), PlayerStatus.PLAYING);
+        state.playersStatus.replace(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.PLAYING);
         assertThrows(IllegalStateException.class, () -> state.exit());
     }
 
@@ -156,14 +156,14 @@ class PlanetsStateTest {
         assertFalse(state.haveAllPlayersPlayed());
 
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertFalse(state.haveAllPlayersPlayed());
     }
 
     @RepeatedTest(5)
     void setStatusPlayers() {
         state.setStatusPlayers(PlayerStatus.PLAYING);
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
     }
@@ -171,10 +171,10 @@ class PlanetsStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_returnsFirstWaitingPlayer() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
-        state.playersStatus.put(state.getPlayers().get(2).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(2).getColor(), PlayerStatus.WAITING);
         PlayerData currentPlayer = state.getCurrentPlayer();
-        assertEquals(state.getPlayers().get(1), currentPlayer);
+        assertEquals(state.board.getInGamePlayers().get(1), currentPlayer);
     }
 
     @RepeatedTest(5)
@@ -185,7 +185,7 @@ class PlanetsStateTest {
 
     @RepeatedTest(5)
     void play_updatesPlayerStatusToPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
     }
@@ -197,7 +197,7 @@ class PlanetsStateTest {
 
     @RepeatedTest(5)
     void play_withPlayerAlreadyPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));

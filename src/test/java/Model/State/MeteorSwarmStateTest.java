@@ -74,14 +74,15 @@ class MeteorSwarmStateTest {
 
     @RepeatedTest(5)
     void execute_withValidHitIndex() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.setDice(3);
+        //TODO: Can protect ritorna null
         assertDoesNotThrow(() -> state.execute(player));
     }
 
     @RepeatedTest(5)
     void execute_withHitIndexOutOfBounds() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.setDice(7);
         state.getFightHandler().setHitIndex(state.getCard().getMeteors().size());
         assertThrows(IndexOutOfBoundsException.class, () -> state.execute(player));
@@ -89,7 +90,7 @@ class MeteorSwarmStateTest {
 
     @RepeatedTest(5)
     void execute_withoutSettingDice() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         assertThrows(IllegalStateException.class, () -> state.execute(player));
     }
 
@@ -108,14 +109,14 @@ class MeteorSwarmStateTest {
         assertFalse(state.haveAllPlayersPlayed());
 
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertFalse(state.haveAllPlayersPlayed());
     }
 
     @RepeatedTest(5)
     void setStatusPlayers() {
         state.setStatusPlayers(PlayerStatus.PLAYING);
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
     }
@@ -123,10 +124,10 @@ class MeteorSwarmStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_returnsFirstWaitingPlayer() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
-        state.playersStatus.put(state.getPlayers().get(2).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(2).getColor(), PlayerStatus.WAITING);
         PlayerData currentPlayer = state.getCurrentPlayer();
-        assertEquals(state.getPlayers().get(1), currentPlayer);
+        assertEquals(state.board.getInGamePlayers().get(1), currentPlayer);
     }
 
     @RepeatedTest(5)
@@ -137,7 +138,7 @@ class MeteorSwarmStateTest {
 
     @RepeatedTest(5)
     void play_updatesPlayerStatusToPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
     }
@@ -149,7 +150,7 @@ class MeteorSwarmStateTest {
 
     @RepeatedTest(5)
     void play_withPlayerAlreadyPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
@@ -157,7 +158,7 @@ class MeteorSwarmStateTest {
 
     @RepeatedTest(5)
     void exit_withAllPlayersPlayed() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
 
@@ -167,10 +168,10 @@ class MeteorSwarmStateTest {
 
     @RepeatedTest(5)
     void exit_withWaitingPlayer() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
 
         assertThrows(IllegalStateException.class, () -> state.exit());
     }

@@ -51,8 +51,9 @@ class SmugglersStateTest {
 
     @Test
     void useCannon_invalidState(){
-        state.setInternalState(SmugglerInternalState.PENALTY);
-        PlayerData player = state.getPlayers().getFirst();
+        state.entry();
+        state.execute(state.players.getFirst());
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         List<Integer> batteriesID = Arrays.asList(1, 2, 3);
 
         assertThrows(IllegalStateException.class, () -> state.useCannon(player, 5.0f, batteriesID));
@@ -60,7 +61,7 @@ class SmugglersStateTest {
 
     @RepeatedTest(5)
     void useCannon_withValidBatteriesAndPositiveStrength() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 7, 7);
@@ -73,7 +74,7 @@ class SmugglersStateTest {
 
     @RepeatedTest(5)
     void useCannon_withInvalidBatteryIDs() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         List<Integer> invalidBatteriesID = Arrays.asList(99, 100);
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
@@ -83,7 +84,7 @@ class SmugglersStateTest {
 
     @RepeatedTest(5)
     void useCannon_withNullBatteriesList() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
 
@@ -92,7 +93,7 @@ class SmugglersStateTest {
 
     @RepeatedTest(5)
     void useCannon_withZeroStrength() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
 
@@ -110,8 +111,7 @@ class SmugglersStateTest {
 
     @Test
     void setGoodsToExchange_validExchangeData() {
-        state.setInternalState(SmugglerInternalState.DEFAULT);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData = new ArrayList<>();
         exchangeData.add(new Triplet<>(new ArrayList<>(), new ArrayList<>(), 1));
         state.setGoodsToExchange(player, exchangeData);
@@ -120,24 +120,25 @@ class SmugglersStateTest {
 
     @Test
     void setGoodsToExchange_invalidState() {
-        state.setInternalState(SmugglerInternalState.PENALTY);
-        PlayerData player = state.getPlayers().getFirst();
+        state.entry();
+        state.execute(state.players.getFirst());
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData = new ArrayList<>();
         assertThrows(IllegalStateException.class, () -> state.setGoodsToExchange(player, exchangeData));
     }
 
     @Test
     void setGoodsToExchange_nullExchangeData() {
-        state.setInternalState(SmugglerInternalState.DEFAULT);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.setGoodsToExchange(player, null);
         assertNull(state.getExchangeData());
     }
 
     @Test
     void setGoodsToDiscard_validGoodsToDiscard() {
-        state.setInternalState(SmugglerInternalState.PENALTY);
-        PlayerData player = state.getPlayers().getFirst();
+        state.entry();
+        state.execute(state.players.getFirst());
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard = new ArrayList<>();
         goodsToDiscard.add(new Pair<>(new ArrayList<>(), 1));
         state.setGoodsToDiscard(player, goodsToDiscard);
@@ -146,23 +147,24 @@ class SmugglersStateTest {
 
     @Test
     void setGoodsToDiscard_invalidState() {
-        state.setInternalState(SmugglerInternalState.DEFAULT);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard = new ArrayList<>();
         assertThrows(IllegalStateException.class, () -> state.setGoodsToDiscard(player, goodsToDiscard));
     }
 
     @Test
     void setGoodsToDiscard_nullGoodsToDiscard() {
-        state.setInternalState(SmugglerInternalState.PENALTY);
-        PlayerData player = state.getPlayers().getFirst();
+        state.entry();
+        state.execute(state.players.getFirst());
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.setGoodsToDiscard(player, null);
         assertNull(state.getGoodsToDiscard());
     }
 
     @Test
     void setCrewToLose_validCrewToLose() {
-        state.setInternalState(SmugglerInternalState.PENALTY);
+        state.entry();
+        state.execute(state.players.getFirst());
         ArrayList<Pair<Integer, Integer>> crewToLose = new ArrayList<>();
         crewToLose.add(new Pair<>(1, 2));
         state.setCrewToLose(crewToLose);
@@ -171,7 +173,6 @@ class SmugglersStateTest {
 
     @Test
     void setCrewToLose_invalidState() {
-        state.setInternalState(SmugglerInternalState.DEFAULT);
         ArrayList<Pair<Integer, Integer>> crewToLose = new ArrayList<>();
         crewToLose.add(new Pair<>(1, 2));
         assertThrows(IllegalStateException.class, () -> state.setCrewToLose(crewToLose));
@@ -179,7 +180,8 @@ class SmugglersStateTest {
 
     @Test
     void setCrewToLose_nullCrewToLose() {
-        state.setInternalState(SmugglerInternalState.PENALTY);
+        state.entry();
+        state.execute(state.players.getFirst());
         state.setCrewToLose(null);
         assertNull(state.getCrewToLose());
     }
@@ -187,7 +189,7 @@ class SmugglersStateTest {
     @Test
     void entry_initializesCannonStrengthForAllPlayers() {
         state.entry();
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(player.getSpaceShip().getSingleCannonsStrength(), state.getCannonStrength().get(player));
         }
     }
@@ -195,7 +197,7 @@ class SmugglersStateTest {
     @Test
     void execute_validPlayerWithSufficientCannonStrength() {
         state.entry();
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         Storage s1 = new Storage(2, connectors, true, 2);
         player.getSpaceShip().placeComponent(s1, 6, 7);
@@ -214,7 +216,7 @@ class SmugglersStateTest {
     void execute_validPlayerWithExactCannonStrength_marksPlayerAsSkipped() {
         state.entry();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 7, 7);
         state.useCannon(player, state.getCard().getCannonStrengthRequired() - player.getSpaceShip().getSingleCannonsStrength(), player.getSpaceShip().getBatteries().keySet().stream().toList());
@@ -226,7 +228,7 @@ class SmugglersStateTest {
     void execute_validPlayerWithInsufficientCannonStrength() {
         state.entry();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 7, 7);
         state.useCannon(player, -10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()); // Ensure insufficient strength
@@ -243,7 +245,7 @@ class SmugglersStateTest {
     void execute_penaltyStateWithoutGoodsOrCrew() {
         state.entry();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 7, 7);
         state.useCannon(player, -10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()); // Ensure penalty state
@@ -255,7 +257,7 @@ class SmugglersStateTest {
     void execute_penaltyStateWithGoods() {
         state.entry();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 7, 7);
         state.useCannon(player, -10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()); // Ensure penalty state
@@ -281,7 +283,7 @@ class SmugglersStateTest {
     void execute_penaltyStateWithCrew_discardsCrewAndResetsState() {
         state.entry();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 7, 7);
         state.useCannon(player, -10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()); // Ensure penalty state
@@ -293,7 +295,7 @@ class SmugglersStateTest {
         add.add(new Good(GoodType.GREEN));
         ArrayList<Good> remove = new ArrayList<>();
         player.getSpaceShip().exchangeGood(add, remove, 2);
-        player.getSpaceShip().addCrewMember(2, false, false);
+        player.getSpaceShip().addCrewMember(2, 0);
         state.execute(player);
 
         ArrayList<Pair<Integer, Integer>> crewToLose = new ArrayList<>();
@@ -309,7 +311,7 @@ class SmugglersStateTest {
     @Test
     void execute_withExchangeData() {
         state.entry();
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         Storage s1 = new Storage(2, connectors, true, 2);
         ArrayList<Good> g1 = new ArrayList<>(List.of(new Good(GoodType.YELLOW)));
@@ -335,12 +337,12 @@ class SmugglersStateTest {
     @Test
     void exit_allPlayersPlayed() {
         state.entry();
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
         }
-        int initialSteps = state.getPlayers().getFirst().getStep();
+        int initialSteps = state.board.getInGamePlayers().getFirst().getStep();
         state.exit();
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             if (state.playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
                 assertTrue(initialSteps - state.getCard().getFlightDays() >= player.getStep());
             }
@@ -350,16 +352,16 @@ class SmugglersStateTest {
     @Test
     void exit_noPlayersPlayed_doesNotReduceFlightDays() {
         state.entry();
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
         }
-        int[] initialSteps = new int[state.getPlayers().size()];
-        for(int i = 0; i < state.getPlayers().size(); i++) {
-            initialSteps[i] = state.getPlayers().get(i).getStep();
+        int[] initialSteps = new int[state.board.getInGamePlayers().size()];
+        for(int i = 0; i < state.board.getInGamePlayers().size(); i++) {
+            initialSteps[i] = state.board.getInGamePlayers().get(i).getStep();
         }
         state.exit();
-        for(int i = 0; i < state.getPlayers().size(); i++) {
-            assertEquals(initialSteps[i], state.getPlayers().get(i).getStep());
+        for(int i = 0; i < state.board.getInGamePlayers().size(); i++) {
+            assertEquals(initialSteps[i], state.board.getInGamePlayers().get(i).getStep());
         }
     }
 
@@ -378,14 +380,14 @@ class SmugglersStateTest {
         assertFalse(state.haveAllPlayersPlayed());
 
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertFalse(state.haveAllPlayersPlayed());
     }
 
     @RepeatedTest(5)
     void setStatusPlayers() {
         state.setStatusPlayers(PlayerStatus.PLAYING);
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
     }
@@ -393,10 +395,10 @@ class SmugglersStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_returnsFirstWaitingPlayer() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
-        state.playersStatus.put(state.getPlayers().get(2).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(2).getColor(), PlayerStatus.WAITING);
         PlayerData currentPlayer = state.getCurrentPlayer();
-        assertEquals(state.getPlayers().get(1), currentPlayer);
+        assertEquals(state.board.getInGamePlayers().get(1), currentPlayer);
     }
 
     @RepeatedTest(5)
@@ -407,7 +409,7 @@ class SmugglersStateTest {
 
     @RepeatedTest(5)
     void play_updatesPlayerStatusToPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
     }
@@ -419,7 +421,7 @@ class SmugglersStateTest {
 
     @RepeatedTest(5)
     void play_withPlayerAlreadyPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
@@ -427,7 +429,7 @@ class SmugglersStateTest {
 
     @RepeatedTest(5)
     void exit_withAllPlayersPlayed() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
 
@@ -437,10 +439,10 @@ class SmugglersStateTest {
 
     @RepeatedTest(5)
     void exit_withWaitingPlayer() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
 
         assertThrows(IllegalStateException.class, () -> state.exit());
     }

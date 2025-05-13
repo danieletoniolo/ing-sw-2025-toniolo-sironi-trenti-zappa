@@ -71,10 +71,10 @@ class AbandonedShipStateTest {
 
     @Test
     void execute() {
-        for(PlayerData player : state.getPlayers()) {
+        for(PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         }
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().getCabin(152).addCrewMember();
         Cabin c1 = new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         LifeSupportPurple lsp = new LifeSupportPurple(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
@@ -95,7 +95,7 @@ class AbandonedShipStateTest {
     void execute_withNullPlayer_or_withCrewLossNotSet_or_withPlayerNotInState() {
         assertThrows(NullPointerException.class, () -> state.execute(null));
 
-        PlayerData p = state.getPlayers().getFirst();
+        PlayerData p = state.board.getInGamePlayers().getFirst();
         assertThrows(IllegalStateException.class, () -> state.execute(p));
 
         PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174005", PlayerColor.YELLOW, new SpaceShip(Level.SECOND, PlayerColor.YELLOW));
@@ -104,17 +104,17 @@ class AbandonedShipStateTest {
 
     @Test
     void execute_withPlayerAlreadyPlayed() {
-        PlayerData p = state.getPlayers().getFirst();
+        PlayerData p = state.board.getInGamePlayers().getFirst();
         state.setStatusPlayers(PlayerStatus.PLAYED);
         assertThrows(IllegalStateException.class, () -> state.execute(p));
     }
 
     @Test
     void execute_whenAlreadyPlayed() {
-        for (PlayerData p : state.getPlayers()) {
+        for (PlayerData p : state.board.getInGamePlayers()) {
             state.playersStatus.put(p.getColor(), PlayerStatus.PLAYING);
         }
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().getCabin(152).addCrewMember();
         Cabin c1 = new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
         LifeSupportPurple lsp = new LifeSupportPurple(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
@@ -146,14 +146,14 @@ class AbandonedShipStateTest {
         assertFalse(state.haveAllPlayersPlayed());
 
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertFalse(state.haveAllPlayersPlayed());
     }
 
     @RepeatedTest(5)
     void setStatusPlayers() {
         state.setStatusPlayers(PlayerStatus.PLAYING);
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
     }
@@ -161,10 +161,10 @@ class AbandonedShipStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_returnsFirstWaitingPlayer() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
-        state.playersStatus.put(state.getPlayers().get(2).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(2).getColor(), PlayerStatus.WAITING);
         PlayerData currentPlayer = state.getCurrentPlayer();
-        assertEquals(state.getPlayers().get(1), currentPlayer);
+        assertEquals(state.board.getInGamePlayers().get(1), currentPlayer);
     }
 
     @RepeatedTest(5)
@@ -175,7 +175,7 @@ class AbandonedShipStateTest {
 
     @RepeatedTest(5)
     void play_updatesPlayerStatusToPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
     }
@@ -187,7 +187,7 @@ class AbandonedShipStateTest {
 
     @RepeatedTest(5)
     void play_withPlayerAlreadyPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
@@ -200,7 +200,7 @@ class AbandonedShipStateTest {
 
     @RepeatedTest(5)
     void execute_updatesStatusToPlayedIfPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         player.getSpaceShip().getCabin(152).addCrewMember();
         Cabin c1 = new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
@@ -220,7 +220,7 @@ class AbandonedShipStateTest {
 
     @RepeatedTest(5)
     void execute_updatesStatusToSkippedIfNotPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
         player.getSpaceShip().getCabin(152).addCrewMember();
         Cabin c1 = new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE});
@@ -253,14 +253,14 @@ class AbandonedShipStateTest {
     @RepeatedTest(5)
     void exit_whenSomePlayersHaveNotPlayed() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertThrows(IllegalStateException.class, () -> state.exit());
     }
 
     @RepeatedTest(5)
     void exit_whenPlayersSkippedAndPlayed() {
         state.setStatusPlayers(PlayerStatus.SKIPPED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.PLAYED);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.PLAYED);
         assertDoesNotThrow(() -> state.exit());
         assertTrue(state.played);
     }

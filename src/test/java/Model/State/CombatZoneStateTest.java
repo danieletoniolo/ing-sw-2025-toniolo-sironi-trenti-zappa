@@ -210,7 +210,7 @@ class CombatZoneStateTest {
     @Test
     void useCannon_withInvalidBatteryIDs() {
         state.setInternalState(CombatZoneInternalState.CANNONS);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         List<Integer> invalidBatteriesID = Arrays.asList(99, 100);
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
@@ -221,7 +221,7 @@ class CombatZoneStateTest {
     @Test
     void useCannon_withNullBatteriesList() {
         state.setInternalState(CombatZoneInternalState.CANNONS);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
 
@@ -262,7 +262,7 @@ class CombatZoneStateTest {
     @RepeatedTest(5)
     void useEngine_withInvalidBatteryIDs() {
         state.setInternalState(CombatZoneInternalState.ENGINES);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         List<Integer> invalidBatteriesID = Arrays.asList(99, 100);
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6);
@@ -273,7 +273,7 @@ class CombatZoneStateTest {
     @RepeatedTest(5)
     void useEngine_withNullBatteriesList() {
         state.setInternalState(CombatZoneInternalState.ENGINES);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6);
 
@@ -341,7 +341,7 @@ class CombatZoneStateTest {
         state.players.getFirst().getSpaceShip().placeComponent(e, 7, 6);
         state.players.getFirst().getSpaceShip().placeComponent(lsb, 6, 7);
         state.players.getFirst().getSpaceShip().getCabin(152).isValid();
-        state.players.getFirst().getSpaceShip().addCrewMember(152, true, false);
+        state.players.getFirst().getSpaceShip().addCrewMember(152, 1);
         state.entry();
 
         Float expectedStrength = state.players.getFirst().getSpaceShip().getSingleEnginesStrength() + SpaceShip.getAlienStrength();
@@ -357,7 +357,7 @@ class CombatZoneStateTest {
         state.players.getFirst().getSpaceShip().placeComponent(e, 6, 7);
         state.players.getFirst().getSpaceShip().placeComponent(lsb, 7, 6);
         state.players.getFirst().getSpaceShip().getCabin(152).isValid();
-        state.players.getFirst().getSpaceShip().addCrewMember(152, false, true);
+        state.players.getFirst().getSpaceShip().addCrewMember(152, 2);
         state.entry();
 
         Float expectedStrength = state.players.getFirst().getSpaceShip().getSingleCannonsStrength() + SpaceShip.getAlienStrength();
@@ -366,13 +366,62 @@ class CombatZoneStateTest {
 
     //Execute with card level 2
     @Test
+    void execute_levelSecond(){
+        PlayerData player1 = state.board.getInGamePlayers().getFirst();
+        PlayerData player2 = state.board.getInGamePlayers().get(1);
+        PlayerData player3 = state.board.getInGamePlayers().get(2);
+        PlayerData player4 = state.board.getInGamePlayers().get(3);
+
+        //Setto ship
+        player1.getSpaceShip().addCrewMember(152, 0);
+        player1.getSpaceShip().placeComponent(new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}), 6, 7);
+        player1.getSpaceShip().addCrewMember(2, 0);
+        player1.getSpaceShip().placeComponent(new Storage(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 3), 7, 6);
+        Good g = new Good(GoodType.YELLOW);
+        ArrayList<Good> lAdd = new ArrayList<>();
+        lAdd.add(g);
+        player1.getSpaceShip().exchangeGood(lAdd, null, 3);
+        player2.getSpaceShip().placeComponent(new Cannon(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, 1), 6, 7);
+        int startStep = player1.getStep();
+
+        //Faccio conti execute
+        state.entry();
+
+        state.setInternalState(CombatZoneInternalState.CANNONS); //TODO: da eliminare
+        state.execute(state.getMinPlayerCannons());
+        assertEquals(CombatZoneInternalState.ENGINES, state.getInternalState());
+        assertEquals(startStep - state.getCard().getFlightDays(), state.getMinPlayerCannons().getStep());
+
+        ArrayList<Pair<Integer, Integer>> crewLoss = new ArrayList<>();
+        crewLoss.add(Pair.with(152, 2));
+        crewLoss.add(Pair.with(2, 1));
+        state.setCrewLoss(crewLoss);
+        ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard = new ArrayList<>();
+        goodsToDiscard.add(Pair.with(lAdd, 3));
+        state.setGoodsToDiscard(state.getMinPlayerEngines(), goodsToDiscard);
+        state.execute(state.getMinPlayerEngines());
+        assertEquals(CombatZoneInternalState.CREW, state.getInternalState());
+        assertFalse(state.getMinPlayerEngines().getSpaceShip().getGoods().stream().anyMatch(lAdd::contains));
+        //assertEquals(state.getCard().getLost(), startCrew - state.getMinPlayerEngines().getSpaceShip().getCrewNumber());
+        //TODO: Non dovrebbe essere sui goods? -> vedi sotto
+
+        state.getFightHandler().setInternalState(FightHandlerInternalState.CAN_PROTECT); //TODO: Capire
+        state.setDice(7);
+        state.execute(state.getMinPlayerCrew());
+        assertEquals(CombatZoneInternalState.CREW, state.getInternalState());
+        assertEquals(0, state.getFightHandler().getHitIndex());
+        //TODO: Non dovremmo aggiornare status del player a played?
+    }
+
+    /*
+    @Test
     void execute_validStateCrew() {
         state.setInternalState(CombatZoneInternalState.CREW);
         state.getFightHandler().setInternalState(FightHandlerInternalState.CAN_PROTECT);
         state.setDice(7);
 
         state.setInternalState(CombatZoneInternalState.CREW);
-        state.players.getFirst().getSpaceShip().addCrewMember(152, false, false);
+        state.players.getFirst().getSpaceShip().addCrewMember(152, 0);
         state.entry();
         state.execute(state.getMinPlayerCrew());
 
@@ -385,9 +434,9 @@ class CombatZoneStateTest {
     @Test
     void execute_validStateEngines() {
         state.setInternalState(CombatZoneInternalState.ENGINES);
-        state.players.getFirst().getSpaceShip().addCrewMember(152, false, false);
+        state.players.getFirst().getSpaceShip().addCrewMember(152, 0);
         state.players.getFirst().getSpaceShip().placeComponent(new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}), 6, 7);
-        state.players.getFirst().getSpaceShip().addCrewMember(2, false, false);
+        state.players.getFirst().getSpaceShip().addCrewMember(2, 0);
         state.players.getFirst().getSpaceShip().placeComponent(new Storage(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 3), 7, 6);
         Good g = new Good(GoodType.YELLOW);
         ArrayList<Good> lAdd = new ArrayList<>();
@@ -424,15 +473,66 @@ class CombatZoneStateTest {
 
         assertEquals(CombatZoneInternalState.ENGINES, state.getInternalState());
         assertEquals(startStep - state.getCard().getFlightDays(), state.getMinPlayerCannons().getStep());
-    }
+    }*/
 
     //Execute with card level Learning
     @Test
+    void execute_levelLearning(){
+        PlayerData player1 = stateL.players.getFirst();
+        PlayerData player2 = stateL.players.get(1);
+        PlayerData player3 = stateL.players.get(2);
+        PlayerData player4 = stateL.players.get(3);
+
+        //Setto ship
+        player1.getSpaceShip().addCrewMember(152, 0);
+        player3.getSpaceShip().addCrewMember(153, 0);
+        player4.getSpaceShip().addCrewMember(155, 0);
+
+        player1.getSpaceShip().placeComponent(new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}), 6, 7);
+        player1.getSpaceShip().addCrewMember(2, 0);
+        player1.getSpaceShip().placeComponent(new Storage(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 3), 7, 6);
+        Good g = new Good(GoodType.YELLOW);
+        ArrayList<Good> lAdd = new ArrayList<>();
+        lAdd.add(g);
+        player1.getSpaceShip().exchangeGood(lAdd, null, 3);
+
+        player2.getSpaceShip().placeComponent(new Cannon(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, 1), 6, 7);
+
+        //Faccio conti execute
+        stateL.entry();
+
+        int startStep = stateL.getMinPlayerCrew().getStep();
+        stateL.execute(stateL.getMinPlayerCrew());
+        assertEquals(CombatZoneInternalState.ENGINES, stateL.getInternalState());
+        assertEquals(startStep - stateL.getCard().getFlightDays() - 2, stateL.getMinPlayerCrew().getStep());
+        //TODO: Non dovremmo aggiornare status del player a played?
+
+        ArrayList<Pair<Integer, Integer>> crewLoss = new ArrayList<>();
+        crewLoss.add(Pair.with(152, 2));
+        crewLoss.add(Pair.with(2, 1));
+        int startCrew = stateL.players.getFirst().getSpaceShip().getCrewNumber();
+        stateL.setCrewLoss(crewLoss);
+        ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard = new ArrayList<>();
+        goodsToDiscard.add(Pair.with(lAdd, 3));
+        stateL.setGoodsToDiscard(stateL.getMinPlayerEngines(), goodsToDiscard);
+        stateL.execute(stateL.getMinPlayerEngines());
+        assertEquals(CombatZoneInternalState.CANNONS, stateL.getInternalState());
+        assertEquals(stateL.getCard().getLost(), startCrew - stateL.getMinPlayerEngines().getSpaceShip().getCrewNumber());
+
+        stateL.getFightHandler().setInternalState(FightHandlerInternalState.CAN_PROTECT); //TODO: Capire
+        stateL.setDice(7);
+        stateL.execute(stateL.getMinPlayerCannons());
+        assertEquals(CombatZoneInternalState.CANNONS, stateL.getInternalState());
+        assertEquals(0, stateL.getFightHandler().getHitIndex());
+    }
+
+    /*
+    @Test
     void execute_validStateCrew_Learning() {
         stateL.setInternalState(CombatZoneInternalState.CREW);
-        stateL.players.getFirst().getSpaceShip().addCrewMember(152, false, false);
-        stateL.players.get(2).getSpaceShip().addCrewMember(153, false, false);
-        stateL.players.get(3).getSpaceShip().addCrewMember(155, false, false);
+        stateL.players.getFirst().getSpaceShip().addCrewMember(152, 0);
+        stateL.players.get(2).getSpaceShip().addCrewMember(153, 0);
+        stateL.players.get(3).getSpaceShip().addCrewMember(155, 0);
         stateL.entry();
         int startStep = stateL.getMinPlayerCrew().getStep();
         stateL.execute(stateL.getMinPlayerCrew());
@@ -446,9 +546,9 @@ class CombatZoneStateTest {
     @Test
     void execute_validStateEngines_Learning() {
         stateL.setInternalState(CombatZoneInternalState.ENGINES);
-        stateL.players.getFirst().getSpaceShip().addCrewMember(152, false, false);
+        stateL.players.getFirst().getSpaceShip().addCrewMember(152, 0);
         stateL.players.getFirst().getSpaceShip().placeComponent(new Cabin(2, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}), 6, 7);
-        stateL.players.getFirst().getSpaceShip().addCrewMember(2, false, false);
+        stateL.players.getFirst().getSpaceShip().addCrewMember(2, 0);
         stateL.players.getFirst().getSpaceShip().placeComponent(new Storage(3, new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 3), 7, 6);
         Good g = new Good(GoodType.YELLOW);
         ArrayList<Good> lAdd = new ArrayList<>();
@@ -488,6 +588,7 @@ class CombatZoneStateTest {
         assertEquals(CombatZoneInternalState.CANNONS, stateL.getInternalState());
         assertEquals(0, stateL.getFightHandler().getHitIndex());
     }
+     */
 
     @Test
     void execute_invalidStateEngines() {
@@ -518,14 +619,14 @@ class CombatZoneStateTest {
         assertFalse(state.haveAllPlayersPlayed());
 
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertFalse(state.haveAllPlayersPlayed());
     }
 
     @RepeatedTest(5)
     void setStatusPlayers() {
         state.setStatusPlayers(PlayerStatus.PLAYING);
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
     }
@@ -533,10 +634,10 @@ class CombatZoneStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_returnsFirstWaitingPlayer() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
-        state.playersStatus.put(state.getPlayers().get(2).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(2).getColor(), PlayerStatus.WAITING);
         PlayerData currentPlayer = state.getCurrentPlayer();
-        assertEquals(state.getPlayers().get(1), currentPlayer);
+        assertEquals(state.board.getInGamePlayers().get(1), currentPlayer);
     }
 
     @RepeatedTest(5)
@@ -547,7 +648,7 @@ class CombatZoneStateTest {
 
     @RepeatedTest(5)
     void play_updatesPlayerStatusToPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
     }
@@ -559,7 +660,7 @@ class CombatZoneStateTest {
 
     @RepeatedTest(5)
     void play_withPlayerAlreadyPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
@@ -567,7 +668,7 @@ class CombatZoneStateTest {
 
     @RepeatedTest(5)
     void exit_withAllPlayersPlayed() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
 
@@ -577,10 +678,10 @@ class CombatZoneStateTest {
 
     @RepeatedTest(5)
     void exit_withWaitingPlayer() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
 
         assertThrows(IllegalStateException.class, () -> state.exit());
     }

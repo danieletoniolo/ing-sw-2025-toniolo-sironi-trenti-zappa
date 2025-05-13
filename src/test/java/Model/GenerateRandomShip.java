@@ -156,20 +156,20 @@ public class GenerateRandomShip {
                                 Cabin cabin = (Cabin) c;
                                 if(!cabin.hasBrownAlien() && !cabin.hasPurpleAlien()) {
                                     cabin.isValid();
-                                    s.addCrewMember(cabin.getID(), false, true);
+                                    s.addCrewMember(cabin.getID(), 2);
                                     cabin.addPurpleAlien();
                                 }
                             } else if(brown){
                                 Cabin cabin = (Cabin) c;
                                 if(!cabin.hasPurpleAlien() && !cabin.hasBrownAlien()) {
                                     cabin.isValid();
-                                    s.addCrewMember(cabin.getID(), true, false);
+                                    s.addCrewMember(cabin.getID(), 1);
                                     cabin.addBrownAlien();
                                 }
                             } else {
                                 Cabin cabin = (Cabin) c;
                                 cabin.addCrewMember();
-                                s.addCrewMember(cabin.getID(), false, false);
+                                s.addCrewMember(cabin.getID(), 0);
                             }
                             break;
                         case STORAGE:

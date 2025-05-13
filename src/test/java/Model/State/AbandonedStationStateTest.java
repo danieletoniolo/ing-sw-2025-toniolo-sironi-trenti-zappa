@@ -53,12 +53,12 @@ class AbandonedStationStateTest {
 
     @RepeatedTest(5)
     void addCannonStrength_correctly_or_withNegativeStrength() {
-        UUID uuid = state.getPlayers().getFirst().getUUID();
+        UUID uuid = state.board.getInGamePlayers().getFirst().getUUID();
         state.getCannonStrength().put(uuid, 5.0f);
         state.addCannonStrength(uuid, 3.0f);
         assertEquals(8.0f, state.getCannonStrength().get(uuid));
 
-        UUID uuid1 = state.getPlayers().getFirst().getUUID();
+        UUID uuid1 = state.board.getInGamePlayers().getFirst().getUUID();
         state.getCannonStrength().put(uuid1, 5.0f);
         state.addCannonStrength(uuid1, -2.0f);
         assertEquals(3.0f, state.getCannonStrength().get(uuid1));
@@ -76,12 +76,12 @@ class AbandonedStationStateTest {
         ArrayList<Good> goodsToReceive = new ArrayList<>(List.of(new Good(GoodType.GREEN)));
         Triplet<ArrayList<Good>, ArrayList<Good>, Integer> exchange = new Triplet<>(goodsToGive, goodsToReceive, 1);
         ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData = new ArrayList<>(List.of(exchange));
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.setGoodsToExchange(player, exchangeData);
         assertEquals(exchangeData, state.getExchangeData());
 
         ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> emptyExchangeData = new ArrayList<>();
-        PlayerData player1 = state.getPlayers().getFirst();
+        PlayerData player1 = state.board.getInGamePlayers().getFirst();
         state.setGoodsToExchange(player1, emptyExchangeData);
         assertTrue(state.getExchangeData().isEmpty());
     }
@@ -89,7 +89,7 @@ class AbandonedStationStateTest {
     @RepeatedTest(5)
     void entry_initializesCannonStrengthForAllPlayers() {
         state.entry();
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertNotNull(state.getCannonStrength().get(player.getUUID()));
             assertEquals(player.getSpaceShip().getSingleCannonsStrength(), state.getCannonStrength().get(player.getUUID()));
         }
@@ -105,7 +105,7 @@ class AbandonedStationStateTest {
 
     @Test
     void execute_updatesPlayerStatusToPlayedWhenPlayerIsPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.execute(player);
 
@@ -114,7 +114,7 @@ class AbandonedStationStateTest {
 
     @Test
     void execute_performsGoodsExchange() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         Storage s = new Storage(2, connectors, true, 2);
         ArrayList<Good> g1 = new ArrayList<>(List.of(new Good(GoodType.YELLOW)));
@@ -132,7 +132,7 @@ class AbandonedStationStateTest {
 
     @RepeatedTest(5)
     void execute_withWaitingPlayer() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
         state.execute(player);
 
@@ -146,7 +146,7 @@ class AbandonedStationStateTest {
 
     @RepeatedTest(5)
     void execute_withNoExchangeData() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
 
         state.setGoodsToExchange(player, new ArrayList<>());
@@ -157,28 +157,28 @@ class AbandonedStationStateTest {
 
     @RepeatedTest(5)
     void exit_withAllPlayersPlayed() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
 
         assertDoesNotThrow(() -> state.exit());
-        assertEquals(6 - state.getCard().getFlightDays(), state.getPlayers().get(0).getStep());
-        assertEquals(3, state.getPlayers().get(1).getStep());
-        assertEquals(1, state.getPlayers().get(2).getStep());
-        assertEquals(0, state.getPlayers().get(3).getStep());
+        assertEquals(6 - state.getCard().getFlightDays(), state.board.getInGamePlayers().get(0).getStep());
+        assertEquals(3, state.board.getInGamePlayers().get(1).getStep());
+        assertEquals(1, state.board.getInGamePlayers().get(2).getStep());
+        assertEquals(0, state.board.getInGamePlayers().get(3).getStep());
     }
 
     @RepeatedTest(5)
     void exit_withWaitingOrPlayingPlayer() {
-        state.playersStatus.put(state.getPlayers().get(0).getColor(), PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(0).getColor(), PlayerStatus.PLAYED);
+        state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), PlayerStatus.WAITING);
 
         assertDoesNotThrow(() -> state.exit());
     }
 
     @RepeatedTest(5)
     void exit_withNoPlayersPlayed() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
         }
         assertThrows(IllegalStateException.class, () -> state.exit());
@@ -186,7 +186,7 @@ class AbandonedStationStateTest {
 
     @RepeatedTest(5)
     void exit_withPlayersPlaying() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         }
         assertThrows(IllegalStateException.class, () -> state.exit());
@@ -207,14 +207,14 @@ class AbandonedStationStateTest {
         assertFalse(state.haveAllPlayersPlayed());
 
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertFalse(state.haveAllPlayersPlayed());
     }
 
     @RepeatedTest(5)
     void setStatusPlayers() {
         state.setStatusPlayers(PlayerStatus.PLAYING);
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
     }
@@ -222,10 +222,10 @@ class AbandonedStationStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_returnsFirstWaitingPlayer() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
-        state.playersStatus.put(state.getPlayers().get(2).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(2).getColor(), PlayerStatus.WAITING);
         PlayerData currentPlayer = state.getCurrentPlayer();
-        assertEquals(state.getPlayers().get(1), currentPlayer);
+        assertEquals(state.board.getInGamePlayers().get(1), currentPlayer);
     }
 
     @RepeatedTest(5)
@@ -236,7 +236,7 @@ class AbandonedStationStateTest {
 
     @RepeatedTest(5)
     void play_updatesPlayerStatusToPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
     }
@@ -248,7 +248,7 @@ class AbandonedStationStateTest {
 
     @RepeatedTest(5)
     void play_withPlayerAlreadyPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));

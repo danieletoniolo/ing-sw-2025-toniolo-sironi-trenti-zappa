@@ -112,7 +112,7 @@ class PiratesStateTest {
 
     @Test
     void useCannon_invalidState(){
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         List<Integer> batteriesID = Arrays.asList(1, 2, 3);
 
         assertThrows(IllegalStateException.class, () -> state.useCannon(player, 5.0f, batteriesID));
@@ -121,7 +121,7 @@ class PiratesStateTest {
     @RepeatedTest(5)
     void useCannon_withValidBatteriesAndPositiveStrength() {
         state.setInternalStatePirates(PiratesInternalState.PENALTY);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
@@ -135,7 +135,7 @@ class PiratesStateTest {
     @RepeatedTest(5)
     void useCannon_withInvalidBatteryIDs() {
         state.setInternalStatePirates(PiratesInternalState.PENALTY);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         List<Integer> invalidBatteriesID = Arrays.asList(99, 100);
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
@@ -146,7 +146,7 @@ class PiratesStateTest {
     @RepeatedTest(5)
     void useCannon_withNullBatteriesList() {
         state.setInternalStatePirates(PiratesInternalState.PENALTY);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
 
@@ -156,7 +156,7 @@ class PiratesStateTest {
     @RepeatedTest(5)
     void useCannon_withZeroStrength() {
         state.setInternalStatePirates(PiratesInternalState.PENALTY);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7);
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
@@ -176,12 +176,12 @@ class PiratesStateTest {
     @RepeatedTest(5)
     void entry_withPlayersHavingSingleCannon() {
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        state.getPlayers().forEach(player ->
+        state.board.getInGamePlayers().forEach(player ->
                 player.getSpaceShip().placeComponent(new Cannon(2, connectors, 1), 6, 7)
         );
 
         assertDoesNotThrow(() -> state.entry());
-        state.getPlayers().forEach(player ->
+        state.board.getInGamePlayers().forEach(player ->
                 assertEquals(player.getSpaceShip().getSingleCannonsStrength(), state.getStats().get(player))
         );
     }
@@ -189,29 +189,104 @@ class PiratesStateTest {
     @RepeatedTest(5)
     void entry_withPlayersHavingPurpleAlien() {
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        state.getPlayers().forEach(player ->
+        state.board.getInGamePlayers().forEach(player ->
                 player.getSpaceShip().placeComponent(new LifeSupportPurple(2, connectors), 6, 7)
         );
         state.players.getFirst().getSpaceShip().getCabin(152).isValid();
-        state.players.getFirst().getSpaceShip().addCrewMember(152, false, true);
+        state.players.getFirst().getSpaceShip().addCrewMember(152, 2);
         state.players.get(1).getSpaceShip().getCabin(154).isValid();
-        state.players.get(1).getSpaceShip().addCrewMember(154, false, true);
+        state.players.get(1).getSpaceShip().addCrewMember(154, 2);
         state.players.get(2).getSpaceShip().getCabin(153).isValid();
-        state.players.get(2).getSpaceShip().addCrewMember(153, false, true);
+        state.players.get(2).getSpaceShip().addCrewMember(153, 2);
         state.players.get(3).getSpaceShip().getCabin(155).isValid();
-        state.players.get(3).getSpaceShip().addCrewMember(155, false, true);
+        state.players.get(3).getSpaceShip().addCrewMember(155, 2);
         float alienStrength = SpaceShip.getAlienStrength();
 
         assertDoesNotThrow(() -> state.entry());
-        state.getPlayers().forEach(player ->
+        state.board.getInGamePlayers().forEach(player ->
                 assertEquals(alienStrength, state.getStats().get(player))
         );
     }
 
     @Test
+    void execute_1(){
+        PlayerData player = state.board.getInGamePlayers().getFirst();
+
+        //Execute
+        state.entry();
+
+        //Default - higher stats
+        state.getStats().put(player, state.getCard().getCannonStrengthRequired() + 1f);
+        assertDoesNotThrow(() -> state.execute(player));
+        assertTrue(state.piratesDefeat);
+
+        //Middle - pirates defeat true and null accept credits
+        state.piratesDefeat = true;
+        state.acceptCredits = null;
+        assertThrows(IllegalStateException.class, () -> state.execute(player));
+
+        //Penalty - non-defeated player
+        assertThrows(IllegalStateException.class, () -> state.execute(player));
+    }
+
+    @Test
+    void execute_2(){
+        PlayerData player = state.board.getInGamePlayers().getFirst();
+
+        //Execute
+        state.entry();
+
+        //Default - lower stats
+        state.getStats().put(player, state.getCard().getCannonStrengthRequired() - 1f);
+        assertDoesNotThrow(() -> state.execute(player));
+        assertFalse(state.piratesDefeat);
+
+        //Middle - pirates defeat false
+        state.piratesDefeat = false;
+        assertDoesNotThrow(() -> state.execute(player));
+        assertTrue(state.playersDefeated.contains(player));
+        state.playersDefeated.clear();
+
+        //Penalty - defeated player
+        state.playersDefeated.add(player);
+        state.fightHandler.setHitIndex(0);
+        state.fightHandler.setDice(6);
+        assertDoesNotThrow(() -> state.execute(player)); //TODO: Con canProtect che ritorna null non funziona
+        state.playersDefeated.clear();
+    }
+
+    @Test
+    void execute_3(){
+        PlayerData player = state.board.getInGamePlayers().getFirst();
+
+        //Execute
+        state.entry();
+
+        //Default - equal stats
+        state.getStats().put(player, (float) state.getCard().getCannonStrengthRequired());
+        assertDoesNotThrow(() -> state.execute(player));
+        assertNull(state.piratesDefeat);
+
+        //Middle - pirates defeat true and accept credits
+        state.piratesDefeat = true;
+        state.acceptCredits = true;
+        int initialCoins = player.getCoins();
+        int initialSteps = player.getStep();
+        assertDoesNotThrow(() -> state.execute(player));
+        assertEquals(initialCoins + state.getCard().getCredit(), player.getCoins());
+        assertTrue(initialSteps - state.getCard().getFlightDays() > player.getStep());
+
+        //Penalty - out of bounds hit index
+        state.playersDefeated.add(player);
+        state.fightHandler.setHitIndex(state.getCard().getFires().size());
+        assertThrows(IndexOutOfBoundsException.class, () -> state.execute(player));
+    }
+
+    /*
+    @Test
     void execute_defaultStateWithHigherStats() {
         state.setInternalStatePirates(PiratesInternalState.DEFAULT);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.getStats().put(player, state.getCard().getCannonStrengthRequired() + 1f);
         assertDoesNotThrow(() -> state.execute(player));
         assertTrue(state.piratesDefeat);
@@ -220,7 +295,7 @@ class PiratesStateTest {
     @Test
     void execute_defaultStateWithLowerStats() {
         state.setInternalStatePirates(PiratesInternalState.DEFAULT);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.getStats().put(player, state.getCard().getCannonStrengthRequired() - 1f);
         assertDoesNotThrow(() -> state.execute(player));
         assertFalse(state.piratesDefeat);
@@ -229,7 +304,7 @@ class PiratesStateTest {
     @Test
     void execute_defaultStateWithEqualStats() {
         state.setInternalStatePirates(PiratesInternalState.DEFAULT);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.getStats().put(player, (float) state.getCard().getCannonStrengthRequired());
         assertDoesNotThrow(() -> state.execute(player));
         assertNull(state.piratesDefeat);
@@ -240,7 +315,7 @@ class PiratesStateTest {
         state.setInternalStatePirates(PiratesInternalState.MIDDLE);
         state.piratesDefeat = true;
         state.acceptCredits = true;
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         int initialCoins = player.getCoins();
         int initialSteps = player.getStep();
         assertDoesNotThrow(() -> state.execute(player));
@@ -253,7 +328,7 @@ class PiratesStateTest {
         state.setInternalStatePirates(PiratesInternalState.MIDDLE);
         state.piratesDefeat = true;
         state.acceptCredits = null;
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
 
         assertThrows(IllegalStateException.class, () -> state.execute(player));
     }
@@ -262,7 +337,7 @@ class PiratesStateTest {
     void execute_middleStateWithPiratesDefeatFalse_addsPlayerToDefeatedList() {
         state.setInternalStatePirates(PiratesInternalState.MIDDLE);
         state.piratesDefeat = false;
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         assertDoesNotThrow(() -> state.execute(player));
         assertTrue(state.playersDefeated.contains(player));
     }
@@ -270,7 +345,7 @@ class PiratesStateTest {
     @Test
     void execute_penaltyStateWithDefeatedPlayer_executesFightHandler() {
         state.setInternalStatePirates(PiratesInternalState.PENALTY);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersDefeated.add(player);
         state.fightHandler.setHitIndex(0);
         state.fightHandler.setDice(7);
@@ -280,18 +355,19 @@ class PiratesStateTest {
     @Test
     void execute_penaltyStateWithNonDefeatedPlayer() {
         state.setInternalStatePirates(PiratesInternalState.PENALTY);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         assertThrows(IllegalStateException.class, () -> state.execute(player));
     }
 
     @Test
     void execute_penaltyStateWithOutOfBoundsHitIndex() {
         state.setInternalStatePirates(PiratesInternalState.PENALTY);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersDefeated.add(player);
         state.fightHandler.setHitIndex(state.getCard().getFires().size());
         assertThrows(IndexOutOfBoundsException.class, () -> state.execute(player));
     }
+    */
 
     @RepeatedTest(5)
     void haveAllPlayersPlayed_withAllPlayersPlayed_or_whenAllPlayersSkipped() {
@@ -308,14 +384,14 @@ class PiratesStateTest {
         assertFalse(state.haveAllPlayersPlayed());
 
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertFalse(state.haveAllPlayersPlayed());
     }
 
     @RepeatedTest(5)
     void setStatusPlayers() {
         state.setStatusPlayers(PlayerStatus.PLAYING);
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
     }
@@ -323,10 +399,10 @@ class PiratesStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_returnsFirstWaitingPlayer() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
-        state.playersStatus.put(state.getPlayers().get(2).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(2).getColor(), PlayerStatus.WAITING);
         PlayerData currentPlayer = state.getCurrentPlayer();
-        assertEquals(state.getPlayers().get(1), currentPlayer);
+        assertEquals(state.board.getInGamePlayers().get(1), currentPlayer);
     }
 
     @RepeatedTest(5)
@@ -337,7 +413,7 @@ class PiratesStateTest {
 
     @RepeatedTest(5)
     void play_updatesPlayerStatusToPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
     }
@@ -349,7 +425,7 @@ class PiratesStateTest {
 
     @RepeatedTest(5)
     void play_withPlayerAlreadyPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
@@ -357,7 +433,7 @@ class PiratesStateTest {
 
     @RepeatedTest(5)
     void exit_withAllPlayersPlayed() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
 
@@ -367,10 +443,10 @@ class PiratesStateTest {
 
     @RepeatedTest(5)
     void exit_withWaitingPlayer() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
 
         assertThrows(IllegalStateException.class, () -> state.exit());
     }

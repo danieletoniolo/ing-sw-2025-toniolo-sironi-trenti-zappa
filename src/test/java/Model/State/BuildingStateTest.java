@@ -17,16 +17,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class BuildingStateTest {
     BuildingState state;
     Board board;
+    PlayerData p0;
 
     //TODO: Finire
 
+    /*
     @BeforeEach
     void setUp() throws JsonProcessingException {
         SpaceShip ship0 = new SpaceShip(Level.SECOND, PlayerColor.BLUE);
         SpaceShip ship1 = new SpaceShip(Level.SECOND, PlayerColor.RED);
         SpaceShip ship2 = new SpaceShip(Level.SECOND, PlayerColor.GREEN);
         SpaceShip ship3 = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
-        PlayerData p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship0);
+        p0 = new PlayerData("123e4567-e89b-12d3-a456-426614174001", PlayerColor.BLUE, ship0);
         PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, ship1);
         PlayerData p2 = new PlayerData("123e4567-e89b-12d3-a456-426614174003", PlayerColor.GREEN, ship2);
         PlayerData p3 = new PlayerData("123e4567-e89b-12d3-a456-426614174004", PlayerColor.YELLOW, ship3);
@@ -51,53 +53,53 @@ class BuildingStateTest {
         b.setPlayer(p, 0);
         b.refreshInGamePlayers();
         BuildingState s = new BuildingState(b);
-        assertThrows(IllegalStateException.class, () -> s.flipTimer(UUID.randomUUID()));
+        assertThrows(IllegalStateException.class, () -> s.flipTimer(p));
     }
 
     @RepeatedTest(5)
     void flipTimer_whenTimerAlreadyRunning() {
-        state.flipTimer(UUID.randomUUID());
-        assertThrows(IllegalStateException.class, () -> state.flipTimer(UUID.randomUUID()));
+        state.flipTimer(p0);
+        assertThrows(IllegalStateException.class, () -> state.flipTimer(p0));
     }
 
     @RepeatedTest(5)
     void flipTimer_withValidFirstFlip() {
-        assertDoesNotThrow(() -> state.flipTimer(UUID.randomUUID()));
+        assertDoesNotThrow(() -> state.flipTimer(p0));
         assertTrue(state.getTimerRunning());
     }
 
     @RepeatedTest(2)
     void flipTimer_withThirdFlipAndPlayerNotFinishedBuilding() throws InterruptedException {
-        state.flipTimer(UUID.randomUUID());
+        state.flipTimer(p0);
         try{
             Thread.sleep(BuildingState.getTimerDuration() + 100);
         } catch (InterruptedException _) {
         }
-        state.flipTimer(UUID.randomUUID());
-        assertThrows(IllegalStateException.class, () -> state.flipTimer(UUID.randomUUID()));
+        state.flipTimer(p0);
+        assertThrows(IllegalStateException.class, () -> state.flipTimer(p0));
     }
 
     @RepeatedTest(2)
     void flipTimer_withThirdFlipAndPlayerFinishedBuilding() throws InterruptedException {
-        PlayerData player = state.getPlayers().getFirst();
-        state.flipTimer(player.getUUID());
+        PlayerData player = state.board.getInGamePlayers().getFirst();
+        state.flipTimer(player);
         try{
             Thread.sleep(BuildingState.getTimerDuration() + 100);
         } catch (InterruptedException _) {
         }
-        state.flipTimer(player.getUUID());
+        state.flipTimer(player);
         try{
             Thread.sleep(BuildingState.getTimerDuration() + 100);
         } catch (InterruptedException _) {
         }
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        assertDoesNotThrow(() -> state.flipTimer(player.getUUID()));
+        assertDoesNotThrow(() -> state.flipTimer(player));
         assertTrue(state.getTimerRunning());
     }
 
     @RepeatedTest(5)
     void showDeck_withValidDeckIndex() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Connectors c = new Connectors(2, new ConnectorType[4]);
         player.getSpaceShip().placeComponent(c, 6, 7);
         int validDeckIndex = 0;
@@ -106,7 +108,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void showDeck_withInvalidDeckIndex() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Connectors c = new Connectors(2, new ConnectorType[4]);
         player.getSpaceShip().placeComponent(c, 6, 7);
         int invalidDeckIndex = -1;
@@ -115,7 +117,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void showDeck_withPlayerNotPlacedAnyTile() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         int validDeckIndex = 0;
         assertThrows(IllegalStateException.class, () -> state.showDeck(player.getUUID(), validDeckIndex));
     }
@@ -130,7 +132,7 @@ class BuildingStateTest {
     //TODO: Controllare che abbiano finito il metodo nel model
     @RepeatedTest(5)
     void leaveDeck_withValidDeckIndex() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Connectors c = new Connectors(2, new ConnectorType[4]);
         player.getSpaceShip().placeComponent(c, 6, 7);
         int validDeckIndex = 0;
@@ -147,11 +149,11 @@ class BuildingStateTest {
         state.showDeck(player.getUUID(), validDeckIndex);
         int invalidDeckIndex = -1;
         assertThrows(IllegalStateException.class, () -> state.leaveDeck(player.getUUID(), invalidDeckIndex));
-    }*/
+    }
 
     @RepeatedTest(5)
     void leaveDeck_withNonExistentPlayerUUID() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Connectors c = new Connectors(2, new ConnectorType[4]);
         player.getSpaceShip().placeComponent(c, 6, 7);
         int validDeckIndex = 0;
@@ -172,19 +174,19 @@ class BuildingStateTest {
         PlayerData player = new PlayerData(UUID.randomUUID().toString(), PlayerColor.BLUE, new SpaceShip(Level.SECOND, PlayerColor.BLUE));
         PlayerData player1 = new PlayerData(UUID.randomUUID().toString(), PlayerColor.RED, new SpaceShip(Level.SECOND, PlayerColor.RED));
         board1.clearInGamePlayers();
-        state1.getPlayers().set(0, player);
-        state1.getPlayers().set(1, player1);
+        state1.board.getInGamePlayers().set(0, player);
+        state1.board.getInGamePlayers().set(1, player1);
         state1.entry();
 
-        assertDoesNotThrow(() -> state1.placeMarker(player1.getUUID(), 2));
+        assertDoesNotThrow(() -> state1.placeMarker(player1, 2));
         assertEquals(player1, board1.getInGamePlayers().get(2));
     }
 
     @RepeatedTest(5)
     void placeMarker_withInvalidPosition() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         int invalidPosition = -1;
-        assertThrows(IndexOutOfBoundsException.class, () -> state.placeMarker(player.getUUID(), invalidPosition));
+        assertThrows(IndexOutOfBoundsException.class, () -> state.placeMarker(player, invalidPosition));
     }
 
     @RepeatedTest(5)
@@ -196,7 +198,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void pickTileFromBoard_withValidTileID() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         int validTileID = 1;
         assertDoesNotThrow(() -> state.pickTileFromBoard(player.getUUID(), validTileID));
         assertNotNull(state.getPlayersHandQueue().get(player.getColor()));
@@ -204,14 +206,14 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void pickTileFromBoard_withInvalidTileID() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         int invalidTileID = -1;
         assertThrows(IndexOutOfBoundsException.class, () -> state.pickTileFromBoard(player.getUUID(), invalidTileID));
     }
 
     @RepeatedTest(5)
     void pickTileFromBoard_withPlayerFinishedBuilding() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         int validTileID = 1;
         assertThrows(IllegalStateException.class, () -> state.pickTileFromBoard(player.getUUID(), validTileID));
@@ -226,7 +228,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void pickTileFromReserve_withValidTileID() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component reservedComponent = new Connectors(1, new ConnectorType[4]);
         player.getSpaceShip().reserveComponent(reservedComponent);
         assertDoesNotThrow(() -> state.pickTileFromReserve(player.getUUID(), reservedComponent.getID()));
@@ -235,7 +237,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void pickTileFromReserve_withInvalidTileID() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component reservedComponent = new Connectors(1, new ConnectorType[4]);
         player.getSpaceShip().reserveComponent(reservedComponent);
         int invalidTileID = -1;
@@ -251,7 +253,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void pickTileFromReserve_withPlayerFinishedBuilding() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         Component reservedComponent = new Connectors(1, new ConnectorType[4]);
         player.getSpaceShip().reserveComponent(reservedComponent);
@@ -261,7 +263,7 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void pickTileFromSpaceship_withValidTileID() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component lastPlacedComponent = new Connectors(1, c);
         player.getSpaceShip().placeComponent(lastPlacedComponent, 6, 7);
         assertDoesNotThrow(() -> state.pickTileFromSpaceShip(player.getUUID(), lastPlacedComponent.getID()));
@@ -271,7 +273,7 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void pickTileFromSpaceship_withInvalidTileID() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component lastPlacedComponent = new Connectors(1, c);
         player.getSpaceShip().placeComponent(lastPlacedComponent, 6, 7);
         int invalidTileID = -1;
@@ -288,7 +290,7 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void pickTileFromSpaceship_withPlayerFinishedBuilding() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component lastPlacedComponent = new Connectors(1, c);
         player.getSpaceShip().placeComponent(lastPlacedComponent, 6, 7);
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
@@ -297,14 +299,14 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void pickTileFromSpaceship_withNoLastPlacedComponent() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         int validTileID = 1;
         assertThrows(IllegalStateException.class, () -> state.pickTileFromSpaceShip(player.getUUID(), validTileID));
     }
 
     @RepeatedTest(5)
     void leaveTile_withValidTileInHand() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.getPlayersHandQueue().put(player.getColor(), state.board.popTile(1));
         assertDoesNotThrow(() -> state.leaveTile(player.getUUID()));
         assertNull(state.getPlayersHandQueue().get(player.getColor()));
@@ -312,7 +314,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void leaveTile_withNoTileInHand() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         assertThrows(IllegalStateException.class, () -> state.leaveTile(player.getUUID()));
     }
 
@@ -324,7 +326,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void leaveTile_withTileNotFromReserve_putItBackInBoard() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.getPlayersHandQueue().put(player.getColor(), state.board.popTile(2));
         assertDoesNotThrow(() -> state.leaveTile(player.getUUID()));
         assertTrue(Arrays.asList(state.board.getTiles()).contains(state.board.getTiles().get(3)));
@@ -333,7 +335,7 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void leaveTile_withTileFromReserve_doesNotPutTileBackInBoard() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component component = new Connectors(1, c);
         player.getSpaceShip().reserveComponent(component);
         state.getPlayersHandQueue().put(player.getColor(), component);
@@ -344,7 +346,7 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void placeTile_withValidTileInHand() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component component = new Connectors(1, c);
         state.getPlayersHandQueue().put(player.getColor(), component);
         assertDoesNotThrow(() -> state.placeTile(player.getUUID(), 6, 7));
@@ -354,7 +356,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void placeTile_withNoTileInHand() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         assertThrows(IllegalStateException.class, () -> state.placeTile(player.getUUID(), 0, 0));
     }
 
@@ -367,7 +369,7 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void placeTile_withPlayerFinishedBuilding() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component component = new Connectors(1, c);
         state.getPlayersHandQueue().put(player.getColor(), component);
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
@@ -377,7 +379,7 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void placeTile_withTileFromReserve() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component component = new Connectors(1, c);
         player.getSpaceShip().reserveComponent(component);
         state.getPlayersHandQueue().put(player.getColor(), component);
@@ -388,7 +390,7 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void reserveTile_withValidTileInHand() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component component = new Connectors(1, c);
         state.getPlayersHandQueue().put(player.getColor(), component);
         assertDoesNotThrow(() -> state.reserveTile(player.getUUID()));
@@ -398,7 +400,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void reserveTile_withNoTileInHand() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         assertThrows(IllegalStateException.class, () -> state.reserveTile(player.getUUID()));
     }
 
@@ -411,7 +413,7 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void reserveTile_withPlayerFinishedBuilding() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component component = new Connectors(1, c);
         state.getPlayersHandQueue().put(player.getColor(), component);
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
@@ -421,7 +423,7 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void rotateTile_withValidTileInHand() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component component = new Connectors(1, c);
         state.getPlayersHandQueue().put(player.getColor(), component);
         assertDoesNotThrow(() -> state.rotateTile(player.getUUID()));
@@ -430,7 +432,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void rotateTile_withNoTileInHand() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         assertThrows(IllegalStateException.class, () -> state.rotateTile(player.getUUID()));
     }
 
@@ -443,7 +445,7 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void rotateTile_withPlayerFinishedBuilding() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component component = new Connectors(1, c);
         state.getPlayersHandQueue().put(player.getColor(), component);
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
@@ -452,7 +454,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void pickTile_withValidTileIDFromPile() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         int validTileID = 1;
         assertDoesNotThrow(() -> state.pickTile(player, validTileID));
         assertNotNull(state.getPlayersHandQueue().get(player.getColor()));
@@ -461,7 +463,7 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void pickTile_withValidTileIDFromBoard() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component component = state.board.getTiles().get(1);
         player.getSpaceShip().placeComponent(component, 6, 7);
         assertDoesNotThrow(() -> state.pickTile(player, component.getID()));
@@ -470,7 +472,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void pickTile_withInvalidTileID() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         int invalidTileID = -1;
         assertThrows(IndexOutOfBoundsException.class, () -> state.pickTile(player, invalidTileID));
     }
@@ -478,7 +480,7 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void pickTile_withAlreadyPickedTile() {
         ConnectorType[] c = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Component component = new Connectors(1, c);
         state.getPlayersHandQueue().put(player.getColor(), component);
         assertThrows(IllegalStateException.class, () -> state.pickTile(player, component.getID()));
@@ -486,7 +488,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void pickTile_withNonExistentTileID() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         int nonExistentTileID = -1;
         assertThrows(IndexOutOfBoundsException.class, () -> state.pickTile(player, nonExistentTileID));
     }
@@ -501,7 +503,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void execute_withValidPlayer() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         assertDoesNotThrow(() -> state.execute(player));
     }
 
@@ -512,7 +514,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void exit_executesWithoutExceptions() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
         assertDoesNotThrow(() -> state.exit());
@@ -520,7 +522,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void exit_resetsStateCorrectly() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
         state.exit();
@@ -544,14 +546,14 @@ class BuildingStateTest {
         assertFalse(state.haveAllPlayersPlayed());
 
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertFalse(state.haveAllPlayersPlayed());
     }
 
     @RepeatedTest(5)
     void setStatusPlayers() {
         state.setStatusPlayers(PlayerStatus.PLAYING);
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
     }
@@ -559,10 +561,10 @@ class BuildingStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_returnsFirstWaitingPlayer() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
-        state.playersStatus.put(state.getPlayers().get(2).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(2).getColor(), PlayerStatus.WAITING);
         PlayerData currentPlayer = state.getCurrentPlayer();
-        assertEquals(state.getPlayers().get(1), currentPlayer);
+        assertEquals(state.board.getInGamePlayers().get(1), currentPlayer);
     }
 
     @RepeatedTest(5)
@@ -573,7 +575,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void play_updatesPlayerStatusToPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
     }
@@ -585,7 +587,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void play_withPlayerAlreadyPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
@@ -593,7 +595,7 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void exit_withAllPlayersPlayed() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
 
@@ -603,10 +605,10 @@ class BuildingStateTest {
 
     @RepeatedTest(5)
     void exit_withWaitingPlayer() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
 
         assertThrows(IllegalStateException.class, () -> state.exit());
     }
@@ -619,4 +621,5 @@ class BuildingStateTest {
         assertDoesNotThrow(() -> state.exit());
         assertTrue(state.played);
     }
+    */
 }

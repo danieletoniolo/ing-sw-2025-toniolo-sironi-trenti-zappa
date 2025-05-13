@@ -42,11 +42,11 @@ class StardustStateTest {
     void entry_withExposedConnectors() {
         ConnectorType[] connector = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
 
-        PlayerData p = state.getPlayers().getFirst();
+        PlayerData p = state.board.getInGamePlayers().getFirst();
         Storage s = new Storage(2, connector, true, 2);
         p.getSpaceShip().placeComponent(s, 6,7);
 
-        PlayerData p2 = state.getPlayers().get(2);
+        PlayerData p2 = state.board.getInGamePlayers().get(2);
         Storage s2 = new Storage(3, connector, true, 2);
         Storage s3 = new Storage(4, connector, true, 2);
         p2.getSpaceShip().placeComponent(s2, 6,7);
@@ -54,16 +54,15 @@ class StardustStateTest {
 
         state.entry();
 
-        //First number represent the initial cell, the second number represent the number of other players that he passed, the third number represent the number of his own exposed connectors
-        assertEquals(-3, state.getPlayers().get(0).getStep()); // 6 -3 - 6
-        assertEquals(-4, state.getPlayers().get(1).getStep()); // 3 -3 - 4
-        assertEquals(-10, state.getPlayers().get(2).getStep()); // 1 -3 - 8
-        assertEquals(-6, state.getPlayers().get(3).getStep()); // 0 -2 - 4
+        assertEquals(-3, state.board.getInGamePlayers().get(0).getStep());
+        assertEquals(-4, state.board.getInGamePlayers().get(1).getStep());
+        assertEquals(-10, state.board.getInGamePlayers().get(2).getStep());
+        assertEquals(-6, state.board.getInGamePlayers().get(3).getStep());
     }
 
     @RepeatedTest(5)
     void entry_withNoExposedConnectors() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Storage s0 = new Storage(2, new ConnectorType[]{ ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.TRIPLE, ConnectorType.EMPTY}, true, 2);
         Storage s1 = new Storage(3, new ConnectorType[]{ ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.TRIPLE}, true, 2);
         Storage s2 = new Storage(4, new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY}, true, 2);
@@ -76,7 +75,7 @@ class StardustStateTest {
 
         state.entry();
 
-        assertEquals(6, state.getPlayers().getFirst().getStep());
+        assertEquals(6, state.board.getInGamePlayers().getFirst().getStep());
     }
 
     @RepeatedTest(5)
@@ -94,14 +93,14 @@ class StardustStateTest {
         assertFalse(state.haveAllPlayersPlayed());
 
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertFalse(state.haveAllPlayersPlayed());
     }
 
     @RepeatedTest(5)
     void setStatusPlayers() {
         state.setStatusPlayers(PlayerStatus.PLAYING);
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
     }
@@ -109,10 +108,10 @@ class StardustStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_returnsFirstWaitingPlayer() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
-        state.playersStatus.put(state.getPlayers().get(2).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(2).getColor(), PlayerStatus.WAITING);
         PlayerData currentPlayer = state.getCurrentPlayer();
-        assertEquals(state.getPlayers().get(1), currentPlayer);
+        assertEquals(state.board.getInGamePlayers().get(1), currentPlayer);
     }
 
     @RepeatedTest(5)
@@ -123,7 +122,7 @@ class StardustStateTest {
 
     @RepeatedTest(5)
     void play_updatesPlayerStatusToPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
     }
@@ -135,7 +134,7 @@ class StardustStateTest {
 
     @RepeatedTest(5)
     void play_withPlayerAlreadyPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
@@ -143,9 +142,9 @@ class StardustStateTest {
 
     @RepeatedTest(5)
     void execute_withPlayingPlayer_updatesStatusToPlayed() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
-        PlayerData player1 = state.getPlayers().get(1);
+        PlayerData player1 = state.board.getInGamePlayers().get(1);
         state.playersStatus.put(player1.getColor(), PlayerStatus.WAITING);
 
         state.execute(player);
@@ -162,7 +161,7 @@ class StardustStateTest {
 
     @RepeatedTest(5)
     void exit_withAllPlayersPlayed() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
 
@@ -172,10 +171,10 @@ class StardustStateTest {
 
     @RepeatedTest(5)
     void exit_withWaitingPlayer() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
 
         assertThrows(IllegalStateException.class, () -> state.exit());
     }

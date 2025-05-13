@@ -2,6 +2,7 @@ package Model.State;
 
 import Model.Game.Board.Level;
 import Model.Player.PlayerColor;
+import Model.Player.PlayerData;
 import Model.SpaceShip.*;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.BeforeEach;
@@ -118,7 +119,8 @@ class FightHandlerTest {
         fh.setProtectionResult(Pair.with(component, 0));
 
         spaceShip.placeComponent(component, 6, 7);
-        fh.executeProtection(spaceShip);
+        PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, spaceShip);
+        fh.executeProtection(p1);
 
         assertEquals(2, spaceShip.getEnergyNumber());
         assertEquals(FightHandlerInternalState.CAN_PROTECT, fh.getInternalState());
@@ -135,7 +137,8 @@ class FightHandlerTest {
         fh.setProtectionResult(Pair.with(component, 0));
 
         spaceShip.placeComponent(component, 6, 7);
-        fh.executeProtection(spaceShip);
+        PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, spaceShip);
+        fh.executeProtection(p1);
 
         assertNull(spaceShip.getComponent(6, 7));
         assertEquals(FightHandlerInternalState.CAN_PROTECT, fh.getInternalState());
@@ -182,7 +185,8 @@ class FightHandlerTest {
         fh.setProtect(false, null);
         fh.setProtectionResult(Pair.with(component, 1));
 
-        fh.executeProtection(spaceShip);
+        PlayerData p1 = new PlayerData("123e4567-e89b-12d3-a456-426614174002", PlayerColor.RED, spaceShip);
+        fh.executeProtection(p1);
 
         assertEquals(FightHandlerInternalState.CAN_PROTECT, fh.getInternalState());
         assertEquals(1, fh.getHitIndex());

@@ -44,7 +44,7 @@ class OpenSpaceStateTest {
 
     @RepeatedTest(5)
     void useEngine_withValidBatteriesAndPositiveStrength() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 6, 7);
@@ -57,7 +57,7 @@ class OpenSpaceStateTest {
 
     @RepeatedTest(5)
     void useEngine_withInvalidBatteryIDs() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         List<Integer> invalidBatteriesID = Arrays.asList(99, 100);
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6);
@@ -67,7 +67,7 @@ class OpenSpaceStateTest {
 
     @RepeatedTest(5)
     void useEngine_withZeroStrength() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 6, 7);
@@ -79,12 +79,12 @@ class OpenSpaceStateTest {
     @RepeatedTest(5)
     void entry_withPlayersHavingSingleEngines() {
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        state.getPlayers().forEach(player ->
+        state.board.getInGamePlayers().forEach(player ->
                 player.getSpaceShip().placeComponent(new Engine(2, connectors, 1), 7, 6)
         );
 
         assertDoesNotThrow(() -> state.entry());
-        state.getPlayers().forEach(player ->
+        state.board.getInGamePlayers().forEach(player ->
                 assertEquals(player.getSpaceShip().getSingleEnginesStrength(), state.getStats().get(player))
         );
     }
@@ -92,28 +92,28 @@ class OpenSpaceStateTest {
     @RepeatedTest(5)
     void entry_withPlayersHavingBrownAlien() {
         ConnectorType[] connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
-        state.getPlayers().forEach(player ->
+        state.board.getInGamePlayers().forEach(player ->
                 player.getSpaceShip().placeComponent(new LifeSupportBrown(2, connectors), 7, 6)
         );
         state.players.getFirst().getSpaceShip().getCabin(152).isValid();
-        state.players.getFirst().getSpaceShip().addCrewMember(152, true, false);
+        state.players.getFirst().getSpaceShip().addCrewMember(152, 1);
         state.players.get(1).getSpaceShip().getCabin(154).isValid();
-        state.players.get(1).getSpaceShip().addCrewMember(154, true, false);
+        state.players.get(1).getSpaceShip().addCrewMember(154, 1);
         state.players.get(2).getSpaceShip().getCabin(153).isValid();
-        state.players.get(2).getSpaceShip().addCrewMember(153, true, false);
+        state.players.get(2).getSpaceShip().addCrewMember(153, 1);
         state.players.get(3).getSpaceShip().getCabin(155).isValid();
-        state.players.get(3).getSpaceShip().addCrewMember(155, true, false);
+        state.players.get(3).getSpaceShip().addCrewMember(155, 1);
         float alienStrength = SpaceShip.getAlienStrength();
 
         assertDoesNotThrow(() -> state.entry());
-        state.getPlayers().forEach(player ->
+        state.board.getInGamePlayers().forEach(player ->
                 assertEquals(alienStrength, state.getStats().get(player))
         );
     }
 
     @RepeatedTest(5)
     void execute_withPositiveStats() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.getStats().put(player, 5.0f);
         //int initialSteps = state.board.getStepsOfAPlayer(player);
 
@@ -124,7 +124,7 @@ class OpenSpaceStateTest {
 
     @RepeatedTest(5)
     void execute_withZeroStats() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.getStats().put(player, 0.0f);
 
         assertDoesNotThrow(() -> state.execute(player));
@@ -133,7 +133,7 @@ class OpenSpaceStateTest {
 
     @RepeatedTest(5)
     void execute_withNullStats() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.getStats().put(player, null);
 
         assertThrows(NullPointerException.class, () -> state.execute(player));
@@ -161,14 +161,14 @@ class OpenSpaceStateTest {
         assertFalse(state.haveAllPlayersPlayed());
 
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertFalse(state.haveAllPlayersPlayed());
     }
 
     @RepeatedTest(5)
     void setStatusPlayers() {
         state.setStatusPlayers(PlayerStatus.PLAYING);
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
     }
@@ -176,10 +176,10 @@ class OpenSpaceStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_returnsFirstWaitingPlayer() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
-        state.playersStatus.put(state.getPlayers().get(2).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(2).getColor(), PlayerStatus.WAITING);
         PlayerData currentPlayer = state.getCurrentPlayer();
-        assertEquals(state.getPlayers().get(1), currentPlayer);
+        assertEquals(state.board.getInGamePlayers().get(1), currentPlayer);
     }
 
     @RepeatedTest(5)
@@ -190,7 +190,7 @@ class OpenSpaceStateTest {
 
     @RepeatedTest(5)
     void play_updatesPlayerStatusToPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
     }
@@ -202,7 +202,7 @@ class OpenSpaceStateTest {
 
     @RepeatedTest(5)
     void play_withPlayerAlreadyPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
@@ -210,7 +210,7 @@ class OpenSpaceStateTest {
 
     @RepeatedTest(5)
     void exit_withAllPlayersPlayed() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
 
@@ -220,10 +220,10 @@ class OpenSpaceStateTest {
 
     @RepeatedTest(5)
     void exit_withWaitingPlayer() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
 
         assertThrows(IllegalStateException.class, () -> state.exit());
     }

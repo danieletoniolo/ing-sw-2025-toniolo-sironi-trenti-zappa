@@ -376,7 +376,7 @@ class SpaceShipTest {
     void crewNumber_afterAddingCrewMember() {
         Cabin crewMember = new Cabin(1, connectors);
         ship.placeComponent(crewMember, 6, 7);
-        ship.addCrewMember(crewMember.getID(), false, false);
+        ship.addCrewMember(crewMember.getID(), 0);
         assertEquals(2, ship.getCrewNumber());
     }
 
@@ -386,8 +386,8 @@ class SpaceShipTest {
         Cabin crewMember2 = new Cabin(2, connectors);
         ship.placeComponent(crewMember1, 6, 7);
         ship.placeComponent(crewMember2, 6, 8);
-        ship.addCrewMember(crewMember1.getID(), false, false);
-        ship.addCrewMember(crewMember2.getID(), false, false);
+        ship.addCrewMember(crewMember1.getID(), 0);
+        ship.addCrewMember(crewMember2.getID(), 0);
 
         assertEquals(4, ship.getCrewNumber());
     }
@@ -396,7 +396,7 @@ class SpaceShipTest {
     void crewNumber_afterRemovingCrewMember() {
         Cabin crewMember = new Cabin(1, connectors);
         ship.placeComponent(crewMember, 6, 7);
-        ship.addCrewMember(crewMember.getID(), false, false);
+        ship.addCrewMember(crewMember.getID(), 0);
         ship.destroyComponent(6, 7);
         assertEquals(0, ship.getCrewNumber());
     }
@@ -407,8 +407,8 @@ class SpaceShipTest {
         Cabin crewMember2 = new Cabin(2, connectors);
         ship.placeComponent(crewMember1, 6, 7);
         ship.placeComponent(crewMember2, 6, 8);
-        ship.addCrewMember(crewMember1.getID(), false, false);
-        ship.addCrewMember(crewMember2.getID(), false, false);
+        ship.addCrewMember(crewMember1.getID(), 0);
+        ship.addCrewMember(crewMember2.getID(), 0);
         ship.destroyComponent(6, 7);
 
         assertEquals(2, ship.getCrewNumber());
@@ -423,7 +423,7 @@ class SpaceShipTest {
         LifeSupportPurple lsp = new LifeSupportPurple(3, connectors);
         ship.placeComponent(lsp, 6, 8);
         ship.getCabin(2).isValid();
-        ship.addCrewMember(c1.getID(), false, true);
+        ship.addCrewMember(c1.getID(), 2);
         assertEquals(2.0f, SpaceShip.getAlienStrength());
     }
 
@@ -439,7 +439,7 @@ class SpaceShipTest {
         LifeSupportPurple lsb = new LifeSupportPurple(2, connectors);
         ship.placeComponent(lsb, 5, 7);
         ship.getCabin(1).isValid();
-        ship.addCrewMember(cabin1.getID(), false, true);
+        ship.addCrewMember(cabin1.getID(), 2);
 
         assertTrue(ship.hasPurpleAlien());
     }
@@ -451,7 +451,7 @@ class SpaceShipTest {
         LifeSupportPurple lsb = new LifeSupportPurple(2, connectors);
         ship.placeComponent(lsb, 5, 7);
         ship.getCabin(1).isValid();
-        ship.addCrewMember(cabin1.getID(), false, true);
+        ship.addCrewMember(cabin1.getID(), 2);
 
         ship.removeCrewMember(cabin1.getID(), 1);
         assertFalse(ship.hasPurpleAlien());
@@ -464,11 +464,11 @@ class SpaceShipTest {
         LifeSupportPurple lsb = new LifeSupportPurple(2, connectors);
         ship.placeComponent(lsb, 5, 7);
         ship.getCabin(1).isValid();
-        ship.addCrewMember(cabin1.getID(), false, true);
+        ship.addCrewMember(cabin1.getID(), 2);
 
         ship.removeCrewMember(cabin1.getID(), 1);
         assertFalse(ship.hasPurpleAlien());
-        ship.addCrewMember(cabin1.getID(), false, true);
+        ship.addCrewMember(cabin1.getID(), 2);
         assertTrue(ship.hasPurpleAlien());
     }
 
@@ -484,7 +484,7 @@ class SpaceShipTest {
         LifeSupportBrown lsb = new LifeSupportBrown(2, connectors);
         ship.placeComponent(lsb, 5, 7);
         ship.getCabin(1).isValid();
-        ship.addCrewMember(cabin1.getID(), true, false);
+        ship.addCrewMember(cabin1.getID(), 1);
 
         assertTrue(ship.hasBrownAlien());
     }
@@ -496,7 +496,7 @@ class SpaceShipTest {
         LifeSupportBrown lsb = new LifeSupportBrown(2, connectors);
         ship.placeComponent(lsb, 5, 7);
         ship.getCabin(1).isValid();
-        ship.addCrewMember(cabin1.getID(), true, false);
+        ship.addCrewMember(cabin1.getID(), 1);
 
         ship.removeCrewMember(cabin1.getID(), 1);
         assertFalse(ship.hasBrownAlien());
@@ -509,11 +509,11 @@ class SpaceShipTest {
         LifeSupportBrown lsb = new LifeSupportBrown(2, connectors);
         ship.placeComponent(lsb, 5, 7);
         ship.getCabin(1).isValid();
-        ship.addCrewMember(cabin1.getID(), true, false);
+        ship.addCrewMember(cabin1.getID(), 1);
 
         ship.removeCrewMember(cabin1.getID(), 1);
         assertFalse(ship.hasBrownAlien());
-        ship.addCrewMember(cabin1.getID(), true, false);
+        ship.addCrewMember(cabin1.getID(), 1);
         assertTrue(ship.hasBrownAlien());
     }
 
@@ -547,7 +547,7 @@ class SpaceShipTest {
     void reservedComponents_afterUnreservingComponent() {
         Component component = new Storage(1, connectors, true, 2);
         ship.reserveComponent(component);
-        ship.unreserveComponent(component);
+        ship.unreserveComponent(component.getID());
         assertTrue(ship.getReservedComponents().isEmpty());
     }
 
@@ -557,7 +557,7 @@ class SpaceShipTest {
         Component component2 = new Battery(2, connectors, 3);
         ship.reserveComponent(component1);
         ship.reserveComponent(component2);
-        ship.unreserveComponent(component1);
+        ship.unreserveComponent(component1.getID());
         assertEquals(1, ship.getReservedComponents().size());
         assertEquals(component2, ship.getReservedComponents().getFirst());
         assertEquals(component2.getComponentType(), ship.getReservedComponents().getFirst().getComponentType());
@@ -751,7 +751,7 @@ class SpaceShipTest {
     void addCrewMember_addSingleCrewMember() {
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
-        ship.addCrewMember(cabin.getID(), false, false);
+        ship.addCrewMember(cabin.getID(), 0);
         assertEquals(2, ship.getCrewNumber());
     }
 
@@ -761,8 +761,8 @@ class SpaceShipTest {
         Cabin cabin2 = new Cabin(2, connectors);
         ship.placeComponent(cabin1, 6, 7);
         ship.placeComponent(cabin2, 6, 8);
-        ship.addCrewMember(cabin1.getID(), false, false);
-        ship.addCrewMember(cabin2.getID(), false, false);
+        ship.addCrewMember(cabin1.getID(), 0);
+        ship.addCrewMember(cabin2.getID(), 0);
         assertEquals(4, ship.getCrewNumber());
     }
 
@@ -773,7 +773,7 @@ class SpaceShipTest {
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(lsb, 6, 8);
         cabin.isValid();
-        ship.addCrewMember(cabin.getID(), true, false);
+        ship.addCrewMember(cabin.getID(), 1);
         assertTrue(ship.hasBrownAlien());
         assertEquals(1, ship.getCrewNumber());
     }
@@ -785,7 +785,7 @@ class SpaceShipTest {
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(lsb, 6, 8);
         cabin.isValid();
-        ship.addCrewMember(cabin.getID(), false, true);
+        ship.addCrewMember(cabin.getID(), 2);
         assertTrue(ship.hasPurpleAlien());
         assertEquals(1, ship.getCrewNumber());
     }
@@ -794,19 +794,19 @@ class SpaceShipTest {
     void addCrewMember_addBothAliensThrowsException() {
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
-        assertThrows(IllegalArgumentException.class, () -> ship.addCrewMember(cabin.getID(), true, true));
+        assertThrows(IllegalArgumentException.class, () -> ship.addCrewMember(cabin.getID(), 3));
     }
 
     @RepeatedTest(5)
     void addCrewMember_addCrewMemberToNonExistentCabinThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> ship.addCrewMember(999, false, false));
+        assertThrows(IllegalArgumentException.class, () -> ship.addCrewMember(999, 0));
     }
 
     @RepeatedTest(5)
     void removeCrewMember_removeSingleCrewMember() {
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
-        ship.addCrewMember(cabin.getID(), false, false);
+        ship.addCrewMember(cabin.getID(), 0);
         ship.removeCrewMember(cabin.getID(), 1);
         assertEquals(1, ship.getCrewNumber());
     }
@@ -815,7 +815,7 @@ class SpaceShipTest {
     void removeCrewMember_removeMultipleCrewMembers() {
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
-        ship.addCrewMember(cabin.getID(), false, false);
+        ship.addCrewMember(cabin.getID(), 0);
         ship.removeCrewMember(cabin.getID(), 2);
         assertEquals(0, ship.getCrewNumber());
     }
@@ -827,7 +827,7 @@ class SpaceShipTest {
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(lsb, 6, 8);
         cabin.isValid();
-        ship.addCrewMember(cabin.getID(), true, false);
+        ship.addCrewMember(cabin.getID(), 1);
         ship.removeCrewMember(cabin.getID(), 1);
         assertFalse(ship.hasBrownAlien());
     }
@@ -839,7 +839,7 @@ class SpaceShipTest {
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(lsb, 6, 8);
         cabin.isValid();
-        ship.addCrewMember(cabin.getID(), false, true);
+        ship.addCrewMember(cabin.getID(), 2);
         ship.removeCrewMember(cabin.getID(), 1);
         assertFalse(ship.hasPurpleAlien());
     }
@@ -848,7 +848,7 @@ class SpaceShipTest {
     void removeCrewMember_removeMoreThanExistingThrowsException() {
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
-        ship.addCrewMember(cabin.getID(), false, false);
+        ship.addCrewMember(cabin.getID(), 0);
         assertThrows(IllegalStateException.class, () -> ship.removeCrewMember(cabin.getID(), 3));
     }
 
@@ -1147,7 +1147,7 @@ class SpaceShipTest {
     void unreserveComponent_validComponent() {
         Component component = new Storage(1, connectors, true, 2);
         ship.reserveComponent(component);
-        ship.unreserveComponent(component);
+        ship.unreserveComponent(component.getID());
         assertTrue(ship.getReservedComponents().isEmpty());
     }
 
@@ -1157,7 +1157,7 @@ class SpaceShipTest {
         Component component2 = new Battery(2, connectors, 3);
         ship.reserveComponent(component1);
         ship.reserveComponent(component2);
-        ship.unreserveComponent(component1);
+        ship.unreserveComponent(component1.getID());
         assertEquals(1, ship.getReservedComponents().size());
         assertEquals(component2, ship.getReservedComponents().getFirst());
     }
@@ -1165,7 +1165,7 @@ class SpaceShipTest {
     @RepeatedTest(5)
     void unreserveComponent_nonReservedComponent() {
         Component component = new Storage(1, connectors, true, 2);
-        ship.unreserveComponent(component);
+        ship.unreserveComponent(component.getID());
         assertTrue(ship.getReservedComponents().isEmpty());
     }
 
@@ -1183,7 +1183,6 @@ class SpaceShipTest {
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> ship.placeComponent(component, -1, -1));
     }
 
-    //TODO: Implementare
     @RepeatedTest(5)
     void placeComponent_alreadyOccupiedSpotThrowsException() {
         Component component1 = new Storage(1, connectors, true, 2);

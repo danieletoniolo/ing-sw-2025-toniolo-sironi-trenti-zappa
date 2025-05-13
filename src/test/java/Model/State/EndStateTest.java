@@ -12,6 +12,7 @@ import Model.SpaceShip.Storage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,7 +44,7 @@ class EndStateTest {
     @RepeatedTest(5)
     void entry_initializesScoresWithPlayerCoins() {
         state.entry();
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(player.getCoins(), state.getScores().get(player));
         }
     }
@@ -56,10 +57,65 @@ class EndStateTest {
         assertTrue(emptyState.getScores().isEmpty());
     }
 
+    //TODO: Da testare
+    @Test
+    void execute(){
+        PlayerData player1 = state.players.getFirst();
+        PlayerData player2 = state.players.get(1);
+        PlayerData player3 = state.players.get(2);
+        PlayerData player4 = state.players.get(3);
+
+        ConnectorType[] connectors = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
+        Storage s = new Storage(2, connectors, true, 2);
+        player1.getSpaceShip().placeComponent(s, 6,7);
+        player1.getSpaceShip().getStorage(2).addGood(new Good(GoodType.GREEN));
+        player1.getSpaceShip().getStorage(2).addGood(new Good(GoodType.YELLOW));
+
+        Storage s1 = new Storage(3, new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 2);
+        player1.getSpaceShip().getLostComponents().add(s1);
+        int lostComponents = player1.getSpaceShip().getLostComponents().size();
+        int reservedComponents = player1.getSpaceShip().getReservedComponents().size();
+
+        state.entry();
+
+        int initialScore1 = state.getScores().get(player1);
+        int initialScore2 = state.getScores().get(player2);
+        int initialScore3 = state.getScores().get(player3);
+        int initialScore4 = state.getScores().get(player4);
+        state.execute(player4);
+        assertEquals(EndInternalState.BEST_LOOKING_SHIP, state.getEndInternalState());
+        System.out.println(state.getScores().get(player1));
+        assertEquals(initialScore1 + 8, state.getScores().get(player1)); //Level Second
+        assertEquals(initialScore2 + 6, state.getScores().get(player2));
+        assertEquals(initialScore3 + 4, state.getScores().get(player3));
+        assertEquals(initialScore4 + 2, state.getScores().get(player4));
+
+        int initialScore = state.getScores().get(player2);
+        for(PlayerData p : state.board.getInGamePlayers()) {
+            assertDoesNotThrow(() -> state.execute(p));
+        }
+        assertEquals(initialScore + 2 * state.getLevel().getValue(), state.getScores().get(player2));
+        assertEquals(EndInternalState.SALE_OF_GOODS, state.getEndInternalState());
+
+        for(PlayerData p : state.board.getInGamePlayers()) {
+            assertDoesNotThrow(() -> state.execute(p));
+        }
+        assertEquals(EndInternalState.LOSSES, state.getEndInternalState());
+        assertEquals(Math.round((float) player1.getSpaceShip().getGoodsValue() / 2), state.getScores().get(player1));
+
+        initialScore = state.getScores().get(player2);
+        for(PlayerData p : state.board.getInGamePlayers()) {
+            assertDoesNotThrow(() -> state.execute(p));
+        }
+        System.out.println(state.getScores().get(player2));
+        assertEquals(initialScore - (lostComponents + reservedComponents), state.getScores().get(player2));
+    }
+
+    /*
     @RepeatedTest(5)
     void execute_withAllPlayersPlayed() {
         state.entry();
-        for(PlayerData p : state.getPlayers()) {
+        for(PlayerData p : state.board.getInGamePlayers()) {
             state.playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
             state.setEndInternalState(EndInternalState.FINISH_ORDER);
 
@@ -71,7 +127,7 @@ class EndStateTest {
 
     @RepeatedTest(5)
     void execute_withPlayerGivingUp_updatesScoresCorrectly() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connectors = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         Storage s = new Storage(2, connectors, true, 2);
         player.getSpaceShip().placeComponent(s, 6,7);
@@ -80,7 +136,7 @@ class EndStateTest {
 
         state.entry();
         player.setGaveUp(true);
-        for(PlayerData p : state.getPlayers()) {
+        for(PlayerData p : state.board.getInGamePlayers()) {
             state.playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
             state.setEndInternalState(EndInternalState.SALE_OF_GOODS);
 
@@ -93,9 +149,9 @@ class EndStateTest {
     @RepeatedTest(5)
     void execute_withBestLookingShip() {
         state.entry();
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
 
-        for(PlayerData p : state.getPlayers()) {
+        for(PlayerData p : state.board.getInGamePlayers()) {
             state.playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
             state.setEndInternalState(EndInternalState.BEST_LOOKING_SHIP);
 
@@ -108,11 +164,11 @@ class EndStateTest {
     @RepeatedTest(5)
     void execute_withUnknownEndInternalState() {
         int i = 0;
-        for(PlayerData p : state.getPlayers()) {
+        for(PlayerData p : state.board.getInGamePlayers()) {
             state.playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
             state.setEndInternalState(null);
 
-            if(i == state.getPlayers().size() - 1) {
+            if(i == state.board.getInGamePlayers().size() - 1) {
                 assertThrows(NullPointerException.class, () -> state.execute(p));
             } else {
                 assertDoesNotThrow(() -> state.execute(p));
@@ -124,13 +180,13 @@ class EndStateTest {
     @RepeatedTest(5)
     void execute_withComponentLosses() {
         state.entry();
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Storage s = new Storage(2, new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE}, true, 2);
         player.getSpaceShip().getLostComponents().add(s);
         int lostComponents = player.getSpaceShip().getLostComponents().size();
         int reservedComponents = player.getSpaceShip().getReservedComponents().size();
 
-        for(PlayerData p : state.getPlayers()) {
+        for(PlayerData p : state.board.getInGamePlayers()) {
             state.playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
             state.setEndInternalState(EndInternalState.LOSSES);
 
@@ -139,6 +195,8 @@ class EndStateTest {
         System.out.println(state.getScores().get(player));
         assertEquals(player.getCoins() - (lostComponents + reservedComponents), state.getScores().get(player));
     }
+
+     */
 
     @RepeatedTest(5)
     void haveAllPlayersPlayed_withAllPlayersPlayed_or_whenAllPlayersSkipped() {
@@ -155,14 +213,14 @@ class EndStateTest {
         assertFalse(state.haveAllPlayersPlayed());
 
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertFalse(state.haveAllPlayersPlayed());
     }
 
     @RepeatedTest(5)
     void setStatusPlayers() {
         state.setStatusPlayers(PlayerStatus.PLAYING);
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
     }
@@ -170,10 +228,10 @@ class EndStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_returnsFirstWaitingPlayer() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
-        state.playersStatus.put(state.getPlayers().get(2).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(2).getColor(), PlayerStatus.WAITING);
         PlayerData currentPlayer = state.getCurrentPlayer();
-        assertEquals(state.getPlayers().get(1), currentPlayer);
+        assertEquals(state.board.getInGamePlayers().get(1), currentPlayer);
     }
 
     @RepeatedTest(5)
@@ -184,7 +242,7 @@ class EndStateTest {
 
     @RepeatedTest(5)
     void play_updatesPlayerStatusToPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
     }
@@ -196,7 +254,7 @@ class EndStateTest {
 
     @RepeatedTest(5)
     void play_withPlayerAlreadyPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
@@ -204,7 +262,7 @@ class EndStateTest {
 
     @RepeatedTest(5)
     void exit_withAllPlayersPlayed() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
 
@@ -214,10 +272,10 @@ class EndStateTest {
 
     @RepeatedTest(5)
     void exit_withWaitingPlayer() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
 
         assertThrows(IllegalStateException.class, () -> state.exit());
     }

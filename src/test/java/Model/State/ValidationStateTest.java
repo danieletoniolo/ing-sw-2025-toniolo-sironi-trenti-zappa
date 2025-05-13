@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,14 +54,12 @@ class ValidationStateTest {
 
     @RepeatedTest(5)
     void setFragmentChoice_withInvalidState() {
-        state.setInternalState(ValidationInternalState.DEFAULT);
         assertThrows(IllegalStateException.class, () -> state.setFragmentChoice(0));
     }
 
     @RepeatedTest(5)
     void setComponentToDestroy_withValidComponents() {
-        state.setInternalState(ValidationInternalState.DEFAULT);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ArrayList<Pair<Integer, Integer>> components = new ArrayList<>();
         components.add(new Pair<>(0, 0));
         components.add(new Pair<>(1, 1));
@@ -72,7 +71,7 @@ class ValidationStateTest {
     @RepeatedTest(5)
     void setComponentToDestroy_withInvalidState() {
         state.setInternalState(ValidationInternalState.FRAGMENTED_SHIP);
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ArrayList<org.javatuples.Pair<Integer, Integer>> components = new ArrayList<>();
         components.add(new Pair<>(0, 0));
 
@@ -83,11 +82,11 @@ class ValidationStateTest {
     void entry_withPlayersHavingInvalidComponents() {
         ConnectorType[] connector = new ConnectorType[]{ ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY};
         Component c = new Connectors(2, connector);
-        state.getPlayers().forEach(p -> p.getSpaceShip().placeComponent(c, 6,7));
-        state.getPlayers().forEach(p -> p.getSpaceShip().getInvalidComponents());
+        state.board.getInGamePlayers().forEach(p -> p.getSpaceShip().placeComponent(c, 6,7));
+        state.board.getInGamePlayers().forEach(p -> p.getSpaceShip().getInvalidComponents());
 
         assertDoesNotThrow(() -> state.entry());
-        state.getPlayers().forEach(p ->
+        state.board.getInGamePlayers().forEach(p ->
                 assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(p.getColor()))
         );
     }
@@ -95,14 +94,14 @@ class ValidationStateTest {
     @RepeatedTest(5)
     void entry_withNoPlayersHavingInvalidComponents() {
         assertDoesNotThrow(() -> state.entry());
-        state.getPlayers().forEach(player ->
+        state.board.getInGamePlayers().forEach(player ->
                 assertNotEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()))
         );
     }
 
     @RepeatedTest(5)
     void entry_withEmptyPlayerList() {
-        state.getPlayers().clear();
+        state.board.getInGamePlayers().clear();
 
         assertDoesNotThrow(() -> state.entry());
         assertTrue(state.getInvalidComponents().isEmpty());
@@ -110,14 +109,13 @@ class ValidationStateTest {
 
     @RepeatedTest(5)
     void execute_withValidComponentsToDestroy_removesComponentsAndUpdatesState() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Storage s1 = new Storage(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY}, true, 2);
         s1.addGood(new Good(GoodType.GREEN));
         Storage s2 = new Storage(3, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY}, true, 2);
         s2.addGood(new Good(GoodType.BLUE));
         player.getSpaceShip().placeComponent(s1, 6, 7);
         player.getSpaceShip().placeComponent(s2, 6, 8);
-        state.setInternalState(ValidationInternalState.DEFAULT);
         ArrayList<Pair<Integer, Integer>> components = new ArrayList<>();
         components.add(new Pair<>(6, 8));
         components.add(new Pair<>(6, 7));
@@ -131,7 +129,7 @@ class ValidationStateTest {
 
     @RepeatedTest(5)
     void execute_withFragmentedShipAndValidFragmentChoice() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         Storage s1 = new Storage(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY}, true, 2);
         s1.addGood(new Good(GoodType.GREEN));
         Storage s2 = new Storage(3, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY}, true, 2);
@@ -154,15 +152,14 @@ class ValidationStateTest {
 
     @RepeatedTest(5)
     void execute_withUnsetComponentsToDestroy() {
-        PlayerData player = state.getPlayers().getFirst();
-        state.setInternalState(ValidationInternalState.DEFAULT);
+        PlayerData player = state.board.getInGamePlayers().getFirst();
 
         assertThrows(IllegalStateException.class, () -> state.execute(player));
     }
 
     @RepeatedTest(5)
     void execute_withUnsetFragmentChoice() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.setInternalState(ValidationInternalState.FRAGMENTED_SHIP);
 
         assertThrows(IllegalStateException.class, () -> state.execute(player));
@@ -170,18 +167,26 @@ class ValidationStateTest {
 
     @RepeatedTest(5)
     void execute_withOutOfBoundsFragmentChoice() {
-        PlayerData player = state.getPlayers().getFirst();
-        state.setInternalState(ValidationInternalState.FRAGMENTED_SHIP);
+        PlayerData player = state.board.getInGamePlayers().getFirst();
+        Storage s1 = new Storage(2, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.TRIPLE, ConnectorType.EMPTY, ConnectorType.EMPTY}, true, 2);
+        Storage s2 = new Storage(3, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.TRIPLE, ConnectorType.EMPTY, ConnectorType.EMPTY}, true, 2);
+        Storage s3 = new Storage(4, new ConnectorType[]{ConnectorType.EMPTY, ConnectorType.TRIPLE, ConnectorType.EMPTY, ConnectorType.EMPTY}, true, 2);
+        player.getSpaceShip().placeComponent(s1, 6, 7);
+        player.getSpaceShip().placeComponent(s2, 6, 8);
+        player.getSpaceShip().placeComponent(s3, 7, 8);
+        state.entry();
+        state.setComponentToDestroy(player, new ArrayList<>(List.of(new Pair<>(6, 7))));
+        state.execute(player);
         state.setFragmentedComponents(new ArrayList<>());
         state.getFragmentedComponents().add(new ArrayList<>());
-        state.setFragmentChoice(1);
+        state.setFragmentChoice(2);
 
         assertThrows(IndexOutOfBoundsException.class, () -> state.execute(player));
     }
 
     @RepeatedTest(5)
     void execute_setsInternalStateToFragmentedShip_whenShipIsFragmented() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         SpaceShip ship = player.getSpaceShip();
         ConnectorType[] connector = new ConnectorType[]{ ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         Component c = new Connectors(2, connector);
@@ -206,7 +211,6 @@ class ValidationStateTest {
         ArrayList<Pair<Integer, Integer>> fragment3 = new ArrayList<>();
         fragment2.add(new Pair<>(5, 7));
 
-        state.setInternalState(ValidationInternalState.DEFAULT);
         state.getInvalidComponents().put(player, new ArrayList<>(fragment1));
         state.setComponentToDestroy(player, new ArrayList<>(fragment1));
 
@@ -222,15 +226,15 @@ class ValidationStateTest {
 
     @RepeatedTest(5)
     void exit_withAllPlayersHavingValidComponents() {
-        state.getPlayers().forEach(player -> player.getSpaceShip().getInvalidComponents().clear());
-        state.getPlayers().forEach(player -> state.playersStatus.replace(player.getColor(), PlayerStatus.PLAYED));
+        state.board.getInGamePlayers().forEach(player -> player.getSpaceShip().getInvalidComponents().clear());
+        state.board.getInGamePlayers().forEach(player -> state.playersStatus.replace(player.getColor(), PlayerStatus.PLAYED));
 
         assertDoesNotThrow(() -> state.exit());
     }
 
     @RepeatedTest(5)
     void exit_withPlayerHavingInvalidComponents() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] connector = new ConnectorType[]{ ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY, ConnectorType.EMPTY};
         Component c = new Connectors(2, connector);
         player.getSpaceShip().placeComponent(c, 6, 7);
@@ -240,7 +244,7 @@ class ValidationStateTest {
 
     @RepeatedTest(5)
     void exit_withEmptyPlayerList() {
-        state.getPlayers().clear();
+        state.board.getInGamePlayers().clear();
 
         assertDoesNotThrow(() -> state.exit());
     }
@@ -260,14 +264,14 @@ class ValidationStateTest {
         assertFalse(state.haveAllPlayersPlayed());
 
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
         assertFalse(state.haveAllPlayersPlayed());
     }
 
     @RepeatedTest(5)
     void setStatusPlayers() {
         state.setStatusPlayers(PlayerStatus.PLAYING);
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
         }
     }
@@ -275,10 +279,10 @@ class ValidationStateTest {
     @RepeatedTest(5)
     void getCurrentPlayer_returnsFirstWaitingPlayer() {
         state.setStatusPlayers(PlayerStatus.PLAYED);
-        state.playersStatus.put(state.getPlayers().get(1).getColor(), PlayerStatus.WAITING);
-        state.playersStatus.put(state.getPlayers().get(2).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().get(2).getColor(), PlayerStatus.WAITING);
         PlayerData currentPlayer = state.getCurrentPlayer();
-        assertEquals(state.getPlayers().get(1), currentPlayer);
+        assertEquals(state.board.getInGamePlayers().get(1), currentPlayer);
     }
 
     @RepeatedTest(5)
@@ -289,7 +293,7 @@ class ValidationStateTest {
 
     @RepeatedTest(5)
     void play_updatesPlayerStatusToPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
     }
@@ -301,7 +305,7 @@ class ValidationStateTest {
 
     @RepeatedTest(5)
     void play_withPlayerAlreadyPlaying() {
-        PlayerData player = state.getPlayers().getFirst();
+        PlayerData player = state.board.getInGamePlayers().getFirst();
         state.playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         state.play(player);
         assertEquals(PlayerStatus.PLAYING, state.playersStatus.get(player.getColor()));
@@ -309,7 +313,7 @@ class ValidationStateTest {
 
     @RepeatedTest(5)
     void exit_withAllPlayersPlayed() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
 
@@ -319,10 +323,10 @@ class ValidationStateTest {
 
     @RepeatedTest(5)
     void exit_withWaitingPlayer() {
-        for (PlayerData player : state.getPlayers()) {
+        for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
         }
-        state.playersStatus.put(state.getPlayers().getFirst().getColor(), PlayerStatus.WAITING);
+        state.playersStatus.put(state.board.getInGamePlayers().getFirst().getColor(), PlayerStatus.WAITING);
 
         assertThrows(IllegalStateException.class, () -> state.exit());
     }
