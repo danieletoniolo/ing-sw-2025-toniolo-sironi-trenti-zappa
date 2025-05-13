@@ -2,34 +2,45 @@ package Model.Good;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class GoodTest {
     Good good;
+    Field colorField = Good.class.getDeclaredField("color"); //Uno per ogni variabile -- nei "" metto nome variabile
+    //Prendo la variabile della classe
+
+    GoodTest() throws NoSuchFieldException {
+    }
 
     @BeforeEach
     void setUp() {
         good = new Good(GoodType.BLUE);
         assertNotNull(good);
+        colorField.setAccessible(true);
     }
 
     @Test
-    void testGoodConstructor() {
+    void testGoodConstructor() throws IllegalAccessException {
         Good g1 = new Good();
         assertNotNull(g1);
-        assertNull(g1.getColor());
+        assertNull(colorField.get(g1)); //getColor
+        colorField.set(g1, GoodType.BLUE); //setColor
     }
 
     @Test
-    void testGetColor() {
-        assertTrue(Arrays.asList(GoodType.values()).contains(good.getColor()));
+    void testGetColor() throws IllegalAccessException {
+        GoodType goodType = (GoodType) colorField.get(good);
+        assertTrue(Arrays.asList(GoodType.values()).contains(goodType));
     }
 
     @Test
-    void testGetValue() {
-        assertEquals(good.getColor().getValue(), good.getValue());
+    void testGetValue() throws IllegalAccessException {
+        GoodType goodType = (GoodType) colorField.get(good);
+        assertEquals(goodType.getValue(), good.getValue());
     }
 
     @Test
