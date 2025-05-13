@@ -7,6 +7,7 @@ import controller.EventManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 enum PlayerStatus {
@@ -220,5 +221,18 @@ public abstract class State {
      */
     public void manageCrewMember(PlayerData player, int mode, int crewType, int cabinID) throws IllegalStateException {
         throw new IllegalStateException("Cannot manage crew member in this state");
+    }
+
+    /**
+     * Use engines or cannons to add strength to the current ship stats.
+     * @param player PlayerData of the player who is using the cannons or engines.
+     * @param type Type of the extra strength to use: 0 = engine, 1 = cannon.
+     * @param extraPowerToUse Amount of extra power to use.
+     * @param batteriesID List of Integers representing the batteryID from which we take the energy to use the cannon or engine
+     *                    (we use one energy from each batteryID in the list).
+     * @throws IllegalStateException if the state does not allow using extra power.
+     */
+    public void useExtraStrength(PlayerData player, int type, float extraPowerToUse, List<Integer> batteriesID) throws IllegalStateException {
+        throw new IllegalStateException("Cannot use extra power in this state");
     }
 }

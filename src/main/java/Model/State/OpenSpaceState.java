@@ -4,14 +4,13 @@ import Model.Cards.OpenSpace;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.State.interfaces.UsableEngine;
 import controller.event.game.MoveMarker;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class OpenSpaceState extends State implements UsableEngine {
+public class OpenSpaceState extends State {
     private final Map<PlayerData, Float> stats;
 
     /**
@@ -28,20 +27,22 @@ public class OpenSpaceState extends State implements UsableEngine {
         return stats;
     }
 
-    /**
-     * Use the cannon
-     * @param player PlayerData of the player using the cannon
-     * @param strength Strength of the cannon to be used
-     */
-    public void useEngine(PlayerData player, Float strength, List<Integer> batteriesID) {
-        // Use the energy to power the engines
-        SpaceShip ship = player.getSpaceShip();
-        for (Integer batteryID : batteriesID) {
-            ship.useEnergy(batteryID);
-        }
+    @Override
+    public void useExtraStrength(PlayerData player, int type, float strength, List<Integer> batteriesID) throws IllegalStateException {
+        switch (type) {
+            case 0 -> {
+                // Use the energy to power the engines
+                SpaceShip ship = player.getSpaceShip();
+                for (Integer batteryID : batteriesID) {
+                    ship.useEnergy(batteryID);
+                }
 
-        // Update the engine strength stats
-        this.stats.merge(player, strength, Float::sum);
+                // Update the engine strength stats
+                this.stats.merge(player, strength, Float::sum);
+            }
+            case 1 -> throw new IllegalStateException("Cannot use double cannons in this state");
+            default -> throw new IllegalArgumentException("Invalid type: " + type);
+        }
     }
 
     /**
