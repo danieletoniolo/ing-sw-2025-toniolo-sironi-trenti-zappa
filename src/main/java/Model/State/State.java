@@ -45,14 +45,17 @@ public abstract class State {
 
     // TODO: If the method is used only in pirates state, remove it from here
 
+    public ArrayList<PlayerData> getPlayers() {
+        return players;
+    }
+
     /**
      * Check if all players have played
-     *
      * @return Boolean value if all players have played
      */
     protected boolean haveAllPlayersPlayed() {
         for (PlayerData p : players) {
-            if (playersStatus.get(p.getColor()) != PlayerStatus.PLAYED && playersStatus.get(p.getColor()) != PlayerStatus.SKIPPED) {
+            if (p != null && playersStatus.get(p.getColor()) != PlayerStatus.PLAYED && playersStatus.get(p.getColor()) != PlayerStatus.SKIPPED) {
                 return false;
             }
         }
@@ -61,7 +64,6 @@ public abstract class State {
 
     /**
      * Set the status of all players
-     *
      * @param status PlayerStatus to set to all players
      */
     protected void setStatusPlayers(PlayerStatus status) {
@@ -72,7 +74,6 @@ public abstract class State {
 
     /**
      * Get the player who has not played yet (current player to play)
-     *
      * @return PlayerData of the current player that is playing
      * @throws IllegalStateException if all players have played
      */
@@ -87,7 +88,6 @@ public abstract class State {
 
     /**
      * Make the player playing in the state
-     *
      * @param player PlayerData of the player which is playing
      * @throws NullPointerException player == null
      */
@@ -101,14 +101,11 @@ public abstract class State {
     /**
      * Execute at the beginning of the state
      */
-    public void entry() {
-    }
+    public void entry() {}
 
     /**
      * Make the player play in the state
-     *
      * @param player PlayerData of the player to play
-     * @return Pair of EventType and Object which contains the record that will be sent to the client. In the super.execute(PlayerData player) method we return null
      * @throws NullPointerException player == null
      */
     public void execute(PlayerData player) throws NullPointerException {
@@ -126,7 +123,6 @@ public abstract class State {
 
     /**
      * Check if all players have played
-     *
      * @throws IllegalStateException if not all players have played
      */
     public void exit() throws IllegalStateException {

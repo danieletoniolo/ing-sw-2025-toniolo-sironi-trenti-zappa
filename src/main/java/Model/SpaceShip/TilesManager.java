@@ -6,6 +6,9 @@ import com.sun.tools.javac.Main;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 import java.util.Scanner;
 
 public class TilesManager {
@@ -45,14 +48,24 @@ public class TilesManager {
     }
 
     /**
-     * Get 152 tiles of the spaceship (Main cabins are not included)
+     * Get 152 random sorted tiles of the spaceship (Main cabins are not included)
      * @return an array of tiles
      */
-    public static Component[] getTiles() {
-        Component[] copy = new Component[tiles.length];
+    public static ArrayList<Component> getTiles() {
+        ArrayList<Component> copy = new ArrayList<>();
+        Random random = new Random();
+
         for(int i = 0; i < tiles.length; i++){
-            copy[i] = deepClone(tiles[i]);
+            copy.add(deepClone(tiles[i]));
         }
+        Collections.shuffle(copy);
+        for (Component tile : copy) {
+            int randomIndex = random.nextInt(4);
+            for (int j = 0; j < randomIndex; j++) {
+                tile.rotateClockwise();
+            }
+        }
+
         return copy;
     }
 
@@ -74,28 +87,16 @@ public class TilesManager {
     }
 
     /**
-     * Get all tiles of the spaceship (main cabins included)
-     * @return an array of tiles
-     */
-    public static Component[] getAllTiles() {
-        Component[] copy = new Component[allTiles.length];
-        for(int i = 0; i < allTiles.length; i++){
-            copy[i] = deepClone(allTiles[i]);
-        }
-        return copy;
-    }
-
-    /**
      * Duplicate an object
-     * @param oggetto the object to duplicate
+     * @param object the object to duplicate
      * @return the duplicated object
      * @param <T> the type of the object
      */
-    public static <T extends Serializable> T deepClone(T oggetto) {
+    public static <T extends Serializable> T deepClone(T object) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream out = new ObjectOutputStream(bos);
-            out.writeObject(oggetto);
+            out.writeObject(object);
 
             ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
             ObjectInputStream in = new ObjectInputStream(bis);

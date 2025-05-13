@@ -16,9 +16,9 @@ class TilesManagerTest {
         ArrayList<Integer> IDs = new ArrayList<>();
 
         // Test if the method returns an array of tiles
-        Component[] tiles = TilesManager.getTiles();
+        ArrayList<Component> tiles = TilesManager.getTiles();
         assertNotNull(tiles);
-        assertEquals(152, tiles.length);
+        assertEquals(152, tiles.size());
 
         // Test if the tiles are not null
         for (Component tile : tiles) {
@@ -36,9 +36,9 @@ class TilesManagerTest {
             else assertTrue(IDs.contains(i));
         }
 
-        Component[] tiles2 = TilesManager.getTiles();
-        for (int i = 0; i < tiles.length; i++) {
-            assertNotSame(tiles[i], tiles2[i]);
+        ArrayList<Component> tiles2 = TilesManager.getTiles();
+        for (int i = 0; i < tiles.size(); i++) {
+            assertNotSame(tiles.get(i), tiles2.get(i));
         }
     }
 
@@ -66,49 +66,21 @@ class TilesManagerTest {
     }
 
     @Test
-    void getAllTiles() {
-        ArrayList<Integer> IDs = new ArrayList<>();
-
-        // Test if the method returns an array of tiles
-        Component[] allTiles = TilesManager.getAllTiles();
-        assertNotNull(allTiles);
-        assertEquals(156, allTiles.length);
-
-        // Test if the tiles are not null
-        for (Component tile : allTiles) {
-            assertNotNull(tile);
-        }
-
-        // Test if the tiles are of the correct type
-        for (Component tile : allTiles) {
-            assertInstanceOf(Component.class, tile);
-            IDs.add(tile.getID());
-        }
-
-        for (int i = 0; i < 156; i++) {
-            assertTrue(IDs.contains(i));
-        }
-
-        Component[] allTiles2 = TilesManager.getAllTiles();
-        for (int i = 0; i < allTiles.length; i++) {
-            assertNotSame(allTiles[i], allTiles2[i]);
-        }
-    }
-
-    @Test
     void deepClone() {
-        // Test if the method returns a deep clone of the object
-        Component tile = TilesManager.getTiles()[0];
-        Component tile2 = TilesManager.deepClone(tile);
-        assertNotNull(tile2);
+        for (int i = 0; i < 152; i++) {
+            // Test if the method returns a deep clone of the object
+            Component tile = TilesManager.getTiles().get(i);
+            Component tile2 = TilesManager.deepClone(tile);
+            assertNotNull(tile2);
 
-        // Test if the deep clone is of the correct type
-        assertInstanceOf(Component.class, tile2);
+            // Test if the deep clone is of the correct type
+            assertInstanceOf(Component.class, tile2);
 
-        // Test if the deep clone has the same ID as the original object
-        assertEquals(tile.getID(), tile2.getID());
+            // Test if the deep clone has the same ID as the original object
+            assertEquals(tile.getID(), tile2.getID());
 
-        // Test if the deep clone is not the same object as the original object
-        assertNotSame(tile, tile2);
+            // Test if the deep clone is not the same object as the original object
+            assertNotSame(tile, tile2);
+        }
     }
 }
