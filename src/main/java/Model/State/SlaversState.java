@@ -165,7 +165,7 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
                 }
 
                 // TODO: EVENT ENEMYDEFEAT
-                EnemyDefeat enemyEvent = new EnemyDefeat(Boolean.TRUE.equals(slaversDefeat));
+                EnemyDefeat enemyEvent = new EnemyDefeat(player.getUsername(), Boolean.TRUE.equals(slaversDefeat));
             case PENALTY:
                 if (slaversDefeat != null && slaversDefeat) {
                     if (acceptCredits == null) {
@@ -175,7 +175,7 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
                         player.addCoins(card.getCredit());
 
                         // TODO: EVENT ADDCOINS
-                        AddCoins coinsEvent = new AddCoins(player.getCoins());
+                        AddCoins coinsEvent = new AddCoins(player.getUsername(), player.getCoins());
                     }
                     super.execute(player);
                 } else if (slaversDefeat != null) {
@@ -187,14 +187,14 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
                         this.players = super.board.getInGamePlayers();
 
                         // TODO: EVENT LOSE
-                        PlayerLose loseEvent = new PlayerLose(player.getColor());
+                        PlayerLose loseEvent = new PlayerLose(player.getUsername());
                     } else {
                         for (Pair<Integer, Integer> cabin : crewLoss) {
                             spaceShip.removeCrewMember(cabin.getValue0(), cabin.getValue1());
                         }
 
                         // TODO: EVENT CREWLOSS
-                        CrewLoss crewEvent = new CrewLoss(player.getColor(), crewLoss);
+                        CrewLoss crewEvent = new CrewLoss(player.getUsername(), crewLoss);
                     }
                     playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
                 }
@@ -213,7 +213,7 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
                 board.addSteps(p, -flightDays);
 
                 // TODO: EVENT STEPS
-                MoveMarker stepsEvent = new MoveMarker(p.getColor(), p.getStep());
+                MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");
             }

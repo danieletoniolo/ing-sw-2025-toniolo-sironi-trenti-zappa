@@ -74,7 +74,7 @@ public class OpenSpaceState extends State {
             board.addSteps(player, stats.get(player).intValue());
 
             // TODO: EVENT STEPS
-            MoveMarker stepEvent = new MoveMarker(player.getColor(), player.getStep());
+            MoveMarker stepEvent = new MoveMarker(player.getUsername(), player.getStep());
         }
         super.execute(player);
     }

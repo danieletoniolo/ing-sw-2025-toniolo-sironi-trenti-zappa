@@ -22,7 +22,7 @@ public class StardustState extends State {
             board.addSteps(p, -numberExposedConnectors);
 
             // TODO: EVENT STEPS
-            MoveMarker stepsEvent = new MoveMarker(p.getColor(), p.getStep());
+            MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
         }
     }
 }

@@ -220,7 +220,7 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
                         }
 
                         // TODO: EVENT CREWLOSS
-                        CrewLoss crewEvent = new CrewLoss(player.getColor(), crewToLose);
+                        CrewLoss crewEvent = new CrewLoss(player.getUsername(), crewToLose);
                     }
 
                     // Reset the goods to discard
@@ -246,7 +246,7 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
                 board.addSteps(p, -flightDays);
 
                 // TODO: EVENT STEPS
-                MoveMarker stepsEvent = new MoveMarker(p.getColor(), flightDays);
+                MoveMarker stepsEvent = new MoveMarker(p.getUsername(), flightDays);
             }
         }
     }

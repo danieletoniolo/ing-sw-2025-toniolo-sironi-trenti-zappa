@@ -61,7 +61,11 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         for (int i = 0; i < 3; i++) {
             stats.add(new HashMap<>());
         }
-        this.internalState = CombatZoneInternalState.CREW;
+        if (card.getCardLevel() == 2) {
+            this.internalState = CombatZoneInternalState.CANNONS;
+        } else {
+            this.internalState = CombatZoneInternalState.CREW;
+        }
         this.minPlayerCannons = null;
         this.minPlayerEngines = null;
         this.minPlayerCrew = null;
@@ -142,7 +146,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.WAITING);
 
         // TODO: EVENT STEPS
-        MoveMarker stepsEvent = new MoveMarker(player.getColor(), player.getStep());
+        MoveMarker stepsEvent = new MoveMarker(player.getUsername(), player.getStep());
     }
 
     /**
@@ -158,7 +162,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
             this.players = super.board.getInGamePlayers();
 
             // TODO: EVENT GAVEUP
-            PlayerLose gaveUpEvent = new PlayerLose(player.getColor());
+            PlayerLose gaveUpEvent = new PlayerLose(player.getUsername());
         } else {
             for (Pair<Integer, Integer> cabin : crewLoss) {
                 spaceShip.removeCrewMember(cabin.getValue0(), cabin.getValue1());
@@ -166,7 +170,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
             playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.WAITING);
 
             // TODO: EVENT CREWLOSS
-            CrewLoss crewLossEvent = new CrewLoss(player.getColor(), crewLoss);
+            CrewLoss crewLossEvent = new CrewLoss(player.getUsername(), crewLoss);
         }
     }
 
@@ -221,7 +225,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
             }
 
             // TODO: EVENT CREWLOSS
-            CrewLoss crewLossEvent = new CrewLoss(player.getColor(), crewLoss);
+            CrewLoss crewLossEvent = new CrewLoss(player.getUsername(), crewLoss);
         }
 
         // Reset the goods to discard
@@ -400,7 +404,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
                         this.players = super.board.getInGamePlayers();
 
                         // TODO: EVENT GAVEUP
-                        PlayerLose gaveUpEvent = new PlayerLose(player.getColor());
+                        PlayerLose gaveUpEvent = new PlayerLose(player.getUsername());
                     } else {
                         executeSubStateRemoveGoods(minPlayerEngines);
                     }

@@ -5,14 +5,14 @@ import org.javatuples.Pair;
 import java.util.ArrayList;
 
 /**
- * This event is used when a player have to choose the fragments of the ship. So it returns the fragments from which the user can choose
+ * This event is used when a player have to destroy components of his ship.
  * @param userID is the user username when the event is sent to the other client.
  *               The userID is the UUID when the event is sent from the client to the server.
  *               In this way other client cannot fake to be another client, because the UUID is known only by the correct client
- * @param fragments The list of fragments that the player has to choose, the pair represent the row and the columns of the components that are in the fragment
+ * @param destroyedComponents The list of components that the player has to destroy, the pair represent the row and the columns of the component
  */
-public record FragmentChoice(
+public record DestroyComponents(
         String userID,
-        ArrayList<ArrayList<Pair<Integer, Integer>>> fragments
+        ArrayList<Pair<Integer, Integer>> destroyedComponents
 ) {
 }

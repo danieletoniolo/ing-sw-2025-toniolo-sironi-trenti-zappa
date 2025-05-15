@@ -1,11 +1,13 @@
 package Model.Game.Lobby;
 
-import java.util.UUID;
+import Model.Game.Board.Level;
 
 public class LobbyInfo {
     private String name;
+    private final String founderNickname;
+    private final Level level;
     private final int totalPlayers;
-    private int numberOfPlayersEntered;
+    private final int numberOfPlayersEntered;
 
     /**
      * Create a new lobby
@@ -15,7 +17,7 @@ public class LobbyInfo {
      * @throws IllegalArgumentException  if the name is null or empty
      * @throws IndexOutOfBoundsException if the total players is less than 1 or greater than 4
      */
-    public LobbyInfo(String founderNickname, int totalPlayers) throws IllegalArgumentException, IndexOutOfBoundsException {
+    public LobbyInfo(String founderNickname, int totalPlayers, Level level) throws IllegalArgumentException, IndexOutOfBoundsException {
         if (founderNickname == null || founderNickname.isEmpty()) {
             throw new IllegalArgumentException("Founder's nickname cannot be null or empty");
         }
@@ -23,8 +25,10 @@ public class LobbyInfo {
             throw new IndexOutOfBoundsException("Total players must be between 1 and 4");
         }
         this.name = founderNickname + "'s lobby";
+        this.founderNickname = founderNickname;
         this.numberOfPlayersEntered = 0;
         this.totalPlayers = totalPlayers;
+        this.level = level;
     }
 
     /**
@@ -49,6 +53,22 @@ public class LobbyInfo {
      */
     public int getNumberOfPlayersEntered() {
         return this.numberOfPlayersEntered;
+    }
+
+    /**
+     * Set the number of players in the lobby
+     * @return the number of players in the lobby
+     */
+    public String getFounderNickname() {
+        return this.founderNickname;
+    }
+
+    /**
+     * Get the level of the lobby
+     * @return the level of the lobby
+     */
+    public Level getLevel() {
+        return this.level;
     }
 
     /**

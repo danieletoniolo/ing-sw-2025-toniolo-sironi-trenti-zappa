@@ -5,12 +5,7 @@ import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.State.State;
 import Model.State.interfaces.*;
-import controller.event.EventType;
-import controller.event.game.*;
-import controller.event.lobby.JoinLobbySuccessful;
-import controller.event.lobby.LobbyEvents;
-import controller.event.lobby.UserJoinedLobby;
-import controller.event.lobby.UserLeftLobby;
+import com.sun.jdi.event.ExceptionEvent;
 import network.User;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
@@ -42,16 +37,10 @@ public class GameController {
     public void startGame() {
     }
 
-    public void joinGame(User user, LobbyInfo lobby) {
-    }
-
-    public void leaveGame(UUID uuid) {
-        if (state instanceof JoinableGame) {
-            PlayerData player = state.getCurrentPlayer();
-            if (player.getUUID().equals(uuid)) {
-                ((JoinableGame) state).leaveGame(player);
-            }
-        } else {
+    public void manageLobby(PlayerData player, int type) {
+        try {
+            state.manageLobby(player, type);
+        } catch (Exception e) {
             throw new IllegalStateException("State is not a JoinableGame");
         }
     }
