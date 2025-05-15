@@ -1,9 +1,12 @@
 package view.structures.lobby;
 
+import view.structures.Structure;
+import view.structures.board.LevelView;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public class LobbyView {
+public class LobbyView implements Structure {
     public static String Dash = "─";
     public static String Bow1 = "╭";
     public static String Bow2 = "╮";
@@ -12,14 +15,15 @@ public class LobbyView {
     public static String Vertical = "│";
 
     private Map<String, Boolean> players;
-    private String lobbyName;
-    private int maxPlayer;
+    private final String lobbyName;
+    private final int maxPlayer;
+    private final LevelView level;
 
-    public LobbyView(String lobbyName, int maxPlayer) {
+    public LobbyView(String lobbyName, int maxPlayer, LevelView level) {
         players = new HashMap<>();
         this.lobbyName = lobbyName;
         this.maxPlayer = maxPlayer;
-
+        this.level = level;
     }
 
     public void addPlayer(String playerName) {

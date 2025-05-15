@@ -6,6 +6,4 @@ public interface StateView {
     StateView isValidCommand(Command command);
 
     void printTui();
-
-
 }

@@ -1,10 +1,11 @@
 package view.structures.player;
 
+import view.structures.Structure;
 import view.structures.spaceship.SpaceShipView;
 
 import java.util.UUID;
 
-public class PlayerDataView {
+public class PlayerDataView implements Structure {
     private String username;
     private ColorView color;
     private int step;

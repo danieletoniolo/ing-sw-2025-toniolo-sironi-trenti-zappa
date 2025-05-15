@@ -8,8 +8,6 @@ import java.util.List;
 public class BuidingStateView implements StateView{
     private ArrayList<String> validCommands = (ArrayList<String>) List.of("view");
 
-
-
     @Override
     public StateView isValidCommand(Command command) {
         return null; // Placeholder for the next state
