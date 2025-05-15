@@ -13,29 +13,6 @@ import org.javatuples.Pair;
 
 import java.util.*;
 
-enum CombatZoneInternalState {
-    CREW(0),
-    ENGINES(1),
-    CANNONS(2);
-
-    private final int index;
-
-    CombatZoneInternalState(int index) {
-        this.index = index;
-    }
-
-    public int getIndex(int level) {
-        int out = this.index;
-        if (level == 2) {
-            if (index == 0) {
-                out = 2;
-            } else if (index == 2) {
-                out = 0;
-            }
-        }
-        return out;
-    }
-}
 
 
 public class CombatZoneState extends State implements Fightable, ChoosableFragment, RemovableCrew, DiscardableGoods {
@@ -48,6 +25,33 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
     private ArrayList<Pair<Integer, Integer>> crewLoss;
     private ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard;
     private final FightHandler fightHandler;
+
+    /**
+     * Enum to represent the internal state of the combat zone state.
+     */
+    private enum CombatZoneInternalState {
+        CREW(0),
+        ENGINES(1),
+        CANNONS(2);
+
+        private final int index;
+
+        CombatZoneInternalState(int index) {
+            this.index = index;
+        }
+
+        public int getIndex(int level) {
+            int out = this.index;
+            if (level == 2) {
+                if (index == 0) {
+                    out = 2;
+                } else if (index == 2) {
+                    out = 0;
+                }
+            }
+            return out;
+        }
+    }
 
     /**
      * Constructor whit players and card

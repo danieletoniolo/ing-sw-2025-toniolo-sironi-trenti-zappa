@@ -16,10 +16,6 @@ import org.javatuples.Triplet;
 
 import java.util.*;
 
-enum SmugglerInternalState {
-    DEFAULT,
-    PENALTY
-}
 
 public class SmugglersState extends State implements ExchangeableGoods, DiscardableGoods {
     private final Smugglers card;
@@ -29,6 +25,14 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
     private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
     private ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard;
     private ArrayList<Pair<Integer, Integer>> crewToLose;
+
+    /**
+     * Enum to represent the internal state of the smugglers state.
+     */
+    private enum SmugglerInternalState {
+        DEFAULT,
+        PENALTY
+    }
 
     public SmugglersState(Board board, Smugglers card) {
         super(board);

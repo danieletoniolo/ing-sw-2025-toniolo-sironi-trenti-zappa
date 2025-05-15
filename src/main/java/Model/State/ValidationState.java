@@ -11,10 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-enum ValidationInternalState {
-    DEFAULT,
-    FRAGMENTED_SHIP,
-}
 
 public class ValidationState extends State implements ChoosableFragment, DestroyableComponent {
     private ValidationInternalState internalState;
@@ -25,6 +21,14 @@ public class ValidationState extends State implements ChoosableFragment, Destroy
     private int fragmentChoice;
     // Tmp variable to store the choice of the component to destroy
     private ArrayList<Pair<Integer, Integer>> componentsToDestroy;
+
+    /**
+     * Enum to represent the internal state of the validation state.
+     */
+    private enum ValidationInternalState {
+        DEFAULT,
+        FRAGMENTED_SHIP,
+    }
 
     public ValidationState(Board board) {
         super(board);

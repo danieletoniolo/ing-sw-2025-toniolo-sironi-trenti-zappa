@@ -14,10 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-enum SlaversInternalState {
-    ENEMY_DEFEAT,
-    PENALTY
-}
 
 public class SlaversState extends State implements AcceptableCredits, RemovableCrew {
     private SlaversInternalState internalState;
@@ -26,6 +22,14 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
     private ArrayList<Pair<Integer, Integer>> crewLoss;
     private Boolean slaversDefeat;
     private Boolean acceptCredits;
+
+    /**
+     * Enum to represent the internal state of the slavers state.
+     */
+    private enum SlaversInternalState {
+        ENEMY_DEFEAT,
+        PENALTY
+    }
 
     /**
      * Constructor whit players and card

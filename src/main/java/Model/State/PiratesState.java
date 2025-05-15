@@ -13,11 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-enum PiratesInternalState {
-    DEFAULT,
-    MIDDLE,
-    PENALTY
-}
 
 public class PiratesState extends State implements Fightable, ChoosableFragment, AcceptableCredits {
     private final Pirates card;
@@ -27,6 +22,15 @@ public class PiratesState extends State implements Fightable, ChoosableFragment,
     Boolean acceptCredits;
     ArrayList<PlayerData> playersDefeated;
     FightHandler fightHandler;
+
+    /**
+     * Enum to represent the internal state of the pirates state.
+     */
+    private enum PiratesInternalState {
+        DEFAULT,
+        MIDDLE,
+        PENALTY
+    }
 
     /**
      * Constructor whit players and card

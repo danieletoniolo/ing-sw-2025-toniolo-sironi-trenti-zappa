@@ -10,12 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-enum PlayerStatus {
-    WAITING,
-    PLAYING,
-    PLAYED,
-    SKIPPED
-}
 
 public abstract class State {
     protected ArrayList<PlayerData> players;
@@ -23,6 +17,16 @@ public abstract class State {
     protected Board board;
     protected Boolean played;
     protected final EventManager eventManager;
+
+    /**
+     * Enum to represent the status of the player in the state.
+     */
+    protected enum PlayerStatus {
+        WAITING,
+        PLAYING,
+        PLAYED,
+        SKIPPED
+    }
 
     /**
      * Constructor for State
