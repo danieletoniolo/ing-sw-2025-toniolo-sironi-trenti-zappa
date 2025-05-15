@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BoardView {
-    private String[] board;
+    private String[] path;
     private Map<ColorView, Integer> players;
     private LevelView level;
     private int stepsForALap;
@@ -39,7 +39,7 @@ public class BoardView {
         initializeBoard();
         players.put(color, step);
         players.forEach((key, value) -> {
-            board[value % stepsForALap] = key.drawTui();
+            path[value % stepsForALap] = key.drawTui();
         });
     }
 
@@ -50,20 +50,20 @@ public class BoardView {
     private void initializeBoard() {
         switch (level) {
             case LEARNING:
-                this.board = new String[this.stepsForALap];
-                for (int i = 0; i < stepsForALap; i++) this.board[i] = " ";
-                this.board[0] = "4";
-                this.board[1] = "3";
-                this.board[2] = "2";
-                this.board[4] = "1";
+                this.path = new String[this.stepsForALap];
+                for (int i = 0; i < stepsForALap; i++) this.path[i] = " ";
+                this.path[0] = "4";
+                this.path[1] = "3";
+                this.path[2] = "2";
+                this.path[4] = "1";
                 break;
             case SECOND:
-                this.board = new String[stepsForALap];
-                for (int i = 0; i < this.stepsForALap; i++) this.board[i] = " ";
-                this.board[0] = "4";
-                this.board[1] = "3";
-                this.board[3] = "2";
-                this.board[6] = "1";
+                this.path = new String[stepsForALap];
+                for (int i = 0; i < this.stepsForALap; i++) this.path[i] = " ";
+                this.path[0] = "4";
+                this.path[1] = "3";
+                this.path[3] = "2";
+                this.path[6] = "1";
                 break;
             default: throw new IllegalStateException("Unexpected value: " + level);
         }
@@ -78,7 +78,7 @@ public class BoardView {
                 int up = 0;
                 print.append("  ").append(Bow1).append(Dash).append(Dash);
                 for (int i = 0; i < cols; i++) {
-                    print.append(Dash).append(ArrowRight).append("[ ").append(board[up]).append(" ]");
+                    print.append(Dash).append(ArrowRight).append("[ ").append(path[up]).append(" ]");
                     up++;
                 }
                 print.append(Dash).append(Dash).append(Dash).append(ArrowRight).append(Bow2).append(" ");
@@ -88,21 +88,21 @@ public class BoardView {
                 int down = stepsForALap - 4;
                 print.append("  ").append(Bow3).append(ArrowLeft).append(Dash).append(Dash).append(Dash);
                 for (int i = 0; i < cols; i++) {
-                    print.append("[ ").append(board[down]).append(" ]").append(ArrowLeft).append(Dash);
+                    print.append("[ ").append(path[down]).append(" ]").append(ArrowLeft).append(Dash);
                     down--;
                 }
                 print.append(Dash).append(Dash).append(Bow4).append(" ");
                 return print.toString();
             }
             if (line == getRowsToDraw()/2) {
-                print.append("[ ").append(board[stepsForALap - line / 2]).append(" ]  ");
+                print.append("[ ").append(path[stepsForALap - line / 2]).append(" ]  ");
                 print.append(level == LevelView.LEARNING ? "            LEARNING               " : "                    SECOND                       ");
-                print.append("[ ").append(board[stepsForALap / 4 + line / 2]).append(" ]");
+                print.append("[ ").append(path[stepsForALap / 4 + line / 2]).append(" ]");
                 return print.toString();
             }
-            print.append("[ ").append(board[stepsForALap - line / 2]).append(" ]  ");
+            print.append("[ ").append(path[stepsForALap - line / 2]).append(" ]  ");
             print.append("       ".repeat(Math.max(0, cols)));
-            print.append("[ ").append(board[stepsForALap / 4 + line / 2]).append(" ]");
+            print.append("[ ").append(path[stepsForALap / 4 + line / 2]).append(" ]");
             return print.toString();
 
         }

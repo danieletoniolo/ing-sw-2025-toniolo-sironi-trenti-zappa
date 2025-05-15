@@ -110,14 +110,16 @@ public class CardMainView {
                 }
             }
 
-            DeckView deckView = new DeckView(cards, false);
-            deckView.setCovered(true);
+            DeckView deckView = new DeckView();
+            deckView.setDeck(cards);
+            deckView.setCovered(false);
+            deckView.setOnlyLast(true);
             printDeck(deckView);
 
-            for (CardView card : cards) {
-                card.setCovered(true);
-            }
-            printCards(cards, 7);
+            //for (CardView card : cards) {
+                //card.setCovered(true);
+            //}
+            //printCards(cards, 7);
 
 
 

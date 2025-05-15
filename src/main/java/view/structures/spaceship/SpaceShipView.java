@@ -92,54 +92,7 @@ public class SpaceShipView {
         for (int i = 0; i < row.length; i++) {
             ComponentView tile = spaceShip[line / 5][i];
             if (!row[i]) {
-                if (line / 5 == 0) {
-                    if (i == row.length - 2) {
-                        switch (line % 5) {
-                            case 0:
-                                if (reserved.isEmpty()) str.append(UpReserved1);
-                                else str.append(reserved.getFirst().drawLineTui(0));
-                                break;
-                            case 2:
-                                if (reserved.isEmpty()) str.append(LeftReserved2);
-                                else str.append(reserved.getFirst().drawLineTui(line % 5));
-                                break;
-                            case 1, 3:
-                                if (reserved.isEmpty()) str.append(LeftReserved);
-                                else str.append(reserved.getFirst().drawLineTui(line % 5));
-                                break;
-                            case 4:
-                                if (reserved.isEmpty()) str.append(DownReserved1);
-                                else str.append(reserved.getFirst().drawLineTui(4));
-                                break;
-                        }
-                    }
-                    else if (i == row.length - 1) {
-                        switch (line % 5) {
-                            case 0:
-                                if (reserved.isEmpty() || reserved.size() == 1) str.append(UpReserved2);
-                                else str.append(reserved.getLast().drawLineTui(0));
-                                break;
-                            case 2:
-                                if (reserved.isEmpty() || reserved.size() == 1) str.append(RightReserved2);
-                                else str.append(reserved.getLast().drawLineTui(line % 5));
-                                break;
-                            case 1, 3:
-                                if (reserved.isEmpty() || reserved.size() == 1) str.append(RightReserved);
-                                else str.append(reserved.getLast().drawLineTui(line % 5));
-                                break;
-                            case 4:
-                                if (reserved.isEmpty() || reserved.size() == 1) str.append(DownReserved2);
-                                else str.append(reserved.getLast().drawLineTui(4));
-                                break;
-                        }
-                    }
-                    else {
-                        str.append("             ");
-                    }
-                }
-                else{
-                    str.append("             ");
-                }
+                str.append("             ");
             }
             else if (tile != null) {
                 str.append(tile.drawLineTui(line % 5));
@@ -153,6 +106,36 @@ public class SpaceShipView {
             }
         }
         str.append(space).append(number);
+
+        if (line / 5 == 0) {
+            str.append(space);
+            switch (line % 5) {
+                case 0:
+                    if (reserved.isEmpty()) str.append(UpReserved1);
+                    else str.append(reserved.getFirst().drawLineTui(0));
+                    if (reserved.isEmpty() || reserved.size() == 1) str.append(UpReserved2);
+                    else str.append(reserved.getLast().drawLineTui(0));
+                    break;
+                case 2:
+                    if (reserved.isEmpty()) str.append(LeftReserved2);
+                    else str.append(reserved.getFirst().drawLineTui(line % 5));
+                    if (reserved.isEmpty() || reserved.size() == 1) str.append(RightReserved2);
+                    else str.append(reserved.getLast().drawLineTui(line % 5));
+                    break;
+                case 1, 3:
+                    if (reserved.isEmpty()) str.append(LeftReserved);
+                    else str.append(reserved.getFirst().drawLineTui(line % 5));
+                    if (reserved.isEmpty() || reserved.size() == 1) str.append(RightReserved);
+                    else str.append(reserved.getLast().drawLineTui(line % 5));
+                    break;
+                case 4:
+                    if (reserved.isEmpty()) str.append(DownReserved1);
+                    else str.append(reserved.getFirst().drawLineTui(4));
+                    if (reserved.isEmpty() || reserved.size() == 1) str.append(DownReserved2);
+                    else str.append(reserved.getLast().drawLineTui(4));
+                    break;
+            }
+        }
 
         return str.toString();
     }

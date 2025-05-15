@@ -7,11 +7,7 @@ import java.util.Stack;
 public class DeckView {
     private Stack<CardView> deck;
     private boolean covered;
-
-    public DeckView(Stack<CardView> deck, boolean covered) {
-        this.deck = deck;
-        this.covered = covered;
-    }
+    private boolean onlyLast;
 
     public boolean isCovered() {
         return covered;
@@ -26,6 +22,18 @@ public class DeckView {
             for (CardView card : deck) {
                 card.setCovered(false);
             }
+        }
+    }
+
+    public boolean isOnlyLast() {
+        return onlyLast;
+    }
+
+    public void setOnlyLast(boolean onlyLast) {
+        this.onlyLast = onlyLast;
+
+        if (onlyLast) {
+            deck.peek().setCovered(false);
         }
     }
 
@@ -50,6 +58,12 @@ public class DeckView {
 
         for (int i = 0; i < deck.size(); i++) {
             if (isCovered()) {
+                if (i == deck.size() - 1) {
+                    str.append(deck.get(i).drawLineTui(line));
+                } else {
+                    str.append(deck.get(i).drawLineTui(line).charAt(0));
+                }
+            } else if (onlyLast) {
                 if (i == deck.size() - 1) {
                     str.append(deck.get(i).drawLineTui(line));
                 } else {

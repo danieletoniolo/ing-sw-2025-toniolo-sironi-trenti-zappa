@@ -1,72 +1,68 @@
 package view.structures.player;
 
-import Model.Player.PlayerColor;
-import Model.SpaceShip.SpaceShip;
+import view.structures.spaceship.SpaceShipView;
 
 import java.util.UUID;
 
 public class PlayerDataView {
     private String username;
-    private UUID uuid;
-    private PlayerColor color;
+    private ColorView color;
     private int step;
-    private int position;
     private int coins;
-    private SpaceShip ship;
+    private SpaceShipView ship;
+
+    public PlayerDataView(String username, ColorView color) {
+        this.username = username;
+        this.color = color;
+    }
+
+    public void drawGui() {
+        //TODO: Implements player data gui
+    }
+
+    public static int getRowsToDraw() {
+        return 4;
+    }
+
+    public String drawLineTui(int line) {
+        return switch (line) {
+            case 0 -> color.drawTui();
+            case 1 -> username;
+            case 2 -> "Step: " + String.valueOf(step);
+            case 3 -> "Coins: " + String.valueOf(coins);
+            default -> throw new IllegalStateException("Unexpected value: " + line);
+        };
+    }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
-
-    public PlayerColor getColor() {
+    public ColorView getColor() {
         return color;
-    }
-
-    public void setColor(PlayerColor color) {
-        this.color = color;
-    }
-
-    public int getStep() {
-        return step;
     }
 
     public void setStep(int step) {
         this.step = step;
     }
 
-    public int getPosition() {
-        return position;
-    }
-
-    public void setPosition(int position) {
-        this.position = position;
-    }
-
-    public int getCoins() {
-        return coins;
+    public int getStep() {
+        return step;
     }
 
     public void setCoins(int coins) {
         this.coins = coins;
     }
 
-    public SpaceShip getShip() {
-        return ship;
+    public int getCoins() {
+        return coins;
     }
 
-    public void setShip(SpaceShip ship) {
+    public void setShip(SpaceShipView ship) {
         this.ship = ship;
+    }
+
+    public SpaceShipView getShip() {
+        return ship;
     }
 }

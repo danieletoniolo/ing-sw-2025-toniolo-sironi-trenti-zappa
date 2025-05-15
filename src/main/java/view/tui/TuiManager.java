@@ -22,10 +22,10 @@ public class TuiManager {
             while (true) {
                 Command command = Parser.readCommand();
                 try {
-                    Event newEvent = commandHandler.createEvent(command, currentState);
-                    if (newEvent != null) {
+                    //Event newEvent = commandHandler.createEvent(command, currentState);
+                    //if (newEvent != null) {
 
-                    }
+                    //}
                     commandQueue.put(command);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();

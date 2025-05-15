@@ -6,12 +6,12 @@ import view.tui.states.StateView;
 public class CommandHandler {
     //TODO: Deve avere la comunicazione con il controller
 
-    public Event createEvent(Command command) {
+    public void createEvent(Command command) {
 
-        StateView possibleNewState = currentState.isValidCommand(command);
-        if (possibleNewState != null) {
-            return possibleNewState;
-        }
+        //StateView possibleNewState = currentState.isValidCommand(command);
+        //if (possibleNewState != null) {
+            //return possibleNewState;
+        //}
 
         try {
             switch (command.name()) {
@@ -31,6 +31,6 @@ public class CommandHandler {
             System.out.println("Elaboration error: " + e.getMessage());
         }
 
-        return currentState;
+        //return currentState;
     }
 }
