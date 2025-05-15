@@ -2,15 +2,19 @@ package controller.event;
 
 import network.Connection;
 import network.exceptions.DisconnectedConnection;
-import org.javatuples.Pair;
 
 import java.util.*;
 
-public class ServerNetworkTransceiver implements EventTransceiver{
+public class NetworkTransceiver implements EventTransceiver{
     /**
      * Lock object used to synchronize listeners registration, removal and event handling.
      */
-    private final Object lock;
+    private final Object lockListeners;
+
+    /**
+     * Lock object used to synchronize the sending of events over the connection.
+     */
+    private final Object lockConnectionSend = new Object();
 
     /**
      * Map of connections to the clients and the corresponding threads that receive events from them.
@@ -18,15 +22,20 @@ public class ServerNetworkTransceiver implements EventTransceiver{
     private final Map<Connection, Thread> connections;
 
     /**
+     * It is the list of listeners registered on the transceiver.
+     */
+    private final List<EventListener<Event>> listeners = new ArrayList<>();
+
+    /**
      * It is a queue used to implement a producer/consumer pattern for incoming events.
-     * {@link ServerNetworkTransceiver#connect(Connection)} has the producer thread; the consumer thread
+     * {@link NetworkTransceiver#connect(Connection)} has the producer thread; the consumer thread
      * receives the events from the connection.
      */
     private final Queue<Event> receivedQueue = new ArrayDeque<>();
 
     /**
      * It is a queue used to implement a producer/consumer pattern for outgoing events.
-     * {@link ServerNetworkTransceiver#broadcast(Event)} is the producer; the consumer thread sens
+     * {@link NetworkTransceiver#broadcast(Event)} is the producer; the consumer thread sens
      * the events over the connection.
      */
     private final Queue<Event> sendQueue = new ArrayDeque<>();
@@ -36,8 +45,8 @@ public class ServerNetworkTransceiver implements EventTransceiver{
      */
     private boolean hasToSend = true;
 
-    public ServerNetworkTransceiver(Object lock) {
-        this.lock = lock;
+    public NetworkTransceiver() {
+        this.lockListeners = new Object();
         this.connections = new HashMap<>();
 
         new Thread(() -> {
@@ -53,7 +62,16 @@ public class ServerNetworkTransceiver implements EventTransceiver{
                     }
                     event = receivedQueue.poll();
 
-                    // TODO: Handle received event
+                    synchronized (lockListeners) {
+                        List<EventListener<Event>> listenersCopy = new ArrayList<>(listeners);
+                        for (EventListener<Event> listener : listenersCopy) {
+                            try {
+                                listener.handle(event);
+                            } catch (ClassCastException e) {
+                                // ignore the event of the wrong type
+                            }
+                        }
+                    }
                 }
             }
         }).start();
@@ -77,15 +95,43 @@ public class ServerNetworkTransceiver implements EventTransceiver{
                     event = sendQueue.poll();
                 }
 
-                try {
-                    for (Connection connection : connections.keySet()) {
-                        connection.send(event);
+                synchronized (lockConnectionSend) {
+                    try {
+                        for (Connection connection : connections.keySet()) {
+                            connection.send(event);
+                        }
+                    } catch (DisconnectedConnection e) {
+                        // ignore the error
                     }
-                } catch (DisconnectedConnection e) {
-                    return;
                 }
             }
         }).start();
+    }
+
+    /**
+     * Register a listener to the transceiver. The listener will be notified when an event is received.
+     * @param listener The {@link EventListener} to register.
+     */
+    public <T extends Event> void registerListener(EventListener<T> listener) {
+        synchronized (lockListeners) {
+            listeners.add(data -> {
+                try {
+                    listener.handle((T) data);
+                } catch (ClassCastException e) {
+                    throw new IllegalStateException("The Class cannot be cast to the expected type");
+                }
+            });
+        }
+    }
+
+    /**
+     * Unregister a listener from the transceiver. The listener will no longer be notified when an event is received.
+     * @param listener The {@link EventListener} to unregister.
+     */
+    public void unregisterListener(EventListener<Event> listener) {
+        synchronized (lockListeners) {
+            listeners.remove(listener);
+        }
     }
 
     /**
@@ -129,11 +175,32 @@ public class ServerNetworkTransceiver implements EventTransceiver{
         }
     }
 
+    /**
+     * Broadcasts the given {@link Event} to all the {@link network.Connection} present in the transceiver.
+     * @param data is the {@link Event} which will be broadcast.
+     */
     @Override
     public void broadcast(Event data) {
         synchronized (sendQueue) {
             sendQueue.add(data);
             sendQueue.notifyAll();
+        }
+    }
+
+    /**
+     * Sends the given {@link Event} to the specified {@link network.Connection}.
+     * It is used only for the errors message which do not need to be broadcasted.
+     * @param connection is the {@link network.Connection} to which the event will be sent.
+     * @param data is the {@link Event} to send.
+     */
+    @Override
+    public void send(Connection connection, Event data) {
+        synchronized (lockConnectionSend) {
+            try {
+                connection.send(data);
+            } catch (DisconnectedConnection e) {
+                // ignore the error
+            }
         }
     }
 }

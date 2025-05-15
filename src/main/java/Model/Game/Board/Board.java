@@ -16,7 +16,8 @@ public class Board {
     private final Deck[] decks;
     private final Stack<Card> shuffledDeck;
 
-    private ArrayList<Component> tiles;
+    private ArrayList<Component> hiddenTiles;
+    private ArrayList<Component> viewableTiles;
 
     private ArrayList<PlayerData> inGamePlayers;
     private ArrayList<PlayerData> gaveUpPlayers;
@@ -50,7 +51,7 @@ public class Board {
                 throw new IllegalArgumentException("Unexpected value: " + level);
         }
 
-        this.tiles = TilesManager.getTiles();
+        this.viewableTiles = TilesManager.getTiles();
         inGamePlayers = new ArrayList<>();
         gaveUpPlayers = new ArrayList<>();
     }
@@ -61,10 +62,6 @@ public class Board {
      */
     public int getStepsForALap() {
         return stepsForALap;
-    }
-
-    public ArrayList<Component> getTiles() {
-        return tiles;
     }
 
     /**
@@ -98,32 +95,44 @@ public class Board {
     }
 
     /**
-     * Retrieves the tile with the specified ID.
-     * @param index the ID of the tile to retrieve
-     * @return the tile with the specified ID, or null if no tile with that ID exists
-     * @throws IndexOutOfBoundsException ID is out of bounds
-     */
-    public Component popTile(int index) throws IndexOutOfBoundsException {
-        if (index < 0 || index >= tiles.size()) {
-            throw new IndexOutOfBoundsException("index is out of bounds");
-        }
-
-        return this.tiles.remove(index);
-    }
-
-    /**
-     * Puts a tile on the board.
-     * @param tile the tile to put on the board
+     * Puts a tile in the board.
+     * @param tile the tile to put in the viewable tiles list
      * @throws IllegalStateException if the tile is already in the board
      */
     public void putTile(Component tile) throws IllegalStateException {
         if (tile == null) {
             throw new NullPointerException("Tile is null");
         }
-        if (tiles.contains(tile)) {
+        if (viewableTiles.contains(tile)) {
             throw new IllegalStateException("Tile is already in the board");
         }
-        tiles.add(tile);
+
+        viewableTiles.add(tile);
+    }
+
+    /**
+     * Pops a tile from the board (if index is -1, it pops a random tile from the hidden tiles list).
+     * @param index the index of the tile to pop from the viewable tiles list (if index is -1, it pops a random tile from the hidden tiles list)
+     * @return the tile popped from the board
+     * @throws IndexOutOfBoundsException if the index is out of bounds of the viewable tiles list or if there are no more hidden tiles
+     */
+    public Component popTile(int index) throws IndexOutOfBoundsException {
+        if (index == -1) {
+            if (hiddenTiles.isEmpty()) {
+                throw new IndexOutOfBoundsException("There are no more hidden tiles");
+            }
+
+            Random random = new Random();
+            int i = random.nextInt(this.hiddenTiles.size());
+
+            return this.hiddenTiles.remove(i);
+        }
+
+        if (index < 0 || index >= this.viewableTiles.size()) {
+            throw new IndexOutOfBoundsException("Index is out of bounds");
+        }
+
+        return viewableTiles.remove(index);
     }
 
     /**
