@@ -9,9 +9,8 @@ import Model.State.interfaces.JoinableGame;
  * The lobby state is the initial state of the game, and it is created when the game is created by the first
  * {@link PlayerData}.
  * <p>
- * The method {@link #joinGame(PlayerData)} is used to add a player to the game, and the method
- * {@link #leaveGame(PlayerData)} is used to remove a player from the game. In order to start the game, the method
- * {@link #execute(PlayerData)} must be called from all the players in the lobby.
+ * The method {@link #manageLobby(PlayerData, int)} is used to add/remove a player to the game, and the method.
+ * In order to start the game, the method {@link #execute(PlayerData)} must be called from all the players in the lobby.
  * <p>
  * The lobby state is a subclass of the {@link State} class, which is the base class for all game states.
  * @see State
@@ -28,35 +27,27 @@ public class LobbyState extends State implements JoinableGame {
         super(board);
     }
 
-    /**
-     * Implementation of the {@link JoinableGame#joinGame(PlayerData)} method.
-     * <p>
-     * To join the game, we set the player in the board using the {@link Board#setPlayer(PlayerData, int)}
-     * method, and we add the player to the list of players {@link State#players} in the LobbyState.
-     * @see JoinableGame
-     */
-    public void joinGame(PlayerData player) {
-        // Add the player to the board
-        board.addInGamePlayers(player);
+    @Override
+    public void manageLobby(PlayerData player, int type) {
+        switch (type) {
+            case 0 -> {
+                // Add the player to the board
+                board.addInGamePlayers(player);
 
-        // Add the player to the list of players in the LobbyState
-        players.add(player);
+                // Add the player to the list of players in the LobbyState
+                players.add(player);
+            }
+            case 1 -> {
+                // Remove the player from the board
+                board.removeInGamePlayer(player);
+
+                // Remove the player from the list of players in the LobbyState
+                players.remove(player);
+            }
+            default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
+        }
     }
 
-    /**
-     * Implementation of the {@link JoinableGame#leaveGame(PlayerData)} method.
-     * <p>
-     * To leave the game, we remove the player from the board using the {@link Board#removeInGamePlayer(PlayerData)}
-     * method, and we remove the player from the list of players {@link State#players} in the LobbyState.
-     * @see JoinableGame
-     */
-    public void leaveGame(PlayerData player) {
-        // Remove the player from the list of players in the LobbyState
-        board.removeInGamePlayer(player);
-
-        // Remove the player from the list of players in the LobbyState
-        players.remove(player);
-    }
 
     /**
      * The entry method in this state is called when the state is entered.

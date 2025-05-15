@@ -23,7 +23,7 @@ public class CrewState extends State {
     public void manageCrewMember(PlayerData player, int mode, int crewType, int cabinID) {
         switch (mode) {
             case 0 -> // Add crew member
-                    player.getSpaceShip().addCrewMember(cabinID, crewType);
+                    player.getSpaceShip().addCrewMember(cabinID, crewType == 1, crewType == 2);
             case 1 -> // Remove crew member
                     player.getSpaceShip().removeCrewMember(cabinID, crewType == 0 ? 2 : 1);
         }

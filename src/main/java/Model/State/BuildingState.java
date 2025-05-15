@@ -5,6 +5,8 @@ import Model.Game.Board.Level;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
+import controller.event.game.*;
+import org.javatuples.Pair;
 
 import java.util.*;
 
@@ -53,6 +55,8 @@ public class BuildingState extends State {
         if (timerRunning) {
             throw new IllegalStateException("Cannot flip timer because is already running");
         }
+        // TODO: notify the player that the timer is flipped
+        TimerFlipped timerFlippedEvent = new TimerFlipped(player.getUsername());
 
         switch (numberOfTimerFlips) {
             case 0:
@@ -61,8 +65,8 @@ public class BuildingState extends State {
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        // TODO: notify the player that the timer is flipped
                         timerRunning = false;
+                        // TODO: notify the player that the timer is flipped
                     }
                 }, timerDuration);
                 break;
@@ -72,8 +76,8 @@ public class BuildingState extends State {
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        // TODO: notify the player that the timer is flipped
                         timerRunning = false;
+                        // TODO: notify the player that the timer is flipped
                     }
                 }, timerDuration);
                 break;
@@ -91,13 +95,17 @@ public class BuildingState extends State {
                                 if (playersStatus.get(p.getColor()) != PlayerStatus.PLAYED) {
                                     playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
                                 }
-                                // If some one has something in his hand it must be added to the lost components
+                                // If someone has something in his hand it must be added to the lost components
                                 if (playersHandQueue.get(p.getColor()) != null) {
                                     p.getSpaceShip().getLostComponents().add(playersHandQueue.get(p.getColor()));
+                                    // TODO: notify event of the lost components
+                                    DestroyComponents lostComponentsEvent = new DestroyComponents(p.getUsername(), (ArrayList<Pair<Integer, Integer>>) p.getSpaceShip().getLostComponents().stream()
+                                            .map(temp -> new Pair<>(temp.getRow(), temp.getColumn())).toList());
                                 }
                             }
 
                             // TODO: notify the player that the timer is flipped
+
                             // TODO: handle the case when the player has something in is hand
 
                             timerRunning = false;
@@ -125,10 +133,15 @@ public class BuildingState extends State {
             throw new IllegalStateException("Player has not placed any tile");
         }
 
+        PickLeaveDeck pickLeaveDeckEvent = new PickLeaveDeck(player.getUsername(), deckIndex);
         switch (usage) {
-            case 0 -> board.getDeck(deckIndex, player);
+            case 0 -> {
+                board.getDeck(deckIndex, player);
+                // TODO: event pick deck
+            }
             case 1 -> {
                 // TODO: we miss the method to leave the deck
+                // TODO: event leave deck
             }
         }
     }
@@ -140,6 +153,8 @@ public class BuildingState extends State {
     @Override
     public void placeMarker(PlayerData player, int position) throws IllegalStateException {
         board.setPlayer(player, position);
+        // TODO: event set marker
+        MoveMarker moveMarkerEvent = new MoveMarker(player.getUsername(), position);
     }
 
     /**
@@ -153,6 +168,7 @@ public class BuildingState extends State {
             throw new IllegalStateException("Player has finished building");
         }
 
+        PickTile pickTileEvent = new PickTile(player.getUsername(), fromWhere, tileID);
         Component component = switch (fromWhere) {
             case 0 ->
                 // Get the tile from the board
@@ -165,6 +181,8 @@ public class BuildingState extends State {
                     player.getSpaceShip().getLastPlacedComponent();
             default -> throw new IllegalStateException("Invalid fromWhere value");
         };
+
+        // TODO: event pick tile
 
         // Check if the component is null or if the ID of the component is not the same as the tileID
         if (component == null || component.getID() != tileID) {
@@ -192,6 +210,7 @@ public class BuildingState extends State {
             throw new IllegalStateException("Player has no tile in his hand");
         }
 
+        PlaceTile placeTileEvent = new PlaceTile(player.getUsername(), toWhere, component.getID());
         switch (toWhere) {
             case 0 ->
                 // Place the tile in the board
@@ -204,6 +223,8 @@ public class BuildingState extends State {
                     player.getSpaceShip().placeComponent(component, row, col);
             default -> throw new IllegalStateException("Invalid toWhere value");
         }
+
+        // TODO: event place tile
 
         // Remove the tile from the player's hand
         playersHandQueue.remove(player.getColor());
@@ -225,6 +246,8 @@ public class BuildingState extends State {
         if (component == null) {
             throw new IllegalStateException("Player has no tile in his hand");
         }
+
+        RotateTile rotateTile = new RotateTile(player.getUsername(), component.getID());
 
         // Rotate the tile in the board
         component.rotateClockwise();

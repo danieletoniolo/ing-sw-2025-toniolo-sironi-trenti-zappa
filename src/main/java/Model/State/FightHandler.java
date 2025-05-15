@@ -174,7 +174,7 @@ public class FightHandler {
                 spaceShip.useEnergy(batteryID);
 
                 // TODO: EVENT USEENERGY
-                UseEnergy useEnergy = new UseEnergy(batteryID);
+                UseShield useShield = new UseShield(player.getUsername(), batteryID);
 
                 transitionHit();
             } else {
@@ -183,14 +183,14 @@ public class FightHandler {
                 // TODO: EVENT DESTROYCOMPONENTS
                 ArrayList<Pair<Integer, Integer>> destroyedComponents = new ArrayList<>();
                 destroyedComponents.add(new Pair<>(component.getRow(), component.getColumn()));
-                DestroyedComponents destroyedComponentsEvent = new DestroyedComponents(player.getColor(), destroyedComponents);
+                DestroyComponents destroyComponentsEvent = new DestroyComponents(player.getUsername(), destroyedComponents);
 
                 fragments = spaceShip.getDisconnectedComponents();
                 if (fragments.size() > 1) {
                     internalState = FightHandlerInternalState.DESTROY_FRAGMENT;
 
                     // TODO: EVENT FRAGMENTCHOICE
-                    FragmentChoice fragmentChoiceEvent = new FragmentChoice(fragments);
+                    FragmentChoice fragmentChoiceEvent = new FragmentChoice(player.getUsername(), fragments);
                 } else {
                     transitionHit();
                 }
@@ -220,7 +220,7 @@ public class FightHandler {
                 internalState = FightHandlerInternalState.PROTECTION;
 
                 // TODO: CANPROTECT EVENT
-                CanProtect canProtectEvent = new CanProtect(new Pair<>(protectionResult.getValue0().getID(), protectionResult.getValue1()));
+                CanProtect canProtectEvent = new CanProtect(player.getUsername(), new Pair<>(protectionResult.getValue0().getID(), protectionResult.getValue1()));
 
                 break;
             case PROTECTION:
@@ -245,7 +245,7 @@ public class FightHandler {
                 }
 
                 // TODO: EVENT DESTROYCOMPONENTS
-                DestroyedComponents destroyedComponentsEvent = new DestroyedComponents(player.getColor(), destroyedComponents);
+                DestroyComponents destroyComponentsEvent = new DestroyComponents(player.getUsername(), destroyedComponents);
 
                 transitionHit();
                 return true;

@@ -101,7 +101,7 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
                 board.addSteps(player, -flightDays);
 
                 // TODO: EVENT ADD STEPS
-                MoveMarker stepEvent = new MoveMarker(player.getColor(), player.getStep());
+                MoveMarker stepEvent = new MoveMarker(player.getUsername(), player.getStep());
 
                 break;
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {

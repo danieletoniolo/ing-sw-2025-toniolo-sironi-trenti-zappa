@@ -73,7 +73,7 @@ public class EpidemicState extends State {
             }
 
             // TODO: EVENT CREWLOSS
-            CrewLoss crewEvent = new CrewLoss(p.getColor(), cabinsIDs);
+            CrewLoss crewEvent = new CrewLoss(p.getUsername(), cabinsIDs);
         }
     }
 }

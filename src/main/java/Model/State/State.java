@@ -102,8 +102,7 @@ public abstract class State {
     /**
      * Execute at the beginning of the state
      */
-    public void entry() {
-    }
+    public void entry() {}
 
     /**
      * Make the player play in the state
@@ -140,11 +139,21 @@ public abstract class State {
         board.refreshInGamePlayers();
     }
 
+    /* LobbyState methods */
+
+    /**
+     * Manage the joining and leaving of the player from the lobyy
+     * @param player PlayerData of the player who is joining or leaving the lobby.
+     * @param type Type of the operation: 0 = join, 1 = leave.
+     */
+    public void manageLobby(PlayerData player, int type) {
+        throw new IllegalStateException("Cannot manage lobby in this state");
+    }
+
     /* GameState methods */
 
     /**
      * Picks a tile from the board, reserve or spaceship.
-     *
      * @param player    PlayerData of the player who is picking the tile.
      * @param fromWhere Where the tile is being picked from: 0 = board, 1 = reserve, 2 = spaceship.
      * @param tileID    ID of the tile being picked.

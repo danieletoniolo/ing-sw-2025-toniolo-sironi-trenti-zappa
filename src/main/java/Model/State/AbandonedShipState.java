@@ -90,9 +90,9 @@ public class AbandonedShipState extends State implements RemovableCrew {
             player.addCoins(card.getCredit());
 
             // TODO: EVENT CREWLOSS
-            CrewLoss crewEvent = new CrewLoss(getCurrentPlayer().getColor(), crewLoss);
+            CrewLoss crewEvent = new CrewLoss(getCurrentPlayer().getUsername(), crewLoss);
             // TODO: EVENT COINS
-            AddCoins coinsEvent = new AddCoins(card.getCredit());
+            AddCoins coinsEvent = new AddCoins(player.getUsername(), card.getCredit());
 
             played = true;
         }
@@ -108,7 +108,7 @@ public class AbandonedShipState extends State implements RemovableCrew {
                 board.addSteps(player, -flightDays);
 
                 // TODO: EVENT ADD STEPS
-                MoveMarker stepEvent = new MoveMarker(player.getColor(), player.getStep());
+                MoveMarker stepEvent = new MoveMarker(player.getUsername(), player.getStep());
 
                 break;
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {

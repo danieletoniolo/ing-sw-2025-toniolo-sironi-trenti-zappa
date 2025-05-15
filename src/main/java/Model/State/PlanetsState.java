@@ -104,7 +104,7 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
                 board.addSteps(p, -flightDays);
 
                 // TODO:
-                MoveMarker stepsEvent = new MoveMarker(p.getColor(), p.getStep());
+                MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");
             }
