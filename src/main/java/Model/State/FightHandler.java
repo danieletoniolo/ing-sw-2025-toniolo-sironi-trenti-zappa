@@ -10,11 +10,6 @@ import org.javatuples.Pair;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
-enum FightHandlerInternalState {
-    CAN_PROTECT,
-    PROTECTION,
-    DESTROY_FRAGMENT
-}
 
 public class FightHandler {
     private Integer dice;
@@ -25,6 +20,15 @@ public class FightHandler {
     private Pair<Component, Integer> protectionResult;
     private int hitIndex;
     private FightHandlerInternalState internalState;
+
+    /**
+     * Enum to represent the internal state of the fight handler substate.
+     */
+    private enum FightHandlerInternalState {
+        CAN_PROTECT,
+        PROTECTION,
+        DESTROY_FRAGMENT
+    }
 
     /**
      * Constructor

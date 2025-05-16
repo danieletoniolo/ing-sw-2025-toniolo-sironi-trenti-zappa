@@ -9,17 +9,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-enum EndInternalState {
-    FINISH_ORDER,
-    BEST_LOOKING_SHIP,
-    SALE_OF_GOODS,
-    LOSSES
-}
 
 public class EndState extends State {
     private final Map<PlayerData, Integer> scores;
     private final Level level;
     private EndInternalState endInternalState;
+
+    /**
+     * Enum to represent the internal state of the end state.
+     */
+    private enum EndInternalState {
+        FINISH_ORDER,
+        BEST_LOOKING_SHIP,
+        SALE_OF_GOODS,
+        LOSSES
+    }
 
     EndState (Board board, Level level) {
         // Super constructor to initialize the board and players
