@@ -6,7 +6,8 @@ import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.AcceptableCredits;
 import Model.State.interfaces.RemovableCrew;
-import controller.event.game.*;
+import controller.EventCallback;
+import event.game.*;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -36,8 +37,8 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
      * @param board The board associated with the game
      * @param card Slavers card associated with the state
      */
-    public SlaversState(Board board, Slavers card) {
-        super(board);
+    public SlaversState(Board board, EventCallback callback, Slavers card) {
+        super(board, callback);
         this.internalState = SlaversInternalState.ENEMY_DEFEAT;
         this.card = card;
         this.stats = new HashMap<>();
@@ -87,6 +88,9 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
 
                 // Update the cannon strength stats
                 this.stats.merge(player, strength, Float::sum);
+
+                UseCannons useCannonsEvent = new UseCannons(player.getUsername(), strength, (ArrayList<Integer>) batteriesID);
+                eventCallback.trigger(useCannonsEvent);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
         }
@@ -168,8 +172,8 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
                     slaversDefeat = null;
                 }
 
-                // TODO: EVENT ENEMYDEFEAT
                 EnemyDefeat enemyEvent = new EnemyDefeat(player.getUsername(), Boolean.TRUE.equals(slaversDefeat));
+                eventCallback.trigger(enemyEvent);
             case PENALTY:
                 if (slaversDefeat != null && slaversDefeat) {
                     if (acceptCredits == null) {
@@ -178,8 +182,8 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
                     if (acceptCredits) {
                         player.addCoins(card.getCredit());
 
-                        // TODO: EVENT ADDCOINS
                         AddCoins coinsEvent = new AddCoins(player.getUsername(), player.getCoins());
+                        eventCallback.trigger(coinsEvent);
                     }
                     super.execute(player);
                 } else if (slaversDefeat != null) {
@@ -190,15 +194,15 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
                         player.setGaveUp(true);
                         this.players = super.board.getInGamePlayers();
 
-                        // TODO: EVENT LOSE
                         PlayerLose loseEvent = new PlayerLose(player.getUsername());
+                        eventCallback.trigger(loseEvent);
                     } else {
                         for (Pair<Integer, Integer> cabin : crewLoss) {
                             spaceShip.removeCrewMember(cabin.getValue0(), cabin.getValue1());
                         }
 
-                        // TODO: EVENT CREWLOSS
-                        CrewLoss crewEvent = new CrewLoss(player.getUsername(), crewLoss);
+                        AddLoseCrew crewEvent = new AddLoseCrew(player.getUsername(), false, crewLoss);
+                        eventCallback.trigger(crewEvent);
                     }
                     playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
                 }
@@ -216,8 +220,8 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
             if (status == PlayerStatus.PLAYED) {
                 board.addSteps(p, -flightDays);
 
-                // TODO: EVENT STEPS
                 MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
+                eventCallback.trigger(stepsEvent);
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");
             }

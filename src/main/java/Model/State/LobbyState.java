@@ -3,6 +3,7 @@ package Model.State;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.State.interfaces.JoinableGame;
+import controller.EventCallback;
 
 /**
  * This class represents the lobby state of the game. In this state, players can join, leave and start the game.
@@ -20,13 +21,19 @@ public class LobbyState extends State implements JoinableGame {
 
     /**
      * Constructs a new LobbyState object associated with the given board.
-     * When this object is created we just call the super constructor {@link State#State(Board)}.
+     * When this object is created we just call the super constructor {@link State(Board)}.
      * @param board The board associated with this state.
      */
-    public LobbyState(Board board) {
-        super(board);
+    public LobbyState(Board board, EventCallback callback) {
+        super(board, callback);
     }
 
+    /**
+     * This method is used to add/remove a player to the game.
+     * The event associated with this method are implemented in the {@link controller.MatchController} class.
+     * @param player The player to add/remove
+     * @param type 0 to add the player, 1 to remove the player
+     */
     @Override
     public void manageLobby(PlayerData player, int type) {
         switch (type) {

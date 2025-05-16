@@ -1,6 +1,6 @@
 package network.rmi;
 
-import controller.event.Event;
+import event.Event;
 import network.exceptions.DisconnectedConnection;
 
 import java.rmi.RemoteException;

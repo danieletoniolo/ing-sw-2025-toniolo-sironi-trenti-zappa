@@ -4,9 +4,10 @@ import Model.Cards.AbandonedShip;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.State.interfaces.RemovableCrew;
-import controller.event.game.AddCoins;
-import controller.event.game.CrewLoss;
-import controller.event.game.MoveMarker;
+import controller.EventCallback;
+import event.game.AddCoins;
+import event.game.AddLoseCrew;
+import event.game.MoveMarker;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -20,8 +21,8 @@ public class AbandonedShipState extends State implements RemovableCrew {
      * @param board The board associated with the game
      * @param card type of the card
      */
-    public AbandonedShipState(Board board, AbandonedShip card) {
-        super(board);
+    public AbandonedShipState(Board board, EventCallback callback, AbandonedShip card) {
+        super(board, callback);
         this.card = card;
         this.crewLoss = null;
     }
@@ -89,10 +90,11 @@ public class AbandonedShipState extends State implements RemovableCrew {
             });
             player.addCoins(card.getCredit());
 
-            // TODO: EVENT CREWLOSS
-            CrewLoss crewEvent = new CrewLoss(getCurrentPlayer().getUsername(), crewLoss);
-            // TODO: EVENT COINS
+            AddLoseCrew crewEvent = new AddLoseCrew(getCurrentPlayer().getUsername(), false, crewLoss);
+            eventCallback.trigger(crewEvent);
+
             AddCoins coinsEvent = new AddCoins(player.getUsername(), card.getCredit());
+            eventCallback.trigger(coinsEvent);
 
             played = true;
         }
@@ -107,8 +109,8 @@ public class AbandonedShipState extends State implements RemovableCrew {
                 int flightDays = card.getFlightDays();
                 board.addSteps(player, -flightDays);
 
-                // TODO: EVENT ADD STEPS
                 MoveMarker stepEvent = new MoveMarker(player.getUsername(), player.getStep());
+                eventCallback.trigger(stepEvent);
 
                 break;
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {

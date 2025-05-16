@@ -1,7 +1,7 @@
 package network.tcp;
 
-import controller.event.Event;
-import controller.event.game.HeartBeat;
+import event.Event;
+import event.game.HeartBeat;
 import network.Connection;
 import network.exceptions.BadHostException;
 import network.exceptions.DisconnectedConnection;

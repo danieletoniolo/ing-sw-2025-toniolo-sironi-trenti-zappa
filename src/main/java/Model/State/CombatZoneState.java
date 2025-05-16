@@ -6,10 +6,10 @@ import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.*;
-import controller.event.game.CrewLoss;
-import controller.event.game.MoveMarker;
-import controller.event.game.PlayerLose;
+import controller.EventCallback;
+import event.game.*;
 import org.javatuples.Pair;
+import org.javatuples.Triplet;
 
 import java.util.*;
 
@@ -24,7 +24,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
     private PlayerData minPlayerCrew;
     private ArrayList<Pair<Integer, Integer>> crewLoss;
     private ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard;
-    private final FightHandler fightHandler;
+    private final FightHandlerSubState fightHandler;
 
     /**
      * Enum to represent the internal state of the combat zone state.
@@ -58,8 +58,8 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      * @param board The board associated with the game
      * @param card CombatZone card associated with the state
      */
-    public CombatZoneState(Board board, CombatZone card) {
-        super(board);
+    public CombatZoneState(Board board, EventCallback callback, CombatZone card) {
+        super(board, callback);
         this.card = card;
         this.stats = new ArrayList<>(3);
         for (int i = 0; i < 3; i++) {
@@ -75,7 +75,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         this.minPlayerCrew = null;
         this.crewLoss = null;
         this.goodsToDiscard = null;
-        this.fightHandler = new FightHandler();
+        this.fightHandler = new FightHandlerSubState(super.board, super.eventCallback);
     }
 
     public void setInternalState(CombatZoneInternalState internalState) {
@@ -114,7 +114,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         return goodsToDiscard;
     }
 
-    public FightHandler getFightHandler() {
+    public FightHandlerSubState getFightHandler() {
         return fightHandler;
     }
 
@@ -149,8 +149,8 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         board.addSteps(player, -flightDays);
         playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.WAITING);
 
-        // TODO: EVENT STEPS
         MoveMarker stepsEvent = new MoveMarker(player.getUsername(), player.getStep());
+        eventCallback.trigger(stepsEvent);
     }
 
     /**
@@ -165,16 +165,16 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
             player.setGaveUp(true);
             this.players = super.board.getInGamePlayers();
 
-            // TODO: EVENT GAVEUP
             PlayerLose gaveUpEvent = new PlayerLose(player.getUsername());
+            eventCallback.trigger(gaveUpEvent);
         } else {
             for (Pair<Integer, Integer> cabin : crewLoss) {
                 spaceShip.removeCrewMember(cabin.getValue0(), cabin.getValue1());
             }
             playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.WAITING);
 
-            // TODO: EVENT CREWLOSS
-            CrewLoss crewLossEvent = new CrewLoss(player.getUsername(), crewLoss);
+            AddLoseCrew crewLossEvent = new AddLoseCrew(player.getUsername(), false, crewLoss);
+            eventCallback.trigger(crewLossEvent);
         }
     }
 
@@ -215,11 +215,14 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
                 mostValuableGoods.poll();
             }
             // Remove the goods from the ship
+            ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData = new ArrayList<>();
             for (Pair<ArrayList<Good>, Integer> pair : goodsToDiscard) {
                 ship.exchangeGood(null, pair.getValue0(), pair.getValue1());
+                exchangeData.add(new Triplet<>(null, pair.getValue0(), pair.getValue1()));
             }
 
-            // TODO: EVENT EXCHANGEGOODS
+            ExchangeGoods eventExchangeGoods = new ExchangeGoods(player.getUsername(), exchangeData);
+            eventCallback.trigger(eventExchangeGoods);
         }
 
         // Remove the crew to lose if there is any
@@ -228,8 +231,8 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
                 ship.removeCrewMember(pair.getValue0(), pair.getValue1());
             }
 
-            // TODO: EVENT CREWLOSS
-            CrewLoss crewLossEvent = new CrewLoss(player.getUsername(), crewLoss);
+            AddLoseCrew crewLossEvent = new AddLoseCrew(player.getUsername(), false, crewLoss);
+            eventCallback.trigger(crewLossEvent);
         }
 
         // Reset the goods to discard
@@ -326,6 +329,9 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
             ship.useEnergy(batteryID);
         }
 
+        UseEngine useEngineEvent = new UseEngine(player.getUsername(), strength, (ArrayList<Integer>) batteriesID);
+        eventCallback.trigger(useEngineEvent);
+
         // Update the engine or cannons strength stats
         this.addStats(internalState, player, strength);
 
@@ -407,8 +413,8 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
                         minPlayerEngines.setGaveUp(true);
                         this.players = super.board.getInGamePlayers();
 
-                        // TODO: EVENT GAVEUP
                         PlayerLose gaveUpEvent = new PlayerLose(player.getUsername());
+                        eventCallback.trigger(gaveUpEvent);
                     } else {
                         executeSubStateRemoveGoods(minPlayerEngines);
                     }

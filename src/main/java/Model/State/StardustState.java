@@ -2,7 +2,8 @@ package Model.State;
 
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
-import controller.event.game.MoveMarker;
+import controller.EventCallback;
+import event.game.MoveMarker;
 
 
 public class StardustState extends State {
@@ -11,8 +12,8 @@ public class StardustState extends State {
      * Constructor for StardustState
      * @param board The board associated with the game
      */
-    public StardustState(Board board) {
-        super(board);
+    public StardustState(Board board, EventCallback callback) {
+        super(board, callback);
     }
 
     @Override
@@ -21,8 +22,8 @@ public class StardustState extends State {
             int numberExposedConnectors = p.getSpaceShip().getExposedConnectors();
             board.addSteps(p, -numberExposedConnectors);
 
-            // TODO: EVENT STEPS
             MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
+            eventCallback.trigger(stepsEvent);
         }
     }
 }

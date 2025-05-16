@@ -8,9 +8,8 @@ import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.DiscardableGoods;
 import Model.State.interfaces.ExchangeableGoods;
 
-import controller.event.game.CardPlayed;
-import controller.event.game.CrewLoss;
-import controller.event.game.MoveMarker;
+import controller.EventCallback;
+import event.game.*;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -34,8 +33,8 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
         PENALTY
     }
 
-    public SmugglersState(Board board, Smugglers card) {
-        super(board);
+    public SmugglersState(Board board, EventCallback callback, Smugglers card) {
+        super(board, callback);
         this.card = card;
         this.cannonStrength = new HashMap<>();
         this.internalState = SmugglerInternalState.DEFAULT;
@@ -95,6 +94,9 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
                 // Update the cannon strength stats
                 float oldCannonStrength = cannonStrength.get(player);
                 this.cannonStrength.replace(player, oldCannonStrength + strength);
+
+                UseCannons useCannonsEvent = new UseCannons(player.getUsername(), strength, (ArrayList<Integer>) batteriesID);
+                eventCallback.trigger(useCannonsEvent);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
         }
@@ -166,14 +168,15 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
                                 ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
                             }
 
-                            // TODO: EVENT EXCHANGEGOODS
+                            ExchangeGoods exchangeGoodsEvent = new ExchangeGoods(player.getUsername(), exchangeData);
+                            eventCallback.trigger(exchangeGoodsEvent);
                         }
                         // Set the player as played
                         playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
                         // Set the state as finished
 
-                        // TODO: EVENT CARDPLAYED
                         CardPlayed cardPlayedEvent = new CardPlayed();
+                        eventCallback.trigger(cardPlayedEvent);
 
                         super.played = true;
                     } else if (cannonStrength.get(player) == card.getCannonStrengthRequired()) {
@@ -211,10 +214,14 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
                         }
 
                         // Remove the goods from the ship
+                        ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> goodsToDiscardEvent = new ArrayList<>();
                         for (Pair<ArrayList<Good>, Integer> pair : goodsToDiscard) {
                             ship.exchangeGood(null, pair.getValue0(), pair.getValue1());
+                            goodsToDiscardEvent.add(new Triplet<>(null, pair.getValue0(), pair.getValue1()));
                         }
-                        // TODO: EVENT EXCHANGEGOODS
+
+                        ExchangeGoods exchangeGoodsEvent = new ExchangeGoods(player.getUsername(), goodsToDiscardEvent);
+                        eventCallback.trigger(exchangeGoodsEvent);
                     }
 
                     // Remove the crew to lose if there is any
@@ -223,8 +230,8 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
                             ship.removeCrewMember(pair.getValue1(), pair.getValue0());
                         }
 
-                        // TODO: EVENT CREWLOSS
-                        CrewLoss crewEvent = new CrewLoss(player.getUsername(), crewToLose);
+                        AddLoseCrew crewEvent = new AddLoseCrew(player.getUsername(), false, crewToLose);
+                        eventCallback.trigger(crewEvent);
                     }
 
                     // Reset the goods to discard
@@ -249,8 +256,8 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
                 int flightDays = card.getFlightDays();
                 board.addSteps(p, -flightDays);
 
-                // TODO: EVENT STEPS
                 MoveMarker stepsEvent = new MoveMarker(p.getUsername(), flightDays);
+                eventCallback.trigger(stepsEvent);
             }
         }
     }

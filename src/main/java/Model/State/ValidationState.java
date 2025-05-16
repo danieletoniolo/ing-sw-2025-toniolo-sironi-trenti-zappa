@@ -5,6 +5,8 @@ import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.ChoosableFragment;
 import Model.State.interfaces.DestroyableComponent;
+import controller.EventCallback;
+import event.game.DestroyComponents;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -30,8 +32,8 @@ public class ValidationState extends State implements ChoosableFragment, Destroy
         FRAGMENTED_SHIP,
     }
 
-    public ValidationState(Board board) {
-        super(board);
+    public ValidationState(Board board, EventCallback callback) {
+        super(board, callback);
         this.invalidComponents = new HashMap<>();
         this.fragmentedComponents = null;
         this.fragmentChoice = -1;
@@ -112,6 +114,7 @@ public class ValidationState extends State implements ChoosableFragment, Destroy
 
     @Override
     public void execute(PlayerData player) {
+        DestroyComponents destroyableComponentEvent;
         SpaceShip ship = player.getSpaceShip();
         switch (internalState) {
             case DEFAULT:
@@ -125,6 +128,10 @@ public class ValidationState extends State implements ChoosableFragment, Destroy
                     ship.destroyComponent(component.getValue0(), component.getValue1());
                     playerInvalidComponents.remove(component);
                 }
+
+                destroyableComponentEvent = new DestroyComponents(player.getUsername(), componentsToDestroy);
+                eventCallback.trigger(destroyableComponentEvent);
+
                 if (playerInvalidComponents.isEmpty()) {
                     // Check if the ship is now fragmented
                     fragmentedComponents = ship.getDisconnectedComponents();
@@ -153,6 +160,10 @@ public class ValidationState extends State implements ChoosableFragment, Destroy
                 for (Pair<Integer, Integer> component : chosenFragment) {
                     ship.destroyComponent(component.getValue0(), component.getValue1());
                 }
+
+                destroyableComponentEvent = new DestroyComponents(player.getUsername(), componentsToDestroy);
+                eventCallback.trigger(destroyableComponentEvent);
+
                 // Reset the fragmented components and the fragment choice
                 fragmentedComponents = null;
                 fragmentChoice = -1;

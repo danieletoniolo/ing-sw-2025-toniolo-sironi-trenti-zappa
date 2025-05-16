@@ -5,23 +5,24 @@ import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.State.interfaces.ChoosableFragment;
 import Model.State.interfaces.Fightable;
+import controller.EventCallback;
 
 public class MeteorSwarmState extends State implements Fightable, ChoosableFragment {
     private final MeteorSwarm card;
-    private final FightHandler fightHandler;
+    private final FightHandlerSubState fightHandler;
 
     /**
      * Constructor
      * @param board The board associated with the game
      * @param card card type
      */
-    public MeteorSwarmState(Board board, MeteorSwarm card) {
-        super(board);
+    public MeteorSwarmState(Board board, EventCallback callback, MeteorSwarm card) {
+        super(board, callback);
         this.card = card;
-        this.fightHandler = new FightHandler();
+        this.fightHandler = new FightHandlerSubState(super.board, super.eventCallback);
     }
 
-    public FightHandler getFightHandler() {
+    public FightHandlerSubState getFightHandler() {
         return fightHandler;
     }
 

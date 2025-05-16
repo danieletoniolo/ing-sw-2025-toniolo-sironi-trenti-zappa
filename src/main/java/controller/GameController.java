@@ -1,11 +1,12 @@
 package controller;
 
+import Model.Game.Board.Board;
 import Model.Game.Lobby.LobbyInfo;
 import Model.Good.Good;
 import Model.Player.PlayerData;
+import Model.State.LobbyState;
 import Model.State.State;
 import Model.State.interfaces.*;
-import com.sun.jdi.event.ExceptionEvent;
 import network.User;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
@@ -14,9 +15,11 @@ import java.util.*;
 
 public class GameController {
     private State state;
+    private final ServerEventManager eventManager;
 
-    public GameController() {
-        this.state = null;
+    public GameController(Board board, LobbyInfo lobbyInfo) {
+        this.eventManager = new ServerEventManager(lobbyInfo);
+        this.state = new LobbyState(board, this.eventManager);
     }
 
     // TODO: add the list of states already initialize to the game controller?
@@ -27,11 +30,6 @@ public class GameController {
 
         state = newState;
         state.entry();
-    }
-
-    public ArrayList<User> getUsers() {
-        // TODO: RETURN FROM BOARD OF PLAYERS, USE A MAP TO REMAP PLAYER_DATA TO USER
-        return new ArrayList<>();
     }
 
     public void startGame() {

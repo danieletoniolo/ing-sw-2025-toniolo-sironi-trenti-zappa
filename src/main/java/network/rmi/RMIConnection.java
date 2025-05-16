@@ -1,7 +1,7 @@
 package network.rmi;
 
-import controller.event.Event;
-import controller.event.game.HeartBeat;
+import event.Event;
+import event.game.HeartBeat;
 import network.Connection;
 import network.exceptions.BadPortException;
 import network.exceptions.DisconnectedConnection;

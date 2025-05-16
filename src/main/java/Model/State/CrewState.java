@@ -2,6 +2,11 @@ package Model.State;
 
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
+import controller.EventCallback;
+import event.game.AddLoseCrew;
+import org.javatuples.Pair;
+
+import java.util.ArrayList;
 
 /**
  * This class represents the state of the game when the player is managing their crew members.
@@ -10,8 +15,8 @@ import Model.Player.PlayerData;
  * @author Daniele Toniolo
  */
 public class CrewState extends State {
-    public CrewState(Board board) {
-        super(board);
+    public CrewState(Board board, EventCallback callback) {
+        super(board, callback);
     }
 
     /**
@@ -21,11 +26,21 @@ public class CrewState extends State {
      * @see State#manageCrewMember(PlayerData, int, int, int)
      */
     public void manageCrewMember(PlayerData player, int mode, int crewType, int cabinID) {
+        AddLoseCrew addLoseCrew;
+        ArrayList<Pair<Integer, Integer>> crewMembers = new ArrayList<>();
+        crewMembers.add(new Pair<>(cabinID, crewType == 0 ? 2 : 1));
+
         switch (mode) {
-            case 0 -> // Add crew member
-                    player.getSpaceShip().addCrewMember(cabinID, crewType == 1, crewType == 2);
-            case 1 -> // Remove crew member
-                    player.getSpaceShip().removeCrewMember(cabinID, crewType == 0 ? 2 : 1);
+            case 0 -> { // Add crew member
+                player.getSpaceShip().addCrewMember(cabinID, crewType == 1, crewType == 2);
+                addLoseCrew = new AddLoseCrew(player.getUsername(), true, crewMembers);
+                eventCallback.trigger(addLoseCrew);
+            }
+            case 1 -> { // Remove crew member
+                player.getSpaceShip().removeCrewMember(cabinID, crewType == 0 ? 2 : 1);
+                addLoseCrew = new AddLoseCrew(player.getUsername(), false, crewMembers);
+                eventCallback.trigger(addLoseCrew);
+            }
         }
     }
 

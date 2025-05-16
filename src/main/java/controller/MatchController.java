@@ -1,18 +1,20 @@
 package controller;
 
+import Model.Game.Board.Board;
 import Model.Game.Lobby.LobbyInfo;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import controller.event.Event;
-import controller.event.EventListener;
-import controller.event.NetworkTransceiver;
-import controller.event.game.UseCannons;
-import controller.event.game.UseEngine;
-import controller.event.lobby.CreateLobby;
-import controller.event.lobby.JoinLobby;
-import controller.event.lobby.LeaveLobby;
-import controller.event.lobby.SetNickname;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import event.Event;
+import event.EventListener;
+import event.NetworkTransceiver;
+import event.game.UseCannons;
+import event.game.UseEngine;
+import event.lobby.CreateLobby;
+import event.lobby.JoinLobby;
+import event.lobby.LeaveLobby;
+import event.lobby.SetNickname;
 import network.Connection;
 import network.User;
 
@@ -70,13 +72,20 @@ public class MatchController {
             PlayerData player = new PlayerData(user.getNickname(), color, new SpaceShip(lobby.getLevel(), color));
             userPlayers.put(user, player);
 
-            GameController gc = new GameController();
+            Board board;
+            try {
+                board = new Board(lobby.getLevel());
+            } catch (IllegalArgumentException | JsonProcessingException e) {
+                throw new IllegalStateException("Error creating board", e);
+            }
+            GameController gc = new GameController(board, lobby);
             gc.manageLobby(player, 1);
             gameControllers.put(lobby, gc);
 
-            serverNetworkTransceiver.broadcast(data);
+            CreateLobby toSend = new CreateLobby(user.getNickname(), lobby.getName(), lobby.getTotalPlayers(), lobby.getLevel());
+            serverNetworkTransceiver.broadcast(toSend);
             networkTransceivers.forEach((key, value) -> {
-                value.broadcast(data);
+                value.broadcast(toSend);
             });
         };
 
@@ -184,5 +193,12 @@ public class MatchController {
     }
 
     public static MatchController getInstance() { return instance; }
+
+    public void broadcast(LobbyInfo lobbyInfo, Event event) {
+        NetworkTransceiver networkTransceiver = networkTransceivers.get(lobbyInfo);
+        if (networkTransceiver != null) {
+            networkTransceiver.broadcast(event);
+        }
+    }
 
 }

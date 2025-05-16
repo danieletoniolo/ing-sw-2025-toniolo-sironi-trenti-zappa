@@ -1,6 +1,6 @@
 package network;
 
-import controller.event.Event;
+import event.Event;
 
 public interface Connection {
     /**

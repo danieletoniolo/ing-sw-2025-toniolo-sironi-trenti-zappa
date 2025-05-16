@@ -4,8 +4,11 @@ import Model.Cards.OpenSpace;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import controller.event.game.MoveMarker;
+import controller.EventCallback;
+import event.game.MoveMarker;
+import event.game.UseEngine;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +21,8 @@ public class OpenSpaceState extends State {
      * @param board The board associated with the game
      * @param card card type
      */
-    public OpenSpaceState(Board board, OpenSpace card) {
-        super(board);
+    public OpenSpaceState(Board board, EventCallback callback, OpenSpace card) {
+        super(board, callback);
         this.stats = new HashMap<>();
     }
 
@@ -39,6 +42,9 @@ public class OpenSpaceState extends State {
 
                 // Update the engine strength stats
                 this.stats.merge(player, strength, Float::sum);
+
+                UseEngine useEngineEvent = new UseEngine(player.getUsername(), strength, (ArrayList<Integer>) batteriesID);
+                eventCallback.trigger(useEngineEvent);
             }
             case 1 -> throw new IllegalStateException("Cannot use double cannons in this state");
             default -> throw new IllegalArgumentException("Invalid type: " + type);
@@ -73,8 +79,8 @@ public class OpenSpaceState extends State {
         } else {
             board.addSteps(player, stats.get(player).intValue());
 
-            // TODO: EVENT STEPS
             MoveMarker stepEvent = new MoveMarker(player.getUsername(), player.getStep());
+            eventCallback.trigger(stepEvent);
         }
         super.execute(player);
     }
