@@ -11,13 +11,10 @@ import event.game.AddLoseCrew;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 public class EpidemicState extends State {
-    private ArrayList<Component> surroundingComponents;
-    private Map<Integer, Cabin> cabins;
-    private Cabin currentCabin;
-    private boolean[][] check;
+    private final boolean[][] check;
 
     /**
      * Constructor for EpidemicState
@@ -26,14 +23,6 @@ public class EpidemicState extends State {
     public EpidemicState(Board board, EventCallback callback) {
         super(board, callback);
         check = new boolean[SpaceShip.getRows()][SpaceShip.getCols()];
-    }
-
-    /**
-     * Getter for the check array
-     * @return The check array
-     */
-    public boolean[][] getCheck() {
-        return check;
     }
 
     /**
@@ -50,16 +39,16 @@ public class EpidemicState extends State {
                     check[i][j] = false;
                 }
             }
-            cabins = p.getSpaceShip().getCabins();
-            for(Map.Entry<Integer, Cabin> ca : cabins.entrySet()){
-                currentCabin = ca.getValue();
-                if(!check[currentCabin.getRow()][currentCabin.getColumn()]){
-                    surroundingComponents = p.getSpaceShip().getSurroundingComponents(currentCabin.getRow(), currentCabin.getColumn());
+
+            List<Cabin> cabins = p.getSpaceShip().getCabins();
+            for(Cabin ca : cabins){
+                if(!check[ca.getRow()][ca.getColumn()]){
+                    ArrayList<Component> surroundingComponents = p.getSpaceShip().getSurroundingComponents(ca.getRow(), ca.getColumn());
                     for(Component co : surroundingComponents){
-                        if(co != null && co.getComponentType() == ComponentType.CABIN){
-                            if (!check[currentCabin.getRow()][currentCabin.getColumn()]) {
-                                check[currentCabin.getRow()][currentCabin.getColumn()] = true;
-                                currentCabin.removeCrewMember(1);
+                        if(co != null && co.getComponentType() == ComponentType.CABIN && ((Cabin) co).getCrewNumber() > 0){
+                            if (!check[ca.getRow()][ca.getColumn()]) {
+                                check[ca.getRow()][ca.getColumn()] = true;
+                                ca.removeCrewMember(1);
                             }
 
                             Cabin cabin = (Cabin) co;

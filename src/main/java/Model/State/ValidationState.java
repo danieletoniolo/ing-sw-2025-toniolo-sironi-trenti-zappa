@@ -3,7 +3,6 @@ package Model.State;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.State.interfaces.DestroyableComponent;
 import controller.EventCallback;
 import event.game.DestroyComponents;
 import org.javatuples.Pair;
@@ -13,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class ValidationState extends State implements DestroyableComponent {
+public class ValidationState extends State {
     private ValidationInternalState internalState;
     private Map<PlayerData, ArrayList<Pair<Integer, Integer>>> invalidComponents;
     private ArrayList<ArrayList<Pair<Integer, Integer>>> fragmentedComponents;
@@ -55,9 +54,18 @@ public class ValidationState extends State implements DestroyableComponent {
         this.fragmentChoice = fragmentChoice;
     }
 
+
+    @Override
     public void setComponentToDestroy(PlayerData player, ArrayList<Pair<Integer, Integer>> componentsToDestroy) throws IllegalStateException {
         if (internalState != ValidationInternalState.DEFAULT) {
             throw new IllegalStateException("Cannot destroy componentsToDestroy in this state, you have to choose a fragment");
+        }
+        for (Pair<Integer, Integer> component : componentsToDestroy) {
+            try {
+                player.getSpaceShip().getComponent(component.getValue0(), component.getValue1());
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Invalid row" + component.getValue0() + "or column " + component.getValue1() + "for the component to destroy");
+            }
         }
         this.componentsToDestroy = componentsToDestroy;
     }

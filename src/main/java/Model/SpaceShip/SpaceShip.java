@@ -560,6 +560,9 @@ public class SpaceShip {
      * @return component at the given row and column
      */
     public Component getComponent(int row, int column) {
+        if (row < 0 || row >= rows || column < 0 || column >= cols) {
+            throw new IllegalArgumentException("The row and column are not valid");
+        }
         return components[row][column];
     }
 
@@ -687,6 +690,14 @@ public class SpaceShip {
             throw new IllegalArgumentException("The ID of the cabin is not valid");
         }
         return this.cabins.get(ID);
+    }
+
+    /**
+     * Get the cabins in the ship
+     * @return cabins in the ship
+     */
+    public List<Cabin> getCabins() {
+        return new ArrayList<>(cabins.values());
     }
 
     /**

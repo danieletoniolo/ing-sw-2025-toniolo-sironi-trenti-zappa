@@ -113,7 +113,6 @@ public class SmugglersState extends State implements ExchangeableGoods {
                         goodsToDiscardQueue.add(good);
                     }
                 }
-                goodsToDiscardQueue.addAll(goodsReceived);
                 PriorityQueue<Good> mostValuableGoods = new PriorityQueue<>(player.getSpaceShip().getGoods());
                 for (int i = 0; i < goodsToDiscardQueue.size(); i++) {
                     if (goodsToDiscardQueue.peek().getValue() != mostValuableGoods.peek().getValue()) {

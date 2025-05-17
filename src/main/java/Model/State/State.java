@@ -4,6 +4,7 @@ import Model.Game.Board.Board;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import controller.EventCallback;
+import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -258,4 +259,14 @@ public abstract class State {
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
         throw new IllegalStateException("Cannot set fragment choice in this state");
     }
+
+    /**
+     * Set component to destroy in the ship.
+     * @param player PlayerData of the player who is destroying the component.
+     * @param componentsToDestroy List of pairs representing the coordinates of the components to destroy.
+     */
+    public void setComponentToDestroy(PlayerData player, ArrayList<Pair<Integer, Integer>> componentsToDestroy) {
+        throw new IllegalStateException("Cannot set component to destroy in this state");
+    }
+
 }
