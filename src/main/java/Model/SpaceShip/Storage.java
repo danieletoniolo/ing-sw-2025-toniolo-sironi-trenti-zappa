@@ -4,21 +4,21 @@ import Model.Good.Good;
 import Model.Good.GoodType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class Storage extends Component{
     private boolean dangerous;
     @JsonProperty("goodsCapacity")
     private int goodsCapacity;
     private int goodsValue;
-    private ArrayList<Good> goods;
+    private Queue<Good> goods;
 
     public Storage(int ID, ConnectorType[] connectors, boolean dangerous, int goodsCapacity) {
         super(ID, connectors);
         this.dangerous = dangerous;
         this.goodsCapacity = goodsCapacity;
         this.goodsValue = 0;
-        this.goods = new ArrayList<>();
+        this.goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
     }
 
     public Storage(){
@@ -69,15 +69,25 @@ public class Storage extends Component{
         } else {
             throw new IllegalStateException("Good not found in storage");
         }
+        goods.remove();
     }
 
     /**
-     * Get the list of goods in the storage
-     * @return ArrayList of goods in the storage
+     * Peek at the most valuable good in the storage.
+     * @return A copy of the most valuable good in the storage.
      */
-    public ArrayList<Good> getGoods() {
-        return goods;
+    public Good peekGood() {
+        return goods.peek();
     }
+
+    /**
+     * Poll the most valuable good in the storage.
+     * @return The most valuable good in the storage.
+     */
+    public Good pollGood() {
+        return goods.poll();
+    }
+
 
     /**
      * Get the value of the goods in the storage

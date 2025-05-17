@@ -3,23 +3,24 @@ package Model.State;
 import Model.Cards.AbandonedShip;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
-import Model.State.interfaces.RemovableCrew;
+import Model.SpaceShip.SpaceShip;
 import controller.EventCallback;
 import event.game.AddCoins;
 import event.game.AddLoseCrew;
 import event.game.MoveMarker;
-import org.javatuples.Pair;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class AbandonedShipState extends State implements RemovableCrew {
+public class AbandonedShipState extends State {
     private final AbandonedShip card;
-    private ArrayList<Pair<Integer, Integer>> crewLoss;
+    private List<Integer> crewLoss;
 
     /**
-     * Constructor
+     * Constructor for AbandonedShipState
      * @param board The board associated with the game
-     * @param card type of the card
+     * @param card The AbandonedShip card associated with the state
      */
     public AbandonedShipState(Board board, EventCallback callback, AbandonedShip card) {
         super(board, callback);
@@ -28,43 +29,44 @@ public class AbandonedShipState extends State implements RemovableCrew {
     }
 
     /**
-     * Getter for the card
-     * @return The card
+     * Implementation of the {@link State #setPenaltyLoss(PlayerData, int, List)} to set the crew to lose in
+     * order to serve the penalty.
+     * @throws IllegalArgumentException if the type is not 0, 1 or 2.
      */
-    public AbandonedShip getCard() {
-        return card;
-    }
-
-    /**
-     * Getter for the crew loss
-     * @return The crew loss
-     */
-    public ArrayList<Pair<Integer, Integer>> getCrewLoss() {
-        return crewLoss;
-    }
-
-    /**
-     * Set which cabin loses crew members
-     * @param cabinsID Map of cabins ID and number of crew removed for cabins
-     * @throws IllegalStateException if not in the right state in order to do the action
-     */
-    public void setCrewLoss(ArrayList<Pair<Integer, Integer>> cabinsID) throws IllegalStateException {
-        int crewRemoved = 0;
-        for (Pair<Integer, Integer> cabin : cabinsID) {
-            crewRemoved += cabin.getValue1();
+    @Override
+    public void setPenaltyLoss(PlayerData player, int type, List<Integer> cabinsID) {
+        switch (type) {
+            case 0 -> throw new IllegalStateException("No goods to remove in this state");
+            case 1 -> throw new IllegalStateException("No batteries to remove in this state");
+            case 2 -> {
+                // Check if there are the provided number of crew members in the provided cabins
+                Map<Integer, Integer> cabinCrewMap = new HashMap<>();
+                for (int cabinID : cabinsID) {
+                    cabinCrewMap.merge(cabinID, 1, Integer::sum);
+                }
+                SpaceShip ship = player.getSpaceShip();
+                for (int cabinID : cabinCrewMap.keySet()) {
+                    if (ship.getCabin(cabinID).getCrewNumber() < cabinCrewMap.get(cabinID)) {
+                        throw new IllegalStateException("Not enough crew members in cabin " + cabinID);
+                    }
+                }
+                // Check if the number of crew members to remove is equal to the number of crew members required to lose
+                if (cabinsID.size() != card.getCrewRequired()) {
+                    throw new IllegalStateException("The crew removed is not equal to the crew lost");
+                }
+                this.crewLoss = cabinsID;
+            }
+            default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0, 1 or 2.");
         }
-
-        if (crewRemoved != card.getCrewRequired()) {
-            throw new IllegalStateException("The crew removed is not equal to the crew lost");
-        }
-        this.crewLoss = cabinsID;
     }
 
     /**
-     * Execute: Remove crew members from cabins.
-     * Add credits to player.
-     * Change player steps.
-     *
+     * Execute:
+     * <ul>
+     *     <li> Remove crew members from cabins.</li>
+     *     <li> Add credits to player. </li>
+     *     <li> Change player steps. </li>
+     * </ul>
      * @param player PlayerData of the player to play
      * @return Pair of EventType and Object which contains the record that will be sent to the client
      * @throws NullPointerException  if player == null
@@ -85,13 +87,17 @@ public class AbandonedShipState extends State implements RemovableCrew {
         }
 
         if (playersStatus.get(player.getColor()).equals(PlayerStatus.PLAYING)) {
-            crewLoss.forEach(cabin -> {
-                player.getSpaceShip().getCabin(cabin.getValue0()).removeCrewMember(cabin.getValue1());
-            });
+            SpaceShip ship = player.getSpaceShip();
+
+            for (Integer cabinID : crewLoss) {
+                ship.getCabin(cabinID).removeCrewMember(1);
+            }
+
             player.addCoins(card.getCredit());
 
-            AddLoseCrew crewEvent = new AddLoseCrew(getCurrentPlayer().getUsername(), false, crewLoss);
-            eventCallback.trigger(crewEvent);
+            // TODO: Due to the chango to List<Integer> of crewLoss we have to change the event
+            // AddLoseCrew crewEvent = new AddLoseCrew(getCurrentPlayer().getUsername(), false, crewLoss);
+            // eventCallback.trigger(crewEvent);
 
             AddCoins coinsEvent = new AddCoins(player.getUsername(), card.getCredit());
             eventCallback.trigger(coinsEvent);

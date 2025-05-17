@@ -188,11 +188,13 @@ public class GameController {
         }
     }
 
-    public void removeCrew(UUID uuid, ArrayList<Pair<Integer, Integer>> cabinsIDs) {
-        if (state instanceof RemovableCrew) {
-            PlayerData player = state.getCurrentPlayer();
-            if (player.getUUID().equals(uuid)) {
-                ((RemovableCrew) state).setCrewLoss(cabinsIDs);
+    public void removeCrew(UUID uuid, List<Integer> cabinsIDs) {
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            try {
+                state.setPenaltyLoss(player, 2, cabinsIDs);
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException("Cannot remove crew in this state or wrong input");
             }
         }
     }

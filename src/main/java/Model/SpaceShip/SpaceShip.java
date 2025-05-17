@@ -356,7 +356,7 @@ public class SpaceShip {
      * @return PriorityQueue of goods of the ship (The max value is at the top)
      */
     public PriorityQueue<Good> getGoods() {
-        return goods;
+        return new PriorityQueue<>(goods);
     }
 
     /**
@@ -391,6 +391,22 @@ public class SpaceShip {
                 goodsValue += good.getValue();
             }
         }
+    }
+
+    /**
+     * Poll the most valuable good of a storage and update the ship stats.
+     * @param storageID ID of the storage to poll the good from
+     * @return The most valuable good of the storage or null if the storage is empty.
+     * @see Storage#pollGood()
+     */
+    public Good pollGood(int storageID) {
+        Storage storage = storages.get(storageID);
+        if (storage == null) {
+            throw new IllegalArgumentException("The storage with the given ID does not exist");
+        }
+        goodsValue -= storage.peekGood().getValue();
+        goods.remove(storage.peekGood());
+        return storage.pollGood();
     }
 
     /**
@@ -674,14 +690,6 @@ public class SpaceShip {
     }
 
     /**
-     * Get the cabins in the ship
-     * @return cabins in the ship
-     */
-    public Map<Integer, Cabin> getCabins() {
-        return cabins;
-    }
-
-    /**
      * Get the storage in the ship by ID
      * @return storage in the ship
      */
@@ -833,8 +841,11 @@ public class SpaceShip {
                 break;
             case STORAGE:
                 Storage storage = (Storage) destroyedComponent;
-                for (Good good : storage.getGoods()) {
+                Good good = storage.peekGood();
+                while (good != null) {
                     goods.remove(good);
+                    storage.removeGood(good);
+                    good = storage.peekGood();
                 }
                 goodsValue -= storage.getGoodsValue();
                 storages.remove(storage.getID());

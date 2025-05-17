@@ -15,15 +15,16 @@ import java.util.*;
 
 
 
-public class CombatZoneState extends State implements Fightable, ChoosableFragment, RemovableCrew, DiscardableGoods {
+public class CombatZoneState extends State implements Fightable, ChoosableFragment {
     private CombatZoneInternalState internalState;
     private final CombatZone card;
     private final ArrayList<Map<PlayerData, Float>> stats;
     private PlayerData minPlayerEngines;
     private PlayerData minPlayerCannons;
     private PlayerData minPlayerCrew;
-    private ArrayList<Pair<Integer, Integer>> crewLoss;
-    private ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard;
+    private List<Integer> crewLoss;
+    private List<Integer> goodsToDiscard;
+    private List<Integer> batteriesToDiscard;
     private final FightHandlerSubState fightHandler;
 
     /**
@@ -32,7 +33,10 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
     private enum CombatZoneInternalState {
         CREW(0),
         ENGINES(1),
-        CANNONS(2);
+        CANNONS(2),
+        GOOD_PENALTY(3),
+        BATTERIES_PENALTY(4),
+        CREW_PENALTY(5);
 
         private final int index;
 
@@ -75,60 +79,8 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         this.minPlayerCrew = null;
         this.crewLoss = null;
         this.goodsToDiscard = null;
+        this.batteriesToDiscard = null;
         this.fightHandler = new FightHandlerSubState(super.board, super.eventCallback);
-    }
-
-    public void setInternalState(CombatZoneInternalState internalState) {
-        this.internalState = internalState;
-    }
-
-    public CombatZoneInternalState getInternalState() {
-        return internalState;
-    }
-
-    public CombatZone getCard() {
-        return card;
-    }
-
-    public ArrayList<Map<PlayerData, Float>> getStats() {
-        return stats;
-    }
-
-    public PlayerData getMinPlayerEngines() {
-        return minPlayerEngines;
-    }
-
-    public PlayerData getMinPlayerCannons() {
-        return minPlayerCannons;
-    }
-
-    public PlayerData getMinPlayerCrew() {
-        return minPlayerCrew;
-    }
-
-    public ArrayList<Pair<Integer, Integer>> getCrewLoss() {
-        return crewLoss;
-    }
-
-    public ArrayList<Pair<ArrayList<Good>, Integer>> getGoodsToDiscard() {
-        return goodsToDiscard;
-    }
-
-    public FightHandlerSubState getFightHandler() {
-        return fightHandler;
-    }
-
-    /**
-     * Transition to the next state
-     */
-    private void transition() {
-        this.internalState = switch (internalState) {
-            case CREW -> card.getCardLevel() == 2 ? CombatZoneInternalState.CANNONS : CombatZoneInternalState.ENGINES;
-            case ENGINES -> card.getCardLevel() == 2 ? CombatZoneInternalState.CREW : CombatZoneInternalState.CANNONS;
-            case CANNONS -> card.getCardLevel() == 2 ? CombatZoneInternalState.ENGINES : CombatZoneInternalState.CREW;
-        };
-        this.crewLoss = null;
-        this.goodsToDiscard = null;
     }
 
     /**
@@ -139,6 +91,7 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
      */
     private void addStats(CombatZoneInternalState statsType, PlayerData player, Float value) {
         stats.get(statsType.getIndex(card.getCardLevel())).merge(player, value, Float::sum);
+        // TODO: This method is useless, we should just use the stats map directly
     }
 
     /**
@@ -168,13 +121,14 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
             PlayerLose gaveUpEvent = new PlayerLose(player.getUsername());
             eventCallback.trigger(gaveUpEvent);
         } else {
-            for (Pair<Integer, Integer> cabin : crewLoss) {
-                spaceShip.removeCrewMember(cabin.getValue0(), cabin.getValue1());
+            for (int cabinID : crewLoss) {
+                spaceShip.removeCrewMember(cabinID, 1);
             }
             playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.WAITING);
 
-            AddLoseCrew crewLossEvent = new AddLoseCrew(player.getUsername(), false, crewLoss);
-            eventCallback.trigger(crewLossEvent);
+            // TODO: Due to the change of crewLoss to List<Integer> we need to change the event
+            //AddLoseCrew crewLossEvent = new AddLoseCrew(player.getUsername(), false, crewLoss);
+            //eventCallback.trigger(crewLossEvent);
         }
     }
 
@@ -187,56 +141,37 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
         boolean complete = fightHandler.executeFight(player, () -> card.getFires().get(currentHitIndex));
         if (complete && currentHitIndex == card.getFires().size() - 1) {
             super.execute(player);
-            transition();
         }
     }
 
     private void executeSubStateRemoveGoods(PlayerData player) throws IllegalStateException {
         // If the player has not set the goods to discard, we throw an exception
-        if (goodsToDiscard == null && crewLoss == null) {
-            throw new IllegalStateException("No goods or crew to discard set");
+        if (goodsToDiscard == null) {
+            throw new IllegalStateException("No goods to discard set");
         }
-
         SpaceShip ship = player.getSpaceShip();
-
-        if (goodsToDiscard != null) {
-            // Check that the selected goods to discard are the most valuable
-            // TODO: We could optimize this by making this check in the view
-            PriorityQueue<Good> goodsToDiscardQueue = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
-            for (Pair<ArrayList<Good>, Integer> pair : goodsToDiscard) {
-                goodsToDiscardQueue.addAll(pair.getValue0());
-            }
-            PriorityQueue<Good> mostValuableGoods = new PriorityQueue<>(new ArrayList<>(ship.getGoods()));
-            for (int i = 0; i < goodsToDiscardQueue.size(); i++) {
-                if (goodsToDiscardQueue.peek().getValue() != mostValuableGoods.peek().getValue()) {
-                    throw new IllegalStateException("The goods to discard are not the most valuable");
-                }
-                goodsToDiscardQueue.poll();
-                mostValuableGoods.poll();
-            }
-            // Remove the goods from the ship
-            ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData = new ArrayList<>();
-            for (Pair<ArrayList<Good>, Integer> pair : goodsToDiscard) {
-                ship.exchangeGood(null, pair.getValue0(), pair.getValue1());
-                exchangeData.add(new Triplet<>(null, pair.getValue0(), pair.getValue1()));
-            }
-
-            ExchangeGoods eventExchangeGoods = new ExchangeGoods(player.getUsername(), exchangeData);
-            eventCallback.trigger(eventExchangeGoods);
+        // Remove the goods from the ship
+        for (int storageID : goodsToDiscard) {
+            ship.pollGood(storageID);
         }
 
-        // Remove the crew to lose if there is any
-        if (crewLoss != null) {
-            for (Pair<Integer, Integer> pair : crewLoss) {
-                ship.removeCrewMember(pair.getValue0(), pair.getValue1());
-            }
 
-            AddLoseCrew crewLossEvent = new AddLoseCrew(player.getUsername(), false, crewLoss);
-            eventCallback.trigger(crewLossEvent);
+    }
+
+    private void executeSubStateRemoveBatteries(PlayerData player) throws IllegalStateException {
+        // If the player has not set the batteries to discard, we throw an exception
+        if (batteriesToDiscard == null) {
+            throw new IllegalStateException("No batteries to discard set");
         }
-
+        SpaceShip ship = player.getSpaceShip();
+        // Remove the batteries from the ship
+        for (int batteryID : batteriesToDiscard) {
+            ship.useEnergy(batteryID);
+        }
         // Reset the goods to discard
         this.goodsToDiscard = null;
+        // Reset the batteries to discard
+        this.batteriesToDiscard = null;
         // Set the player as played
         playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.WAITING);
     }
@@ -282,24 +217,90 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
     }
 
     /**
-     * Set the cabins ID
-     * @param cabinsID Map of cabins ID and number of crew removed for cabins
-     * @throws IllegalStateException if not in the right state in order to do the action
+     * Implementation of the {@link State#setPenaltyLoss(PlayerData, int, List)} to set crew in
+     * {@link CombatZoneInternalState#CREW_PENALTY}, goods in {@link CombatZoneInternalState#GOOD_PENALTY}
+     * or batteries in {@link CombatZoneInternalState#BATTERIES_PENALTY} to lose in order to serve the penalty.
+     * @throws IllegalArgumentException if the type is not 0, 1 or 2.
      */
-    public void setCrewLoss(ArrayList<Pair<Integer, Integer>> cabinsID) throws IllegalStateException {
-        if (internalState != CombatZoneInternalState.ENGINES) {
-            throw new IllegalStateException("setCabinsID not allowed in this state");
+    @Override
+    public void setPenaltyLoss(PlayerData player, int type, List<Integer> penaltyLoss) throws IllegalStateException {
+        switch (type) {
+            case 0 -> {
+                // Check if there is a penalty to serve
+                if (internalState != CombatZoneInternalState.GOOD_PENALTY) {
+                    throw new IllegalStateException("There is no penalty to serve.");
+                }
+                // Take the goods from the storage
+                ArrayList<Good> goodsReceived = new ArrayList<>();
+                for (int storageID : penaltyLoss) {
+                    goodsReceived.add(player.getSpaceShip().getStorage(storageID).pollGood());
+                }
+                // Put that goods back in the ship
+                int j = 0;
+                for (int storageID : penaltyLoss) {
+                    player.getSpaceShip().getStorage(storageID).addGood(goodsReceived.get(j));
+                    j++;
+                }
+                // Check that the selected goods to discard are the most valuable
+                PriorityQueue<Good> goodsToDiscardQueue = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
+                goodsToDiscardQueue.addAll(goodsReceived);
+                PriorityQueue<Good> mostValuableGoods = new PriorityQueue<>(player.getSpaceShip().getGoods());
+                for (int i = 0; i < goodsToDiscardQueue.size(); i++) {
+                    if (goodsToDiscardQueue.peek().getValue() != mostValuableGoods.peek().getValue()) {
+                        throw new IllegalStateException("The goods to discard are not the most valuable");
+                    }
+                    goodsToDiscardQueue.poll();
+                    mostValuableGoods.poll();
+                }
+                // Finally we can set the goods to discard
+                this.goodsToDiscard = penaltyLoss;
+            }
+            case 1 -> {
+                // Check if there is penalty to serve
+                if (internalState != CombatZoneInternalState.BATTERIES_PENALTY) {
+                    throw new IllegalStateException("There is no penalty to serve.");
+                }
+                // Check if there are the provided number of batteries in the provided batteries slots.
+                Map<Integer, Integer> batteriesMap = new HashMap<>();
+                for (int batteryID : penaltyLoss) {
+                    batteriesMap.merge(batteryID, 1, Integer::sum);
+                }
+                SpaceShip ship = player.getSpaceShip();
+                for (int batteryID : batteriesMap.keySet()) {
+                    if (ship.getBattery(batteryID).getEnergyNumber() < batteriesMap.get(batteryID)) {
+                        throw new IllegalStateException("Not enough energy in battery " + batteryID);
+                    }
+                }
+                // Check if the number of batteries to remove is equal to the number of batteries required to lose
+                // The number of batteries to lose is the number of goods to discard minus the number of goods already discarded
+                if (penaltyLoss.size() != card.getLost() - goodsToDiscard.size()) {
+                    throw new IllegalStateException("The batteries removed is not equal to the batteries required to lose");
+                }
+                this.batteriesToDiscard = penaltyLoss;
+            }
+            case 2 -> {
+                if (internalState != CombatZoneInternalState.CREW_PENALTY) {
+                    throw new IllegalStateException("There is no crew penalty to serve.");
+                }
+                // Check if there are the provided number of crew members in the provided cabins
+                Map<Integer, Integer> cabinCrewMap = new HashMap<>();
+                for (int cabinID : penaltyLoss) {
+                    cabinCrewMap.merge(cabinID, 1, Integer::sum);
+                }
+                SpaceShip ship = player.getSpaceShip();
+                for (int cabinID : cabinCrewMap.keySet()) {
+                    if (ship.getCabin(cabinID).getCrewNumber() < cabinCrewMap.get(cabinID)) {
+                        throw new IllegalStateException("Not enough crew members in cabin " + cabinID);
+                    }
+                }
+                // Check if the number of crew members to remove is equal to the number of crew members required to lose
+                if (penaltyLoss.size() != card.getLost()) {
+                    throw new IllegalStateException("The crew removed is not equal to the crew required to lose");
+                }
+                this.crewLoss = penaltyLoss;
+            }
+            default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0, 1 or 2.");
         }
-
-        int crewRemoved = 0;
-        for (Pair<Integer, Integer> cabin : cabinsID) {
-            crewRemoved += cabin.getValue1();
-        }
-
-        if (crewRemoved != card.getLost()) {
-            throw new IllegalStateException("The crew removed is not equal to the crew lost");
-        }
-        this.crewLoss = cabinsID;
     }
 
     /**
@@ -340,18 +341,6 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
             playersStatus.replace(player.getColor(), PlayerStatus.PLAYING);
             minPlayerCannons = player;
         }
-    }
-
-    /**
-     * Set the goods to discard for the player in order to serve the penalty
-     * @param player the player that has to discard the goods
-     * @param goodsToDiscard ArrayList of (in order) the good to discard and the storage id where to take it from
-     */
-    public void setGoodsToDiscard(PlayerData player, ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard) {
-        if (internalState != CombatZoneInternalState.ENGINES) {
-            throw new IllegalStateException("Selection of goods to discard not allowed in this state");
-        }
-        this.goodsToDiscard = goodsToDiscard;
     }
 
     /**
@@ -397,16 +386,16 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
     @Override
     public void execute(PlayerData player) {
         switch (internalState) {
-            case CombatZoneInternalState.CREW:
+            case CREW:
                 if (card.getCardLevel() == 2) {
                     executeSubStateHits(minPlayerCrew);
                 } else {
                     executeSubStateFlightDays(minPlayerCrew);
                     playersStatus.replace(minPlayerEngines.getColor(), PlayerStatus.PLAYING);
-                    transition();
+                    internalState = CombatZoneInternalState.ENGINES;
                 }
                 break;
-            case CombatZoneInternalState.ENGINES:
+            case ENGINES:
                 if (card.getCardLevel() == 2) {
                     int crewFulfillment = minPlayerEngines.getSpaceShip().getGoods().size() - card.getLost();
                     if (crewFulfillment < 0 && minPlayerEngines.getSpaceShip().getCrewNumber() < Math.abs(crewFulfillment)) {
@@ -416,26 +405,41 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
                         PlayerLose gaveUpEvent = new PlayerLose(player.getUsername());
                         eventCallback.trigger(gaveUpEvent);
                     } else {
-                        executeSubStateRemoveGoods(minPlayerEngines);
+                        internalState = CombatZoneInternalState.GOOD_PENALTY;
                     }
                     playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.PLAYING);
                 } else {
-                    if (crewLoss == null) {
-                        throw new IllegalStateException("The min player have not set their crew loss");
-                    }
+                    internalState = CombatZoneInternalState.CREW_PENALTY;
                     executeSubStateRemoveCrew(minPlayerEngines);
                     playersStatus.replace(minPlayerCannons.getColor(), PlayerStatus.PLAYING);
                 }
-                transition();
                 break;
-            case CombatZoneInternalState.CANNONS:
+            case CANNONS:
                 if (card.getCardLevel() == 2) {
                     executeSubStateFlightDays(minPlayerCannons);
                     playersStatus.replace(minPlayerEngines.getColor(), PlayerStatus.PLAYING);
-                    transition();
+                    internalState = CombatZoneInternalState.CANNONS;
                 } else {
                     executeSubStateHits(minPlayerCannons);
+                    // TODO: We should not transition because its the last substate in every case
                 }
+                break;
+            case GOOD_PENALTY:
+                executeSubStateRemoveGoods(minPlayerEngines);
+                playersStatus.replace(minPlayerCannons.getColor(), PlayerStatus.PLAYING);
+                if (goodsToDiscard.size() < card.getLost()) {
+                    internalState = CombatZoneInternalState.BATTERIES_PENALTY;
+                } else {
+                    internalState = CombatZoneInternalState.CREW_PENALTY;
+                    goodsToDiscard = null;
+                }
+                break;
+            case BATTERIES_PENALTY:
+                executeSubStateRemoveBatteries(minPlayerEngines);
+                internalState = CombatZoneInternalState.CREW;
+            case CREW_PENALTY:
+                executeSubStateRemoveCrew(minPlayerCannons);
+                internalState = CombatZoneInternalState.CANNONS;
                 break;
         }
     }

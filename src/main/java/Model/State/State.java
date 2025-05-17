@@ -237,4 +237,17 @@ public abstract class State {
     public void useExtraStrength(PlayerData player, int type, float extraPowerToUse, List<Integer> batteriesID) throws IllegalStateException {
         throw new IllegalStateException("Cannot use extra power in this state");
     }
+
+    /**
+     * Set the goods, batteries or crew members to discard to serve the penalty.
+     * @param player PlayerData of the player who is discarding the goods.
+     * @param type Type of the penalty: 0 = goods, 1 = batteries, 2 = crew members.
+     * @param penaltyLoss List of Integers representing the ID of storage, batteries or cabins from
+     *                    which we take the penalty to serve.
+     *                    We pick one from each ID in the list, in case of goods we pick the most valuable ones.
+     * @throws IllegalStateException if there is no penalty to serve in this state.
+     */
+    public void setPenaltyLoss(PlayerData player, int type, List<Integer> penaltyLoss) throws IllegalStateException {
+        throw new IllegalStateException("Cannot set penalty loss in this state");
+    }
 }
