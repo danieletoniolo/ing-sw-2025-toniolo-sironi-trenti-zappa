@@ -26,6 +26,10 @@ public class LobbyView implements Structure {
         this.level = level;
     }
 
+    public LevelView getLevel() {
+        return level;
+    }
+
     public void addPlayer(String playerName) {
         players.put(playerName, false);
     }
@@ -107,7 +111,7 @@ public class LobbyView implements Structure {
 
         if (line == getRowsToDraw() - 2) {
             str.append(Vertical);
-            str.append(String.valueOf(" ").repeat(width/2 - 2));
+            str.append(String.valueOf(" ").repeat(width/2 - 1));
             str.append(players.size()).append("/").append(maxPlayer);
             str.append(String.valueOf(" ").repeat(width/2 - 2));
             str.append(Vertical);

@@ -1,6 +1,8 @@
 package view.structures.components;
 
 public class LifeSupportBrownView extends ComponentView {
+    private String brown = "\033[38;5;220m";
+    private String reset = "\033[0m";
 
     public LifeSupportBrownView(int ID, int[] conncetors) {
         super(ID, conncetors);
@@ -16,10 +18,8 @@ public class LifeSupportBrownView extends ComponentView {
         if (isCovered()) return super.drawLineTui(line);
 
         return switch (line) {
-            case 0, 4 -> super.drawLineTui(line);
-            case 1 -> super.drawLeft(line) + "   Life    " + super.drawRight(line);
-            case 2 -> super.drawLeft(line) + "  Support  " + super.drawRight(line);
-            case 3 -> super.drawLeft(line) + "   Brown   " + super.drawRight(line);
+            case 0, 2 -> super.drawLineTui(line);
+            case 1 -> super.drawLeft(line) + " " + brown + "LifeS" + reset + " " + super.drawRight(line);
             default -> throw new IllegalStateException("Unexpected value: " + line);
         };
     }

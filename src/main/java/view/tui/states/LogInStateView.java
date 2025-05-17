@@ -1,11 +1,13 @@
 package view.tui.states;
 
+import org.jline.terminal.Terminal;
 import view.structures.logIn.LogInView;
 import view.tui.input.Command;
 
+import java.io.IOException;
 import java.util.List;
 
-public class LogInStateView implements StateView {
+public class LogInStateView {
     private LogInView logInView;
     private List<String> validCommands = List.of("/login", "/help");
 
@@ -13,23 +15,13 @@ public class LogInStateView implements StateView {
         this.logInView = logInView;
     }
 
-    @Override
-    public StateView isValidCommand(Command command) {
-        if (!validCommands.contains(command.name())) {
-            return this;
-        }
+    public StateView readInput(Terminal terminal) {
 
-        switch (command.name()) {
-            case "/help":
-                System.out.println("Type '/login' and your nickname to log in");
-                return this;
-        }
 
         return null;
     }
 
-    @Override
-    public void printTui() {
+    public void printTui(Terminal terminal) {
         for (int i = 0; i < LogInView.getRowsToDraw(); i++) {
             System.out.println(logInView.drawLineTui(i));
         }

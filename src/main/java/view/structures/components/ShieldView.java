@@ -5,7 +5,8 @@ public class ShieldView extends ComponentView {
     public static String DownShield = " ⌣ ";
     public static String LeftShield = "(";
     public static String RightShield = ")";
-
+    private String green = "\033[32m";
+    private String reset = "\033[0m";
     private boolean[] shields;
 
     public ShieldView(int ID, int[] connectors, boolean[] shields) {
@@ -23,27 +24,26 @@ public class ShieldView extends ComponentView {
         if (isCovered()) return super.drawLineTui(line);
 
         return switch (line) {
-            case 0, 3, 4 -> super.drawLineTui(line);
-            case 1 -> super.drawLeft(line) + "  Shield   " + super.drawRight(line);
-            case 2 -> super.drawLeft(line) + drawShield() + super.drawRight(line);
+            case 0, 2 -> super.drawLineTui(line);
+            case 1 -> super.drawLeft(line) + drawShield() + super.drawRight(line);
             default -> throw new IllegalStateException("Unexpected value: " + line);
         };
     }
 
     private String drawShield() {
         StringBuilder str = new StringBuilder();
-        str.append("   ");
-        for (int i = 0; i < shields.length; i += 2) {
-            if (i == 0 && shields[i]) str.append(UpShield);
-            if (i == 2 && shields[i]) str.append(DownShield);
+        str.append("  ");
+        if (shields[1]) {
+            str.append(green).append(LeftShield).append(reset);
+            if (shields[0]) str.append(green).append(UpShield).append(reset);
+            if (shields[2]) str.append(green).append(DownShield).append(reset);
+        }
+        if (shields[3]) {
+            if (shields[0]) str.append(green).append(UpShield).append(reset);
+            if (shields[2]) str.append(green).append(DownShield).append(reset);
+            str.append(green).append(RightShield).append(reset);
         }
         str.append("  ");
-        for (int i = 1; i < shields.length; i += 2) {
-            if (i == 1 && shields[i]) str.append(LeftShield);
-            if (i == 3 && shields[i]) str.append(RightShield);
-        }
-        str.append("   ");
-
         return str.toString();
     }
 }

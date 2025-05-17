@@ -1,9 +1,15 @@
 package view.tui.states;
-
+import org.jline.terminal.Terminal;
 import view.tui.input.Command;
 
-public interface StateView {
-    StateView isValidCommand(Command command);
+import java.util.ArrayList;
 
-    void printTui();
+public interface StateView {
+    StateView internalViewState(Command command);
+
+    void printTui(Terminal terminal);
+
+    ArrayList<String> getOptions();
+
+    int getTotalLines();
 }

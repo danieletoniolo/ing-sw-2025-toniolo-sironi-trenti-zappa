@@ -6,6 +6,9 @@ public class StorageView extends ComponentView {
     private GoodView[] goods;
     private boolean dangerous;
     private final int capacity;
+    private String red = "\033[31m";
+    private String blue = "\033[34m";
+    private String reset = "\033[0m";
 
     public StorageView(int ID, int[] connectors, boolean dangerous, int capacity) {
         super(ID, connectors);
@@ -48,20 +51,22 @@ public class StorageView extends ComponentView {
         if (isCovered()) return super.drawLineTui(line);
 
         return switch (line) {
-            case 0, 4 -> super.drawLineTui(line);
-            case 1 -> super.drawLeft(line) + "  Storage  " + super.drawRight(line);
-            case 2 -> super.drawLeft(line) + (" Toxic:" + (isDangerous() ? "Yes " : " No ")) + super.drawRight(line);
-            case 3 -> super.drawLeft(line) + drawGoods() + super.drawRight(line);
+            case 0, 2 -> super.drawLineTui(line);
+            case 1 -> super.drawLeft(line) + (isDangerous() ? drawGoods(red) : drawGoods(blue)) + super.drawRight(line);
             default -> throw new IllegalStateException("Unexpected value: " + line);
         };
     }
 
-    private String drawGoods() {
+    private String drawGoods(String color) {
         return switch (capacity) {
-            case 1 -> "    |" + (goods[0] == null ? " " : goods[0].drawTui()) + "|    ";
-            case 2 -> "   |" + (goods[0] == null ? " " : goods[0].drawTui()) + "|" + (goods[1] == null ? " " : goods[1].drawTui()) +  "|   ";
-            case 3 -> "  |" + (goods[0] == null ? " " : goods[0].drawTui()) + "|" + (goods[1] == null ? " " : goods[1].drawTui()) + "|" + (goods[2] == null ? " " : goods[2].drawTui()) + "|  ";
+            case 1 -> "  " + color + "|" + reset + singleGood(goods[0]) + color + "|" + reset + "  ";
+            case 2 -> " " + color + "|" + reset + singleGood(goods[0]) + color + "|" + reset + singleGood(goods[1]) + color + "|" + reset + " ";
+            case 3 -> color + "|" + reset + singleGood(goods[0]) + color + "|" + reset + singleGood(goods[1]) + color + "|" + reset + singleGood(goods[2]) + color + "|" + reset;
             default -> throw new IllegalStateException("Unexpected value: " + capacity);
         };
+    }
+
+    private String singleGood(GoodView good) {
+        return good == null ? " " : good.drawTui();
     }
 }

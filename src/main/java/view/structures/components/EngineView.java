@@ -1,19 +1,19 @@
 package view.structures.components;
 
 public class EngineView extends ComponentView {
-    private int power;
+    private String brown = "\033[38;5;220m";
+    private String reset = "\033[0m";
+    private boolean doubleEngine;
+    private int engineRotation;
 
-    public EngineView(int ID, int[] connectors, int power) {
+    public EngineView(int ID, int[] connectors, int power, int engineRotation) {
         super(ID, connectors);
-        this.power = power;
+        this.doubleEngine = power == 2;
+        this.engineRotation = engineRotation;
     }
 
-    public float getPower() {
-        return power;
-    }
-
-    public void setPower(int power) {
-        this.power = power;
+    public void setEngineRotation(int engineRotation) {
+        this.engineRotation = engineRotation;
     }
 
     @Override
@@ -26,20 +26,29 @@ public class EngineView extends ComponentView {
         if (isCovered()) return super.drawLineTui(line);
 
         return switch (line) {
-            case 0, 3, 4 -> super.drawLineTui(line);
-            case 1 -> super.drawLeft(line) + "  Engine   " + super.drawRight(line);
-            case 2 -> super.drawLeft(line) + "    " + drawEngine() + "    " + super.drawRight(line);
+            case 0, 2 -> super.drawLineTui(line);
+            case 1 -> super.drawLeft(line) + (doubleEngine ? drawDoubleEngine() : drawSingleEngine()) + super.drawRight(line);
             default -> throw new IndexOutOfBoundsException("Unexpected value: " + line);
         };
     }
 
-    private String drawEngine(){
-        return switch (getClockwiseRotation()) {
-            case 0 -> power == 1 ? " " + ArrowUp + " " : ArrowUp + " " + ArrowUp;
-            case 1 -> power == 1 ? " " + ArrowRight + " " : ArrowRight + " " + ArrowRight;
-            case 2 -> power == 1 ? " " + ArrowDown + " " : ArrowDown + " " + ArrowDown;
-            case 3 -> power == 1 ? " " + ArrowLeft + " " : ArrowLeft + " " + ArrowLeft;
-            default -> throw new IllegalStateException("Unexpected value: " + getClockwiseRotation());
+    private String drawSingleEngine(){
+        return switch (engineRotation) {
+            case 0 -> "   " + brown + ArrowUp + reset + "   ";
+            case 1 -> "   " + brown + ArrowRight + reset + "   ";
+            case 2 -> "   " + brown + ArrowDown + reset + "   ";
+            case 3 -> "   " + brown + ArrowLeft + reset + "   ";
+            default -> throw new IllegalStateException("Unexpected value: " + engineRotation);
+        };
+    }
+
+    private String drawDoubleEngine(){
+        return switch (engineRotation) {
+            case 0 -> "  " + brown + ArrowUp + reset + " " + brown + ArrowUp + reset + "  ";
+            case 1 -> "  " + brown + ArrowRight + reset + " " + brown + ArrowRight + reset + "  ";
+            case 2 -> "  " + brown + ArrowDown + reset + " " + brown + ArrowDown + reset + "  ";
+            case 3 -> "  " + brown + ArrowLeft + reset + " " + brown + ArrowLeft + reset + "  ";
+            default -> throw new IllegalStateException("Unexpected value: " + engineRotation);
         };
     }
 }

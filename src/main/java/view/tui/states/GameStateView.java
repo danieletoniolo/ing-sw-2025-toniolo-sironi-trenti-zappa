@@ -1,5 +1,6 @@
 package view.tui.states;
 
+import org.jline.terminal.Terminal;
 import view.structures.board.BoardView;
 import view.structures.deck.DeckView;
 import view.structures.player.PlayerDataView;
@@ -7,22 +8,16 @@ import view.tui.input.Command;
 
 import java.util.ArrayList;
 
-public class GameStateView implements StateView{
+public class GameStateView {
     private BoardView boardView;
     private ArrayList<PlayerDataView> playersView;
     private ArrayList<DeckView> decksView;
 
-    public GameStateView() {
-
-    }
-
-    @Override
-    public StateView isValidCommand(Command command) {
+    public StateView readInput(Terminal terminal) {
         return null; // Placeholder for the next state
     }
 
-    @Override
-    public void printTui() {
+    public void printTui(Terminal terminal) {
         System.out.println("Game state view");
     }
 }

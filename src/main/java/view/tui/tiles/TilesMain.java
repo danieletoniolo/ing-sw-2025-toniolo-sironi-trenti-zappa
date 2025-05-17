@@ -22,18 +22,17 @@ public class TilesMain {
 
         for (ComponentView tile : tiles) {
             tile.setCovered(false);
-            tile.setClockwiseRotation(3);
         }
-        drawTiles(tiles, 13);
+        drawTiles(tiles, 19);
 
         SpaceShipView spaceShipView = new SpaceShipView(LevelView.SECOND);
-        spaceShipView.placeComponent(converter(TilesManager.getMainCabin(PlayerColor.GREEN)), 6, 6);
+        spaceShipView.placeComponent(converter(TilesManager.getMainCabin(PlayerColor.BLUE)), 6, 6);
         //spaceShipView.addReservedComponent(tiles.get(123));
         spaceShipView.addReservedComponent(tiles.get(1));
         //spaceShipView.addReservedComponent(tiles.get(56));
 
         for (int i = 0; i < SpaceShipView.getRowToDraw(); i++) {
-            System.out.println(spaceShipView.drawTui(i));
+            System.out.println(spaceShipView.drawLineTui(i));
         }
     }
 
@@ -80,8 +79,8 @@ public class TilesMain {
             case STORAGE -> new StorageView(tile.getID(), connectors, ((Storage) tile).isDangerous(), ((Storage) tile).getGoodsCapacity());
             case BROWN_LIFE_SUPPORT -> new LifeSupportBrownView(tile.getID(), connectors);
             case PURPLE_LIFE_SUPPORT -> new LifeSupportPurpleView(tile.getID(), connectors);
-            case SINGLE_CANNON, DOUBLE_CANNON -> new CannonView(tile.getID(), connectors, ((Cannon) tile).getCannonStrength());
-            case SINGLE_ENGINE, DOUBLE_ENGINE -> new EngineView(tile.getID(), connectors, ((Engine) tile).getEngineStrength());
+            case SINGLE_CANNON, DOUBLE_CANNON -> new CannonView(tile.getID(), connectors, ((Cannon) tile).getCannonStrength(), tile.getClockwiseRotation());
+            case SINGLE_ENGINE, DOUBLE_ENGINE -> new EngineView(tile.getID(), connectors, ((Engine) tile).getEngineStrength(), tile.getClockwiseRotation());
             case SHIELD -> {
                 boolean[] shields = new boolean[4];
                 for (int i = 0; i < 4; i++) shields[i] = ((Shield) tile).canShield(i);

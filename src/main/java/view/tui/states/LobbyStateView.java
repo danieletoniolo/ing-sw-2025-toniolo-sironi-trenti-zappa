@@ -1,42 +1,56 @@
 package view.tui.states;
 
+import view.structures.MiniModel;
 import view.structures.lobby.LobbyView;
+import org.jline.terminal.Terminal;
 import view.tui.input.Command;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+
 
 public class LobbyStateView implements StateView {
-    private ArrayList<String> validCommands = (ArrayList<String>) List.of("/ready", "/not", "/leave", "/help");
-    private LobbyView lobbyView;
+    private final ArrayList<String> options = new ArrayList<>(Arrays.asList("Ready", "Not ready", "Leave"));
+    private final String lobbyID;
+    private final LobbyView currentLobbyView;
+    private int totalLines;
 
-    public LobbyStateView(LobbyView lobbyView) {
-        this.lobbyView = lobbyView;
+
+    public LobbyStateView(String lobbyID) {
+        this.lobbyID = lobbyID;
+        currentLobbyView = MiniModel.getInstance().lobbyViews.stream()
+                .filter(lobbyView -> lobbyView.getLobbyName().equals(this.lobbyID))
+                .findFirst()
+                .orElse(null);
+        totalLines = currentLobbyView.getRowsToDraw() + 1;
     }
 
     @Override
-    public StateView isValidCommand(Command command) {
-        // Implement the logic for handling commands in the lobby state
-        if (!validCommands.contains(command.name())) {
-            return null;
-        }
+    public ArrayList<String> getOptions() {
+        return options;
+    }
 
-        switch (command.name()) {
-            case "/help":
-                System.out.println("To set your status, type '/ready' or '/not ready'.\nTo exit the lobby, type '/leave'.");
-                break;
-        };
+    @Override
+    public int getTotalLines() {
+        return totalLines;
+    }
 
+    @Override
+    public StateView internalViewState(Command command) {
         return null;
     }
 
     @Override
-    public void printTui() {
-        // Implement the logic for printing the lobby state to the TUI
-        for (int i = 0; i < lobbyView.getRowsToDraw(); i++) {
-            System.out.println(lobbyView.drawLineTui(i));
+    public void printTui(Terminal terminal) {
+        var writer = terminal.writer();
+        terminal.writer().print("\033[H\033[2J");
+        writer.flush();
+        for (int i = 0; i < currentLobbyView.getRowsToDraw(); i++) {
+            writer.println(currentLobbyView.drawLineTui(i));
         }
 
-        System.out.println("\nSet status (ready/not ready) or leave the lobby: ");
+        writer.println("\nSet status (ready/not ready) or leave the lobby: ");
+
+        writer.flush();
     }
 }

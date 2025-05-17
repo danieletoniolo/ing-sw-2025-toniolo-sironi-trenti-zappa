@@ -1,6 +1,7 @@
 package view.structures.player;
 
 import view.structures.Structure;
+import view.structures.components.ComponentView;
 import view.structures.spaceship.SpaceShipView;
 
 import java.util.UUID;
@@ -11,12 +12,15 @@ public class PlayerDataView implements Structure {
     private int step;
     private int coins;
     private SpaceShipView ship;
+    private ComponentView hand;
 
-    public PlayerDataView(String username, ColorView color) {
+    public PlayerDataView(String username, ColorView color, SpaceShipView ship) {
         this.username = username;
         this.color = color;
+        this.ship = ship;
     }
 
+    @Override
     public void drawGui() {
         //TODO: Implements player data gui
     }
@@ -25,6 +29,7 @@ public class PlayerDataView implements Structure {
         return 4;
     }
 
+    @Override
     public String drawLineTui(int line) {
         return switch (line) {
             case 0 -> color.drawTui();
@@ -59,11 +64,15 @@ public class PlayerDataView implements Structure {
         return coins;
     }
 
-    public void setShip(SpaceShipView ship) {
-        this.ship = ship;
-    }
-
     public SpaceShipView getShip() {
         return ship;
+    }
+
+    public void setHand(ComponentView hand) {
+        this.hand = hand;
+    }
+
+    public ComponentView getHand() {
+        return hand;
     }
 }

@@ -1,62 +1,108 @@
 package view.tui;
 
-import controller.event.Event;
+
+import controller.event.game.AddCoins;
 import controller.event.lobby.CreateLobby;
+import controller.event.lobby.JoinLobby;
+import controller.event.lobby.LeaveLobby;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import view.Manager;
 import view.structures.MiniModel;
-import view.structures.Structure;
-import view.structures.lobby.LobbyView;
-import view.structures.logIn.LogInView;
+import view.structures.player.PlayerDataView;
 import view.tui.input.Command;
 import view.tui.input.Parser;
 import view.tui.states.LobbyStateView;
-import view.tui.states.LogInStateView;
+import view.tui.states.MenuStateView;
 import view.tui.states.StateView;
 import view.tui.translater.CommandHandler;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TuiManager implements Manager {
     private final BlockingQueue<Command> commandQueue = new LinkedBlockingQueue<>();
     private final Object stateLock = new Object();
-    private StateView currentState = new LogInStateView(new LogInView());
+    private StateView currentState /*= new LogInStateView(new LogInView())*/;
     private CommandHandler commandHandler = new CommandHandler();
 
-    private final Map<Class<? extends Event>, Class<? extends StateView>> stateMap = new HashMap<>();
+    private Parser parser;
+    private Terminal terminal;
 
     public TuiManager() {
-        stateMap.put(CreateLobby.class, LobbyStateView.class);
+        try {
+            this.terminal = TerminalBuilder.builder()
+                    .jna(true)
+                    .jansi(true)
+                    .build();
+        } catch (Exception e) {
+            System.err.println("Creation terminal error: " + e.getMessage());
+            return;
+        }
+        parser = new Parser(terminal);
+    }
+
+
+    @Override
+    public void notifyCreateLobby(CreateLobby data) {
+        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().userID)) { // Create a new lobbyState if the user is the one who created it or the server said to do so
+            //currentState = new LobbyStateView(data.lobbyID());
+            stateLock.notifyAll();
+        }
+        else {
+            if (currentState instanceof MenuStateView) { // Refresh the menu if another user creates a lobby because nd we are in the menu state
+                stateLock.notifyAll();
+            }
+        }
     }
 
     @Override
-    public void setEvent(Structure oldStructure, Structure newStructure, Event data) {
-
-        StateView possibleNewState = switch (stateMap.get(event)) {
-            case LobbyStateView.class -> {
-                LobbyView lobbyView = MiniModel.getInstance().lobbyViews.stream()
-                        .filter(lobby -> lobby.getLobbyName().equals(data.lobbyID()))
-                        .findFirst();
-                new LobbyStateView(new LobbyView(()));
+    public void notifyJoinLobby(JoinLobby data) {
+        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().userID)) { // Create a new lobbyState if the user is the one who created it or the server said to do so
+            currentState = new LobbyStateView(data.lobbyID());
+            stateLock.notifyAll();
+        }
+        else {
+            if (currentState instanceof LobbyStateView) { // Refresh the lobby view if another user joins because we are in the lobby state
+                stateLock.notifyAll();
             }
-            default -> null;
-        };
+        }
+    }
+
+    @Override
+    public void notifyLeaveLobby(LeaveLobby data) {
+        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().userID)) { // Create a new MenuState if the user or the server said to do so
+            //currentState = new MenuStateView();
+            stateLock.notifyAll();
+        }
+        else {
+            if (currentState instanceof LobbyStateView) { // Refresh the lobby view if another user leaves because we are in the lobby state
+                stateLock.notifyAll();
+            }
+        }
+    }
+
+    @Override
+    public void notifyAddCoins(AddCoins data) {
+        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().userID)) {
+            currentState.notifyAll();
+        }
+        else {
+            if (currentState instanceof PlayerDataView) {
+
+            }
+        }
     }
 
     public void startTui(){
         //Reading inputs thread
         Thread parserThread = new Thread(() -> {
             while (true) {
-                Command command = Parser.readCommand();
                 try {
-                    //Event newEvent = commandHandler.createEvent(command, currentState);
-                    //if (newEvent != null) {
-
-                    //}
+                    Command command = parser.getCommand(currentState.getOptions(), currentState.getTotalLines());
                     commandQueue.put(command);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                    e.getMessage();
                 }
             }
         });
@@ -68,7 +114,7 @@ public class TuiManager implements Manager {
                     synchronized (stateLock){
                         stateLock.wait();
                     }
-                    currentState.printTui();
+                    currentState.printTui(terminal);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -77,5 +123,11 @@ public class TuiManager implements Manager {
 
         parserThread.start();
         viewThread.start();
+    }
+
+
+    public static void main(String[] args) {
+        TuiManager tuiManager = new TuiManager();
+        tuiManager.startTui();
     }
 }

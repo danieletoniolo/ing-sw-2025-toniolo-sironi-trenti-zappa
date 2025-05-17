@@ -3,6 +3,8 @@ package view.structures.components;
 public class BatteryView extends ComponentView {
     private int numberOfBatteries;
     private int maximumBatteries;
+    private String green = "\033[32m";
+    private String reset = "\033[0m";
 
     public BatteryView(int ID, int[] connectors, int maximumBatteries) {
         super(ID, connectors);
@@ -31,9 +33,8 @@ public class BatteryView extends ComponentView {
         if (isCovered()) return super.drawLineTui(line);
 
         return switch (line) {
-            case 0, 4, 3 -> super.drawLineTui(line);
-            case 1 -> super.drawLeft(line) + "  Battery  " + super.drawRight(line);
-            case 2 -> super.drawLeft(line) + "    " + getNumberOfBatteries() + "/" + maximumBatteries + "    " + super.drawRight(line);
+            case 0, 2 -> super.drawLineTui(line);
+            case 1 -> super.drawLeft(line) + "  " + (green + getNumberOfBatteries() + "/" + maximumBatteries + reset) + "  " + super.drawRight(line);
             default -> throw new IndexOutOfBoundsException("Unexpected value: " + line);
         };
     }

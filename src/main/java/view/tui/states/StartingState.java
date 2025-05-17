@@ -1,11 +1,12 @@
 package view.tui.states;
 
+import org.jline.terminal.Terminal;
 import view.tui.TerminalUtils;
 import view.tui.input.Command;
 
 import java.util.ArrayList;
 
-public class StartingState implements StateView {
+public class StartingState {
     ArrayList<String> validCommands;
 
     public StartingState() {
@@ -16,23 +17,12 @@ public class StartingState implements StateView {
         validCommands.add("help");
     }
 
-    @Override
-    public StateView isValidCommand(Command command) {
-        if (validCommands.contains(command.name())) {
-            throw new IllegalStateException("Invalid command: " + command.name());
-        }
+    public StateView readInput(Terminal terminal) {
 
-        switch (command.name()) {
-            case "tui":
-                System.out.println("You selected: " + command.name());
-                TerminalUtils.clearTerminal();
-                return new StartingState();
-        }
-        throw new IllegalStateException("Invalid command: " + command.name());
+        return null;
     }
 
-    @Override
-    public void printTui() {
+    public void printTui(Terminal terminal) {
         System.out.println("Lost? Type 'HELP' to get a rundown of all commands and what they do.");
         System.out.println();
         System.out.println("To start select the mode: 'Tui' or 'Gui', or 'Exit' to exit.");

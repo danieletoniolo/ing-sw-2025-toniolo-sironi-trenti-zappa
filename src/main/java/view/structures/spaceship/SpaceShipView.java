@@ -1,20 +1,19 @@
 package view.structures.spaceship;
 
+import view.structures.Structure;
 import view.structures.board.LevelView;
 import view.structures.components.ComponentView;
 
 import java.util.ArrayList;
 
-public class SpaceShipView {
-    public static String UpReserved1 =     "╭────────────";
-    public static String LeftReserved =    "│            ";
-    public static String LeftReserved2 =   "│       Disca";
-    public static String DownReserved1 =   "╰────────────";
+public class SpaceShipView implements Structure {
+    public static String UpReserved1 =     "╭────────";
+    public static String LeftReserved2 =   "│   Disca";
+    public static String DownReserved1 =   "╰────────";
 
-    public static String UpReserved2 =    "────────────╮";
-    public static String RightReserved =  "            │";
-    public static String RightReserved2 = "d pile      │";
-    public static String DownReserved2 =  "────────────╯";
+    public static String UpReserved2 =     "────────╮";
+    public static String RightReserved2 =  "d pile  │";
+    public static String DownReserved2 =   "────────╯";
 
 
     private LevelView level;
@@ -65,74 +64,70 @@ public class SpaceShipView {
         reserved.remove(component);
     }
 
+    @Override
     public void drawGui() {
         //TODO: Implement the GUI drawing logic for the spaceship here
     }
 
     public static int getRowToDraw() {
-        return 27;
+        return 5 * ComponentView.getRowsToDraw() + 2;
     }
 
-    public String drawTui(int line) {
+    @Override
+    public String drawLineTui(int line) {
         StringBuilder str = new StringBuilder();
         String space = "  ";
 
-        if (line == 0 || line == 26) {
+        if (line == 0 || line == getRowToDraw() - 1) {
             str.append("   ");
             for (int i = 0; i < viewable[0].length; i++) {
-                str.append("      ").append(i + 4).append("      ");
+                str.append("    ").append(i + 4).append("    ");
             }
             return str.toString();
         }
 
         line = line - 1;
-        boolean[] row = viewable[line / 5];
-        String number = line % 5 == 2 ? String.valueOf(line / 5 + 5) : " ";
+        boolean[] row = viewable[line / ComponentView.getRowsToDraw()];
+        String number = line % ComponentView.getRowsToDraw() == 1 ? String.valueOf(line / ComponentView.getRowsToDraw() + 5) : " ";
         str.append(number).append(space);
         for (int i = 0; i < row.length; i++) {
-            ComponentView tile = spaceShip[line / 5][i];
+            ComponentView tile = spaceShip[line / ComponentView.getRowsToDraw()][i];
             if (!row[i]) {
-                str.append("             ");
+                str.append("         ");
             }
             else if (tile != null) {
-                str.append(tile.drawLineTui(line % 5));
+                str.append(tile.drawLineTui(line % ComponentView.getRowsToDraw()));
             }
             else {
-                switch (line % 5) {
+                switch (line % ComponentView.getRowsToDraw()) {
                     case 0 -> str.append(ComponentView.Up0);
-                    case 1, 2, 3 -> str.append(ComponentView.clean);
-                    case 4 -> str.append(ComponentView.Down0);
+                    case 1 -> str.append(ComponentView.clean);
+                    case 2 -> str.append(ComponentView.Down0);
                 }
             }
         }
         str.append(space).append(number);
 
-        if (line / 5 == 0) {
+        if (line / ComponentView.getRowsToDraw() == 0) {
             str.append(space);
-            switch (line % 5) {
+            switch (line % ComponentView.getRowsToDraw()) {
                 case 0:
                     if (reserved.isEmpty()) str.append(UpReserved1);
                     else str.append(reserved.getFirst().drawLineTui(0));
                     if (reserved.isEmpty() || reserved.size() == 1) str.append(UpReserved2);
                     else str.append(reserved.getLast().drawLineTui(0));
                     break;
-                case 2:
+                case 1:
                     if (reserved.isEmpty()) str.append(LeftReserved2);
-                    else str.append(reserved.getFirst().drawLineTui(line % 5));
+                    else str.append(reserved.getFirst().drawLineTui(line % ComponentView.getRowsToDraw()));
                     if (reserved.isEmpty() || reserved.size() == 1) str.append(RightReserved2);
-                    else str.append(reserved.getLast().drawLineTui(line % 5));
+                    else str.append(reserved.getLast().drawLineTui(line % ComponentView.getRowsToDraw()));
                     break;
-                case 1, 3:
-                    if (reserved.isEmpty()) str.append(LeftReserved);
-                    else str.append(reserved.getFirst().drawLineTui(line % 5));
-                    if (reserved.isEmpty() || reserved.size() == 1) str.append(RightReserved);
-                    else str.append(reserved.getLast().drawLineTui(line % 5));
-                    break;
-                case 4:
+                case 2:
                     if (reserved.isEmpty()) str.append(DownReserved1);
-                    else str.append(reserved.getFirst().drawLineTui(4));
+                    else str.append(reserved.getFirst().drawLineTui(ComponentView.getRowsToDraw() - 1));
                     if (reserved.isEmpty() || reserved.size() == 1) str.append(DownReserved2);
-                    else str.append(reserved.getLast().drawLineTui(4));
+                    else str.append(reserved.getLast().drawLineTui(ComponentView.getRowsToDraw() - 1));
                     break;
             }
         }

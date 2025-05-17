@@ -8,7 +8,6 @@ import controller.event.lobby.CreateLobby;
 import controller.event.lobby.JoinLobby;
 import controller.event.lobby.LeaveLobby;
 import view.structures.MiniModel;
-import view.structures.Structure;
 import view.structures.board.LevelView;
 import view.structures.lobby.LobbyView;
 
@@ -18,20 +17,22 @@ public class EventHandlerClient {
     Manager manager;
 
     private final EventListener<CreateLobby> createLobbyListener = data -> {
-        LevelView level = LevelView.valueOf(data.level().name());
-        //LobbyView lobbyView = new LobbyView(data.lobbyID(), data.maxPlayers(), level);
+        /*LevelView level = LevelView.valueOf(data.level().name());
+        LobbyView lobbyView = new LobbyView(data.lobbyID(), data.maxPlayers(), level);
 
-        //MiniModel.getInstance().lobbyViews.add(lobbyView);
+        MiniModel.getInstance().lobbyViews.add(lobbyView);
+
+        manager.notifyCreateLobby(data);*/
     };
 
     private final EventListener<JoinLobby> joinLobbyListener = data -> {
-
         MiniModel.getInstance().lobbyViews.stream()
                 .filter(lobbyView -> lobbyView.getLobbyName().equals(data.lobbyID()))
                 .findFirst()
                 .ifPresent(lobbyView -> {
                     lobbyView.addPlayer(data.userID());
                 });
+        manager.notifyJoinLobby(data);
 
     };
 
@@ -41,15 +42,11 @@ public class EventHandlerClient {
                 .findFirst()
                 .ifPresent(lobbyView -> {
                     lobbyView.removePlayer(data.userID());
-                });*/
+                });
+        manager.notifyLeaveLobby(data);*/
     };
 
     private final EventListener<AddCoins> addCoinsListener = data -> {
-        Structure oldStructure = MiniModel.getInstance().players.stream()
-                .filter(player -> player.getUsername().equals(data.userID()))
-                .findFirst()
-                .orElse(null);
-
         MiniModel.getInstance().players.stream()
                 .filter(player -> player.getUsername().equals(data.userID()))
                 .findFirst()
@@ -57,7 +54,7 @@ public class EventHandlerClient {
                     player.setCoins(data.coins());
                 });
 
-        manager.addCoinsEvent(oldStructure, player, data);
+
     };
 
     private final EventListener<CanProtect> canProtectListener = data -> {

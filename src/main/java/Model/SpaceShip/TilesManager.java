@@ -12,7 +12,7 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class TilesManager {
-    private static final ClassLoader classLoader = Main.class.getClassLoader();
+    private static final ClassLoader classLoader = TilesManager.class.getClassLoader();
     private static final InputStream inputStream = classLoader.getResourceAsStream("Json/Tiles.json");
     private static final String json;
     static {

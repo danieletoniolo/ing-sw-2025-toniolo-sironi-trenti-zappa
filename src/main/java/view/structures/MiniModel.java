@@ -12,12 +12,13 @@ import java.util.ArrayList;
 public class MiniModel {
     private static MiniModel instance;
 
-    public LogInView logInView;
-    public ArrayList<LobbyView> lobbyViews;
-    public ArrayList<DeckView> deckViews;
+    public LogInView logInView = new LogInView();
+    public ArrayList<LobbyView> lobbyViews = new ArrayList<>();
+    public ArrayList<DeckView> deckViews = new ArrayList<>();
     public BoardView boardView;
-    public ArrayList<PlayerDataView> players;
-    public ArrayList<ComponentView> components;
+    public ArrayList<PlayerDataView> players = new ArrayList<>();
+    public ArrayList<ComponentView> components = new ArrayList<>();
+    public String userID;
 
     public static MiniModel getInstance() {
         if (instance == null) {

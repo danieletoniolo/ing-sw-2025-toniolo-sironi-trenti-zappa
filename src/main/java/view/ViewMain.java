@@ -22,10 +22,10 @@ enum StartCommands {
 
 public class ViewMain {
     public static void main(String[] args) {
-        Parser parser = new Parser();
+        //Parser parser = new Parser();
         Thread parserThread = new Thread(() -> {
             while (true) {
-                Command command = parser.readCommand();
+               // Command command = parser.readCommand();
             }
         });
 
@@ -57,7 +57,7 @@ public class ViewMain {
             System.out.println();
             System.out.println("To start select the mode: 'Tui' or 'Gui', or 'Exit' to exit.");
 
-            Command command = parser.readCommand();
+            /*Command command = parser.readCommand();
             StartCommands startCommand = StartCommands.from(command.name());
 
             if (startCommand == null) {
@@ -78,13 +78,14 @@ public class ViewMain {
                     break;
                 case EXIT:
                     System.out.println("Exiting game...");
-                    parser.closeScanner();
+                    //parser.closeScanner();
                     System.exit(0);
                     break;
                 case HELP:
                     System.out.println("To start the game, type 'tui' or 'gui'. To exit, type 'exit'.");
                     break;
             }
+            */
         }
     }
 }

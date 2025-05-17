@@ -16,8 +16,8 @@ public class ConnectorsView extends ComponentView {
         if (isCovered()) return super.drawLineTui(line);
 
         return switch (line) {
-            case 0, 1, 3, 4 -> super.drawLineTui(line);
-            case 2 -> super.drawLeft(line) + "   Pipes   " + super.drawRight(line);
+            case 0, 2  -> super.drawLineTui(line);
+            case 1 -> super.drawLeft(line) + " Pipes " + super.drawRight(line);
             default -> throw new IndexOutOfBoundsException("Unexpected value: " + line);
         };
     }
