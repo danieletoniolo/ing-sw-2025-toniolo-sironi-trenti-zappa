@@ -133,8 +133,7 @@ public class TCPConnection implements Connection {
                     timer.cancel();
                 }
             }
-        }, 0, 5000);
-        // TODO: Decide what should be the frequency of the heartbeat
+        }, 0, 2500);
     }
 
     @Override

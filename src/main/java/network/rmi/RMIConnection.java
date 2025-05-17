@@ -139,7 +139,7 @@ public class RMIConnection implements Connection {
                     throw new DisconnectedConnection("Connection is closed", e);
                 }
             }
-        }, 0, TIMEOUT);
+        }, 0, TIMEOUT/2);
     }
 
     /**
