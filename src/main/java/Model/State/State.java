@@ -50,17 +50,6 @@ public abstract class State {
     }
 
     /**
-     * Set the status of all players
-     *
-     * @param status PlayerStatus to set to all players
-     */
-    protected void setStatusPlayers(PlayerStatus status) {
-        for (PlayerData p : players) {
-            playersStatus.put(p.getColor(), status);
-        }
-    }
-
-    /**
      * Get the player who has not played yet (current player to play)
      *
      * @return PlayerData of the current player that is playing
@@ -249,5 +238,24 @@ public abstract class State {
      */
     public void setPenaltyLoss(PlayerData player, int type, List<Integer> penaltyLoss) throws IllegalStateException {
         throw new IllegalStateException("Cannot set penalty loss in this state");
+    }
+
+    /**
+     * Select a planet to land on.
+     * @param player PlayerData of the player who is selecting the planet.
+     * @param planetNumber Number of the planet to select.
+     * @throws IllegalStateException if the state does not allow selecting a planet.
+     */
+    public void selectPlanet(PlayerData player, int planetNumber) throws IllegalStateException {
+        throw new IllegalStateException("Cannot select planet in this state");
+    }
+
+    /**
+     * Select which fragment of the ship to preserve
+     * @param fragmentChoice
+     * @throws IllegalStateException
+     */
+    public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
+        throw new IllegalStateException("Cannot set fragment choice in this state");
     }
 }

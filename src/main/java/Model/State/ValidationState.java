@@ -3,7 +3,6 @@ package Model.State;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.State.interfaces.ChoosableFragment;
 import Model.State.interfaces.DestroyableComponent;
 import controller.EventCallback;
 import event.game.DestroyComponents;
@@ -14,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class ValidationState extends State implements ChoosableFragment, DestroyableComponent {
+public class ValidationState extends State implements DestroyableComponent {
     private ValidationInternalState internalState;
     private Map<PlayerData, ArrayList<Pair<Integer, Integer>>> invalidComponents;
     private ArrayList<ArrayList<Pair<Integer, Integer>>> fragmentedComponents;
@@ -41,53 +40,17 @@ public class ValidationState extends State implements ChoosableFragment, Destroy
         this.internalState = ValidationInternalState.DEFAULT;
     }
 
-    public void setInternalState(ValidationInternalState internalState) {
-        this.internalState = internalState;
-    }
-
-    public void setFragmentedComponents(ArrayList<ArrayList<Pair<Integer, Integer>>> fragmentedComponents) {
-        this.fragmentedComponents = fragmentedComponents;
-    }
-
     /**
-     * Getter for the internal state
-     * @return The internal state
+     * Implementation of {@link State#setFragmentChoice(int)} to set the fragment choice.
      */
-    public ValidationInternalState getInternalState() {
-        return internalState;
-    }
-
-    /**
-     * Getter for the invalid components
-     * @return The invalid components
-     */
-    public Map<PlayerData, ArrayList<Pair<Integer, Integer>>> getInvalidComponents() {
-        return invalidComponents;
-    }
-
-    /**
-     * Getter for the fragmented components
-     * @return The fragmented components
-     */
-    public ArrayList<ArrayList<Pair<Integer, Integer>>> getFragmentedComponents() {
-        return fragmentedComponents;
-    }
-
-    /**
-     * Getter for the fragment choice
-     * @return The fragment choice
-     */
-    public int getFragmentChoice() {
-        return fragmentChoice;
-    }
-
-    public ArrayList<Pair<Integer, Integer>> getComponentsToDestroy() {
-        return componentsToDestroy;
-    }
-
+    @Override
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
         if (internalState != ValidationInternalState.FRAGMENTED_SHIP) {
             throw new IllegalStateException("No fragment to choose");
+        }
+        // Check if the fragment choice is valid
+        if (fragmentChoice < 0 || fragmentChoice >= fragmentedComponents.size()) {
+            throw new IllegalArgumentException("Fragment choice is out of bounds");
         }
         this.fragmentChoice = fragmentChoice;
     }
@@ -150,15 +113,14 @@ public class ValidationState extends State implements ChoosableFragment, Destroy
                 if (fragmentChoice == -1) {
                     throw new IllegalStateException("Player has not set the fragment choice");
                 }
-                // Check if the fragment choice is valid
-                if (fragmentChoice < 0 || fragmentChoice >= fragmentedComponents.size()) {
-                    throw new IndexOutOfBoundsException("Fragment choice is out of bounds");
-                }
-                // Get the chosen fragment
-                ArrayList<Pair<Integer, Integer>> chosenFragment = fragmentedComponents.get(fragmentChoice);
-                // Destroy the components in the chosen fragment
-                for (Pair<Integer, Integer> component : chosenFragment) {
-                    ship.destroyComponent(component.getValue0(), component.getValue1());
+                // Destroy all the other fragment of the ship other than the chosen one
+                for (ArrayList<Pair<Integer, Integer>> chosenFragment : fragmentedComponents) {
+                    if (fragmentedComponents.indexOf(chosenFragment) != fragmentChoice) {
+                        // Destroy the components in the chosen fragment
+                        for (Pair<Integer, Integer> component : chosenFragment) {
+                            ship.destroyComponent(component.getValue0(), component.getValue1());
+                        }
+                    }
                 }
 
                 destroyableComponentEvent = new DestroyComponents(player.getUsername(), componentsToDestroy);

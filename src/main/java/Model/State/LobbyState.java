@@ -2,7 +2,6 @@ package Model.State;
 
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
-import Model.State.interfaces.JoinableGame;
 import controller.EventCallback;
 
 /**
@@ -17,7 +16,7 @@ import controller.EventCallback;
  * @see State
  * @author Daniele Toniolo
  */
-public class LobbyState extends State implements JoinableGame {
+public class LobbyState extends State {
 
     /**
      * Constructs a new LobbyState object associated with the given board.

@@ -97,8 +97,15 @@ public class GameController {
     }
 
     public void choseFragment(UUID uuid, int fragmentID) {
-        if (state instanceof ChoosableFragment) {
-            ((ChoosableFragment) state).setFragmentChoice(fragmentID);
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            try {
+                state.setFragmentChoice(fragmentID);
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException("Cannot choose fragment in this state");
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid fragment ID: " + fragmentID);
+            }
         } else {
             throw new IllegalStateException("State is not a ChoosableFragment");
         }
@@ -124,13 +131,15 @@ public class GameController {
     }
 
     public void selectPlanet(UUID uuid, int planetID) {
-        if (state instanceof SelectablePlanet) {
-            PlayerData player = state.getCurrentPlayer();
-            if (player.getUUID().equals(uuid)) {
-                ((SelectablePlanet) state).selectPlanet(player, planetID);
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            try {
+                state.selectPlanet(player, planetID);
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException("Cannot select planet in this state");
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid planet ID: " + planetID);
             }
-        } else {
-            throw new IllegalStateException("State is not a SelectablePlanet");
         }
     }
 

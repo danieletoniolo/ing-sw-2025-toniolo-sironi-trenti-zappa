@@ -3,11 +3,10 @@ package Model.State;
 import Model.Cards.MeteorSwarm;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
-import Model.State.interfaces.ChoosableFragment;
 import Model.State.interfaces.Fightable;
 import controller.EventCallback;
 
-public class MeteorSwarmState extends State implements Fightable, ChoosableFragment {
+public class MeteorSwarmState extends State implements Fightable {
     private final MeteorSwarm card;
     private final FightHandlerSubState fightHandler;
 
@@ -31,10 +30,9 @@ public class MeteorSwarmState extends State implements Fightable, ChoosableFragm
     }
 
     /**
-     * Set the fragment choice
-     * @param fragmentChoice fragment choice
-     * @throws IllegalStateException if not in the right state in order to do the action
+     * Implementation of {@link State#setFragmentChoice(int)} to set the fragment choice.
      */
+    @Override
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
         fightHandler.setFragmentChoice(fragmentChoice);
     }

@@ -45,42 +45,6 @@ public class FightHandlerSubState extends State {
         this.internalState = FightHandlerInternalState.CAN_PROTECT;
     }
 
-    public void setHitIndex(int hitIndex) {
-        this.hitIndex = hitIndex;
-    }
-
-    public int getDice() {
-        return dice;
-    }
-
-    public Boolean getProtect() {
-        return protect;
-    }
-
-    public Integer getBatteryID() {
-        return batteryID;
-    }
-
-    public Integer getFragmentChoice() {
-        return fragmentChoice;
-    }
-
-    public FightHandlerInternalState getInternalState() {
-        return internalState;
-    }
-
-    public void setProtectionResult(Pair<Component, Integer> protectionResult) {
-        this.protectionResult = protectionResult;
-    }
-
-    public void setInternalState(FightHandlerInternalState internalState) {
-        this.internalState = internalState;
-    }
-
-    public void setFragments(ArrayList<ArrayList<Pair<Integer, Integer>>> fragments) {
-        this.fragments = fragments;
-    }
-
     /**
      * Initialize or reset the handler
      * @param startIndex The hit index to start with
@@ -117,6 +81,9 @@ public class FightHandlerSubState extends State {
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
         if (internalState != FightHandlerInternalState.DESTROY_FRAGMENT) {
             throw new IllegalStateException("Fragment choice not allowed in this state");
+        }
+        if (fragmentChoice < 0 || fragmentChoice >= fragments.size()) {
+            throw new IllegalArgumentException("Fragment choice is out of bounds");
         }
         this.fragmentChoice = fragmentChoice;
     }

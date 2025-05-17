@@ -15,7 +15,7 @@ import java.util.*;
 
 
 
-public class CombatZoneState extends State implements Fightable, ChoosableFragment {
+public class CombatZoneState extends State implements Fightable {
     private CombatZoneInternalState internalState;
     private final CombatZone card;
     private final ArrayList<Map<PlayerData, Float>> stats;
@@ -177,14 +177,16 @@ public class CombatZoneState extends State implements Fightable, ChoosableFragme
     }
 
     /**
-     * Set the fragment choice
-     * @param fragmentChoice fragment choice
-     * @throws IllegalStateException if not in the right state in order to do the action
+     * Implementation of the {@link State#setFragmentChoice(int)} to set the fragment choice.
      */
+    @Override
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
         if ((internalState != CombatZoneInternalState.CANNONS && card.getCardLevel() != 2) ||
                 (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
             throw new IllegalStateException("Fragment choice not allowed in this state");
+        }
+        if (fragmentChoice < 0 || fragmentChoice >= card.getFires().size()) {
+            throw new IllegalArgumentException("Fragment choice is out of bounds");
         }
         fightHandler.setFragmentChoice(fragmentChoice);
     }
