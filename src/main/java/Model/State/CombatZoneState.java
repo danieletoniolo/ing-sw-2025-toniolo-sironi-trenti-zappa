@@ -232,20 +232,21 @@ public class CombatZoneState extends State implements Fightable {
                 if (internalState != CombatZoneInternalState.GOOD_PENALTY) {
                     throw new IllegalStateException("There is no penalty to serve.");
                 }
-                // Take the goods from the storage
-                ArrayList<Good> goodsReceived = new ArrayList<>();
+                Map <Integer, Integer> goodsMap = new HashMap<>();
                 for (int storageID : penaltyLoss) {
-                    goodsReceived.add(player.getSpaceShip().getStorage(storageID).pollGood());
-                }
-                // Put that goods back in the ship
-                int j = 0;
-                for (int storageID : penaltyLoss) {
-                    player.getSpaceShip().getStorage(storageID).addGood(goodsReceived.get(j));
-                    j++;
+                    goodsMap.merge(storageID, 1, Integer::sum);
                 }
                 // Check that the selected goods to discard are the most valuable
                 PriorityQueue<Good> goodsToDiscardQueue = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
-                goodsToDiscardQueue.addAll(goodsReceived);
+                for (int storageID : goodsMap.keySet()) {
+                    for (int i = 0; i < goodsMap.get(storageID); i++) {
+                        Good good = player.getSpaceShip().getStorage(storageID).peekGood(i);
+                        if (good == null) {
+                            throw new IllegalStateException("Not enough goods in storage " + storageID);
+                        }
+                        goodsToDiscardQueue.add(good);
+                    }
+                }
                 PriorityQueue<Good> mostValuableGoods = new PriorityQueue<>(player.getSpaceShip().getGoods());
                 for (int i = 0; i < goodsToDiscardQueue.size(); i++) {
                     if (goodsToDiscardQueue.peek().getValue() != mostValuableGoods.peek().getValue()) {

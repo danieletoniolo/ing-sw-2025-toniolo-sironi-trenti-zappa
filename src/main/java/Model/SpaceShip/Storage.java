@@ -73,6 +73,20 @@ public class Storage extends Component{
     }
 
     /**
+     * Peek at the most valuable good in the storage at the given depth.
+     * @return A copy of the most valuable good in the storage.
+     */
+    public Good peekGood(int depth) {
+        if (goods.isEmpty()) {
+            return null;
+        }
+        if (depth < 0 || depth > goods.size()) {
+            throw new IllegalArgumentException("Depth is out of bounds");
+        }
+        return (Good) goods.toArray()[depth];
+    }
+
+    /**
      * Peek at the most valuable good in the storage.
      * @return A copy of the most valuable good in the storage.
      */
@@ -80,11 +94,16 @@ public class Storage extends Component{
         return goods.peek();
     }
 
+
     /**
      * Poll the most valuable good in the storage.
      * @return The most valuable good in the storage.
      */
     public Good pollGood() {
+        if (goods.isEmpty()) {
+            return null;
+        }
+        goodsValue -= goods.peek().getValue();
         return goods.poll();
     }
 
