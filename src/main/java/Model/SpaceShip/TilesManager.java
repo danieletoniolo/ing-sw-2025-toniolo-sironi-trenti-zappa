@@ -6,10 +6,7 @@ import com.sun.tools.javac.Main;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class TilesManager {
     private static final ClassLoader classLoader = TilesManager.class.getClassLoader();
@@ -51,14 +48,14 @@ public class TilesManager {
      * Get 152 tiles of the spaceship (Main cabins are not included)
      * @return an array of tiles
      */
-    public static ArrayList<Component> getTiles() {
-        ArrayList<Component> copy = new ArrayList<>();
+    public static Component[] getTiles() {
+        Component[] copy = new Component[tiles.length];
         Random random = new Random();
 
         for(int i = 0; i < tiles.length; i++){
-            copy.add(deepClone(tiles[i]));
+            copy[i] = deepClone(tiles[i]);
         }
-        Collections.shuffle(copy);
+        Collections.shuffle(List.of(copy));
         for (Component tile : copy) {
             int randomIndex = random.nextInt(4);
             for (int j = 0; j < randomIndex; j++) {
@@ -84,18 +81,6 @@ public class TilesManager {
             case RED -> deepClone(mainCabins[2]);
             case YELLOW -> deepClone(mainCabins[3]);
         };
-    }
-
-    /**
-     * Get all tiles of the spaceship (main cabins included)
-     * @return an array of tiles
-     */
-    public static Component[] getAllTiles() {
-        Component[] copy = new Component[allTiles.length];
-        for(int i = 0; i < allTiles.length; i++){
-            copy[i] = deepClone(allTiles[i]);
-        }
-        return copy;
     }
 
     /**

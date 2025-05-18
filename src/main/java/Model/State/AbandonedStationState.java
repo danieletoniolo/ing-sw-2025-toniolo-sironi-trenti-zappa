@@ -11,7 +11,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import Model.SpaceShip.SpaceShip;
-import controller.event.game.MoveMarker;
+import controller.EventCallback;
+import event.game.ExchangeGoods;
+import event.game.MoveMarker;
 import org.javatuples.Triplet;
 
 public class AbandonedStationState extends State implements ExchangeableGoods {
@@ -19,8 +21,8 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
     private Map<UUID, Float> cannonStrength;
     private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
 
-    public AbandonedStationState(Board board, AbandonedStation card) {
-        super(board);
+    public AbandonedStationState(Board board, EventCallback callback, AbandonedStation card) {
+        super(board, callback);
         this.card = card;
         this.cannonStrength = new java.util.HashMap<>();
         this.exchangeData = new ArrayList<>();
@@ -85,8 +87,8 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
 
             super.played = true;
 
-            // TODO: EVENT EXCHANGEGOODS
-
+            ExchangeGoods exchangeEvent = new ExchangeGoods(player.getUsername(), exchangeData);
+            eventCallback.trigger(exchangeEvent);
         } else {
             playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
         }
@@ -100,8 +102,8 @@ public class AbandonedStationState extends State implements ExchangeableGoods {
                 int flightDays = card.getFlightDays();
                 board.addSteps(player, -flightDays);
 
-                // TODO: EVENT ADD STEPS
                 MoveMarker stepEvent = new MoveMarker(player.getUsername(), player.getStep());
+                eventCallback.trigger(stepEvent);
 
                 break;
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {

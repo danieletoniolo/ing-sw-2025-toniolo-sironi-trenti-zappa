@@ -4,10 +4,8 @@ import Model.Cards.Slavers;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.State.interfaces.AcceptableCredits;
-import Model.State.interfaces.RemovableCrew;
-import controller.event.game.*;
-import org.javatuples.Pair;
+import controller.EventCallback;
+import event.game.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,13 +13,12 @@ import java.util.List;
 import java.util.Map;
 
 
-public class SlaversState extends State implements AcceptableCredits, RemovableCrew {
+public class SlaversState extends State {
     private SlaversInternalState internalState;
     private final Slavers card;
     private final Map<PlayerData, Float> stats;
-    private ArrayList<Pair<Integer, Integer>> crewLoss;
+    private List<Integer> crewLoss;
     private Boolean slaversDefeat;
-    private Boolean acceptCredits;
 
     /**
      * Enum to represent the internal state of the slavers state.
@@ -36,34 +33,13 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
      * @param board The board associated with the game
      * @param card Slavers card associated with the state
      */
-    public SlaversState(Board board, Slavers card) {
-        super(board);
+    public SlaversState(Board board, EventCallback callback, Slavers card) {
+        super(board, callback);
         this.internalState = SlaversInternalState.ENEMY_DEFEAT;
         this.card = card;
         this.stats = new HashMap<>();
         this.crewLoss = null;
         this.slaversDefeat = false;
-        this.acceptCredits = null;
-    }
-
-    public void setInternalState(SlaversInternalState internalState) {
-        this.internalState = internalState;
-    }
-
-    public Slavers getCard() {
-        return card;
-    }
-
-    public Map<PlayerData, Float> getStats() {
-        return stats;
-    }
-
-    public ArrayList<Pair<Integer, Integer>> getCrewLoss() {
-        return crewLoss;
-    }
-
-    public Boolean getAcceptCredits() {
-        return acceptCredits;
     }
 
     /**
@@ -87,42 +63,44 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
 
                 // Update the cannon strength stats
                 this.stats.merge(player, strength, Float::sum);
+
+                UseCannons useCannonsEvent = new UseCannons(player.getUsername(), strength, (ArrayList<Integer>) batteriesID);
+                eventCallback.trigger(useCannonsEvent);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
         }
     }
 
     /**
-     * Set the crew loss for a cabin
-     * @param cabinsID Map of cabins ID and number of crew removed for cabins
-     * @throws IllegalStateException if state is not PENALTY
+     * Implementation of the {@link State #setPenaltyLoss(PlayerData, int, List)} to set the crew to lose in
+     * order to serve the penalty.
+     * @throws IllegalArgumentException if the type is not 0, 1 or 2.
      */
-    public void setCrewLoss(ArrayList<Pair<Integer, Integer>> cabinsID) throws IllegalStateException {
-        if (internalState != SlaversInternalState.PENALTY) {
-            throw new IllegalStateException("setCabinsID not allowed in this state");
+    @Override
+    public void setPenaltyLoss(PlayerData player, int type, List<Integer> cabinsID) throws IllegalStateException {
+        switch (type) {
+            case 0 -> throw new IllegalStateException("No goods to remove in this state");
+            case 1 -> throw new IllegalStateException("No batteries to remove in this state");
+            case 2 -> {
+                // Check if there are the provided number of crew members in the provided cabins
+                Map<Integer, Integer> cabinCrewMap = new HashMap<>();
+                for (int cabinID : cabinsID) {
+                    cabinCrewMap.merge(cabinID, 1, Integer::sum);
+                }
+                SpaceShip ship = player.getSpaceShip();
+                for (int cabinID : cabinCrewMap.keySet()) {
+                    if (ship.getCabin(cabinID).getCrewNumber() < cabinCrewMap.get(cabinID)) {
+                        throw new IllegalStateException("Not enough crew members in cabin " + cabinID);
+                    }
+                }
+                // Check if the number of crew members to remove is equal to the number of crew members required to lose
+                if (cabinsID.size() != card.getCrewLost()) {
+                    throw new IllegalStateException("The crew removed is not equal to the crew required to lose");
+                }
+                this.crewLoss = cabinsID;
+            }
+            default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0, 1 or 2.");
         }
-
-        int crewRemoved = 0;
-        for (Pair<Integer, Integer> cabin : cabinsID) {
-            crewRemoved += cabin.getValue1();
-        }
-
-        if (crewRemoved != card.getCrewLost()) {
-            throw new IllegalStateException("The crew removed is not equal to the crew lost");
-        }
-        this.crewLoss = cabinsID;
-    }
-
-    /**
-     * Set if the player accepts the credits
-     * @param acceptCredits Boolean value
-     * @throws IllegalStateException if execForPlayer != 1
-     */
-    public void setAcceptCredits(boolean acceptCredits) throws IllegalStateException {
-        if (internalState != SlaversInternalState.PENALTY) {
-            throw new IllegalStateException("setAcceptCredits not allowed in this state");
-        }
-        this.acceptCredits = acceptCredits;
     }
 
     /**
@@ -168,37 +146,41 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
                     slaversDefeat = null;
                 }
 
-                // TODO: EVENT ENEMYDEFEAT
                 EnemyDefeat enemyEvent = new EnemyDefeat(player.getUsername(), Boolean.TRUE.equals(slaversDefeat));
+                eventCallback.trigger(enemyEvent);
             case PENALTY:
                 if (slaversDefeat != null && slaversDefeat) {
-                    if (acceptCredits == null) {
-                        throw new IllegalStateException("acceptCredits not set");
-                    }
-                    if (acceptCredits) {
+                    if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
                         player.addCoins(card.getCredit());
 
-                        // TODO: EVENT ADDCOINS
                         AddCoins coinsEvent = new AddCoins(player.getUsername(), player.getCoins());
+                        eventCallback.trigger(coinsEvent);
                     }
                     super.execute(player);
                 } else if (slaversDefeat != null) {
                     if (crewLoss == null) {
                         throw new IllegalStateException("crewLost not set");
                     }
+                    /*
+                       TODO:
+                        I think we need to check if the player has enough crew members before going to the penalty
+                        So that if the player has not enough crew members we send the lose event without making the player
+                        send an unnecessary setPenaltyLoss
+                     */
+
                     if (spaceShip.getCrewNumber() <= card.getCrewLost()) {
                         player.setGaveUp(true);
                         this.players = super.board.getInGamePlayers();
 
-                        // TODO: EVENT LOSE
                         PlayerLose loseEvent = new PlayerLose(player.getUsername());
+                        eventCallback.trigger(loseEvent);
                     } else {
-                        for (Pair<Integer, Integer> cabin : crewLoss) {
-                            spaceShip.removeCrewMember(cabin.getValue0(), cabin.getValue1());
+                        for (int cabinID : crewLoss) {
+                            spaceShip.removeCrewMember(cabinID, 1);
                         }
-
-                        // TODO: EVENT CREWLOSS
-                        CrewLoss crewEvent = new CrewLoss(player.getUsername(), crewLoss);
+                        // TODO: Due to the change of crewLoss to List<Integer> we need to change the event
+                        //AddLoseCrew crewEvent = new AddLoseCrew(player.getUsername(), false, crewLoss);
+                        //eventCallback.trigger(crewEvent);
                     }
                     playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
                 }
@@ -216,8 +198,8 @@ public class SlaversState extends State implements AcceptableCredits, RemovableC
             if (status == PlayerStatus.PLAYED) {
                 board.addSteps(p, -flightDays);
 
-                // TODO: EVENT STEPS
                 MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
+                eventCallback.trigger(stepsEvent);
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");
             }

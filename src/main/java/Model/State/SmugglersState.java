@@ -5,71 +5,42 @@ import Model.Game.Board.Board;
 import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.State.interfaces.DiscardableGoods;
 import Model.State.interfaces.ExchangeableGoods;
 
-import controller.event.game.CardPlayed;
-import controller.event.game.CrewLoss;
-import controller.event.game.MoveMarker;
+import controller.EventCallback;
+import event.game.*;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import java.util.*;
 
 
-public class SmugglersState extends State implements ExchangeableGoods, DiscardableGoods {
+public class SmugglersState extends State implements ExchangeableGoods {
     private final Smugglers card;
     private SmugglerInternalState internalState;
 
-    private Map<PlayerData, Float> cannonStrength;
+    private final Map<PlayerData, Float> cannonStrength;
     private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
-    private ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard;
-    private ArrayList<Pair<Integer, Integer>> crewToLose;
+    private List<Integer> goodsToDiscard;
+    private List<Integer> batteriesToDiscard;
 
     /**
      * Enum to represent the internal state of the smugglers state.
      */
     private enum SmugglerInternalState {
         DEFAULT,
-        PENALTY
+        GOODS_PENALTY,
+        BATTERIES_PENALTY
     }
 
-    public SmugglersState(Board board, Smugglers card) {
-        super(board);
+    public SmugglersState(Board board, EventCallback callback, Smugglers card) {
+        super(board, callback);
         this.card = card;
         this.cannonStrength = new HashMap<>();
         this.internalState = SmugglerInternalState.DEFAULT;
         this.exchangeData = null;
         this.goodsToDiscard = null;
-        this.crewToLose = null;
-    }
-
-    public Smugglers getCard() {
-        return card;
-    }
-
-    public SmugglerInternalState getInternalState() {
-        return internalState;
-    }
-
-    public Map<PlayerData, Float> getCannonStrength() {
-        return cannonStrength;
-    }
-
-    public void setInternalState(SmugglerInternalState internalState) {
-        this.internalState = internalState;
-    }
-
-    public ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> getExchangeData() {
-        return exchangeData;
-    }
-
-    public ArrayList<Pair<ArrayList<Good>, Integer>> getGoodsToDiscard() {
-        return goodsToDiscard;
-    }
-
-    public ArrayList<Pair<Integer, Integer>> getCrewToLose() {
-        return crewToLose;
+        this.batteriesToDiscard = null;
     }
 
     /**
@@ -82,7 +53,7 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
         switch (type) {
             case 0 -> throw new IllegalStateException("Cannot use double engines in this state");
             case 1 -> {
-                if (internalState == SmugglerInternalState.PENALTY) {
+                if (internalState == SmugglerInternalState.GOODS_PENALTY) {
                     throw new IllegalStateException("There is a penalty to serve.");
                 }
 
@@ -95,6 +66,9 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
                 // Update the cannon strength stats
                 float oldCannonStrength = cannonStrength.get(player);
                 this.cannonStrength.replace(player, oldCannonStrength + strength);
+
+                UseCannons useCannonsEvent = new UseCannons(player.getUsername(), strength, (ArrayList<Integer>) batteriesID);
+                eventCallback.trigger(useCannonsEvent);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
         }
@@ -105,34 +79,77 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
      * @throws IllegalStateException if we are in the penalty state
      */
     public void setGoodsToExchange(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) throws IllegalStateException {
-        if (internalState == SmugglerInternalState.PENALTY) {
+        if (internalState == SmugglerInternalState.GOODS_PENALTY) {
             throw new IllegalStateException("There is a penalty to serve.");
         }
         this.exchangeData = exchangeData;
     }
 
-
     /**
-     * Set the goods to discard for the player in order to serve the penalty
-     * @param player the player that has to discard the goods
-     * @param goodsToDiscard ArrayList of (in order) the good to discard and the storage id where to take it from
+     * Implementation of the {@link State#setPenaltyLoss(PlayerData, int, List)} to set the goods to lose in
+     * order to serve the penalty and if there are not enough goods to lose, set the batteries to lose.
+     * @throws IllegalArgumentException if the type is not 0, 1 or 2.
      */
-    public void setGoodsToDiscard(PlayerData player, ArrayList<Pair<ArrayList<Good>, Integer>> goodsToDiscard) {
-        if (internalState == SmugglerInternalState.DEFAULT) {
-            throw new IllegalStateException("There is no penalty to serve yet.");
+    @Override
+    public void setPenaltyLoss(PlayerData player, int type, List<Integer> penaltyLoss) throws IllegalStateException {
+        switch (type) {
+            case 0 -> {
+                // Check if there is a penalty to serve
+                if (internalState != SmugglerInternalState.GOODS_PENALTY) {
+                    throw new IllegalStateException("There is no penalty to serve.");
+                }
+                Map <Integer, Integer> goodsMap = new HashMap<>();
+                for (int storageID : penaltyLoss) {
+                    goodsMap.merge(storageID, 1, Integer::sum);
+                }
+                // Check that the selected goods to discard are the most valuable
+                PriorityQueue<Good> goodsToDiscardQueue = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
+                for (int storageID : goodsMap.keySet()) {
+                    for (int i = 0; i < goodsMap.get(storageID); i++) {
+                        Good good = player.getSpaceShip().getStorage(storageID).peekGood(i);
+                        if (good == null) {
+                            throw new IllegalStateException("Not enough goods in storage " + storageID);
+                        }
+                        goodsToDiscardQueue.add(good);
+                    }
+                }
+                PriorityQueue<Good> mostValuableGoods = new PriorityQueue<>(player.getSpaceShip().getGoods());
+                for (int i = 0; i < goodsToDiscardQueue.size(); i++) {
+                    if (goodsToDiscardQueue.peek().getValue() != mostValuableGoods.peek().getValue()) {
+                        throw new IllegalStateException("The goods to discard are not the most valuable");
+                    }
+                    goodsToDiscardQueue.poll();
+                    mostValuableGoods.poll();
+                }
+                // Finally we can set the goods to discard
+                this.goodsToDiscard = penaltyLoss;
+            }
+            case 1 -> {
+                // Check if there is penalty to serve
+                if (internalState != SmugglerInternalState.BATTERIES_PENALTY) {
+                    throw new IllegalStateException("There is no penalty to serve.");
+                }
+                // Check if there are the provided number of batteries in the provided batteries slots.
+                Map<Integer, Integer> batteriesMap = new HashMap<>();
+                for (int batteryID : penaltyLoss) {
+                    batteriesMap.merge(batteryID, 1, Integer::sum);
+                }
+                SpaceShip ship = player.getSpaceShip();
+                for (int batteryID : batteriesMap.keySet()) {
+                    if (ship.getBattery(batteryID).getEnergyNumber() < batteriesMap.get(batteryID)) {
+                        throw new IllegalStateException("Not enough energy in battery " + batteryID);
+                    }
+                }
+                // Check if the number of batteries to remove is equal to the number of batteries required to lose
+                // The number of batteries to lose is the number of goods to discard minus the number of goods already discarded
+                if (penaltyLoss.size() != card.getGoodsLoss() - goodsToDiscard.size()) {
+                    throw new IllegalStateException("The batteries removed is not equal to the batteries required to lose");
+                }
+                this.batteriesToDiscard = penaltyLoss;
+            }
+            case 2 -> throw new IllegalStateException("No crew to lose in this state");
+            default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0, 1 or 2.");
         }
-        this.goodsToDiscard = goodsToDiscard;
-    }
-
-    /**
-     * Set the crew to lose in order to serve the penalty
-     * @param crewToLose ArrayList of (in order) the cabin ID and the number if crew members to lose
-     */
-    public void setCrewToLose(ArrayList<Pair<Integer, Integer> > crewToLose) {
-        if (internalState == SmugglerInternalState.DEFAULT) {
-            throw new IllegalStateException("There is no penalty to serve yet.");
-        }
-        this.crewToLose = crewToLose;
     }
 
     @Override
@@ -155,6 +172,7 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
         if (player == null) {
             throw new NullPointerException("player is null");
         }
+        SpaceShip ship = player.getSpaceShip();
         switch (internalState) {
             case DEFAULT:
                     // Check if the player has enough cannon strength to beat the card
@@ -162,18 +180,18 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
                         // If the player has enough cannon strength and want to exchange goods we execute the exchange
                         if (exchangeData != null) {
                             for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
-                                SpaceShip ship = player.getSpaceShip();
                                 ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
                             }
 
-                            // TODO: EVENT EXCHANGEGOODS
+                            ExchangeGoods exchangeGoodsEvent = new ExchangeGoods(player.getUsername(), exchangeData);
+                            eventCallback.trigger(exchangeGoodsEvent);
                         }
                         // Set the player as played
                         playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
                         // Set the state as finished
 
-                        // TODO: EVENT CARDPLAYED
                         CardPlayed cardPlayedEvent = new CardPlayed();
+                        eventCallback.trigger(cardPlayedEvent);
 
                         super.played = true;
                     } else if (cannonStrength.get(player) == card.getCannonStrengthRequired()) {
@@ -182,56 +200,37 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
                     } else {
                         // If the player doesn't have enough cannon strength we can't exchange goods
                         this.exchangeData = null;
-                        // Change the internal state to PENALTY
-                        this.internalState = SmugglerInternalState.PENALTY;
+                        // Change the internal state to GOODS_PENALTY
+                        this.internalState = SmugglerInternalState.GOODS_PENALTY;
                     }
                     break;
-                case PENALTY:
+                case GOODS_PENALTY:
                     // If the player has not set the goods to discard, we throw an exception
-                    if (goodsToDiscard == null && crewToLose == null) {
-                        throw new IllegalStateException("No goods or crew to discard set");
+                    if (goodsToDiscard == null) {
+                        throw new IllegalStateException("No goods to discard set");
                     }
-
-                    SpaceShip ship = player.getSpaceShip();
-
-                    if (goodsToDiscard != null) {
-                        // Check that the selected goods to discard are the most valuable
-                        // TODO: We could optimize this by making this check in the view
-                        PriorityQueue<Good> goodsToDiscardQueue = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
-                        for (Pair<ArrayList<Good>, Integer> pair : goodsToDiscard) {
-                            goodsToDiscardQueue.addAll(pair.getValue0());
-                        }
-                        PriorityQueue<Good> mostValuableGoods = new PriorityQueue<>(ship.getGoods());
-                        for (int i = 0; i < goodsToDiscardQueue.size(); i++) {
-                            if (goodsToDiscardQueue.peek().getValue() != mostValuableGoods.peek().getValue()) {
-                                throw new IllegalStateException("The goods to discard are not the most valuable");
-                            }
-                            goodsToDiscardQueue.poll();
-                            mostValuableGoods.poll();
-                        }
-
-                        // Remove the goods from the ship
-                        for (Pair<ArrayList<Good>, Integer> pair : goodsToDiscard) {
-                            ship.exchangeGood(null, pair.getValue0(), pair.getValue1());
-                        }
-                        // TODO: EVENT EXCHANGEGOODS
+                    // Remove the goods from the ship
+                    for (int storageID : goodsToDiscard) {
+                        ship.pollGood(storageID);
                     }
-
-                    // Remove the crew to lose if there is any
-                    if (crewToLose != null) {
-                        for (Pair<Integer, Integer> pair : crewToLose) {
-                            ship.removeCrewMember(pair.getValue1(), pair.getValue0());
-                        }
-
-                        // TODO: EVENT CREWLOSS
-                        CrewLoss crewEvent = new CrewLoss(player.getUsername(), crewToLose);
+                    // TODO: EVENT EXCHANGEGOODS
+                    if (goodsToDiscard.size() < card.getGoodsLoss()) {
+                        internalState = SmugglerInternalState.BATTERIES_PENALTY;
                     }
-
+                    break;
+                case BATTERIES_PENALTY:
+                    // If the player has not set the batteries to discard, we throw an exception
+                    if (batteriesToDiscard == null) {
+                        throw new IllegalStateException("No batteries to discard set");
+                    }
+                    for (int batteriesID : batteriesToDiscard)       {
+                        ship.useEnergy(batteriesID);
+                    }
                     // Reset the goods to discard
                     this.goodsToDiscard = null;
                     // Reset the crew to lose
-                    this.crewToLose = null;
-                    // Set the player as played
+                    this.batteriesToDiscard = null;
+                    // Set the player as SKIPPED (The player to be set as PLAYED is the one that beats the card)
                     playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
                     // Change back the internal state to DEFAULT
                     this.internalState = SmugglerInternalState.DEFAULT;
@@ -249,8 +248,8 @@ public class SmugglersState extends State implements ExchangeableGoods, Discarda
                 int flightDays = card.getFlightDays();
                 board.addSteps(p, -flightDays);
 
-                // TODO: EVENT STEPS
                 MoveMarker stepsEvent = new MoveMarker(p.getUsername(), flightDays);
+                eventCallback.trigger(stepsEvent);
             }
         }
     }

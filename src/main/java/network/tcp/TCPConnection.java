@@ -1,7 +1,7 @@
 package network.tcp;
 
-import controller.event.Event;
-import controller.event.game.HeartBeat;
+import event.Event;
+import event.game.HeartBeat;
 import network.Connection;
 import network.exceptions.BadHostException;
 import network.exceptions.DisconnectedConnection;
@@ -133,8 +133,7 @@ public class TCPConnection implements Connection {
                     timer.cancel();
                 }
             }
-        }, 0, 5000);
-        // TODO: Decide what should be the frequency of the heartbeat
+        }, 0, 2500);
     }
 
     @Override

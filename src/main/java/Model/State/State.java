@@ -3,7 +3,8 @@ package Model.State;
 import Model.Game.Board.Board;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
-import controller.EventManager;
+import controller.EventCallback;
+import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,11 +13,12 @@ import java.util.Map;
 
 
 public abstract class State {
+    protected final EventCallback eventCallback;
     protected ArrayList<PlayerData> players;
     protected Map<PlayerColor, PlayerStatus> playersStatus;
     protected Board board;
     protected Boolean played;
-    protected final EventManager eventManager;
+
 
     /**
      * Enum to represent the status of the player in the state.
@@ -34,45 +36,18 @@ public abstract class State {
      * @param board Board associated with the game
      * @throws NullPointerException if board is null
      */
-    public State(Board board) throws NullPointerException {
+    public State(Board board, EventCallback eventCallback) throws NullPointerException {
         if (board == null) {
             throw new NullPointerException("board is null");
         }
         this.board = board;
+        this.eventCallback = eventCallback;
         this.players = board.getInGamePlayers();
         this.playersStatus = new HashMap<>();
         for (PlayerData player : players) {
             this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
         }
         this.played = false;
-        this.eventManager = new EventManager();
-    }
-
-    // TODO: If the method is used only in pirates state, remove it from here
-
-    /**
-     * Check if all players have played
-     *
-     * @return Boolean value if all players have played
-     */
-    protected boolean haveAllPlayersPlayed() {
-        for (PlayerData p : players) {
-            if (playersStatus.get(p.getColor()) != PlayerStatus.PLAYED && playersStatus.get(p.getColor()) != PlayerStatus.SKIPPED) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Set the status of all players
-     *
-     * @param status PlayerStatus to set to all players
-     */
-    protected void setStatusPlayers(PlayerStatus status) {
-        for (PlayerData p : players) {
-            playersStatus.put(p.getColor(), status);
-        }
     }
 
     /**
@@ -252,4 +227,46 @@ public abstract class State {
     public void useExtraStrength(PlayerData player, int type, float extraPowerToUse, List<Integer> batteriesID) throws IllegalStateException {
         throw new IllegalStateException("Cannot use extra power in this state");
     }
+
+    /**
+     * Set the goods, batteries or crew members to discard to serve the penalty.
+     * @param player PlayerData of the player who is discarding the goods.
+     * @param type Type of the penalty: 0 = goods, 1 = batteries, 2 = crew members.
+     * @param penaltyLoss List of Integers representing the ID of storage, batteries or cabins from
+     *                    which we take the penalty to serve.
+     *                    We pick one from each ID in the list, in case of goods we pick the most valuable ones.
+     * @throws IllegalStateException if there is no penalty to serve in this state.
+     */
+    public void setPenaltyLoss(PlayerData player, int type, List<Integer> penaltyLoss) throws IllegalStateException {
+        throw new IllegalStateException("Cannot set penalty loss in this state");
+    }
+
+    /**
+     * Select a planet to land on.
+     * @param player PlayerData of the player who is selecting the planet.
+     * @param planetNumber Number of the planet to select.
+     * @throws IllegalStateException if the state does not allow selecting a planet.
+     */
+    public void selectPlanet(PlayerData player, int planetNumber) throws IllegalStateException {
+        throw new IllegalStateException("Cannot select planet in this state");
+    }
+
+    /**
+     * Select which fragment of the ship to preserve
+     * @param fragmentChoice
+     * @throws IllegalStateException
+     */
+    public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
+        throw new IllegalStateException("Cannot set fragment choice in this state");
+    }
+
+    /**
+     * Set component to destroy in the ship.
+     * @param player PlayerData of the player who is destroying the component.
+     * @param componentsToDestroy List of pairs representing the coordinates of the components to destroy.
+     */
+    public void setComponentToDestroy(PlayerData player, ArrayList<Pair<Integer, Integer>> componentsToDestroy) {
+        throw new IllegalStateException("Cannot set component to destroy in this state");
+    }
+
 }

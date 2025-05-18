@@ -6,14 +6,15 @@ import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.ExchangeableGoods;
-import Model.State.interfaces.SelectablePlanet;
 
-import controller.event.game.MoveMarker;
+import controller.EventCallback;
+import event.game.ExchangeGoods;
+import event.game.MoveMarker;
 import org.javatuples.Triplet;
 
 import java.util.ArrayList;
 
-public class PlanetsState extends State implements SelectablePlanet, ExchangeableGoods {
+public class PlanetsState extends State implements ExchangeableGoods {
     private final Planets card;
     private PlayerData[] planetSelected;
     private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
@@ -22,8 +23,8 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
      * @param board The board associated with the game
      * @param card Planet card associated with the state
      */
-    public PlanetsState(Board board, Planets card) {
-        super(board);
+    public PlanetsState(Board board, EventCallback callback, Planets card) {
+        super(board, callback);
         this.card = card;
         planetSelected = new PlayerData[card.getPlanetNumbers()];
     }
@@ -45,12 +46,15 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
     }
 
     /**
-     * Selects a planet for a player if it is not already selected
-     * @param player Player that wants to select a planet
-     * @param planetNumber Number (index) of the planet to select
-     * @throws IllegalStateException If the planet is already selected
+     * Implementation of {@link State#selectPlanet(PlayerData, int)} to select a planet to land on.
+     * @throws IllegalArgumentException If the planet number is invalid.
+     * @throws IllegalStateException If the planet is already selected by another player.
      */
+    @Override
     public void selectPlanet(PlayerData player, int planetNumber) throws IllegalStateException{
+        if (planetNumber < 0 || planetNumber >= card.getPlanetNumbers()) {
+            throw new IllegalArgumentException("Invalid planet number: " + planetNumber);
+        }
         if (planetSelected[planetNumber] == null) {
             planetSelected[planetNumber] = player;
         } else {
@@ -82,7 +86,8 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
                 ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
             }
 
-            // TODO: EVENT EXCHANGEGOODS
+            ExchangeGoods exchangeGoodsEvent = new ExchangeGoods(player.getUsername(), exchangeData);
+            eventCallback.trigger(exchangeGoodsEvent);
 
         } else if (playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {
             playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
@@ -103,8 +108,8 @@ public class PlanetsState extends State implements SelectablePlanet, Exchangeabl
             if (status == PlayerStatus.PLAYED) {
                 board.addSteps(p, -flightDays);
 
-                // TODO:
                 MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
+                eventCallback.trigger(stepsEvent);
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");
             }

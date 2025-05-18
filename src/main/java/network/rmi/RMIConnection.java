@@ -1,7 +1,7 @@
 package network.rmi;
 
-import controller.event.Event;
-import controller.event.game.HeartBeat;
+import event.Event;
+import event.game.HeartBeat;
 import network.Connection;
 import network.exceptions.BadPortException;
 import network.exceptions.DisconnectedConnection;
@@ -139,7 +139,7 @@ public class RMIConnection implements Connection {
                     throw new DisconnectedConnection("Connection is closed", e);
                 }
             }
-        }, 0, TIMEOUT);
+        }, 0, TIMEOUT/2);
     }
 
     /**

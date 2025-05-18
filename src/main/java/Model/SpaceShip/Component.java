@@ -43,6 +43,7 @@ public abstract class Component implements Serializable {
     }
 
     public Component(){}
+
     /**
      * Returns the type of the component
      * @return The type of the component

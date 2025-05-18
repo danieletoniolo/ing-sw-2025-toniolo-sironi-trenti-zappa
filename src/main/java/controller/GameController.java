@@ -1,11 +1,12 @@
 package controller;
 
+import Model.Game.Board.Board;
 import Model.Game.Lobby.LobbyInfo;
 import Model.Good.Good;
 import Model.Player.PlayerData;
+import Model.State.LobbyState;
 import Model.State.State;
 import Model.State.interfaces.*;
-import com.sun.jdi.event.ExceptionEvent;
 import network.User;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
@@ -14,9 +15,11 @@ import java.util.*;
 
 public class GameController {
     private State state;
+    private final ServerEventManager eventManager;
 
-    public GameController() {
-        this.state = null;
+    public GameController(Board board, LobbyInfo lobbyInfo) {
+        this.eventManager = new ServerEventManager(lobbyInfo);
+        this.state = new LobbyState(board, this.eventManager);
     }
 
     // TODO: add the list of states already initialize to the game controller?
@@ -27,11 +30,6 @@ public class GameController {
 
         state = newState;
         state.entry();
-    }
-
-    public ArrayList<User> getUsers() {
-        // TODO: RETURN FROM BOARD OF PLAYERS, USE A MAP TO REMAP PLAYER_DATA TO USER
-        return new ArrayList<>();
     }
 
     public void startGame() {
@@ -99,8 +97,15 @@ public class GameController {
     }
 
     public void choseFragment(UUID uuid, int fragmentID) {
-        if (state instanceof ChoosableFragment) {
-            ((ChoosableFragment) state).setFragmentChoice(fragmentID);
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            try {
+                state.setFragmentChoice(fragmentID);
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException("Cannot choose fragment in this state");
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid fragment ID: " + fragmentID);
+            }
         } else {
             throw new IllegalStateException("State is not a ChoosableFragment");
         }
@@ -126,13 +131,15 @@ public class GameController {
     }
 
     public void selectPlanet(UUID uuid, int planetID) {
-        if (state instanceof SelectablePlanet) {
-            PlayerData player = state.getCurrentPlayer();
-            if (player.getUUID().equals(uuid)) {
-                ((SelectablePlanet) state).selectPlanet(player, planetID);
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            try {
+                state.selectPlanet(player, planetID);
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException("Cannot select planet in this state");
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid planet ID: " + planetID);
             }
-        } else {
-            throw new IllegalStateException("State is not a SelectablePlanet");
         }
     }
 
@@ -190,11 +197,13 @@ public class GameController {
         }
     }
 
-    public void removeCrew(UUID uuid, ArrayList<Pair<Integer, Integer>> cabinsIDs) {
-        if (state instanceof RemovableCrew) {
-            PlayerData player = state.getCurrentPlayer();
-            if (player.getUUID().equals(uuid)) {
-                ((RemovableCrew) state).setCrewLoss(cabinsIDs);
+    public void removeCrew(UUID uuid, List<Integer> cabinsIDs) {
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            try {
+                state.setPenaltyLoss(player, 2, cabinsIDs);
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException("Cannot remove crew in this state or wrong input");
             }
         }
     }

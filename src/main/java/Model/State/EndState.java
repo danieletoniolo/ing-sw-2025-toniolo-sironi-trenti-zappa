@@ -4,6 +4,10 @@ import Model.Game.Board.Board;
 import Model.Game.Board.Level;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
+import controller.EventCallback;
+import event.game.BestLookingShips;
+import event.game.Score;
+import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,10 +29,10 @@ public class EndState extends State {
         LOSSES
     }
 
-    EndState (Board board, Level level) {
+    EndState (Board board, EventCallback callback, Level level) {
         // Super constructor to initialize the board and players
         // Note: the super constructor will get only the players that have not given up
-        super(board);
+        super(board, callback);
         // Add the player that has given up to the players list
         players.addAll(board.getGaveUpPlayers());
         // Set the player status to waiting for the players that have given up
@@ -82,6 +86,8 @@ public class EndState extends State {
 
     @Override
     public void execute(PlayerData player) {
+        ArrayList<Pair<String, Integer>> eventScores = new ArrayList<>();
+        Score scoreEvent;
         // We wait for all the player to confirm their end of turn (watching the partial score
         playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
 
@@ -96,8 +102,12 @@ public class EndState extends State {
                         if (!entry.getKey().hasGivenUp()) {
                             scores.replace(entry.getKey(), entry.getValue() + reward);
                             reward -= level.getValue();
+                            eventScores.add(new Pair<>(entry.getKey().getUsername(),scores.get(entry.getKey())));
                         }
                     }
+
+                    scoreEvent = new Score(eventScores);
+                    eventCallback.trigger(scoreEvent);
 
                     // Go to the next scoring state
                     endInternalState = EndInternalState.BEST_LOOKING_SHIP;
@@ -118,12 +128,18 @@ public class EndState extends State {
                             }
                         }
                     }
+                    BestLookingShips bestLookingShipsEvent = new BestLookingShips((ArrayList<String>) playersWithLeastConnectors.stream().map(PlayerData::getUsername).toList());
+                    eventCallback.trigger(bestLookingShipsEvent);
 
                     // Calculate the new score based on the best looking ship
                     for (PlayerData p : playersWithLeastConnectors) {
                         int value = scores.get(p);
                         scores.replace(p, value + 2 * level.getValue());
+                        eventScores.add(new Pair<>(p.getUsername(), scores.get(p)));
                     }
+
+                    scoreEvent = new Score(eventScores);
+                    eventCallback.trigger(scoreEvent);
 
                     // Go to the next scoring state
                     endInternalState = EndInternalState.SALE_OF_GOODS;
@@ -139,7 +155,12 @@ public class EndState extends State {
                             sales = Math.round((float) p.getSpaceShip().getGoodsValue() / 2);
                         }
                         scores.replace(p, entry.getValue() + sales);
+                        eventScores.add(new Pair<>(p.getUsername(), scores.get(p)));
                     }
+
+                    scoreEvent = new Score(eventScores);
+                    eventCallback.trigger(scoreEvent);
+
                     break;
                 case LOSSES:
                     // Calculate the new score based on the component losses
@@ -148,8 +169,12 @@ public class EndState extends State {
                         SpaceShip ship = p.getSpaceShip();
                         int penalty = ship.getLostComponents().size() + ship.getReservedComponents().size();
                         scores.replace(p, entry.getValue() - penalty);
-
+                        eventScores.add(new Pair<>(p.getUsername(), scores.get(p)));
                     }
+
+                    scoreEvent = new Score(eventScores);
+                    eventCallback.trigger(scoreEvent);
+
                     break;
                 default:
                     throw new IllegalStateException("Unknown EndInternalState: " + endInternalState);
