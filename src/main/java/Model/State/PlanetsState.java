@@ -3,9 +3,10 @@ package Model.State;
 import Model.Cards.Planets;
 import Model.Game.Board.Board;
 import Model.Good.Good;
+import Model.Good.GoodType;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.State.interfaces.ExchangeableGoods;
+import Model.SpaceShip.Storage;
 
 import controller.EventCallback;
 import event.game.ExchangeGoods;
@@ -14,9 +15,9 @@ import org.javatuples.Triplet;
 
 import java.util.ArrayList;
 
-public class PlanetsState extends State implements ExchangeableGoods {
+public class PlanetsState extends State {
     private final Planets card;
-    private PlayerData[] planetSelected;
+    private final PlayerData[] planetSelected;
     private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
     /**
      * Constructor for PlanetsState
@@ -62,8 +63,98 @@ public class PlanetsState extends State implements ExchangeableGoods {
         }
     }
 
+    /**
+     * Implementation of {@link State#setGoodsToExchange(PlayerData, ArrayList)} to set the goods the player wants to exchange;
+     * the goods that want to get and the goods that want to leave.
+     * @throws IllegalArgumentException If the storage ID is invalid, if the good is not in the planet selected or if the good is not in the storage.
+     * @throws IllegalStateException If the player has not selected a planet.
+     */
+    @Override
     public void setGoodsToExchange(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) {
+        for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
+            Storage storage;
+            // Check that the storage exists
+            try {
+                SpaceShip ship = player.getSpaceShip();
+                storage = ship.getStorage(triplet.getValue2());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid storage ID: " + triplet.getValue2());
+            }
+            // Has the player selected a planet?
+            int index = -1;
+            for (int i = 0; i < card.getPlanetNumbers(); i++) {
+                if (planetSelected[i] == player) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index == -1) {
+                throw new IllegalStateException("The player has not selected a planet");
+            }
+            // Check that the goods to get are in the planet selected
+            for (Good good : triplet.getValue0()) {
+                if (!card.getPlanet(index).contains(good)) {
+                    throw new IllegalArgumentException ("The good " + good + " the player want to get is not in planet " + index);
+                }
+                // Check if there is dangerous goods
+                if (good.getColor() == GoodType.RED && !storage.isDangerous()) {
+                    throw new IllegalArgumentException ("The good " + good + " is dangerous and the storage is not dangerous");
+                }
+            }
+            // Check that the goods to leave are in the storage
+            for (Good good : triplet.getValue1()) {
+                if (!storage.hasGood(good)) {
+                    throw new IllegalArgumentException ("The Good " + good + " the player want to leave is not in storage " + triplet.getValue2());
+                }
+            }
+            // Check that we can store the goods in the storage
+            if (storage.getGoodsCapacity() + triplet.getValue1().size() < triplet.getValue0().size()) {
+                throw new IllegalArgumentException ("The storage " + triplet.getValue2() + " does not have enough space to store the goods");
+            }
+        }
         this.exchangeData = exchangeData;
+    }
+
+    /**
+     * Implementation of {@link State#setGoodsToExchange(PlayerData, ArrayList)} to swap the goods between two storage.
+     * @throws IllegalStateException if we cannot exchange goods, there is a penalty to serve.
+     * @throws IllegalArgumentException if the storage ID is invalid, if the goods to get are not in the planet selected
+     * or if the goods to leave are not in the storage.
+     */
+    @Override
+    public void swapGoods(PlayerData player, int storageID1, int storageID2, ArrayList<Good> goods1to2, ArrayList<Good> goods2to1) throws IllegalStateException {
+        // Check that the storage exists
+        SpaceShip ship = player.getSpaceShip();
+        Storage storage1, storage2;
+        try {
+            storage1 = ship.getStorage(storageID1);
+            storage2 = ship.getStorage(storageID2);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid storage ID: " + storageID1 + " or " + storageID2);
+        }
+        // Check that the goods to leave are in the storage 1
+        for (Good good : goods1to2) {
+            if (!storage1.hasGood(good)) {
+                throw new IllegalArgumentException ("The Good " + good + " the player want to leave is not in storage " + storageID1);
+            }
+        }
+        // Check that the goods to leave are in the storage 2
+        for (Good good : goods2to1) {
+            if (!storage2.hasGood(good)) {
+                throw new IllegalArgumentException ("The Good " + good + " the player want to leave is not in storage " + storageID2);
+            }
+        }
+        // Check that we can store the goods in the storage 1
+        if (storage1.getGoodsCapacity() + goods1to2.size() < goods2to1.size()) {
+            throw new IllegalArgumentException ("The storage " + storageID1 + " does not have enough space to store the goods");
+        }
+        // Check that we can store the goods in the storage 2
+        if (storage2.getGoodsCapacity() + goods2to1.size() < goods1to2.size()) {
+            throw new IllegalArgumentException ("The storage " + storageID2 + " does not have enough space to store the goods");
+        }
+        // Swap the goods
+        ship.exchangeGood(goods1to2, goods2to1, storageID1);
+        ship.exchangeGood(goods2to1, goods1to2, storageID2);
     }
 
     @Override

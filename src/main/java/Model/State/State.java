@@ -1,10 +1,13 @@
 package Model.State;
 
 import Model.Game.Board.Board;
+import Model.Good.Good;
 import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import controller.EventCallback;
 import org.javatuples.Pair;
+import org.javatuples.Quartet;
+import org.javatuples.Triplet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,7 +84,8 @@ public abstract class State {
     /**
      * Execute at the beginning of the state
      */
-    public void entry() {}
+    public void entry() {
+    }
 
     /**
      * Make the player play in the state
@@ -122,8 +126,9 @@ public abstract class State {
 
     /**
      * Manage the joining and leaving of the player from the lobyy
+     *
      * @param player PlayerData of the player who is joining or leaving the lobby.
-     * @param type Type of the operation: 0 = join, 1 = leave.
+     * @param type   Type of the operation: 0 = join, 1 = leave.
      */
     public void manageLobby(PlayerData player, int type) {
         throw new IllegalStateException("Cannot manage lobby in this state");
@@ -133,6 +138,7 @@ public abstract class State {
 
     /**
      * Picks a tile from the board, reserve or spaceship.
+     *
      * @param player    PlayerData of the player who is picking the tile.
      * @param fromWhere Where the tile is being picked from: 0 = board, 1 = reserve, 2 = spaceship.
      * @param tileID    ID of the tile being picked.
@@ -205,6 +211,7 @@ public abstract class State {
 
     /**
      * Adds or removes a crew member from the player's ship.
+     *
      * @param player   PlayerData of the player who is managing the crew member.
      * @param mode     Mode of the operation: 0 = add, 1 = remove.
      * @param crewType Type of crew member to manage: 0 = crew, 1 = brown alien, 2 = purple alien.
@@ -217,11 +224,12 @@ public abstract class State {
 
     /**
      * Use engines or cannons to add strength to the current ship stats.
-     * @param player PlayerData of the player who is using the cannons or engines.
-     * @param type Type of the extra strength to use: 0 = engine, 1 = cannon.
+     *
+     * @param player          PlayerData of the player who is using the cannons or engines.
+     * @param type            Type of the extra strength to use: 0 = engine, 1 = cannon.
      * @param extraPowerToUse Amount of extra power to use.
-     * @param batteriesID List of Integers representing the batteryID from which we take the energy to use the cannon or engine
-     *                    (we use one energy from each batteryID in the list).
+     * @param batteriesID     List of Integers representing the batteryID from which we take the energy to use the cannon or engine
+     *                        (we use one energy from each batteryID in the list).
      * @throws IllegalStateException if the state does not allow using extra power.
      */
     public void useExtraStrength(PlayerData player, int type, float extraPowerToUse, List<Integer> batteriesID) throws IllegalStateException {
@@ -230,8 +238,9 @@ public abstract class State {
 
     /**
      * Set the goods, batteries or crew members to discard to serve the penalty.
-     * @param player PlayerData of the player who is discarding the goods.
-     * @param type Type of the penalty: 0 = goods, 1 = batteries, 2 = crew members.
+     *
+     * @param player      PlayerData of the player who is discarding the goods.
+     * @param type        Type of the penalty: 0 = goods, 1 = batteries, 2 = crew members.
      * @param penaltyLoss List of Integers representing the ID of storage, batteries or cabins from
      *                    which we take the penalty to serve.
      *                    We pick one from each ID in the list, in case of goods we pick the most valuable ones.
@@ -243,7 +252,8 @@ public abstract class State {
 
     /**
      * Select a planet to land on.
-     * @param player PlayerData of the player who is selecting the planet.
+     *
+     * @param player       PlayerData of the player who is selecting the planet.
      * @param planetNumber Number of the planet to select.
      * @throws IllegalStateException if the state does not allow selecting a planet.
      */
@@ -253,6 +263,7 @@ public abstract class State {
 
     /**
      * Select which fragment of the ship to preserve
+     *
      * @param fragmentChoice
      * @throws IllegalStateException
      */
@@ -262,9 +273,10 @@ public abstract class State {
 
     /**
      * Set component to destroy in the ship.
-     * @param player PlayerData of the player who is destroying the component.
+     *
+     * @param player              PlayerData of the player who is destroying the component.
      * @param componentsToDestroy List of pairs representing the coordinates of the components to destroy.
-     * @throws IllegalStateException if the state does not allow destroying components.
+     * @throws IllegalStateException    if the state does not allow destroying components.
      * @throws IllegalArgumentException if the coordinates are invalid.
      */
     public void setComponentToDestroy(PlayerData player, ArrayList<Pair<Integer, Integer>> componentsToDestroy) throws IllegalStateException, IllegalArgumentException {
@@ -273,6 +285,7 @@ public abstract class State {
 
     /**
      * Roll the two dice.
+     *
      * @throws IllegalStateException if the state does not allow rolling the dice.
      */
     public void rollDice() throws IllegalStateException {
@@ -281,12 +294,39 @@ public abstract class State {
 
     /**
      * Set the protect mode for the player.
-     * @param player PlayerData of the player who is setting the protect mode.
+     *
+     * @param player    PlayerData of the player who is setting the protect mode.
      * @param batteryID ID of the battery to use for the protect mode.
-     * @throws IllegalStateException if the state does not allow setting the protect mode.
+     * @throws IllegalStateException    if the state does not allow setting the protect mode.
      * @throws IllegalArgumentException if the batteryID is invalid.
      */
     public void setProtect(PlayerData player, int batteryID) throws IllegalStateException, IllegalArgumentException {
         throw new IllegalStateException("Cannot set protect mode in this state");
+    }
+
+    /**
+     * Set the goods to exchange (the goods to leave and the goods to get).
+     * @param player PlayerData of the player who is exchanging the goods.
+     * @param exchangeData contains an arraylist of triplets, each triplet contains (in this order):
+     * the goods that the player wants to get, the good that the player wants to leave, the storage ID.
+     * @throws IllegalStateException if the state does not allow setting the goods to exchange.
+     * @throws IllegalArgumentException if the exchangeData is invalid.
+     */
+    public void setGoodsToExchange(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) throws IllegalStateException, IllegalArgumentException {
+        throw new IllegalStateException("Cannot set good to exchange mode in this state");
+    }
+
+    /**
+     * Swap goods between two storage.
+     * @param player PlayerData of the player who is swapping the goods.
+     * @param storageID1 ID of the first storage.
+     * @param storageID2 ID of the second storage.
+     * @param goods1to2 ArrayList of goods to exchange from storage 1 to storage 2.
+     * @param goods2to1 ArrayList of goods to exchange from storage 2 to storage 1.
+     * @throws IllegalStateException if the state does not allow swapping goods.
+     * @throws IllegalArgumentException if the storageID is invalid or if the goods are not in the storage.
+     */
+    public void swapGoods(PlayerData player, int storageID1, int storageID2, ArrayList<Good> goods1to2, ArrayList<Good> goods2to1) throws IllegalStateException {
+        throw new IllegalStateException("Cannot set good to swap mode in this state");
     }
 }

@@ -52,6 +52,7 @@ public class Storage extends Component{
         if (goods.size() < goodsCapacity) {
             goods.add(good);
             goodsValue += good.getValue();
+            goodsCapacity -= 1;
         } else {
             throw new IllegalStateException("Storage is full");
         }
@@ -66,6 +67,7 @@ public class Storage extends Component{
         if (goods.contains(good)) {
             goods.remove(good);
             goodsValue -= good.getValue();
+            goodsCapacity += 1;
         } else {
             throw new IllegalStateException("Good not found in storage");
         }
@@ -94,6 +96,15 @@ public class Storage extends Component{
         return goods.peek();
     }
 
+    /**
+     * Check if the storage has a good
+     * @param good the Good to check
+     * @return true if the storage has the good, false otherwise
+     */
+    public boolean hasGood(Good good) {
+        return goods.contains(good);
+    }
+
 
     /**
      * Poll the most valuable good in the storage.
@@ -104,6 +115,7 @@ public class Storage extends Component{
             return null;
         }
         goodsValue -= goods.peek().getValue();
+        goodsCapacity += 1;
         return goods.poll();
     }
 

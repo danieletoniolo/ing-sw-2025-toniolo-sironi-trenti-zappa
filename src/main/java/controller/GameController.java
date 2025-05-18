@@ -6,7 +6,6 @@ import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.State.LobbyState;
 import Model.State.State;
-import Model.State.interfaces.*;
 import org.javatuples.Triplet;
 
 import java.util.*;
@@ -147,13 +146,15 @@ public class GameController {
      * @param exchangeData ArrayList of Triplet containing (in order) the goods to get, the goods to leave and the ID of the storage
      */
     public void exchangeGoods(UUID uuid, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) {
-        if (state instanceof ExchangeableGoods) {
-            PlayerData player = state.getCurrentPlayer();
-            if (player.getUUID().equals(uuid)) {
-                ((ExchangeableGoods) state).setGoodsToExchange(player, exchangeData);
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            try {
+                state.setGoodsToExchange(player, exchangeData);
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException("Cannot exchange goods in this state");
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid exchange data: " + exchangeData);
             }
-        } else {
-            throw new IllegalStateException("State is not a ExchangeableGoods");
         }
     }
 
@@ -166,11 +167,14 @@ public class GameController {
      * @param goods2to1 ArrayList of goods to exchange from storage 2 to storage 1
      */
     public void swapGoods(UUID uuid, int storageID1, int storageID2, ArrayList<Good> goods1to2, ArrayList<Good> goods2to1) {
-        if (state instanceof ExchangeableGoods) {
-            PlayerData player = state.getCurrentPlayer();
-            if (player.getUUID().equals(uuid)) {
-                player.getSpaceShip().exchangeGood(goods2to1, goods1to2, storageID1);
-                player.getSpaceShip().exchangeGood(goods1to2, goods2to1, storageID2);
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            try {
+                state.swapGoods(player, storageID1, storageID2, goods1to2, goods2to1);
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException("Cannot swap goods in this state");
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid swap data: " + goods1to2 + " " + goods2to1);
             }
         }
     }
