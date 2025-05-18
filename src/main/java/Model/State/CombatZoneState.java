@@ -5,7 +5,6 @@ import Model.Game.Board.Board;
 import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.State.interfaces.*;
 import controller.EventCallback;
 import event.game.*;
 
@@ -13,7 +12,7 @@ import java.util.*;
 
 
 
-public class CombatZoneState extends State implements Fightable {
+public class CombatZoneState extends State {
     private CombatZoneInternalState internalState;
     private final CombatZone card;
     private final ArrayList<Map<PlayerData, Float>> stats;
@@ -185,30 +184,46 @@ public class CombatZoneState extends State implements Fightable {
     }
 
     /**
-     * Set the use energy
-     * @param protect_ use energy
-     * @param batteryID_ battery ID
-     * @throws IllegalStateException if not in the right state in order to do the action
-     * @throws IllegalArgumentException if batteryID_ is null and protect_ is true
+     * Implementation of the {@link State#setProtect(PlayerData, int)} to set whether the player wants to protect or not.
      */
-    public void setProtect(boolean protect_, Integer batteryID_) throws IllegalStateException, IllegalArgumentException {
+    @Override
+    public void setProtect(PlayerData player, int batteryID) throws IllegalStateException, IllegalArgumentException {
         if ((internalState != CombatZoneInternalState.CANNONS && card.getCardLevel() != 2) ||
                 (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
             throw new IllegalStateException("Battery ID not allowed in this state");
         }
-        fightHandler.setProtect(protect_, batteryID_);
+        try {
+            if (batteryID != -1) {
+                SpaceShip ship = player.getSpaceShip();
+                if (ship.getBattery(batteryID).getEnergyNumber() < 1) {
+                    throw new IllegalArgumentException("Not enough energy in battery " + batteryID);
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid battery ID: " + batteryID);
+        }
+        if (batteryID == -1) {
+            fightHandler.setProtect(false, null);
+        } else {
+            fightHandler.setProtect(true, batteryID);
+        }
     }
 
     /**
-     * Set the dice
-     * @param dice dice
+     * Implementation of the {@link State#rollDice()} to roll the dice and set the value in the fight handler.
      */
-    public void setDice(int dice) throws IllegalStateException{
+    @Override
+    public void rollDice() throws IllegalStateException{
         if ((internalState != CombatZoneInternalState.CANNONS && card.getCardLevel() != 2) ||
                 (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
             throw new IllegalStateException("Dice not allowed in this state");
         }
-        fightHandler.setDice(dice);
+        // Roll the first dice
+        int firstDice = (int) (Math.random() * 6) + 1;
+        // Roll the second dice
+        int secondDice = (int) (Math.random() * 6) + 1;
+        // TODO: We should notify the two dice separately to handle visualization in the UI
+        fightHandler.setDice(firstDice + secondDice);
     }
 
     /**

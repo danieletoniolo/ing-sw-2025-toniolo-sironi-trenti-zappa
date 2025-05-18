@@ -264,9 +264,29 @@ public abstract class State {
      * Set component to destroy in the ship.
      * @param player PlayerData of the player who is destroying the component.
      * @param componentsToDestroy List of pairs representing the coordinates of the components to destroy.
+     * @throws IllegalStateException if the state does not allow destroying components.
+     * @throws IllegalArgumentException if the coordinates are invalid.
      */
-    public void setComponentToDestroy(PlayerData player, ArrayList<Pair<Integer, Integer>> componentsToDestroy) {
+    public void setComponentToDestroy(PlayerData player, ArrayList<Pair<Integer, Integer>> componentsToDestroy) throws IllegalStateException, IllegalArgumentException {
         throw new IllegalStateException("Cannot set component to destroy in this state");
     }
 
+    /**
+     * Roll the two dice.
+     * @throws IllegalStateException if the state does not allow rolling the dice.
+     */
+    public void rollDice() throws IllegalStateException {
+        throw new IllegalStateException("Cannot roll dice in this state");
+    }
+
+    /**
+     * Set the protect mode for the player.
+     * @param player PlayerData of the player who is setting the protect mode.
+     * @param batteryID ID of the battery to use for the protect mode.
+     * @throws IllegalStateException if the state does not allow setting the protect mode.
+     * @throws IllegalArgumentException if the batteryID is invalid.
+     */
+    public void setProtect(PlayerData player, int batteryID) throws IllegalStateException, IllegalArgumentException {
+        throw new IllegalStateException("Cannot set protect mode in this state");
+    }
 }

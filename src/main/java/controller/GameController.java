@@ -7,8 +7,6 @@ import Model.Player.PlayerData;
 import Model.State.LobbyState;
 import Model.State.State;
 import Model.State.interfaces.*;
-import network.User;
-import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import java.util.*;
@@ -212,14 +210,13 @@ public class GameController {
     }
 
     public void rollDice(UUID uuid, int numberOfDice) {
-        if (state instanceof Fightable) {
-            PlayerData player = state.getCurrentPlayer();
-            if (player.getUUID().equals(uuid)) {
-                ((Fightable) state).setDice(numberOfDice);
-                // TODO: SHOULD THE VIEW ROLL THE DICE?
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            try {
+                state.rollDice();
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException("Cannot roll dice in this state");
             }
-        } else {
-            throw new IllegalStateException("State is not a Fightable");
         }
     }
 }
