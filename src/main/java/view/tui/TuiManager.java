@@ -59,7 +59,7 @@ public class TuiManager implements Manager {
     @Override
     public void notifyJoinLobby(JoinLobby data) {
         if (data.userID() == null || data.userID().equals(MiniModel.getInstance().userID)) { // Create a new lobbyState if the user is the one who created it or the server said to do so
-            currentState = new LobbyStateView(data.lobbyID());
+            currentState = new LobbyStateView();
             stateLock.notifyAll();
         }
         else {

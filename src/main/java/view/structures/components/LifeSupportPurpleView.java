@@ -19,7 +19,7 @@ public class LifeSupportPurpleView extends ComponentView {
 
         return switch (line) {
             case 0, 2 -> super.drawLineTui(line);
-            case 1 -> super.drawLeft(line) + " " + purple + "LifeS" + reset + " " + super.drawRight(line);
+            case 1 -> super.drawLeft(line) + " " + purple + " * " + reset + " " + super.drawRight(line);
             default -> throw new IllegalStateException("Unexpected value: " + line);
         };
     }

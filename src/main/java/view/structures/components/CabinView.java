@@ -76,9 +76,9 @@ public class CabinView extends ComponentView {
 
     private String drawCrew() {
         return switch (crewNumber) {
-            case 0 -> " " + color + "(" + reset + "   " + color + ")" + reset + " ";
-            case 1 -> " " + color + "(" + reset + " " + drawSingle() + " " + color + ")" + reset + " ";
-            case 2 -> " " + color + "(" + reset + " " + drawSingle() + " " + drawSingle() + color + ")" + reset + " ";
+            case 0 -> color + "(" + reset + "   " + color + ")" + reset;
+            case 1 -> color + "(" + reset + " " + drawSingle() + " " + color + ")" + reset;
+            case 2 -> color + "(" + reset + " " + drawSingle() + " " + drawSingle() + color + ")" + reset;
             default -> throw new IllegalStateException("Unexpected value: " + crewNumber);
         };
     }

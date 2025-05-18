@@ -29,7 +29,6 @@ public class CardMainView {
                 allCards.add(CardsManager.getCard(i));
             }
 
-            // For per convertire le carte dal model alla view -> modificare solo le condizioni nel for
             for (Card card : allCards) {
                 switch (card.getCardType()) {
                     case PIRATES:

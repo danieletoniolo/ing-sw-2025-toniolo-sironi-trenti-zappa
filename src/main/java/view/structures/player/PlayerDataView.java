@@ -8,15 +8,25 @@ import java.util.UUID;
 
 public class PlayerDataView implements Structure {
     private String username;
-    private ColorView color;
+    private String color;
     private int step;
     private int coins;
     private SpaceShipView ship;
     private ComponentView hand;
+    private final String blue =   "\033[34m";
+    private final String green =  "\033[32m";
+    private final String yellow = "\033[33m";
+    private final String red =    "\033[31m";
+    private final String reset =  "\033[0m";
 
     public PlayerDataView(String username, ColorView color, SpaceShipView ship) {
         this.username = username;
-        this.color = color;
+        this.color = switch (color) {
+            case BLUE -> blue;
+            case GREEN -> green;
+            case YELLOW -> yellow;
+            case RED -> red;
+        };
         this.ship = ship;
     }
 
@@ -26,26 +36,21 @@ public class PlayerDataView implements Structure {
     }
 
     public static int getRowsToDraw() {
-        return 4;
+        return 3;
     }
 
     @Override
     public String drawLineTui(int line) {
         return switch (line) {
-            case 0 -> color.drawTui();
-            case 1 -> username;
-            case 2 -> "Step: " + String.valueOf(step);
-            case 3 -> "Coins: " + String.valueOf(coins);
+            case 0 -> color + username + reset;
+            case 1 -> "Step: " + String.valueOf(step);
+            case 2 -> "Coins: " + String.valueOf(coins);
             default -> throw new IllegalStateException("Unexpected value: " + line);
         };
     }
 
     public String getUsername() {
         return username;
-    }
-
-    public ColorView getColor() {
-        return color;
     }
 
     public void setStep(int step) {

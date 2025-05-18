@@ -34,20 +34,20 @@ public class EngineView extends ComponentView {
 
     private String drawSingleEngine(){
         return switch (engineRotation) {
-            case 0 -> "   " + brown + ArrowUp + reset + "   ";
-            case 1 -> "   " + brown + ArrowRight + reset + "   ";
-            case 2 -> "   " + brown + ArrowDown + reset + "   ";
-            case 3 -> "   " + brown + ArrowLeft + reset + "   ";
+            case 0 -> "  " + brown + ArrowUp + reset + "  ";
+            case 1 -> "  " + brown + ArrowRight + reset + "  ";
+            case 2 -> "  " + brown + ArrowDown + reset + "  ";
+            case 3 -> "  " + brown + ArrowLeft + reset + "  ";
             default -> throw new IllegalStateException("Unexpected value: " + engineRotation);
         };
     }
 
     private String drawDoubleEngine(){
         return switch (engineRotation) {
-            case 0 -> "  " + brown + ArrowUp + reset + " " + brown + ArrowUp + reset + "  ";
-            case 1 -> "  " + brown + ArrowRight + reset + " " + brown + ArrowRight + reset + "  ";
-            case 2 -> "  " + brown + ArrowDown + reset + " " + brown + ArrowDown + reset + "  ";
-            case 3 -> "  " + brown + ArrowLeft + reset + " " + brown + ArrowLeft + reset + "  ";
+            case 0 -> " " + brown + ArrowUp + reset + " " + brown + ArrowUp + reset + " ";
+            case 1 -> " " + brown + ArrowRight + reset + " " + brown + ArrowRight + reset + " ";
+            case 2 -> " " + brown + ArrowDown + reset + " " + brown + ArrowDown + reset + " ";
+            case 3 -> " " + brown + ArrowLeft + reset + " " + brown + ArrowLeft + reset + " ";
             default -> throw new IllegalStateException("Unexpected value: " + engineRotation);
         };
     }

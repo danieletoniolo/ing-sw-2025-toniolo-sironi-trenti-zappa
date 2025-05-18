@@ -85,8 +85,8 @@ public class AbandonedStationView extends CardView {
     private String printGoods() {
         StringBuilder goodsString = new StringBuilder();
         for (GoodView good : goods) {
-            goodsString.append(good.drawTui());
+            goodsString.append(good.drawTui()).append(" ");
         }
-        return goodsString.toString().trim();
+        return goodsString.toString();
     }
 }

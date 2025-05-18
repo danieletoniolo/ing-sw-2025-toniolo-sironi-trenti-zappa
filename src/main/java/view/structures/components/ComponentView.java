@@ -1,22 +1,22 @@
 package view.structures.components;
 
 public abstract class ComponentView {
-    public static String Up0 =   "╭───────╮";
-    public static String Up1 =   "╭── | ──╮";
-    public static String Up2 =   "╭── ‖ ──╮";
-    public static String Up3 =   "╭──|||──╮";
+    public static String Up0 =   "╭─────╮";
+    public static String Up1 =   "╭──|──╮";
+    public static String Up2 =   "╭─|─|─╮";
+    public static String Up3 =   "╭─|||─╮";
 
-    public static String Down0 = "╰───────╯";
-    public static String Down1 = "╰── | ──╯";
-    public static String Down2 = "╰── ‖ ──╯";
-    public static String Down3 = "╰──|||──╯";
+    public static String Down0 = "╰─────╯";
+    public static String Down1 = "╰──|──╯";
+    public static String Down2 = "╰─|─|─╯";
+    public static String Down3 = "╰─|||─╯";
 
     public static String ArrowRight = "→";
     public static String ArrowDown = "↓";
     public static String ArrowLeft = "←";
     public static String ArrowUp = "↑";
 
-    public static String clean = "│       │";
+    public static String clean = "│     │";
 
     public static String[] Side0 = {
             ".",
@@ -61,7 +61,7 @@ public abstract class ComponentView {
     public String drawLineTui(int line) throws IndexOutOfBoundsException{
         return switch (line) {
             case 0 -> isCovered() || currentConnectors[0] == 0 ? Up0 : currentConnectors[0] == 1 ? Up1 : currentConnectors[0] == 2 ? Up2 : Up3;
-            case 1 -> drawLeft(line) + "   ?   " + drawRight(line);
+            case 1 -> drawLeft(line) + "  ?  " + drawRight(line);
             case 2 -> isCovered() || currentConnectors[2] == 0 ? Down0 : currentConnectors[2] == 1 ? Down1 : currentConnectors[2] == 2 ? Down2 : Down3;
             default -> throw new IndexOutOfBoundsException("Unexpected value: " + line);
         };

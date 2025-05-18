@@ -11,18 +11,15 @@ import java.util.Arrays;
 
 public class LobbyStateView implements StateView {
     private final ArrayList<String> options = new ArrayList<>(Arrays.asList("Ready", "Not ready", "Leave"));
-    private final String lobbyID;
     private final LobbyView currentLobbyView;
-    private int totalLines;
+    private final int totalLines = LobbyView.getRowsToDraw() + 1;
 
 
-    public LobbyStateView(String lobbyID) {
-        this.lobbyID = lobbyID;
+    public LobbyStateView() {
         currentLobbyView = MiniModel.getInstance().lobbyViews.stream()
-                .filter(lobbyView -> lobbyView.getLobbyName().equals(this.lobbyID))
+                .filter(lobbyView -> lobbyView.getLobbyName().equals(MiniModel.getInstance().lobbyViews))
                 .findFirst()
                 .orElse(null);
-        totalLines = currentLobbyView.getRowsToDraw() + 1;
     }
 
     @Override
@@ -45,7 +42,7 @@ public class LobbyStateView implements StateView {
         var writer = terminal.writer();
         terminal.writer().print("\033[H\033[2J");
         writer.flush();
-        for (int i = 0; i < currentLobbyView.getRowsToDraw(); i++) {
+        for (int i = 0; i < LobbyView.getRowsToDraw(); i++) {
             writer.println(currentLobbyView.drawLineTui(i));
         }
 

@@ -1,5 +1,7 @@
 package view.tui.input;
 
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
@@ -12,6 +14,14 @@ public class Parser {
         this.terminal = terminal;
     }
 
+    /**
+     * Displays a menu and waits for user input.
+     *
+     * @param options       The list of options to display.
+     * @param menuStartRow  The starting row for the menu display.
+     * @return A Command object representing the selected option and its arguments.
+     * @throws Exception If an error occurs during input handling.
+     */
     public Command getCommand(ArrayList<String> options, int menuStartRow) throws Exception {
         terminal.enterRawMode();
         menuStartRow += 2;
@@ -39,13 +49,39 @@ public class Parser {
             }
         }
 
-        String[] commandParts = options.get(selected).split(" ");
-        String commandName = commandParts[0];
-        String[] commandArgs = new String[commandParts.length - 1];
-        System.arraycopy(commandParts, 1, commandArgs, 0, commandParts.length - 1);
+        String selectedOption = options.get(selected);
+        String commandName = selectedOption.split(" ")[0];
+        String[] commandArgs;
+
+        // Specific input handling for "pick tile" command
+        if (selectedOption.toLowerCase().contains("pick tile") || selectedOption.toLowerCase().contains("put tile on spaceship")) {
+            terminal.echo(true);
+            terminal.writer().print("Enter coordinates (row,col): ");
+            terminal.flush();
+
+            // Crea LineReader per input riga
+            LineReader lineReader = LineReaderBuilder.builder()
+                    .terminal(terminal)
+                    .build();
+
+            String input = lineReader.readLine();
+            commandArgs = new String[]{input.trim()};
+        } else {
+            String[] commandParts = selectedOption.split(" ");
+            commandArgs = new String[commandParts.length - 1];
+            System.arraycopy(commandParts, 1, commandArgs, 0, commandParts.length - 1);
+        }
+
         return new Command(commandName, commandArgs);
     }
 
+    /**
+     * Renders the menu options to the terminal.
+     *
+     * @param writer        The PrintWriter to write to the terminal.
+     * @param options       The list of options to display.
+     * @param menuStartRow  The starting row for the menu display.
+     */
     private void renderMenu(java.io.PrintWriter writer, ArrayList<String> options, int menuStartRow) {
         for (int i = 0; i < options.size(); i++) {
             int row = menuStartRow + i;

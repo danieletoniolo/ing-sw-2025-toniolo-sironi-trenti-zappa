@@ -1,14 +1,13 @@
 package view.structures.components;
 
-public class ConnectorsView extends ComponentView {
-
-    public ConnectorsView(int ID, int[] connectors) {
-        super(ID, connectors);
+public class GenericComponentView extends ComponentView {
+    public GenericComponentView() {
+        super(-1, new int[]{0, 0, 0, 0});
     }
 
     @Override
     public void drawComponentGui() {
-        //TODO: Implement the GUI drawing logic for the Connectors component here
+        //TODO: Implement the GUI drawing logic for the Generic component here
     }
 
     @Override
@@ -16,8 +15,8 @@ public class ConnectorsView extends ComponentView {
         if (isCovered()) return super.drawLineTui(line);
 
         return switch (line) {
-            case 0, 2  -> super.drawLineTui(line);
-            case 1 -> super.drawLeft(line) + "  ╬  " + super.drawRight(line);
+            case 0, 2 -> super.drawLineTui(line);
+            case 1 -> super.drawLeft(line) + "     " + super.drawRight(line);
             default -> throw new IndexOutOfBoundsException("Unexpected value: " + line);
         };
     }

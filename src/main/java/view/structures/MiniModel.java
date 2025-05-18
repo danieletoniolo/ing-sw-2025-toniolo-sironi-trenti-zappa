@@ -1,5 +1,6 @@
 package view.structures;
 
+import org.javatuples.Pair;
 import view.structures.board.BoardView;
 import view.structures.components.ComponentView;
 import view.structures.deck.DeckView;
@@ -14,11 +15,12 @@ public class MiniModel {
 
     public LogInView logInView = new LogInView();
     public ArrayList<LobbyView> lobbyViews = new ArrayList<>();
-    public ArrayList<DeckView> deckViews = new ArrayList<>();
+    public Pair<DeckView[], Boolean[]> deckViews = new Pair<>(new DeckView[3], new Boolean[3]);
     public BoardView boardView;
     public ArrayList<PlayerDataView> players = new ArrayList<>();
     public ArrayList<ComponentView> components = new ArrayList<>();
     public String userID;
+    public String lobbyID;
 
     public static MiniModel getInstance() {
         if (instance == null) {

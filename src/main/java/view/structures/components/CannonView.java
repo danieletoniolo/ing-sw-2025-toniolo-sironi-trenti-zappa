@@ -41,7 +41,7 @@ public class CannonView extends ComponentView {
 
         return switch (line) {
             case 0, 2 -> super.drawLineTui(line);
-            case 1 -> super.drawLeft(line) + "  " + (doubleCannon ? drawDoubleCannon() : drawCannon()) + "  " + super.drawRight(line);
+            case 1 -> super.drawLeft(line) + " " + (doubleCannon ? drawDoubleCannon() : drawCannon()) + " " + super.drawRight(line);
             default -> throw new IndexOutOfBoundsException("Unexpected value: " + line);
         };
     }

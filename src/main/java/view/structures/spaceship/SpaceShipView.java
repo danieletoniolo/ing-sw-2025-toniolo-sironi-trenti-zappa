@@ -3,21 +3,21 @@ package view.structures.spaceship;
 import view.structures.Structure;
 import view.structures.board.LevelView;
 import view.structures.components.ComponentView;
+import view.structures.components.GenericComponentView;
 
 import java.util.ArrayList;
 
 public class SpaceShipView implements Structure {
-    public static String UpReserved1 =     "╭────────";
-    public static String LeftReserved2 =   "│   Disca";
-    public static String DownReserved1 =   "╰────────";
+    public static String UpReserved1 =     "╭──────";
+    public static String LeftReserved2 =   "│      ";
+    public static String DownReserved1 =   "╰──────";
 
-    public static String UpReserved2 =     "────────╮";
-    public static String RightReserved2 =  "d pile  │";
-    public static String DownReserved2 =   "────────╯";
+    public static String UpReserved2 =     "──────╮";
+    public static String RightReserved2 =  "      │";
+    public static String DownReserved2 =   "──────╯";
 
 
     private LevelView level;
-    private boolean[][] viewable;
     private ComponentView[][] spaceShip;
     private ArrayList<ComponentView> reserved;
 
@@ -25,25 +25,31 @@ public class SpaceShipView implements Structure {
         this.level = level;
         switch (level) {
             case LEARNING:
-                viewable = new boolean[][] {
-                        {false, false, false, true , false, false, false},
-                        {false, false, true , true , true , false, false},
-                        {false, true , true , true , true , true , false},
-                        {false, true , true , true , true , true , false},
-                        {false, true , true , false, true , true , false}
+                spaceShip = new ComponentView[][] {
+                        {null, null, null, new GenericComponentView() , null, null, null},
+                        {null, null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null, null},
+                        {null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null},
+                        {null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null},
+                        {null, new GenericComponentView() , new GenericComponentView() , null, new GenericComponentView() , new GenericComponentView() , null}
                 };
                 break;
             case SECOND:
-                viewable = new boolean[][] {
-                        {false, false, true , false, true , false, false},
-                        {false, true , true , true , true , true , false},
-                        {true , true , true , true , true , true , true },
-                        {true , true , true , true , true , true , true },
-                        {true , true , true , false, true , true , true }
+                spaceShip = new ComponentView[][] {
+                        {null, null, new GenericComponentView() , null, new GenericComponentView() , null, null},
+                        {null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null},
+                        {new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() },
+                        {new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() },
+                        {new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() }
                 };
                 break;
         }
-        spaceShip = new ComponentView[viewable.length][viewable[0].length];
+        for (int i = 0; i < spaceShip.length; i++) {
+            for (int j = 0; j < spaceShip[i].length; j++) {
+                if (spaceShip[i][j] != null) {
+                    spaceShip[i][j].setCovered(false);
+                }
+            }
+        }
         reserved = new ArrayList<>();
     }
 
@@ -53,7 +59,7 @@ public class SpaceShipView implements Structure {
     }
 
     public void removeComponent(int row, int col) {
-        spaceShip[row-4][col-3] = null;
+        spaceShip[row-4][col-3] = new GenericComponentView();
     }
 
     public void addReservedComponent(ComponentView component) {
@@ -80,30 +86,23 @@ public class SpaceShipView implements Structure {
 
         if (line == 0 || line == getRowToDraw() - 1) {
             str.append("   ");
-            for (int i = 0; i < viewable[0].length; i++) {
-                str.append("    ").append(i + 4).append("    ");
+            for (int i = 0; i < spaceShip[0].length; i++) {
+                str.append("   ").append(i + 4).append("   ");
             }
+            if (line == 0) str.append("     ").append("Discard pile:");
             return str.toString();
         }
 
         line = line - 1;
-        boolean[] row = viewable[line / ComponentView.getRowsToDraw()];
+        ComponentView[] row = spaceShip[line / ComponentView.getRowsToDraw()];
         String number = line % ComponentView.getRowsToDraw() == 1 ? String.valueOf(line / ComponentView.getRowsToDraw() + 5) : " ";
         str.append(number).append(space);
-        for (int i = 0; i < row.length; i++) {
-            ComponentView tile = spaceShip[line / ComponentView.getRowsToDraw()][i];
-            if (!row[i]) {
-                str.append("         ");
-            }
-            else if (tile != null) {
-                str.append(tile.drawLineTui(line % ComponentView.getRowsToDraw()));
+        for (ComponentView tile : row) {
+            if (tile == null) {
+                str.append("       ");
             }
             else {
-                switch (line % ComponentView.getRowsToDraw()) {
-                    case 0 -> str.append(ComponentView.Up0);
-                    case 1 -> str.append(ComponentView.clean);
-                    case 2 -> str.append(ComponentView.Down0);
-                }
+                str.append(tile.drawLineTui(line % ComponentView.getRowsToDraw()));
             }
         }
         str.append(space).append(number);

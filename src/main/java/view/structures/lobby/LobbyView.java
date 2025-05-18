@@ -58,7 +58,7 @@ public class LobbyView implements Structure {
         //TODO: Implement the GUI drawing logic for the lobby here
     }
 
-    public int getRowsToDraw() {
+    public static int getRowsToDraw() {
         return 10;
     }
 

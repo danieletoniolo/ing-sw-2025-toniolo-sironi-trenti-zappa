@@ -1,11 +1,11 @@
 package view.structures.components;
 
 public class ShieldView extends ComponentView {
-    public static String UpShield = " ⌢ ";
-    public static String DownShield = " ⌣ ";
+    public static String UpShield = "∩";
+    public static String DownShield = "∪";
     public static String LeftShield = "(";
     public static String RightShield = ")";
-    private String green = "\033[32m";
+    private String lightGreen = "\033[92m";
     private String reset = "\033[0m";
     private boolean[] shields;
 
@@ -32,18 +32,18 @@ public class ShieldView extends ComponentView {
 
     private String drawShield() {
         StringBuilder str = new StringBuilder();
-        str.append("  ");
+        str.append(" ");
         if (shields[1]) {
-            str.append(green).append(LeftShield).append(reset);
-            if (shields[0]) str.append(green).append(UpShield).append(reset);
-            if (shields[2]) str.append(green).append(DownShield).append(reset);
+            str.append(lightGreen).append(LeftShield).append(reset);
+            if (shields[0]) str.append(lightGreen).append(" ").append(UpShield).append(reset);
+            if (shields[2]) str.append(lightGreen).append(" ").append(DownShield).append(reset);
         }
         if (shields[3]) {
-            if (shields[0]) str.append(green).append(UpShield).append(reset);
-            if (shields[2]) str.append(green).append(DownShield).append(reset);
-            str.append(green).append(RightShield).append(reset);
+            if (shields[0]) str.append(lightGreen).append(UpShield).append(reset);
+            if (shields[2]) str.append(lightGreen).append(DownShield).append(reset);
+            str.append(" ").append(lightGreen).append(RightShield).append(reset);
         }
-        str.append("  ");
+        str.append(" ");
         return str.toString();
     }
 }

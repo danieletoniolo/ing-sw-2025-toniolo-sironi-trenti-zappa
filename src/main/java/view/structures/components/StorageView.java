@@ -7,7 +7,7 @@ public class StorageView extends ComponentView {
     private boolean dangerous;
     private final int capacity;
     private String red = "\033[31m";
-    private String blue = "\033[34m";
+    private final String lightBlue = "\033[94m";
     private String reset = "\033[0m";
 
     public StorageView(int ID, int[] connectors, boolean dangerous, int capacity) {
@@ -52,16 +52,16 @@ public class StorageView extends ComponentView {
 
         return switch (line) {
             case 0, 2 -> super.drawLineTui(line);
-            case 1 -> super.drawLeft(line) + (isDangerous() ? drawGoods(red) : drawGoods(blue)) + super.drawRight(line);
+            case 1 -> super.drawLeft(line) + (isDangerous() ? drawGoods(red) : drawGoods(lightBlue)) + super.drawRight(line);
             default -> throw new IllegalStateException("Unexpected value: " + line);
         };
     }
 
     private String drawGoods(String color) {
         return switch (capacity) {
-            case 1 -> "  " + color + "|" + reset + singleGood(goods[0]) + color + "|" + reset + "  ";
-            case 2 -> " " + color + "|" + reset + singleGood(goods[0]) + color + "|" + reset + singleGood(goods[1]) + color + "|" + reset + " ";
-            case 3 -> color + "|" + reset + singleGood(goods[0]) + color + "|" + reset + singleGood(goods[1]) + color + "|" + reset + singleGood(goods[2]) + color + "|" + reset;
+            case 1 -> " " + color + "|" + reset + singleGood(goods[0]) + color + "|" + reset + " ";
+            case 2 -> color + "|" + reset + singleGood(goods[0]) + color + "|" + reset + singleGood(goods[1]) + color + "|" + reset;
+            case 3 -> color + "|" + reset + singleGood(goods[0]) + singleGood(goods[1]) + singleGood(goods[2]) + color + "|" + reset;
             default -> throw new IllegalStateException("Unexpected value: " + capacity);
         };
     }
