@@ -30,7 +30,7 @@ public class EpidemicState extends State {
      */
     @Override
     public void entry() {
-        ArrayList<Pair<Integer, Integer>> cabinsIDs;
+        ArrayList<Integer> cabinsIDs;
         for (PlayerData p : players) {
             cabinsIDs = new ArrayList<>();
 
@@ -55,7 +55,7 @@ public class EpidemicState extends State {
                             if(!check[cabin.getRow()][cabin.getColumn()]){
                                 cabin.removeCrewMember(1);
                                 check[cabin.getRow()][cabin.getColumn()] = true;
-                                cabinsIDs.add(new Pair<>(cabin.getID(), 1));
+                                cabinsIDs.add(cabin.getID());
                             }
                         }
                     }

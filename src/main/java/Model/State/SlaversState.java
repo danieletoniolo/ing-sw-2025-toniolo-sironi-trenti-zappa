@@ -4,7 +4,6 @@ import Model.Cards.Slavers;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.State.interfaces.AcceptableCredits;
 import controller.EventCallback;
 import event.game.*;
 
@@ -14,13 +13,12 @@ import java.util.List;
 import java.util.Map;
 
 
-public class SlaversState extends State implements AcceptableCredits {
+public class SlaversState extends State {
     private SlaversInternalState internalState;
     private final Slavers card;
     private final Map<PlayerData, Float> stats;
     private List<Integer> crewLoss;
     private Boolean slaversDefeat;
-    private Boolean acceptCredits;
 
     /**
      * Enum to represent the internal state of the slavers state.
@@ -42,7 +40,6 @@ public class SlaversState extends State implements AcceptableCredits {
         this.stats = new HashMap<>();
         this.crewLoss = null;
         this.slaversDefeat = false;
-        this.acceptCredits = null;
     }
 
     /**
@@ -107,18 +104,6 @@ public class SlaversState extends State implements AcceptableCredits {
     }
 
     /**
-     * Set if the player accepts the credits
-     * @param acceptCredits Boolean value
-     * @throws IllegalStateException if execForPlayer != 1
-     */
-    public void setAcceptCredits(boolean acceptCredits) throws IllegalStateException {
-        if (internalState != SlaversInternalState.PENALTY) {
-            throw new IllegalStateException("setAcceptCredits not allowed in this state");
-        }
-        this.acceptCredits = acceptCredits;
-    }
-
-    /**
      * Check if the slavers are defeated
      * @return Boolean value
      */
@@ -165,10 +150,7 @@ public class SlaversState extends State implements AcceptableCredits {
                 eventCallback.trigger(enemyEvent);
             case PENALTY:
                 if (slaversDefeat != null && slaversDefeat) {
-                    if (acceptCredits == null) {
-                        throw new IllegalStateException("acceptCredits not set");
-                    }
-                    if (acceptCredits) {
+                    if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
                         player.addCoins(card.getCredit());
 
                         AddCoins coinsEvent = new AddCoins(player.getUsername(), player.getCoins());

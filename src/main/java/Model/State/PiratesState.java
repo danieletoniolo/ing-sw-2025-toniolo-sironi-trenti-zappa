@@ -4,7 +4,6 @@ import Model.Cards.Pirates;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
-import Model.State.interfaces.AcceptableCredits;
 import Model.State.interfaces.Fightable;
 import controller.EventCallback;
 import event.game.AddCoins;
@@ -17,12 +16,11 @@ import java.util.List;
 import java.util.Map;
 
 
-public class PiratesState extends State implements Fightable, AcceptableCredits {
+public class PiratesState extends State implements Fightable {
     private final Pirates card;
     private final Map<PlayerData, Float> stats;
     private PiratesInternalState internalState;
     Boolean piratesDefeat;
-    Boolean acceptCredits;
     ArrayList<PlayerData> playersDefeated;
     FightHandlerSubState fightHandler;
 
@@ -45,7 +43,6 @@ public class PiratesState extends State implements Fightable, AcceptableCredits 
         this.card = card;
         this.stats = new HashMap<>();
         this.piratesDefeat = false;
-        this.acceptCredits = false;
         this.internalState = PiratesInternalState.DEFAULT;
         this.playersDefeated = new ArrayList<>();
         this.fightHandler = new FightHandlerSubState(super.board, super.eventCallback);
@@ -61,18 +58,6 @@ public class PiratesState extends State implements Fightable, AcceptableCredits 
 
     public Pirates getCard() {
         return card;
-    }
-
-    /**
-     * Set if the player accepts the credits
-     * @param acceptCredits Boolean value
-     * @throws IllegalStateException if not in the correct state
-     */
-    public void setAcceptCredits(boolean acceptCredits) throws IllegalStateException {
-        if (internalState != PiratesInternalState.MIDDLE) {
-            throw new IllegalStateException("setAcceptCredits not allowed in this state");
-        }
-        this.acceptCredits = acceptCredits;
     }
 
     /**
@@ -187,10 +172,7 @@ public class PiratesState extends State implements Fightable, AcceptableCredits 
                 }
 
                 if (piratesDefeat) {
-                    if (acceptCredits == null) {
-                        throw new IllegalStateException("acceptCredits not set");
-                    }
-                    if (acceptCredits) {
+                    if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
                         player.addCoins(card.getCredit());
                         board.addSteps(player, -card.getFlightDays());
 

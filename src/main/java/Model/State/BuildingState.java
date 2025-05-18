@@ -209,7 +209,7 @@ public class BuildingState extends State {
             throw new IllegalStateException("Player has no tile in his hand");
         }
 
-        PlaceTile placeTileEvent = new PlaceTile(player.getUsername(), toWhere, component.getID());
+        PlaceTile placeTileEvent = new PlaceTile(player.getUsername(), toWhere, row, col);
         switch (toWhere) {
             case 0 -> {
                 // Place the tile in the board

@@ -10,11 +10,13 @@ import java.io.Serializable;
  *               The userID is the UUID when the event is sent from the client to the server.
  *               In this way other client cannot fake to be another client, because the UUID is known only by the correct client
  * @param fromWhere The place from where the tile is picked: 0 = board, 1 = reserve, 2 = spaceship.
- * @param tileID The ID of the tile being picked.
+ * @param row The row of the tile on the board.
+ * @param col The column of the tile on the board.
  */
 public record PlaceTile(
         String userID,
         int fromWhere,
-        int tileID
+        int row,
+        int col
 ) implements Event, Serializable {
 }

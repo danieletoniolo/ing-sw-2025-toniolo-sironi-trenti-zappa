@@ -9,6 +9,7 @@ import event.game.AddCoins;
 import event.game.AddLoseCrew;
 import event.game.MoveMarker;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,6 @@ public class AbandonedShipState extends State {
      *     <li> Change player steps. </li>
      * </ul>
      * @param player PlayerData of the player to play
-     * @return Pair of EventType and Object which contains the record that will be sent to the client
      * @throws NullPointerException  if player == null
      * @throws IllegalStateException if played == true: Card playable just once
      * @throws IllegalStateException if crew loss does not match the card requirements
@@ -95,9 +95,8 @@ public class AbandonedShipState extends State {
 
             player.addCoins(card.getCredit());
 
-            // TODO: Due to the chango to List<Integer> of crewLoss we have to change the event
-            // AddLoseCrew crewEvent = new AddLoseCrew(getCurrentPlayer().getUsername(), false, crewLoss);
-            // eventCallback.trigger(crewEvent);
+            AddLoseCrew crewEvent = new AddLoseCrew(getCurrentPlayer().getUsername(), false, (ArrayList<Integer>) crewLoss);
+            eventCallback.trigger(crewEvent);
 
             AddCoins coinsEvent = new AddCoins(player.getUsername(), card.getCredit());
             eventCallback.trigger(coinsEvent);

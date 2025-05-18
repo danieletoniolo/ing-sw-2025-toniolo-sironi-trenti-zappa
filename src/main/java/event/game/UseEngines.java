@@ -14,7 +14,7 @@ import java.util.ArrayList;
  * @param enginesPowerToUse The power of the engines to use.
  * @param batteriesIDs The IDs of the batteries to use, in order to reach the power.
  */
-public record UseEngine(
+public record UseEngines(
         String userID,
         float enginesPowerToUse,
         ArrayList<Integer> batteriesIDs

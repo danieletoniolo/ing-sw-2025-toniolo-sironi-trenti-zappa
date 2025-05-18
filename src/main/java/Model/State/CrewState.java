@@ -27,9 +27,10 @@ public class CrewState extends State {
      */
     public void manageCrewMember(PlayerData player, int mode, int crewType, int cabinID) {
         AddLoseCrew addLoseCrew;
-        ArrayList<Pair<Integer, Integer>> crewMembers = new ArrayList<>();
-        crewMembers.add(new Pair<>(cabinID, crewType == 0 ? 2 : 1));
+        ArrayList<Integer> crewMembers = new ArrayList<>();
+        crewMembers.add(cabinID);
 
+        // TODO: Question on how we manage the crew members removal
         switch (mode) {
             case 0 -> { // Add crew member
                 player.getSpaceShip().addCrewMember(cabinID, crewType == 1, crewType == 2);

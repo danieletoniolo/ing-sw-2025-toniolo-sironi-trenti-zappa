@@ -8,8 +8,6 @@ import Model.SpaceShip.SpaceShip;
 import Model.State.interfaces.*;
 import controller.EventCallback;
 import event.game.*;
-import org.javatuples.Pair;
-import org.javatuples.Triplet;
 
 import java.util.*;
 
@@ -33,10 +31,7 @@ public class CombatZoneState extends State implements Fightable {
     private enum CombatZoneInternalState {
         CREW(0),
         ENGINES(1),
-        CANNONS(2),
-        GOOD_PENALTY(3),
-        BATTERIES_PENALTY(4),
-        CREW_PENALTY(5);
+        CANNONS(2);
 
         private final int index;
 
@@ -154,8 +149,6 @@ public class CombatZoneState extends State implements Fightable {
         for (int storageID : goodsToDiscard) {
             ship.pollGood(storageID);
         }
-
-
     }
 
     private void executeSubStateRemoveBatteries(PlayerData player) throws IllegalStateException {
@@ -219,19 +212,13 @@ public class CombatZoneState extends State implements Fightable {
     }
 
     /**
-     * Implementation of the {@link State#setPenaltyLoss(PlayerData, int, List)} to set crew in
-     * {@link CombatZoneInternalState#CREW_PENALTY}, goods in {@link CombatZoneInternalState#GOOD_PENALTY}
-     * or batteries in {@link CombatZoneInternalState#BATTERIES_PENALTY} to lose in order to serve the penalty.
+     * Implementation of the {@link State#setPenaltyLoss(PlayerData, int, List)} to set crew members, batteries or goods to leave
      * @throws IllegalArgumentException if the type is not 0, 1 or 2.
      */
     @Override
     public void setPenaltyLoss(PlayerData player, int type, List<Integer> penaltyLoss) throws IllegalStateException {
         switch (type) {
             case 0 -> {
-                // Check if there is a penalty to serve
-                if (internalState != CombatZoneInternalState.GOOD_PENALTY) {
-                    throw new IllegalStateException("There is no penalty to serve.");
-                }
                 Map <Integer, Integer> goodsMap = new HashMap<>();
                 for (int storageID : penaltyLoss) {
                     goodsMap.merge(storageID, 1, Integer::sum);
@@ -259,10 +246,6 @@ public class CombatZoneState extends State implements Fightable {
                 this.goodsToDiscard = penaltyLoss;
             }
             case 1 -> {
-                // Check if there is penalty to serve
-                if (internalState != CombatZoneInternalState.BATTERIES_PENALTY) {
-                    throw new IllegalStateException("There is no penalty to serve.");
-                }
                 // Check if there are the provided number of batteries in the provided batteries slots.
                 Map<Integer, Integer> batteriesMap = new HashMap<>();
                 for (int batteryID : penaltyLoss) {
@@ -282,9 +265,6 @@ public class CombatZoneState extends State implements Fightable {
                 this.batteriesToDiscard = penaltyLoss;
             }
             case 2 -> {
-                if (internalState != CombatZoneInternalState.CREW_PENALTY) {
-                    throw new IllegalStateException("There is no crew penalty to serve.");
-                }
                 // Check if there are the provided number of crew members in the provided cabins
                 Map<Integer, Integer> cabinCrewMap = new HashMap<>();
                 for (int cabinID : penaltyLoss) {
@@ -318,11 +298,15 @@ public class CombatZoneState extends State implements Fightable {
                 if (internalState != CombatZoneInternalState.ENGINES) {
                     throw new IllegalStateException("useEngine not allowed in this state");
                 }
+                UseEngines useEnginesEvent = new UseEngines(player.getUsername(), strength, (ArrayList<Integer>) batteriesID);
+                eventCallback.trigger(useEnginesEvent);
             }
             case 1 -> {
                 if (internalState != CombatZoneInternalState.CANNONS) {
                     throw new IllegalStateException("useCannon not allowed in this state");
                 }
+                UseCannons useCannonsEvent = new UseCannons(player.getUsername(), strength, (ArrayList<Integer>) batteriesID);
+                eventCallback.trigger(useCannonsEvent);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
         }
@@ -333,16 +317,32 @@ public class CombatZoneState extends State implements Fightable {
             ship.useEnergy(batteryID);
         }
 
-        UseEngine useEngineEvent = new UseEngine(player.getUsername(), strength, (ArrayList<Integer>) batteriesID);
-        eventCallback.trigger(useEngineEvent);
-
         // Update the engine or cannons strength stats
         this.addStats(internalState, player, strength);
 
-        if (stats.get(internalState.getIndex(card.getCardLevel())).get(player) > stats.get(internalState.getIndex(card.getCardLevel())).get(minPlayerCannons)) {
-            playersStatus.replace(minPlayerCannons.getColor(), PlayerStatus.WAITING);
-            playersStatus.replace(player.getColor(), PlayerStatus.PLAYING);
-            minPlayerCannons = player;
+        Float statPlayer = stats.get(internalState.getIndex(card.getCardLevel())).get(player);
+        MinPlayer minPlayerEvent = null;
+        switch (type) {
+            case 0 -> {
+                if (statPlayer > stats.get(internalState.getIndex(card.getCardLevel())).get(minPlayerEngines)) {
+                    playersStatus.replace(minPlayerEngines.getColor(), PlayerStatus.WAITING);
+                    playersStatus.replace(player.getColor(), PlayerStatus.PLAYING);
+                    minPlayerEngines = player;
+                    minPlayerEvent = new MinPlayer(player.getUsername());
+                }
+            }
+            case 1 -> {
+                if (statPlayer > stats.get(internalState.getIndex(card.getCardLevel())).get(minPlayerCannons)) {
+                    playersStatus.replace(minPlayerCannons.getColor(), PlayerStatus.WAITING);
+                    playersStatus.replace(player.getColor(), PlayerStatus.PLAYING);
+                    minPlayerCannons = player;
+                    minPlayerEvent = new MinPlayer(player.getUsername());
+                }
+            }
+        }
+
+        if (minPlayerEvent != null) {
+            eventCallback.trigger(minPlayerEvent);
         }
     }
 
@@ -408,11 +408,16 @@ public class CombatZoneState extends State implements Fightable {
                         PlayerLose gaveUpEvent = new PlayerLose(player.getUsername());
                         eventCallback.trigger(gaveUpEvent);
                     } else {
-                        internalState = CombatZoneInternalState.GOOD_PENALTY;
+                        executeSubStateRemoveGoods(minPlayerEngines);
+                        if (goodsToDiscard.size() < card.getLost()) {
+                            executeSubStateRemoveBatteries(minPlayerEngines);
+                        } else {
+                            executeSubStateRemoveCrew(minPlayerEngines);
+                            goodsToDiscard = null;
+                        }
                     }
                     playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.PLAYING);
                 } else {
-                    internalState = CombatZoneInternalState.CREW_PENALTY;
                     executeSubStateRemoveCrew(minPlayerEngines);
                     playersStatus.replace(minPlayerCannons.getColor(), PlayerStatus.PLAYING);
                 }
@@ -424,25 +429,7 @@ public class CombatZoneState extends State implements Fightable {
                     internalState = CombatZoneInternalState.CANNONS;
                 } else {
                     executeSubStateHits(minPlayerCannons);
-                    // TODO: We should not transition because its the last substate in every case
                 }
-                break;
-            case GOOD_PENALTY:
-                executeSubStateRemoveGoods(minPlayerEngines);
-                playersStatus.replace(minPlayerCannons.getColor(), PlayerStatus.PLAYING);
-                if (goodsToDiscard.size() < card.getLost()) {
-                    internalState = CombatZoneInternalState.BATTERIES_PENALTY;
-                } else {
-                    internalState = CombatZoneInternalState.CREW_PENALTY;
-                    goodsToDiscard = null;
-                }
-                break;
-            case BATTERIES_PENALTY:
-                executeSubStateRemoveBatteries(minPlayerEngines);
-                internalState = CombatZoneInternalState.CREW;
-            case CREW_PENALTY:
-                executeSubStateRemoveCrew(minPlayerCannons);
-                internalState = CombatZoneInternalState.CANNONS;
                 break;
         }
     }

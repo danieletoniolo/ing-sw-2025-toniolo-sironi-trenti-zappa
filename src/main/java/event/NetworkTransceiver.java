@@ -2,6 +2,7 @@ package event;
 
 import network.Connection;
 import network.exceptions.DisconnectedConnection;
+import org.javatuples.Pair;
 
 import java.util.*;
 
@@ -17,9 +18,9 @@ public class NetworkTransceiver implements EventTransceiver{
     private final Object lockConnectionSend = new Object();
 
     /**
-     * Map of connections to the clients and the corresponding threads that receive events from them.
+     * Map of ID and connections to the clients with the corresponding threads that receive events from them.
      */
-    private final Map<Connection, Thread> connections;
+    private final Map<UUID, Pair<Connection, Thread>> connections;
 
     /**
      * It is the list of listeners registered on the transceiver.
@@ -28,7 +29,7 @@ public class NetworkTransceiver implements EventTransceiver{
 
     /**
      * It is a queue used to implement a producer/consumer pattern for incoming events.
-     * {@link NetworkTransceiver#connect(Connection)} has the producer thread; the consumer thread
+     * {@link NetworkTransceiver#connect(UUID, Connection)} has the producer thread; the consumer thread
      * receives the events from the connection.
      */
     private final Queue<Event> receivedQueue = new ArrayDeque<>();
@@ -97,8 +98,8 @@ public class NetworkTransceiver implements EventTransceiver{
 
                 synchronized (lockConnectionSend) {
                     try {
-                        for (Connection connection : connections.keySet()) {
-                            connection.send(event);
+                        for (Pair<Connection, Thread> connection : connections.values()) {
+                            connection.getValue0().send(event);
                         }
                     } catch (DisconnectedConnection e) {
                         // ignore the error
@@ -106,6 +107,15 @@ public class NetworkTransceiver implements EventTransceiver{
                 }
             }
         }).start();
+    }
+
+    /**
+     * Get the connection associated with the given userID.
+     * @param userID The {@link UUID} of the user.
+     * @return The {@link Connection} associated with the userID.
+     */
+    public Connection getConnection(UUID userID) {
+        return connections.get(userID).getValue0();
     }
 
     /**
@@ -138,7 +148,7 @@ public class NetworkTransceiver implements EventTransceiver{
      * Add a new connection to the transceiver and start the threads to receive and send events.
      * @param connection The {@link Connection} to add.
      */
-    public void connect(Connection connection) {
+    public void connect(UUID userID, Connection connection) {
         Thread receiveThread = new Thread(() -> {
             Event event;
             try {
@@ -153,7 +163,7 @@ public class NetworkTransceiver implements EventTransceiver{
             }
         });
 
-        connections.put(connection, receiveThread);
+        connections.put(userID, new Pair<>(connection, receiveThread));
         receiveThread.start();
     }
 
@@ -161,10 +171,10 @@ public class NetworkTransceiver implements EventTransceiver{
      * Disconnects the given connection from the transceiver. This cause the reception thread to stop,
      * but it doesn't disconnect the connection itself. This is done because we call this method to
      * change the transceiver of a connection, not to disconnect it.
-     * @param connection The {@link Connection} to disconnect from the transceiver.
+     * @param userID The {@link UUID} to disconnect from the transceiver.
      */
-    public void disconnect(Connection connection) {
-        Thread receiveThread = connections.remove(connection);
+    public void disconnect(UUID userID) {
+        Thread receiveThread = connections.remove(userID).getValue1();
         if (receiveThread != null) {
             receiveThread.interrupt();
         }

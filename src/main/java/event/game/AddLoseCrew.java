@@ -13,11 +13,10 @@ import java.util.ArrayList;
  *               In this way other client cannot fake to be another client, because the UUID is known only by the correct client
  * @param add is true if the crew member is added to the spaceship, false if the crew member is removed from the spaceship
  * @param cabinsIDs The list of cabins IDs where the crew members are lost
- *                  The pair represents the cabin ID and the number of crew members lost
  * */
 public record AddLoseCrew(
         String userID,
         boolean add,
-        ArrayList<Pair<Integer, Integer>> cabinsIDs
+        ArrayList<Integer> cabinsIDs
 ) implements Event, Serializable {
 }
