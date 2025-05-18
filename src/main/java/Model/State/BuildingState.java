@@ -211,9 +211,10 @@ public class BuildingState extends State {
 
         PlaceTile placeTileEvent = new PlaceTile(player.getUsername(), toWhere, component.getID());
         switch (toWhere) {
-            case 0 ->
+            case 0 -> {
                 // Place the tile in the board
-                    board.putTile(component);
+                    int tilePosition = board.putTile(component);
+            }
             case 1 ->
                 // Place the tile in the reserve
                     player.getSpaceShip().reserveComponent(component);
