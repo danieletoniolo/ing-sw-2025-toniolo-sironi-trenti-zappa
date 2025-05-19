@@ -8,64 +8,85 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class StorageTest {
     Storage s;
     ConnectorType[] connectors;
+    Field goodsField = Storage.class.getDeclaredField("goods");
+    Field goodsValueField = Storage.class.getDeclaredField("goodsValue");
+    Field dangerousField = Storage.class.getDeclaredField("dangerous");
+    Field goodsCapacityField = Storage.class.getDeclaredField("goodsCapacity");
+    Field connectorsField = Component.class.getDeclaredField("connectors");
+    Field clockwiseRotationField = Component.class.getDeclaredField("clockwiseRotation");
+    Field fixedField = Component.class.getDeclaredField("fixed");
+    Field shipField = Component.class.getDeclaredField("ship");
+    Field IDField = Component.class.getDeclaredField("ID");
+    Field rowField = Component.class.getDeclaredField("row");
+    Field columnField = Component.class.getDeclaredField("column");
+
+    StorageTest() throws NoSuchFieldException {
+    }
 
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         s = new Storage(0, connectors, true, 3);
         assertNotNull(s);
+        goodsField.setAccessible(true);
+        goodsValueField.setAccessible(true);
+        dangerousField.setAccessible(true);
+        goodsCapacityField.setAccessible(true);
+        connectorsField.setAccessible(true);
+        clockwiseRotationField.setAccessible(true);
+        fixedField.setAccessible(true);
+        shipField.setAccessible(true);
+        IDField.setAccessible(true);
+        rowField.setAccessible(true);
+        columnField.setAccessible(true);
     }
 
     @Test
-    void testStorageConstructor() {
+    void testStorageConstructor() throws IllegalAccessException {
         Storage a = new Storage();
         assertNotNull(a);
-        assertEquals(0, a.getID());
-        assertEquals(0, a.getGoodsCapacity());
-        assertFalse(a.isDangerous());
+        assertEquals(0, IDField.get(a));
+        assertEquals(0, goodsCapacityField.get(a));
+        assertFalse((boolean) dangerousField.get(a));
     }
 
     @RepeatedTest(5)
-    void isDangerous_returnsTrueForDangerousStorage() {
+    void isDangerous_returnsTrueForDangerousStorage() throws IllegalAccessException {
         Storage storage = new Storage(1, connectors, true, 3);
-        assertTrue(storage.isDangerous());
+        assertTrue((boolean) dangerousField.get(storage));
     }
 
     @RepeatedTest(5)
-    void isDangerous_returnsFalseForNonDangerousStorage() {
+    void isDangerous_returnsFalseForNonDangerousStorage() throws IllegalAccessException {
         Storage storage = new Storage(1, connectors, false, 3);
-        assertFalse(storage.isDangerous());
+        assertFalse((boolean) dangerousField.get(storage));
     }
 
     @RepeatedTest(5)
-    void getGoodsCapacity_returnsCorrectCapacity() {
+    void getGoodsCapacity_returnsCorrectCapacity() throws IllegalAccessException {
         Storage storage = new Storage(1, connectors, true, 3);
-        assertEquals(3, storage.getGoodsCapacity());
+        assertEquals(3, goodsCapacityField.get(storage));
     }
 
     @RepeatedTest(5)
-    void getGoodsCapacity_withDifferentCapacities() {
-        Storage storage1 = new Storage(1, connectors, true, 2);
-        Storage storage2 = new Storage(2, connectors, false, 3);
-        assertEquals(2, storage1.getGoodsCapacity());
-        assertEquals(3, storage2.getGoodsCapacity());
-    }
-
-    @RepeatedTest(5)
-    void addGood_addsGoodToStorage() {
+    void addGood_addsGoodToStorage() throws IllegalAccessException {
         Storage storage = new Storage(1, connectors, true, 3);
         Good good = new Good(GoodType.GREEN);
         storage.addGood(good);
-        assertTrue(storage.getGoods().contains(good));
+        ArrayList<Good> goods = (ArrayList<Good>) goodsField.get(storage);
+        assertTrue(goods.contains(good));
     }
 
     @RepeatedTest(5)
-    void addGood_throwsExceptionWhenStorageIsFull() {
+    void addGood_whenStorageIsFull() {
         Storage storage = new Storage(1, connectors, true, 1);
         Good good1 = new Good(GoodType.GREEN);
         Good good2 = new Good(GoodType.YELLOW);
@@ -74,107 +95,111 @@ class StorageTest {
     }
 
     @RepeatedTest(5)
-    void addGood_throwsExceptionWhenAddingRedGoodToNonDangerousStorage() {
+    void addGood_whenAddingRedGoodToNonDangerousStorage() {
         Storage storage = new Storage(1, connectors, false, 3);
         Good good = new Good(GoodType.RED);
         assertThrows(IllegalStateException.class, () -> storage.addGood(good));
     }
 
     @RepeatedTest(5)
-    void addGood_increasesGoodsValue() {
+    void addGood_increasesGoodsValue() throws IllegalAccessException {
         Storage storage = new Storage(1, connectors, true, 3);
         Good good = new Good(GoodType.GREEN);
-        int initialGoodsValue = storage.getGoodsValue();
+        int initialGoodsValue = (int) goodsValueField.get(storage);
         storage.addGood(good);
-        assertEquals(initialGoodsValue + good.getValue(), storage.getGoodsValue());
+        assertEquals(initialGoodsValue + good.getValue(), goodsValueField.get(storage));
     }
 
     @RepeatedTest(5)
-    void removeGood_removesGoodFromStorage() {
+    void removeGood_removesGoodFromStorage() throws IllegalAccessException {
         Storage storage = new Storage(1, connectors, true, 3);
         Good good = new Good(GoodType.GREEN);
         storage.addGood(good);
         storage.removeGood(good);
-        assertFalse(storage.getGoods().contains(good));
+        ArrayList<Good> goods = (ArrayList<Good>) goodsField.get(storage);
+        assertFalse(goods.contains(good));
     }
 
     @RepeatedTest(5)
-    void removeGood_throwsExceptionWhenGoodNotFound() {
+    void removeGood_whenGoodNotFound() {
         Storage storage = new Storage(1, connectors, true, 3);
         Good good = new Good(GoodType.GREEN);
         assertThrows(IllegalStateException.class, () -> storage.removeGood(good));
     }
 
     @RepeatedTest(5)
-    void removeGood_decreasesGoodsValue() {
+    void removeGood_decreasesGoodsValue() throws IllegalAccessException {
         Storage storage = new Storage(1, connectors, true, 3);
         Good good = new Good(GoodType.GREEN);
         storage.addGood(good);
-        int initialGoodsValue = storage.getGoodsValue();
+        int initialGoodsValue = (int) goodsValueField.get(storage);
         storage.removeGood(good);
-        assertEquals(initialGoodsValue - good.getValue(), storage.getGoodsValue());
+        assertEquals(initialGoodsValue - good.getValue(), goodsValueField.get(storage));
     }
 
     @RepeatedTest(5)
-    void getGoods_returnsEmptyListWhenNoGoodsAdded() {
+    void getGoods_returnsEmptyListWhenNoGoodsAdded() throws IllegalAccessException {
         Storage storage = new Storage(1, connectors, true, 3);
-        assertTrue(storage.getGoods().isEmpty());
+        ArrayList<Good> goods = (ArrayList<Good>) goodsField.get(storage);
+        assertTrue(goods.isEmpty());
     }
 
     @RepeatedTest(5)
-    void getGoods_returnsListWithAddedGoods() {
-        Storage storage = new Storage(1, connectors, true, 3);
-        Good good1 = new Good(GoodType.GREEN);
-        Good good2 = new Good(GoodType.YELLOW);
-        storage.addGood(good1);
-        storage.addGood(good2);
-        assertEquals(2, storage.getGoods().size());
-        assertTrue(storage.getGoods().contains(good1));
-        assertTrue(storage.getGoods().contains(good2));
-    }
-
-    @RepeatedTest(5)
-    void getGoods_returnsListWithoutRemovedGoods() {
+    void getGoods_returnsListWithAddedGoods() throws IllegalAccessException {
         Storage storage = new Storage(1, connectors, true, 3);
         Good good1 = new Good(GoodType.GREEN);
         Good good2 = new Good(GoodType.YELLOW);
         storage.addGood(good1);
         storage.addGood(good2);
-        storage.removeGood(good1);
-        assertEquals(1, storage.getGoods().size());
-        assertFalse(storage.getGoods().contains(good1));
-        assertTrue(storage.getGoods().contains(good2));
+        ArrayList<Good> goods = (ArrayList<Good>) goodsField.get(storage);
+        assertEquals(2, goods.size());
+        assertTrue(goods.contains(good1));
+        assertTrue(goods.contains(good2));
     }
 
     @RepeatedTest(5)
-    void getGoodsValue_returnsZeroWhenNoGoodsAdded() {
-        Storage storage = new Storage(1, connectors, true, 3);
-        assertEquals(0, storage.getGoodsValue());
-    }
-
-    @RepeatedTest(5)
-    void getGoodsValue_returnsCorrectValueAfterAddingGoods() {
-        Storage storage = new Storage(1, connectors, true, 3);
-        Good good1 = new Good(GoodType.GREEN);
-        Good good2 = new Good(GoodType.YELLOW);
-        storage.addGood(good1);
-        storage.addGood(good2);
-        assertEquals(good1.getValue() + good2.getValue(), storage.getGoodsValue());
-    }
-
-    @RepeatedTest(5)
-    void getGoodsValue_returnsCorrectValueAfterRemovingGoods() {
+    void getGoods_returnsListWithoutRemovedGoods() throws IllegalAccessException {
         Storage storage = new Storage(1, connectors, true, 3);
         Good good1 = new Good(GoodType.GREEN);
         Good good2 = new Good(GoodType.YELLOW);
         storage.addGood(good1);
         storage.addGood(good2);
         storage.removeGood(good1);
-        assertEquals(good2.getValue(), storage.getGoodsValue());
+        ArrayList<Good> goods = (ArrayList<Good>) goodsField.get(storage);
+        assertEquals(1, goods.size());
+        assertFalse(goods.contains(good1));
+        assertTrue(goods.contains(good2));
     }
 
     @RepeatedTest(5)
-    void getGoodsValue_returnsZeroAfterRemovingAllGoods() {
+    void getGoodsValue_returnsZeroWhenNoGoodsAdded() throws IllegalAccessException {
+        Storage storage = new Storage(1, connectors, true, 3);
+        assertEquals(0, goodsValueField.get(storage));
+    }
+
+    @RepeatedTest(5)
+    void getGoodsValue_returnsCorrectValueAfterAddingGoods() throws IllegalAccessException {
+        Storage storage = new Storage(1, connectors, true, 3);
+        Good good1 = new Good(GoodType.GREEN);
+        Good good2 = new Good(GoodType.YELLOW);
+        storage.addGood(good1);
+        storage.addGood(good2);
+        assertEquals(good1.getValue() + good2.getValue(), goodsValueField.get(storage));
+    }
+
+    @RepeatedTest(5)
+    void getGoodsValue_returnsCorrectValueAfterRemovingGoods() throws IllegalAccessException {
+        Storage storage = new Storage(1, connectors, true, 3);
+        Good good1 = new Good(GoodType.GREEN);
+        Good good2 = new Good(GoodType.YELLOW);
+        storage.addGood(good1);
+        storage.addGood(good2);
+        storage.removeGood(good1);
+        assertEquals(good2.getValue(), goodsValueField.get(storage));
+    }
+
+    @RepeatedTest(5)
+    void getGoodsValue_returnsZeroAfterRemovingAllGoods() throws IllegalAccessException {
         Storage storage = new Storage(1, connectors, true, 3);
         Good good1 = new Good(GoodType.GREEN);
         Good good2 = new Good(GoodType.YELLOW);
@@ -182,7 +207,7 @@ class StorageTest {
         storage.addGood(good2);
         storage.removeGood(good1);
         storage.removeGood(good2);
-        assertEquals(0, storage.getGoodsValue());
+        assertEquals(0, goodsValueField.get(storage));
     }
 
     @RepeatedTest(5)
@@ -237,90 +262,56 @@ class StorageTest {
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_initialValue() {
+    void getClockwiseRotation_initialValue() throws IllegalAccessException {
         Component component = new Storage(1, connectors, true, 3);
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_afterOneRotation() {
+    void getClockwiseRotation_afterOneRotation() throws IllegalAccessException {
         Component component = new Storage(1, connectors, true, 3);
         component.rotateClockwise();
-        assertEquals(1, component.getClockwiseRotation());
+        assertEquals(1, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_afterMultipleRotations() {
-        Component component = new Storage(1, connectors, true, 3);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(3, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void getClockwiseRotation_fullRotation() {
+    void getClockwiseRotation_afterMultipleRotations() throws IllegalAccessException {
         Component component = new Storage(1, connectors, true, 3);
         component.rotateClockwise();
         component.rotateClockwise();
         component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(3, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getID_returnsCorrectID() {
+    void getClockwiseRotation_fullRotation() throws IllegalAccessException {
         Component component = new Storage(1, connectors, true, 3);
-        assertEquals(1, component.getID());
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getID_differentID() {
+    void getID_returnsCorrectID() throws IllegalAccessException {
+        Component component = new Storage(1, connectors, true, 3);
+        assertEquals(1, IDField.get(component));
+    }
+
+    @RepeatedTest(5)
+    void getID_differentID() throws IllegalAccessException {
         Component component = new Storage(2, connectors, true, 3);
-        assertEquals(2, component.getID());
+        assertEquals(2, IDField.get(component));
     }
 
     @RepeatedTest(5)
-    void rotateClockwise_once() {
-        Component component = new Storage(1, connectors, true, 3);
-        component.rotateClockwise();
-        assertEquals(1, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_twice() {
-        Component component = new Storage(1, connectors, true, 3);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(2, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_threeTimes() {
-        Component component = new Storage(1, connectors, true, 3);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(3, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_fourTimes() {
-        Component component = new Storage(1, connectors, true, 3);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(0, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_multipleFullRotations() {
+    void rotateClockwise_multipleFullRotations() throws IllegalAccessException {
         Component component = new Storage(1, connectors, true, 3);
         for (int i = 0; i < 8; i++) {
             component.rotateClockwise();
         }
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
@@ -370,39 +361,39 @@ class StorageTest {
     }
 
     @RepeatedTest(5)
-    void isFixed_initiallyFalse() {
+    void isFixed_initiallyFalse() throws IllegalAccessException {
         Component component = new Storage(1, connectors, true, 3);
-        assertFalse(component.isFixed());
+        assertFalse((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void isFixed_afterFixing() {
+    void isFixed_afterFixing() throws IllegalAccessException {
         Component component = new Storage(1, connectors, true, 3);
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void isFixed_afterMultipleFixCalls() {
+    void isFixed_afterMultipleFixCalls() throws IllegalAccessException {
         Component component = new Storage(1, connectors, true, 3);
         component.fix();
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void fix_setsFixedToTrue() {
+    void fix_setsFixedToTrue() throws IllegalAccessException {
         Component component = new Storage(1, connectors, true, 3);
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void fix_doesNotChangeFixedStateIfAlreadyFixed() {
+    void fix_doesNotChangeFixedStateIfAlreadyFixed() throws IllegalAccessException {
         Component component = new Storage(1, connectors, true, 3);
         component.fix();
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -16,6 +17,15 @@ import java.util.Random;
 class PiratesTest {
     Pirates card;
     List<Hit> fires;
+    Field cannonStrengthRequiredField = Pirates.class.getDeclaredField("cannonStrengthRequired");
+    Field flightDaysField = Pirates.class.getDeclaredField("flightDays");
+    Field firesField = Pirates.class.getDeclaredField("fires");
+    Field creditField = Pirates.class.getDeclaredField("credit");
+    Field idField = Card.class.getDeclaredField("ID");
+    Field levelField = Card.class.getDeclaredField("level");
+
+    PiratesTest() throws NoSuchFieldException {
+    }
 
     @BeforeEach
     void setUp() {
@@ -25,18 +35,24 @@ class PiratesTest {
         assertFalse(fires.contains(null));
         card = new Pirates(2, 0, fires, 4, 2, 1);
         assertNotNull(card);
+        cannonStrengthRequiredField.setAccessible(true);
+        flightDaysField.setAccessible(true);
+        firesField.setAccessible(true);
+        creditField.setAccessible(true);
+        idField.setAccessible(true);
+        levelField.setAccessible(true);
     }
 
     @Test
-    void testConstructor() {
+    void testConstructor() throws IllegalAccessException {
         Pirates c1 = new Pirates();
         assertNotNull(c1);
-        assertEquals(0, c1.getID());
-        assertEquals(0, c1.getCardLevel());
-        assertEquals(0, c1.getCredit());
-        assertEquals(0, c1.getCannonStrengthRequired());
-        assertEquals(0, c1.getFlightDays());
-        assertNull(c1.getFires());
+        assertEquals(0, idField.get(c1));
+        assertEquals(0, levelField.get(c1));
+        assertEquals(0, creditField.get(c1));
+        assertEquals(0, cannonStrengthRequiredField.get(c1));
+        assertEquals(0, flightDaysField.get(c1));
+        assertNull(firesField.get(c1));
         assertEquals(CardType.PIRATES, c1.getCardType());
     }
 
@@ -47,23 +63,18 @@ class PiratesTest {
     }
 
     @RepeatedTest(5)
-    void getCardLevel() {
-        assertEquals(2, card.getCardLevel());
-
-        Random random = new Random();
-        int level = random.nextInt(3) + 1;
-        Pirates randomCard = new Pirates(level, 0, fires, 4, 2, 1);
-        assertEquals(level, randomCard.getCardLevel());
+    void getCardLevel() throws IllegalAccessException {
+        assertEquals(2, levelField.get(card));
     }
 
     @RepeatedTest(5)
-    void getCardID() {
-        assertEquals(0, card.getID());
+    void getCardID() throws IllegalAccessException {
+        assertEquals(0, idField.get(card));
 
         Random random = new Random();
         int id = random.nextInt(3) + 1;
         Pirates randomCard = new Pirates(1, id, fires, 4, 2, 1);
-        assertEquals(id, randomCard.getID());
+        assertEquals(id, idField.get(randomCard));
     }
 
     @Test
@@ -72,8 +83,8 @@ class PiratesTest {
     }
 
     @RepeatedTest(5)
-    void getFire() {
-        List<Hit> hits = card.getFires();
+    void getFire() throws IllegalAccessException {
+        List<Hit> hits = (List<Hit>) firesField.get(card);
         assertEquals(fires,hits);
         assertEquals(2, hits.size());
         assertEquals(HitType.HEAVYFIRE, hits.get(0).getType());
@@ -91,38 +102,38 @@ class PiratesTest {
             checkHits.add(randomHits.get(i));
         }
         Pirates randomCard = new Pirates(2, 0, randomHits, 4, 2, 1);
-        hits = randomCard.getFires();
+        hits = (List<Hit>) firesField.get(randomCard);
         assertEquals(randomHits, hits);
         assertEquals(checkHits, hits);
     }
 
     @RepeatedTest(5)
-    void getCannonStrengthRequired() {
-        assertEquals(2,card.getCannonStrengthRequired());
+    void getCannonStrengthRequired() throws IllegalAccessException {
+        assertEquals(2, cannonStrengthRequiredField.get(card));
 
         Random random = new Random();
         int cannonStrength = random.nextInt(3) + 1;
         Pirates randomCard = new Pirates(2, 0, fires, 4, cannonStrength, 1);
-        assertEquals(cannonStrength, randomCard.getCannonStrengthRequired());
+        assertEquals(cannonStrength, cannonStrengthRequiredField.get(randomCard));
     }
 
     @RepeatedTest(5)
-    void getFlightDays() {
-        assertEquals(1,card.getFlightDays());
+    void getFlightDays() throws IllegalAccessException {
+        assertEquals(1, flightDaysField.get(card));
 
         Random random = new Random();
         int flightDays = random.nextInt(3) + 1;
         Pirates randomCard = new Pirates(2, 0, fires, 4, 2, flightDays);
-        assertEquals(flightDays, randomCard.getFlightDays());
+        assertEquals(flightDays, flightDaysField.get(randomCard));
     }
 
     @RepeatedTest(5)
-    void getCredit() {
-        assertEquals(4, card.getCredit());
+    void getCredit() throws IllegalAccessException {
+        assertEquals(4, creditField.get(card));
 
         Random random = new Random();
         int credit = random.nextInt(3) + 1;
         Pirates randomCard = new Pirates(2, 0, fires, credit, 2, 1);
-        assertEquals(credit, randomCard.getCredit());
+        assertEquals(credit, creditField.get(randomCard));
     }
 }

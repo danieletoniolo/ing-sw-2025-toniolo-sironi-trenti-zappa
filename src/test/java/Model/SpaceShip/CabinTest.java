@@ -6,41 +6,70 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CabinTest {
     Cabin c;
     ConnectorType[] connectors;
+    Field crewNumberField = Cabin.class.getDeclaredField("crewNumber");
+    Field purpleLifeSupportField = Cabin.class.getDeclaredField("purpleLifeSupport");
+    Field brownLifeSupportField = Cabin.class.getDeclaredField("brownLifeSupport");
+    Field purpleAlienField = Cabin.class.getDeclaredField("purpleAlien");
+    Field brownAlienField = Cabin.class.getDeclaredField("brownAlien");
+    Field connectorsField = Component.class.getDeclaredField("connectors");
+    Field clockwiseRotationField = Component.class.getDeclaredField("clockwiseRotation");
+    Field fixedField = Component.class.getDeclaredField("fixed");
+    Field shipField = Component.class.getDeclaredField("ship");
+    Field IDField = Component.class.getDeclaredField("ID");
+    Field rowField = Component.class.getDeclaredField("row");
+    Field columnField = Component.class.getDeclaredField("column");
+
+    CabinTest() throws NoSuchFieldException {
+    }
 
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         c = new Cabin(0, connectors);
         assertNotNull(c);
+        crewNumberField.setAccessible(true);
+        purpleLifeSupportField.setAccessible(true);
+        brownLifeSupportField.setAccessible(true);
+        purpleAlienField.setAccessible(true);
+        brownAlienField.setAccessible(true);
+        connectorsField.setAccessible(true);
+        clockwiseRotationField.setAccessible(true);
+        fixedField.setAccessible(true);
+        shipField.setAccessible(true);
+        IDField.setAccessible(true);
+        rowField.setAccessible(true);
+        columnField.setAccessible(true);
     }
 
     @Test
-    void testCabinConstructor() {
+    void testCabinConstructor() throws IllegalAccessException {
         Cabin cabin = new Cabin();
         assertNotNull(cabin);
-        assertEquals(0, cabin.getID());
+        assertEquals(0, IDField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void getCrewNumber_initiallyZero() {
+    void getCrewNumber_initiallyZero() throws IllegalAccessException {
         Cabin cabin = new Cabin(1, connectors);
-        assertEquals(0, cabin.getCrewNumber());
+        assertEquals(0, crewNumberField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void getCrewNumber_afterAddingCrewMembers() {
+    void getCrewNumber_afterAddingCrewMembers() throws IllegalAccessException {
         Cabin cabin = new Cabin(1, connectors);
         cabin.addCrewMember();
-        assertEquals(2, cabin.getCrewNumber());
+        assertEquals(2, crewNumberField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void getCrewNumber_afterAddingPurpleAlien() {
+    void getCrewNumber_afterAddingPurpleAlien() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
@@ -48,7 +77,7 @@ class CabinTest {
         ship.placeComponent(lifeSupport, 6, 8);
         cabin.isValid();
         cabin.addPurpleAlien();
-        assertEquals(1, cabin.getCrewNumber());
+        assertEquals(1, crewNumberField.get(cabin));
     }
 
     @Test
@@ -66,7 +95,7 @@ class CabinTest {
     }
 
     @RepeatedTest(5)
-    void getCrewNumber_afterAddingBrownAlien() {
+    void getCrewNumber_afterAddingBrownAlien() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
@@ -74,7 +103,7 @@ class CabinTest {
         ship.placeComponent(lifeSupport, 6, 8);
         cabin.isValid();
         cabin.addBrownAlien();
-        assertEquals(1, cabin.getCrewNumber());
+        assertEquals(1, crewNumberField.get(cabin));
     }
 
     @Test
@@ -92,43 +121,43 @@ class CabinTest {
     }
 
     @RepeatedTest(5)
-    void getCrewNumber_afterRemovingCrewMembers() {
+    void getCrewNumber_afterRemovingCrewMembers() throws IllegalAccessException {
         Cabin cabin = new Cabin(1, connectors);
         cabin.addCrewMember();
         cabin.removeCrewMember(1);
-        assertEquals(1, cabin.getCrewNumber());
+        assertEquals(1, crewNumberField.get(cabin));
         cabin.removeCrewMember(1);
-        assertEquals(0, cabin.getCrewNumber());
+        assertEquals(0, crewNumberField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasPurpleLifeSupport_initiallyFalse() {
+    void hasPurpleLifeSupport_initiallyFalse() throws IllegalAccessException {
         Cabin cabin = new Cabin(1, connectors);
-        assertFalse(cabin.hasPurpleLifeSupport());
+        assertFalse((boolean) purpleLifeSupportField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasPurpleLifeSupport_afterAddingPurpleLifeSupport() {
+    void hasPurpleLifeSupport_afterAddingPurpleLifeSupport() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(lifeSupport, 6, 8);
         cabin.isValid();
-        assertTrue(cabin.hasPurpleLifeSupport());
+        assertTrue((boolean) purpleLifeSupportField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasPurpleLifeSupport_withNoAdjacentLifeSupport() {
+    void hasPurpleLifeSupport_withNoAdjacentLifeSupport() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
         cabin.isValid();
-        assertFalse(cabin.hasPurpleLifeSupport());
+        assertFalse((boolean) purpleLifeSupportField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasPurpleLifeSupport_withMultipleAdjacentComponents() {
+    void hasPurpleLifeSupport_withMultipleAdjacentComponents() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport1 = new LifeSupportPurple(2, connectors);
@@ -137,37 +166,37 @@ class CabinTest {
         ship.placeComponent(lifeSupport1, 6, 8);
         ship.placeComponent(lifeSupport2, 7, 7);
         cabin.isValid();
-        assertTrue(cabin.hasPurpleLifeSupport());
+        assertTrue((boolean) purpleLifeSupportField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasBrownLifeSupport_initiallyFalse() {
+    void hasBrownLifeSupport_initiallyFalse() throws IllegalAccessException {
         Cabin cabin = new Cabin(1, connectors);
-        assertFalse(cabin.hasBrownLifeSupport());
+        assertFalse((boolean) brownLifeSupportField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasBrownLifeSupport_afterAddingBrownLifeSupport() {
+    void hasBrownLifeSupport_afterAddingBrownLifeSupport() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(lifeSupport, 6, 8);
         cabin.isValid();
-        assertTrue(cabin.hasBrownLifeSupport());
+        assertTrue((boolean) brownLifeSupportField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasBrownLifeSupport_withNoAdjacentLifeSupport() {
+    void hasBrownLifeSupport_withNoAdjacentLifeSupport() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
         cabin.isValid();
-        assertFalse(cabin.hasBrownLifeSupport());
+        assertFalse((boolean) brownLifeSupportField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasBrownLifeSupport_withMultipleAdjacentComponents() {
+    void hasBrownLifeSupport_withMultipleAdjacentComponents() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport1 = new LifeSupportBrown(2, connectors);
@@ -176,17 +205,17 @@ class CabinTest {
         ship.placeComponent(lifeSupport1, 6, 8);
         ship.placeComponent(lifeSupport2, 7, 7);
         cabin.isValid();
-        assertTrue(cabin.hasBrownLifeSupport());
+        assertTrue((boolean) brownLifeSupportField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasPurpleAlien_initiallyFalse() {
+    void hasPurpleAlien_initiallyFalse() throws IllegalAccessException {
         Cabin cabin = new Cabin(1, connectors);
-        assertFalse(cabin.hasPurpleAlien());
+        assertFalse((boolean) purpleAlienField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasPurpleAlien_afterAddingPurpleAlien() {
+    void hasPurpleAlien_afterAddingPurpleAlien() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
@@ -194,18 +223,18 @@ class CabinTest {
         ship.placeComponent(lifeSupport, 6, 8);
         cabin.isValid();
         cabin.addPurpleAlien();
-        assertTrue(cabin.hasPurpleAlien());
+        assertTrue((boolean) purpleAlienField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasPurpleAlien_withNoPurpleLifeSupport() {
+    void hasPurpleAlien_withNoPurpleLifeSupport() throws IllegalAccessException {
         Cabin cabin = new Cabin(1, connectors);
         assertThrows(IllegalStateException.class, cabin::addPurpleAlien);
-        assertFalse(cabin.hasPurpleAlien());
+        assertFalse((boolean) purpleAlienField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasPurpleAlien_withBrownAlienPresent() {
+    void hasPurpleAlien_withBrownAlienPresent() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
@@ -214,17 +243,17 @@ class CabinTest {
         cabin.isValid();
         cabin.addBrownAlien();
         assertThrows(IllegalStateException.class, cabin::addPurpleAlien);
-        assertFalse(cabin.hasPurpleAlien());
+        assertFalse((boolean) purpleAlienField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasBrownAlien_initiallyFalse() {
+    void hasBrownAlien_initiallyFalse() throws IllegalAccessException {
         Cabin cabin = new Cabin(1, connectors);
-        assertFalse(cabin.hasBrownAlien());
+        assertFalse((boolean) brownAlienField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasBrownAlien_afterAddingBrownAlien() {
+    void hasBrownAlien_afterAddingBrownAlien() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
@@ -232,18 +261,18 @@ class CabinTest {
         ship.placeComponent(lifeSupport, 6, 8);
         cabin.isValid();
         cabin.addBrownAlien();
-        assertTrue(cabin.hasBrownAlien());
+        assertTrue((boolean) brownAlienField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasBrownAlien_withNoBrownLifeSupport() {
+    void hasBrownAlien_withNoBrownLifeSupport() throws IllegalAccessException {
         Cabin cabin = new Cabin(1, connectors);
         assertThrows(IllegalStateException.class, cabin::addBrownAlien);
-        assertFalse(cabin.hasBrownAlien());
+        assertFalse((boolean) brownAlienField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void hasBrownAlien_withPurpleAlienPresent() {
+    void hasBrownAlien_withPurpleAlienPresent() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
@@ -252,14 +281,14 @@ class CabinTest {
         cabin.isValid();
         cabin.addPurpleAlien();
         assertThrows(IllegalStateException.class, cabin::addBrownAlien);
-        assertFalse(cabin.hasBrownAlien());
+        assertFalse((boolean) brownAlienField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void addCrewMember_withNoAliens() {
+    void addCrewMember_withNoAliens() throws IllegalAccessException {
         Cabin cabin = new Cabin(1, connectors);
         cabin.addCrewMember();
-        assertEquals(2, cabin.getCrewNumber());
+        assertEquals(2, crewNumberField.get(cabin));
     }
 
     @RepeatedTest(5)
@@ -287,13 +316,13 @@ class CabinTest {
     }
 
     @RepeatedTest(5)
-    void removeCrewMember_withSufficientCrew() {
+    void removeCrewMember_withSufficientCrew() throws IllegalAccessException {
         Cabin cabin = new Cabin(1, connectors);
         cabin.addCrewMember();
         cabin.removeCrewMember(1);
-        assertEquals(1, cabin.getCrewNumber());
+        assertEquals(1, crewNumberField.get(cabin));
         cabin.removeCrewMember(1);
-        assertEquals(0, cabin.getCrewNumber());
+        assertEquals(0, crewNumberField.get(cabin));
     }
 
     @RepeatedTest(5)
@@ -303,7 +332,7 @@ class CabinTest {
     }
 
     @RepeatedTest(5)
-    void removeCrewMember_withPurpleAlien() {
+    void removeCrewMember_withPurpleAlien() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
@@ -312,12 +341,12 @@ class CabinTest {
         cabin.isValid();
         cabin.addPurpleAlien();
         cabin.removeCrewMember(1);
-        assertEquals(0, cabin.getCrewNumber());
-        assertFalse(cabin.hasPurpleAlien());
+        assertEquals(0, crewNumberField.get(cabin));
+        assertFalse((boolean) purpleAlienField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void removeCrewMember_withBrownAlien() {
+    void removeCrewMember_withBrownAlien() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
@@ -326,44 +355,44 @@ class CabinTest {
         cabin.isValid();
         cabin.addBrownAlien();
         cabin.removeCrewMember(1);
-        assertEquals(0, cabin.getCrewNumber());
-        assertFalse(cabin.hasBrownAlien());
+        assertEquals(0, crewNumberField.get(cabin));
+        assertFalse((boolean) brownAlienField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void isValid_withNoAdjacentLifeSupport() {
+    void isValid_withNoAdjacentLifeSupport() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         ship.placeComponent(cabin, 6, 7);
         assertTrue(cabin.isValid());
-        assertFalse(cabin.hasBrownAlien());
-        assertFalse(cabin.hasPurpleAlien());
+        assertFalse((boolean) brownAlienField.get(cabin));
+        assertFalse((boolean) purpleAlienField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void isValid_withAdjacentPurpleLifeSupport() {
+    void isValid_withAdjacentPurpleLifeSupport() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport = new LifeSupportPurple(2, connectors);
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(lifeSupport, 6, 8);
         assertTrue(cabin.isValid());
-        assertTrue(cabin.hasPurpleLifeSupport());
+        assertTrue((boolean) purpleLifeSupportField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void isValid_withAdjacentBrownLifeSupport() {
+    void isValid_withAdjacentBrownLifeSupport() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportBrown lifeSupport = new LifeSupportBrown(2, connectors);
         ship.placeComponent(cabin, 6, 7);
         ship.placeComponent(lifeSupport, 6, 8);
         assertTrue(cabin.isValid());
-        assertTrue(cabin.hasBrownLifeSupport());
+        assertTrue((boolean) brownLifeSupportField.get(cabin));
     }
 
     @RepeatedTest(5)
-    void isValid_withMultipleAdjacentLifeSupports() {
+    void isValid_withMultipleAdjacentLifeSupports() throws IllegalAccessException {
         SpaceShip ship = new SpaceShip(Level.SECOND, PlayerColor.YELLOW);
         Cabin cabin = new Cabin(1, connectors);
         LifeSupportPurple lifeSupport1 = new LifeSupportPurple(2, connectors);
@@ -372,8 +401,8 @@ class CabinTest {
         ship.placeComponent(lifeSupport1, 6, 8);
         ship.placeComponent(lifeSupport2, 7, 7);
         assertTrue(cabin.isValid());
-        assertTrue(cabin.hasPurpleLifeSupport());
-        assertTrue(cabin.hasBrownLifeSupport());
+        assertTrue((boolean) purpleLifeSupportField.get(cabin));
+        assertTrue((boolean) brownLifeSupportField.get(cabin));
     }
 
     @RepeatedTest(5)
@@ -426,90 +455,56 @@ class CabinTest {
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_initialValue() {
+    void getClockwiseRotation_initialValue() throws IllegalAccessException {
         Component component = new Cabin(1, connectors);
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_afterOneRotation() {
+    void getClockwiseRotation_afterOneRotation() throws IllegalAccessException {
         Component component = new Cabin(1, connectors);
         component.rotateClockwise();
-        assertEquals(1, component.getClockwiseRotation());
+        assertEquals(1, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_afterMultipleRotations() {
-        Component component = new Cabin(1, connectors);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(3, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void getClockwiseRotation_fullRotation() {
+    void getClockwiseRotation_afterMultipleRotations() throws IllegalAccessException {
         Component component = new Cabin(1, connectors);
         component.rotateClockwise();
         component.rotateClockwise();
         component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(3, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getID_returnsCorrectID() {
+    void getClockwiseRotation_fullRotation() throws IllegalAccessException {
         Component component = new Cabin(1, connectors);
-        assertEquals(1, component.getID());
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getID_differentID() {
+    void getID_returnsCorrectID() throws IllegalAccessException {
+        Component component = new Cabin(1, connectors);
+        assertEquals(1, IDField.get(component));
+    }
+
+    @RepeatedTest(5)
+    void getID_differentID() throws IllegalAccessException {
         Component component = new Cabin(2, connectors);
-        assertEquals(2, component.getID());
+        assertEquals(2, IDField.get(component));
     }
 
     @RepeatedTest(5)
-    void rotateClockwise_once() {
-        Component component = new Cabin(1, connectors);
-        component.rotateClockwise();
-        assertEquals(1, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_twice() {
-        Component component = new Cabin(1, connectors);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(2, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_threeTimes() {
-        Component component = new Cabin(1, connectors);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(3, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_fourTimes() {
-        Component component = new Cabin(1, connectors);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(0, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_multipleFullRotations() {
+    void rotateClockwise_multipleFullRotations() throws IllegalAccessException {
         Component component = new Cabin(1, connectors);
         for (int i = 0; i < 8; i++) {
             component.rotateClockwise();
         }
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
@@ -559,39 +554,39 @@ class CabinTest {
     }
 
     @RepeatedTest(5)
-    void isFixed_initiallyFalse() {
+    void isFixed_initiallyFalse() throws IllegalAccessException {
         Component component = new Cabin(1, connectors);
-        assertFalse(component.isFixed());
+        assertFalse((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void isFixed_afterFixing() {
+    void isFixed_afterFixing() throws IllegalAccessException {
         Component component = new Cabin(1, connectors);
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void isFixed_afterMultipleFixCalls() {
+    void isFixed_afterMultipleFixCalls() throws IllegalAccessException {
         Component component = new Cabin(1, connectors);
         component.fix();
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void fix_setsFixedToTrue() {
+    void fix_setsFixedToTrue() throws IllegalAccessException {
         Component component = new Cabin(1, connectors);
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void fix_doesNotChangeFixedStateIfAlreadyFixed() {
+    void fix_doesNotChangeFixedStateIfAlreadyFixed() throws IllegalAccessException {
         Component component = new Cabin(1, connectors);
         component.fix();
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)

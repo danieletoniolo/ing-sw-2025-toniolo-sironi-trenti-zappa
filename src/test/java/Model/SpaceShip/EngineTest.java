@@ -6,37 +6,58 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class EngineTest {
     Engine engine;
     ConnectorType[] connectors;
+    Field engineStrengthField = Engine.class.getDeclaredField("engineStrength");
+    Field connectorsField = Component.class.getDeclaredField("connectors");
+    Field clockwiseRotationField = Component.class.getDeclaredField("clockwiseRotation");
+    Field fixedField = Component.class.getDeclaredField("fixed");
+    Field shipField = Component.class.getDeclaredField("ship");
+    Field IDField = Component.class.getDeclaredField("ID");
+    Field rowField = Component.class.getDeclaredField("row");
+    Field columnField = Component.class.getDeclaredField("column");
+
+    EngineTest() throws NoSuchFieldException {
+    }
 
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         engine = new Engine(0, connectors, 1);
         assertNotNull(engine);
+        engineStrengthField.setAccessible(true);
+        connectorsField.setAccessible(true);
+        clockwiseRotationField.setAccessible(true);
+        fixedField.setAccessible(true);
+        shipField.setAccessible(true);
+        IDField.setAccessible(true);
+        rowField.setAccessible(true);
+        columnField.setAccessible(true);
     }
 
     @Test
-    void testEngineConstructor() {
+    void testEngineConstructor() throws IllegalAccessException {
         Engine a = new Engine();
         assertNotNull(a);
-        assertEquals(0, a.getID());
-        assertEquals(0, a.getEngineStrength());
+        assertEquals(0, IDField.get(a));
+        assertEquals(0, engineStrengthField.get(a));
     }
 
     @RepeatedTest(5)
-    void getEngineStrength_withSingleStrength() {
+    void getEngineStrength_withSingleStrength() throws IllegalAccessException {
         Engine engine = new Engine(1, connectors, 1);
-        assertEquals(1, engine.getEngineStrength());
+        assertEquals(1, engineStrengthField.get(engine));
     }
 
     @RepeatedTest(5)
-    void getEngineStrength_withDoubleStrength() {
+    void getEngineStrength_withDoubleStrength() throws IllegalAccessException {
         Engine engine = new Engine(1, connectors, 2);
-        assertEquals(2, engine.getEngineStrength());
+        assertEquals(2, engineStrengthField.get(engine));
     }
 
     @RepeatedTest(5)
@@ -123,90 +144,56 @@ class EngineTest {
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_initialValue() {
+    void getClockwiseRotation_initialValue() throws IllegalAccessException {
         Component component = new Engine(1, connectors, 1);
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_afterOneRotation() {
+    void getClockwiseRotation_afterOneRotation() throws IllegalAccessException {
         Component component = new Engine(1, connectors, 1);
         component.rotateClockwise();
-        assertEquals(1, component.getClockwiseRotation());
+        assertEquals(1, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_afterMultipleRotations() {
-        Component component = new Engine(1, connectors, 1);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(3, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void getClockwiseRotation_fullRotation() {
+    void getClockwiseRotation_afterMultipleRotations() throws IllegalAccessException {
         Component component = new Engine(1, connectors, 1);
         component.rotateClockwise();
         component.rotateClockwise();
         component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(3, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getID_returnsCorrectID() {
+    void getClockwiseRotation_fullRotation() throws IllegalAccessException {
         Component component = new Engine(1, connectors, 1);
-        assertEquals(1, component.getID());
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getID_differentID() {
+    void getID_returnsCorrectID() throws IllegalAccessException {
+        Component component = new Engine(1, connectors, 1);
+        assertEquals(1, IDField.get(component));
+    }
+
+    @RepeatedTest(5)
+    void getID_differentID() throws IllegalAccessException {
         Component component = new Engine(2, connectors, 1);
-        assertEquals(2, component.getID());
+        assertEquals(2, IDField.get(component));
     }
 
     @RepeatedTest(5)
-    void rotateClockwise_once() {
-        Component component = new Engine(1, connectors, 1);
-        component.rotateClockwise();
-        assertEquals(1, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_twice() {
-        Component component = new Engine(1, connectors, 1);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(2, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_threeTimes() {
-        Component component = new Engine(1, connectors, 1);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(3, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_fourTimes() {
-        Component component = new Engine(1, connectors, 1);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(0, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_multipleFullRotations() {
+    void rotateClockwise_multipleFullRotations() throws IllegalAccessException {
         Component component = new Engine(1, connectors, 1);
         for (int i = 0; i < 8; i++) {
             component.rotateClockwise();
         }
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
@@ -246,39 +233,39 @@ class EngineTest {
     }
 
     @RepeatedTest(5)
-    void isFixed_initiallyFalse() {
+    void isFixed_initiallyFalse() throws IllegalAccessException {
         Component component = new Engine(1, connectors, 1);
-        assertFalse(component.isFixed());
+        assertFalse((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void isFixed_afterFixing() {
+    void isFixed_afterFixing() throws IllegalAccessException {
         Component component = new Engine(1, connectors, 1);
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void isFixed_afterMultipleFixCalls() {
+    void isFixed_afterMultipleFixCalls() throws IllegalAccessException {
         Component component = new Engine(1, connectors, 1);
         component.fix();
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void fix_setsFixedToTrue() {
+    void fix_setsFixedToTrue() throws IllegalAccessException {
         Component component = new Engine(1, connectors, 1);
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void fix_doesNotChangeFixedStateIfAlreadyFixed() {
+    void fix_doesNotChangeFixedStateIfAlreadyFixed() throws IllegalAccessException {
         Component component = new Engine(1, connectors, 1);
         component.fix();
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)

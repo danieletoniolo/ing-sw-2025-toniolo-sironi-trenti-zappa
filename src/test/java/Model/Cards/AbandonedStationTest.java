@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
@@ -15,6 +16,14 @@ import java.util.Random;
 class AbandonedStationTest {
     AbandonedStation card;
     List<Good> goods;
+    Field levelField = Card.class.getDeclaredField("level");
+    Field idField = Card.class.getDeclaredField("ID");
+    Field crewField = AbandonedStation.class.getDeclaredField("crewRequired");
+    Field flightField = AbandonedStation.class.getDeclaredField("flightDays");
+    Field goodsField = AbandonedStation.class.getDeclaredField("goods");
+
+    AbandonedStationTest() throws NoSuchFieldException {
+    }
 
     @BeforeEach
     void setUp() {
@@ -24,17 +33,22 @@ class AbandonedStationTest {
         assertFalse(goods.contains(null));
         card = new AbandonedStation(2,3,1, 0, goods);
         assertNotNull(card);
+        levelField.setAccessible(true);
+        idField.setAccessible(true);
+        crewField.setAccessible(true);
+        flightField.setAccessible(true);
+        goodsField.setAccessible(true);
     }
 
     @Test
-    void testConstructor() {
+    void testConstructor() throws IllegalAccessException {
         AbandonedStation c1 = new AbandonedStation();
         assertNotNull(c1);
-        assertEquals(0, c1.getID());
-        assertEquals(0, c1.getCardLevel());
-        assertEquals(0, c1.getCrewRequired());
-        assertEquals(0, c1.getFlightDays());
-        assertNull(c1.getGoods());
+        assertEquals(0, idField.get(c1));
+        assertEquals(0, levelField.get(c1));
+        assertEquals(0, crewField.get(c1));
+        assertEquals(0, flightField.get(c1));
+        assertNull(goodsField.get(c1));
         assertEquals(CardType.ABANDONEDSTATION, c1.getCardType());
     }
 
@@ -44,48 +58,43 @@ class AbandonedStationTest {
     }
 
     @RepeatedTest(5)
-    void getCardLevel() {
-        assertEquals(2,card.getCardLevel());
-
-        Random random = new Random();
-        int level = random.nextInt(3) + 1;
-        AbandonedStation randomCard = new AbandonedStation(level, 3, 1, 0, goods);
-        assertEquals(level, randomCard.getCardLevel());
+    void getCardLevel() throws IllegalAccessException {
+        assertEquals(2, levelField.get(card));
     }
 
     @RepeatedTest(5)
-    void getCardID() {
-        assertEquals(3,card.getID());
+    void getCardID() throws IllegalAccessException {
+        assertEquals(3, idField.get(card));
 
         Random random = new Random();
         int id = random.nextInt(3) + 1;
         AbandonedStation randomCard = new AbandonedStation(2, id, 1, 0, goods);
-        assertEquals(id, randomCard.getID());
+        assertEquals(id, idField.get(randomCard));
     }
 
     @RepeatedTest(5)
-    void getCrewRequired() {
-        assertEquals(1,card.getCrewRequired());
+    void getCrewRequired() throws IllegalAccessException {
+        assertEquals(1, crewField.get(card));
 
         Random random = new Random();
         int crew = random.nextInt(3) + 1;
         AbandonedStation randomCard = new AbandonedStation(2, 3, crew, 0, goods);
-        assertEquals(crew, randomCard.getCrewRequired());
+        assertEquals(crew, crewField.get(randomCard));
     }
 
     @RepeatedTest(5)
-    void getFlightDays() {
-        assertEquals(0,card.getFlightDays());
+    void getFlightDays() throws IllegalAccessException {
+        assertEquals(0, flightField.get(card));
 
         Random random = new Random();
         int flightDays = random.nextInt(3) + 1;
         AbandonedStation randomCard = new AbandonedStation(2, 3, 1, flightDays, goods);
-        assertEquals(flightDays, randomCard.getFlightDays());
+        assertEquals(flightDays, flightField.get(randomCard));
     }
 
     @RepeatedTest(5)
-    void getGoods() {
-        List<Good> checkGoods = card.getGoods();
+    void getGoods() throws IllegalAccessException {
+        List<Good> checkGoods = (List<Good>) goodsField.get(card);
         assertEquals(goods,checkGoods);
         assertEquals(2, checkGoods.size());
         assertEquals(GoodType.RED,checkGoods.get(0).getColor());
@@ -100,8 +109,8 @@ class AbandonedStationTest {
             goods.add(randomGoods.get(i));
         }
         AbandonedStation randomCard = new AbandonedStation(2, 3, 1, 0, randomGoods);
-        assertEquals(randomGoods, randomCard.getGoods());
-        assertEquals(goods,randomCard.getGoods());
+        assertEquals(randomGoods, goodsField.get(randomCard));
+        assertEquals(goods,goodsField.get(randomCard));
     }
 
     @RepeatedTest(5)

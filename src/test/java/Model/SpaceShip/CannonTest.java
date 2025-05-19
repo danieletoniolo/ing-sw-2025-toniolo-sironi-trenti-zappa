@@ -6,38 +6,59 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CannonTest {
     Cannon component;
     ConnectorType[] connectors;
+    Field cannonStrengthField = Cannon.class.getDeclaredField("cannonStrength");
+    Field connectorsField = Component.class.getDeclaredField("connectors");
+    Field clockwiseRotationField = Component.class.getDeclaredField("clockwiseRotation");
+    Field fixedField = Component.class.getDeclaredField("fixed");
+    Field shipField = Component.class.getDeclaredField("ship");
+    Field IDField = Component.class.getDeclaredField("ID");
+    Field rowField = Component.class.getDeclaredField("row");
+    Field columnField = Component.class.getDeclaredField("column");
+
+    CannonTest() throws NoSuchFieldException {
+    }
 
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE , ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         component = new Cannon(0, connectors, 1);
         assertNotNull(component);
+        cannonStrengthField.setAccessible(true);
+        connectorsField.setAccessible(true);
+        clockwiseRotationField.setAccessible(true);
+        fixedField.setAccessible(true);
+        shipField.setAccessible(true);
+        IDField.setAccessible(true);
+        rowField.setAccessible(true);
+        columnField.setAccessible(true);
     }
 
     @Test
-    void testCannonConstructor() {
+    void testCannonConstructor() throws IllegalAccessException {
         Cannon a = new Cannon();
         assertNotNull(a);
-        assertEquals(0, a.getID());
-        assertFalse(a.isFixed());
-        assertEquals(0, a.getCannonStrength());
+        assertEquals(0, IDField.get(a));
+        assertFalse((boolean) fixedField.get(a));
+        assertEquals(0, cannonStrengthField.get(a));
     }
 
     @RepeatedTest(5)
-    void getCannonStrength_withNoRotation() {
+    void getCannonStrength_withNoRotation() throws IllegalAccessException {
         Cannon cannon = new Cannon(1, connectors, 2);
-        assertEquals(2, cannon.getCannonStrength());
+        assertEquals(2, cannonStrengthField.get(cannon));
         Cannon cannon1 = new Cannon(1, connectors, 1);
-        assertEquals(1, cannon1.getCannonStrength());
+        assertEquals(1, cannonStrengthField.get(cannon1));
     }
 
     @RepeatedTest(5)
-    void getCannonStrength_withOneRotation() {
+    void getCannonStrength_withOneRotation() throws IllegalAccessException {
         Cannon cannon = new Cannon(1, connectors, 2);
         cannon.rotateClockwise();
         assertEquals(1.0, cannon.getCannonStrength());
@@ -47,7 +68,7 @@ class CannonTest {
     }
 
     @RepeatedTest(5)
-    void getCannonStrength_withTwoRotations() {
+    void getCannonStrength_withTwoRotations() throws IllegalAccessException {
         Cannon cannon = new Cannon(1, connectors, 2);
         cannon.rotateClockwise();
         cannon.rotateClockwise();
@@ -59,7 +80,7 @@ class CannonTest {
     }
 
     @RepeatedTest(5)
-    void getCannonStrength_withThreeRotations() {
+    void getCannonStrength_withThreeRotations() throws IllegalAccessException {
         Cannon cannon = new Cannon(1, connectors, 2);
         cannon.rotateClockwise();
         cannon.rotateClockwise();
@@ -73,17 +94,17 @@ class CannonTest {
     }
 
     @RepeatedTest(5)
-    void getCannonStrength_withFullRotation() {
+    void getCannonStrength_withFullRotation() throws IllegalAccessException {
         Cannon cannon = new Cannon(1, connectors, 2);
         for (int i = 0; i < 4; i++) {
             cannon.rotateClockwise();
         }
-        assertEquals(2, cannon.getCannonStrength());
+        assertEquals(2, cannonStrengthField.get(cannon));
         Cannon cannon1 = new Cannon(1, connectors, 1);
         for (int i = 0; i < 4; i++) {
             cannon1.rotateClockwise();
         }
-        assertEquals(1, cannon1.getCannonStrength());
+        assertEquals(1, cannonStrengthField.get(cannon1));
     }
 
     @RepeatedTest(5)
@@ -196,90 +217,56 @@ class CannonTest {
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_initialValue() {
+    void getClockwiseRotation_initialValue() throws IllegalAccessException {
         Component component = new Cannon(1, connectors, 1);
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_afterOneRotation() {
+    void getClockwiseRotation_afterOneRotation() throws IllegalAccessException {
         Component component = new Cannon(1, connectors, 1);
         component.rotateClockwise();
-        assertEquals(1, component.getClockwiseRotation());
+        assertEquals(1, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_afterMultipleRotations() {
-        Component component = new Cannon(1, connectors, 1);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(3, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void getClockwiseRotation_fullRotation() {
+    void getClockwiseRotation_afterMultipleRotations() throws IllegalAccessException {
         Component component = new Cannon(1, connectors, 1);
         component.rotateClockwise();
         component.rotateClockwise();
         component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(3, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getID_returnsCorrectID() {
+    void getClockwiseRotation_fullRotation() throws IllegalAccessException {
         Component component = new Cannon(1, connectors, 1);
-        assertEquals(1, component.getID());
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getID_differentID() {
+    void getID_returnsCorrectID() throws IllegalAccessException {
+        Component component = new Cannon(1, connectors, 1);
+        assertEquals(1, IDField.get(component));
+    }
+
+    @RepeatedTest(5)
+    void getID_differentID() throws IllegalAccessException {
         Component component = new Cannon(2, connectors, 1);
-        assertEquals(2, component.getID());
+        assertEquals(2, IDField.get(component));
     }
 
     @RepeatedTest(5)
-    void rotateClockwise_once() {
-        Component component = new Cannon(1, connectors, 1);
-        component.rotateClockwise();
-        assertEquals(1, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_twice() {
-        Component component = new Cannon(1, connectors, 1);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(2, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_threeTimes() {
-        Component component = new Cannon(1, connectors, 1);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(3, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_fourTimes() {
-        Component component = new Cannon(1, connectors, 1);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(0, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_multipleFullRotations() {
+    void rotateClockwise_multipleFullRotations() throws IllegalAccessException {
         Component component = new Cannon(1, connectors, 1);
         for (int i = 0; i < 8; i++) {
             component.rotateClockwise();
         }
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
@@ -329,39 +316,39 @@ class CannonTest {
     }
 
     @RepeatedTest(5)
-    void isFixed_initiallyFalse() {
+    void isFixed_initiallyFalse() throws IllegalAccessException {
         Component component = new Cannon(1, connectors, 1);
-        assertFalse(component.isFixed());
+        assertFalse((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void isFixed_afterFixing() {
+    void isFixed_afterFixing() throws IllegalAccessException {
         Component component = new Cannon(1, connectors, 1);
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void isFixed_afterMultipleFixCalls() {
+    void isFixed_afterMultipleFixCalls() throws IllegalAccessException {
         Component component = new Cannon(1, connectors, 1);
         component.fix();
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void fix_setsFixedToTrue() {
+    void fix_setsFixedToTrue() throws IllegalAccessException {
         Component component = new Cannon(1, connectors, 1);
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void fix_doesNotChangeFixedStateIfAlreadyFixed() {
+    void fix_doesNotChangeFixedStateIfAlreadyFixed() throws IllegalAccessException {
         Component component = new Cannon(1, connectors, 1);
         component.fix();
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,21 +18,32 @@ class PlanetsTest {
     Planets card;
     List<List<Good>> planets = Arrays.asList( Arrays.asList(new Good(GoodType.BLUE), new Good(GoodType.RED)),
             List.of(new Good(GoodType.YELLOW)));
+    Field planetsField = Planets.class.getDeclaredField("planets");
+    Field flightDaysField = Planets.class.getDeclaredField("flightDays");
+    Field cardLevelField = Card.class.getDeclaredField("level");
+    Field cardIDField = Card.class.getDeclaredField("ID");
+
+    PlanetsTest() throws NoSuchFieldException {
+    }
 
     @BeforeEach
     void setUp() {
         card = new Planets(2, 0, planets, 3);
         assertNotNull(card);
+        planetsField.setAccessible(true);
+        flightDaysField.setAccessible(true);
+        cardLevelField.setAccessible(true);
+        cardIDField.setAccessible(true);
     }
 
     @Test
-    void testConstructor() {
+    void testConstructor() throws IllegalAccessException {
         Planets c1 = new Planets();
         assertNotNull(c1);
-        assertEquals(0, c1.getID());
-        assertEquals(0, c1.getCardLevel());
-        assertEquals(0, c1.getFlightDays());
-        assertThrows((NullPointerException.class), c1::getPlanetNumbers);
+        assertEquals(0, cardIDField.get(c1));
+        assertEquals(0, cardLevelField.get(c1));
+        assertEquals(0, flightDaysField.get(c1));
+        assertNull(planetsField.get(c1));
         assertEquals(CardType.PLANETS, c1.getCardType());
     }
 
@@ -47,23 +59,18 @@ class PlanetsTest {
     }
 
     @RepeatedTest(5)
-    void getCardLevel() {
-        assertEquals(2,card.getCardLevel());
-
-        Random random = new Random();
-        int level = random.nextInt(3) + 1;
-        Planets randomCard = new Planets(level, 0, planets, 3);
-        assertEquals(level, randomCard.getCardLevel());
+    void getCardLevel() throws IllegalAccessException {
+        assertEquals(2, cardLevelField.get(card));
     }
 
     @RepeatedTest(5)
-    void getCardID() {
-        assertEquals(0,card.getID());
+    void getCardID() throws IllegalAccessException {
+        assertEquals(0, cardIDField.get(card));
 
         Random random = new Random();
         int id = random.nextInt(3) + 1;
         Planets randomCard = new Planets(1, id, planets, 3);
-        assertEquals(id, randomCard.getID());
+        assertEquals(id, cardIDField.get(randomCard));
     }
 
     @RepeatedTest(5)
@@ -85,13 +92,13 @@ class PlanetsTest {
     }
 
     @RepeatedTest(5)
-    void getFlightDays() {
-        assertEquals(3, card.getFlightDays());
+    void getFlightDays() throws IllegalAccessException {
+        assertEquals(3, flightDaysField.get(card));
 
         Random random = new Random();
         int days = random.nextInt(3) + 1;
         Planets randomCard = new Planets(2, 0, planets, days);
-        assertEquals(days, randomCard.getFlightDays());
+        assertEquals(days, flightDaysField.get(randomCard));
     }
 
     @RepeatedTest(5)

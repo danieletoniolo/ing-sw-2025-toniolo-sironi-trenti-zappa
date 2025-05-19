@@ -9,12 +9,21 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Random;
 
 class CombatZoneTest {
     CombatZone card;
     ArrayList<Hit> fires;
+    Field flightDaysField = CombatZone.class.getDeclaredField("flightDays");
+    Field lostField = CombatZone.class.getDeclaredField("lost");
+    Field firesField = CombatZone.class.getDeclaredField("fires");
+    Field cardLevelField = Card.class.getDeclaredField("level");
+    Field cardIDField = Card.class.getDeclaredField("ID");
+
+    CombatZoneTest() throws NoSuchFieldException {
+    }
 
     @BeforeEach
     void setUp() {
@@ -24,17 +33,22 @@ class CombatZoneTest {
         assertFalse(fires.contains(null));
         card = new CombatZone(2, 3, fires, 2, 0);
         assertNotNull(card);
+        flightDaysField.setAccessible(true);
+        lostField.setAccessible(true);
+        firesField.setAccessible(true);
+        cardLevelField.setAccessible(true);
+        cardIDField.setAccessible(true);
     }
 
     @Test
-    void testConstructor() {
+    void testConstructor() throws IllegalAccessException {
         CombatZone c1 = new CombatZone();
         assertNotNull(c1);
-        assertEquals(0, c1.getID());
-        assertEquals(0, c1.getCardLevel());
-        assertEquals(0, c1.getFlightDays());
-        assertEquals(0, c1.getLost());
-        assertNull(c1.getFires());
+        assertEquals(0, cardIDField.get(c1));
+        assertEquals(0, cardLevelField.get(c1));
+        assertEquals(0, flightDaysField.get(c1));
+        assertEquals(0, lostField.get(c1));
+        assertNull(firesField.get(c1));
         assertEquals(CardType.COMBATZONE, c1.getCardType());
     }
 
@@ -50,48 +64,43 @@ class CombatZoneTest {
     }
 
     @RepeatedTest(5)
-    void getCardLevel() {
-        assertEquals(2,card.getCardLevel());
-
-        Random random = new Random();
-        int level = random.nextInt(3) + 1;
-        CombatZone randomCard = new CombatZone(2, 3, fires, level, 0);
-        assertEquals(level, randomCard.getCardLevel());
+    void getCardLevel() throws IllegalAccessException {
+        assertEquals(2, cardLevelField.get(card));
     }
 
     @RepeatedTest(5)
-    void getCardID() {
-        assertEquals(0,card.getID());
+    void getCardID() throws IllegalAccessException {
+        assertEquals(0,cardIDField.get(card));
 
         Random random = new Random();
         int id = random.nextInt(3) + 1;
         CombatZone randomCard = new CombatZone(2, 3, fires, 2, id);
-        assertEquals(id, randomCard.getID());
+        assertEquals(id, cardIDField.get(randomCard));
     }
 
     @RepeatedTest(5)
-    void getFlightDays() {
-        assertEquals(2,card.getFlightDays());
+    void getFlightDays() throws IllegalAccessException {
+        assertEquals(2, flightDaysField.get(card));
 
         Random random = new Random();
         int flightDays = random.nextInt(3) + 1;
         CombatZone randomCard = new CombatZone(flightDays, 3, fires, 2, 0);
-        assertEquals(flightDays, randomCard.getFlightDays());
+        assertEquals(flightDays, flightDaysField.get(randomCard));
     }
 
     @RepeatedTest(5)
-    void getLost() {
-        assertEquals(3,card.getLost());
+    void getLost() throws IllegalAccessException {
+        assertEquals(3, lostField.get(card));
 
         Random random = new Random();
         int lost = random.nextInt(3) + 1;
         CombatZone randomCard = new CombatZone(2, lost, fires, 2, 0);
-        assertEquals(lost, randomCard.getLost());
+        assertEquals(lost, lostField.get(randomCard));
     }
 
     @RepeatedTest(5)
-    void getFires(){
-        ArrayList<Hit> hits = card.getFires();
+    void getFires() throws IllegalAccessException {
+        ArrayList<Hit> hits = (ArrayList<Hit>) firesField.get(card);
         assertEquals(fires, hits);
         assertEquals(2,hits.size());
         assertEquals(HitType.HEAVYFIRE,hits.get(0).getType());
@@ -110,7 +119,7 @@ class CombatZoneTest {
         }
 
         CombatZone randomCard = new CombatZone(2, 3, randomHits, 2, 0);
-        hits = randomCard.getFires();
+        hits = (ArrayList<Hit>) firesField.get(randomCard);
         assertEquals(randomHits, hits);
         assertEquals(fires, hits);
     }

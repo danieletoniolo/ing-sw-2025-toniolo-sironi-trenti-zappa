@@ -6,92 +6,107 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class BatteryTest {
     Battery b;
     ConnectorType[] connectors;
+    Field energyNumberField = Battery.class.getDeclaredField("energyNumber");
+    Field connectorsField = Component.class.getDeclaredField("connectors");
+    Field clockwiseRotationField = Component.class.getDeclaredField("clockwiseRotation");
+    Field fixedField = Component.class.getDeclaredField("fixed");
+    Field shipField = Component.class.getDeclaredField("ship");
+    Field IDField = Component.class.getDeclaredField("ID");
+    Field rowField = Component.class.getDeclaredField("row");
+    Field columnField = Component.class.getDeclaredField("column");
+
+    BatteryTest() throws NoSuchFieldException {
+    }
 
     @BeforeEach
     void setUp() {
         connectors = new ConnectorType[]{ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE, ConnectorType.TRIPLE};
         b = new Battery(0, connectors, 3);
         assertNotNull(b);
+        energyNumberField.setAccessible(true);
+        connectorsField.setAccessible(true);
+        clockwiseRotationField.setAccessible(true);
+        fixedField.setAccessible(true);
+        shipField.setAccessible(true);
+        IDField.setAccessible(true);
+        rowField.setAccessible(true);
+        columnField.setAccessible(true);
     }
 
     @Test
-    void testBatteryConstructor() {
+    void testBatteryConstructor() throws IllegalAccessException {
         Battery a = new Battery();
         assertNotNull(a);
-        assertEquals(0, a.getID());
-        assertEquals(0, a.getEnergyNumber());
+        assertEquals(0, IDField.get(a));
+        assertEquals(0, energyNumberField.get(a));
     }
 
     @RepeatedTest(5)
-    void getEnergyNumber_initialValue() {
-        assertEquals(3, b.getEnergyNumber());
+    void getEnergyNumber_initialValue() throws IllegalAccessException {
+        assertEquals(3, energyNumberField.get(b));
     }
 
     @RepeatedTest(5)
-    void getEnergyNumber_afterRemovingEnergy() {
+    void getEnergyNumber_afterRemovingEnergy() throws IllegalAccessException {
         b.removeEnergy();
-        assertEquals(2, b.getEnergyNumber());
+        assertEquals(2, energyNumberField.get(b));
     }
 
     @RepeatedTest(5)
-    void getEnergyNumber_afterMultipleRemovals() {
+    void getEnergyNumber_afterMultipleRemovals() throws IllegalAccessException {
         b.removeEnergy();
         b.removeEnergy();
-        assertEquals(1, b.getEnergyNumber());
+        assertEquals(1, energyNumberField.get(b));
     }
 
     @RepeatedTest(5)
-    void getEnergyNumber_noEnergyLeft() {
+    void getEnergyNumber_noEnergyLeft() throws IllegalAccessException {
         Battery battery = new Battery(1, connectors, 1);
         battery.removeEnergy();
         assertThrows(IllegalStateException.class, battery::removeEnergy);
-        assertEquals(0, battery.getEnergyNumber());
+        assertEquals(0, energyNumberField.get(battery));
     }
 
     @RepeatedTest(5)
-    void removeEnergy_validRemoval() {
+    void removeEnergy_validRemoval() throws IllegalAccessException {
         Battery battery = new Battery(1, connectors, 3);
         battery.removeEnergy();
-        assertEquals(2, battery.getEnergyNumber());
+        assertEquals(2, energyNumberField.get(battery));
     }
 
     @RepeatedTest(5)
-    void removeEnergy_multipleRemovals() {
+    void removeEnergy_multipleRemovals() throws IllegalAccessException {
         Battery battery = new Battery(1, connectors, 3);
         battery.removeEnergy();
         battery.removeEnergy();
-        assertEquals(1, battery.getEnergyNumber());
+        assertEquals(1, energyNumberField.get(battery));
     }
 
     @RepeatedTest(5)
-    void removeEnergy_noEnergyLeftThrowsException() {
+    void removeEnergy_noEnergyLeft() throws IllegalAccessException {
         Battery battery = new Battery(1, connectors, 1);
         battery.removeEnergy();
         assertThrows(IllegalStateException.class, battery::removeEnergy);
-        assertEquals(0, battery.getEnergyNumber());
+        assertEquals(0, energyNumberField.get(battery));
     }
 
     @RepeatedTest(5)
-    void removeEnergy_negativeEnergyThrowsException() {
+    void removeEnergy_negativeEnergy() throws IllegalAccessException {
         Battery battery = new Battery(1, connectors, 0);
         assertThrows(IllegalStateException.class, battery::removeEnergy);
-        assertEquals(0, battery.getEnergyNumber());
+        assertEquals(0, energyNumberField.get(battery));
     }
 
     @RepeatedTest(5)
     void getComponentType_returnsBattery() {
         assertEquals(ComponentType.BATTERY, b.getComponentType());
-    }
-
-    @RepeatedTest(5)
-    void getComponentType_withDifferentID() {
-        Battery battery = new Battery(2, connectors, 3);
-        assertEquals(ComponentType.BATTERY, battery.getComponentType());
     }
 
     @RepeatedTest(5)
@@ -132,90 +147,56 @@ class BatteryTest {
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_initialValue() {
+    void getClockwiseRotation_initialValue() throws IllegalAccessException {
         Component component = new Battery(1, connectors, 3);
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_afterOneRotation() {
+    void getClockwiseRotation_afterOneRotation() throws IllegalAccessException {
         Component component = new Battery(1, connectors, 3);
         component.rotateClockwise();
-        assertEquals(1, component.getClockwiseRotation());
+        assertEquals(1, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getClockwiseRotation_afterMultipleRotations() {
-        Component component = new Battery(1, connectors, 3);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(3, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void getClockwiseRotation_fullRotation() {
+    void getClockwiseRotation_afterMultipleRotations() throws IllegalAccessException {
         Component component = new Battery(1, connectors, 3);
         component.rotateClockwise();
         component.rotateClockwise();
         component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(3, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getID_returnsCorrectID() {
+    void getClockwiseRotation_fullRotation() throws IllegalAccessException {
         Component component = new Battery(1, connectors, 3);
-        assertEquals(1, component.getID());
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        component.rotateClockwise();
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
-    void getID_differentID() {
+    void getID_returnsCorrectID() throws IllegalAccessException {
+        Component component = new Battery(1, connectors, 3);
+        assertEquals(1, IDField.get(component));
+    }
+
+    @RepeatedTest(5)
+    void getID_differentID() throws IllegalAccessException {
         Component component = new Battery(2, connectors, 3);
-        assertEquals(2, component.getID());
+        assertEquals(2, IDField.get(component));
     }
 
     @RepeatedTest(5)
-    void rotateClockwise_once() {
-        Component component = new Battery(1, connectors, 3);
-        component.rotateClockwise();
-        assertEquals(1, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_twice() {
-        Component component = new Battery(1, connectors, 3);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(2, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_threeTimes() {
-        Component component = new Battery(1, connectors, 3);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(3, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_fourTimes() {
-        Component component = new Battery(1, connectors, 3);
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        component.rotateClockwise();
-        assertEquals(0, component.getClockwiseRotation());
-    }
-
-    @RepeatedTest(5)
-    void rotateClockwise_multipleFullRotations() {
+    void rotateClockwise_multipleFullRotations() throws IllegalAccessException {
         Component component = new Battery(1, connectors, 3);
         for (int i = 0; i < 8; i++) {
             component.rotateClockwise();
         }
-        assertEquals(0, component.getClockwiseRotation());
+        assertEquals(0, clockwiseRotationField.get(component));
     }
 
     @RepeatedTest(5)
@@ -265,39 +246,39 @@ class BatteryTest {
     }
 
     @RepeatedTest(5)
-    void isFixed_initiallyFalse() {
+    void isFixed_initiallyFalse() throws IllegalAccessException {
         Component component = new Battery(1, connectors, 3);
-        assertFalse(component.isFixed());
+        assertFalse((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void isFixed_afterFixing() {
+    void isFixed_afterFixing() throws IllegalAccessException {
         Component component = new Battery(1, connectors, 3);
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void isFixed_afterMultipleFixCalls() {
+    void isFixed_afterMultipleFixCalls() throws IllegalAccessException {
         Component component = new Battery(1, connectors, 3);
         component.fix();
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void fix_setsFixedToTrue() {
+    void fix_setsFixedToTrue() throws IllegalAccessException {
         Component component = new Battery(1, connectors, 3);
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)
-    void fix_doesNotChangeFixedStateIfAlreadyFixed() {
+    void fix_doesNotChangeFixedStateIfAlreadyFixed() throws IllegalAccessException {
         Component component = new Battery(1, connectors, 3);
         component.fix();
         component.fix();
-        assertTrue(component.isFixed());
+        assertTrue((boolean) fixedField.get(component));
     }
 
     @RepeatedTest(5)

@@ -4,27 +4,35 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class HitTest {
     Hit hit;
+    Field typeField = Hit.class.getDeclaredField("type");
+    Field directionField = Hit.class.getDeclaredField("direction");
+
+    HitTest() throws NoSuchFieldException {
+    }
 
     @BeforeEach
     void setUp() {
         hit = new Hit(HitType.HEAVYFIRE, Direction.NORTH);
         assertNotNull(hit);
+        typeField.setAccessible(true);
+        directionField.setAccessible(true);
     }
 
     @Test
-    void getType() {
-        assertEquals(HitType.HEAVYFIRE, hit.getType());
+    void getType() throws IllegalAccessException {
+        assertEquals(HitType.HEAVYFIRE, typeField.get(hit));
     }
 
     @Test
-    void getDirection() {
-        assertEquals(Direction.NORTH, hit.getDirection());
+    void getDirection() throws IllegalAccessException {
+        assertEquals(Direction.NORTH, directionField.get(hit));
     }
 
     @Test
@@ -48,33 +56,33 @@ class HitTest {
     }
 
     @RepeatedTest(10)
-    void testRandomHitCreation() {
+    void testRandomHitCreation() throws IllegalAccessException {
         HitType randomType = getRandomHitType();
         Direction randomDirection = getRandomDirection();
 
         Hit hit = new Hit(randomType, randomDirection);
 
         assertNotNull(hit);
-        assertEquals(randomType, hit.getType());
-        assertEquals(randomDirection, hit.getDirection());
+        assertEquals(randomType, typeField.get(hit));
+        assertEquals(randomDirection, directionField.get(hit));
     }
 
     @Test
-    void testAllPossibleCombinations() {
+    void testAllPossibleCombinations() throws IllegalAccessException {
         for (HitType type : HitType.values()) {
             for (Direction direction : Direction.values()) {
                 Hit hit = new Hit(type, direction);
                 assertNotNull(hit);
-                assertEquals(type, hit.getType());
-                assertEquals(direction, hit.getDirection());
+                assertEquals(type, typeField.get(hit));
+                assertEquals(direction, directionField.get(hit));
             }
         }
     }
 
     @RepeatedTest(5)
-    void hitWithNullValues() {
+    void hitWithNullValues() throws IllegalAccessException {
         Hit hit = new Hit();
-        assertNull(hit.getType());
-        assertNull(hit.getDirection());
+        assertNull(typeField.get(hit));
+        assertNull(directionField.get(hit));
     }
 }

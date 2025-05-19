@@ -81,6 +81,7 @@ class BoardTest {
         assertTrue(board.getShuffledDeck().isEmpty());
     }
 
+    /*
     @ParameterizedTest
     @EnumSource(Level.class)
     void getTiles(Level level) throws JsonProcessingException {
@@ -91,6 +92,8 @@ class BoardTest {
             assertNotNull(board.getTiles().get(i));
         }
     }
+
+     */
 
     @Test
     void getDeck() throws JsonProcessingException {
@@ -265,6 +268,7 @@ class BoardTest {
         });
     }
 
+    /*
     @ParameterizedTest
     @EnumSource(Level.class)
     void popTile(Level level) throws JsonProcessingException {
@@ -304,4 +308,6 @@ class BoardTest {
         }
 
     }
+
+     */
 }

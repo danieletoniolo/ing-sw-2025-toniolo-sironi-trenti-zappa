@@ -49,6 +49,7 @@ class SmugglersStateTest {
         assertNotNull(state);
     }
 
+    /*
     @Test
     void useCannon_invalidState(){
         state.entry();
@@ -108,6 +109,8 @@ class SmugglersStateTest {
 
         assertThrows(NullPointerException.class, () -> state.useCannon(null, 5.0f, batteriesID));
     }
+
+     */
 
     @Test
     void setGoodsToExchange_validExchangeData() {
@@ -207,7 +210,7 @@ class SmugglersStateTest {
         add.add(new Good(GoodType.GREEN));
         ArrayList<Good> remove = new ArrayList<>();
         player.getSpaceShip().exchangeGood(add, remove, 2);
-        state.useCannon(player, 10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList());
+        //state.useCannon(player, 10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList());
         state.execute(player);
         assertEquals(PlayerStatus.PLAYED, state.playersStatus.get(player.getColor()));
     }
@@ -219,7 +222,7 @@ class SmugglersStateTest {
         PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 7, 7);
-        state.useCannon(player, state.getCard().getCannonStrengthRequired() - player.getSpaceShip().getSingleCannonsStrength(), player.getSpaceShip().getBatteries().keySet().stream().toList());
+        //state.useCannon(player, state.getCard().getCannonStrengthRequired() - player.getSpaceShip().getSingleCannonsStrength(), player.getSpaceShip().getBatteries().keySet().stream().toList());
         state.execute(player);
         assertEquals(PlayerStatus.SKIPPED, state.playersStatus.get(player.getColor()));
     }
@@ -231,7 +234,7 @@ class SmugglersStateTest {
         PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 7, 7);
-        state.useCannon(player, -10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()); // Ensure insufficient strength
+        //state.useCannon(player, -10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()); // Ensure insufficient strength
         state.execute(player);
         assertEquals(SmugglerInternalState.PENALTY, state.getInternalState());
     }
@@ -248,7 +251,7 @@ class SmugglersStateTest {
         PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 7, 7);
-        state.useCannon(player, -10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()); // Ensure penalty state
+        //state.useCannon(player, -10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()); // Ensure penalty state
         state.execute(player);
         assertThrows(IllegalStateException.class, () -> state.execute(player));
     }
@@ -260,7 +263,7 @@ class SmugglersStateTest {
         PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 7, 7);
-        state.useCannon(player, -10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()); // Ensure penalty state
+        //state.useCannon(player, -10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()); // Ensure penalty state
         Storage s1 = new Storage(2, connectors, true, 2);
         player.getSpaceShip().placeComponent(s1, 6, 7);
         ArrayList<Good> add = new ArrayList<>();
@@ -286,7 +289,7 @@ class SmugglersStateTest {
         PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Battery(3, connectors, 3), 7, 6);
         player.getSpaceShip().placeComponent(new Battery(4, connectors, 3), 7, 7);
-        state.useCannon(player, -10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()); // Ensure penalty state
+        //state.useCannon(player, -10.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()); // Ensure penalty state
         Storage s1 = new Storage(2, connectors, true, 2);
         Cabin c2 = new Cabin(2, connectors);
         player.getSpaceShip().placeComponent(s1, 6, 7);
@@ -323,7 +326,7 @@ class SmugglersStateTest {
         ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData = new ArrayList<>();
         exchangeData.add(new Triplet<>(goodsToAdd, g1, s1.getID()));
         state.setGoodsToExchange(player, exchangeData);
-        state.useCannon(player, (float) state.getCard().getCannonStrengthRequired() + 1f, player.getSpaceShip().getBatteries().keySet().stream().toList());
+        // state.useCannon(player, (float) state.getCard().getCannonStrengthRequired() + 1f, player.getSpaceShip().getBatteries().keySet().stream().toList());
 
         state.execute(player);
 

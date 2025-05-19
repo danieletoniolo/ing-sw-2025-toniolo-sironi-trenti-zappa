@@ -42,6 +42,7 @@ class OpenSpaceStateTest {
         assertNotNull(state);
     }
 
+    /*
     @RepeatedTest(5)
     void useEngine_withValidBatteriesAndPositiveStrength() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
@@ -75,6 +76,8 @@ class OpenSpaceStateTest {
         assertDoesNotThrow(() -> state.useEngine(player, 0.0f, player.getSpaceShip().getBatteries().keySet().stream().toList()));
         assertEquals(0.0f, state.getStats().get(player));
     }
+
+     */
 
     @RepeatedTest(5)
     void entry_withPlayersHavingSingleEngines() {

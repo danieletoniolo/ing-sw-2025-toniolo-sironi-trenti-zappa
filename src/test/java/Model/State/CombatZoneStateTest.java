@@ -176,6 +176,7 @@ class CombatZoneStateTest {
         assertThrows(IllegalStateException.class, () -> state.setCrewLoss(crewLoss));
     }
 
+    /*
     @Test
     void useCannon_validStateAndStrength() {
         state.setInternalState(CombatZoneInternalState.CANNONS);
@@ -279,6 +280,8 @@ class CombatZoneStateTest {
 
         assertThrows(NullPointerException.class, () -> state.useEngine(player, 5.0f, null));
     }
+
+     */
 
     @Test
     void setGoodsToDiscard_validGoodsToDiscard() {

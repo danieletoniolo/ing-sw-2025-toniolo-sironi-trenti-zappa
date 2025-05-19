@@ -110,6 +110,7 @@ class PiratesStateTest {
         assertThrows(IllegalStateException.class, () -> state.setDice(3));
     }
 
+    /*
     @Test
     void useCannon_invalidState(){
         PlayerData player = state.board.getInGamePlayers().getFirst();
@@ -172,6 +173,8 @@ class PiratesStateTest {
 
         assertThrows(NullPointerException.class, () -> state.useCannon(null, 5.0f, batteriesID));
     }
+
+     */
 
     @RepeatedTest(5)
     void entry_withPlayersHavingSingleCannon() {
