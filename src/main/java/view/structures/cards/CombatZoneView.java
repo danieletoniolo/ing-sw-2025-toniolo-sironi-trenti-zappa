@@ -17,7 +17,7 @@ public class CombatZoneView extends CardView {
     }
 
     @Override
-    public void drawCardGui() {
+    public void drawGui() {
 
     }
 
@@ -25,81 +25,28 @@ public class CombatZoneView extends CardView {
     public String drawLineTui(int l) {
         if(isCovered()) return super.drawLineTui(l);
 
-        return switch (l) {
+
+        StringBuilder line = new StringBuilder(switch (l) {
             case 0 -> Up;
-            case 1 -> "│      COMBATZONE     │";
+            case 1 -> "│     COMBATZONE    │";
             case 2 -> Clear;
-            case 3 -> {
-                String line = "";
-                if(getID() == 15){
-                    line = "│ Cr ";
-                } else {
-                    line = "│ Ca ";
-                }
-                line += "=> FDays: " + getFlightDays();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 4 -> {
-                String line = "│ En => GoodL: " + getLoss();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 5 -> {
-                String line = "";
-                if(getID() == 15){
-                    line += "│ Ca ";
-                } else {
-                    line += "│ Cr ";
-                }
-                line += "=> H1: " + hits.get(0).drawHitTui();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 6 -> {
-                String line = "│       H2: " + hits.get(1).drawHitTui();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 7 -> {
-                if (getHits().size() < 3) {
-                    yield Clear;
-                } else {
-                    String line = "│       H3: " + hits.get(2).drawHitTui();
-                    while (line.length() < 22) {
-                        line += " ";
-                    }
-                    line += "│";
-                    yield line;
-                }
-            }
-            case 8 -> {
-                if (getHits().size() < 4) {
-                    yield Clear;
-                } else {
-                    String line = "│       H4: " + hits.get(3).drawHitTui();
-                    while (line.length() < 22) {
-                        line += " ";
-                    }
-                    line += "│";
-                    yield line;
-                }
-            }
+            case 3 -> (getID() == 15 ? "│  Cr " : "│  Ca ") + "=> FDays: " + getFlightDays();
+            case 4 -> "│  En => GoodL: " + getLoss();
+            case 5 -> (getID() == 15 ? "│  Ca " : "│  Cr ") + "=> H1: " + hits.get(0).drawHitTui();
+            case 6 -> "│        H2: " + hits.get(1).drawHitTui();
+            case 7 -> getHits().size() < 3 ? Clear : "│        H3: " + hits.get(2).drawHitTui();
+            case 8 -> getHits().size() < 4 ? Clear : "│        H4: " + hits.get(3).drawHitTui();
             case 9 -> Down;
             default -> null;
-        };
+        });
+
+        while (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() < getColsToDraw() - 1) {
+            line.append(" ");
+        }
+        if (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() == getColsToDraw() - 1) {
+            line.append("│");
+        }
+        return line.toString();
     }
 
     public int getLoss() {

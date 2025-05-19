@@ -1,11 +1,13 @@
 package view.structures.board;
 
+import com.sun.scenario.effect.impl.sw.java.JSWBlend_HARD_LIGHTPeer;
+import view.structures.Structure;
 import view.structures.player.ColorView;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class BoardView {
+public class BoardView implements Structure {
     private String[] path;
     private Map<ColorView, Integer> players;
     private LevelView level;
@@ -20,19 +22,27 @@ public class BoardView {
     public static String Bow3 = "╰";
     public static String Bow4 = "╯";
 
-    public BoardView(LevelView level, int stepsForALap) {
+    public BoardView(LevelView level) {
         this.level = level;
-        this.stepsForALap = stepsForALap;
+        switch (level) {
+            case LEARNING -> this.stepsForALap = 18;
+            case SECOND -> this.stepsForALap = 24;
+        }
         this.players = new HashMap<ColorView, Integer>();
         initializeBoard();
     }
 
-    public void drawBoardGui(){
+    @Override
+    public void drawGui(){
         //TODO: Implements board gui
     }
 
     public int getRowsToDraw() {
         return level == LevelView.LEARNING ? 9 : 13;
+    }
+
+    public int getColsToDraw() {
+        return (stepsForALap / 4 + 1) * 7 + 12;
     }
 
     public void addPlayer(ColorView color, int step) {
@@ -69,6 +79,11 @@ public class BoardView {
         }
     }
 
+    public LevelView getLevel() {
+        return level;
+    }
+
+    @Override
     public String drawLineTui(int line) {
         StringBuilder print = new StringBuilder();
         int cols = stepsForALap/4 + 1;
@@ -81,7 +96,7 @@ public class BoardView {
                     print.append(Dash).append(ArrowRight).append("[ ").append(path[up]).append(" ]");
                     up++;
                 }
-                print.append(Dash).append(Dash).append(Dash).append(ArrowRight).append(Bow2).append(" ");
+                print.append(Dash).append(Dash).append(Dash).append(ArrowRight).append(Bow2).append("  ");
                 return print.toString();
             }
             if (line == getRowsToDraw() - 1) {
@@ -91,7 +106,7 @@ public class BoardView {
                     print.append("[ ").append(path[down]).append(" ]").append(ArrowLeft).append(Dash);
                     down--;
                 }
-                print.append(Dash).append(Dash).append(Bow4).append(" ");
+                print.append(Dash).append(Dash).append(Bow4).append("  ");
                 return print.toString();
             }
             if (line == getRowsToDraw()/2) {
@@ -114,8 +129,7 @@ public class BoardView {
 
     public static void main(String[] args) {
         LevelView level = LevelView.SECOND;
-        int steps = level == LevelView.LEARNING ? 18 : 24;
-        BoardView board = new BoardView(level, steps);
+        BoardView board = new BoardView(level);
         board.addPlayer(ColorView.BLUE, 4);
         board.addPlayer(ColorView.RED, 7);
         board.addPlayer(ColorView.RED, 10);

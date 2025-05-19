@@ -1,18 +1,20 @@
 package view.structures.cards;
 
-public abstract class CardView {
-    public String Up =       "╭─────────────────────╮";
-    public String Clear =    "│                     │";
-    public String Covered1 = "│       ───┬───       │";
-    public String Covered2 = "│          │          │";
-    public String Covered3 = "│          │          │";
-    public String Covered4 = "│       ───┴───       │";
-    public String Covered5 = "│       ─┬───┬─       │";
-    public String Covered6 = "│        │   │        │";
-    public String Covered7 = "│        │   │        │";
-    public String Covered8 = "│       ─┴───┴─       │";
-    public String Empty =    "                       ";
-    public String Down =     "╰─────────────────────╯";
+import view.structures.Structure;
+
+public abstract class CardView implements Structure {
+    public String Up =       "╭───────────────────╮";
+    public String Clear =    "│                   │";
+    public String Covered1 = "│      ───┬───      │";
+    public String Covered2 = "│         │         │";
+    public String Covered3 = "│         │         │";
+    public String Covered4 = "│      ───┴───      │";
+    public String Covered5 = "│      ─┬───┬─      │";
+    public String Covered6 = "│       │   │       │";
+    public String Covered7 = "│       │   │       │";
+    public String Covered8 = "│      ─┴───┴─      │";
+    public String Empty =    "                     ";
+    public String Down =     "╰───────────────────╯";
 
     private int ID;
     private boolean covered;
@@ -24,7 +26,8 @@ public abstract class CardView {
         this.level = level;
     }
 
-    public void drawCardGui(){
+    @Override
+    public void drawGui(){
         //TODO: Implement GUI drawing logic
     }
 
@@ -32,6 +35,11 @@ public abstract class CardView {
         return 10;
     }
 
+    public static int getColsToDraw() {
+        return 21;
+    }
+
+    @Override
     public String drawLineTui(int line){
         return switch(line) {
             case 0 -> Up;

@@ -59,7 +59,7 @@ public class CabinView extends ComponentView {
      * This method is called to draw the component GUI.
      */
     @Override
-    public void drawComponentGui() {
+    public void drawGui() {
         //TODO: Implement the GUI drawing logic for the Cabin component here
     }
 

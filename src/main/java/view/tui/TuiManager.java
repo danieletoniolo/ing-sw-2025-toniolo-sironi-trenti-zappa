@@ -1,10 +1,12 @@
 package view.tui;
 
 
-import controller.event.game.AddCoins;
-import controller.event.lobby.CreateLobby;
-import controller.event.lobby.JoinLobby;
-import controller.event.lobby.LeaveLobby;
+
+import event.game.AddCoins;
+import event.lobby.CreateLobby;
+import event.lobby.JoinLobby;
+import event.lobby.LeaveLobby;
+import event.lobby.RemoveLobby;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import view.Manager;
@@ -45,7 +47,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyCreateLobby(CreateLobby data) {
-        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().userID)) { // Create a new lobbyState if the user is the one who created it or the server said to do so
+        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().nickname)) { // Create a new lobbyState if the user is the one who created it or the server said to do so
             //currentState = new LobbyStateView(data.lobbyID());
             stateLock.notifyAll();
         }
@@ -57,8 +59,13 @@ public class TuiManager implements Manager {
     }
 
     @Override
+    public void notifyRemoveLobby(RemoveLobby data){
+        // placeHolder
+    }
+
+    @Override
     public void notifyJoinLobby(JoinLobby data) {
-        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().userID)) { // Create a new lobbyState if the user is the one who created it or the server said to do so
+        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().nickname)) { // Create a new lobbyState if the user is the one who created it or the server said to do so
             currentState = new LobbyStateView();
             stateLock.notifyAll();
         }
@@ -71,7 +78,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyLeaveLobby(LeaveLobby data) {
-        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().userID)) { // Create a new MenuState if the user or the server said to do so
+        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().nickname)) { // Create a new MenuState if the user or the server said to do so
             //currentState = new MenuStateView();
             stateLock.notifyAll();
         }
@@ -84,7 +91,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyAddCoins(AddCoins data) {
-        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().userID)) {
+        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().nickname)) {
             currentState.notifyAll();
         }
         else {

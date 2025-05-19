@@ -24,7 +24,7 @@ public class BatteryView extends ComponentView {
      * This method is called to draw the component GUI.
      */
     @Override
-    public void drawComponentGui() {
+    public void drawGui() {
         //TODO: Implement the GUI drawing logic for the Battery component here
     }
 

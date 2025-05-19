@@ -7,7 +7,7 @@ public class ConnectorsView extends ComponentView {
     }
 
     @Override
-    public void drawComponentGui() {
+    public void drawGui() {
         //TODO: Implement the GUI drawing logic for the Connectors component here
     }
 

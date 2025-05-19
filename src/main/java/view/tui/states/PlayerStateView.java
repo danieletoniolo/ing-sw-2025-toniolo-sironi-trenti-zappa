@@ -16,7 +16,6 @@ import java.util.Arrays;
 public class PlayerStateView implements StateView{
     private ArrayList<String> options = new ArrayList<>(Arrays.asList("Back"));
     private PlayerDataView player;
-    private int totalLines = SpaceShipView.getRowToDraw() + 1;
 
     public PlayerStateView(String userID) {
         this.player = MiniModel.getInstance().players.stream()
@@ -27,7 +26,7 @@ public class PlayerStateView implements StateView{
 
     @Override
     public int getTotalLines() {
-        return totalLines;
+        return player.getShip().getRowsToDraw() + 1;
     }
 
     @Override
@@ -48,9 +47,9 @@ public class PlayerStateView implements StateView{
         var writer = terminal.writer();
         writer.print("\033[H\033[2J");
         writer.flush();
-        for (int i = 0; i < SpaceShipView.getRowToDraw(); i++) {
-            if (i >= ((SpaceShipView.getRowToDraw() - 2)/5*4 + 1) - 1 && i < ((SpaceShipView.getRowToDraw() - 2)/5*4 + 1) - 1 + PlayerDataView.getRowsToDraw()) {
-                writer.println(player.getShip().drawLineTui(i) + "   " + player.drawLineTui(i % PlayerDataView.getRowsToDraw()));
+        for (int i = 0; i < player.getShip().getRowsToDraw(); i++) {
+            if (i >= ((player.getShip().getRowsToDraw() - 2)/5*4 + 1) - 1 && i < ((player.getShip().getRowsToDraw() - 2)/5*4 + 1) - 1 + player.getRowsToDraw()) {
+                writer.println(player.getShip().drawLineTui(i) + "   " + player.drawLineTui(i % player.getRowsToDraw()));
             }else{
                 writer.println(player.getShip().drawLineTui(i));
             }
@@ -58,10 +57,6 @@ public class PlayerStateView implements StateView{
 
         writer.print("\nOptions:");
         writer.flush();
-    }
-
-    public void setTotalLines(int totalLines) {
-        this.totalLines = totalLines;
     }
 
     public static void main(String[] args) throws Exception {

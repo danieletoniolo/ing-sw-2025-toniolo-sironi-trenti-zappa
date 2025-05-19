@@ -75,7 +75,7 @@ public class SpaceShipView implements Structure {
         //TODO: Implement the GUI drawing logic for the spaceship here
     }
 
-    public static int getRowToDraw() {
+    public int getRowsToDraw() {
         return 5 * ComponentView.getRowsToDraw() + 2;
     }
 
@@ -84,7 +84,7 @@ public class SpaceShipView implements Structure {
         StringBuilder str = new StringBuilder();
         String space = "  ";
 
-        if (line == 0 || line == getRowToDraw() - 1) {
+        if (line == 0 || line == getRowsToDraw() - 1) {
             str.append("   ");
             for (int i = 0; i < spaceShip[0].length; i++) {
                 str.append("   ").append(i + 4).append("   ");

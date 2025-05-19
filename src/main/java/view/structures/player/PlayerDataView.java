@@ -35,7 +35,7 @@ public class PlayerDataView implements Structure {
         //TODO: Implements player data gui
     }
 
-    public static int getRowsToDraw() {
+    public int getRowsToDraw() {
         return 3;
     }
 

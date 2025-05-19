@@ -8,10 +8,10 @@ public enum HitTypeView {
 
     public String drawTui() {
         return switch (this) {
-            case SMALLMETEOR -> "SMeteor";
-            case LARGEMETEOR -> "LMeteor";
-            case LIGHTFIRE ->   "LFire  ";
-            case HEAVYFIRE ->   "HFife  ";
+            case SMALLMETEOR -> "SM";
+            case LARGEMETEOR -> "LM";
+            case LIGHTFIRE ->   "LF";
+            case HEAVYFIRE ->   "HF";
         };
     }
 }

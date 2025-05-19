@@ -9,7 +9,7 @@ public class LifeSupportPurpleView extends ComponentView {
     }
 
     @Override
-    public void drawComponentGui() {
+    public void drawGui() {
         //TODO: Implement the GUI drawing logic for the LifeSupportPurple component here
     }
 

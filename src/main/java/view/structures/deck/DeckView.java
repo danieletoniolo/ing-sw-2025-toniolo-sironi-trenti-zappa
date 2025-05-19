@@ -53,6 +53,10 @@ public class DeckView {
         return CardView.getRowsToDraw();
     }
 
+    public int getColsToDraw() {
+        return CardView.getColsToDraw() + deck.size() - 1;
+    }
+
     public String drawLineTui(int line){
         StringBuilder str = new StringBuilder();
 

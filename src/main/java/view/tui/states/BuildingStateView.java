@@ -9,6 +9,7 @@ import org.javatuples.Pair;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import view.structures.MiniModel;
+import view.structures.board.BoardView;
 import view.structures.board.LevelView;
 import view.structures.cards.*;
 import view.structures.cards.hit.HitDirectionView;
@@ -32,7 +33,6 @@ import static Model.Game.Board.Level.SECOND;
 public class BuildingStateView implements StateView {
     private final ArrayList<String> options = new ArrayList<>();
     private final int cols = 26;
-    private int totalLines = 1 + (MiniModel.getInstance().components.size() / cols) * ComponentView.getRowsToDraw() + (MiniModel.getInstance().components.size() % cols == 0 ? 0 : ComponentView.getRowsToDraw()) + 1 + SpaceShipView.getRowToDraw();
     private PlayerDataView player;
     private final Pair<DeckView[], Boolean[]> decksView;
 
@@ -42,12 +42,17 @@ public class BuildingStateView implements StateView {
         options.add("Put tile in reserve");
         options.add("Put the tile in the pile");
         options.add("Rotate tile");
-        options.add("Pick deck 1");
-        options.add("Pick deck 2");
-        options.add("Pick deck 3");
+        if (MiniModel.getInstance().boardView.getLevel() == LevelView.SECOND) {
+            options.add("Pick deck 1");
+            options.add("Pick deck 2");
+            options.add("Pick deck 3");
+            options.add("Flip Timer");
+        }
+        options.add("Finish");
+
 
         this.player = MiniModel.getInstance().players.stream()
-                .filter(player -> player.getUsername().equals(MiniModel.getInstance().userID))
+                .filter(player -> player.getUsername().equals(MiniModel.getInstance().nickname))
                 .findFirst()
                 .orElse(null);
 
@@ -62,7 +67,9 @@ public class BuildingStateView implements StateView {
 
     @Override
     public int getTotalLines() {
-        return totalLines;
+        return 1 + (MiniModel.getInstance().components.size() / cols) * ComponentView.getRowsToDraw()
+                 + (MiniModel.getInstance().components.size() % cols == 0 ? 0 : ComponentView.getRowsToDraw())
+                 + 1 + player.getShip().getRowsToDraw();
     }
 
     @Override
@@ -85,19 +92,19 @@ public class BuildingStateView implements StateView {
         writer.println();
 
         int deckCount = 0;
-        for (int i = 0; i < SpaceShipView.getRowToDraw(); i++) {
+        for (int i = 0; i < player.getShip().getRowsToDraw(); i++) {
             StringBuilder line = new StringBuilder();
             line.append(player.getShip().drawLineTui(i));
-            if (i == ((SpaceShipView.getRowToDraw() - 2)/5*2 + 1) - 1) {
+            if (i == ((player.getShip().getRowsToDraw() - 2)/5*2 + 1) - 1) {
                 line.append("       " + "   Hand: ");
             }
-            else if(i >= ((SpaceShipView.getRowToDraw() - 2)/5*2 + 1) && i < ((SpaceShipView.getRowToDraw() - 2)/5*3 + 1)) {
+            else if(i >= ((player.getShip().getRowsToDraw() - 2)/5*2 + 1) && i < ((player.getShip().getRowsToDraw() - 2)/5*3 + 1)) {
                 line.append("         ").append(player.getHand().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
             }
-            else if (i >= ((SpaceShipView.getRowToDraw() - 2) / 5 + 1)) {
+            else if (i >= ((player.getShip().getRowsToDraw() - 2) / 5 + 1)) {
                 line.append("                ");
             }
-            if (i >= ((SpaceShipView.getRowToDraw() - 2)/5 + 1) && i < DeckView.getRowsToDraw() + ((SpaceShipView.getRowToDraw() - 2)/5 + 1)) {
+            if (i >= ((player.getShip().getRowsToDraw() - 2)/5 + 1) && i < /*TODO: Da sistemare il 10*/ DeckView.getRowsToDraw() + ((player.getShip().getRowsToDraw() - 2)/5 + 1)) {
                 line.append("          ");
                 for (int j = 0; j < 3; j++) {
                     if (decksView.getValue1()[j]) {
@@ -118,7 +125,7 @@ public class BuildingStateView implements StateView {
     }
 
     private void drawTiles(java.io.PrintWriter writer, ArrayList<ComponentView> tiles) {
-        writer.print("    ");
+        writer.print("   ");
         for (int i = 0; i < cols; i++) {
             writer.print("  " + ((i+1) / 10 == 0 ? " " + (i+1) : (i+1)) + "   ");
         }
@@ -126,9 +133,9 @@ public class BuildingStateView implements StateView {
         for (int h = 0; h < tiles.size() / cols; h++) {
             for (int i = 0; i < ComponentView.getRowsToDraw(); i++) {
                 if (i == 1) {
-                    writer.print(" " + ((h+1) / 10 == 0 ? ((h+1) + "  ") : (h+1) + " "));
+                    writer.print(((h+1) / 10 == 0 ? ((h+1) + "  ") : (h+1) + " "));
                 }else{
-                    writer.print("    ");
+                    writer.print("   ");
                 }
                 for (int k = 0; k < cols; k++) {
                     writer.print(tiles.get(h * cols + k).drawLineTui(i));
@@ -139,9 +146,9 @@ public class BuildingStateView implements StateView {
 
         for (int i = 0; i < ComponentView.getRowsToDraw(); i++) {
             if (i == 1) {
-                writer.print(" " + ((tiles.size()/cols+1) / 10 == 0 ? ((tiles.size()/cols+1) + "  ") : ((tiles.size()/cols+1) + " ")));
+                writer.print(((tiles.size()/cols+1) / 10 == 0 ? ((tiles.size()/cols+1) + "  ") : ((tiles.size()/cols+1) + " ")));
             }else{
-                writer.print("    ");
+                writer.print("   ");
             }
             for (int k = 0; k < tiles.size() % cols; k++) {
                 writer.print(tiles.get((tiles.size() / cols) * cols + k).drawLineTui(i));
@@ -164,7 +171,7 @@ public class BuildingStateView implements StateView {
         }
         Parser parser = new Parser(terminal);
 
-        ArrayList<Component> tiles = TilesManager.getTiles();
+        Component[] tiles = TilesManager.getTiles();
         for (Component tile : tiles) {
             ComponentView tileView = converter(tile);
             tileView.setCovered(false);
@@ -177,11 +184,13 @@ public class BuildingStateView implements StateView {
         players.add(new PlayerDataView("Player3", ColorView.RED, new SpaceShipView(LevelView.SECOND)));
         players.add(new PlayerDataView("Player4", ColorView.RED, new SpaceShipView(LevelView.SECOND)));
 
-        MiniModel.getInstance().userID = "Player1";
+        MiniModel.getInstance().nickname = "Player1";
         players.getFirst().setHand(new GenericComponentView());
         players.getFirst().getHand().setCovered(false);
 
         Deck[] decks = CardsManager.createDecks(SECOND);
+
+        MiniModel.getInstance().boardView = new BoardView(LevelView.LEARNING);
 
         for (int i = 0; i < 3; i++) {
             Stack<CardView> cards = new Stack<>();

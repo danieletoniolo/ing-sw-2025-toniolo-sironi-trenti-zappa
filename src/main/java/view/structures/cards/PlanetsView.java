@@ -18,7 +18,7 @@ public class PlanetsView extends CardView{
     }
 
     @Override
-    public void drawCardGui() {
+    public void drawGui() {
 
     }
 
@@ -26,69 +26,26 @@ public class PlanetsView extends CardView{
     public String drawLineTui(int l){
         if(isCovered()) return super.drawLineTui(l);
 
-        return switch(l) {
+        StringBuilder line = new StringBuilder(switch(l) {
             case 0 -> Up;
-            case 1 -> "│       PLANETS       │";
+            case 1 -> "│      PLANETS      │";
             case 2,7 -> Clear;
-            case 3 -> {
-                if (numberOfPlanets < 1) {
-                    yield Clear;
-                } else {
-                    String line = "│  P1: " + printPlanet(getPlanet(0));
-                    while (line.length() < 22) {
-                        line += " ";
-                    }
-                    line += "│";
-                    yield line;
-                }
-            }
-            case 4 -> {
-                if (numberOfPlanets < 2) {
-                    yield Clear;
-                } else {
-                    String line = "│  P2: " + printPlanet(getPlanet(1));
-                    while (line.length() < 22) {
-                        line += " ";
-                    }
-                    line += "│";
-                    yield line;
-                }
-            }
-            case 5 -> {
-                if (numberOfPlanets < 3) {
-                    yield Clear;
-                } else {
-                    String line = "│  P3: " + printPlanet(getPlanet(2));
-                    while (line.length() < 22) {
-                        line += " ";
-                    }
-                    line += "│";
-                    yield line;
-                }
-            }
-            case 6 -> {
-                if (numberOfPlanets < 4) {
-                    yield Clear;
-                } else {
-                    String line = "│  P4: " + printPlanet(getPlanet(3));
-                    while (line.length() < 22) {
-                        line += " ";
-                    }
-                    line += "│";
-                    yield line;
-                }
-            }
-            case 8 -> {
-                String line = "│  FlightDays: " + getFlightDays();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
+            case 3 -> numberOfPlanets >= 1 ? "│  P1: " + printPlanet(getPlanet(0)) : Clear;
+            case 4 -> numberOfPlanets >= 2 ? "│  P2: " + printPlanet(getPlanet(1)) : Clear;
+            case 5 -> numberOfPlanets >= 3 ? "│  P3: " + printPlanet(getPlanet(2)) : Clear;
+            case 6 -> numberOfPlanets >= 4 ? "│  P4: " + printPlanet(getPlanet(3)) : Clear;
+            case 8 -> numberOfPlanets >= 5 ? "│  P5: " + printPlanet(getPlanet(4)) : Clear;
             case 9 -> Down;
             default -> null;
-        };
+        });
+
+        while (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() < getColsToDraw() - 1) {
+            line.append(" ");
+        }
+        if (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() == getColsToDraw() - 1) {
+            line.append("│");
+        }
+        return line.toString();
     }
 
     public int getFlightDays() {

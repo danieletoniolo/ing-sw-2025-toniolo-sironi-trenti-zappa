@@ -1,12 +1,13 @@
 package view;
 
-import controller.event.EventListener;
-import controller.event.NetworkTransceiver;
-import controller.event.game.AddCoins;
-import controller.event.game.CanProtect;
-import controller.event.lobby.CreateLobby;
-import controller.event.lobby.JoinLobby;
-import controller.event.lobby.LeaveLobby;
+import event.EventListener;
+import event.NetworkTransceiver;
+import event.game.AddCoins;
+import event.game.AddLoseCrew;
+import event.lobby.CreateLobby;
+import event.lobby.JoinLobby;
+import event.lobby.LeaveLobby;
+import event.lobby.RemoveLobby;
 import view.structures.MiniModel;
 import view.structures.board.LevelView;
 import view.structures.lobby.LobbyView;
@@ -16,36 +17,49 @@ public class EventHandlerClient {
     NetworkTransceiver transceiver;
     Manager manager;
 
+    // Lobby events
     private final EventListener<CreateLobby> createLobbyListener = data -> {
-        /*LevelView level = LevelView.valueOf(data.level().name());
+        // Create a new lobby view and add it to the MiniModel
+        LevelView level = LevelView.valueOf(data.level().name());
         LobbyView lobbyView = new LobbyView(data.lobbyID(), data.maxPlayers(), level);
 
         MiniModel.getInstance().lobbyViews.add(lobbyView);
 
-        manager.notifyCreateLobby(data);*/
+        manager.notifyCreateLobby(data);
+    };
+
+    private final EventListener<RemoveLobby> removeLobbyListener = data -> {
+        // Remove the lobby view from the MiniModel
+        MiniModel.getInstance().lobbyViews.removeIf(lobbyView -> lobbyView.getLobbyName().equals(data.lobbyID()));
+
+        manager.notifyRemoveLobby(data);
     };
 
     private final EventListener<JoinLobby> joinLobbyListener = data -> {
+        // Add the player to the specific lobby
         MiniModel.getInstance().lobbyViews.stream()
                 .filter(lobbyView -> lobbyView.getLobbyName().equals(data.lobbyID()))
                 .findFirst()
                 .ifPresent(lobbyView -> {
                     lobbyView.addPlayer(data.userID());
                 });
-        manager.notifyJoinLobby(data);
 
+        manager.notifyJoinLobby(data);
     };
 
     private final EventListener<LeaveLobby> leaveLobbyListener = data -> {
-        /*MiniModel.getInstance().lobbyViews.stream()
+        // Remove the player from the specific lobby
+        MiniModel.getInstance().lobbyViews.stream()
                 .filter(lobbyView -> lobbyView.getLobbyName().equals(data.lobbyID()))
                 .findFirst()
                 .ifPresent(lobbyView -> {
                     lobbyView.removePlayer(data.userID());
                 });
-        manager.notifyLeaveLobby(data);*/
+        manager.notifyLeaveLobby(data);
     };
 
+
+    // Game events
     private final EventListener<AddCoins> addCoinsListener = data -> {
         MiniModel.getInstance().players.stream()
                 .filter(player -> player.getUsername().equals(data.userID()))
@@ -54,11 +68,11 @@ public class EventHandlerClient {
                     player.setCoins(data.coins());
                 });
 
-
+        manager.notifyAddCoins(data);
     };
 
-    private final EventListener<CanProtect> canProtectListener = data -> {
-        //MiniModel.getInstance().
+    private final EventListener<AddLoseCrew> addLoseCrewListener = data -> {
+
     };
 
 

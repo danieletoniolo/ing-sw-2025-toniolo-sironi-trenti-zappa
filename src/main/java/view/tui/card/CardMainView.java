@@ -115,10 +115,10 @@ public class CardMainView {
             deckView.setOnlyLast(true);
             printDeck(deckView);
 
-            //for (CardView card : cards) {
-                //card.setCovered(true);
-            //}
-            //printCards(cards, 7);
+            for (CardView card : cards) {
+                card.setCovered(false);
+            }
+            printCards(cards, 7);
 
 
 
@@ -130,7 +130,7 @@ public class CardMainView {
     }
 
     private static void printDeck(DeckView deck) {
-        for (int i = 0; i < DeckView.getRowsToDraw(); i++) {
+        for (int i = 0; i < deck.getRowsToDraw(); i++) {
             System.out.print(deck.drawLineTui(i));
             System.out.println();
         }

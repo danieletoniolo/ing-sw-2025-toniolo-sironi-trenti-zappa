@@ -8,7 +8,7 @@ public enum ColorView {
     private final String yellow = "\033[33m";
     private final String red =    "\033[31m";
     private final String reset =  "\033[0m";
-    private final String player = "⬤";
+    private final String player = "◉";
 
     public void drawGui() {
         //TODO: Implements Color Gui

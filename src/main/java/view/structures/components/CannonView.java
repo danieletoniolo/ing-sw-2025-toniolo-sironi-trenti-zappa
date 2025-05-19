@@ -31,7 +31,7 @@ public class CannonView extends ComponentView {
     }
 
     @Override
-    public void drawComponentGui() {
+    public void drawGui() {
         //TODO: Implement the GUI drawing logic for the Cannon component here
     }
 

@@ -19,7 +19,7 @@ public class SmugglersView extends CardView{
     }
 
     @Override
-    public void drawCardGui() {
+    public void drawGui() {
 
     }
 
@@ -27,45 +27,25 @@ public class SmugglersView extends CardView{
     public String drawLineTui(int l){
         if(isCovered()) return super.drawLineTui(l);
 
-        return switch(l) {
+        StringBuilder line = new StringBuilder(switch(l) {
             case 0 -> Up;
-            case 1 -> "│      SMUGGLERS      │";
+            case 1 -> "│     SMUGGLERS     │";
             case 2,6,7 -> Clear;
-            case 3 -> {
-                String line = "│  StrenghtReq: " + getCannonRequired();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 4 -> {
-                String line = "│  GoodLost: " + getGoodsLoss();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 5 -> {
-                String line = "│  Good: " + printGoods();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 8 -> {
-                String line = "│  FlightDays: " + getFlightDays();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
+            case 3 -> "│   StrengthReq: " + getCannonRequired();
+            case 4 -> "│   GoodLost: " + getGoodsLoss();
+            case 5 -> "│   Good: " + printGoods();
+            case 8 -> "│   FlightDays: " + getFlightDays();
             case 9 -> Down;
             default -> null;
-        };
+        });
+
+        while (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() < getColsToDraw() - 1) {
+            line.append(" ");
+        }
+        if (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() == getColsToDraw() - 1) {
+            line.append("│");
+        }
+        return line.toString();
     }
 
     public int getCannonRequired() {

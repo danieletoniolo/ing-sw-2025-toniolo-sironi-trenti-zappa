@@ -13,7 +13,7 @@ public class MeteorSwarmView extends CardView {
     }
 
     @Override
-    public void drawCardGui(){
+    public void drawGui(){
 
     }
 
@@ -21,61 +21,27 @@ public class MeteorSwarmView extends CardView {
     public String drawLineTui(int l){
         if(isCovered()) return super.drawLineTui(l);
 
-        return switch(l) {
+
+        StringBuilder line = new StringBuilder(switch(l) {
             case 0 -> Up;
-            case 1 -> "│     METEORSWARM     │";
+            case 1 -> "│    METEORSWARM    │";
             case 2,8 -> Clear;
-            case 3 -> {
-                String line = "│  Hit1: " + hits.get(0).drawHitTui();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 4 -> {
-                String line = "│  Hit2: " + hits.get(1).drawHitTui();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 5 -> {
-                String line = "│  Hit3: " + hits.get(2).drawHitTui();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 6 -> {
-                if (getHits().size() < 4) {
-                    yield Clear;
-                } else {
-                    String line = "│  Hit4: " + hits.get(3).drawHitTui();
-                    while (line.length() < 22) {
-                        line += " ";
-                    }
-                    line += "│";
-                    yield line;
-                }
-            }
-            case 7 -> {
-                if (getHits().size() < 5) {
-                    yield Clear;
-                } else {
-                    String line = "│  Hit5: " + hits.get(4).drawHitTui();
-                    while (line.length() < 22) {
-                        line += " ";
-                    }
-                    line += "│";
-                    yield line;
-                }
-            }
+            case 3 -> (hits.isEmpty() ?   ("│  Hit1: " + hits.getFirst().drawHitTui()) : Clear);
+            case 4 -> (hits.size() >= 2 ? ("│  Hit2: " + hits.get(1).drawHitTui()) : Clear);
+            case 5 -> (hits.size() >= 3 ? ("│  Hit2: " + hits.get(2).drawHitTui()) : Clear);
+            case 6 -> (hits.size() >= 4 ? ("│  Hit2: " + hits.get(3).drawHitTui()) : Clear);
+            case 7 -> (hits.size() >= 5 ? ("│  Hit2: " + hits.get(4).drawHitTui()) : Clear);
             case 9 -> Down;
             default -> null;
-        };
+        });
+
+        while (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() < getColsToDraw() - 1) {
+            line.append(" ");
+        }
+        if (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() == getColsToDraw() - 1) {
+            line.append("│");
+        }
+        return line.toString();
     }
 
     public List<HitView> getHits() {

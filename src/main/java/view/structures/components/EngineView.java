@@ -17,7 +17,7 @@ public class EngineView extends ComponentView {
     }
 
     @Override
-    public void drawComponentGui() {
+    public void drawGui() {
         //TODO: Implement the GUI drawing logic for the Engine component here
     }
 

@@ -6,7 +6,7 @@ public class StarDustView extends CardView {
     }
 
     @Override
-    public void drawCardGui() {
+    public void drawGui() {
 
     }
 
@@ -16,7 +16,7 @@ public class StarDustView extends CardView {
 
         return switch(l) {
             case 0 -> Up;
-            case 1 -> "│       STARDUST      │";
+            case 1 -> "│     STARDUST      │";
             case 2,3,4,5,6,7,8 -> Clear;
             case 9 -> Down;
             default -> null;

@@ -1,6 +1,8 @@
 package view.structures.components;
 
-public abstract class ComponentView {
+import view.structures.Structure;
+
+public abstract class ComponentView implements Structure {
     public static String Up0 =   "╭─────╮";
     public static String Up1 =   "╭──|──╮";
     public static String Up2 =   "╭─|─|─╮";
@@ -52,12 +54,14 @@ public abstract class ComponentView {
         this.covered = true;
     }
 
-    public void drawComponentGui(){}
+    @Override
+    public void drawGui(){}
 
     public static int getRowsToDraw() {
         return 3;
     }
 
+    @Override
     public String drawLineTui(int line) throws IndexOutOfBoundsException{
         return switch (line) {
             case 0 -> isCovered() || currentConnectors[0] == 0 ? Up0 : currentConnectors[0] == 1 ? Up1 : currentConnectors[0] == 2 ? Up2 : Up3;

@@ -15,7 +15,7 @@ public class ShieldView extends ComponentView {
     }
 
     @Override
-    public void drawComponentGui(){
+    public void drawGui(){
         //TODO: Implement the GUI drawing logic for the Shield component here
     }
 

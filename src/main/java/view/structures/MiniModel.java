@@ -16,10 +16,11 @@ public class MiniModel {
     public LogInView logInView = new LogInView();
     public ArrayList<LobbyView> lobbyViews = new ArrayList<>();
     public Pair<DeckView[], Boolean[]> deckViews = new Pair<>(new DeckView[3], new Boolean[3]);
+    public DeckView shuffledDeckView;
     public BoardView boardView;
     public ArrayList<PlayerDataView> players = new ArrayList<>();
     public ArrayList<ComponentView> components = new ArrayList<>();
-    public String userID;
+    public String nickname;
     public String lobbyID;
 
     public static MiniModel getInstance() {

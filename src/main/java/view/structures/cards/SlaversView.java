@@ -15,7 +15,7 @@ public class SlaversView extends CardView {
     }
 
     @Override
-    public void drawCardGui() {
+    public void drawGui() {
 
     }
 
@@ -23,45 +23,25 @@ public class SlaversView extends CardView {
     public String drawLineTui(int l){
         if(isCovered()) return super.drawLineTui(l);
 
-        return switch(l) {
+        StringBuilder line = new StringBuilder(switch (l) {
             case 0 -> Up;
-            case 1 -> "│       SLAVERS       │";
-            case 2,6,7 -> Clear;
-            case 3 -> {
-                String line = "│  StrenghtReq: " + getCannonRequired();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 4 -> {
-                String line = "│  CrewLost: " + getCrewLoss();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 5 -> {
-                String line = "│  Credit: " + getCredits();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 8 -> {
-                String line = "│  FlightDays: " + getFlightDays();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
+            case 1 -> "│      SLAVERS      │";
+            case 2, 6, 7 -> Clear;
+            case 3 -> "│   StrenghtReq: " + getCannonRequired();
+            case 4 -> "│   CrewLost: " + getCrewLoss();
+            case 5 -> "│   Credit: " + getCredits();
+            case 8 -> "│   FlightDays: " + getFlightDays();
             case 9 -> Down;
             default -> null;
-        };
+        });
+
+        while (line.length() < getColsToDraw() - 1) {
+            line.append(" ");
+        }
+        if (line.length() == getColsToDraw() - 1) {
+            line.append("│");
+        }
+        return line.toString();
     }
 
     public int getCannonRequired() {

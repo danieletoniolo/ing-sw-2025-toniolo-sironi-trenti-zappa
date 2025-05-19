@@ -2,7 +2,6 @@ package Model.SpaceShip;
 
 import Model.Player.PlayerColor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.tools.javac.Main;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -50,12 +49,13 @@ public class TilesManager {
      */
     public static Component[] getTiles() {
         Component[] copy = new Component[tiles.length];
+        ArrayList<Component> list = new ArrayList<>(Arrays.asList(tiles));
         Random random = new Random();
+        Collections.shuffle(list);
 
-        for(int i = 0; i < tiles.length; i++){
-            copy[i] = deepClone(tiles[i]);
+        for(int i = 0; i < list.size(); i++){
+            copy[i] = deepClone(list.get(i));
         }
-        Collections.shuffle(List.of(copy));
         for (Component tile : copy) {
             int randomIndex = random.nextInt(4);
             for (int j = 0; j < randomIndex; j++) {

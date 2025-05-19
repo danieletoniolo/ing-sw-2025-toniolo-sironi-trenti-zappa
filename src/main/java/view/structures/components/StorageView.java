@@ -42,7 +42,7 @@ public class StorageView extends ComponentView {
     }
 
     @Override
-    public void drawComponentGui() {
+    public void drawGui() {
         //TODO: Implement the GUI drawing logic for the Storage component here
     }
 

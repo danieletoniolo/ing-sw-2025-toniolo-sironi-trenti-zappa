@@ -17,7 +17,7 @@ public class AbandonedStationView extends CardView {
     }
 
     @Override
-    public void drawCardGui(){
+    public void drawGui(){
         //TODO: Implement GUI drawing logic
     }
 
@@ -25,37 +25,24 @@ public class AbandonedStationView extends CardView {
     public String drawLineTui(int l){
         if(isCovered()) return super.drawLineTui(l);
 
-        return switch(l) {
+        StringBuilder line = new StringBuilder(switch(l) {
             case 0 -> Up;
-            case 1 -> "│  ABANDONEDSTATION   │";
+            case 1 -> "│ ABANDONEDSTATION  │";
             case 2,5,6,7 -> Clear;
-            case 3 -> {
-                String line = "│  CrewRequired: " + getCrewRequired();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 4 -> {
-                String line = "│  Goods: " + printGoods();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
-            case 8 -> {
-                String line = "│  FlightDays: " + getFlightDays();
-                while (line.length() < 22) {
-                    line += " ";
-                }
-                line += "│";
-                yield line;
-            }
+            case 3 -> "│  CrewRequired: " + getCrewRequired();
+            case 4 -> "│  Goods: " + printGoods();
+            case 8 -> "│   FlightDays: " + getFlightDays();
             case 9 -> Down;
             default -> null;
-        };
+        });
+
+        while (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() < getColsToDraw() - 1) {
+            line.append(" ");
+        }
+        if (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() == getColsToDraw() - 1) {
+            line.append("│");
+        }
+        return line.toString();
     }
 
     public int getFlightDays() {
