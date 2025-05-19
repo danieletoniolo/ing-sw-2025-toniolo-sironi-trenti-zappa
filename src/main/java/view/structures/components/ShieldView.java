@@ -46,4 +46,9 @@ public class ShieldView extends ComponentView {
         str.append(" ");
         return str.toString();
     }
+
+    @Override
+    public TilesTypeView getType() {
+        return TilesTypeView.SHIELD;
+    }
 }

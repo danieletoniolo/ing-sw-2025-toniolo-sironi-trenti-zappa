@@ -81,4 +81,9 @@ public class PiratesView extends CardView {
     public void setHits(List<HitView> hits) {
         this.hits = hits;
     }
+
+    @Override
+    public CardViewType getCardViewType() {
+        return CardViewType.PIRATES;
+    }
 }

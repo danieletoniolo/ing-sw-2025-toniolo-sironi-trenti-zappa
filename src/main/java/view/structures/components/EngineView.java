@@ -51,4 +51,9 @@ public class EngineView extends ComponentView {
             default -> throw new IllegalStateException("Unexpected value: " + engineRotation);
         };
     }
+
+    @Override
+    public TilesTypeView getType() {
+        return doubleEngine ? TilesTypeView.DOUBLE_ENGINE : TilesTypeView.SINGLE_ENGINE;
+    }
 }

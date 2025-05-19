@@ -87,4 +87,9 @@ public class SmugglersView extends CardView{
         }
         return sb.toString();
     }
+
+    @Override
+    public CardViewType getCardViewType() {
+        return CardViewType.SMUGGLERS;
+    }
 }

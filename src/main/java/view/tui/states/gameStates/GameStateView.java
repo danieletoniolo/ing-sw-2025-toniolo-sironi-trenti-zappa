@@ -1,4 +1,4 @@
-package view.tui.states;
+package view.tui.states.gameStates;
 
 import Model.Cards.*;
 import Model.Cards.Hits.Hit;
@@ -19,6 +19,7 @@ import view.structures.player.PlayerDataView;
 import view.structures.spaceship.SpaceShipView;
 import view.tui.input.Command;
 import view.tui.input.Parser;
+import view.tui.states.StateView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +35,44 @@ public class GameStateView implements StateView {
 
     public GameStateView() {
         this.options = new ArrayList<>();
-        this.options.add("Roll dice");
-        this.options.add("Use battery");
+
 
         this.player = MiniModel.getInstance().players.stream()
                 .filter(player -> player.getUsername().equals(MiniModel.getInstance().nickname))
                 .findFirst()
                 .orElse(null);
+
+        switch (MiniModel.getInstance().shuffledDeckView.getDeck().peek().getCardViewType()) {
+            case ABANDONEDSTATION:
+                options.add("Accept");
+                options.add("Refuse");
+                break;
+            case ABANDONEDSHIP:
+                options.add("Accept");
+                options.add("Refuse");
+                break;
+            case METEORSWARM:
+                options.add("Use shield");
+                options.add("Ignore");
+                break;
+            case COMBATZONE:
+                break;
+            case SMUGGLERS:
+                break;
+            case OPENSPACE:
+                break;
+            case STARDUST:
+                break;
+            case EPIDEMIC:
+                break;
+            case SLAVERS:
+                break;
+            case PLANETS:
+                break;
+            case PIRATES:
+                break;
+        }
+
 
         for (PlayerDataView p : MiniModel.getInstance().players) {
             if (!p.equals(player)) {
@@ -55,7 +87,7 @@ public class GameStateView implements StateView {
 
     @Override
     public int getTotalLines() {
-        return Math.max(boardView.getRowsToDraw(), shuffledDeckView.getRowsToDraw()) + 1 + player.getShip().getRowsToDraw() + 1;
+        return Math.max(boardView.getRowsToDraw(), shuffledDeckView.getRowsToDraw()) + 1 + player.getShip().getRowsToDraw() + 3;
     }
 
     @Override
@@ -110,7 +142,14 @@ public class GameStateView implements StateView {
             writer.println(str);
         }
         writer.flush();
+        writer.println();
 
+        PlayerDataView playerTurnName = MiniModel.getInstance().players.stream()
+                .filter(playerDataView -> playerDataView.getUsername().equals(MiniModel.getInstance().playerTurn))
+                .findFirst()
+                .orElse(null);
+
+        writer.println(MiniModel.getInstance().playerTurn.equals(MiniModel.getInstance().nickname) ? "Your turn" : "Waiting for " + playerTurnName.drawLineTui(0) + "'s turn");
         writer.println();
         writer.println("Commands:");
         writer.flush();
@@ -134,11 +173,12 @@ public class GameStateView implements StateView {
 
         ArrayList<PlayerDataView> players = MiniModel.getInstance().players;
         players.add(new PlayerDataView("Player1", ColorView.RED, new SpaceShipView(LevelView.LEARNING)));
-        players.add(new PlayerDataView("Player2", ColorView.RED, new SpaceShipView(LevelView.SECOND)));
-        players.add(new PlayerDataView("Player3", ColorView.RED, new SpaceShipView(LevelView.SECOND)));
-        players.add(new PlayerDataView("Player4", ColorView.RED, new SpaceShipView(LevelView.SECOND)));
+        players.add(new PlayerDataView("Player2", ColorView.YELLOW, new SpaceShipView(LevelView.SECOND)));
+        players.add(new PlayerDataView("Player3", ColorView.GREEN, new SpaceShipView(LevelView.SECOND)));
+        players.add(new PlayerDataView("Player4", ColorView.BLUE, new SpaceShipView(LevelView.SECOND)));
 
         MiniModel.getInstance().nickname = "Player1";
+        MiniModel.getInstance().playerTurn = "Player3";
 
         Stack<CardView> stack = new Stack<>();
         for (Card card :CardsManager.createLearningDeck()) {

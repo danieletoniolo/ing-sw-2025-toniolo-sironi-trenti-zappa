@@ -38,4 +38,9 @@ public class BatteryView extends ComponentView {
             default -> throw new IndexOutOfBoundsException("Unexpected value: " + line);
         };
     }
+
+    @Override
+    public TilesTypeView getType() {
+        return TilesTypeView.BATTERY;
+    }
 }

@@ -75,4 +75,9 @@ public class SlaversView extends CardView {
     public void setCrewLoss(int crewLoss) {
         this.crewLoss = crewLoss;
     }
+
+    @Override
+    public CardViewType getCardViewType() {
+        return CardViewType.SLAVERS;
+    }
 }

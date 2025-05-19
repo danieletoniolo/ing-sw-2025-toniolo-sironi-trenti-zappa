@@ -69,4 +69,9 @@ public class StorageView extends ComponentView {
     private String singleGood(GoodView good) {
         return good == null ? " " : good.drawTui();
     }
+
+    @Override
+    public TilesTypeView getType() {
+        return TilesTypeView.STORAGE;
+    }
 }

@@ -65,4 +65,9 @@ public class CannonView extends ComponentView {
             default -> throw new IllegalStateException("Unexpected value: " + arrowRotation);
         };
     }
+
+    @Override
+    public TilesTypeView getType() {
+        return doubleCannon ? TilesTypeView.DOUBLE_CANNON : TilesTypeView.SINGLE_CANNON;
+    }
 }

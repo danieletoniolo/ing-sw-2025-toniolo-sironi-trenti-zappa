@@ -72,4 +72,9 @@ public class CombatZoneView extends CardView {
     public void setHits(List<HitView> hits) {
         this.hits = hits;
     }
+
+    @Override
+    public CardViewType getCardViewType() {
+        return CardViewType.COMBATZONE;
+    }
 }

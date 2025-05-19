@@ -21,4 +21,9 @@ public class ConnectorsView extends ComponentView {
             default -> throw new IndexOutOfBoundsException("Unexpected value: " + line);
         };
     }
+
+    @Override
+    public TilesTypeView getType() {
+        return TilesTypeView.CONNECTORS;
+    }
 }

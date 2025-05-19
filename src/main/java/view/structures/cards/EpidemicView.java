@@ -22,4 +22,9 @@ public class EpidemicView extends CardView {
             default -> null;
         };
     }
+
+    @Override
+    public CardViewType getCardViewType() {
+        return CardViewType.EPIDEMIC;
+    }
 }

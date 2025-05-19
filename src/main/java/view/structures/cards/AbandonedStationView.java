@@ -76,4 +76,9 @@ public class AbandonedStationView extends CardView {
         }
         return goodsString.toString();
     }
+
+    @Override
+    public CardViewType getCardViewType() {
+        return CardViewType.ABANDONEDSTATION;
+    }
 }

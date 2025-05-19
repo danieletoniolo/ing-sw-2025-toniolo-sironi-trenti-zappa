@@ -71,4 +71,9 @@ public class PlanetsView extends CardView{
         }
         return line.toString();
     }
+
+    @Override
+    public CardViewType getCardViewType() {
+        return CardViewType.PLANETS;
+    }
 }

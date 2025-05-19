@@ -6,6 +6,8 @@ import view.structures.components.ComponentView;
 import view.structures.components.GenericComponentView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SpaceShipView implements Structure {
     public static String UpReserved1 =     "╭──────";
@@ -16,10 +18,15 @@ public class SpaceShipView implements Structure {
     public static String RightReserved2 =  "      │";
     public static String DownReserved2 =   "──────╯";
 
-
     private LevelView level;
     private ComponentView[][] spaceShip;
     private ArrayList<ComponentView> reserved;
+    private Map<Integer, ComponentView> mapDoubleCannons = new HashMap<>();
+    private Map<Integer, ComponentView> mapDoubleEngines = new HashMap<>();
+    private Map<Integer, ComponentView> mapCabins = new HashMap<>();
+    private Map<Integer, ComponentView> mapShield = new HashMap<>();
+    private Map<Integer, ComponentView> mapStorages = new HashMap<>();
+    private Map<Integer, ComponentView> mapBatteries = new HashMap<>();
 
     public SpaceShipView(LevelView level) {
         this.level = level;
@@ -56,10 +63,54 @@ public class SpaceShipView implements Structure {
     public void placeComponent(ComponentView component, int row, int col) {
         spaceShip[row-4][col-3] = component;
         spaceShip[row-4][col-3].setCovered(false);
+
+        switch (component.getType()) {
+            case DOUBLE_CANNON -> mapDoubleCannons.put(component.getID(), component);
+            case DOUBLE_ENGINE -> mapDoubleEngines.put(component.getID(), component);
+            case CABIN -> mapCabins.put(component.getID(), component);
+            case SHIELD -> mapShield.put(component.getID(), component);
+            case STORAGE -> mapStorages.put(component.getID(), component);
+            case BATTERY -> mapBatteries.put(component.getID(), component);
+        }
+
     }
 
     public void removeComponent(int row, int col) {
+        ComponentView component = spaceShip[row-4][col-3];
+        switch (component.getType()) {
+            case DOUBLE_CANNON -> mapDoubleCannons.remove(component.getID());
+            case DOUBLE_ENGINE -> mapDoubleEngines.remove(component.getID());
+            case CABIN -> mapCabins.remove(component.getID());
+            case SHIELD -> mapShield.remove(component.getID());
+            case STORAGE -> mapStorages.remove(component.getID());
+            case BATTERY -> mapBatteries.remove(component.getID());
+        }
+
         spaceShip[row-4][col-3] = new GenericComponentView();
+    }
+
+    public Map<Integer, ComponentView> getMapDoubleCannons() {
+        return mapDoubleCannons;
+    }
+
+    public Map<Integer, ComponentView> getMapDoubleEngines() {
+        return mapDoubleEngines;
+    }
+
+    public Map<Integer, ComponentView> getMapCabins() {
+        return mapCabins;
+    }
+
+    public Map<Integer, ComponentView> getMapShield() {
+        return mapShield;
+    }
+
+    public Map<Integer, ComponentView> getMapStorages() {
+        return mapStorages;
+    }
+
+    public Map<Integer, ComponentView> getMapBatteries() {
+        return mapBatteries;
     }
 
     public void addReservedComponent(ComponentView component) {

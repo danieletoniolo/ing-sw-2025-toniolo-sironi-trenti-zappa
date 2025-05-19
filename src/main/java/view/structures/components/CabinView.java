@@ -88,4 +88,9 @@ public class CabinView extends ComponentView {
         if (brownAlien) return brown + "A" + reset;
         return "C";
     }
+
+    @Override
+    public TilesTypeView getType() {
+        return TilesTypeView.CABIN;
+    }
 }

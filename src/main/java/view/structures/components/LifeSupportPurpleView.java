@@ -24,4 +24,8 @@ public class LifeSupportPurpleView extends ComponentView {
         };
     }
 
+    @Override
+    public TilesTypeView getType() {
+        return TilesTypeView.LIFE_SUPPORT_PURPLE;
+    }
 }

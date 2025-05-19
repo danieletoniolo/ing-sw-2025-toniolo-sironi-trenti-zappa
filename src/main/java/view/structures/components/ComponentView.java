@@ -108,4 +108,6 @@ public abstract class ComponentView implements Structure {
     public boolean isCovered() {
         return covered;
     }
+
+    public abstract TilesTypeView getType();
 }

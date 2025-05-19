@@ -68,4 +68,6 @@ public abstract class CardView implements Structure {
     public void setCovered(boolean covered) {
         this.covered = covered;
     }
+
+    public abstract CardViewType getCardViewType();
 }

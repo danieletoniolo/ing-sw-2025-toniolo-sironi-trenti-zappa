@@ -22,4 +22,9 @@ public class StarDustView extends CardView {
             default -> null;
         };
     }
+
+    @Override
+    public CardViewType getCardViewType() {
+        return CardViewType.STARDUST;
+    }
 }

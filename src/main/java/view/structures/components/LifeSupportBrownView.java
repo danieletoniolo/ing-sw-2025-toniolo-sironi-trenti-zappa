@@ -23,4 +23,9 @@ public class LifeSupportBrownView extends ComponentView {
             default -> throw new IllegalStateException("Unexpected value: " + line);
         };
     }
+
+    @Override
+    public TilesTypeView getType() {
+        return TilesTypeView.LIFE_SUPPORT_BROWN;
+    }
 }

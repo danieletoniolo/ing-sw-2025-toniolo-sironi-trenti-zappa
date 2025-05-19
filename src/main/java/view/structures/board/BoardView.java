@@ -130,7 +130,7 @@ public class BoardView implements Structure {
     public static void main(String[] args) {
         LevelView level = LevelView.SECOND;
         BoardView board = new BoardView(level);
-        board.addPlayer(ColorView.BLUE, 4);
+        board.addPlayer(ColorView.BLUE, 3);
         board.addPlayer(ColorView.RED, 7);
         board.addPlayer(ColorView.RED, 10);
 

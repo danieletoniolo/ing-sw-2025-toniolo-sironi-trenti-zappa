@@ -22,4 +22,9 @@ public class OpenSpaceView extends CardView {
             default -> null;
         };
     }
+
+    @Override
+    public CardViewType getCardViewType() {
+        return CardViewType.OPENSPACE;
+    }
 }
