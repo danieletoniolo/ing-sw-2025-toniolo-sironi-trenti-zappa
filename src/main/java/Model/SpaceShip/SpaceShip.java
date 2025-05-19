@@ -712,14 +712,6 @@ public class SpaceShip {
     }
 
     /**
-     * Get the storages in the ship
-     * @return storages in the ship
-     */
-    public Map<Integer, Storage> getStorages() {
-        return storages;
-    }
-
-    /**
      * Get the battery in the ship by ID
      * @return battery in the ship
      */
@@ -728,14 +720,6 @@ public class SpaceShip {
             throw new IllegalArgumentException("The ID of the battery is not valid");
         }
         return this.batteries.get(ID);
-    }
-
-    /**
-     * Get the batteries in the ship
-     * @return get batteries in the ship
-     */
-    public Map<Integer, Battery> getBatteries() {
-        return batteries;
     }
 
     /**
