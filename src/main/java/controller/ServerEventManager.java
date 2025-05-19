@@ -4,10 +4,12 @@ import Model.Game.Lobby.LobbyInfo;
 import event.Event;
 import event.NetworkTransceiver;
 
+import java.io.Serializable;
+
 /**
  * It is used by the states and the gameController to notify to the matchController that an event need to be sent in broadcast
  */
-public class ServerEventManager implements EventCallback {
+public class ServerEventManager implements EventCallback, Serializable {
     private final LobbyInfo lobbyInfo;
 
     public ServerEventManager(LobbyInfo lobbyInfo) {

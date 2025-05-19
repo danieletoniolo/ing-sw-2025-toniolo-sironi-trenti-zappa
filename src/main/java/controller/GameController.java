@@ -8,15 +8,26 @@ import Model.State.LobbyState;
 import Model.State.State;
 import org.javatuples.Triplet;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class GameController {
+public class GameController implements Serializable {
     private State state;
     private final ServerEventManager eventManager;
+    private final UUID uuid = UUID.randomUUID();
 
     public GameController(Board board, LobbyInfo lobbyInfo) {
         this.eventManager = new ServerEventManager(lobbyInfo);
         this.state = new LobbyState(board, this.eventManager);
+    }
+
+    @Override
+    public String toString() {
+        return uuid.toString();
+    }
+
+    public UUID getUUID() {
+        return uuid;
     }
 
     // TODO: add the list of states already initialize to the game controller?

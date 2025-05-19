@@ -1,6 +1,8 @@
 package Model.Game.Board;
 
-public enum Level {
+import java.io.Serializable;
+
+public enum Level implements Serializable {
     LEARNING(1), SECOND(2);
 
     private final int value;

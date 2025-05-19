@@ -2,7 +2,9 @@ package Model.Game.Lobby;
 
 import Model.Game.Board.Level;
 
-public class LobbyInfo {
+import java.io.Serializable;
+
+public class LobbyInfo implements Serializable {
     private String name;
     private final String founderNickname;
     private final Level level;

@@ -1,6 +1,8 @@
 package Model.Player;
 
-public enum PlayerColor {
+import java.io.Serializable;
+
+public enum PlayerColor implements Serializable {
     BLUE, GREEN, YELLOW, RED;
 
     /**
