@@ -213,14 +213,14 @@ public class BuildingState extends State {
         switch (toWhere) {
             case 0 -> {
                 // Place the tile in the board
-                    int tilePosition = board.putTile(component);
+                board.putTile(component);
             }
             case 1 ->
                 // Place the tile in the reserve
-                    player.getSpaceShip().reserveComponent(component);
+                player.getSpaceShip().reserveComponent(component);
             case 2 ->
                 // Place the tile in the spaceship
-                    player.getSpaceShip().placeComponent(component, row, col);
+                player.getSpaceShip().placeComponent(component, row, col);
             default -> throw new IllegalStateException("Invalid toWhere value");
         }
         eventCallback.trigger(placeTileEvent);
