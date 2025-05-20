@@ -1,6 +1,8 @@
 package Model.Good;
 
-public class Good {
+import java.io.Serializable;
+
+public class Good implements Serializable {
     private GoodType color;
 
     /**

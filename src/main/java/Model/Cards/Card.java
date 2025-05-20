@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
+
 // 📌 Allows Jackson to understand which subclass to use.
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes({
@@ -19,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
         @JsonSubTypes.Type(value = AbandonedStation.class, name = "AbandonedStation"),
         @JsonSubTypes.Type(value = Epidemic.class, name = "Epidemic")
 })
-public abstract class Card {
+public abstract class Card implements Serializable {
     @JsonProperty
     private int level;
     @JsonProperty

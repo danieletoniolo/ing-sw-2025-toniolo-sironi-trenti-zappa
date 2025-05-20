@@ -7,9 +7,10 @@ import Model.SpaceShip.Component;
 import Model.SpaceShip.TilesManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Board {
+public class Board implements Serializable {
     private final Level level;
     private final int stepsForALap;
 

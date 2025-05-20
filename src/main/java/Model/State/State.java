@@ -9,13 +9,14 @@ import org.javatuples.Pair;
 import org.javatuples.Quartet;
 import org.javatuples.Triplet;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 
-public abstract class State {
+public abstract class State implements Serializable {
     protected final EventCallback eventCallback;
     protected ArrayList<PlayerData> players;
     protected Map<PlayerColor, PlayerStatus> playersStatus;

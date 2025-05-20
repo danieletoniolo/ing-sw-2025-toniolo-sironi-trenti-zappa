@@ -2,9 +2,10 @@ package Model.Game.Board;
 
 import Model.Cards.Card;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Deck {
+public class Deck implements Serializable {
     private final ArrayList<Card> cards;
     private boolean pickable;
 
