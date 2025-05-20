@@ -13,7 +13,7 @@ public class TakeGoodFromCardStateTuiView extends GoodManagerStateTuiView{
         CardView card = MiniModel.getInstance().shuffledDeckView.getDeck().peek();
         switch (card.getCardViewType()) {
             case PLANETS:
-                ((PlanetsView) card).
+                //((PlanetsView) card).
                 break;
             case SMUGGLERS:
                 break;
