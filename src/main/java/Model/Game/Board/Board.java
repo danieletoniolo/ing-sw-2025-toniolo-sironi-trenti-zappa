@@ -7,16 +7,18 @@ import Model.SpaceShip.Component;
 import Model.SpaceShip.TilesManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Board {
+public class Board implements Serializable {
     private final Level level;
     private final int stepsForALap;
 
     private final Deck[] decks;
     private final Stack<Card> shuffledDeck;
 
-    private Component[] tiles;
+    private ArrayList<Component> viewableTiles;
+    private ArrayList<Component> hiddenTiles;
 
     private ArrayList<PlayerData> inGamePlayers;
     private ArrayList<PlayerData> gaveUpPlayers;
@@ -50,7 +52,8 @@ public class Board {
                 throw new IllegalArgumentException("Unexpected value: " + level);
         }
 
-        this.tiles = TilesManager.getTiles();
+        this.hiddenTiles = TilesManager.getTiles();
+        this.viewableTiles = new ArrayList<>();
         inGamePlayers = new ArrayList<>();
         gaveUpPlayers = new ArrayList<>();
     }
@@ -98,28 +101,15 @@ public class Board {
      * @param tile the tile to put in the viewable tiles list
      * @throws IllegalStateException if the tile is already in the board
      */
-    public int putTile(Component tile) throws IllegalStateException {
+    public void putTile(Component tile) throws IllegalStateException {
         if (tile == null) {
             throw new NullPointerException("Tile is null");
         }
-        int index = 0;
-        boolean found = false;
-        for (Component t : tiles) {
-            if (t.equals(tile)) {
-                throw new IllegalStateException("Tile is already in the board");
-            }
-            if (!found) {
-                if (t == null) {
-                    found = true;
-                }
-                else {
-                    index++;
-                }
-            }
+        if (viewableTiles.contains(tile)) {
+            throw new IllegalStateException("Tile is already in the board");
         }
 
-        tiles[index] = tile;
-        return index;
+        viewableTiles.add(tile);
     }
 
     /**
@@ -129,16 +119,20 @@ public class Board {
      * @throws IndexOutOfBoundsException if the index is out of bounds of the viewable tiles list or if there are no more hidden tiles
      */
     public Component popTile(int index) throws IndexOutOfBoundsException {
-        if (index < 0 || index >= this.tiles.length) {
-            throw new IndexOutOfBoundsException("Index is out of bounds");
-        }
-        if (tiles[index] == null) {
-            throw new IndexOutOfBoundsException("There is no tile in this index");
+        if (index == -1) {
+            if (hiddenTiles.isEmpty()) {
+                throw new IndexOutOfBoundsException("There are no more hidden tiles");
+            }
+            Random random = new Random();
+            index = random.nextInt(hiddenTiles.size());
+            return hiddenTiles.remove(index);
         }
 
-        Component t = tiles[index];
-        tiles[index] = null;
-        return t;
+        if (index < 0 || index >= viewableTiles.size()) {
+            throw new IndexOutOfBoundsException("Index is out of bounds");
+        }
+
+        return viewableTiles.remove(index);
     }
 
     /**

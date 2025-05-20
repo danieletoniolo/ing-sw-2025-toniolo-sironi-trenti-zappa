@@ -1,6 +1,8 @@
 package Model.Cards.Hits;
 
-public class Hit {
+import java.io.Serializable;
+
+public class Hit implements Serializable {
     private HitType type;
     private Direction direction;
 

@@ -1,6 +1,8 @@
 package Model.Cards.Hits;
 
-public enum HitType {
+import java.io.Serializable;
+
+public enum HitType implements Serializable {
     SMALLMETEOR,
     LARGEMETEOR,
     LIGHTFIRE,

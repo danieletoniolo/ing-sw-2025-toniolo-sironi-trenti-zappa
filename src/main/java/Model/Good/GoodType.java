@@ -1,6 +1,8 @@
 package Model.Good;
 
-public enum GoodType {
+import java.io.Serializable;
+
+public enum GoodType implements Serializable {
     BLUE(1), GREEN(2), YELLOW(3), RED(4);
 
     private final int value;

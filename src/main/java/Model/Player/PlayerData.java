@@ -2,9 +2,10 @@ package Model.Player;
 
 import Model.SpaceShip.SpaceShip;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class PlayerData {
+public class PlayerData implements Serializable {
     private final String username;
     private final UUID uuid;
     private final PlayerColor color;

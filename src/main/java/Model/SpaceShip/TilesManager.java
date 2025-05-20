@@ -47,15 +47,15 @@ public class TilesManager {
      * Get 152 tiles of the spaceship (Main cabins are not included)
      * @return an array of tiles
      */
-    public static Component[] getTiles() {
-        Component[] copy = new Component[tiles.length];
-        ArrayList<Component> list = new ArrayList<>(Arrays.asList(tiles));
+    public static ArrayList<Component> getTiles() {
+        ArrayList<Component> copy = new ArrayList<>(tiles.length);
         Random random = new Random();
-        Collections.shuffle(list);
 
-        for(int i = 0; i < list.size(); i++){
-            copy[i] = deepClone(list.get(i));
+        for(Component tile : tiles) {
+            copy.add(deepClone(tile));
         }
+
+        Collections.shuffle(copy);
         for (Component tile : copy) {
             int randomIndex = random.nextInt(4);
             for (int j = 0; j < randomIndex; j++) {
