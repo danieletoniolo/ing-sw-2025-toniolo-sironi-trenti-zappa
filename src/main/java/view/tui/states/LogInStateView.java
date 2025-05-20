@@ -2,9 +2,7 @@ package view.tui.states;
 
 import org.jline.terminal.Terminal;
 import view.structures.logIn.LogInView;
-import view.tui.input.Command;
 
-import java.io.IOException;
 import java.util.List;
 
 public class LogInStateView {
@@ -15,7 +13,7 @@ public class LogInStateView {
         this.logInView = logInView;
     }
 
-    public StateView readInput(Terminal terminal) {
+    public StateTuiView readInput(Terminal terminal) {
 
 
         return null;

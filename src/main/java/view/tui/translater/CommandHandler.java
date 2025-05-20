@@ -1,12 +1,18 @@
 package view.tui.translater;
 
 import view.tui.input.Command;
-import view.tui.states.StateView;
+import view.tui.states.StateTuiView;
 
 public class CommandHandler {
     //TODO: Deve avere la comunicazione con il controller
 
-    public void createEvent(Command command) {
+
+    /**
+     * Creates an event based on the command received and sends it to the controller.
+     * @param command
+     * @param currentState
+     */
+    public void createEvent(Command command, StateTuiView currentState) {
 
         //StateView possibleNewState = currentState.isValidCommand(command);
         //if (possibleNewState != null) {
@@ -31,6 +37,5 @@ public class CommandHandler {
             System.out.println("Elaboration error: " + e.getMessage());
         }
 
-        //return currentState;
     }
 }

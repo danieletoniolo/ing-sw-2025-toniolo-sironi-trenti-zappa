@@ -1,11 +1,9 @@
-package view.tui.states;
+package view.tui.states.gameStates;
 
 import Model.Cards.*;
 import Model.Cards.Hits.Hit;
-import Model.Game.Board.Deck;
 import Model.Good.Good;
 import Model.SpaceShip.*;
-import org.javatuples.Pair;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import view.structures.MiniModel;
@@ -23,32 +21,24 @@ import view.structures.player.PlayerDataView;
 import view.structures.spaceship.SpaceShipView;
 import view.tui.input.Command;
 import view.tui.input.Parser;
+import view.tui.states.BuildingStateTuiView;
+import view.tui.states.PlayerStateTuiView;
+import view.tui.states.StateTuiView;
+import view.tui.states.gameStates.goodActionState.SwapGoodsFromStateTuiView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import static Model.Game.Board.Level.SECOND;
-
-public class BuildingStateView implements StateView {
-    private final ArrayList<String> options = new ArrayList<>();
-    private final int cols = 26;
+public class GameStateTuiView implements StateTuiView {
+    private ArrayList<String> options;
+    private BoardView boardView = MiniModel.getInstance().boardView;
     private PlayerDataView player;
-    private final Pair<DeckView[], Boolean[]> decksView;
+    private DeckView shuffledDeckView = MiniModel.getInstance().shuffledDeckView;
 
-    public BuildingStateView() {
-        options.add("Pick tile ('row, column')");
-        options.add("Put tile on spaceship");
-        options.add("Put tile in reserve");
-        options.add("Put the tile in the pile");
-        options.add("Rotate tile");
-        if (MiniModel.getInstance().boardView.getLevel() == LevelView.SECOND) {
-            options.add("Pick deck 1");
-            options.add("Pick deck 2");
-            options.add("Pick deck 3");
-            options.add("Flip Timer");
-        }
-        options.add("Finish");
+
+    public GameStateTuiView() {
+        this.options = new ArrayList<>();
 
 
         this.player = MiniModel.getInstance().players.stream()
@@ -56,20 +46,66 @@ public class BuildingStateView implements StateView {
                 .findFirst()
                 .orElse(null);
 
-        this.decksView = MiniModel.getInstance().deckViews;
+        if (MiniModel.getInstance().playerTurn.equals(MiniModel.getInstance().nickname)) {
+            switch (MiniModel.getInstance().shuffledDeckView.getDeck().peek().getCardViewType()) {
+                case ABANDONEDSTATION:
+                    options.add("Accept");
+                    options.add("Refuse");
+                    break;
+                case ABANDONEDSHIP:
+                    options.add("Accept");
+                    options.add("Refuse");
+                    break;
+                case METEORSWARM:
+                    options.add("Use shield");
+                    options.add("Ignore");
+                    break;
+                case COMBATZONE:
+
+                    break;
+                case SMUGGLERS:
+                    break;
+                case OPENSPACE:
+                    MiniModel.getInstance().players.stream()
+                            .filter(player -> player.getUsername().equals(MiniModel.getInstance().nickname))
+                            .findFirst()
+                            .ifPresent(player -> {
+                                player.getShip().getMapBatteries().forEach(
+                                        (key, value) -> {
+                                            for (int i = 0; i < ((BatteryView) value).getNumberOfBatteries(); i++) {
+                                                options.add("Battery " + "row: " + value.getRow() + ", Col: " + value.getCol());
+                                            }
+                                        }
+                                );
+                            });
+                    break;
+                case STARDUST:
+                    break;
+                case EPIDEMIC:
+                    break;
+                case SLAVERS:
+                    break;
+                case PLANETS:
+                    break;
+                case PIRATES:
+                    break;
+            }
+        }
 
         for (PlayerDataView p : MiniModel.getInstance().players) {
             if (!p.equals(player)) {
                 options.add("View " + p.getUsername() + "'s spaceship");
             }
         }
+
+        shuffledDeckView.setOnlyLast(true);
+
     }
+
 
     @Override
     public int getTotalLines() {
-        return 1 + (MiniModel.getInstance().components.size() / cols) * ComponentView.getRowsToDraw()
-                 + (MiniModel.getInstance().components.size() % cols == 0 ? 0 : ComponentView.getRowsToDraw())
-                 + 1 + player.getShip().getRowsToDraw();
+        return Math.max(boardView.getRowsToDraw(), shuffledDeckView.getRowsToDraw()) + 1 + player.getShip().getRowsToDraw() + 3;
     }
 
     @Override
@@ -78,8 +114,14 @@ public class BuildingStateView implements StateView {
     }
 
     @Override
-    public StateView internalViewState(Command command) {
-        return null; // Placeholder for the next state
+    public StateTuiView internalViewState(Command command) {
+        switch (command.name()) {
+            case "View":
+                String name = command.parameters()[0].replace("'s", "");
+                MiniModel.getInstance().playerToView = name;
+                return new PlayerStateTuiView();
+        }
+        return null;
     }
 
     @Override
@@ -88,73 +130,53 @@ public class BuildingStateView implements StateView {
         writer.print("\033[H\033[2J");
         writer.flush();
 
-        drawTiles(writer, MiniModel.getInstance().components);
+        for (int i = 0; i < Math.max(boardView.getRowsToDraw(), shuffledDeckView.getRowsToDraw()); i++) {
+            StringBuilder str = new StringBuilder();
+
+            if (i < boardView.getRowsToDraw()) {
+                str.append(boardView.drawLineTui(i));
+            } else {
+                str.append(" ".repeat(Math.max(0, boardView.getColsToDraw())));
+            }
+
+            str.append("                       ");
+            if (i < shuffledDeckView.getRowsToDraw()) {
+                str.append(shuffledDeckView.drawLineTui(i));
+            } else {
+                str.append(" ".repeat(Math.max(0, shuffledDeckView.getColsToDraw())));
+            }
+
+            writer.println(str);
+        }
+        writer.flush();
         writer.println();
 
-        int deckCount = 0;
+        int playerCont = 0;
         for (int i = 0; i < player.getShip().getRowsToDraw(); i++) {
-            StringBuilder line = new StringBuilder();
-            line.append(player.getShip().drawLineTui(i));
-            if (i == ((player.getShip().getRowsToDraw() - 2)/5*2 + 1) - 1) {
-                line.append("       " + "   Hand: ");
-            }
-            else if(i >= ((player.getShip().getRowsToDraw() - 2)/5*2 + 1) && i < ((player.getShip().getRowsToDraw() - 2)/5*3 + 1)) {
-                line.append("         ").append(player.getHand().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
-            }
-            else if (i >= ((player.getShip().getRowsToDraw() - 2) / 5 + 1)) {
-                line.append("                ");
-            }
-            if (i >= ((player.getShip().getRowsToDraw() - 2)/5 + 1) && i < /*TODO: Da sistemare il 10*/ DeckView.getRowsToDraw() + ((player.getShip().getRowsToDraw() - 2)/5 + 1)) {
-                line.append("          ");
-                for (int j = 0; j < 3; j++) {
-                    if (decksView.getValue1()[j]) {
-                        decksView.getValue0()[j].setCovered(true);
-                        line.append("     ").append(decksView.getValue0()[j].drawLineTui(deckCount));
-                    }
-                    else {
-                        line.append("                              ");
-                    }
+            StringBuilder str = new StringBuilder();
+            str.append(player.getShip().drawLineTui(i));
+
+            if (i > (player.getShip().getRowsToDraw()-1)/5) {
+                if (i >= (player.getShip().getRowsToDraw()-1) / 5 * 3 && i < (player.getShip().getRowsToDraw()-1) / 5 * 3 + player.getRowsToDraw()) {
+                    str.append("       ");
+                    str.append(player.drawLineTui(playerCont));
+                    playerCont++;
                 }
-                deckCount++;
             }
-            writer.println(line);
+            writer.println(str);
         }
+        writer.flush();
+        writer.println();
+
+        PlayerDataView playerTurnName = MiniModel.getInstance().players.stream()
+                .filter(playerDataView -> playerDataView.getUsername().equals(MiniModel.getInstance().playerTurn))
+                .findFirst()
+                .orElse(null);
+
+        writer.println(MiniModel.getInstance().playerTurn.equals(MiniModel.getInstance().nickname) ? "Your turn" : "Waiting for " + playerTurnName.drawLineTui(0) + "'s turn");
+        writer.println();
         writer.println("Commands:");
         writer.flush();
-
-    }
-
-    private void drawTiles(java.io.PrintWriter writer, ArrayList<ComponentView> tiles) {
-        writer.print("   ");
-        for (int i = 0; i < cols; i++) {
-            writer.print("  " + ((i+1) / 10 == 0 ? " " + (i+1) : (i+1)) + "   ");
-        }
-        writer.println();
-        for (int h = 0; h < tiles.size() / cols; h++) {
-            for (int i = 0; i < ComponentView.getRowsToDraw(); i++) {
-                if (i == 1) {
-                    writer.print(((h+1) / 10 == 0 ? ((h+1) + "  ") : (h+1) + " "));
-                }else{
-                    writer.print("   ");
-                }
-                for (int k = 0; k < cols; k++) {
-                    writer.print(tiles.get(h * cols + k).drawLineTui(i));
-                }
-                writer.println();
-            }
-        }
-
-        for (int i = 0; i < ComponentView.getRowsToDraw(); i++) {
-            if (i == 1) {
-                writer.print(((tiles.size()/cols+1) / 10 == 0 ? ((tiles.size()/cols+1) + "  ") : ((tiles.size()/cols+1) + " ")));
-            }else{
-                writer.print("   ");
-            }
-            for (int k = 0; k < tiles.size() % cols; k++) {
-                writer.print(tiles.get((tiles.size() / cols) * cols + k).drawLineTui(i));
-            }
-            writer.println();
-        }
     }
 
 
@@ -171,6 +193,24 @@ public class BuildingStateView implements StateView {
         }
         Parser parser = new Parser(terminal);
 
+        MiniModel.getInstance().boardView = new BoardView(LevelView.SECOND);
+
+        ArrayList<PlayerDataView> players = MiniModel.getInstance().players;
+        players.add(new PlayerDataView("Player1", ColorView.RED, new SpaceShipView(LevelView.LEARNING)));
+        players.add(new PlayerDataView("Player2", ColorView.YELLOW, new SpaceShipView(LevelView.SECOND)));
+        players.add(new PlayerDataView("Player3", ColorView.GREEN, new SpaceShipView(LevelView.SECOND)));
+        players.add(new PlayerDataView("Player4", ColorView.BLUE, new SpaceShipView(LevelView.SECOND)));
+
+        MiniModel.getInstance().nickname = "Player1";
+        MiniModel.getInstance().playerTurn = "Player1";
+
+        Stack<CardView> stack = new Stack<>();
+        for (Card card :CardsManager.createLearningDeck()) {
+            stack.add(convertCard(card));
+        }
+        MiniModel.getInstance().shuffledDeckView = new DeckView();
+        MiniModel.getInstance().shuffledDeckView.setDeck(stack);
+
         Component[] tiles = TilesManager.getTiles();
         for (Component tile : tiles) {
             ComponentView tileView = converter(tile);
@@ -178,36 +218,31 @@ public class BuildingStateView implements StateView {
             MiniModel.getInstance().components.add(tileView);
         }
 
-        ArrayList<PlayerDataView> players = MiniModel.getInstance().players;
-        players.add(new PlayerDataView("Player1", ColorView.RED, new SpaceShipView(LevelView.LEARNING)));
-        players.add(new PlayerDataView("Player2", ColorView.RED, new SpaceShipView(LevelView.SECOND)));
-        players.add(new PlayerDataView("Player3", ColorView.RED, new SpaceShipView(LevelView.SECOND)));
-        players.add(new PlayerDataView("Player4", ColorView.RED, new SpaceShipView(LevelView.SECOND)));
+        for (ComponentView tile : MiniModel.getInstance().components) {
+            if (tile instanceof StorageView && ((StorageView) tile).getGoods().length > 1) {
+                MiniModel.getInstance().players.stream()
+                        .filter(player -> player.getUsername().equals("Player1"))
+                        .findFirst()
+                        .ifPresent(player -> {
+                            player.getShip().placeComponent(tile, 7, 5);
+                            ((StorageView) tile).setGood(GoodView.BLUE, 0);
+                            ((StorageView) tile).setGood(GoodView.YELLOW, 0);
+                            ((StorageView) tile).setGood(GoodView.GREEN, 1);
 
-        MiniModel.getInstance().nickname = "Player1";
-        players.getFirst().setHand(new GenericComponentView());
-        players.getFirst().getHand().setCovered(false);
-
-        Deck[] decks = CardsManager.createDecks(SECOND);
-
-        MiniModel.getInstance().boardView = new BoardView(LevelView.LEARNING);
-
-        for (int i = 0; i < 3; i++) {
-            Stack<CardView> cards = new Stack<>();
-            for (Card card : decks[i].getCards()) {
-                cards.add(convertCard(card));
+                        });
+                break;
             }
-            DeckView deckView = new DeckView();
-            deckView.setDeck(cards);
-            MiniModel.getInstance().deckViews.getValue0()[i] = deckView;
-            MiniModel.getInstance().deckViews.getValue1()[i] = true;
         }
 
+        /*
+        GameStateTuiView gameStateView = new GameStateTuiView();
+        gameStateView.printTui(terminal);
+        parser.getCommand(gameStateView.getOptions(), gameStateView.getTotalLines());
+        */
 
-        BuildingStateView buildingStateView = new BuildingStateView();
-
-        buildingStateView.printTui(terminal);
-        parser.getCommand(buildingStateView.getOptions(), buildingStateView.getTotalLines());
+        SwapGoodsFromStateTuiView swapGoodsFromStateTuiView = new SwapGoodsFromStateTuiView();
+        swapGoodsFromStateTuiView.printTui(terminal);
+        parser.getCommand(swapGoodsFromStateTuiView.getOptions(), swapGoodsFromStateTuiView.getTotalLines());
     }
 
     private static ComponentView converter(Component tile) {
@@ -309,4 +344,5 @@ public class BuildingStateView implements StateView {
                 return null;
         }
     }
+
 }

@@ -4,8 +4,8 @@ import view.tui.input.Command;
 
 import java.util.ArrayList;
 
-public interface StateView {
-    StateView internalViewState(Command command);
+public interface StateTuiView {
+    StateTuiView internalViewState(Command command);
 
     void printTui(Terminal terminal);
 

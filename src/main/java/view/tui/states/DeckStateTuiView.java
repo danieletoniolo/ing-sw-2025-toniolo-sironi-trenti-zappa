@@ -22,17 +22,17 @@ import java.util.Stack;
 
 import static Model.Game.Board.Level.SECOND;
 
-public class DeckStateView implements StateView{
+public class DeckStateTuiView implements StateTuiView {
     private final ArrayList<String> options = new ArrayList<>(List.of("Back"));
     private DeckView myDeck;
 
-    public DeckStateView() {
+    public DeckStateTuiView() {
         myDeck = MiniModel.getInstance().myDeck;
         myDeck.setCovered(false);
     }
 
     @Override
-    public StateView internalViewState(Command command) {
+    public StateTuiView internalViewState(Command command) {
         return null;
     }
 
@@ -91,7 +91,7 @@ public class DeckStateView implements StateView{
 
         MiniModel.getInstance().myDeck = MiniModel.getInstance().deckViews.getValue0()[0];
 
-        DeckStateView deckStateView = new DeckStateView();
+        DeckStateTuiView deckStateView = new DeckStateTuiView();
         deckStateView.printTui(terminal);
         parser.getCommand(deckStateView.options, deckStateView.getTotalLines());
     }

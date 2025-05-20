@@ -13,13 +13,13 @@ import view.tui.input.Parser;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class PlayerStateView implements StateView{
+public class PlayerStateTuiView implements StateTuiView {
     private ArrayList<String> options = new ArrayList<>(Arrays.asList("Back"));
     private PlayerDataView player;
 
-    public PlayerStateView(String userID) {
+    public PlayerStateTuiView() {
         this.player = MiniModel.getInstance().players.stream()
-                .filter(player -> player.getUsername().equals(userID))
+                .filter(player -> player.getUsername().equals(MiniModel.getInstance().playerToView))
                 .findFirst()
                 .orElse(null);
     }
@@ -35,7 +35,7 @@ public class PlayerStateView implements StateView{
     }
 
     @Override
-    public StateView internalViewState(Command command) {
+    public StateTuiView internalViewState(Command command) {
         if (command.name().equals(options.getFirst())) {
             return null; //new GameStateView();// Placeholder for the next state
         }
@@ -76,7 +76,8 @@ public class PlayerStateView implements StateView{
         ArrayList<PlayerDataView> players = MiniModel.getInstance().players;
         players.add(new PlayerDataView("Player1", ColorView.GREEN, new SpaceShipView(LevelView.SECOND)));
 
-        PlayerStateView playerStateView = new PlayerStateView("Player1");
+        MiniModel.getInstance().playerToView = "Player1";
+        PlayerStateTuiView playerStateView = new PlayerStateTuiView();
         playerStateView.printTui(terminal);
 
         parser.getCommand(playerStateView.getOptions(), playerStateView.getTotalLines());

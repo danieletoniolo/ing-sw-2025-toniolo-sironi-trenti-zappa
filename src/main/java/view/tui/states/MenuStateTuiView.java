@@ -10,11 +10,11 @@ import view.tui.input.Parser;
 
 import java.util.ArrayList;
 
-public class MenuStateView implements StateView{
+public class MenuStateTuiView implements StateTuiView {
     private final ArrayList<String> options;
     private int totlaLines = 1;
 
-    public MenuStateView() {
+    public MenuStateTuiView() {
         options = new ArrayList<>();
         int i = 0;
         for (LobbyView lobby : MiniModel.getInstance().lobbyViews) {
@@ -35,7 +35,7 @@ public class MenuStateView implements StateView{
     }
 
     @Override
-    public StateView internalViewState(Command command) {
+    public StateTuiView internalViewState(Command command) {
         return null; // Placeholder for the next state
     }
 
@@ -71,7 +71,7 @@ public class MenuStateView implements StateView{
         currentLobbies.add(new LobbyView("lore", 4, LevelView.LEARNING));
         currentLobbies.add(new LobbyView("vitto", 4, LevelView.LEARNING));
 
-        MenuStateView menuStateView = new MenuStateView();
+        MenuStateTuiView menuStateView = new MenuStateTuiView();
         menuStateView.printTui(terminal);
         parser.getCommand(menuStateView.getOptions(), menuStateView.getTotalLines());
 

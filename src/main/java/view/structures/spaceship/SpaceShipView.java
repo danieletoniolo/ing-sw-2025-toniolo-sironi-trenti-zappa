@@ -28,6 +28,9 @@ public class SpaceShipView implements Structure {
     private Map<Integer, ComponentView> mapStorages = new HashMap<>();
     private Map<Integer, ComponentView> mapBatteries = new HashMap<>();
 
+    private final int converterRow = 5;
+    private final int converterCol = 4;
+
     public SpaceShipView(LevelView level) {
         this.level = level;
         switch (level) {
@@ -61,8 +64,8 @@ public class SpaceShipView implements Structure {
     }
 
     public void placeComponent(ComponentView component, int row, int col) {
-        spaceShip[row-4][col-3] = component;
-        spaceShip[row-4][col-3].setCovered(false);
+        spaceShip[row-converterRow][col-converterCol] = component;
+        spaceShip[row-converterRow][col-converterCol].setCovered(false);
 
         switch (component.getType()) {
             case DOUBLE_CANNON -> mapDoubleCannons.put(component.getID(), component);
@@ -73,10 +76,12 @@ public class SpaceShipView implements Structure {
             case BATTERY -> mapBatteries.put(component.getID(), component);
         }
 
+        spaceShip[row-converterRow][col-converterCol].setRow(row);
+        spaceShip[row-converterRow][col-converterCol].setCol(col);
     }
 
     public void removeComponent(int row, int col) {
-        ComponentView component = spaceShip[row-4][col-3];
+        ComponentView component = spaceShip[row-converterRow][col-converterCol];
         switch (component.getType()) {
             case DOUBLE_CANNON -> mapDoubleCannons.remove(component.getID());
             case DOUBLE_ENGINE -> mapDoubleEngines.remove(component.getID());
@@ -86,7 +91,7 @@ public class SpaceShipView implements Structure {
             case BATTERY -> mapBatteries.remove(component.getID());
         }
 
-        spaceShip[row-4][col-3] = new GenericComponentView();
+        spaceShip[row-converterRow][col-converterCol] = new GenericComponentView();
     }
 
     public Map<Integer, ComponentView> getMapDoubleCannons() {

@@ -2,15 +2,15 @@ package view.tui.states.gameStates.goodActionState;
 
 import view.structures.MiniModel;
 import view.structures.components.StorageView;
-import view.structures.good.GoodView;
-import view.tui.states.gameStates.GameStateView;
+import view.tui.states.gameStates.GameStateTuiView;
 
 import java.util.ArrayList;
 
-public class SwapGoodsFromStateView extends GameStateView {
+public class SwapGoodsFromStateTuiView extends GameStateTuiView {
     private final ArrayList<String> options = new ArrayList<>();
 
-    public SwapGoodsFromStateView() {
+
+    public SwapGoodsFromStateTuiView() {
         int[] index = new int[1];
         index[0] = 1;
         MiniModel.getInstance().players.stream()
@@ -19,11 +19,14 @@ public class SwapGoodsFromStateView extends GameStateView {
                 .ifPresent(player -> {
                     player.getShip().getMapStorages().forEach(
                             (key, value) -> {
-                                options.add("Storage " + index[0]);
-                                for (GoodView good : ((StorageView) value).getGoods()) {
-                                    options.add("\tGood " + good.drawTui());
+                                if (((StorageView) value).getGoods() != null) {
+                                    for (int i = 0; i < ((StorageView) value).getGoods().length; i++) {
+                                        if (((StorageView) value).getGoods()[i] != null) {
+                                            options.add("Swap " + ((StorageView) value).getGoods()[i].drawTui() + " from (" + value.getRow() + "," + value.getCol() + ")");
+                                        }
+                                    }
                                 }
-                                index[0]++;
+
                             }
                     );
                 });

@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
-public class LobbyStateView implements StateView {
+public class LobbyStateTuiView implements StateTuiView {
     private final ArrayList<String> options = new ArrayList<>(Arrays.asList("Ready", "Not ready", "Leave"));
     private final LobbyView currentLobbyView;
     private final int totalLines = LobbyView.getRowsToDraw() + 1;
 
 
-    public LobbyStateView() {
+    public LobbyStateTuiView() {
         currentLobbyView = MiniModel.getInstance().lobbyViews.stream()
                 .filter(lobbyView -> lobbyView.getLobbyName().equals(MiniModel.getInstance().lobbyViews))
                 .findFirst()
@@ -33,7 +33,7 @@ public class LobbyStateView implements StateView {
     }
 
     @Override
-    public StateView internalViewState(Command command) {
+    public StateTuiView internalViewState(Command command) {
         return null;
     }
 

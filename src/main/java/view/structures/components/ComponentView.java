@@ -47,6 +47,8 @@ public abstract class ComponentView implements Structure {
     private int[] currentConnectors;
     private int ID;
     private boolean covered;
+    int row;
+    int col;
 
     public ComponentView(int ID, int[] connectors) {
         this.ID = ID;
@@ -110,4 +112,20 @@ public abstract class ComponentView implements Structure {
     }
 
     public abstract TilesTypeView getType();
+
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public void setCol(int col) {
+        this.col = col;
+    }
+
+    public int getCol() {
+        return col;
+    }
 }

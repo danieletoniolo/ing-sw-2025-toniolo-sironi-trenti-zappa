@@ -14,9 +14,9 @@ import view.structures.MiniModel;
 import view.structures.player.PlayerDataView;
 import view.tui.input.Command;
 import view.tui.input.Parser;
-import view.tui.states.LobbyStateView;
-import view.tui.states.MenuStateView;
-import view.tui.states.StateView;
+import view.tui.states.LobbyStateTuiView;
+import view.tui.states.MenuStateTuiView;
+import view.tui.states.StateTuiView;
 import view.tui.translater.CommandHandler;
 
 import java.util.concurrent.BlockingQueue;
@@ -25,7 +25,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TuiManager implements Manager {
     private final BlockingQueue<Command> commandQueue = new LinkedBlockingQueue<>();
     private final Object stateLock = new Object();
-    private StateView currentState /*= new LogInStateView(new LogInView())*/;
+    private StateTuiView currentState /*= new LogInStateView(new LogInView())*/;
     private CommandHandler commandHandler = new CommandHandler();
 
     private Parser parser;
@@ -52,7 +52,7 @@ public class TuiManager implements Manager {
             stateLock.notifyAll();
         }
         else {
-            if (currentState instanceof MenuStateView) { // Refresh the menu if another user creates a lobby because nd we are in the menu state
+            if (currentState instanceof MenuStateTuiView) { // Refresh the menu if another user creates a lobby because nd we are in the menu state
                 stateLock.notifyAll();
             }
         }
@@ -66,11 +66,11 @@ public class TuiManager implements Manager {
     @Override
     public void notifyJoinLobby(JoinLobby data) {
         if (data.userID() == null || data.userID().equals(MiniModel.getInstance().nickname)) { // Create a new lobbyState if the user is the one who created it or the server said to do so
-            currentState = new LobbyStateView();
+            currentState = new LobbyStateTuiView();
             stateLock.notifyAll();
         }
         else {
-            if (currentState instanceof LobbyStateView) { // Refresh the lobby view if another user joins because we are in the lobby state
+            if (currentState instanceof LobbyStateTuiView) { // Refresh the lobby view if another user joins because we are in the lobby state
                 stateLock.notifyAll();
             }
         }
@@ -83,7 +83,7 @@ public class TuiManager implements Manager {
             stateLock.notifyAll();
         }
         else {
-            if (currentState instanceof LobbyStateView) { // Refresh the lobby view if another user leaves because we are in the lobby state
+            if (currentState instanceof LobbyStateTuiView) { // Refresh the lobby view if another user leaves because we are in the lobby state
                 stateLock.notifyAll();
             }
         }
@@ -107,7 +107,16 @@ public class TuiManager implements Manager {
             while (true) {
                 try {
                     Command command = parser.getCommand(currentState.getOptions(), currentState.getTotalLines());
-                    commandQueue.put(command);
+                    StateTuiView possibleNewState = currentState.internalViewState(command);
+                    if (possibleNewState == null) {
+                        commandHandler.createEvent(command, currentState);
+                    }
+                    else {
+                        currentState = possibleNewState;
+                        synchronized (stateLock) {
+                            stateLock.notifyAll();
+                        }
+                    }
                 } catch (Exception e) {
                     e.getMessage();
                 }

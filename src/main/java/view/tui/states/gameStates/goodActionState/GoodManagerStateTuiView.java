@@ -1,13 +1,13 @@
 package view.tui.states.gameStates.goodActionState;
 
-import view.tui.states.gameStates.GameStateView;
+import view.tui.states.gameStates.GameStateTuiView;
 
 import java.util.ArrayList;
 
-public class GoodManagerStateView extends GameStateView {
+public class GoodManagerStateTuiView extends GameStateTuiView {
     private final ArrayList<String> options = new ArrayList<>();
 
-    public GoodManagerStateView() {
+    public GoodManagerStateTuiView() {
         options.add("Swap goods");
         options.add("Take good from the card");
         options.add("Drop good from the ship");

@@ -27,6 +27,9 @@ public class MiniModel {
     public String lobbyID;
     public String playerTurn;
 
+    // View Attributes
+    public String playerToView;
+
     public static MiniModel getInstance() {
         if (instance == null) {
             instance = new MiniModel();
