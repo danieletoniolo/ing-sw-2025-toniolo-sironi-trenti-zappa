@@ -4,12 +4,12 @@ import Model.Cards.*;
 import Model.Cards.Hits.Hit;
 import Model.Game.Board.Deck;
 import Model.Good.Good;
-import view.structures.cards.*;
-import view.structures.cards.hit.HitDirectionView;
-import view.structures.cards.hit.HitTypeView;
-import view.structures.cards.hit.HitView;
-import view.structures.deck.DeckView;
-import view.structures.good.GoodView;
+import view.miniModel.cards.*;
+import view.miniModel.cards.hit.HitDirectionView;
+import view.miniModel.cards.hit.HitTypeView;
+import view.miniModel.cards.hit.HitView;
+import view.miniModel.deck.DeckView;
+import view.miniModel.good.GoodView;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,7 @@
 package view.tui.states;
 
-import view.structures.MiniModel;
-import view.structures.lobby.LobbyView;
+import view.miniModel.MiniModel;
+import view.miniModel.lobby.LobbyView;
 import org.jline.terminal.Terminal;
 import view.tui.input.Command;
 

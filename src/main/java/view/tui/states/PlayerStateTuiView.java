@@ -2,11 +2,11 @@ package view.tui.states;
 
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-import view.structures.MiniModel;
-import view.structures.board.LevelView;
-import view.structures.player.ColorView;
-import view.structures.player.PlayerDataView;
-import view.structures.spaceship.SpaceShipView;
+import view.miniModel.MiniModel;
+import view.miniModel.board.LevelView;
+import view.miniModel.player.ColorView;
+import view.miniModel.player.PlayerDataView;
+import view.miniModel.spaceship.SpaceShipView;
 import view.tui.input.Command;
 import view.tui.input.Parser;
 

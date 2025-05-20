@@ -8,9 +8,9 @@ import event.lobby.CreateLobby;
 import event.lobby.JoinLobby;
 import event.lobby.LeaveLobby;
 import event.lobby.RemoveLobby;
-import view.structures.MiniModel;
-import view.structures.board.LevelView;
-import view.structures.lobby.LobbyView;
+import view.miniModel.MiniModel;
+import view.miniModel.board.LevelView;
+import view.miniModel.lobby.LobbyView;
 
 
 public class EventHandlerClient {

@@ -2,9 +2,9 @@ package view.tui.states;
 
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-import view.structures.MiniModel;
-import view.structures.board.LevelView;
-import view.structures.lobby.LobbyView;
+import view.miniModel.MiniModel;
+import view.miniModel.board.LevelView;
+import view.miniModel.lobby.LobbyView;
 import view.tui.input.Command;
 import view.tui.input.Parser;
 

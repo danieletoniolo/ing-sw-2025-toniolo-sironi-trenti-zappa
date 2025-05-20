@@ -8,19 +8,19 @@ import Model.SpaceShip.*;
 import org.javatuples.Pair;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-import view.structures.MiniModel;
-import view.structures.board.BoardView;
-import view.structures.board.LevelView;
-import view.structures.cards.*;
-import view.structures.cards.hit.HitDirectionView;
-import view.structures.cards.hit.HitTypeView;
-import view.structures.cards.hit.HitView;
-import view.structures.components.*;
-import view.structures.deck.DeckView;
-import view.structures.good.GoodView;
-import view.structures.player.ColorView;
-import view.structures.player.PlayerDataView;
-import view.structures.spaceship.SpaceShipView;
+import view.miniModel.MiniModel;
+import view.miniModel.board.BoardView;
+import view.miniModel.board.LevelView;
+import view.miniModel.cards.*;
+import view.miniModel.cards.hit.HitDirectionView;
+import view.miniModel.cards.hit.HitTypeView;
+import view.miniModel.cards.hit.HitView;
+import view.miniModel.components.*;
+import view.miniModel.deck.DeckView;
+import view.miniModel.good.GoodView;
+import view.miniModel.player.ColorView;
+import view.miniModel.player.PlayerDataView;
+import view.miniModel.spaceship.SpaceShipView;
 import view.tui.input.Command;
 import view.tui.input.Parser;
 
@@ -111,14 +111,14 @@ public class BuildingStateTuiView implements StateTuiView {
                 line.append("                ");
             }
             if (i >= ((player.getShip().getRowsToDraw() - 2)/5 + 1) && i < /*TODO: Da sistemare il 10*/ DeckView.getRowsToDraw() + ((player.getShip().getRowsToDraw() - 2)/5 + 1)) {
-                line.append("          ");
+                line.append("      ");
                 for (int j = 0; j < 3; j++) {
                     if (decksView.getValue1()[j]) {
                         decksView.getValue0()[j].setCovered(true);
-                        line.append("     ").append(decksView.getValue0()[j].drawLineTui(deckCount));
+                        line.append("   ").append(decksView.getValue0()[j].drawLineTui(deckCount));
                     }
                     else {
-                        line.append("                              ");
+                        line.append("                            ");
                     }
                 }
                 deckCount++;
@@ -163,7 +163,6 @@ public class BuildingStateTuiView implements StateTuiView {
         }
     }
 
-
     public static void main(String[] args) throws Exception {
         Terminal terminal;
         try {
@@ -177,7 +176,7 @@ public class BuildingStateTuiView implements StateTuiView {
         }
         Parser parser = new Parser(terminal);
 
-        Component[] tiles = TilesManager.getTiles();
+        ArrayList<Component> tiles = TilesManager.getTiles();
         for (Component tile : tiles) {
             ComponentView tileView = converter(tile);
             tileView.setCovered(false);

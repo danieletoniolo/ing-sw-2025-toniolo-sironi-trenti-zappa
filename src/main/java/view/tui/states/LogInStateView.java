@@ -1,7 +1,7 @@
 package view.tui.states;
 
 import org.jline.terminal.Terminal;
-import view.structures.logIn.LogInView;
+import view.miniModel.logIn.LogInView;
 
 import java.util.List;
 
