@@ -53,24 +53,12 @@ public class CombatZoneView extends CardView {
         return loss;
     }
 
-    public void setLoss(int Loss) {
-        this.loss = Loss;
-    }
-
     public int getFlightDays() {
         return flightDays;
     }
 
-    public void setFlightDays(int flightDaysLoss) {
-        this.flightDays = flightDaysLoss;
-    }
-
     public List<HitView> getHits() {
         return hits;
-    }
-
-    public void setHits(List<HitView> hits) {
-        this.hits = hits;
     }
 
     @Override

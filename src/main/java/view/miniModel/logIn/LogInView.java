@@ -7,7 +7,7 @@ public class LogInView {
     }
 
     public static int getRowsToDraw() {
-        return 10;
+        return 9;
     }
 
     public String drawLineTui(int line) {
@@ -20,7 +20,6 @@ public class LogInView {
             case 5 -> " \\______| /__/     \\__\\ |_______/__/     \\__\\ /__/ \\__\\     |__|            |__|     | _| `._____| \\______/   \\______||__|\\__\\ |_______|| _| `._____|";
             case 6, 8 -> "\n";
             case 7 -> "Welcome to Galaxy Trucker!!";
-            case 9 -> "Log in:";
             default -> throw new IllegalStateException("Unexpected value: " + line);
         };
     }

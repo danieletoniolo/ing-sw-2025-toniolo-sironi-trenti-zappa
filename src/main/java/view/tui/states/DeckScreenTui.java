@@ -13,7 +13,6 @@ import view.miniModel.cards.hit.HitTypeView;
 import view.miniModel.cards.hit.HitView;
 import view.miniModel.deck.DeckView;
 import view.miniModel.good.GoodView;
-import view.tui.input.Command;
 import view.tui.input.Parser;
 
 import java.util.ArrayList;
@@ -22,28 +21,29 @@ import java.util.Stack;
 
 import static Model.Game.Board.Level.SECOND;
 
-public class DeckStateTuiView implements StateTuiView {
+public class DeckScreenTui implements ScreenTuiView {
     private final ArrayList<String> options = new ArrayList<>(List.of("Back"));
-    private DeckView myDeck;
+    private final DeckView myDeck;
+    int selected;
+    int totalLines = DeckView.getRowsToDraw() + 1;
 
-    public DeckStateTuiView() {
-        myDeck = MiniModel.getInstance().myDeck;
-        myDeck.setCovered(false);
+    public DeckScreenTui(DeckView deck) {
+        this.myDeck = deck;
     }
 
     @Override
-    public StateTuiView internalViewState(Command command) {
+    public void readCommand(Parser parser) throws Exception {
+        selected = parser.getCommand(options, totalLines);
+    }
+
+    @Override
+    public ScreenTuiView isViewCommand() {
         return null;
     }
 
     @Override
-    public ArrayList<String> getOptions() {
-        return options;
-    }
-
-    @Override
-    public int getTotalLines() {
-        return DeckView.getRowsToDraw() + 1;
+    public void sendCommandToServer() {
+        // TODO: Implement the logic to send the command to the server
     }
 
     @Override
@@ -53,9 +53,7 @@ public class DeckStateTuiView implements StateTuiView {
         writer.flush();
 
         for (int i = 0; i < DeckView.getRowsToDraw(); i++) {
-            StringBuilder line = new StringBuilder();
-            line.append(myDeck.drawLineTui(i));
-            writer.println(line);
+            writer.println(myDeck.drawLineTui(i));
         }
         writer.flush();
         writer.println();
@@ -89,11 +87,12 @@ public class DeckStateTuiView implements StateTuiView {
             MiniModel.getInstance().deckViews.getValue1()[i] = true;
         }
 
-        MiniModel.getInstance().myDeck = MiniModel.getInstance().deckViews.getValue0()[0];
+        DeckView myDeck = MiniModel.getInstance().deckViews.getValue0()[0];
+        myDeck.setCovered(false);
 
-        DeckStateTuiView deckStateView = new DeckStateTuiView();
+        DeckScreenTui deckStateView = new DeckScreenTui(myDeck);
         deckStateView.printTui(terminal);
-        parser.getCommand(deckStateView.options, deckStateView.getTotalLines());
+        deckStateView.readCommand(parser);
     }
 
 

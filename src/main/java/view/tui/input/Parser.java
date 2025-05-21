@@ -1,7 +1,10 @@
 package view.tui.input;
 
+import org.javatuples.Pair;
+import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
@@ -22,7 +25,7 @@ public class Parser {
      * @return A Command object representing the selected option and its arguments.
      * @throws Exception If an error occurs during input handling.
      */
-    public Command getCommand(ArrayList<String> options, int menuStartRow) throws Exception {
+    public int getCommand(ArrayList<String> options, int menuStartRow) throws Exception {
         terminal.enterRawMode();
         menuStartRow += 2;
         var reader = terminal.reader();
@@ -49,30 +52,86 @@ public class Parser {
             }
         }
 
-        String selectedOption = options.get(selected);
-        String commandName = selectedOption.split(" ")[0];
-        String[] commandArgs;
+        return selected;
+    }
 
-        // Specific input handling for "pick tile" command
-        if (selectedOption.toLowerCase().contains("pick tile") || selectedOption.toLowerCase().contains("put tile on spaceship")) {
-            terminal.echo(true);
-            terminal.writer().print("Enter coordinates (row,col): ");
+    public Pair<Integer, Integer> getRowAndCol(int menuStartRow) {
+        LineReader reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .build();
+
+        while (true) {
+            terminal.writer().printf("\033[%d;0H", menuStartRow);
+            terminal.writer().print("\033[2K");
+            terminal.writer().print("Type coordinates (row col): ");
             terminal.flush();
 
-            // Crea LineReader per input riga
-            LineReader lineReader = LineReaderBuilder.builder()
-                    .terminal(terminal)
-                    .build();
+            try {
+                String line = reader.readLine("");
 
-            String input = lineReader.readLine();
-            commandArgs = new String[]{input.trim()};
-        } else {
-            String[] commandParts = selectedOption.split(" ");
-            commandArgs = new String[commandParts.length - 1];
-            System.arraycopy(commandParts, 1, commandArgs, 0, commandParts.length - 1);
+                String[] parts = line.trim().split("\\s+");
+                if (parts.length != 2) {
+                    terminal.writer().printf("\033[%d;0H", menuStartRow + 1);
+                    terminal.writer().print("\033[2K");
+                    terminal.writer().print("Input is not valid, type 'row col' (ex: 10 5)");
+                    terminal.flush();
+                    continue;
+                }
+
+                int x = Integer.parseInt(parts[0]);
+                int y = Integer.parseInt(parts[1]);
+
+                terminal.writer().printf("\033[%d;0H", menuStartRow + 1);
+                terminal.writer().print("\033[2K");
+                terminal.flush();
+
+                return new Pair<>(x, y);
+
+            } catch (Exception e) {
+                terminal.writer().printf("\033[%d;0H", menuStartRow + 1);
+                terminal.writer().print("\033[2K");
+                terminal.writer().print("Input is not valid, type 'row col' (ex: 10 5)");
+                terminal.flush();
+            }
         }
+    }
 
-        return new Command(commandName, commandArgs);
+    public String readNickname(String prompt, int menuStartRow) {
+        LineReader reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .build();
+
+        while (true) {
+            terminal.writer().printf("\033[%d;0H", menuStartRow);
+            terminal.writer().print("\033[2K"); // Clear line
+            terminal.writer().print(prompt);
+            terminal.flush();
+
+            try {
+                String input = reader.readLine("").trim();
+
+                if (!input.matches("^[a-zA-Z0-9]+$")) {
+                    terminal.writer().printf("\033[%d;0H", menuStartRow + 1);
+                    terminal.writer().print("\033[2K");
+                    terminal.writer().print("Invalid input. Use only letters and numbers, no spaces.");
+                    terminal.flush();
+                    continue;
+                }
+
+                terminal.writer().printf("\033[%d;0H", menuStartRow + 1);
+                terminal.writer().print("\033[2K");
+                terminal.flush();
+
+                return input;
+
+            } catch (UserInterruptException | EndOfFileException e) {
+                terminal.writer().printf("\033[%d;0H", menuStartRow + 1);
+                terminal.writer().print("\033[2K");
+                terminal.writer().print("Input aborted.");
+                terminal.flush();
+                return null;
+            }
+        }
     }
 
     /**

@@ -49,24 +49,12 @@ public class AbandonedStationView extends CardView {
         return flightDays;
     }
 
-    public void setFlightDays(int flightDays) {
-        this.flightDays = flightDays;
-    }
-
     public int getCrewRequired() {
         return crewRequired;
     }
 
-    public void setCrewRequired(int crewNeeded) {
-        this.crewRequired = crewNeeded;
-    }
-
     public List<GoodView> getGoods() {
         return goods;
-    }
-
-    public void setGoods(List<GoodView> goods) {
-        this.goods = goods;
     }
 
     private String printGoods() {

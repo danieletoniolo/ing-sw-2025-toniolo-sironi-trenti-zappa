@@ -52,32 +52,16 @@ public class SmugglersView extends CardView{
         return cannonRequired;
     }
 
-    public void setCannonRequired(int cannonRequired) {
-        this.cannonRequired = cannonRequired;
-    }
-
     public int getGoodsLoss() {
         return goodsLoss;
-    }
-
-    public void setGoodsLoss(int goodsLoss) {
-        this.goodsLoss = goodsLoss;
     }
 
     public int getFlightDays() {
         return flightDays;
     }
 
-    public void setFlightDays(int flightDays) {
-        this.flightDays = flightDays;
-    }
-
     public List<GoodView> getGoods() {
         return goods;
-    }
-
-    public void setGoods(List<GoodView> goods) {
-        this.goods = goods;
     }
 
     private String printGoods() {

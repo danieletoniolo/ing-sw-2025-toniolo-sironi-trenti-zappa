@@ -5,16 +5,15 @@ import org.jline.terminal.TerminalBuilder;
 import view.miniModel.MiniModel;
 import view.miniModel.board.LevelView;
 import view.miniModel.lobby.LobbyView;
-import view.tui.input.Command;
 import view.tui.input.Parser;
 
 import java.util.ArrayList;
 
-public class MenuStateTuiView implements StateTuiView {
+public class MenuScreenTui implements ScreenTuiView {
     private final ArrayList<String> options;
-    private int totlaLines = 1;
+    private int selected;
 
-    public MenuStateTuiView() {
+    public MenuScreenTui() {
         options = new ArrayList<>();
         int i = 0;
         for (LobbyView lobby : MiniModel.getInstance().lobbyViews) {
@@ -25,18 +24,14 @@ public class MenuStateTuiView implements StateTuiView {
     }
 
     @Override
-    public int getTotalLines() {
-        return totlaLines;
+    public void readCommand(Parser parser) throws Exception {
+        int totalLines = 1;
+        selected = parser.getCommand(options, totalLines);
     }
 
     @Override
-    public ArrayList<String> getOptions() {
-        return options;
-    }
-
-    @Override
-    public StateTuiView internalViewState(Command command) {
-        return null; // Placeholder for the next state
+    public ScreenTuiView isViewCommand() {
+        return null;
     }
 
     @Override
@@ -47,6 +42,11 @@ public class MenuStateTuiView implements StateTuiView {
 
         System.out.println("\nAvailable lobbies:");
         writer.flush();
+    }
+
+    @Override
+    public void sendCommandToServer() {
+        //TODO: Implements logic
     }
 
 
@@ -71,9 +71,9 @@ public class MenuStateTuiView implements StateTuiView {
         currentLobbies.add(new LobbyView("lore", 4, LevelView.LEARNING));
         currentLobbies.add(new LobbyView("vitto", 4, LevelView.LEARNING));
 
-        MenuStateTuiView menuStateView = new MenuStateTuiView();
+        MenuScreenTui menuStateView = new MenuScreenTui();
         menuStateView.printTui(terminal);
-        parser.getCommand(menuStateView.getOptions(), menuStateView.getTotalLines());
+        menuStateView.readCommand(parser);
 
     }
 }

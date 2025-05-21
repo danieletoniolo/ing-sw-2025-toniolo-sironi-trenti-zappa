@@ -3,38 +3,36 @@ package view.tui.states;
 import view.miniModel.MiniModel;
 import view.miniModel.lobby.LobbyView;
 import org.jline.terminal.Terminal;
-import view.tui.input.Command;
+import view.tui.input.Parser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 
-public class LobbyStateTuiView implements StateTuiView {
+public class LobbyScreenTui implements ScreenTuiView {
     private final ArrayList<String> options = new ArrayList<>(Arrays.asList("Ready", "Not ready", "Leave"));
     private final LobbyView currentLobbyView;
+    private int selected;
     private final int totalLines = LobbyView.getRowsToDraw() + 1;
 
 
-    public LobbyStateTuiView() {
-        currentLobbyView = MiniModel.getInstance().lobbyViews.stream()
-                .filter(lobbyView -> lobbyView.getLobbyName().equals(MiniModel.getInstance().lobbyViews))
-                .findFirst()
-                .orElse(null);
+    public LobbyScreenTui() {
+        currentLobbyView = MiniModel.getInstance().currentLobby;
     }
 
     @Override
-    public ArrayList<String> getOptions() {
-        return options;
+    public void readCommand(Parser parser) throws Exception {
+        selected = parser.getCommand(options, totalLines);
     }
 
     @Override
-    public int getTotalLines() {
-        return totalLines;
-    }
-
-    @Override
-    public StateTuiView internalViewState(Command command) {
+    public ScreenTuiView isViewCommand() {
         return null;
+    }
+
+    @Override
+    public void sendCommandToServer() {
+
     }
 
     @Override

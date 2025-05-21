@@ -54,32 +54,16 @@ public class PiratesView extends CardView {
         return cannonRequires;
     }
 
-    public void setCannonRequires(int cannonRequires) {
-        this.cannonRequires = cannonRequires;
-    }
-
     public int getCredits() {
         return credits;
-    }
-
-    public void setCredits(int credits) {
-        this.credits = credits;
     }
 
     public int getFlightDays() {
         return flightDays;
     }
 
-    public void setFlightDays(int flightDays) {
-        this.flightDays = flightDays;
-    }
-
     public List<HitView> getHits() {
         return hits;
-    }
-
-    public void setHits(List<HitView> hits) {
-        this.hits = hits;
     }
 
     @Override
