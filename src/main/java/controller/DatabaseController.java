@@ -3,283 +3,221 @@ package controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import utils.Launcher;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * DatabaseController class to manage the game state files and player to map file.
+ * <p>
+ * This class implements the Singleton pattern to ensure that only one instance of the database controller exists.
+ * It provides methods to save, load, and delete game states, as well as register players to their respective game controllers.
+ * </p>
+ * The database controller creates a new folder in the user's home directory to store game state files and a
+ * JSON file to map players to their game controllers.
+ */
 public class DatabaseController {
-    private final String folderPath;
-    private static final String indexFolferPath = "/index";
-    private static final String gamesFolderPath = "/games";
-    private static final String playerToMapFilePath = "/playerToMap.json";
-    private static final String metadataFilePath = "/metadata.json";
-    private static final int maximumAttempts = 10;
-    private final int maximumHours;
+    /**
+     * {@link DatabaseController} static instance to implement the Singleton pattern.
+     */
+    private static DatabaseController instance;
 
+    /**
+     * {@link Path} to the folder where game states are stored.
+     */
+    private final Path gamesFolder;
+
+    /**
+     * Static string to define the index folder.
+     */
+    private static final String indexFolferPath = "index";
+
+    /**
+     * Static string to define the games' folder.
+     */
+    private static final String gamesFolderPath = "games";
+
+    /**
+     * Static string to define the player to map file path.
+     */
+    private static final String playerToMapFilePath = "playerToMap.json";
+
+    /**
+     * Static integer to define the maximum number of hours before a game state file is considered old.
+     */
+    private static final int maximumHour = 12;
+
+    /**
+     * {@link File} to store the player to map file.
+     */
     private final File playerToMapFile;
-    private final File metadataFile;
 
+    /**
+     * {@link Map} to store the mapping of players to their game controllers.
+     * The key is the player's {@link UUID} and the value is the game controller's {@link UUID} which is
+     * also the game state file name.
+     */
     private final Map<UUID, UUID> playerToMap;
-    private final Map<UUID, LocalDateTime> metadata;
 
+    /**
+     * {@link ObjectMapper} to handle JSON serialization and deserialization.
+     */
     private static final ObjectMapper mapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
             .enable(SerializationFeature.INDENT_OUTPUT);
 
     /**
-     * Private method to create a file if it doesn't exist.
-     * It tries to create the file multiple times if it fails based on the {@link DatabaseController#maximumHours}.
-     * @param path a {@link String} representing the path to the file
-     * @return a {@link File} object representing the file
+     * Private constructor to prevent instantiation and ensure Singleton pattern.
+     * It initializes the games folder, index folder, and player to map file.
+     * @throws IOException if an I/O error occurs
      */
-    private File createFile(String path) {
-        File file = new File(path);
-        if (!file.exists()) {
-            try {
-                int saveAttempts = 0;
-                while (!file.createNewFile()) {
-                    if (saveAttempts > maximumAttempts) {
-                        throw new RuntimeException("Unable to create file " + path);
-                    }
-                    saveAttempts++;
-                }
-            } catch (Exception e) {
-                // TODO: handle exception and log it
-            }
-        }
-        return file;
-    }
+    private DatabaseController() throws IOException {
+        Path folder = Launcher.getDataFolder();
 
-    /**
-     * Private method to create a folder if it doesn't exist.
-     * It tries to create the folder multiple times if it fails based on the {@link DatabaseController#maximumHours}.
-     * @param path a {@link String} representing the path to the folder
-     * @return a {@link File} object representing the folder
-     */
-    private File createFolder(String path) {
-        File folder = new File(path);
-        if (!folder.exists()) {
-            try {
-                int saveAttempts = 0;
-                while (!folder.mkdirs()) {
-                    if (saveAttempts > maximumAttempts) {
-                        throw new RuntimeException("Unable to create folder " + path);
-                    }
-                    saveAttempts++;
-                }
-            } catch (Exception e) {
-                // TODO: handle exception and log it
-            }
-        }
-        return folder;
-    }
+        // Create the games folder if it doesn't exist
+        gamesFolder = Paths.get(folder.toString(), gamesFolderPath);
+        Files.createDirectories(gamesFolder);
 
-    /**
-     * Private method to load the player to map file (JSON).
-     * It uses the {@link ObjectMapper} to deserialize the JSON file into a {@link Map} object.
-     * @return a {@link Map} object representing the player to map
-     */
-    private Map<UUID, UUID> loadPlayerToMap() {
-        // Load the player to map file (JSON)
-        try {
-            return mapper.readValue(playerToMapFile, HashMap.class);
-        } catch (IOException e) {
-            // TODO: handle exception and log it
-        }
-        return new HashMap<>();
-    }
+        // Clean up old game state files
+        cleanUp();
 
-    /**
-     * Private method to load the metadata file (JSON).
-     * It uses the {@link ObjectMapper} to deserialize the JSON file into a {@link Map} object.
-     * @return a {@link Map} object representing the metadata
-     */
-    private Map<UUID, LocalDateTime> loadMetadata() {
-        // Load the metadata file (JSON)
-        try {
-            return mapper.readValue(metadataFile, HashMap.class);
-        } catch (IOException e) {
-            // TODO: handle exception and log it
-        }
-        return new HashMap<>();
-    }
+        // Create the index folder if it doesn't exist
+        Path indexFolder = Paths.get(folder.toString(), indexFolferPath);
+        Files.createDirectories(indexFolder);
 
-    /**
-     * Private method to save the player to map file (JSON).
-     * It uses the {@link ObjectMapper} to serialize the {@link Map} object into a JSON file.
-     */
-    private void savePlayerToMap() {
-        // Save the player to map file (JSON)
-        try {
-            mapper.writeValue(playerToMapFile, playerToMap);
-        } catch (IOException e) {
-            // TODO: handle exception and log it
+        // Create the Index JSON file if it doesn't exist
+        Path indexFile = Paths.get(indexFolder.toString(), playerToMapFilePath);
+        if (!Files.exists(indexFile)) {
+            Files.createFile(indexFile);
+            playerToMapFile = indexFile.toFile();
+            playerToMap = new HashMap<>();
+        } else {
+            // Load the player to map file (JSON)
+            playerToMapFile = indexFile.toFile();
+            playerToMap = mapper.readValue(playerToMapFile, HashMap.class);
         }
     }
 
     /**
-     * Private method to save the metadata file (JSON).
-     * It uses the {@link ObjectMapper} to serialize the {@link Map} object into a JSON file.
+     * Static method to get the instance of the {@link DatabaseController}.
+     * It creates a new instance if it doesn't exist.
+     * @return the instance of the {@link DatabaseController}
+     * @throws IOException if an I/O error occurs while setting up the files structure.
      */
-    private void saveMetadata() {
-        // Save the metadata file (JSON)
-        try {
-            mapper.writeValue(metadataFile, metadata);
-        } catch (IOException e) {
-            // TODO: handle exception and log it
+    public static DatabaseController getInstance() throws IOException {
+        if (instance == null) {
+            instance = new DatabaseController();
         }
+        return instance;
     }
 
     /**
      * Private method to clean up the metadata map.
      * It iterates over the metadata map and deletes the game state file if the game is older
-     * than {@link DatabaseController#maximumHours} hours.
+     * than {@link DatabaseController#maximumHour} hours.
      */
-    private void cleanUp() {
+    private void cleanUp() throws IOException {
         // Get the current time
         LocalDateTime now = LocalDateTime.now();
 
-        // Iterate over the metadata map
-        Iterator<Map.Entry<UUID, LocalDateTime>> iterator = metadata.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<UUID, LocalDateTime> entry = iterator.next();
-            // Check if the game is older than 1 hour
-            if (entry.getValue().isBefore(now.minusHours(maximumHours))) {
-                // Delete the game state file
-                deleteGame(entry.getKey());
-                // Remove the entry from the metadata map
-                iterator.remove();
-            }
-        }
+        // Iterate over the game state files in the games folder
+        Files.list(gamesFolder)
+                .filter(file -> file.toString().endsWith(".dat"))
+                .forEach(file -> {
+                    try {
+                        // Get the last modified time of the file
+                        LocalDateTime lastModifiedTime = LocalDateTime.ofInstant(
+                            Files.getLastModifiedTime(file).toInstant(),
+                            java.time.ZoneId.systemDefault()
+                        );
+                        // Check if the file is older than maximumHours
+                        if (lastModifiedTime.isBefore(now.minusHours(maximumHour))) {
+                            // Delete the file
+                            Files.delete(file);
+                        }
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
     }
 
     /**
-     * Create a new database controller object.
-     * This constructor initializes the folder path, maximum hours and tries to create the folder and files used
-     * to store the game state
-     * <p>
-     * It also loads the player to map and metadata files (JSON) into memory.
-     * <p>
-     * In the end, it cleans up the metadata map by deleting the game state files that are older than
-     * {@link DatabaseController#maximumHours} hours.
-     * @param maximumHours the maximum hours of inactivity before a game state is deleted
-     * @param folderPath the path to the folder where the game state will be saved
+     * Serialize the game controller to a file and save it in the /saves/games folder.
+     * @param gameController the {@link GameController} to save (it contains the game state).
+     * @throws IOException if an I/O error occurs while writing to the file.
      */
-    public DatabaseController(String folderPath, int maximumHours) {
-        // Set the folder path
-        this.folderPath = folderPath;
-        // Set the maximum hours
-        this.maximumHours = maximumHours;
+    public void saveGame(GameController gameController) throws IOException {
+        // Get the path from the instance variable
+        Path filePath = gamesFolder.resolve(gameController.getUUID().toString() + ".dat");
 
-        // Create the folder if it doesn't exist
-        createFolder(folderPath);
-
-        // Check if the games folder exists
-        createFolder(folderPath + gamesFolderPath);
-
-        // Check if the index folder exists
-        createFolder(folderPath + indexFolferPath);
-
-        // Check if the index folder exists
-        this.playerToMapFile = createFile(folderPath + indexFolferPath + playerToMapFilePath);
-        // Load the player to map file (JSON)
-        this.playerToMap = loadPlayerToMap();
-
-        // Create the metadata file
-        this.metadataFile = createFile(folderPath + indexFolferPath + metadataFilePath);
-        // Load the metadata file (JSON)
-        this.metadata = loadMetadata();
-
-        // Clean up the metadata map
-        cleanUp();
-    }
-
-    /**
-     * Save the game state to a file
-     * @param gameController the game controller to save
-     */
-    public void saveGame(GameController gameController) {
-        // Get the folder path from the instance variable
-        String filePath = folderPath + "/" + gameController.toString() + ".dat";
         // Serialize the state object to a file
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
-            oos.writeObject(gameController);
-        } catch (Exception e) {
-            // TODO: handle exception and log it
-        }
-        // Update the metadata file
-        metadata.merge(gameController.getUUID(), LocalDateTime.now(), (oldValue, newValue) -> newValue);
-        saveMetadata();
+        ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(filePath.toFile()));
+        outputStream.writeObject(gameController);
+        outputStream.flush();
+        outputStream.close();
     }
 
     /**
-     * Load the game state from a file
-     * @param uuid the {@link UUID} of the game controller to load
-     * @return the {@link GameController} object representing the game state with the given uuid.
+     * Load the game controller from a file and return it.
+     * @param uuid the {@link UUID} of the game controller to load.
+     * @return the {@link GameController} loaded from the file.
+     * @throws IOException if an I/O error occurs while reading from the file.
      */
-    public GameController loadGame(UUID uuid) {
-        // Get the folder path from the instance variable
-        String filePath = folderPath + "/" + uuid.toString() +  ".dat";
+    public GameController loadGame(UUID uuid) throws IOException {
+        // Get the path from the instance variable
+        Path filePath = gamesFolder.resolve(uuid.toString() + ".dat");
+
         // Deserialize the state object from a file
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
-            return (GameController) ois.readObject();
-        } catch (Exception e) {
-            // TODO: handle exception and log it
-            return null;
+        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(filePath.toFile()));
+        GameController gameController;
+        try {
+            gameController = (GameController) inputStream.readObject();
+        } catch (ClassNotFoundException e) {
+            throw new IOException("Unable to find class " + e.getMessage());
         }
+        inputStream.close();
+
+        return gameController;
     }
 
     /**
-     * Delete the game state from a file and update the index file:
-     * <ul>
-     *     <li>Remove the game state file</li>
-     *     <li>Remove the entry from the metadata map and save it to the file</li>
-     *     <li>Remove the player from the player to map and save it to the file</li>
- *     </ul>
-     * @param uuid the uuid of the game controller to delete
+     * Delete the game state file and remove the entry from the playerToMap.
+     * @param uuid the {@link UUID} of the game controller to delete.
+     * @throws IOException if an I/O error occurs while deleting the file.
      */
-    public void deleteGame(UUID uuid) {
-        // Get the folder path from the instance variable
-        String filePath = folderPath + "/" + uuid.toString() + ".dat";
-        // Delete the file
-        try {
-            int deleteAttempts = 0;
-            while (!new File(filePath).delete()) {
-                if (deleteAttempts > maximumAttempts) {
-                    throw new RuntimeException("Unable to delete file " + filePath);
-                }
-                deleteAttempts++;
-            }
-        } catch (Exception e) {
-            // TODO: handle exception and log it
-        }
-        // Remove the player from the player to map
-        for (Map.Entry<UUID, UUID> playerEntry : playerToMap.entrySet()) {
-            if (playerEntry.getValue().equals(uuid)) {
-                playerToMap.remove(playerEntry.getKey());
+    public void deleteGame(UUID uuid) throws IOException {
+        // Get the path from the instance variable
+        Path filePath = gamesFolder.resolve(uuid.toString() + ".dat");
+
+        // Delete the game state file
+        Files.delete(filePath);
+
+        // Remove the entry from the playerToMap
+        for (Map.Entry<UUID, UUID> entry : playerToMap.entrySet()) {
+            if (entry.getValue().equals(uuid)) {
+                // Remove the entry from the player to map
+                playerToMap.remove(entry.getKey());
             }
         }
-        // Save the player to map file (JSON)
-        savePlayerToMap();
-        // Remove the entry from the metadata map
-        metadata.remove(uuid);
-        // Save the metadata file (JSON)
-        saveMetadata();
     }
 
     /**
      * Link a player to the game controller of his game controller (game state).
      * @param playerUUID the {@link UUID} of the player to link to the game controller.
      * @param gameControllerUUID the {@link UUID} of the game controller to link the player to.
+     * @throws IOException if an I/O error occurs while writing to the file.
      */
-    public void registerPlayer(UUID playerUUID, UUID gameControllerUUID) {
+    public void registerPlayer(UUID playerUUID, UUID gameControllerUUID) throws IOException {
         // Register the player to the game controller
         playerToMap.put(playerUUID, gameControllerUUID);
         // Save the player to map file (JSON)
-        savePlayerToMap();
+        mapper.writeValue(playerToMapFile, playerToMap);
     }
 }
