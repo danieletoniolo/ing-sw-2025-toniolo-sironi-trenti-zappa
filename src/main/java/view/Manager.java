@@ -1,7 +1,5 @@
 package view;
 
-
-import event.game.AddCoins;
 import event.lobby.CreateLobby;
 import event.lobby.JoinLobby;
 import event.lobby.LeaveLobby;
@@ -16,9 +14,6 @@ public interface Manager {
 
     void notifyLeaveLobby(LeaveLobby data);
 
-
-
-    void notifyAddCoins(AddCoins data);
 
 
 }

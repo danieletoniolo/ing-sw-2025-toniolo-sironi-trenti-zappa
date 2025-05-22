@@ -2,8 +2,6 @@ package view;
 
 import event.EventListener;
 import event.NetworkTransceiver;
-import event.game.AddCoins;
-import event.game.AddLoseCrew;
 import event.lobby.CreateLobby;
 import event.lobby.JoinLobby;
 import event.lobby.LeaveLobby;
@@ -37,14 +35,14 @@ public class EventHandlerClient {
 
     private final EventListener<JoinLobby> joinLobbyListener = data -> {
         // Add the player to the specific lobby
-        MiniModel.getInstance().lobbyViews.stream()
+        /*MiniModel.getInstance().lobbyViews.stream()
                 .filter(lobbyView -> lobbyView.getLobbyName().equals(data.lobbyID()))
                 .findFirst()
                 .ifPresent(lobbyView -> {
                     lobbyView.addPlayer(data.userID());
                 });
 
-        manager.notifyJoinLobby(data);
+        manager.notifyJoinLobby(data);*/
     };
 
     private final EventListener<LeaveLobby> leaveLobbyListener = data -> {
@@ -59,23 +57,6 @@ public class EventHandlerClient {
     };
 
 
-    // Game events
-    private final EventListener<AddCoins> addCoinsListener = data -> {
-        MiniModel.getInstance().players.stream()
-                .filter(player -> player.getUsername().equals(data.userID()))
-                .findFirst()
-                .ifPresent(player -> {
-                    player.setCoins(data.coins());
-                });
-
-        manager.notifyAddCoins(data);
-    };
-
-    private final EventListener<AddLoseCrew> addLoseCrewListener = data -> {
-
-    };
-
-
 
     public EventHandlerClient(NetworkTransceiver transceiver, Manager manager) {
         this.transceiver = transceiver;
@@ -83,12 +64,10 @@ public class EventHandlerClient {
 
         // Register listeners for events
         // Lobby events
-        this.transceiver.registerListener(createLobbyListener);
-        this.transceiver.registerListener(joinLobbyListener);
-        this.transceiver.registerListener(leaveLobbyListener);
+        //this.transceiver.registerListener(createLobbyListener);
+        //this.transceiver.registerListener(joinLobbyListener);
+        //this.transceiver.registerListener(leaveLobbyListener);
 
-        // Game events
-        this.transceiver.registerListener(addCoinsListener);
 
     };
 }

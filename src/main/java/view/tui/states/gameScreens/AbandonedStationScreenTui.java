@@ -1,5 +1,6 @@
 package view.tui.states.gameScreens;
 
+import org.jline.terminal.Terminal;
 import view.tui.states.GameScreenTui;
 
 import java.util.List;

@@ -7,6 +7,7 @@ module demo {
     requires com.fasterxml.jackson.databind;
     requires java.rmi;
     requires org.jline;
+    requires com.fasterxml.jackson.datatype.jsr310;
 
     opens view.gui to javafx.fxml;
     exports view.gui;

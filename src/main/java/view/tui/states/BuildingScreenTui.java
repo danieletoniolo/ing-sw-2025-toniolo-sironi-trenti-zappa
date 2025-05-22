@@ -43,7 +43,7 @@ public class BuildingScreenTui implements ScreenTuiView {
         options.add("Pick tile");
         options.add("Put tile on spaceship");
         options.add("Put tile in reserve");
-        options.add("Put the tile in the pile");
+        options.add("Put the tile in the reserved pile");
         options.add("Rotate tile");
         if (MiniModel.getInstance().boardView.getLevel() == LevelView.SECOND) {
             options.add("Pick deck 1");
@@ -72,8 +72,8 @@ public class BuildingScreenTui implements ScreenTuiView {
 
     @Override
     public ScreenTuiView isViewCommand() {
-        if (selected < options.size() && selected >= options.size() - MiniModel.getInstance().otherPlayers.size()) {
-            int i = options.size() - selected;
+        if (selected >= options.size() - MiniModel.getInstance().otherPlayers.size()) {
+            int i = selected - (options.size() - MiniModel.getInstance().otherPlayers.size());
             return new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.BuildingScreenTui);
         }
 
@@ -124,7 +124,7 @@ public class BuildingScreenTui implements ScreenTuiView {
             }
             writer.println(line);
         }
-        writer.println("Commands:");
+        writer.println("Commands: ");
         writer.flush();
 
     }

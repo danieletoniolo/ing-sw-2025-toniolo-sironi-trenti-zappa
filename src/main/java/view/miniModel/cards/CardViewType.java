@@ -5,7 +5,7 @@ public enum CardViewType {
     ABANDONEDSTATION,
     COMBATZONE,
     EPIDEMIC,
-    METEORSWARM,
+    METEORSSWARM,
     OPENSPACE,
     PIRATES,
     PLANETS,

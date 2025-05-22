@@ -10,7 +10,7 @@ import org.jline.terminal.Terminal;
 import java.util.ArrayList;
 
 public class Parser {
-    private int selected = 0;
+    private int selected;
     private Terminal terminal;
 
     public Parser(Terminal terminal) {
@@ -30,6 +30,7 @@ public class Parser {
         menuStartRow += 2;
         var reader = terminal.reader();
         var writer = terminal.writer();
+        selected = 0;
 
         boolean reading = true;
         while (reading) {
@@ -45,7 +46,7 @@ public class Parser {
                     selected = (selected + 1) % options.size();
                     break;
                 case 10, 13: // Select
-                    terminal.writer().println("\nYou chose: " + options.get(selected));
+                    terminal.writer().println("\nYou chose: " + options.get(selected) + " " + selected);
                     terminal.flush();
                     reading = false;
                     break;

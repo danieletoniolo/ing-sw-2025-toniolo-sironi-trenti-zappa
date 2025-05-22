@@ -42,25 +42,13 @@ public abstract class GameScreenTui implements ScreenTuiView {
     @Override
     public ScreenTuiView isViewCommand() {
         if (selected < options.size() && selected >= options.size() - MiniModel.getInstance().otherPlayers.size()) {
-            int i = options.size() - selected;
+            int i = selected - (options.size() - MiniModel.getInstance().otherPlayers.size());
 
             if (!MiniModel.getInstance().currentPlayer.equals(clientPlayer)) {
                 return new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.NotClientTurnScreenTui);
             }
 
-            return switch (currentCard.getCardViewType()) {
-                case ABANDONEDSHIP ->    new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.AbandonedShipScreenTui);
-                case ABANDONEDSTATION -> new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.AbandonedStationScreenTui);
-                case COMBATZONE ->       new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.CombatZoneScreenTui);
-                case EPIDEMIC ->         new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.EpidemicScreenTui);
-                case METEORSWARM ->      new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.MeteorsSwarmScreenTui);
-                case OPENSPACE ->        new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.OpenSpaceScreenTui);
-                case PIRATES ->          new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.PiratesScreenTui);
-                case PLANETS ->          new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.PlanetsScreenTui);
-                case SLAVERS ->          new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.SlaversScreenTui);
-                case SMUGGLERS ->        new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.SmugglersScreenTui);
-                case STARDUST ->         new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.StarDustScreenTui);
-            };
+            return new PlayerScreenTui(MiniModel.getInstance().otherPlayers.get(i), TuiStates.BuildingScreenTui);
         }
 
         return null;

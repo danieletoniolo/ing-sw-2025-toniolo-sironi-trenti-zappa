@@ -50,6 +50,6 @@ public class MeteorSwarmView extends CardView {
 
     @Override
     public CardViewType getCardViewType() {
-        return CardViewType.METEORSWARM;
+        return CardViewType.METEORSSWARM;
     }
 }

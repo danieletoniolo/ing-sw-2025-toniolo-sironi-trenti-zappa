@@ -41,18 +41,21 @@ public class PlayerScreenTui implements ScreenTuiView {
         if (selected == 0) {
             return switch (oldState) {
                 case NotClientTurnScreenTui -> new NotClientTurnScreenTui();
-                case AbandonedStationScreenTui -> new AbandonedStationScreenTui();
                 case BuildingScreenTui -> new BuildingScreenTui();
-                case EpidemicScreenTui -> new EpidemicScreenTui();
-                case CombatZoneScreenTui -> new CombatZoneScreenTui();
-                case MeteorsSwarmScreenTui -> new MeteorsSwarmScreenTui();
-                case PiratesScreenTui -> new PiratesScreenTui();
-                case PlanetsScreenTui -> new PlanetsScreenTui();
-                case SlaversScreenTui -> new SlaversScreenTui();
-                case StarDustScreenTui -> new StarDustScreenTui();
-                case OpenSpaceScreenTui -> new OpenSpaceScreenTui();
-                case SmugglersScreenTui -> new SmugglersScreenTui();
-                case AbandonedShipScreenTui -> new AbandonedShipScreenTui();
+                case GameScreenTui ->
+                        switch (MiniModel.getInstance().shuffledDeckView.getDeck().peek().getCardViewType()) {
+                            case ABANDONEDSTATION -> new AbandonedStationScreenTui();
+                            case SMUGGLERS -> new SmugglersScreenTui();
+                            case PLANETS -> new PlanetsScreenTui();
+                            case PIRATES -> new PiratesScreenTui();
+                            case SLAVERS -> new SlaversScreenTui();
+                            case EPIDEMIC -> new EpidemicScreenTui();
+                            case STARDUST -> new StarDustScreenTui();
+                            case OPENSPACE -> new OpenSpaceScreenTui();
+                            case COMBATZONE -> new CombatZoneScreenTui();
+                            case METEORSSWARM -> new MeteorsSwarmScreenTui();
+                            case ABANDONEDSHIP -> new AbandonedShipScreenTui();
+                        };
             };
         }
         return null;
