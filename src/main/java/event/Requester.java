@@ -18,37 +18,27 @@ public class Requester<S extends Event> {
     private final EventReceiver<EventWrapper<StatusEvent>> receiver;
     private final EventTransmitter transmitter;
 
-    private final EventListener<EventWrapper<StatusEvent>> responseListener;
-    //private final EventListener<EventWrapper> disconnectListener;
+    private final EventListener<EventWrapper<StatusEvent>> responseHandler;
+    //private final EventListener<EventWrapper> disconnectionHandler;
 
     //private final EventListener<PlayerDisconnectedInternalEventData> disconnectedListener;
 
-    private final Map<Integer, StatusEvent> responses = new HashMap<>();
+    private final Map<Integer, StatusEvent> pendingResponses = new HashMap<>();
 
-    private final Object responsesLock;
+    private final Object responseLock;
 
-    private final Set<Integer> waitingFor = new HashSet<>();
+    private final Set<Integer> activeRequests = new HashSet<>();
 
-    private int nextRequest;
-    private final Object nextRequestLock = new Object();
+    private int requestCounter;
+    private final Object counterLock = new Object();
 
-    private boolean disconnected;
+    private boolean isDisconnected;
 
-    public Requester(EventTransceiver transceiver, Object responsesLock) {
+    public Requester(EventTransceiver transceiver, Object responseLock) {
         this.transmitter = transceiver;
         this.receiver = new CastEventReceiver<>(transceiver);
-        this.responsesLock = responsesLock;
-
-        this.responseListener = data -> {
-            synchronized (responsesLock) {
-                if (waitingFor.contains(data.ID())) {
-                    waitingFor.remove(data.ID());
-                    responses.put(data.ID(), data.event());
-
-                    this.responsesLock.notifyAll();
-                }
-            }
-        };
+        this.responseLock = responseLock;
+        this.responseHandler = this::processResponse;
 
         /*
         this.disconnectListener = data -> {
@@ -60,54 +50,69 @@ public class Requester<S extends Event> {
         */
     }
 
-    public StatusEvent request(S data) {
-        int count;
+    public StatusEvent request(S request) {
+        int requestId = generateRequestID();
 
-        synchronized (nextRequestLock) {
-            count = nextRequest;
-            nextRequest++;
-        }
+        addRequestToQueue(requestId);
+        transmitter.broadcast(new EventWrapper<>(requestId, request));
 
-        synchronized (responsesLock) {
-            waitingFor.add(count);
-        }
-
-        transmitter.broadcast(new EventWrapper<>(count, data));
-
-        synchronized (responsesLock) {
-            while(responses.get(count) == null) {
-                if (disconnected) {
-                    throw new DisconnectedConnection();
-                }
-
-                try {
-                    responsesLock.wait();
-                } catch (InterruptedException e) {
-                    // Ignore the catch
-                }
-            }
-
-            return responses.remove(count);
-        }
+        return waitForResponse(requestId);
     }
 
     public void registerListeners() {
-        synchronized (responsesLock) {
-            receiver.registerListener(responseListener);
+        synchronized (responseLock) {
+            receiver.registerListener(responseHandler);
             //transceiver.registerListener(disconnectListener);
-
-            disconnected = false;
+            isDisconnected = false;
         }
     }
 
     public void unregisterListeners() {
-        synchronized (responsesLock) {
-            receiver.unregisterListener(responseListener);
+        synchronized (responseLock) {
+            receiver.unregisterListener(responseHandler);
             //transceiver.unregisterListener(disconnectedListener);
-
-            disconnected = true;
-
-            responsesLock.notifyAll();
+            isDisconnected = true;
+            responseLock.notifyAll();
         }
     }
+
+    private int generateRequestID() {
+        synchronized (counterLock) {
+            return requestCounter++;
+        }
+    }
+
+    private void addRequestToQueue(int requestId) {
+        synchronized (responseLock) {
+            activeRequests.add(requestId);
+        }
+    }
+
+    private StatusEvent waitForResponse(int requestId) {
+        synchronized (responseLock) {
+            while (!pendingResponses.containsKey(requestId)) {
+                if (isDisconnected) {
+                    throw new DisconnectedConnection();
+                }
+
+                try {
+                    responseLock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            return pendingResponses.remove(requestId);
+        }
+    }
+
+    private void processResponse(EventWrapper<StatusEvent> responseWrapper) {
+        synchronized (responseLock) {
+            if (activeRequests.contains(responseWrapper.ID())) {
+                activeRequests.remove(responseWrapper.ID());
+                pendingResponses.put(responseWrapper.ID(), responseWrapper.event());
+                responseLock.notifyAll();
+            }
+        }
+    }
+
 }
