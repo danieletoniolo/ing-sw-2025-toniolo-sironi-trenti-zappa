@@ -1,6 +1,6 @@
 package event.game;
 
-import event.Event;
+import event.eventType.Event;
 
 import java.io.Serializable;
 

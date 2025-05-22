@@ -9,16 +9,18 @@ import Model.SpaceShip.SpaceShip;
 import Model.SpaceShip.Storage;
 
 import controller.EventCallback;
-import event.game.ExchangeGoods;
-import event.game.MoveMarker;
+import event.game.serverToClient.GoodsSwapped;
+import event.game.serverToClient.MoveMarker;
+import event.game.serverToClient.UpdateGoodsExchange;
 import org.javatuples.Triplet;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PlanetsState extends State {
     private final Planets card;
     private final PlayerData[] planetSelected;
-    private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
+    private List<Triplet<List<Good>, List<Good>, Integer>> exchangeData;
     /**
      * Constructor for PlanetsState
      * @param board The board associated with the game
@@ -64,14 +66,14 @@ public class PlanetsState extends State {
     }
 
     /**
-     * Implementation of {@link State#setGoodsToExchange(PlayerData, ArrayList)} to set the goods the player wants to exchange;
+     * Implementation of {@link State#setGoodsToExchange(PlayerData, List)} to set the goods the player wants to exchange;
      * the goods that want to get and the goods that want to leave.
      * @throws IllegalArgumentException If the storage ID is invalid, if the good is not in the planet selected or if the good is not in the storage.
      * @throws IllegalStateException If the player has not selected a planet.
      */
     @Override
-    public void setGoodsToExchange(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) {
-        for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
+    public void setGoodsToExchange(PlayerData player, List<Triplet<List<Good>, List<Good>, Integer>> exchangeData) {
+        for (Triplet<List<Good>, List<Good>, Integer> triplet : exchangeData) {
             Storage storage;
             // Check that the storage exists
             try {
@@ -116,13 +118,13 @@ public class PlanetsState extends State {
     }
 
     /**
-     * Implementation of {@link State#setGoodsToExchange(PlayerData, ArrayList)} to swap the goods between two storage.
+     * Implementation of {@link State#swapGoods(PlayerData, int, int, List, List)} to swap the goods between two storage.
      * @throws IllegalStateException if we cannot exchange goods, there is a penalty to serve.
      * @throws IllegalArgumentException if the storage ID is invalid, if the goods to get are not in the planet selected
      * or if the goods to leave are not in the storage.
      */
     @Override
-    public void swapGoods(PlayerData player, int storageID1, int storageID2, ArrayList<Good> goods1to2, ArrayList<Good> goods2to1) throws IllegalStateException {
+    public void swapGoods(PlayerData player, int storageID1, int storageID2, List<Good> goods1to2, List<Good> goods2to1) throws IllegalStateException {
         // Check that the storage exists
         SpaceShip ship = player.getSpaceShip();
         Storage storage1, storage2;
@@ -155,6 +157,9 @@ public class PlanetsState extends State {
         // Swap the goods
         ship.exchangeGood(goods1to2, goods2to1, storageID1);
         ship.exchangeGood(goods2to1, goods1to2, storageID2);
+
+        GoodsSwapped goodsSwappedEvent = new GoodsSwapped(player.getUsername(), storageID1, storageID2, goods1to2, goods2to1);
+        eventCallback.trigger(goodsSwappedEvent);
     }
 
     @Override
@@ -172,12 +177,12 @@ public class PlanetsState extends State {
             playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
 
             // Execute the exchange
-            for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
+            for (Triplet<List<Good>, List<Good>, Integer> triplet : exchangeData) {
                 SpaceShip ship = player.getSpaceShip();
                 ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
             }
 
-            ExchangeGoods exchangeGoodsEvent = new ExchangeGoods(player.getUsername(), exchangeData);
+            UpdateGoodsExchange exchangeGoodsEvent = new UpdateGoodsExchange(player.getUsername(), exchangeData);
             eventCallback.trigger(exchangeGoodsEvent);
 
         } else if (playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {

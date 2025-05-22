@@ -6,7 +6,6 @@ import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import controller.EventCallback;
 import org.javatuples.Pair;
-import org.javatuples.Quartet;
 import org.javatuples.Triplet;
 
 import java.io.Serializable;
@@ -228,12 +227,12 @@ public abstract class State implements Serializable {
      *
      * @param player          PlayerData of the player who is using the cannons or engines.
      * @param type            Type of the extra strength to use: 0 = engine, 1 = cannon.
-     * @param extraPowerToUse Amount of extra power to use.
+     * @param IDs             List of Integers representing the ID of the engines or cannons from which we take the energy to use.
      * @param batteriesID     List of Integers representing the batteryID from which we take the energy to use the cannon or engine
      *                        (we use one energy from each batteryID in the list).
      * @throws IllegalStateException if the state does not allow using extra power.
      */
-    public void useExtraStrength(PlayerData player, int type, float extraPowerToUse, List<Integer> batteriesID) throws IllegalStateException {
+    public void useExtraStrength(PlayerData player, int type, List<Integer> IDs, List<Integer> batteriesID) throws IllegalStateException {
         throw new IllegalStateException("Cannot use extra power in this state");
     }
 
@@ -280,7 +279,7 @@ public abstract class State implements Serializable {
      * @throws IllegalStateException    if the state does not allow destroying components.
      * @throws IllegalArgumentException if the coordinates are invalid.
      */
-    public void setComponentToDestroy(PlayerData player, ArrayList<Pair<Integer, Integer>> componentsToDestroy) throws IllegalStateException, IllegalArgumentException {
+    public void setComponentToDestroy(PlayerData player, List<Pair<Integer, Integer>> componentsToDestroy) throws IllegalStateException, IllegalArgumentException {
         throw new IllegalStateException("Cannot set component to destroy in this state");
     }
 
@@ -308,12 +307,12 @@ public abstract class State implements Serializable {
     /**
      * Set the goods to exchange (the goods to leave and the goods to get).
      * @param player PlayerData of the player who is exchanging the goods.
-     * @param exchangeData contains an arraylist of triplets, each triplet contains (in this order):
+     * @param exchangeData contains an List of triplets, each triplet contains (in this order):
      * the goods that the player wants to get, the good that the player wants to leave, the storage ID.
      * @throws IllegalStateException if the state does not allow setting the goods to exchange.
      * @throws IllegalArgumentException if the exchangeData is invalid.
      */
-    public void setGoodsToExchange(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) throws IllegalStateException, IllegalArgumentException {
+    public void setGoodsToExchange(PlayerData player, List<Triplet<List<Good>, List<Good>, Integer>> exchangeData) throws IllegalStateException, IllegalArgumentException {
         throw new IllegalStateException("Cannot set good to exchange mode in this state");
     }
 
@@ -322,12 +321,12 @@ public abstract class State implements Serializable {
      * @param player PlayerData of the player who is swapping the goods.
      * @param storageID1 ID of the first storage.
      * @param storageID2 ID of the second storage.
-     * @param goods1to2 ArrayList of goods to exchange from storage 1 to storage 2.
-     * @param goods2to1 ArrayList of goods to exchange from storage 2 to storage 1.
+     * @param goods1to2 List of goods to exchange from storage 1 to storage 2.
+     * @param goods2to1 List of goods to exchange from storage 2 to storage 1.
      * @throws IllegalStateException if the state does not allow swapping goods.
      * @throws IllegalArgumentException if the storageID is invalid or if the goods are not in the storage.
      */
-    public void swapGoods(PlayerData player, int storageID1, int storageID2, ArrayList<Good> goods1to2, ArrayList<Good> goods2to1) throws IllegalStateException {
+    public void swapGoods(PlayerData player, int storageID1, int storageID2, List<Good> goods1to2, List<Good> goods2to1) throws IllegalStateException {
         throw new IllegalStateException("Cannot set good to swap mode in this state");
     }
 }

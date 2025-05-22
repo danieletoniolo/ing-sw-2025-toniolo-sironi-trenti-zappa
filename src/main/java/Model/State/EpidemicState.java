@@ -7,8 +7,8 @@ import Model.SpaceShip.Component;
 import Model.SpaceShip.ComponentType;
 import Model.SpaceShip.SpaceShip;
 import controller.EventCallback;
-import event.game.AddLoseCrew;
-import org.javatuples.Pair;
+import event.game.serverToClient.UpdateCrewMembers;
+import org.javatuples.Triplet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class EpidemicState extends State {
      */
     @Override
     public void entry() {
-        ArrayList<Integer> cabinsIDs;
+        ArrayList<Triplet<Integer, Integer, Integer>> cabinsIDs;
         for (PlayerData p : players) {
             cabinsIDs = new ArrayList<>();
 
@@ -55,14 +55,14 @@ public class EpidemicState extends State {
                             if(!check[cabin.getRow()][cabin.getColumn()]){
                                 cabin.removeCrewMember(1);
                                 check[cabin.getRow()][cabin.getColumn()] = true;
-                                cabinsIDs.add(cabin.getID());
                             }
                         }
                     }
                 }
+                cabinsIDs.add(new Triplet<>(ca.getID(), ca.getCrewNumber(), 0));
             }
 
-            AddLoseCrew crewEvent = new AddLoseCrew(p.getUsername(), false, cabinsIDs);
+            UpdateCrewMembers crewEvent = new UpdateCrewMembers(p.getUsername(), cabinsIDs);
             eventCallback.trigger(crewEvent);
         }
     }

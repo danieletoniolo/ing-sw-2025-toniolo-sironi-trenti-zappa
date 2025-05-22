@@ -5,9 +5,9 @@ import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import controller.EventCallback;
-import event.game.AddCoins;
-import event.game.EnemyDefeat;
-import event.game.UseCannons;
+import event.game.serverToClient.CannonsUsed;
+import event.game.serverToClient.UpdateCoins;
+import event.game.serverToClient.EnemyDefeat;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -115,12 +115,12 @@ public class PiratesState extends State {
     }
 
     /**
-     * Implementation of the {@link State#useExtraStrength(PlayerData, int, float, List)} to use double engines
+     * Implementation of the {@link State#useExtraStrength(PlayerData, int, List, List)} to use double engines
      * in this state.
      * @throws IllegalArgumentException if the type is not 0 or 1.
      */
     @Override
-    public void useExtraStrength(PlayerData player, int type, float strength, List<Integer> batteriesID) throws IllegalStateException, IllegalArgumentException {
+    public void useExtraStrength(PlayerData player, int type, List<Integer> IDs, List<Integer> batteriesID) throws IllegalStateException, IllegalArgumentException {
         switch (type) {
             case 0 -> throw new IllegalStateException("Cannot use double engine in this state");
             case 1 -> {
@@ -134,9 +134,9 @@ public class PiratesState extends State {
                 }
 
                 // Update the cannon strength stats
-                this.stats.merge(player, strength, Float::sum);
+                this.stats.merge(player, ship.getCannonsStrength(IDs), Float::sum);
 
-                UseCannons useCannonsEvent = new UseCannons(player.getUsername(), strength, (ArrayList<Integer>) batteriesID);
+                CannonsUsed useCannonsEvent = new CannonsUsed(player.getUsername(), IDs, (ArrayList<Integer>) batteriesID);
                 eventCallback.trigger(useCannonsEvent);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
@@ -191,8 +191,8 @@ public class PiratesState extends State {
                         player.addCoins(card.getCredit());
                         board.addSteps(player, -card.getFlightDays());
 
-                        AddCoins addCoinsEvent = new AddCoins(player.getUsername(), player.getCoins());
-                        eventCallback.trigger(addCoinsEvent);
+                        UpdateCoins updateCoinsEvent = new UpdateCoins(player.getUsername(), player.getCoins());
+                        eventCallback.trigger(updateCoinsEvent);
                     }
                 } else {
                     this.playersDefeated.add(player);

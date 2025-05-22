@@ -5,7 +5,7 @@ import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import controller.EventCallback;
-import event.game.*;
+import event.game.serverToClient.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,12 +43,12 @@ public class SlaversState extends State {
     }
 
     /**
-     * Implementation of the {@link State#useExtraStrength(PlayerData, int, float, List)} to use double engines
+     * Implementation of the {@link State#useExtraStrength(PlayerData, int, List, List)} to use double engines
      * in this state.
      * @throws IllegalArgumentException if the type is not 0 or 1.
      */
     @Override
-    public void useExtraStrength(PlayerData player, int type, float strength, List<Integer> batteriesID) throws IllegalStateException, IllegalArgumentException {
+    public void useExtraStrength(PlayerData player, int type, List<Integer> IDs, List<Integer> batteriesID) throws IllegalStateException, IllegalArgumentException {
         switch (type) {
             case 0 -> throw new IllegalStateException("Cannot use double engines in this state");
             case 1 -> {
@@ -62,9 +62,9 @@ public class SlaversState extends State {
                 }
 
                 // Update the cannon strength stats
-                this.stats.merge(player, strength, Float::sum);
+                this.stats.merge(player, ship.getCannonsStrength(IDs), Float::sum);
 
-                UseCannons useCannonsEvent = new UseCannons(player.getUsername(), strength, (ArrayList<Integer>) batteriesID);
+                CannonsUsed useCannonsEvent = new CannonsUsed(player.getUsername(), IDs, (ArrayList<Integer>) batteriesID);
                 eventCallback.trigger(useCannonsEvent);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
@@ -153,7 +153,7 @@ public class SlaversState extends State {
                     if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
                         player.addCoins(card.getCredit());
 
-                        AddCoins coinsEvent = new AddCoins(player.getUsername(), player.getCoins());
+                        UpdateCoins coinsEvent = new UpdateCoins(player.getUsername(), player.getCoins());
                         eventCallback.trigger(coinsEvent);
                     }
                     super.execute(player);
@@ -172,7 +172,7 @@ public class SlaversState extends State {
                         player.setGaveUp(true);
                         this.players = super.board.getInGamePlayers();
 
-                        PlayerLose loseEvent = new PlayerLose(player.getUsername());
+                        PlayerLost loseEvent = new PlayerLost(player.getUsername());
                         eventCallback.trigger(loseEvent);
                     } else {
                         for (int cabinID : crewLoss) {

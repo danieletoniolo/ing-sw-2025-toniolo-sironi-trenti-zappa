@@ -9,7 +9,7 @@ import Model.SpaceShip.SpaceShip;
 import Model.SpaceShip.Storage;
 
 import controller.EventCallback;
-import event.game.*;
+import event.game.serverToClient.*;
 import org.javatuples.Triplet;
 
 import java.util.*;
@@ -20,7 +20,7 @@ public class SmugglersState extends State {
     private SmugglerInternalState internalState;
 
     private final Map<PlayerData, Float> cannonStrength;
-    private ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData;
+    private List<Triplet<List<Good>, List<Good>, Integer>> exchangeData;
     private List<Integer> goodsToDiscard;
     private List<Integer> batteriesToDiscard;
 
@@ -45,12 +45,12 @@ public class SmugglersState extends State {
     }
 
     /**
-     * Implementation of the {@link State#useExtraStrength(PlayerData, int, float, List)} to use the extra strength
+     * Implementation of the {@link State#useExtraStrength(PlayerData, int, List, List)} to use the extra strength
      * of the double cannons.
      * @throws IllegalArgumentException if the type is not 0 or 1.
      */
     @Override
-    public void useExtraStrength(PlayerData player, int type, float strength, List<Integer> batteriesID) throws IllegalStateException, IllegalArgumentException {
+    public void useExtraStrength(PlayerData player, int type, List<Integer> IDs, List<Integer> batteriesID) throws IllegalStateException, IllegalArgumentException {
         switch (type) {
             case 0 -> throw new IllegalStateException("Cannot use double engines in this state");
             case 1 -> {
@@ -66,9 +66,9 @@ public class SmugglersState extends State {
 
                 // Update the cannon strength stats
                 float oldCannonStrength = cannonStrength.get(player);
-                this.cannonStrength.replace(player, oldCannonStrength + strength);
+                this.cannonStrength.replace(player, oldCannonStrength + ship.getCannonsStrength(IDs));
 
-                UseCannons useCannonsEvent = new UseCannons(player.getUsername(), strength, (ArrayList<Integer>) batteriesID);
+                CannonsUsed useCannonsEvent = new CannonsUsed(player.getUsername(), IDs, (ArrayList<Integer>) batteriesID);
                 eventCallback.trigger(useCannonsEvent);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
@@ -77,17 +77,17 @@ public class SmugglersState extends State {
     }
 
     /**
-     * Implementation of {@link State#setGoodsToExchange(PlayerData, ArrayList)} to set the goods the player wants to exchange;
+     * Implementation of {@link State#setGoodsToExchange(PlayerData, List)} to set the goods the player wants to exchange;
      * @throws IllegalStateException if we cannot exchange goods, there is a penalty to serve.
      * @throws IllegalArgumentException if the storage ID is invalid, if the goods to get are not in the planet selected
      * or if the goods to leave are not in the storage.
      */
     @Override
-    public void setGoodsToExchange(PlayerData player, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) throws IllegalStateException {
+    public void setGoodsToExchange(PlayerData player, List<Triplet<List<Good>, List<Good>, Integer>> exchangeData) throws IllegalStateException {
         if (internalState != SmugglerInternalState.GOODS_REWARD) {
             throw new IllegalStateException("Cannot exchange goods, there is a penalty to serve.");
         }
-        for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
+        for (Triplet<List<Good>, List<Good>, Integer> triplet : exchangeData) {
             Storage storage;
             // Check that the storage exists
             try {
@@ -121,13 +121,13 @@ public class SmugglersState extends State {
     }
 
     /**
-     * Implementation of {@link State#setGoodsToExchange(PlayerData, ArrayList)} to swap the goods between two storage.
+     * Implementation of {@link State#swapGoods(PlayerData, int, int, List, List)} to swap the goods between two storage.
      * @throws IllegalStateException if we cannot exchange goods, there is a penalty to serve.
      * @throws IllegalArgumentException if the storage ID is invalid, if the goods to get are not in the planet selected
      * or if the goods to leave are not in the storage.
      */
     @Override
-    public void swapGoods(PlayerData player, int storageID1, int storageID2, ArrayList<Good> goods1to2, ArrayList<Good> goods2to1) throws IllegalStateException {
+    public void swapGoods(PlayerData player, int storageID1, int storageID2, List<Good> goods1to2, List<Good> goods2to1) throws IllegalStateException {
         if (internalState != SmugglerInternalState.GOODS_REWARD) {
             throw new IllegalStateException("Cannot exchange goods, there is a penalty to serve.");
         }
@@ -163,6 +163,9 @@ public class SmugglersState extends State {
         // Swap the goods
         ship.exchangeGood(goods1to2, goods2to1, storageID1);
         ship.exchangeGood(goods2to1, goods1to2, storageID2);
+
+        GoodsSwapped goodsSwappedEvent = new GoodsSwapped(player.getUsername(), storageID1, storageID2, goods1to2, goods2to1);
+        eventCallback.trigger(goodsSwappedEvent);
     }
 
     /**
@@ -272,11 +275,11 @@ public class SmugglersState extends State {
                 case GOODS_REWARD:
                     // If the player has enough cannon strength and want to exchange goods we execute the exchange
                     if (exchangeData != null) {
-                        for (Triplet<ArrayList<Good>, ArrayList<Good>, Integer> triplet : exchangeData) {
+                        for (Triplet<List<Good>, List<Good>, Integer> triplet : exchangeData) {
                             ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
                         }
 
-                        ExchangeGoods exchangeGoodsEvent = new ExchangeGoods(player.getUsername(), exchangeData);
+                        UpdateGoodsExchange exchangeGoodsEvent = new UpdateGoodsExchange(player.getUsername(), exchangeData);
                         eventCallback.trigger(exchangeGoodsEvent);
                     }
                     // Set the player as played

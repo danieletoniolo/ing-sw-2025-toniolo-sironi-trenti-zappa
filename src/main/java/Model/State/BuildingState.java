@@ -6,9 +6,10 @@ import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
 import controller.EventCallback;
-import event.game.*;
+import event.game.serverToClient.*;
 import org.javatuples.Pair;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -57,27 +58,30 @@ public class BuildingState extends State {
             throw new IllegalStateException("Cannot flip timer because is already running");
         }
 
-        TimerFlipped timerFlippedEvent = new TimerFlipped(player.getUsername());
+        TimerFlipped timerFlippedEvent = new TimerFlipped(player.getUsername(), LocalDateTime.now().toString(), timerDuration);
+        TimerFinish timerFinishEvent = new TimerFinish();
         switch (numberOfTimerFlips) {
             case 0:
                 // First flip that is done when the building phase starts
+                eventCallback.trigger(timerFlippedEvent);
                 timerRunning = true;
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         timerRunning = false;
-                        eventCallback.trigger(timerFlippedEvent);
+                        eventCallback.trigger(timerFinishEvent);
                     }
                 }, timerDuration);
                 break;
             case 1:
                 // This is the second flip that can be done by anyone after the time has run out
+                eventCallback.trigger(timerFlippedEvent);
                 timerRunning = true;
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         timerRunning = false;
-                        eventCallback.trigger(timerFlippedEvent);
+                        eventCallback.trigger(timerFinishEvent);
                     }
                 }, timerDuration);
                 break;
@@ -86,6 +90,7 @@ public class BuildingState extends State {
 
                 // Check if the player has finished building
                 if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
+                    eventCallback.trigger(timerFlippedEvent);
                     timerRunning = true;
                     timer.schedule(new TimerTask() {
                         @Override
@@ -98,13 +103,13 @@ public class BuildingState extends State {
                                 // If someone has something in his hand it must be added to the lost components
                                 if (playersHandQueue.get(p.getColor()) != null) {
                                     p.getSpaceShip().getLostComponents().add(playersHandQueue.get(p.getColor()));
-                                    DestroyComponents lostComponentsEvent = new DestroyComponents(p.getUsername(), (ArrayList<Pair<Integer, Integer>>) p.getSpaceShip().getLostComponents().stream()
+                                    ComponentDestroyed lostComponentsEvent = new ComponentDestroyed(p.getUsername(), (ArrayList<Pair<Integer, Integer>>) p.getSpaceShip().getLostComponents().stream()
                                             .map(temp -> new Pair<>(temp.getRow(), temp.getColumn())).toList());
                                     eventCallback.trigger(lostComponentsEvent);
                                 }
                             }
 
-                            eventCallback.trigger(timerFlippedEvent);
+                            eventCallback.trigger(timerFinishEvent);
                             // TODO: handle the case when the player has something in is hand
 
                             timerRunning = false;
@@ -132,7 +137,7 @@ public class BuildingState extends State {
             throw new IllegalStateException("Player has not placed any tile");
         }
 
-        PickLeaveDeck pickLeaveDeckEvent = new PickLeaveDeck(player.getUsername(), deckIndex);
+        PickedLeftDeck pickLeaveDeckEvent = new PickedLeftDeck(player.getUsername(), usage, deckIndex);
         switch (usage) {
             case 0 -> {
                 board.getDeck(deckIndex, player);
@@ -168,20 +173,28 @@ public class BuildingState extends State {
             throw new IllegalStateException("Player has finished building");
         }
 
-        PickTile pickTileEvent = new PickTile(player.getUsername(), fromWhere, tileID);
-        Component component = switch (fromWhere) {
-            case 0 ->
+        Component component;
+        switch (fromWhere) {
+            case 0 -> {
                 // Get the tile from the board
-                    board.popTile(tileID);
-            case 1 ->
+                component = board.popTile(tileID);
+                PickedTileFromBoard pickTileEvent = new PickedTileFromBoard(player.getUsername(), tileID);
+                eventCallback.trigger(pickTileEvent);
+            }
+            case 1 -> {
                 // Get the tile from the reserve
-                    player.getSpaceShip().unreserveComponent(tileID);
-            case 2 ->
+                component = player.getSpaceShip().unreserveComponent(tileID);
+                PickedTileFromReserve pickTileEvent = new PickedTileFromReserve(player.getUsername(), tileID);
+                eventCallback.trigger(pickTileEvent);
+            }
+            case 2 -> {
                 // Get the last placed component
-                    player.getSpaceShip().getLastPlacedComponent();
+                component = player.getSpaceShip().getLastPlacedComponent();
+                PickedTileFromSpaceship pickTileEvent = new PickedTileFromSpaceship(player.getUsername());
+                eventCallback.trigger(pickTileEvent);
+            }
             default -> throw new IllegalStateException("Invalid fromWhere value");
         };
-        eventCallback.trigger(pickTileEvent);
 
         // Check if the component is null or if the ID of the component is not the same as the tileID
         if (component == null || component.getID() != tileID) {
@@ -209,21 +222,27 @@ public class BuildingState extends State {
             throw new IllegalStateException("Player has no tile in his hand");
         }
 
-        PlaceTile placeTileEvent = new PlaceTile(player.getUsername(), toWhere, row, col);
         switch (toWhere) {
             case 0 -> {
                 // Place the tile in the board
                 board.putTile(component);
+                PlacedTileToBoard placeTileEvent = new PlacedTileToBoard(player.getUsername());
+                eventCallback.trigger(placeTileEvent);
             }
-            case 1 ->
+            case 1 -> {
                 // Place the tile in the reserve
                 player.getSpaceShip().reserveComponent(component);
-            case 2 ->
+                PlacedTileToReserve placeTileEvent = new PlacedTileToReserve(player.getUsername());
+                eventCallback.trigger(placeTileEvent);
+            }
+            case 2 -> {
                 // Place the tile in the spaceship
                 player.getSpaceShip().placeComponent(component, row, col);
+                PlacedTileToSpaceship placeTileEvent = new PlacedTileToSpaceship(player.getUsername(), row, col);
+                eventCallback.trigger(placeTileEvent);
+            }
             default -> throw new IllegalStateException("Invalid toWhere value");
         }
-        eventCallback.trigger(placeTileEvent);
 
         // Remove the tile from the player's hand
         playersHandQueue.remove(player.getColor());
@@ -249,7 +268,7 @@ public class BuildingState extends State {
         // Rotate the tile in the board
         component.rotateClockwise();
 
-        RotateTile rotateTile = new RotateTile(player.getUsername(), component.getID());
+        TileRotated rotateTile = new TileRotated(player.getUsername(), component.getID());
         eventCallback.trigger(rotateTile);
     }
 

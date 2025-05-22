@@ -1,8 +1,7 @@
 package controller;
 
 import Model.Game.Lobby.LobbyInfo;
-import event.Event;
-import event.NetworkTransceiver;
+import event.eventType.Event;
 
 import java.io.Serializable;
 

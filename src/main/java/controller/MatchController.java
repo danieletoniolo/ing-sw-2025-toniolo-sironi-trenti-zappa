@@ -6,29 +6,60 @@ import Model.Player.PlayerColor;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import event.eventType.Event;
 import event.EventListener;
 import event.NetworkTransceiver;
-import event.game.PickTile;
-import event.game.PlaceTile;
-import event.game.UseCannons;
-import event.game.UseEngines;
+import event.game.clientToServer.*;
+import event.game.serverToClient.Pota;
+import event.game.serverToClient.Success;
 import event.lobby.*;
-import network.Connection;
+import event.receiver.CastEventReceiver;
 import network.User;
 
 import java.util.*;
 
+/**
+ * MatchController is the main controller of the game. It manages the lobbies, the users and the game controllers.
+ * It is a singleton class, so it can be accessed from anywhere in the code.
+ * It also manages the network transceivers for each lobby and the handle of the events that the server receive from the clients.
+ * The MatchController is associated also with a serverNetworkTransceiver, which is used to communicate with the clients when they are not in a lobby.
+ */
 public class MatchController {
     private static MatchController instance;
-    private final NetworkTransceiver serverNetworkTransceiver;
 
+    /**
+     * Map of all the lobbies created in the game. The key is the name of the lobby and the value is the LobbyInfo object.
+     */
     private final Map<String, LobbyInfo> lobbies;
+
+    /**
+     * Map of all the network transceivers created in the game. The key is the LobbyInfo object and the value is the NetworkTransceiver object.
+     */
     private final Map<LobbyInfo, NetworkTransceiver> networkTransceivers;
+
+    /**
+     * Map of all the game controllers. The key is the LobbyInfo object and the value is the GameController object.
+     */
     private final Map<LobbyInfo, GameController> gameControllers;
 
+    /**
+     * Map of all the users connected to the server. The key is the UUID of the user and the value is the User object.
+     * The User is created only after the user has set the nickname. The UUID associated to the user is the same ID that is associated to the connection.
+     */
     private final Map<UUID, User> users;
+
+    /**
+     * Map of all the players in the game. The key is the User object and the value is the PlayerData object.
+     * The PlayerData is created only after the user has created or joined a lobby.
+     */
     private final Map<User, PlayerData> userPlayers;
+
+    /**
+     * Map of all the lobbies associated to the users. The key is the User object and the value is the LobbyInfo object.
+     */
     private final Map<User, LobbyInfo> userLobbyInfo;
+
+    static private final Integer PLACEHOLDER = -1;
 
     private MatchController(NetworkTransceiver serverNetworkTransceiver) {
         this.gameControllers = new HashMap<>();
@@ -37,8 +68,14 @@ public class MatchController {
         this.userLobbyInfo = new HashMap<>();
         this.lobbies = new HashMap<>();
         this.networkTransceivers = new HashMap<>();
-        this.serverNetworkTransceiver = serverNetworkTransceiver;
 
+        // Casting the serverNetworkTransceiver to a CastEventReceiver, in order to register the events
+        CastEventReceiver<CreateLobby> receiverCreateLobby = new CastEventReceiver<>(serverNetworkTransceiver);
+        CastEventReceiver<LeaveLobby> receiverLeaveLobby = new CastEventReceiver<>(serverNetworkTransceiver);
+        CastEventReceiver<SetNickname> receiverSetNickname = new CastEventReceiver<>(serverNetworkTransceiver);
+        CastEventReceiver<JoinLobby> receiverJoinLobby = new CastEventReceiver<>(serverNetworkTransceiver);
+
+        // EventListener that is used to handle the event of a user that set the nickname.
         EventListener<SetNickname> setNicknameEventListener = data -> {
             boolean nicknameAlreadyUsed = false;
             for (User user : users.values()) {
@@ -60,7 +97,8 @@ public class MatchController {
             }
         };
 
-        // TODO: this is an event that is not register on the serverNetworkTransceiver
+        // EventListener that is used to handle the event of a user that leaves a lobby.
+        // It is registered not to the serverNetworkTranceiver, but to the networkTransceiver of the lobby.
         EventListener<LeaveLobby> leaveLobbyEventListener = data -> {
             UUID userID = UUID.fromString(data.userID());
             User user = users.get(userID);
@@ -118,6 +156,7 @@ public class MatchController {
             }
         };
 
+        // EventListener that is used to handle the event of a user that creates a lobby.
         EventListener<CreateLobby> createLobbyEventListener = data -> {
             UUID userID = UUID.fromString(data.userID());
             User user = users.get(userID);
@@ -128,7 +167,8 @@ public class MatchController {
 
             // Creating the new network transceiver for the lobby and remove the current user from the serverNetworkTransceiver to the lobbyNetworkTransceiver
             NetworkTransceiver networkTransceiver = new NetworkTransceiver();
-            networkTransceiver.registerListener(leaveLobbyEventListener);
+            registerAllGameListeners(networkTransceiver);
+            receiverLeaveLobby.registerListener(leaveLobbyEventListener);
             networkTransceiver.connect(user.getUUID(), user.getConnection());
             networkTransceivers.put(lobby, networkTransceiver);
             serverNetworkTransceiver.disconnect(userID);
@@ -162,6 +202,7 @@ public class MatchController {
              */
         };
 
+        // EventListener that is used to handle the event of a user that joins a lobby.
         EventListener<JoinLobby> joinLobbyEventListener = data -> {
             UUID userID = UUID.fromString(data.userID());
             LobbyInfo lobby = lobbies.get(data.lobbyID());
@@ -197,56 +238,18 @@ public class MatchController {
             }
         };
 
-        this.serverNetworkTransceiver.registerListener(setNicknameEventListener);
-        this.serverNetworkTransceiver.registerListener(createLobbyEventListener);
-        this.serverNetworkTransceiver.registerListener(joinLobbyEventListener);
-
-        // TODO: these events have to be registered in order to be used with the requester / responder pattern
-        EventListener<PickTile> pickTileEventListener = data -> {
-            UUID userID = UUID.fromString(data.userID());
-            PlayerData player = userPlayers.get(users.get(userID));
-            LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
-
-            GameController gc = gameControllers.get(lobby);
-            if (gc != null) {
-                gc.pickTile(player, data.fromWhere(), data.tileID());
-            }
-        };
-
-        EventListener<PlaceTile> placeTileEventListener = data -> {
-            UUID userID = UUID.fromString(data.userID());
-            PlayerData player = userPlayers.get(users.get(userID));
-            LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
-
-            GameController gc = gameControllers.get(lobby);
-            if (gc != null) {
-                gc.placeTile(player, data.fromWhere(), data.row(), data.col());
-            }
-        };
-
-        EventListener<UseEngines> useEnginesEventListener = data -> {
-            UUID userID = UUID.fromString(data.userID());
-            LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
-
-            GameController gc = gameControllers.get(lobby);
-            if (gc != null) {
-                gc.useExtraStrength(userID, 0, data.enginesPowerToUse(), data.batteriesIDs());
-            }
-        };
-
-        EventListener<UseCannons> useCannonEventListener = data -> {
-            UUID userID = UUID.fromString(data.userID());
-            LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
-
-            GameController gc = gameControllers.get(lobby);
-            if (gc != null) {
-                gc.useExtraStrength(userID, 1, data.cannonsPowerToUse(), data.batteriesIDs());
-            }
-        };
-
-
+        // Registering the event listeners to the serverNetworkTransceiver
+        receiverSetNickname.registerListener(setNicknameEventListener);
+        receiverCreateLobby.registerListener(createLobbyEventListener);
+        receiverJoinLobby.registerListener(joinLobbyEventListener);
     }
 
+    /**
+     * This method is used to initialize the MatchController. It is a singleton class, so it can be accessed from anywhere in the code.
+     * It is called by the Server class when the server is started.
+     * @param serverNetworkTransceiver is the network transceiver used to communicate with the clients when they are not in a lobby.
+     * @throws IllegalStateException   if the MatchController is already initialized
+     */
     public static void setup(NetworkTransceiver serverNetworkTransceiver) throws IllegalStateException {
         if (instance == null) {
             instance = new MatchController(serverNetworkTransceiver);
@@ -255,8 +258,18 @@ public class MatchController {
         }
     }
 
+    /**
+     * This method is used to get the instance of the MatchController. It is a singleton class, so it can be accessed from anywhere in the code.
+     * @return the instance of the MatchController
+     */
     public static MatchController getInstance() { return instance; }
 
+    /**
+     * This method is used to get the list of the network transceivers associated to a lobby.
+     * @param lobbyInfo              is the lobby info object that contains the information of the lobby.
+     * @return                       the network transceiver associated to the lobby
+     * @throws IllegalStateException if there is no network transceiver for the lobby
+     */
     public NetworkTransceiver getNetworkTransceiver(LobbyInfo lobbyInfo) throws IllegalStateException {
         NetworkTransceiver networkTransceiver = networkTransceivers.get(lobbyInfo);
         if (networkTransceiver == null) {
@@ -265,4 +278,490 @@ public class MatchController {
 
         return networkTransceiver;
     }
+
+    /**
+     * Registers all game-related event listeners for network communication. Each listener corresponds
+     * to a specific game-related event, and responds to incoming data by invoking the appropriate
+     * method to handle the event. This method is integral to ensuring proper interaction between
+     * the server and clients during a game session.
+     *
+     * @param networkTransceiver the network transceiver used to handle communication with clients for
+     *                           receiving and responding to game-related events.
+     */
+    private void registerAllGameListeners(NetworkTransceiver networkTransceiver) {
+        PickTileFromBoard.responder(networkTransceiver, this::pickTileFromBoard);
+        PickTileFromReserve.responder(networkTransceiver, this::pickTileFromReserve);
+        PickTileFromSpaceship.responder(networkTransceiver, this::pickTileFromSpaceship);
+        PlaceTileToBoard.responder(networkTransceiver, this::placeTileToBoard);
+        PlaceTileToReserve.responder(networkTransceiver, this::placeTileToReserve);
+        PlaceTileToSpaceship.responder(networkTransceiver, this::placeTileToSpaceship);
+        PickLeaveDeck.responder(networkTransceiver, this::useDeck);
+        RotateTile.responder(networkTransceiver, this::rotateTile);
+        FlipTimer.responder(networkTransceiver, this::flipTimer);
+        PlaceMarker.responder(networkTransceiver, this::placeMarker);
+        ManageCrewMember.responder(networkTransceiver, this::manageCrewMember);
+        UseEngines.responder(networkTransceiver, this::useEngines);
+        UseCannons.responder(networkTransceiver, this::useCannons);
+        SetPenaltyLoss.responder(networkTransceiver, this::setPenaltyLoss);
+        SelectPlanet.responder(networkTransceiver, this::selectPlanet);
+        ChooseFragment.responder(networkTransceiver, this::setFragmentChoice);
+        DestroyComponents.responder(networkTransceiver, this::setComponentToDestroy);
+        RollDice.responder(networkTransceiver, this::rollDice);
+        UseShield.responder(networkTransceiver, this::setProtect);
+        ExchangeGoods.responder(networkTransceiver, this::setGoodsToExchange);
+        SwapGoods.responder(networkTransceiver, this::swapGoods);
+    }
+
+    /**
+     * This method is used to handle the event of a user that picks a tile from the board.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event pickTileFromBoard(PickTileFromBoard data) {
+        UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.pickTile(player, 0, data.tileID());
+            }
+            return new Success(PickTileFromBoard.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(PickTileFromBoard.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that picks a tile from the reserve.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event pickTileFromReserve(PickTileFromReserve data) {
+        UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.pickTile(player, 1, data.tileID());
+            }
+            return new Success(PickTileFromReserve.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(PickTileFromReserve.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that picks a tile from the spaceship.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event pickTileFromSpaceship(PickTileFromSpaceship data) {
+        UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.pickTile(player, 2, PLACEHOLDER);
+            }
+            return new Success(PickTileFromSpaceship.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(PickTileFromSpaceship.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that places a tile on the board.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event placeTileToBoard(PlaceTileToBoard data) {
+        UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.placeTile(player, 0, PLACEHOLDER, PLACEHOLDER);
+            }
+            return new Success(PlaceTileToBoard.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(PlaceTileToBoard.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that places a tile on the reserve.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event placeTileToReserve(PlaceTileToReserve data) {
+        UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.placeTile(player, 1, PLACEHOLDER, PLACEHOLDER);
+            }
+            return new Success(PlaceTileToReserve.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(PlaceTileToReserve.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that places a tile on the spaceship.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event placeTileToSpaceship(PlaceTileToSpaceship data) {
+        UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.placeTile(player, 2, data.row(), data.column());
+            }
+            return new Success(PlaceTileToSpaceship.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(PlaceTileToSpaceship.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that uses a deck.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event useDeck(PickLeaveDeck data) {
+        UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.useDeck(player, data.usage(), data.deckIndex());
+            }
+            return new Success(PickLeaveDeck.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(PickLeaveDeck.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that rotates a tile.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event rotateTile(RotateTile data) {
+        UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.rotateTile(player);
+            }
+            return new Success(RotateTile.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(RotateTile.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that flips the timer.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event flipTimer(FlipTimer data) {
+        UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.flipTimer(player);
+            }
+            return new Success(FlipTimer.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(FlipTimer.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that places a marker.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event placeMarker(PlaceMarker data) {
+        UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.placeMarker(player, data.position());
+            }
+            return new Success(PlaceMarker.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(PlaceMarker.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that manages a crew member.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event manageCrewMember(ManageCrewMember data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.manageCrewMember(userID, data.mode(), data.crewType(), data.cabinID());
+            }
+            return new Success(ManageCrewMember.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(ManageCrewMember.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that uses the engines.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event useEngines(UseEngines data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.useExtraStrength(userID, 0, data.enginesIDs(), data.batteriesIDs());
+            }
+            return new Success(UseEngines.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(UseEngines.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that uses the cannons.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event useCannons(UseCannons data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.useExtraStrength(userID, 1, data.cannonsIDs(), data.batteriesIDs());
+            }
+            return new Success(UseCannons.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(UseCannons.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that sets the penalty loss.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event setPenaltyLoss(SetPenaltyLoss data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.setPenaltyLoss(userID, data.type(), data.penaltyLoss());
+            }
+            return new Success(SetPenaltyLoss.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(SetPenaltyLoss.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that selects a planet.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event selectPlanet(SelectPlanet data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.selectPlanet(userID, data.planetNumber());
+            }
+            return new Success(SelectPlanet.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(SelectPlanet.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that sets the fragment choice.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event setFragmentChoice(ChooseFragment data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.setFragmentChoice(userID, data.fragmentChoice());
+            }
+            return new Success(ChooseFragment.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(ChooseFragment.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that sets the component to destroy.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event setComponentToDestroy(DestroyComponents data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.setComponentToDestroy(userID, data.componentsToDestroy());
+            }
+            return new Success(DestroyComponents.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(DestroyComponents.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that rolls the dice.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event rollDice(RollDice data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.rollDice(userID);
+            }
+            return new Success(RollDice.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(RollDice.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that sets the protect.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event setProtect(UseShield data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.setProtect(userID, data.batteryID());
+            }
+            return new Success(UseShield.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(UseShield.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that sets the goods to exchange.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event setGoodsToExchange(ExchangeGoods data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.exchangeGoods(userID, data.exchangeData());
+            }
+            return new Success(ExchangeGoods.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(ExchangeGoods.class, e.getMessage());
+        }
+    }
+
+    /**
+     * This method is used to handle the event of a user that swaps goods.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event swapGoods(SwapGoods data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.swapGoods(userID, data.storageID1(), data.storageID2(), data.goods1to2(), data.goods2to1());
+            }
+            return new Success(SwapGoods.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(SwapGoods.class, e.getMessage());
+        }
+    }
+
+    // TODO: giveUp event
 }

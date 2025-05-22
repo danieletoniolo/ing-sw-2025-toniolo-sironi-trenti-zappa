@@ -5,9 +5,11 @@ import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import controller.EventCallback;
-import event.game.AddCoins;
-import event.game.AddLoseCrew;
-import event.game.MoveMarker;
+import event.game.serverToClient.UpdateCoins;
+import event.game.serverToClient.UpdateCrewMembers;
+import event.game.serverToClient.MoveMarker;
+import org.javatuples.Pair;
+import org.javatuples.Triplet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +68,7 @@ public class AbandonedShipState extends State {
      * <ul>
      *     <li> Remove crew members from cabins.</li>
      *     <li> Add credits to player. </li>
-     *     <li> Change player steps. </li>
+     *     <li> Change player position. </li>
      * </ul>
      * @param player PlayerData of the player to play
      * @throws NullPointerException  if player == null
@@ -87,18 +89,23 @@ public class AbandonedShipState extends State {
         }
 
         if (playersStatus.get(player.getColor()).equals(PlayerStatus.PLAYING)) {
+            Map<Integer, Pair<Integer, Integer>> cabinsCrew = new HashMap<>();
             SpaceShip ship = player.getSpaceShip();
 
             for (Integer cabinID : crewLoss) {
                 ship.getCabin(cabinID).removeCrewMember(1);
+                cabinsCrew.put(cabinID, new Pair<>(ship.getCabin(cabinID).getCrewNumber(), ship.hasBrownAlien() ? 1 : (ship.hasPurpleAlien() ? 2 : 0)));
             }
 
             player.addCoins(card.getCredit());
 
-            AddLoseCrew crewEvent = new AddLoseCrew(getCurrentPlayer().getUsername(), false, (ArrayList<Integer>) crewLoss);
+            UpdateCrewMembers crewEvent = new UpdateCrewMembers(getCurrentPlayer().getUsername(), (ArrayList<Triplet<Integer, Integer, Integer>>) cabinsCrew
+                    .entrySet()
+                    .stream()
+                    .map(temp -> new Triplet<>(temp.getKey(), temp.getValue().getValue0(), temp.getValue().getValue1())).toList());
             eventCallback.trigger(crewEvent);
 
-            AddCoins coinsEvent = new AddCoins(player.getUsername(), card.getCredit());
+            UpdateCoins coinsEvent = new UpdateCoins(player.getUsername(), card.getCredit());
             eventCallback.trigger(coinsEvent);
 
             played = true;

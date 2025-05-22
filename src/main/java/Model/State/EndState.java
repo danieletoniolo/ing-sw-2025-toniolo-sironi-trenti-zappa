@@ -5,8 +5,8 @@ import Model.Game.Board.Level;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import controller.EventCallback;
-import event.game.BestLookingShips;
-import event.game.Score;
+import event.game.serverToClient.BestLookingShips;
+import event.game.serverToClient.Score;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;

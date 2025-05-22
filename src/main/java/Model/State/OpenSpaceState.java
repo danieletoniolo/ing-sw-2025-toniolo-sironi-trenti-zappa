@@ -5,8 +5,8 @@ import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import controller.EventCallback;
-import event.game.MoveMarker;
-import event.game.UseEngines;
+import event.game.serverToClient.EnginesUsed;
+import event.game.serverToClient.MoveMarker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class OpenSpaceState extends State {
     }
 
     @Override
-    public void useExtraStrength(PlayerData player, int type, float strength, List<Integer> batteriesID) throws IllegalStateException {
+    public void useExtraStrength(PlayerData player, int type, List<Integer> IDs, List<Integer> batteriesID) throws IllegalStateException {
         switch (type) {
             case 0 -> {
                 // Use the energy to power the engines
@@ -41,9 +41,9 @@ public class OpenSpaceState extends State {
                 }
 
                 // Update the engine strength stats
-                this.stats.merge(player, strength, Float::sum);
+                this.stats.merge(player, (float) IDs.size() * 2, Float::sum);
 
-                UseEngines useEnginesEvent = new UseEngines(player.getUsername(), strength, (ArrayList<Integer>) batteriesID);
+                EnginesUsed useEnginesEvent = new EnginesUsed(player.getUsername(), IDs, (ArrayList<Integer>) batteriesID);
                 eventCallback.trigger(useEnginesEvent);
             }
             case 1 -> throw new IllegalStateException("Cannot use double cannons in this state");
@@ -67,7 +67,7 @@ public class OpenSpaceState extends State {
     }
 
     /**
-     * Execute: Add steps to player
+     * Execute: Add position to player
      * @param player PlayerData of the player to play
      * @throws IllegalStateException Player has not set if adds strength
      */
