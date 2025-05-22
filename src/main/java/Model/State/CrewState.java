@@ -3,8 +3,8 @@ package Model.State;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import controller.EventCallback;
-import event.game.AddLoseCrew;
-import org.javatuples.Pair;
+import event.game.serverToClient.UpdateCrewMembers;
+import org.javatuples.Triplet;
 
 import java.util.ArrayList;
 
@@ -26,21 +26,21 @@ public class CrewState extends State {
      * @see State#manageCrewMember(PlayerData, int, int, int)
      */
     public void manageCrewMember(PlayerData player, int mode, int crewType, int cabinID) {
-        AddLoseCrew addLoseCrew;
-        ArrayList<Integer> crewMembers = new ArrayList<>();
-        crewMembers.add(cabinID);
+        UpdateCrewMembers updateCrewMembers;
+        ArrayList<Triplet<Integer, Integer, Integer>> crewMembers = new ArrayList<>();
 
-        // TODO: Question on how we manage the crew members removal
         switch (mode) {
             case 0 -> { // Add crew member
                 player.getSpaceShip().addCrewMember(cabinID, crewType == 1, crewType == 2);
-                addLoseCrew = new AddLoseCrew(player.getUsername(), true, crewMembers);
-                eventCallback.trigger(addLoseCrew);
+                crewMembers.add(new Triplet<>(cabinID, player.getSpaceShip().getCabin(cabinID).getCrewNumber(), crewType));
+                updateCrewMembers = new UpdateCrewMembers(player.getUsername(), crewMembers);
+                eventCallback.trigger(updateCrewMembers);
             }
             case 1 -> { // Remove crew member
                 player.getSpaceShip().removeCrewMember(cabinID, crewType == 0 ? 2 : 1);
-                addLoseCrew = new AddLoseCrew(player.getUsername(), false, crewMembers);
-                eventCallback.trigger(addLoseCrew);
+                crewMembers.add(new Triplet<>(cabinID, player.getSpaceShip().getCabin(cabinID).getCrewNumber(), crewType));
+                updateCrewMembers = new UpdateCrewMembers(player.getUsername(), crewMembers);
+                eventCallback.trigger(updateCrewMembers);
             }
         }
     }

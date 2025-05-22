@@ -1,6 +1,6 @@
 package network;
 
-import event.Event;
+import event.eventType.Event;
 
 public interface Connection {
     /**

@@ -67,8 +67,8 @@ public class PlayerData implements Serializable {
     }
 
     /**
-     * Get the steps of the player
-     * @return the steps of the player
+     * Get the position of the player
+     * @return the position of the player
      */
     public int getStep() {
         return this.step;

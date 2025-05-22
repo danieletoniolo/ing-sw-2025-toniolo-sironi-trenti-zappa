@@ -276,6 +276,24 @@ public class SpaceShip {
     }
 
     /**
+     * Calculates and returns the total strength of cannons based on their IDs.
+     *
+     * @param IDs a list of integer IDs corresponding to the cannons whose strength is to be calculated
+     * @return the total strength of the cannons as a float
+     */
+    public float getCannonsStrength(List<Integer> IDs) {
+        float strength = 0;
+        Cannon cannon;
+        for (int ID : IDs) {
+            cannon = cannons.get(ID);
+            if (cannon != null) {
+                strength += cannon.getCannonStrength();
+            }
+        }
+        return strength;
+    }
+
+    /**
      * Get the number of double cannons of the ship
      * @return Number of double cannons of the ship
      */
@@ -370,7 +388,7 @@ public class SpaceShip {
      * the maximum capacity of the storage are checked in the Storage class. We assume that the goods to add had been
      * correctly checked before calling this method.
      */
-    public void exchangeGood(ArrayList<Good> goodsToAdd, ArrayList<Good> goodsToRemove, int storageID) {
+    public void exchangeGood(List<Good> goodsToAdd, List<Good> goodsToRemove, int storageID) {
         Storage storage = storages.get(storageID);
         if (storage == null) {
             throw new IllegalArgumentException("The storage with the given ID does not exist");
@@ -860,10 +878,10 @@ public class SpaceShip {
 
     /**
      * Search if there is component that are no longer connected to the ship
-     * @return ArrayList of ArrayList of Pair<Integer, Integer> representing the group of disconnected components
+     * @return List of List of Pair<Integer, Integer> representing the group of disconnected components
      */
-    public ArrayList<ArrayList<Pair<Integer, Integer>>> getDisconnectedComponents() {
-        ArrayList<ArrayList<Pair<Integer, Integer>>> disconnectedComponents = new ArrayList<>();
+    public List<List<Pair<Integer, Integer>>> getDisconnectedComponents() {
+        List<List<Pair<Integer, Integer>>> disconnectedComponents = new ArrayList<>();
         boolean[][] visited = new boolean[12][12];
         for (int i = 0; i < 12; i++) {
             for (int j = 0; j < 12; j++) {

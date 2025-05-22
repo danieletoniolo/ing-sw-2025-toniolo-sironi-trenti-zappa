@@ -59,8 +59,8 @@ public class Board implements Serializable {
     }
 
     /**
-     * Get the number of steps for a lap
-     * @return the number of steps for a lap
+     * Get the number of position for a lap
+     * @return the number of position for a lap
      */
     public int getStepsForALap() {
         return stepsForALap;
@@ -227,7 +227,7 @@ public class Board implements Serializable {
     /**
      * Moves the player on the board: two player are never on the same step
      * @param player player to move
-     * @param steps number of steps that moves the player: steps > 0 = player moves forth, steps < 0: players moves back, steps = 0, player doesn't move
+     * @param steps number of position that moves the player: position > 0 = player moves forth, position < 0: players moves back, position = 0, player doesn't move
      * @throws NullPointerException if player == null
      */
     public void addSteps(PlayerData player, int steps) throws NullPointerException {

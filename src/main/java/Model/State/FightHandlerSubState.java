@@ -6,10 +6,11 @@ import Model.Player.PlayerData;
 import Model.SpaceShip.Component;
 import Model.SpaceShip.SpaceShip;
 import controller.EventCallback;
-import event.game.*;
+import event.game.serverToClient.*;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
 
@@ -18,7 +19,7 @@ public class FightHandlerSubState extends State {
     private Boolean protect;
     private Integer batteryID;
     private Integer fragmentChoice;
-    private ArrayList<ArrayList<Pair<Integer, Integer>>> fragments;
+    private List<List<Pair<Integer, Integer>>> fragments;
     private Pair<Component, Integer> protectionResult;
     private int hitIndex;
     private FightHandlerInternalState internalState;
@@ -130,7 +131,7 @@ public class FightHandlerSubState extends State {
      * Get the fragments
      * @return fragments
      */
-    public ArrayList<ArrayList<Pair<Integer, Integer>>> getFragments() {
+    public List<List<Pair<Integer, Integer>>> getFragments() {
         return fragments;
     }
 
@@ -147,7 +148,7 @@ public class FightHandlerSubState extends State {
             if (protect) {
                 spaceShip.useEnergy(batteryID);
 
-                UseShield useShield = new UseShield(player.getUsername(), batteryID);
+                ShieldUsed useShield = new ShieldUsed(player.getUsername(), batteryID);
                 eventCallback.trigger(useShield);
 
                 transitionHit();
@@ -156,14 +157,14 @@ public class FightHandlerSubState extends State {
 
                 ArrayList<Pair<Integer, Integer>> destroyedComponents = new ArrayList<>();
                 destroyedComponents.add(new Pair<>(component.getRow(), component.getColumn()));
-                DestroyComponents destroyComponentsEvent = new DestroyComponents(player.getUsername(), destroyedComponents);
+                ComponentDestroyed destroyComponentsEvent = new ComponentDestroyed(player.getUsername(), destroyedComponents);
                 eventCallback.trigger(destroyComponentsEvent);
 
                 fragments = spaceShip.getDisconnectedComponents();
                 if (fragments.size() > 1) {
                     internalState = FightHandlerInternalState.DESTROY_FRAGMENT;
 
-                    FragmentChoice fragmentChoiceEvent = new FragmentChoice(player.getUsername(), fragments);
+                    Fragments fragmentChoiceEvent = new Fragments(player.getUsername(), fragments);
                     eventCallback.trigger(fragmentChoiceEvent);
                 } else {
                     transitionHit();
@@ -209,7 +210,7 @@ public class FightHandlerSubState extends State {
                 ArrayList<Pair<Integer, Integer>> destroyedComponents = new ArrayList<>();
                 for (int i = 0; i < fragments.size(); i++) {
                     if (i != fragmentChoice) {
-                        ArrayList<Pair<Integer, Integer>> fragment = fragments.get(i);
+                        List<Pair<Integer, Integer>> fragment = fragments.get(i);
                         for (Pair<Integer, Integer> component : fragment) {
                             spaceShip.destroyComponent(component.getValue0(), component.getValue1());
                             destroyedComponents.add(new Pair<>(component.getValue0(), component.getValue1()));
@@ -217,7 +218,7 @@ public class FightHandlerSubState extends State {
                     }
                 }
 
-                DestroyComponents destroyComponentsEvent = new DestroyComponents(player.getUsername(), destroyedComponents);
+                ComponentDestroyed destroyComponentsEvent = new ComponentDestroyed(player.getUsername(), destroyedComponents);
                 eventCallback.trigger(destroyComponentsEvent);
                 transitionHit();
                 return true;

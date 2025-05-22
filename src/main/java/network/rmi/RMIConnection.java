@@ -1,6 +1,6 @@
 package network.rmi;
 
-import event.Event;
+import event.eventType.Event;
 import event.game.HeartBeat;
 import network.Connection;
 import network.exceptions.BadPortException;

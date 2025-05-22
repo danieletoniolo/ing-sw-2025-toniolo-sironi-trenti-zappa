@@ -6,6 +6,7 @@ import Model.Good.Good;
 import Model.Player.PlayerData;
 import Model.State.LobbyState;
 import Model.State.State;
+import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import java.io.Serializable;
@@ -72,12 +73,8 @@ public class GameController implements Serializable {
         }
     }
 
-    public void placeTile(PlayerData player, int toWhere, int row, int col) throws IllegalStateException {
-        try {
-            state.placeTile(player, toWhere, row, col);
-        } catch (Exception e) {
-            throw new IllegalStateException("Cannot place tile in this state");
-        }
+    public void placeTile(PlayerData player, int toWhere, int row, int col) throws IllegalStateException, IllegalArgumentException {
+        state.placeTile(player, toWhere, row, col);
     }
 
     public void rotateTile(PlayerData player) throws IllegalStateException {
@@ -93,6 +90,15 @@ public class GameController implements Serializable {
             state.placeMarker(player, position);
         } catch (Exception e) {
             throw new IllegalStateException("Cannot place marker in this state");
+        }
+    }
+
+    public void manageCrewMember(UUID userID, int mode, int crewType, int cabinID) throws IllegalStateException {
+        PlayerData currentPlayer = state.getCurrentPlayer();
+        if (currentPlayer.getUUID().equals(userID)) {
+            state.manageCrewMember(currentPlayer, mode, crewType, cabinID);
+        } else {
+            throw new IllegalStateException("You are not the current player");
         }
     }
 
@@ -154,9 +160,9 @@ public class GameController implements Serializable {
     /**
      * Exchange goods between in an adventure state
      * @param uuid player's uuid
-     * @param exchangeData ArrayList of Triplet containing (in order) the goods to get, the goods to leave and the ID of the storage
+     * @param exchangeData List of Triplet containing (in order) the goods to get, the goods to leave and the ID of the storage
      */
-    public void exchangeGoods(UUID uuid, ArrayList<Triplet<ArrayList<Good>, ArrayList<Good>, Integer>> exchangeData) {
+    public void exchangeGoods(UUID uuid, List<Triplet<List<Good>, List<Good>, Integer>> exchangeData) {
         PlayerData player = state.getCurrentPlayer();
         if (player.getUUID().equals(uuid)) {
             try {
@@ -174,10 +180,10 @@ public class GameController implements Serializable {
      * @param uuid player's uuid
      * @param storageID1 storage ID 1
      * @param storageID2 storage ID 2
-     * @param goods1to2 ArrayList of goods to exchange from storage 1 to storage 2
-     * @param goods2to1 ArrayList of goods to exchange from storage 2 to storage 1
+     * @param goods1to2 List of goods to exchange from storage 1 to storage 2
+     * @param goods2to1 List of goods to exchange from storage 2 to storage 1
      */
-    public void swapGoods(UUID uuid, int storageID1, int storageID2, ArrayList<Good> goods1to2, ArrayList<Good> goods2to1) {
+    public void swapGoods(UUID uuid, int storageID1, int storageID2, List<Good> goods1to2, List<Good> goods2to1) {
         PlayerData player = state.getCurrentPlayer();
         if (player.getUUID().equals(uuid)) {
             try {
@@ -194,14 +200,14 @@ public class GameController implements Serializable {
      * Use double engines or double cannons in the state.
      * @param uuid player's uuid
      * @param type type of the extra strength to use: 0 = engine, 1 = cannon
-     * @param strength strength of the extra strength to use
+     * @param IDs List of Integers representing the ID of the engines or cannons to use
      * @param batteriesID List of Integers representing the batteryID from which we take the energy to use the cannon
      */
-    public void useExtraStrength(UUID uuid, int type, float strength, List<Integer> batteriesID) {
+    public void useExtraStrength(UUID uuid, int type, List<Integer> IDs, List<Integer> batteriesID) {
         PlayerData player = state.getCurrentPlayer();
         if (player.getUUID().equals(uuid)) {
             try {
-                state.useExtraStrength(player, type, strength, batteriesID);
+                state.useExtraStrength(player, type, IDs, batteriesID);
             } catch (IllegalStateException e) {
                 throw new IllegalStateException("Cannot use extra power in this state");
             } catch (IllegalArgumentException e) {
@@ -210,28 +216,48 @@ public class GameController implements Serializable {
         }
     }
 
-    public void removeCrew(UUID uuid, List<Integer> cabinsIDs) {
+    public void setPenaltyLoss(UUID userID, int type, List<Integer> penaltyLoss) {
         PlayerData player = state.getCurrentPlayer();
-        if (player.getUUID().equals(uuid)) {
-            try {
-                state.setPenaltyLoss(player, 2, cabinsIDs);
-            } catch (IllegalStateException e) {
-                throw new IllegalStateException("Cannot remove crew in this state or wrong input");
-            }
+        if (player.getUUID().equals(userID)) {
+            state.setPenaltyLoss(player, type, penaltyLoss);
+        } else {
+            throw new IllegalStateException("Not the current player");
         }
     }
 
-    public void addCrew(UUID uuid, int cabinID, int numberOfCrew) {
-    }
-
-    public void rollDice(UUID uuid, int numberOfDice) {
+    public void rollDice(UUID uuid) {
         PlayerData player = state.getCurrentPlayer();
         if (player.getUUID().equals(uuid)) {
-            try {
-                state.rollDice();
-            } catch (IllegalStateException e) {
-                throw new IllegalStateException("Cannot roll dice in this state");
-            }
+            state.rollDice();
+        } else {
+            throw new IllegalStateException("Not the current player");
+        }
+    }
+
+    public void setFragmentChoice(UUID uuid, int fragmentChoice) throws IllegalStateException {
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            state.setFragmentChoice(fragmentChoice);
+        } else {
+            throw new IllegalStateException("Not the current player");
+        }
+    }
+
+    public void setComponentToDestroy(UUID uuid, List<Pair<Integer, Integer>> componentsToDestroy) {
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            state.setComponentToDestroy(player, componentsToDestroy);
+        } else {
+            throw new IllegalStateException("Not the current player");
+        }
+    }
+
+    public void setProtect(UUID uuid, int batteryID) {
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            state.setProtect(player, batteryID);
+        } else {
+            throw new IllegalStateException("Not the current player");
         }
     }
 }

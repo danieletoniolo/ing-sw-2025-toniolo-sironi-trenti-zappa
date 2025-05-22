@@ -1,10 +1,12 @@
 package event;
 
+import event.eventType.Event;
 import network.Connection;
 import network.exceptions.DisconnectedConnection;
 import org.javatuples.Pair;
 
 import java.util.*;
+
 
 public class NetworkTransceiver implements EventTransceiver{
     /**
@@ -66,11 +68,7 @@ public class NetworkTransceiver implements EventTransceiver{
                     synchronized (lockListeners) {
                         List<EventListener<Event>> listenersCopy = new ArrayList<>(listeners);
                         for (EventListener<Event> listener : listenersCopy) {
-                            try {
-                                listener.handle(event);
-                            } catch (ClassCastException e) {
-                                // ignore the event of the wrong type
-                            }
+                            listener.handle(event);
                         }
                     }
                 }
@@ -110,9 +108,9 @@ public class NetworkTransceiver implements EventTransceiver{
     }
 
     /**
-     * Get the connection associated with the given userID.
+     * Get the connection associated with the given nickname.
      * @param userID The {@link UUID} of the user.
-     * @return The {@link Connection} associated with the userID.
+     * @return The {@link Connection} associated with the nickname.
      */
     public Connection getConnection(UUID userID) {
         return connections.get(userID).getValue0();
@@ -122,15 +120,9 @@ public class NetworkTransceiver implements EventTransceiver{
      * Register a listener to the transceiver. The listener will be notified when an event is received.
      * @param listener The {@link EventListener} to register.
      */
-    public <T extends Event> void registerListener(EventListener<T> listener) {
+    public void registerListener(EventListener<Event> listener) {
         synchronized (lockListeners) {
-            listeners.add(data -> {
-                try {
-                    listener.handle((T) data);
-                } catch (ClassCastException e) {
-                    throw new IllegalStateException("The Class cannot be cast to the expected type");
-                }
-            });
+            listeners.add(listener);
         }
     }
 

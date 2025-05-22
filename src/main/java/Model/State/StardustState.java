@@ -3,7 +3,7 @@ package Model.State;
 import Model.Game.Board.Board;
 import Model.Player.PlayerData;
 import controller.EventCallback;
-import event.game.MoveMarker;
+import event.game.serverToClient.MoveMarker;
 
 
 public class StardustState extends State {

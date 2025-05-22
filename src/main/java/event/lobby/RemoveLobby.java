@@ -1,6 +1,6 @@
 package event.lobby;
 
-import event.Event;
+import event.eventType.Event;
 
 import java.io.Serializable;
 
