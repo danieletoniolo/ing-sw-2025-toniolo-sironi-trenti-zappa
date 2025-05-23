@@ -216,7 +216,9 @@ public class Logger {
                         }
                     });
         } catch (IOException e) {
+            // Critical error, log it and exit
             System.err.println("Error cleaning up log files: " + e.getMessage());
+            System.exit(1);
         }
     }
 
@@ -224,9 +226,15 @@ public class Logger {
      * Returns the singleton instance of the Logger class.
      * @return the singleton instance of Logger
      */
-    public static Logger getInstance() throws IOException {
+    public static Logger getInstance() {
         if (logger == null) {
-            logger = new Logger();
+            try {
+                logger = new Logger();
+            } catch (IOException e) {
+                // Critical error, log it and exit
+                System.err.println("Error initializing logger: " + e.getMessage());
+                System.exit(1);
+            }
         }
         return logger;
     }

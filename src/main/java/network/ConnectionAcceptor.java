@@ -1,5 +1,6 @@
 package network;
 
+import network.exceptions.ConnectionException;
 import network.rmi.RemoteServer;
 import network.rmi.RMIConnection;
 import network.rmi.RemoteLinkedList;
@@ -62,9 +63,9 @@ public class ConnectionAcceptor extends UnicastRemoteObject implements RemoteSer
      * @param TCPPort is the port used for TCP connections.
      * @param RMIPort is the port used for RMI connections.
      * @throws RemoteException will be thrown in case of network problems, or server communication issues.
-     * @throws ConnectException will be thrown if the server socket cannot be created.
+     * @throws ConnectionException will be thrown if the server socket cannot be created.
      */
-    public ConnectionAcceptor(int TCPPort, int RMIPort) throws RemoteException, ConnectException {
+    public ConnectionAcceptor(int TCPPort, int RMIPort) throws RemoteException, ConnectionException {
         this.RMIPort = RMIPort;
 
         try {
@@ -72,7 +73,7 @@ public class ConnectionAcceptor extends UnicastRemoteObject implements RemoteSer
             registry.bind("SERVER", this);
             serverSocket = new ServerSocket(TCPPort);
         } catch (Exception exception) {
-            throw new ConnectException();
+            throw new ConnectionException();
         }
     }
 

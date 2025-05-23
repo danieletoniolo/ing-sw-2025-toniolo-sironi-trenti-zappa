@@ -84,7 +84,7 @@ public class MatchController {
      * @param serverNetworkTransceiver is the network transceiver used to communicate with the clients when they are not in a lobby.
      * @throws IllegalStateException   if the MatchController is already initialized
      */
-    public static void setup(NetworkTransceiver serverNetworkTransceiver) throws IllegalStateException {
+    public static void setUp(NetworkTransceiver serverNetworkTransceiver) throws IllegalStateException {
         if (instance == null) {
             instance = new MatchController(serverNetworkTransceiver);
         } else {
