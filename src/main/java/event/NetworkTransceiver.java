@@ -192,14 +192,14 @@ public class NetworkTransceiver implements EventTransceiver{
     /**
      * Sends the given {@link Event} to the specified {@link network.Connection}.
      * It is used only for the errors message which do not need to be broadcasted.
-     * @param connection is the {@link network.Connection} to which the event will be sent.
+     * @param uuid is the {@link UUID} of the {@link network.Connection} to send the event to.
      * @param data is the {@link Event} to send.
      */
     @Override
-    public void send(Connection connection, Event data) {
+    public void send(UUID uuid, Event data) {
         synchronized (lockConnectionSend) {
             try {
-                connection.send(data);
+                connections.get(uuid).getValue0().send(data);
             } catch (DisconnectedConnection e) {
                 // ignore the error
             }

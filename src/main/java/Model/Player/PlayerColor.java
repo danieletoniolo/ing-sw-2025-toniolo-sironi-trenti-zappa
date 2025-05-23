@@ -3,7 +3,17 @@ package Model.Player;
 import java.io.Serializable;
 
 public enum PlayerColor implements Serializable {
-    BLUE, GREEN, YELLOW, RED;
+    BLUE(0), GREEN(1), YELLOW(2), RED(3);
+
+    private final int value;
+
+    PlayerColor(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
 
     /**
      * Get the first free color

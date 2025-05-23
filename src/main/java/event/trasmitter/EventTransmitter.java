@@ -3,6 +3,8 @@ package event.trasmitter;
 import event.eventType.Event;
 import network.Connection;
 
+import java.util.UUID;
+
 /**
  * Represents a mechanism for transmitting events to multiple connections. An implementation of this
  * interface should provide the ability to broadcast events to all connected entities, as well as
@@ -21,8 +23,8 @@ public interface EventTransmitter {
      * Sends the specified event to a given connection. This method is used to transmit
      * data or messages to a specific recipient identified by the provided connection.
      *
-     * @param connection the {@link Connection} object representing the specific recipient of the event
+     * @param uuid the {@link UUID} of the connection to which the event should be sent
      * @param data the {@link Event} object containing the data or message to be transmitted
      */
-    void send(Connection connection, Event data);
+    void send(UUID uuid, Event data);
 }

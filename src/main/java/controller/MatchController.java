@@ -7,16 +7,17 @@ import Model.Player.PlayerData;
 import Model.SpaceShip.SpaceShip;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import event.eventType.Event;
-import event.EventListener;
 import event.NetworkTransceiver;
 import event.game.clientToServer.*;
 import event.game.serverToClient.Pota;
 import event.game.serverToClient.Success;
-import event.lobby.*;
-import event.receiver.CastEventReceiver;
+import event.lobby.clientToServer.*;
+import event.lobby.serverToClient.*;
 import network.User;
+import org.javatuples.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * MatchController is the main controller of the game. It manages the lobbies, the users and the game controllers.
@@ -31,6 +32,11 @@ public class MatchController {
      * Map of all the lobbies created in the game. The key is the name of the lobby and the value is the LobbyInfo object.
      */
     private final Map<String, LobbyInfo> lobbies;
+
+    /**
+     * Represents the server's network transceiver responsible for handling communication processes such as sending and receiving data over the network.
+     */
+    private final NetworkTransceiver serverNetworkTransceiver;
 
     /**
      * Map of all the network transceivers created in the game. The key is the LobbyInfo object and the value is the NetworkTransceiver object.
@@ -68,180 +74,8 @@ public class MatchController {
         this.userLobbyInfo = new HashMap<>();
         this.lobbies = new HashMap<>();
         this.networkTransceivers = new HashMap<>();
-
-        // Casting the serverNetworkTransceiver to a CastEventReceiver, in order to register the events
-        CastEventReceiver<CreateLobby> receiverCreateLobby = new CastEventReceiver<>(serverNetworkTransceiver);
-        CastEventReceiver<LeaveLobby> receiverLeaveLobby = new CastEventReceiver<>(serverNetworkTransceiver);
-        CastEventReceiver<SetNickname> receiverSetNickname = new CastEventReceiver<>(serverNetworkTransceiver);
-        CastEventReceiver<JoinLobby> receiverJoinLobby = new CastEventReceiver<>(serverNetworkTransceiver);
-
-        // EventListener that is used to handle the event of a user that set the nickname.
-        EventListener<SetNickname> setNicknameEventListener = data -> {
-            boolean nicknameAlreadyUsed = false;
-            for (User user : users.values()) {
-                if (user.getNickname().equals(data.nickname())) {
-                    nicknameAlreadyUsed = true;
-                    break;
-                }
-            }
-
-            if (nicknameAlreadyUsed) {
-                // TODO: error event, nickname already used
-            } else {
-                UUID userID = UUID.fromString(data.userID());
-                User user = new User(userID, data.nickname(), serverNetworkTransceiver.getConnection(userID));
-                users.put(userID, user);
-
-                // TODO: event that the user has been added
-                // TODO: synchronous event with the list of all the lobbies
-            }
-        };
-
-        // EventListener that is used to handle the event of a user that leaves a lobby.
-        // It is registered not to the serverNetworkTranceiver, but to the networkTransceiver of the lobby.
-        EventListener<LeaveLobby> leaveLobbyEventListener = data -> {
-            UUID userID = UUID.fromString(data.userID());
-            User user = users.get(userID);
-            LobbyInfo lobby = user.getLobby();
-
-            if (lobby != null) {
-                // Controlling if the user that is leaving is also the founder of the lobby
-                if (user.getNickname().equals(lobby.getFounderNickname())) {
-                    // If it is the founder, we need to remove the lobby
-                    gameControllers.remove(lobby);
-                    users.forEach((key, value) -> {
-                        if (value.getLobby() != null && value.getLobby().equals(lobby)) {
-                            value.setLobby(null);
-                            userPlayers.remove(value);
-                        }
-                    });
-                    userLobbyInfo.forEach((key, value) -> {
-                        if (value.equals(lobby)) {
-                            userLobbyInfo.remove(key);
-                        }
-                    });
-
-                    // Notify to all the clients on the networkTransceiver of the lobby that the lobby has been removed
-                    RemoveLobby removeLobbyEvent = new RemoveLobby(lobby.getName());
-                    networkTransceivers.get(lobby).broadcast(removeLobbyEvent);
-                    // TODO: synchronous event with the list of all the lobbies
-
-                    // Removing the network transceiver of the lobby and attaching the users to the network transceiver of the server
-                    networkTransceivers.remove(lobby);
-                    for (User tempUser : users.values()) {
-                        serverNetworkTransceiver.connect(tempUser.getUUID(), tempUser.getConnection());
-                    }
-
-                    // Notifying to all the clients that the lobby has been removed
-                    serverNetworkTransceiver.broadcast(removeLobbyEvent);
-                } else {
-                    // Removing the user from the lobby
-                    GameController gc = gameControllers.get(lobby);
-                    gc.manageLobby(userPlayers.get(user), 1);
-                    user.setLobby(null);
-                    userPlayers.remove(user);
-                    userLobbyInfo.remove(user);
-
-                    // Attaching the user to the network transceiver of the server
-                    serverNetworkTransceiver.connect(user.getUUID(), user.getConnection());
-                    networkTransceivers.get(lobby).disconnect(user.getUUID());
-
-                    // Notifying to all the clients that a user has left the lobby
-                    serverNetworkTransceiver.broadcast(data);
-                    networkTransceivers.get(lobby).broadcast(data);
-                    // TODO: synchronous event with the list of all the lobbies for the user who left
-                }
-            } else {
-                // TODO: send error message to user if lobby is not found
-            }
-        };
-
-        // EventListener that is used to handle the event of a user that creates a lobby.
-        EventListener<CreateLobby> createLobbyEventListener = data -> {
-            UUID userID = UUID.fromString(data.userID());
-            User user = users.get(userID);
-
-            // Creating the new lobby
-            LobbyInfo lobby = new LobbyInfo(user.getNickname(), data.maxPlayers(), data.level());
-            lobbies.put(lobby.getName(), lobby);
-
-            // Creating the new network transceiver for the lobby and remove the current user from the serverNetworkTransceiver to the lobbyNetworkTransceiver
-            NetworkTransceiver networkTransceiver = new NetworkTransceiver();
-            registerAllGameListeners(networkTransceiver);
-            receiverLeaveLobby.registerListener(leaveLobbyEventListener);
-            networkTransceiver.connect(user.getUUID(), user.getConnection());
-            networkTransceivers.put(lobby, networkTransceiver);
-            serverNetworkTransceiver.disconnect(userID);
-
-            // Creating the playerData for the user
-            PlayerColor color = PlayerColor.BLUE;
-            PlayerData player = new PlayerData(user.getNickname(), color, new SpaceShip(lobby.getLevel(), color));
-            userPlayers.put(user, player);
-            userLobbyInfo.put(user, lobby);
-
-            // Trying to create the board
-            Board board;
-            try {
-                board = new Board(lobby.getLevel());
-            } catch (IllegalArgumentException | JsonProcessingException e) {
-                throw new IllegalStateException("Error creating board", e);
-            }
-
-            // Creating the game controller
-            GameController gc = new GameController(board, lobby);
-            gc.manageLobby(player, 1);
-            gameControllers.put(lobby, gc);
-
-            // Notifying to all the clients that a new lobby has been created
-            CreateLobby toSend = new CreateLobby(user.getNickname(), lobby.getName(), lobby.getTotalPlayers(), lobby.getLevel());
-            serverNetworkTransceiver.broadcast(toSend);
-            /*
-            networkTransceivers.forEach((key, value) -> {
-                value.broadcast(toSend);
-            });
-             */
-        };
-
-        // EventListener that is used to handle the event of a user that joins a lobby.
-        EventListener<JoinLobby> joinLobbyEventListener = data -> {
-            UUID userID = UUID.fromString(data.userID());
-            LobbyInfo lobby = lobbies.get(data.lobbyID());
-
-            if (lobby != null) {
-                User user = users.get(userID);
-                GameController gc = gameControllers.get(lobby);
-                user.setLobby(lobby);
-
-                // Choosing the color for the user in the lobby
-                PlayerColor[] colorsAlreadyUsed = userPlayers.entrySet().stream()
-                        .filter(entry -> entry.getKey().getLobby() == lobby)
-                        .map(entry -> entry.getValue().getColor())
-                        .toArray(PlayerColor[]::new);
-                PlayerColor color = PlayerColor.getFreeColor(colorsAlreadyUsed);
-
-                // Creating the playerData for the user
-                PlayerData player = new PlayerData(user.getNickname(), color, new SpaceShip(lobby.getLevel(), color));
-                userPlayers.put(user, player);
-                userLobbyInfo.put(user, lobby);
-                gc.manageLobby(player, 0);
-
-                // Attaching the user to the network transceiver of the lobby
-                NetworkTransceiver networkTransceiver = networkTransceivers.get(lobby);
-                networkTransceiver.connect(user.getUUID(), user.getConnection());
-                serverNetworkTransceiver.disconnect(user.getUUID());
-
-                // Notifying to all the clients that a new user has joined the lobby
-                serverNetworkTransceiver.broadcast(data);
-                networkTransceiver.broadcast(data);
-            } else {
-                // TODO: send error message to user if lobby is full
-            }
-        };
-
-        // Registering the event listeners to the serverNetworkTransceiver
-        receiverSetNickname.registerListener(setNicknameEventListener);
-        receiverCreateLobby.registerListener(createLobbyEventListener);
-        receiverJoinLobby.registerListener(joinLobbyEventListener);
+        this.serverNetworkTransceiver = serverNetworkTransceiver;
+        this.registerAllLobbyListeners();
     }
 
     /**
@@ -280,6 +114,16 @@ public class MatchController {
     }
 
     /**
+     * Registers all the lobby-related listeners to handle incoming network requests for creating, joining, leaving a lobby, and setting a nickname.
+     * Associates each request handler with the server network transceiver and the respective responder method.
+     */
+    private void registerAllLobbyListeners() {
+        CreateLobby.responder(serverNetworkTransceiver, this::createLobby);
+        JoinLobby.responder(serverNetworkTransceiver, this::joinLobby);
+        SetNickname.responder(serverNetworkTransceiver, this::setNickname);
+    }
+
+    /**
      * Registers all game-related event listeners for network communication. Each listener corresponds
      * to a specific game-related event, and responds to incoming data by invoking the appropriate
      * method to handle the event. This method is integral to ensuring proper interaction between
@@ -310,6 +154,237 @@ public class MatchController {
         UseShield.responder(networkTransceiver, this::setProtect);
         ExchangeGoods.responder(networkTransceiver, this::setGoodsToExchange);
         SwapGoods.responder(networkTransceiver, this::swapGoods);
+    }
+
+    /**
+     * Sets the nickname for a user. This method checks if the given nickname
+     * is already in use. If the nickname is available, it assigns it to the user
+     * and updates the user list. If the nickname is already used, it returns an
+     * appropriate event indicating the failure.
+     *
+     * @param data an object containing the user ID and the desired nickname
+     * @return an event indicating whether the nickname assignment was successful or not.
+     */
+    private Event setNickname(SetNickname data) {
+        boolean nicknameAlreadyUsed = false;
+        for (User user : users.values()) {
+            if (user.getNickname().equals(data.nickname())) {
+                nicknameAlreadyUsed = true;
+                break;
+            }
+        }
+
+        if (nicknameAlreadyUsed) {
+            return new Pota(SetNickname.class, "Nickname already used");
+        } else {
+            UUID userID = UUID.fromString(data.userID());
+            User user = new User(userID, data.nickname(), serverNetworkTransceiver.getConnection(userID));
+            users.put(userID, user);
+
+            // TODO: is it necessary to broadcast the nicknameSet to all the users?
+            // Notify that a new user has joined the server
+            NicknameSet nicknameSet = new NicknameSet(user.getNickname());
+            serverNetworkTransceiver.broadcast(nicknameSet);
+
+            // Send to the user the list of all the lobbies
+            List<Pair<Integer, Integer>> lobbiesPlayers = lobbies.values().stream().map(lobbyInfo -> new Pair<>(lobbyInfo.getNumberOfPlayersEntered(), lobbyInfo.getTotalPlayers())).toList();
+            Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), new ArrayList<>(lobbiesPlayers));
+            serverNetworkTransceiver.send(userID, lobbiesEvent);
+        }
+        return new Success(SetNickname.class);
+    }
+
+    /**
+     * Creates a new game lobby and initializes all necessary components for the lobby,
+     * including the lobby details, network transceivers, player data, game board, and game controller.
+     * Additionally, broadcasts the new lobby creation details to all connected clients.
+     *
+     * @param data a {@code CreateLobby} object containing the user ID of the host, maximum number
+     *             of players, and the level for the new lobby.
+     * @return an {@code Event} indicating the successful creation of the lobby.
+     * @throws IllegalStateException if there is an error while creating the game board.
+     */
+    private Event createLobby(CreateLobby data) {
+        UUID userID = UUID.fromString(data.userID());
+        User user = users.get(userID);
+
+        // Creating the new lobby
+        LobbyInfo lobby = new LobbyInfo(user.getNickname(), data.maxPlayers(), data.level());
+        lobbies.put(lobby.getName(), lobby);
+
+        // Trying to create the board
+        Board board;
+        try {
+            board = new Board(lobby.getLevel());
+        } catch (IllegalArgumentException | JsonProcessingException e) {
+            lobbies.remove(lobby.getName());
+            return new Pota(CreateLobby.class, "Error creating board");
+        }
+
+        // Creating the new network transceiver for the lobby
+        NetworkTransceiver networkTransceiver = new NetworkTransceiver();
+
+        // Registering the listeners for the leave of a lobby and registering all game listeners
+        LeaveLobby.responder(networkTransceiver, this::leaveLobby);
+        registerAllGameListeners(networkTransceiver);
+
+        // Remove the current user from the serverNetworkTransceiver to the lobbyNetworkTransceiver
+        networkTransceiver.connect(user.getUUID(), user.getConnection());
+        networkTransceivers.put(lobby, networkTransceiver);
+        serverNetworkTransceiver.disconnect(userID);
+
+        // Creating the playerData for the user
+        PlayerColor color = PlayerColor.BLUE;
+        PlayerData player = new PlayerData(user.getNickname(), color, new SpaceShip(lobby.getLevel(), color));
+        userPlayers.put(user, player);
+        userLobbyInfo.put(user, lobby);
+
+        // Broadcast the information of the new player
+        PlayerAdded playerAdded = new PlayerAdded(user.getNickname(), color.getValue());
+        networkTransceiver.broadcast(playerAdded);
+
+        // Creating the game controller
+        GameController gc = new GameController(board, lobby);
+        gc.manageLobby(player, 1);
+        gameControllers.put(lobby, gc);
+
+        // Notifying to all the clients that a new lobby has been created
+        CreateLobby toSend = new CreateLobby(user.getNickname(), lobby.getName(), lobby.getTotalPlayers(), lobby.getLevel());
+        serverNetworkTransceiver.broadcast(toSend);
+
+        return new Success(CreateLobby.class);
+    }
+
+    /**
+     * Handles the logic for a user leaving a lobby. If the user is the founder of the lobby,
+     * additional cleanup operations are performed to remove the lobby and notify all clients
+     * about the lobby removal. If the user is not the founder, they are simply removed from the
+     * lobby and reconnected to the server's network transceiver.
+     *
+     * @param data an instance of {@code LeaveLobby} containing the information about the user
+     *             leaving the lobby, such as the user ID.
+     * @return an instance of {@code Event}, which could be a {@code Success} event if the operation
+     *         is successful or a {@code Pota} event if the lobby is not found.
+     */
+    private Event leaveLobby(LeaveLobby data) {
+        UUID userID = UUID.fromString(data.userID());
+        User user = users.get(userID);
+        LobbyInfo lobby = user.getLobby();
+
+        if (lobby != null) {
+            // Controlling if the user that is leaving is also the founder of the lobby
+            if (user.getNickname().equals(lobby.getFounderNickname())) {
+                // If it is the founder, we need to remove the lobby
+                gameControllers.remove(lobby);
+                users.forEach((key, value) -> {
+                    if (value.getLobby() != null && value.getLobby().equals(lobby)) {
+                        value.setLobby(null);
+                        userPlayers.remove(value);
+                    }
+                });
+                userLobbyInfo.forEach((key, value) -> {
+                    if (value.equals(lobby)) {
+                        userLobbyInfo.remove(key);
+                    }
+                });
+
+                // Notify to all the clients on the networkTransceiver of the lobby that the lobby has been removed
+                RemoveLobby removeLobbyEvent = new RemoveLobby(lobby.getName());
+                networkTransceivers.get(lobby).broadcast(removeLobbyEvent);
+
+                // Notify to all the old lobbies user of the lobbies list
+                List<Pair<Integer, Integer>> lobbiesPlayers = lobbies.values().stream().map(lobbyInfo -> new Pair<>(lobbyInfo.getNumberOfPlayersEntered(), lobbyInfo.getTotalPlayers())).toList();
+                Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), new ArrayList<>(lobbiesPlayers));
+
+                // Removing the network transceiver of the lobby and attaching the users to the network transceiver of the server
+                networkTransceivers.remove(lobby);
+                for (User tempUser : users.values()) {
+                    serverNetworkTransceiver.connect(tempUser.getUUID(), tempUser.getConnection());
+                    serverNetworkTransceiver.send(tempUser.getUUID(), lobbiesEvent);
+                }
+
+                // Notifying to all the clients that the lobby has been removed
+                serverNetworkTransceiver.broadcast(removeLobbyEvent);
+            } else {
+                // Removing the user from the lobby
+                GameController gc = gameControllers.get(lobby);
+                gc.manageLobby(userPlayers.get(user), 1);
+                user.setLobby(null);
+                userPlayers.remove(user);
+                userLobbyInfo.remove(user);
+
+                // Attaching the user to the network transceiver of the server
+                serverNetworkTransceiver.connect(user.getUUID(), user.getConnection());
+                networkTransceivers.get(lobby).disconnect(user.getUUID());
+
+                // Notifying to all the clients that a user has left the lobby
+                LobbyLeft lobbyLeftEvent = new LobbyLeft(user.getNickname(), lobby.getName());
+                serverNetworkTransceiver.broadcast(lobbyLeftEvent);
+                networkTransceivers.get(lobby).broadcast(lobbyLeftEvent);
+
+                // Notify the single user of the lobby list
+                List<Pair<Integer, Integer>> lobbiesPlayers = lobbies.values().stream().map(lobbyInfo -> new Pair<>(lobbyInfo.getNumberOfPlayersEntered(), lobbyInfo.getTotalPlayers())).toList();
+                Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), new ArrayList<>(lobbiesPlayers));
+                serverNetworkTransceiver.send(user.getUUID(), lobbiesEvent);
+            }
+        } else {
+            return new Pota(LeaveLobby.class, "Lobby not found");
+        }
+
+        return new Success(LeaveLobby.class);
+    }
+
+    /**
+     * Handles the process of a user joining a game lobby. This method assigns the user
+     * to the specified lobby, assigns a unique player color, updates the necessary
+     * mappings for user and lobby relationships, manages the lobby state, and
+     * updates network connections accordingly.
+     *
+     * @param data An object containing the details of the join lobby request,
+     *             including user ID and lobby ID.
+     * @return An Event object indicating the result of the operation. If the user
+     *         successfully joins the lobby, a Success Event is returned. If the lobby
+     *         is full or another issue occurs, an error Event is returned.
+     */
+    private Event joinLobby(JoinLobby data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = lobbies.get(data.lobbyID());
+
+        if (lobby != null) {
+            User user = users.get(userID);
+            GameController gc = gameControllers.get(lobby);
+            user.setLobby(lobby);
+
+            // Choosing the color for the user in the lobby
+            PlayerColor[] colorsAlreadyUsed = userPlayers.entrySet().stream()
+                    .filter(entry -> entry.getKey().getLobby() == lobby)
+                    .map(entry -> entry.getValue().getColor())
+                    .toArray(PlayerColor[]::new);
+            PlayerColor color = PlayerColor.getFreeColor(colorsAlreadyUsed);
+
+            // Creating the playerData for the user
+            PlayerData player = new PlayerData(user.getNickname(), color, new SpaceShip(lobby.getLevel(), color));
+            userPlayers.put(user, player);
+            userLobbyInfo.put(user, lobby);
+            gc.manageLobby(player, 0);
+
+            // Attaching the user to the network transceiver of the lobby
+            NetworkTransceiver networkTransceiver = networkTransceivers.get(lobby);
+            networkTransceiver.connect(user.getUUID(), user.getConnection());
+            serverNetworkTransceiver.disconnect(user.getUUID());
+
+            // Broadcast the information of the new player
+            PlayerAdded playerAdded = new PlayerAdded(user.getNickname(), color != null ? color.getValue() : -1);
+            networkTransceiver.broadcast(playerAdded);
+
+            // Notifying to all the clients that a new user has joined the lobby
+            LobbyJoined lobbyJoinedEvent = new LobbyJoined(user.getNickname(), lobby.getName());
+            serverNetworkTransceiver.broadcast(lobbyJoinedEvent);
+            networkTransceiver.broadcast(lobbyJoinedEvent);
+        } else {
+            return new Pota(JoinLobby.class, "Lobby is full");
+        }
+        return new Success(JoinLobby.class);
     }
 
     /**
