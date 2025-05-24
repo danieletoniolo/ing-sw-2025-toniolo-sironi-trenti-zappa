@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
+    <groupId>app</groupId>
     <artifactId>GalaxyTrucker</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>Galaxy Trucker</name>
@@ -82,7 +82,7 @@
                         <phase>package</phase>
                         <goals><goal>single</goal></goals>
                         <configuration>
-                            <finalName>Server</finalName>
+                            <finalName>libs/Server</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <archive>
                                 <manifest>
@@ -92,6 +92,41 @@
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>jpackage-server</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jpackage</executable>
+                            <arguments>
+                                <argument>--input</argument>
+                                <argument>target/libs</argument>
+                                <argument>--main-jar</argument>
+                                <argument>Server.jar</argument>
+                                <argument>--main-class</argument>
+                                <argument>app.ApplicationServer</argument>
+                                <argument>--type</argument>
+                                <argument>app-image</argument> <!-- oppure dmg, msi, deb -->
+                                <argument>--name</argument>
+                                <argument>GalaxyTruckerServer</argument>
+                                <argument>--app-version</argument>
+                                <argument>1.0</argument>
+                                <argument>--dest</argument>
+                                <argument>target/jpackage</argument>
+                                <argument>--java-options</argument>
+                                <argument>-Xmx512m</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>
