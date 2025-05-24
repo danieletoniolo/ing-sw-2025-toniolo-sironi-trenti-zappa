@@ -1,9 +1,7 @@
 package view.miniModel.cards;
 
-import org.javatuples.Pair;
 import view.miniModel.good.GoodView;
-import view.miniModel.player.ColorView;
-import view.miniModel.player.PlayerDataView;
+import view.miniModel.player.MarkerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,14 +10,14 @@ public class PlanetsView extends CardView{
     private int numberOfPlanets;
     private int flightDays;
     private List<List<GoodView>> planets;
-    private ColorView[] playersPosition;
+    private MarkerView[] playersPosition;
 
     public PlanetsView(int ID, boolean covered, int level, int flightDays, List<List<GoodView>> planets) {
         super(ID, covered, level);
         this.numberOfPlanets = planets.size();
         this.flightDays = flightDays;
         this.planets = planets;
-        playersPosition = new ColorView[5];
+        playersPosition = new MarkerView[5];
     }
 
     public int getFlightDays() {
@@ -77,11 +75,11 @@ public class PlanetsView extends CardView{
         return playersPosition[planet] == null ? " " : playersPosition[planet].drawTui();
     }
 
-    public void setPlayersPosition(int planet, ColorView player) {
+    public void setPlayersPosition(int planet, MarkerView player) {
         playersPosition[planet] = player;
     }
 
-    public ColorView[] getPlayersPositions() {
+    public MarkerView[] getPlayersPositions() {
         return playersPosition;
     }
 

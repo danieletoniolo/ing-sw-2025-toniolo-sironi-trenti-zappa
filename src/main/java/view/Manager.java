@@ -1,19 +1,20 @@
 package view;
 
-import event.lobby.CreateLobby;
-import event.lobby.JoinLobby;
-import event.lobby.LeaveLobby;
-import event.lobby.RemoveLobby;
+import event.game.serverToClient.BestLookingShips;
+import event.lobby.serverToClient.*;
 
 public interface Manager {
-    void notifyCreateLobby(CreateLobby data);
+    void notifyNicknameSet();
 
-    void notifyRemoveLobby(RemoveLobby data);
+    void notifyLobbies();
 
-    void notifyJoinLobby(JoinLobby data);
+    void notifyCreatedLobby(LobbyCreated data);
 
-    void notifyLeaveLobby(LeaveLobby data);
+    void notifyLobbyJoined(LobbyJoined data);
 
+    void notifyLobbyLeft(LobbyLeft data);
 
+    void notifyLobbyRemoved(LobbyRemoved data);
 
+    void notifyBestLookingShips(BestLookingShips data);
 }

@@ -10,17 +10,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class SpaceShipView implements Structure {
-    public static String UpReserved1 =     "╭──────";
-    public static String LeftReserved2 =   "│      ";
-    public static String DownReserved1 =   "╰──────";
-
-    public static String UpReserved2 =     "──────╮";
-    public static String RightReserved2 =  "      │";
-    public static String DownReserved2 =   "──────╯";
-
     private LevelView level;
     private ComponentView[][] spaceShip;
-    private ArrayList<ComponentView> reserved;
+    private DiscardReservedPileView discardReservedPile;
     private Map<Integer, ComponentView> mapDoubleCannons = new LinkedHashMap<>();
     private Map<Integer, ComponentView> mapDoubleEngines = new LinkedHashMap<>();
     private Map<Integer, ComponentView> mapCabins = new LinkedHashMap<>();
@@ -60,7 +52,7 @@ public class SpaceShipView implements Structure {
                 }
             }
         }
-        reserved = new ArrayList<>();
+        discardReservedPile = new DiscardReservedPileView();
     }
 
     public void placeComponent(ComponentView component, int row, int col) {
@@ -94,6 +86,10 @@ public class SpaceShipView implements Structure {
         spaceShip[row-converterRow][col-converterCol] = new GenericComponentView();
     }
 
+    public LevelView getLevel() {
+        return level;
+    }
+
     public Map<Integer, ComponentView> getMapDoubleCannons() {
         return mapDoubleCannons;
     }
@@ -118,12 +114,8 @@ public class SpaceShipView implements Structure {
         return mapBatteries;
     }
 
-    public void addReservedComponent(ComponentView component) {
-        reserved.add(component);
-    }
-
-    public void removeReservedComponent(ComponentView component) {
-        reserved.remove(component);
+    public DiscardReservedPileView getDiscardReservedPile() {
+        return discardReservedPile;
     }
 
     public ComponentView[][] getSpaceShip() {
@@ -149,7 +141,7 @@ public class SpaceShipView implements Structure {
             for (int i = 0; i < spaceShip[0].length; i++) {
                 str.append("   ").append(i + 4).append("   ");
             }
-            if (line == 0) str.append("     ").append("Discard pile:");
+            str.append("    ");
             return str.toString();
         }
 
@@ -165,31 +157,7 @@ public class SpaceShipView implements Structure {
                 str.append(tile.drawLineTui(line % ComponentView.getRowsToDraw()));
             }
         }
-        str.append(space).append(number);
-
-        if (line / ComponentView.getRowsToDraw() == 0) {
-            str.append(space);
-            switch (line % ComponentView.getRowsToDraw()) {
-                case 0:
-                    if (reserved.isEmpty()) str.append(UpReserved1);
-                    else str.append(reserved.getFirst().drawLineTui(0));
-                    if (reserved.isEmpty() || reserved.size() == 1) str.append(UpReserved2);
-                    else str.append(reserved.getLast().drawLineTui(0));
-                    break;
-                case 1:
-                    if (reserved.isEmpty()) str.append(LeftReserved2);
-                    else str.append(reserved.getFirst().drawLineTui(line % ComponentView.getRowsToDraw()));
-                    if (reserved.isEmpty() || reserved.size() == 1) str.append(RightReserved2);
-                    else str.append(reserved.getLast().drawLineTui(line % ComponentView.getRowsToDraw()));
-                    break;
-                case 2:
-                    if (reserved.isEmpty()) str.append(DownReserved1);
-                    else str.append(reserved.getFirst().drawLineTui(ComponentView.getRowsToDraw() - 1));
-                    if (reserved.isEmpty() || reserved.size() == 1) str.append(DownReserved2);
-                    else str.append(reserved.getLast().drawLineTui(ComponentView.getRowsToDraw() - 1));
-                    break;
-            }
-        }
+        str.append(space).append(number).append(space);
 
         return str.toString();
     }

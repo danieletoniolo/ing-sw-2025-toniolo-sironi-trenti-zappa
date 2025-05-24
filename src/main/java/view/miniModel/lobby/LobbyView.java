@@ -7,22 +7,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LobbyView implements Structure {
-    public static String Dash = "─";
-    public static String Bow1 = "╭";
-    public static String Bow2 = "╮";
-    public static String Bow3 = "╰";
-    public static String Bow4 = "╯";
-    public static String Vertical = "│";
+    private String Dash = "─";
+    private String Bow1 = "╭";
+    private String Bow2 = "╮";
+    private String Bow3 = "╰";
+    private String Bow4 = "╯";
+    private String Vertical = "│";
 
     private Map<String, Boolean> players;
     private final String lobbyName;
     private final int maxPlayer;
     private final LevelView level;
+    private int numberOfPlayers;
 
-    public LobbyView(String lobbyName, int maxPlayer, LevelView level) {
+    public LobbyView(String lobbyName, int numberOfPlayers, int maxPlayer, LevelView level) {
         players = new HashMap<>();
         this.lobbyName = lobbyName;
         this.maxPlayer = maxPlayer;
+        this.numberOfPlayers = numberOfPlayers;
         this.level = level;
     }
 
@@ -32,10 +34,12 @@ public class LobbyView implements Structure {
 
     public void addPlayer(String playerName) {
         players.put(playerName, false);
+        numberOfPlayers++;
     }
 
     public void removePlayer(String playerName) {
         players.remove(playerName);
+        numberOfPlayers--;
     }
 
     public void setPlayerStatus(String playerName, boolean status) {
@@ -112,7 +116,7 @@ public class LobbyView implements Structure {
         if (line == getRowsToDraw() - 2) {
             str.append(Vertical);
             str.append(String.valueOf(" ").repeat(width/2 - 1));
-            str.append(players.size()).append("/").append(maxPlayer);
+            str.append(numberOfPlayers).append("/").append(maxPlayer);
             str.append(String.valueOf(" ").repeat(width/2 - 2));
             str.append(Vertical);
             return str.toString();

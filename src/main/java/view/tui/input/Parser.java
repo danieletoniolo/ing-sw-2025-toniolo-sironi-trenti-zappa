@@ -12,9 +12,13 @@ import java.util.ArrayList;
 public class Parser {
     private int selected;
     private Terminal terminal;
+    private LineReader reader;
 
     public Parser(Terminal terminal) {
         this.terminal = terminal;
+        this.reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .build();
     }
 
     /**
@@ -26,6 +30,7 @@ public class Parser {
      * @throws Exception If an error occurs during input handling.
      */
     public int getCommand(ArrayList<String> options, int menuStartRow) throws Exception {
+        terminal.reader().skip(terminal.reader().available());
         terminal.enterRawMode();
         menuStartRow += 2;
         var reader = terminal.reader();
@@ -46,7 +51,7 @@ public class Parser {
                     selected = (selected + 1) % options.size();
                     break;
                 case 10, 13: // Select
-                    terminal.writer().println("\nYou chose: " + options.get(selected) + " " + selected);
+                    terminal.writer().println("\nYou chose: " + options.get(selected));
                     terminal.flush();
                     reading = false;
                     break;
@@ -56,15 +61,13 @@ public class Parser {
         return selected;
     }
 
-    public Pair<Integer, Integer> getRowAndCol(int menuStartRow) {
-        LineReader reader = LineReaderBuilder.builder()
-                .terminal(terminal)
-                .build();
+    public Pair<Integer, Integer> getRowAndCol(String input, int menuStartRow) {
+        menuStartRow += 2;
 
         while (true) {
             terminal.writer().printf("\033[%d;0H", menuStartRow);
             terminal.writer().print("\033[2K");
-            terminal.writer().print("Type coordinates (row col): ");
+            terminal.writer().print(input);
             terminal.flush();
 
             try {
@@ -86,6 +89,7 @@ public class Parser {
                 terminal.writer().print("\033[2K");
                 terminal.flush();
 
+                restoreRawMode();
                 return new Pair<>(x, y);
 
             } catch (Exception e) {
@@ -98,13 +102,10 @@ public class Parser {
     }
 
     public String readNickname(String prompt, int menuStartRow) {
-        LineReader reader = LineReaderBuilder.builder()
-                .terminal(terminal)
-                .build();
-
+        menuStartRow += 2;
         while (true) {
             terminal.writer().printf("\033[%d;0H", menuStartRow);
-            terminal.writer().print("\033[2K"); // Clear line
+            terminal.writer().print("\033[2K");
             terminal.writer().print(prompt);
             terminal.flush();
 
@@ -123,6 +124,7 @@ public class Parser {
                 terminal.writer().print("\033[2K");
                 terminal.flush();
 
+                restoreRawMode();
                 return input;
 
             } catch (UserInterruptException | EndOfFileException e) {
@@ -130,10 +132,19 @@ public class Parser {
                 terminal.writer().print("\033[2K");
                 terminal.writer().print("Input aborted.");
                 terminal.flush();
-                return null;
             }
         }
     }
+
+    private void restoreRawMode() {
+        try {
+            terminal.enterRawMode();
+            terminal.writer().flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * Renders the menu options to the terminal.

@@ -5,10 +5,8 @@ import Model.Cards.Hits.Hit;
 import Model.Game.Board.Deck;
 import Model.Good.Good;
 import Model.SpaceShip.*;
-import event.lobby.CreateLobby;
-import event.lobby.JoinLobby;
-import event.lobby.LeaveLobby;
-import event.lobby.RemoveLobby;
+import event.game.serverToClient.BestLookingShips;
+import event.lobby.serverToClient.*;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import view.Manager;
@@ -22,12 +20,12 @@ import view.miniModel.cards.hit.HitView;
 import view.miniModel.components.*;
 import view.miniModel.deck.DeckView;
 import view.miniModel.good.GoodView;
-import view.miniModel.player.ColorView;
+import view.miniModel.lobby.LobbyView;
+import view.miniModel.player.MarkerView;
 import view.miniModel.player.PlayerDataView;
 import view.miniModel.spaceship.SpaceShipView;
 import view.tui.input.Parser;
 import view.tui.states.*;
-import view.tui.states.gameScreens.NotClientTurnScreenTui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +35,7 @@ import static Model.Game.Board.Level.SECOND;
 
 public class TuiManager implements Manager {
     private final Object stateLock = new Object();
-    private ScreenTuiView currentState;
+    private TuiScreenView currentScreen;
     private Parser parser;
     private Terminal terminal;
     private boolean printInput;
@@ -54,51 +52,77 @@ public class TuiManager implements Manager {
         }
         parser = new Parser(terminal);
 
-        currentState = new NotClientTurnScreenTui();
+        currentScreen = new LogInTuiScreen();
+
     }
 
+    @Override
+    public void notifyNicknameSet() {
+        printInput = false;
+        currentScreen = new MenuTuiScreen();
+
+    }
 
     @Override
-    public void notifyCreateLobby(CreateLobby data) {
-        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().clientPlayer.getUsername())) { // Create a new lobbyState if the user is the one who created it or the server said to do so
-            //currentState = new LobbyStateView(data.lobbyID());
-            stateLock.notifyAll();
-        }
-        else {
-            if (currentState instanceof MenuScreenTui) { // Refresh the menu if another user creates a lobby because nd we are in the menu state
+    public void notifyLobbies() {
+        if (currentScreen instanceof MenuTuiScreen) {
+            synchronized (stateLock) {
+                printInput = false;
+                currentScreen = new MenuTuiScreen();
                 stateLock.notifyAll();
             }
         }
     }
 
     @Override
-    public void notifyRemoveLobby(RemoveLobby data){
-        // placeHolder
+    public void notifyCreatedLobby(LobbyCreated data) {
+        printInput = false;
+        currentScreen = new LobbyTuiScreen();
     }
 
     @Override
-    public void notifyJoinLobby(JoinLobby data) {
-        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().clientPlayer.getUsername())) { // Create a new lobbyState if the user is the one who created it or the server said to do so
-            currentState = new LobbyScreenTui();
-            stateLock.notifyAll();
-        }
-        else {
-            if (currentState instanceof LobbyScreenTui) { // Refresh the lobby view if another user joins because we are in the lobby state
+    public void notifyLobbyJoined(LobbyJoined data) {
+        if (/*currentScreen instanceof LobbyTuiScreen*/ MiniModel.getInstance().currentLobby != null && MiniModel.getInstance().currentLobby.getLobbyName().equals(data.lobbyID())) {
+            synchronized (stateLock) {
+                printInput = false;
                 stateLock.notifyAll();
             }
         }
     }
 
     @Override
-    public void notifyLeaveLobby(LeaveLobby data) {
-        if (data.userID() == null || data.userID().equals(MiniModel.getInstance().clientPlayer.getUsername())) { // Create a new MenuState if the user or the server said to do so
-            //currentState = new MenuStateView();
-            stateLock.notifyAll();
-        }
-        else {
-            if (currentState instanceof LobbyScreenTui) { // Refresh the lobby view if another user leaves because we are in the lobby state
+    public void notifyLobbyLeft(LobbyLeft data) {
+        if (MiniModel.getInstance().currentLobby.getLobbyName().equals(data.lobbyID())) {
+            synchronized (stateLock) {
+                printInput = false;
                 stateLock.notifyAll();
             }
+        }
+    }
+
+    @Override
+    public void notifyLobbyRemoved(LobbyRemoved data) {
+        if (currentScreen instanceof MenuTuiScreen) {
+            currentScreen = new MenuTuiScreen();
+            printInput = false;
+        }
+    }
+
+    @Override
+    public void notifyBestLookingShips(BestLookingShips data) {
+        synchronized (stateLock) {
+            StringBuilder message = new StringBuilder();
+            if (data.nicknames().size() == 1) {
+                message.append(data.nicknames().getFirst()).append(" has the best looking ship!");
+            }
+            else {
+                message.append("The best looking ships are:\n");
+                for (int i = 0; i < data.nicknames().size(); i++) {
+                    message.append(data.nicknames().get(i));
+                    if (i != data.nicknames().size() - 1) message.append(", ");
+                }
+            }
+            currentScreen.setMessage(message.toString());
         }
     }
 
@@ -110,20 +134,15 @@ public class TuiManager implements Manager {
                     synchronized (stateLock) {
                         while (!printInput) stateLock.wait();
                     }
-                    currentState.readCommand(parser);
-                    ScreenTuiView possibleNewState = currentState.isViewCommand();
-                    if (possibleNewState == null) {
-                        currentState.sendCommandToServer();
+                    currentScreen.readCommand(parser);
+                    currentScreen = currentScreen.setNewScreen();
+                    synchronized (stateLock) {
+                        printInput = false;
+                        stateLock.notifyAll();
                     }
-                    else {
-                        currentState = possibleNewState;
-                        synchronized (stateLock) {
-                            printInput = false;
-                            stateLock.notifyAll();
-                        }
-                    }
+
                 } catch (Exception e) {
-                    e.getMessage();
+                    e.printStackTrace();
                 }
             }
         });
@@ -132,12 +151,13 @@ public class TuiManager implements Manager {
         Thread viewThread = new Thread(() -> {
             while (true) {
                 try {
-                    currentState.printTui(terminal);
+                    currentScreen.printTui(terminal);
                     printInput = true;
                     synchronized (stateLock){
                         stateLock.notifyAll();
                         stateLock.wait();
                     }
+                    currentScreen.setMessage(null);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -151,17 +171,27 @@ public class TuiManager implements Manager {
 
     public static void main(String[] args) {
         ArrayList<Component> tiles = TilesManager.getTiles();
-        for (Component tile : tiles) {
-            ComponentView tileView = converter(tile);
+        for (int i = 0; i < 50; i++) {
+            ComponentView tileView = converter(tiles.get(i));
             tileView.setCovered(false);
-            MiniModel.getInstance().components.add(tileView);
+            MiniModel.getInstance().viewableComponents.add(tileView);
         }
 
+        ArrayList<LobbyView> currentLobbies = MiniModel.getInstance().lobbiesView;
+        LobbyView currentLobby = new LobbyView("pippo", 0, 4, LevelView.SECOND);
+        currentLobbies.add(new LobbyView("nico", 0, 4, LevelView.LEARNING));
+        currentLobbies.add(new LobbyView("eli", 0, 4, LevelView.LEARNING));
+        currentLobbies.add(new LobbyView("lolo", 0, 4, LevelView.LEARNING));
+        currentLobbies.add(new LobbyView("lore", 0, 4, LevelView.LEARNING));
+        currentLobbies.add(new LobbyView("vitto", 0, 4, LevelView.LEARNING));
+
+        MiniModel.getInstance().currentLobby = currentLobby;
+
         ArrayList<PlayerDataView> otherPlayers = MiniModel.getInstance().otherPlayers;
-        PlayerDataView player = new PlayerDataView("Player1", ColorView.YELLOW, new SpaceShipView(LevelView.SECOND));
-        otherPlayers.add(new PlayerDataView("Player2", ColorView.RED, new SpaceShipView(LevelView.SECOND)));
-        otherPlayers.add(new PlayerDataView("Player3", ColorView.GREEN, new SpaceShipView(LevelView.SECOND)));
-        otherPlayers.add(new PlayerDataView("Player4", ColorView.BLUE, new SpaceShipView(LevelView.SECOND)));
+        PlayerDataView player = new PlayerDataView("Player1", MarkerView.YELLOW, new SpaceShipView(currentLobby.getLevel()));
+        otherPlayers.add(new PlayerDataView("Player2", MarkerView.RED, new SpaceShipView(currentLobby.getLevel())));
+        otherPlayers.add(new PlayerDataView("Player3", MarkerView.GREEN, new SpaceShipView(currentLobby.getLevel())));
+        otherPlayers.add(new PlayerDataView("Player4", MarkerView.BLUE, new SpaceShipView(currentLobby.getLevel())));
 
         MiniModel.getInstance().clientPlayer = player;
         MiniModel.getInstance().clientPlayer.setHand(new GenericComponentView());
@@ -169,7 +199,7 @@ public class TuiManager implements Manager {
 
         Deck[] decks = CardsManager.createDecks(SECOND);
 
-        MiniModel.getInstance().boardView = new BoardView(LevelView.LEARNING);
+        MiniModel.getInstance().boardView = new BoardView(currentLobby.getLevel());
 
         for (int i = 0; i < 3; i++) {
             Stack<CardView> cards = new Stack<>();
@@ -192,7 +222,7 @@ public class TuiManager implements Manager {
         MiniModel.getInstance().shuffledDeckView.setDeck(stack);
         MiniModel.getInstance().shuffledDeckView.setOnlyLast(true);
 
-        for (ComponentView tile : MiniModel.getInstance().components) {
+        for (ComponentView tile : MiniModel.getInstance().viewableComponents) {
             if (tile instanceof StorageView && ((StorageView) tile).getGoods().length > 1) {
                 MiniModel.getInstance().clientPlayer.getShip().placeComponent(tile, 7, 5);
                 ((StorageView) tile).setGood(GoodView.BLUE, 0);
@@ -201,6 +231,7 @@ public class TuiManager implements Manager {
                 break;
             }
         }
+
 
         TuiManager tui = new TuiManager();
         tui.startTui();

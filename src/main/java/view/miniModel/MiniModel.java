@@ -9,21 +9,24 @@ import view.miniModel.logIn.LogInView;
 import view.miniModel.player.PlayerDataView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MiniModel {
     private static MiniModel instance;
 
     /// MiniModel structures:
     public LogInView logInView = new LogInView();
-    public ArrayList<LobbyView> lobbyViews = new ArrayList<>();
+    public ArrayList<LobbyView> lobbiesView = new ArrayList<>();
     /** The decks are stored in a Pair: The first element is the deck views, and the second element is a boolean array.
     If boolean[i] = true the deck[i] is not taken by a player else deck is taken and not viewable in the building state*/
     public Pair<DeckView[], Boolean[]> deckViews = new Pair<>(new DeckView[3], new Boolean[3]);
     public DeckView shuffledDeckView;
     public BoardView boardView;
     public ArrayList<PlayerDataView> otherPlayers = new ArrayList<>();
-    public ArrayList<ComponentView> components = new ArrayList<>();
+    public ArrayList<ComponentView> viewableComponents = new ArrayList<>();
     public PlayerDataView clientPlayer;
+    public String nickname;
+    public List<String> bestLookingPlayers = new ArrayList<>();
 
     /// View Attributes
     public PlayerDataView currentPlayer;

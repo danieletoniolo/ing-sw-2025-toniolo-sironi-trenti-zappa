@@ -2,72 +2,111 @@ package view;
 
 import event.EventListener;
 import event.NetworkTransceiver;
-import event.lobby.CreateLobby;
-import event.lobby.JoinLobby;
-import event.lobby.LeaveLobby;
-import event.lobby.RemoveLobby;
+
+import event.game.serverToClient.BestLookingShips;
+import event.lobby.serverToClient.*;
+import event.receiver.CastEventReceiver;
 import view.miniModel.MiniModel;
 import view.miniModel.board.LevelView;
 import view.miniModel.lobby.LobbyView;
+import view.miniModel.player.PlayerDataView;
 
 
 public class EventHandlerClient {
     NetworkTransceiver transceiver;
     Manager manager;
 
+    private final EventListener<NicknameSet> nicknameSetListener = data -> {
+        MiniModel.getInstance().nickname = data.nickname();
+
+        manager.notifyNicknameSet();
+    };
+
     // Lobby events
-    private final EventListener<CreateLobby> createLobbyListener = data -> {
-        // Create a new lobby view and add it to the MiniModel
-        LevelView level = LevelView.valueOf(data.level().name());
-        LobbyView lobbyView = new LobbyView(data.lobbyID(), data.maxPlayers(), level);
+    private final EventListener<Lobbies> lobbiesListener = data -> {
+        //TODO: Modificare LevelView
+        for (int i = 0; i < data.lobbiesNames().size(); i++) {
+            MiniModel.getInstance().lobbiesView.add(new LobbyView(data.lobbiesNames().get(i), data.lobbiesPlayers().get(i).getValue0(), data.lobbiesPlayers().get(i).getValue1(), LevelView.fromValue(0)));
+        }
 
-        MiniModel.getInstance().lobbyViews.add(lobbyView);
-
-        manager.notifyCreateLobby(data);
+        manager.notifyLobbies();
     };
 
-    private final EventListener<RemoveLobby> removeLobbyListener = data -> {
-        // Remove the lobby view from the MiniModel
-        MiniModel.getInstance().lobbyViews.removeIf(lobbyView -> lobbyView.getLobbyName().equals(data.lobbyID()));
+    private final EventListener<LobbyCreated> lobbyCreatedListener = data -> {
+        //TODO: Modificare LevelView
+        LobbyView lobby = new LobbyView(data.lobbyID(), 1, data.maxPlayers(), LevelView.fromValue(0));
+        MiniModel.getInstance().lobbiesView.add(lobby);
+        if (data.nickname().equals(MiniModel.getInstance().nickname)) {
+            MiniModel.getInstance().currentLobby = lobby;
+        }
 
-        manager.notifyRemoveLobby(data);
+        manager.notifyCreatedLobby(data);
     };
 
-    private final EventListener<JoinLobby> joinLobbyListener = data -> {
-        // Add the player to the specific lobby
-        /*MiniModel.getInstance().lobbyViews.stream()
-                .filter(lobbyView -> lobbyView.getLobbyName().equals(data.lobbyID()))
+    private final EventListener<LobbyJoined> lobbyJoinedListener = data -> {
+        MiniModel.getInstance().lobbiesView.stream()
+                .filter(lobby -> lobby.getLobbyName().equals(data.lobbyID()))
                 .findFirst()
-                .ifPresent(lobbyView -> {
-                    lobbyView.addPlayer(data.userID());
+                .ifPresent(lobby -> {
+                    lobby.addPlayer(data.nickname());
                 });
 
-        manager.notifyJoinLobby(data);*/
+        manager.notifyLobbyJoined(data);
     };
 
-    private final EventListener<LeaveLobby> leaveLobbyListener = data -> {
-        // Remove the player from the specific lobby
-        MiniModel.getInstance().lobbyViews.stream()
-                .filter(lobbyView -> lobbyView.getLobbyName().equals(data.lobbyID()))
+    private final EventListener<LobbyLeft> lobbyLeftListener = data -> {
+        MiniModel.getInstance().lobbiesView.stream()
+                .filter(lobby -> lobby.getLobbyName().equals(data.lobbyID()))
                 .findFirst()
-                .ifPresent(lobbyView -> {
-                    lobbyView.removePlayer(data.userID());
+                .ifPresent(lobby -> {
+                    lobby.removePlayer(data.nickname());
                 });
-        manager.notifyLeaveLobby(data);
+
+        manager.notifyLobbyLeft(data);
     };
 
+    private final EventListener<LobbyRemoved> lobbyRemovedListener = data -> {
+        MiniModel.getInstance().lobbiesView.stream()
+                .filter(lobby -> lobby.getLobbyName().equals(data.lobbyID()))
+                .findFirst()
+                .ifPresent(lobby -> {
+                    MiniModel.getInstance().lobbiesView.remove(lobby);
+                });
 
+        manager.notifyLobbyRemoved(data);
+    };
+
+    // Game events
+    private final EventListener<BestLookingShips> bestLookingShipsListener = data -> {
+
+        manager.notifyBestLookingShips(data);
+    };
 
     public EventHandlerClient(NetworkTransceiver transceiver, Manager manager) {
         this.transceiver = transceiver;
         this.manager = manager;
 
+        CastEventReceiver<NicknameSet> nicknameSetReceiver = new CastEventReceiver<>(this.transceiver);
+        nicknameSetReceiver.registerListener(nicknameSetListener);
+
         // Register listeners for events
         // Lobby events
-        //this.transceiver.registerListener(createLobbyListener);
-        //this.transceiver.registerListener(joinLobbyListener);
-        //this.transceiver.registerListener(leaveLobbyListener);
+        CastEventReceiver<Lobbies> lobbiesReceiver = new CastEventReceiver<>(this.transceiver);
+        lobbiesReceiver.registerListener(lobbiesListener);
 
+        CastEventReceiver<LobbyCreated> lobbyCreatedReceiver = new CastEventReceiver<>(this.transceiver);
+        lobbyCreatedReceiver.registerListener(lobbyCreatedListener);
 
+        CastEventReceiver<LobbyJoined> lobbyJoinedReceiver = new CastEventReceiver<>(this.transceiver);
+        lobbyJoinedReceiver.registerListener(lobbyJoinedListener);
+
+        CastEventReceiver<LobbyLeft> lobbyLeftReceiver = new CastEventReceiver<>(this.transceiver);
+        lobbyLeftReceiver.registerListener(lobbyLeftListener);
+
+        CastEventReceiver<LobbyRemoved> lobbyRemovedReceiver = new CastEventReceiver<>(this.transceiver);
+        lobbyRemovedReceiver.registerListener(lobbyRemovedListener);
+
+        // Game events
+        CastEventReceiver<BestLookingShips> bestLookingShipsReceiver = new CastEventReceiver<>(this.transceiver);
     };
 }

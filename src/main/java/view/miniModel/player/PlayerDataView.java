@@ -17,7 +17,7 @@ public class PlayerDataView implements Structure {
     private final String red =    "\033[31m";
     private final String reset =  "\033[0m";
 
-    public PlayerDataView(String username, ColorView color, SpaceShipView ship) {
+    public PlayerDataView(String username, MarkerView color, SpaceShipView ship) {
         this.username = username;
         this.color = switch (color) {
             case BLUE -> blue;

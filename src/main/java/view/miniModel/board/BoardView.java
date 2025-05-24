@@ -1,14 +1,14 @@
 package view.miniModel.board;
 
 import view.miniModel.Structure;
-import view.miniModel.player.ColorView;
+import view.miniModel.player.MarkerView;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class BoardView implements Structure {
     private String[] path;
-    private Map<ColorView, Integer> players;
+    private Map<MarkerView, Integer> players;
     private LevelView level;
     private int stepsForALap;
     public static String ArrowUp = "↑";
@@ -27,7 +27,7 @@ public class BoardView implements Structure {
             case LEARNING -> this.stepsForALap = 18;
             case SECOND -> this.stepsForALap = 24;
         }
-        this.players = new HashMap<ColorView, Integer>();
+        this.players = new HashMap<MarkerView, Integer>();
         initializeBoard();
     }
 
@@ -44,7 +44,7 @@ public class BoardView implements Structure {
         return (stepsForALap / 4 + 1) * 7 + 12;
     }
 
-    public void addPlayer(ColorView color, int step) {
+    public void addPlayer(MarkerView color, int step) {
         initializeBoard();
         players.put(color, step);
         players.forEach((key, value) -> {
@@ -52,7 +52,7 @@ public class BoardView implements Structure {
         });
     }
 
-    public void removePlayer(ColorView color) {
+    public void removePlayer(MarkerView color) {
         players.remove(color);
     }
 
@@ -129,9 +129,9 @@ public class BoardView implements Structure {
     public static void main(String[] args) {
         LevelView level = LevelView.SECOND;
         BoardView board = new BoardView(level);
-        board.addPlayer(ColorView.BLUE, 3);
-        board.addPlayer(ColorView.RED, 7);
-        board.addPlayer(ColorView.RED, 10);
+        board.addPlayer(MarkerView.BLUE, 3);
+        board.addPlayer(MarkerView.RED, 7);
+        board.addPlayer(MarkerView.RED, 10);
 
         for (int i = 0; i < board.getRowsToDraw(); i++) {
             System.out.println(board.drawLineTui(i));
