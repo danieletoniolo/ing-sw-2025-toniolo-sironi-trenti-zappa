@@ -329,4 +329,15 @@ public abstract class State implements Serializable {
     public void swapGoods(PlayerData player, int storageID1, int storageID2, List<Good> goods1to2, List<Good> goods2to1) throws IllegalStateException {
         throw new IllegalStateException("Cannot set good to swap mode in this state");
     }
+
+    /**
+     * Set the player isReady for the start of the game
+     *
+     * @param player   PlayerData of the player who is isReady.
+     * @param isReady  Boolean indicating if the player is isReady or not.
+     * @throws IllegalStateException if the state does not allow setting the player isReady.
+     */
+    public void playerReady(PlayerData player, boolean isReady) throws IllegalStateException {
+        throw new IllegalStateException("Cannot set player isReady in this state");
+    }
 }

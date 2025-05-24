@@ -6,6 +6,7 @@ import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.state.LobbyState;
 import it.polimi.ingsw.model.state.State;
+import it.polimi.ingsw.controller.ServerEventManager;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -31,7 +32,7 @@ public class GameController implements Serializable {
         return uuid;
     }
 
-    // TODO: add the list of states already initialize to the game it.polimi.ingsw.controller?
+    // TODO: add the list of states already initialize to the game controller?
     public void nextState(State newState) {
         if (state != null) {
             state.exit();

@@ -1,7 +1,10 @@
 package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.model.game.board.Board;
+import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.game.lobby.LobbyInfo;
+import it.polimi.ingsw.model.good.Good;
+import it.polimi.ingsw.model.good.GoodType;
 import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
@@ -10,18 +13,19 @@ import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.NetworkTransceiver;
 import it.polimi.ingsw.event.game.clientToServer.*;
 import it.polimi.ingsw.event.game.serverToClient.Pota;
-import it.polimi.ingsw.event.game.serverToClient.Success;
+import it.polimi.ingsw.event.game.serverToClient.Tac;
 import it.polimi.ingsw.event.lobby.clientToServer.*;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.network.User;
 import org.javatuples.Pair;
+import org.javatuples.Triplet;
 
 import java.util.*;
 
 /**
- * MatchController is the main it.polimi.ingsw.controller of the game. It manages the lobbies, the users and the game controllers.
+ * MatchController is the main controller of the game. It manages the lobbies, the users and the game controllers.
  * It is a singleton class, so it can be accessed from anywhere in the code.
- * It also manages the it.polimi.ingsw.network transceivers for each lobby and the handle of the events that the server receive from the clients.
+ * It also manages the network transceivers for each lobby and the handle of the events that the server receive from the clients.
  * The MatchController is associated also with a serverNetworkTransceiver, which is used to communicate with the clients when they are not in a lobby.
  */
 public class MatchController {
@@ -33,12 +37,12 @@ public class MatchController {
     private final Map<String, LobbyInfo> lobbies;
 
     /**
-     * Represents the server's it.polimi.ingsw.network transceiver responsible for handling communication processes such as sending and receiving data over the it.polimi.ingsw.network.
+     * Represents the server's network transceiver responsible for handling communication processes such as sending and receiving data over the network.
      */
     private final NetworkTransceiver serverNetworkTransceiver;
 
     /**
-     * Map of all the it.polimi.ingsw.network transceivers created in the game. The key is the LobbyInfo object and the value is the NetworkTransceiver object.
+     * Map of all the network transceivers created in the game. The key is the LobbyInfo object and the value is the NetworkTransceiver object.
      */
     private final Map<LobbyInfo, NetworkTransceiver> networkTransceivers;
 
@@ -49,7 +53,7 @@ public class MatchController {
 
     /**
      * Map of all the users connected to the server. The key is the UUID of the user and the value is the User object.
-     * The User is created only after the user has set the nickname. The UUID associated to the user is the same ID that is associated to the connection.
+     * The User is created only after the user has set the userID. The UUID associated to the user is the same ID that is associated to the connection.
      */
     private final Map<UUID, User> users;
 
@@ -79,8 +83,8 @@ public class MatchController {
 
     /**
      * This method is used to initialize the MatchController. It is a singleton class, so it can be accessed from anywhere in the code.
-     * It is called by the it.polimi.ingsw.Server class when the server is started.
-     * @param serverNetworkTransceiver is the it.polimi.ingsw.network transceiver used to communicate with the clients when they are not in a lobby.
+     * It is called by the Server class when the server is started.
+     * @param serverNetworkTransceiver is the network transceiver used to communicate with the clients when they are not in a lobby.
      * @throws IllegalStateException   if the MatchController is already initialized
      */
     public static void setUp(NetworkTransceiver serverNetworkTransceiver) throws IllegalStateException {
@@ -98,10 +102,10 @@ public class MatchController {
     public static MatchController getInstance() { return instance; }
 
     /**
-     * This method is used to get the list of the it.polimi.ingsw.network transceivers associated to a lobby.
+     * This method is used to get the list of the network transceivers associated to a lobby.
      * @param lobbyInfo              is the lobby info object that contains the information of the lobby.
-     * @return                       the it.polimi.ingsw.network transceiver associated to the lobby
-     * @throws IllegalStateException if there is no it.polimi.ingsw.network transceiver for the lobby
+     * @return                       the network transceiver associated to the lobby
+     * @throws IllegalStateException if there is no network transceiver for the lobby
      */
     public NetworkTransceiver getNetworkTransceiver(LobbyInfo lobbyInfo) throws IllegalStateException {
         NetworkTransceiver networkTransceiver = networkTransceivers.get(lobbyInfo);
@@ -113,8 +117,8 @@ public class MatchController {
     }
 
     /**
-     * Registers all the lobby-related listeners to handle incoming it.polimi.ingsw.network requests for creating, joining, leaving a lobby, and setting a nickname.
-     * Associates each request handler with the server it.polimi.ingsw.network transceiver and the respective responder method.
+     * Registers all the lobby-related listeners to handle incoming network requests for creating, joining, leaving a lobby, and setting a userID.
+     * Associates each request handler with the server network transceiver and the respective responder method.
      */
     private void registerAllLobbyListeners() {
         CreateLobby.responder(serverNetworkTransceiver, this::createLobby);
@@ -123,12 +127,12 @@ public class MatchController {
     }
 
     /**
-     * Registers all game-related it.polimi.ingsw.event listeners for it.polimi.ingsw.network communication. Each listener corresponds
-     * to a specific game-related it.polimi.ingsw.event, and responds to incoming data by invoking the appropriate
-     * method to handle the it.polimi.ingsw.event. This method is integral to ensuring proper interaction between
+     * Registers all game-related event listeners for network communication. Each listener corresponds
+     * to a specific game-related event, and responds to incoming data by invoking the appropriate
+     * method to handle the event. This method is integral to ensuring proper interaction between
      * the server and clients during a game session.
      *
-     * @param networkTransceiver the it.polimi.ingsw.network transceiver used to handle communication with clients for
+     * @param networkTransceiver the network transceiver used to handle communication with clients for
      *                           receiving and responding to game-related events.
      */
     private void registerAllGameListeners(NetworkTransceiver networkTransceiver) {
@@ -153,16 +157,17 @@ public class MatchController {
         UseShield.responder(networkTransceiver, this::setProtect);
         ExchangeGoods.responder(networkTransceiver, this::setGoodsToExchange);
         SwapGoods.responder(networkTransceiver, this::swapGoods);
+        PlayerReady.responder(networkTransceiver, this::playerReady);
     }
 
     /**
-     * Sets the nickname for a user. This method checks if the given nickname
-     * is already in use. If the nickname is available, it assigns it to the user
-     * and updates the user list. If the nickname is already used, it returns an
-     * appropriate it.polimi.ingsw.event indicating the failure.
+     * Sets the userID for a user. This method checks if the given userID
+     * is already in use. If the userID is available, it assigns it to the user
+     * and updates the user list. If the userID is already used, it returns an
+     * appropriate event indicating the failure.
      *
-     * @param data an object containing the user ID and the desired nickname
-     * @return an it.polimi.ingsw.event indicating whether the nickname assignment was successful or not.
+     * @param data an object containing the user ID and the desired userID
+     * @return an event indicating whether the userID assignment was successful or not.
      */
     private Event setNickname(SetNickname data) {
         boolean nicknameAlreadyUsed = false;
@@ -186,16 +191,21 @@ public class MatchController {
             serverNetworkTransceiver.broadcast(nicknameSet);
 
             // Send to the user the list of all the lobbies
-            List<Pair<Integer, Integer>> lobbiesPlayers = lobbies.values().stream().map(lobbyInfo -> new Pair<>(lobbyInfo.getNumberOfPlayersEntered(), lobbyInfo.getTotalPlayers())).toList();
-            Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), new ArrayList<>(lobbiesPlayers));
+            List<Pair<Integer, Integer>> lobbiesPlayers = new ArrayList<>();
+            List<Integer> lobbiesLevels = new ArrayList<>();
+            for (LobbyInfo lobby : lobbies.values()) {
+                lobbiesPlayers.add(new Pair<>(lobby.getNumberOfPlayersEntered(), lobby.getTotalPlayers()));
+                lobbiesLevels.add(lobby.getLevel().getValue());
+            }
+            Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), lobbiesPlayers, lobbiesLevels);
             serverNetworkTransceiver.send(userID, lobbiesEvent);
         }
-        return new Success(SetNickname.class);
+        return new Tac(SetNickname.class);
     }
 
     /**
      * Creates a new game lobby and initializes all necessary components for the lobby,
-     * including the lobby details, it.polimi.ingsw.network transceivers, player data, game board, and game it.polimi.ingsw.controller.
+     * including the lobby details, network transceivers, player data, game board, and game controller.
      * Additionally, broadcasts the new lobby creation details to all connected clients.
      *
      * @param data a {@code CreateLobby} object containing the user ID of the host, maximum number
@@ -208,7 +218,7 @@ public class MatchController {
         User user = users.get(userID);
 
         // Creating the new lobby
-        LobbyInfo lobby = new LobbyInfo(user.getNickname(), data.maxPlayers(), data.level());
+        LobbyInfo lobby = new LobbyInfo(user.getNickname(), data.maxPlayers(), Level.fromInt(data.level()));
         lobbies.put(lobby.getName(), lobby);
 
         // Trying to create the board
@@ -217,10 +227,10 @@ public class MatchController {
             board = new Board(lobby.getLevel());
         } catch (IllegalArgumentException | JsonProcessingException e) {
             lobbies.remove(lobby.getName());
-            return new Pota(CreateLobby.class, "Error creating board");
+            return new Pota(CreateLobby.class, "Error creating the board");
         }
 
-        // Creating the new it.polimi.ingsw.network transceiver for the lobby
+        // Creating the new network transceiver for the lobby
         NetworkTransceiver networkTransceiver = new NetworkTransceiver();
 
         // Registering the listeners for the leave of a lobby and registering all game listeners
@@ -242,28 +252,28 @@ public class MatchController {
         PlayerAdded playerAdded = new PlayerAdded(user.getNickname(), color.getValue());
         networkTransceiver.broadcast(playerAdded);
 
-        // Creating the game it.polimi.ingsw.controller
+        // Creating the game controller
         GameController gc = new GameController(board, lobby);
         gc.manageLobby(player, 1);
         gameControllers.put(lobby, gc);
 
         // Notifying to all the clients that a new lobby has been created
-        CreateLobby toSend = new CreateLobby(user.getNickname(), lobby.getName(), lobby.getTotalPlayers(), lobby.getLevel());
+        CreateLobby toSend = new CreateLobby(user.getNickname(), lobby.getName(), lobby.getTotalPlayers(), lobby.getLevel().getValue());
         serverNetworkTransceiver.broadcast(toSend);
 
-        return new Success(CreateLobby.class);
+        return new Tac(CreateLobby.class);
     }
 
     /**
      * Handles the logic for a user leaving a lobby. If the user is the founder of the lobby,
      * additional cleanup operations are performed to remove the lobby and notify all clients
      * about the lobby removal. If the user is not the founder, they are simply removed from the
-     * lobby and reconnected to the server's it.polimi.ingsw.network transceiver.
+     * lobby and reconnected to the server's network transceiver.
      *
      * @param data an instance of {@code LeaveLobby} containing the information about the user
      *             leaving the lobby, such as the user ID.
-     * @return an instance of {@code Event}, which could be a {@code Success} it.polimi.ingsw.event if the operation
-     *         is successful or a {@code Pota} it.polimi.ingsw.event if the lobby is not found.
+     * @return an instance of {@code Event}, which could be a {@code Success} event if the operation
+     *         is successful or a {@code Pota} event if the lobby is not found.
      */
     private Event leaveLobby(LeaveLobby data) {
         UUID userID = UUID.fromString(data.userID());
@@ -292,10 +302,15 @@ public class MatchController {
                 networkTransceivers.get(lobby).broadcast(removeLobbyEvent);
 
                 // Notify to all the old lobbies user of the lobbies list
-                List<Pair<Integer, Integer>> lobbiesPlayers = lobbies.values().stream().map(lobbyInfo -> new Pair<>(lobbyInfo.getNumberOfPlayersEntered(), lobbyInfo.getTotalPlayers())).toList();
-                Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), new ArrayList<>(lobbiesPlayers));
+                List<Pair<Integer, Integer>> lobbiesPlayers = new ArrayList<>();
+                List<Integer> lobbiesLevels = new ArrayList<>();
+                for (LobbyInfo lobbyTemp : lobbies.values()) {
+                    lobbiesPlayers.add(new Pair<>(lobbyTemp.getNumberOfPlayersEntered(), lobbyTemp.getTotalPlayers()));
+                    lobbiesLevels.add(lobbyTemp.getLevel().getValue());
+                }
+                Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), lobbiesPlayers, lobbiesLevels);
 
-                // Removing the it.polimi.ingsw.network transceiver of the lobby and attaching the users to the it.polimi.ingsw.network transceiver of the server
+                // Removing the network transceiver of the lobby and attaching the users to the network transceiver of the server
                 networkTransceivers.remove(lobby);
                 for (User tempUser : users.values()) {
                     serverNetworkTransceiver.connect(tempUser.getUUID(), tempUser.getConnection());
@@ -312,7 +327,7 @@ public class MatchController {
                 userPlayers.remove(user);
                 userLobbyInfo.remove(user);
 
-                // Attaching the user to the it.polimi.ingsw.network transceiver of the server
+                // Attaching the user to the network transceiver of the server
                 serverNetworkTransceiver.connect(user.getUUID(), user.getConnection());
                 networkTransceivers.get(lobby).disconnect(user.getUUID());
 
@@ -322,22 +337,27 @@ public class MatchController {
                 networkTransceivers.get(lobby).broadcast(lobbyLeftEvent);
 
                 // Notify the single user of the lobby list
-                List<Pair<Integer, Integer>> lobbiesPlayers = lobbies.values().stream().map(lobbyInfo -> new Pair<>(lobbyInfo.getNumberOfPlayersEntered(), lobbyInfo.getTotalPlayers())).toList();
-                Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), new ArrayList<>(lobbiesPlayers));
+                List<Pair<Integer, Integer>> lobbiesPlayers = new ArrayList<>();
+                List<Integer> lobbiesLevels = new ArrayList<>();
+                for (LobbyInfo lobbyTemp : lobbies.values()) {
+                    lobbiesPlayers.add(new Pair<>(lobbyTemp.getNumberOfPlayersEntered(), lobbyTemp.getTotalPlayers()));
+                    lobbiesLevels.add(lobbyTemp.getLevel().getValue());
+                }
+                Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), lobbiesPlayers, lobbiesLevels);
                 serverNetworkTransceiver.send(user.getUUID(), lobbiesEvent);
             }
         } else {
             return new Pota(LeaveLobby.class, "Lobby not found");
         }
 
-        return new Success(LeaveLobby.class);
+        return new Tac(LeaveLobby.class);
     }
 
     /**
      * Handles the process of a user joining a game lobby. This method assigns the user
      * to the specified lobby, assigns a unique player color, updates the necessary
      * mappings for user and lobby relationships, manages the lobby state, and
-     * updates it.polimi.ingsw.network connections accordingly.
+     * updates network connections accordingly.
      *
      * @param data An object containing the details of the join lobby request,
      *             including user ID and lobby ID.
@@ -367,7 +387,7 @@ public class MatchController {
             userLobbyInfo.put(user, lobby);
             gc.manageLobby(player, 0);
 
-            // Attaching the user to the it.polimi.ingsw.network transceiver of the lobby
+            // Attaching the user to the network transceiver of the lobby
             NetworkTransceiver networkTransceiver = networkTransceivers.get(lobby);
             networkTransceiver.connect(user.getUUID(), user.getConnection());
             serverNetworkTransceiver.disconnect(user.getUUID());
@@ -383,14 +403,14 @@ public class MatchController {
         } else {
             return new Pota(JoinLobby.class, "Lobby is full");
         }
-        return new Success(JoinLobby.class);
+        return new Tac(JoinLobby.class);
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that picks a tile from the board.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that picks a tile from the board.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event pickTileFromBoard(PickTileFromBoard data) {
         UUID userID = UUID.fromString(data.userID());
@@ -402,17 +422,17 @@ public class MatchController {
             if (gc != null) {
                 gc.pickTile(player, 0, data.tileID());
             }
-            return new Success(PickTileFromBoard.class);
+            return new Tac(PickTileFromBoard.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(PickTileFromBoard.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that picks a tile from the reserve.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that picks a tile from the reserve.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event pickTileFromReserve(PickTileFromReserve data) {
         UUID userID = UUID.fromString(data.userID());
@@ -424,17 +444,17 @@ public class MatchController {
             if (gc != null) {
                 gc.pickTile(player, 1, data.tileID());
             }
-            return new Success(PickTileFromReserve.class);
+            return new Tac(PickTileFromReserve.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(PickTileFromReserve.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that picks a tile from the spaceship.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that picks a tile from the spaceship.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event pickTileFromSpaceship(PickTileFromSpaceship data) {
         UUID userID = UUID.fromString(data.userID());
@@ -446,17 +466,17 @@ public class MatchController {
             if (gc != null) {
                 gc.pickTile(player, 2, PLACEHOLDER);
             }
-            return new Success(PickTileFromSpaceship.class);
+            return new Tac(PickTileFromSpaceship.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(PickTileFromSpaceship.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that places a tile on the board.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that places a tile on the board.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event placeTileToBoard(PlaceTileToBoard data) {
         UUID userID = UUID.fromString(data.userID());
@@ -468,17 +488,17 @@ public class MatchController {
             if (gc != null) {
                 gc.placeTile(player, 0, PLACEHOLDER, PLACEHOLDER);
             }
-            return new Success(PlaceTileToBoard.class);
+            return new Tac(PlaceTileToBoard.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(PlaceTileToBoard.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that places a tile on the reserve.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that places a tile on the reserve.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event placeTileToReserve(PlaceTileToReserve data) {
         UUID userID = UUID.fromString(data.userID());
@@ -490,17 +510,17 @@ public class MatchController {
             if (gc != null) {
                 gc.placeTile(player, 1, PLACEHOLDER, PLACEHOLDER);
             }
-            return new Success(PlaceTileToReserve.class);
+            return new Tac(PlaceTileToReserve.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(PlaceTileToReserve.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that places a tile on the spaceship.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that places a tile on the spaceship.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event placeTileToSpaceship(PlaceTileToSpaceship data) {
         UUID userID = UUID.fromString(data.userID());
@@ -512,17 +532,17 @@ public class MatchController {
             if (gc != null) {
                 gc.placeTile(player, 2, data.row(), data.column());
             }
-            return new Success(PlaceTileToSpaceship.class);
+            return new Tac(PlaceTileToSpaceship.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(PlaceTileToSpaceship.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that uses a deck.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that uses a deck.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event useDeck(PickLeaveDeck data) {
         UUID userID = UUID.fromString(data.userID());
@@ -534,17 +554,17 @@ public class MatchController {
             if (gc != null) {
                 gc.useDeck(player, data.usage(), data.deckIndex());
             }
-            return new Success(PickLeaveDeck.class);
+            return new Tac(PickLeaveDeck.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(PickLeaveDeck.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that rotates a tile.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that rotates a tile.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event rotateTile(RotateTile data) {
         UUID userID = UUID.fromString(data.userID());
@@ -556,17 +576,17 @@ public class MatchController {
             if (gc != null) {
                 gc.rotateTile(player);
             }
-            return new Success(RotateTile.class);
+            return new Tac(RotateTile.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(RotateTile.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that flips the timer.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that flips the timer.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event flipTimer(FlipTimer data) {
         UUID userID = UUID.fromString(data.userID());
@@ -578,17 +598,17 @@ public class MatchController {
             if (gc != null) {
                 gc.flipTimer(player);
             }
-            return new Success(FlipTimer.class);
+            return new Tac(FlipTimer.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(FlipTimer.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that places a marker.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that places a marker.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event placeMarker(PlaceMarker data) {
         UUID userID = UUID.fromString(data.userID());
@@ -600,17 +620,17 @@ public class MatchController {
             if (gc != null) {
                 gc.placeMarker(player, data.position());
             }
-            return new Success(PlaceMarker.class);
+            return new Tac(PlaceMarker.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(PlaceMarker.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that manages a crew member.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that manages a crew member.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event manageCrewMember(ManageCrewMember data) {
         UUID userID = UUID.fromString(data.userID());
@@ -621,17 +641,17 @@ public class MatchController {
             if (gc != null) {
                 gc.manageCrewMember(userID, data.mode(), data.crewType(), data.cabinID());
             }
-            return new Success(ManageCrewMember.class);
+            return new Tac(ManageCrewMember.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(ManageCrewMember.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that uses the engines.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that uses the engines.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event useEngines(UseEngines data) {
         UUID userID = UUID.fromString(data.userID());
@@ -642,17 +662,17 @@ public class MatchController {
             if (gc != null) {
                 gc.useExtraStrength(userID, 0, data.enginesIDs(), data.batteriesIDs());
             }
-            return new Success(UseEngines.class);
+            return new Tac(UseEngines.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(UseEngines.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that uses the cannons.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that uses the cannons.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event useCannons(UseCannons data) {
         UUID userID = UUID.fromString(data.userID());
@@ -663,17 +683,17 @@ public class MatchController {
             if (gc != null) {
                 gc.useExtraStrength(userID, 1, data.cannonsIDs(), data.batteriesIDs());
             }
-            return new Success(UseCannons.class);
+            return new Tac(UseCannons.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(UseCannons.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that sets the penalty loss.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that sets the penalty loss.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event setPenaltyLoss(SetPenaltyLoss data) {
         UUID userID = UUID.fromString(data.userID());
@@ -684,17 +704,17 @@ public class MatchController {
             if (gc != null) {
                 gc.setPenaltyLoss(userID, data.type(), data.penaltyLoss());
             }
-            return new Success(SetPenaltyLoss.class);
+            return new Tac(SetPenaltyLoss.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(SetPenaltyLoss.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that selects a planet.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that selects a planet.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event selectPlanet(SelectPlanet data) {
         UUID userID = UUID.fromString(data.userID());
@@ -705,17 +725,17 @@ public class MatchController {
             if (gc != null) {
                 gc.selectPlanet(userID, data.planetNumber());
             }
-            return new Success(SelectPlanet.class);
+            return new Tac(SelectPlanet.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(SelectPlanet.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that sets the fragment choice.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that sets the fragment choice.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event setFragmentChoice(ChooseFragment data) {
         UUID userID = UUID.fromString(data.userID());
@@ -726,17 +746,17 @@ public class MatchController {
             if (gc != null) {
                 gc.setFragmentChoice(userID, data.fragmentChoice());
             }
-            return new Success(ChooseFragment.class);
+            return new Tac(ChooseFragment.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(ChooseFragment.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that sets the component to destroy.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that sets the component to destroy.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event setComponentToDestroy(DestroyComponents data) {
         UUID userID = UUID.fromString(data.userID());
@@ -747,17 +767,17 @@ public class MatchController {
             if (gc != null) {
                 gc.setComponentToDestroy(userID, data.componentsToDestroy());
             }
-            return new Success(DestroyComponents.class);
+            return new Tac(DestroyComponents.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(DestroyComponents.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that rolls the dice.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that rolls the dice.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event rollDice(RollDice data) {
         UUID userID = UUID.fromString(data.userID());
@@ -768,17 +788,17 @@ public class MatchController {
             if (gc != null) {
                 gc.rollDice(userID);
             }
-            return new Success(RollDice.class);
+            return new Tac(RollDice.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(RollDice.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that sets the protect.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that sets the protect.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event setProtect(UseShield data) {
         UUID userID = UUID.fromString(data.userID());
@@ -789,17 +809,17 @@ public class MatchController {
             if (gc != null) {
                 gc.setProtect(userID, data.batteryID());
             }
-            return new Success(UseShield.class);
+            return new Tac(UseShield.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(UseShield.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that sets the goods to exchange.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that sets the goods to exchange.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event setGoodsToExchange(ExchangeGoods data) {
         UUID userID = UUID.fromString(data.userID());
@@ -808,19 +828,31 @@ public class MatchController {
         GameController gc = gameControllers.get(lobby);
         try {
             if (gc != null) {
-                gc.exchangeGoods(userID, data.exchangeData());
+                List<Triplet<List<Good>, List<Good>, Integer>> convertedData = data.exchangeData().stream()
+                        .map(t -> new Triplet<>(
+                                t.getValue0().stream()
+                                    .map(GoodType::fromInt)
+                                    .map(Good::new)
+                                    .toList(),
+                                t.getValue1().stream()
+                                    .map(GoodType::fromInt)
+                                    .map(Good::new)
+                                    .toList(),
+                                t.getValue2()))
+                        .toList();
+                gc.exchangeGoods(userID, convertedData);
             }
-            return new Success(ExchangeGoods.class);
+            return new Tac(ExchangeGoods.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(ExchangeGoods.class, e.getMessage());
         }
     }
 
     /**
-     * This method is used to handle the it.polimi.ingsw.event of a user that swaps goods.
-     * @param data is the it.polimi.ingsw.event data that contains the information of the it.polimi.ingsw.event.
-     * @return     Return an it.polimi.ingsw.event Success or Error depending on the result of the operation.
-     *             This it.polimi.ingsw.event is used to notify the client that the operation has been completed or not.
+     * This method is used to handle the event of a user that swaps goods.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
      */
     private Event swapGoods(SwapGoods data) {
         UUID userID = UUID.fromString(data.userID());
@@ -829,13 +861,44 @@ public class MatchController {
         GameController gc = gameControllers.get(lobby);
         try {
             if (gc != null) {
-                gc.swapGoods(userID, data.storageID1(), data.storageID2(), data.goods1to2(), data.goods2to1());
+                gc.swapGoods(userID, data.storageID1(), data.storageID2(), data.goods1to2().stream().map(t -> new Good(GoodType.fromInt(t))).toList(), data.goods2to1().stream().map(t -> new Good(GoodType.fromInt(t))).toList());
             }
-            return new Success(SwapGoods.class);
+            return new Tac(SwapGoods.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(SwapGoods.class, e.getMessage());
         }
     }
 
-    // TODO: giveUp it.polimi.ingsw.event
+    /**
+     * This method is used to handle the event of a user that sets the player isReady.
+     * @param data is the event data that contains the information of the event.
+     * @return     Return an event Success or Error depending on the result of the operation.
+     *             This event is used to notify the client that the operation has been completed or not.
+     */
+    private Event playerReady(PlayerReady data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (data.isReady()) {
+                lobby.addPlayerReady(userID);
+            } else {
+                lobby.removePlayerReady(userID);
+            }
+
+            if (lobby.canGameStart()) {
+                StartingGame startingGameEvent = new StartingGame();
+                networkTransceivers.get(lobby).broadcast(startingGameEvent);
+                RemoveLobby removeLobbyEvent = new RemoveLobby(lobby.getName());
+                serverNetworkTransceiver.broadcast(removeLobbyEvent);
+                gc.startGame();
+            }
+            return new Tac(PlayerReady.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(PlayerReady.class, e.getMessage());
+        }
+    }
+
+    // TODO: giveUp event
 }

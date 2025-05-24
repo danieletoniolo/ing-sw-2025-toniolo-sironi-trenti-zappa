@@ -131,7 +131,7 @@ public class AbandonedStationState extends State {
         ship.exchangeGood(goods1to2, goods2to1, storageID1);
         ship.exchangeGood(goods2to1, goods1to2, storageID2);
 
-        GoodsSwapped goodsSwappedEvent = new GoodsSwapped(player.getUsername(), storageID1, storageID2, goods1to2, goods2to1);
+        GoodsSwapped goodsSwappedEvent = new GoodsSwapped(player.getUsername(), storageID1, storageID2, goods1to2.stream().map(Good::getValue).toList(), goods2to1.stream().map(Good::getValue).toList());
         eventCallback.trigger(goodsSwappedEvent);
     }
 
@@ -157,7 +157,17 @@ public class AbandonedStationState extends State {
 
             super.played = true;
 
-            UpdateGoodsExchange exchangeEvent = new UpdateGoodsExchange(player.getUsername(), exchangeData);
+            List<Triplet<List<Integer>, List<Integer>, Integer>> convertedData = exchangeData.stream()
+                    .map(t -> new Triplet<>(
+                            t.getValue0().stream()
+                                    .map(Good::getValue)
+                                    .toList(),
+                            t.getValue1().stream()
+                                    .map(Good::getValue)
+                                    .toList(),
+                            t.getValue2()))
+                    .toList();
+            UpdateGoodsExchange exchangeEvent = new UpdateGoodsExchange(player.getUsername(), convertedData);
             eventCallback.trigger(exchangeEvent);
         } else {
             playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);

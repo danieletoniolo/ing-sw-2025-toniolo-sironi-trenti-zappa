@@ -14,4 +14,13 @@ public enum GoodType implements Serializable {
     public int getValue() {
         return value;
     }
+
+    public static GoodType fromInt(int value) {
+        for (GoodType goodType : GoodType.values()) {
+            if (goodType.value == value) {
+                return goodType;
+            }
+        }
+        throw new IllegalArgumentException("Invalid value: " + value);
+    }
 }

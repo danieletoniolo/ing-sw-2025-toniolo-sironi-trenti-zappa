@@ -7,8 +7,8 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * This it.polimi.ingsw.event is used when a player have to add or remove a crew member.
- * @param nickname The nickname of the player that has to add or remove a crew member.
+ * This event is used when a player have to add or remove a crew member.
+ * @param nickname The userID of the player that has to add or remove a crew member.
  * @param cabins A triplet containing in this order a cabin ID, the number of crew members lost and the type of crew member (0 normal, 1 brown alien, 2 purple alien)
  * */
 public record UpdateCrewMembers(

@@ -1,7 +1,7 @@
 package it.polimi.ingsw.model.spaceship;
 
-import it.polimi.ingsw.model.player.PlayerColor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.polimi.ingsw.model.player.PlayerColor;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

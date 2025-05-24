@@ -157,7 +157,7 @@ public class PlanetsState extends State {
         ship.exchangeGood(goods1to2, goods2to1, storageID1);
         ship.exchangeGood(goods2to1, goods1to2, storageID2);
 
-        GoodsSwapped goodsSwappedEvent = new GoodsSwapped(player.getUsername(), storageID1, storageID2, goods1to2, goods2to1);
+        GoodsSwapped goodsSwappedEvent = new GoodsSwapped(player.getUsername(), storageID1, storageID2, goods1to2.stream().map(Good::getValue).toList(), goods2to1.stream().map(Good::getValue).toList());
         eventCallback.trigger(goodsSwappedEvent);
     }
 
@@ -181,7 +181,17 @@ public class PlanetsState extends State {
                 ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
             }
 
-            UpdateGoodsExchange exchangeGoodsEvent = new UpdateGoodsExchange(player.getUsername(), exchangeData);
+            List<Triplet<List<Integer>, List<Integer>, Integer>> convertedData = exchangeData.stream()
+                    .map(t -> new Triplet<>(
+                            t.getValue0().stream()
+                                    .map(Good::getValue)
+                                    .toList(),
+                            t.getValue1().stream()
+                                    .map(Good::getValue)
+                                    .toList(),
+                            t.getValue2()))
+                    .toList();
+            UpdateGoodsExchange exchangeGoodsEvent = new UpdateGoodsExchange(player.getUsername(), convertedData);
             eventCallback.trigger(exchangeGoodsEvent);
 
         } else if (playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {

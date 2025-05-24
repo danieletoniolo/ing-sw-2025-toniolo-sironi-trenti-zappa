@@ -35,4 +35,13 @@ public enum PlayerColor implements Serializable {
         }
         return null;
     }
+
+    public static PlayerColor fromInt(int value) {
+        for (PlayerColor color : PlayerColor.values()) {
+            if (color.value == value) {
+                return color;
+            }
+        }
+        throw new IllegalArgumentException("Invalid value: " + value);
+    }
 }

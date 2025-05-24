@@ -3,6 +3,7 @@ package it.polimi.ingsw.model.state;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
+import it.polimi.ingsw.controller.MatchController;
 
 /**
  * This class represents the lobby state of the game. In this state, players can join, leave and start the game.
@@ -29,7 +30,7 @@ public class LobbyState extends State {
 
     /**
      * This method is used to add/remove a player to the game.
-     * The event associated with this method are implemented in the {@link controller.MatchController} class.
+     * The event associated with this method are implemented in the {@link MatchController} class.
      * @param player The player to add/remove
      * @param type 0 to add the player, 1 to remove the player
      */
@@ -66,10 +67,10 @@ public class LobbyState extends State {
     }
 
     /**
-     * The execute method in this state is used to communicate that the player is ready to play the game.
+     * The execute method in this state is used to communicate that the player is isReady to play the game.
      * In order to do this we call the {@link State#execute(PlayerData)} that set the player status as
      * {@link PlayerStatus#PLAYED}.
-     * @param player PlayerData of the player that is ready to play
+     * @param player PlayerData of the player that is isReady to play
      */
     @Override
     public void execute(PlayerData player) {

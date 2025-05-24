@@ -9,30 +9,32 @@ import java.io.Serializable;
 import java.util.function.Function;
 
 /**
- * This event is used when a player place a tile on the reserve.
- * @param userID is the user ID. Only the user know his ID, so the event is not faked.
+ * This class represents the event of a player being isReady in the game.
+ * @param userID  The userID of the player
+ * @param isReady The isReady status of the player
  */
-public record PlaceTileToReserve(
-    String userID
+public record PlayerReady(
+        String userID,
+        boolean isReady
 ) implements Event, Serializable {
     /**
-     * This method is used to create a responder for the PlaceTileToReserve event.
+     * This method is used to create a responder for the PlayerReady event.
      * @param transceiver is the EventTransceiver that will be used to send the event.
      * @param response    is the function that will be used to create the response event.
-     * @return            a Responder for the PlaceTileToReserve event.
+     * @return            a Responder for the PlayerReady event.
      */
-    public static <T extends Event> Responder<PlaceTileToReserve, T> responder(EventTransceiver transceiver, Function<PlaceTileToReserve, T> response) {
+    public static <T extends Event> Responder<PlayerReady, T> responder(EventTransceiver transceiver, Function<PlayerReady, T> response) {
         return new Responder<>(transceiver, response);
     }
 
     /**
-     * Creates a Requester for the PlaceTileToReserve event.
+     * Creates a Requester for the PlayerReady event.
      *
      * @param transceiver the EventTransceiver that will be used to send and receive events
      * @param lock        the object used to synchronize and manage responses
-     * @return a Requester for the PlaceTileToReserve event
+     * @return            a Requester for the PlayerReady event
      */
-    public static Requester<PlaceTileToReserve> requester(EventTransceiver transceiver, Object lock) {
+    public static Requester<PlayerReady> requester(EventTransceiver transceiver, Object lock) {
         return new Requester<>(transceiver, lock);
     }
 }

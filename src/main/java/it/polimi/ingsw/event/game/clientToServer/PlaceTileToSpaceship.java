@@ -9,8 +9,8 @@ import java.io.Serializable;
 import java.util.function.Function;
 
 /**
- * This it.polimi.ingsw.event is used when a player place a tile on the spaceship.
- * @param userID is the user ID. Only the user know his ID, so the it.polimi.ingsw.event is not faked.
+ * This event is used when a player place a tile on the spaceship.
+ * @param userID is the user ID. Only the user know his ID, so the event is not faked.
  * @param row    is the row of the tile on the spaceship.
  * @param column is the column of the tile on the spaceship.
  */
@@ -20,21 +20,21 @@ public record PlaceTileToSpaceship(
     int column
 ) implements Event, Serializable {
     /**
-     * This method is used to create a responder for the PlaceTileToSpaceship it.polimi.ingsw.event.
-     * @param transceiver is the EventTransceiver that will be used to send the it.polimi.ingsw.event.
-     * @param response    is the function that will be used to create the response it.polimi.ingsw.event.
-     * @return            a Responder for the PlaceTileToSpaceship it.polimi.ingsw.event.
+     * This method is used to create a responder for the PlaceTileToSpaceship event.
+     * @param transceiver is the EventTransceiver that will be used to send the event.
+     * @param response    is the function that will be used to create the response event.
+     * @return            a Responder for the PlaceTileToSpaceship event.
      */
     public static <T extends Event> Responder<PlaceTileToSpaceship, T> responder(EventTransceiver transceiver, Function<PlaceTileToSpaceship, T> response) {
         return new Responder<>(transceiver, response);
     }
 
     /**
-     * Creates a Requester for the PlaceTileToSpaceship it.polimi.ingsw.event.
+     * Creates a Requester for the PlaceTileToSpaceship event.
      *
      * @param transceiver the EventTransceiver that will be used to send and receive events
      * @param lock        the object used to synchronize and manage responses
-     * @return a Requester for the PlaceTileToSpaceship it.polimi.ingsw.event
+     * @return a Requester for the PlaceTileToSpaceship event
      */
     public static Requester<PlaceTileToSpaceship> requester(EventTransceiver transceiver, Object lock) {
         return new Requester<>(transceiver, lock);

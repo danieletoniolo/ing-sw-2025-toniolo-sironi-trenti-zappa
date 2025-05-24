@@ -14,4 +14,13 @@ public enum Direction implements Serializable {
     public int getValue() {
         return value;
     }
+
+    public static Direction fromInt(int value) {
+        for (Direction direction : Direction.values()) {
+            if (direction.value == value) {
+                return direction;
+            }
+        }
+        throw new IllegalArgumentException("Invalid value: " + value);
+    }
 }

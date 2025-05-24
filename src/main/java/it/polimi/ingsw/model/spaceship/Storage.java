@@ -1,8 +1,8 @@
 package it.polimi.ingsw.model.spaceship;
 
 import it.polimi.ingsw.model.good.Good;
-import it.polimi.ingsw.model.good.GoodType;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import it.polimi.ingsw.model.good.GoodType;
 
 import java.util.*;
 

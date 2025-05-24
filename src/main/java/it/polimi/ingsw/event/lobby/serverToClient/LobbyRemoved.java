@@ -5,7 +5,7 @@ import it.polimi.ingsw.event.type.Event;
 import java.io.Serializable;
 
 /**
- * This it.polimi.ingsw.event is used when a lobby is removed.
+ * This event is used when a lobby is removed.
  * @param lobbyID is the ID of the lobby to be removed
  */
 public record LobbyRemoved(
