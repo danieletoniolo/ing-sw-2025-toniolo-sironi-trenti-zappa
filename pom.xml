@@ -11,7 +11,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <main.class>Server</main.class>
+        <main.class>it.polimi.ingsw.Server</main.class>
         <junit.version>5.10.2</junit.version>
     </properties>
 
@@ -86,7 +86,7 @@
                             <appendAssemblyId>false</appendAssemblyId>
                             <archive>
                                 <manifest>
-                                    <mainClass>Server</mainClass>
+                                    <mainClass>it.polimi.ingsw.Server</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
@@ -115,7 +115,7 @@
                                 <argument>--main-jar</argument>
                                 <argument>Server.jar</argument>
                                 <argument>--main-class</argument>
-                                <argument>app.ApplicationServer</argument>
+                                <argument>it.polimi.ingsw.app.ApplicationServer</argument>
                                 <argument>--type</argument>
                                 <argument>app-image</argument> <!-- oppure dmg, msi, deb -->
                                 <argument>--name</argument>
