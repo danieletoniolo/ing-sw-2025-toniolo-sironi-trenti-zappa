@@ -1,0 +1,16 @@
+package it.polimi.ingsw.model.spaceship;
+
+public class LifeSupportBrown extends Component {
+    public LifeSupportBrown(int ID, ConnectorType[] connectors) {
+        super(ID, connectors);
+    }
+
+    public LifeSupportBrown(){
+        super();
+    }
+
+    @Override
+    public ComponentType getComponentType() {
+        return ComponentType.BROWN_LIFE_SUPPORT;
+    }
+}

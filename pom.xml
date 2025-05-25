@@ -4,13 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
-    <artifactId>demo</artifactId>
+    <groupId>app</groupId>
+    <artifactId>GalaxyTrucker</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>demo</name>
+    <name>Galaxy Trucker</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <main.class>it.polimi.ingsw.Server</main.class>
         <junit.version>5.10.2</junit.version>
     </properties>
 
@@ -82,21 +83,60 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.7.0</version>
                 <executions>
                     <execution>
-                        <!-- Default configuration for running with: mvn clean javafx:run -->
-                        <id>default-cli</id>
+                        <id>package-client</id>
+                        <phase>package</phase>
+                        <goals><goal>single</goal></goals>
                         <configuration>
-                            <mainClass>org.example.demo/org.example.demo.HelloApplication</mainClass>
-                            <launcher>app</launcher>
-                            <jlinkZipName>app</jlinkZipName>
-                            <jlinkImageName>app</jlinkImageName>
-                            <noManPages>true</noManPages>
-                            <stripDebug>true</stripDebug>
-                            <noHeaderFiles>true</noHeaderFiles>
+                            <finalName>libs/Server</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <archive>
+                                <manifest>
+                                    <mainClass>it.polimi.ingsw.Server</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>jpackage-server</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jpackage</executable>
+                            <arguments>
+                                <argument>--input</argument>
+                                <argument>target/libs</argument>
+                                <argument>--main-jar</argument>
+                                <argument>Server.jar</argument>
+                                <argument>--main-class</argument>
+                                <argument>it.polimi.ingsw.app.ApplicationServer</argument>
+                                <argument>--type</argument>
+                                <argument>app-image</argument> <!-- oppure dmg, msi, deb -->
+                                <argument>--name</argument>
+                                <argument>GalaxyTruckerServer</argument>
+                                <argument>--app-version</argument>
+                                <argument>1.0</argument>
+                                <argument>--dest</argument>
+                                <argument>target/jpackage</argument>
+                                <argument>--java-options</argument>
+                                <argument>-Xmx512m</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>
