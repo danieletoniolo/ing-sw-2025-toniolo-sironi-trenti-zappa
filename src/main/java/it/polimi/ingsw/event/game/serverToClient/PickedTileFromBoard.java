@@ -12,5 +12,6 @@ import java.io.Serializable;
  */
 public record PickedTileFromBoard(
         String nickname,
+        // TODO: to be changed to a more specific type
         Component component
 ) implements Event, Serializable {}
