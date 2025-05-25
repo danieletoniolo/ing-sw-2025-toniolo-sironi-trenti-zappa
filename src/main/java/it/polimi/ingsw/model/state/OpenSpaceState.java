@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.cards.OpenSpace;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
@@ -21,8 +22,8 @@ public class OpenSpaceState extends State {
      * @param board The board associated with the game
      * @param card card type
      */
-    public OpenSpaceState(Board board, EventCallback callback, OpenSpace card) {
-        super(board, callback);
+    public OpenSpaceState(Board board, EventCallback callback, OpenSpace card, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
         this.stats = new HashMap<>();
     }
 
@@ -83,5 +84,6 @@ public class OpenSpaceState extends State {
             eventCallback.trigger(stepEvent);
         }
         super.execute(player);
+        super.nextState(GameState.CARDS);
     }
 }

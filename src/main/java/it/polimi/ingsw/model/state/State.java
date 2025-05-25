@@ -1,5 +1,8 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.Playing;
+import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerColor;
@@ -17,6 +20,7 @@ import java.util.Map;
 
 public abstract class State implements Serializable {
     protected final EventCallback eventCallback;
+    protected final StateTransitionHandler transitionHandler;
     protected ArrayList<PlayerData> players;
     protected Map<PlayerColor, PlayerStatus> playersStatus;
     protected Board board;
@@ -39,18 +43,73 @@ public abstract class State implements Serializable {
      * @param board Board associated with the game
      * @throws NullPointerException if board is null
      */
-    public State(Board board, EventCallback eventCallback) throws NullPointerException {
+    public State(Board board, EventCallback eventCallback, StateTransitionHandler transitionHandler) throws NullPointerException {
         if (board == null) {
             throw new NullPointerException("board is null");
         }
         this.board = board;
         this.eventCallback = eventCallback;
+        this.transitionHandler = transitionHandler;
         this.players = board.getInGamePlayers();
         this.playersStatus = new HashMap<>();
         for (PlayerData player : players) {
             this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
         }
         this.played = false;
+    }
+
+    /**
+     * Check if all players have played in the state.
+     * If so, then change state to the next one.
+     *
+     * @param nextGameState represents the next game state
+     */
+    protected void nextState(GameState nextGameState) {
+        for (PlayerData player : players) {
+            if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING || playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {
+                return;
+            }
+        }
+
+        switch (nextGameState) {
+            case LOBBY ->      transitionHandler.changeState(new LobbyState(board, eventCallback, transitionHandler));
+            case BUILDING ->   transitionHandler.changeState(new BuildingState(board, eventCallback, transitionHandler));
+            case VALIDATION -> transitionHandler.changeState(new ValidationState(board, eventCallback, transitionHandler));
+            case CARDS -> {
+                try {
+                    Card card = board.drawCard();
+                    switch (card.getCardType()) {
+                        case PLANETS ->          transitionHandler.changeState(new PlanetsState(board, eventCallback, (Planets) card, transitionHandler));
+                        case ABANDONEDSHIP ->    transitionHandler.changeState(new AbandonedShipState(board, eventCallback, (AbandonedShip) card, transitionHandler));
+                        case ABANDONEDSTATION -> transitionHandler.changeState(new AbandonedStationState(board, eventCallback, (AbandonedStation) card, transitionHandler));
+                        case SMUGGLERS ->        transitionHandler.changeState(new SmugglersState(board, eventCallback, (Smugglers) card, transitionHandler));
+                        case SLAVERS ->          transitionHandler.changeState(new SlaversState(board, eventCallback, (Slavers) card, transitionHandler));
+                        case PIRATES ->          transitionHandler.changeState(new PiratesState(board, eventCallback, (Pirates) card, transitionHandler));
+                        case OPENSPACE ->        transitionHandler.changeState(new OpenSpaceState(board, eventCallback, (OpenSpace) card, transitionHandler));
+                        case METEORSWARM ->      transitionHandler.changeState(new MeteorSwarmState(board, eventCallback, (MeteorSwarm) card, transitionHandler));
+                        case COMBATZONE ->       transitionHandler.changeState(new CombatZoneState(board, eventCallback, (CombatZone) card, transitionHandler));
+                        case STARDUST ->         transitionHandler.changeState(new StardustState(board, eventCallback, transitionHandler));
+                        case EPIDEMIC ->         transitionHandler.changeState(new EpidemicState(board, eventCallback, transitionHandler));
+                        default -> throw new IllegalArgumentException("Unknown card type: " + card.getCardType());
+                    }
+                } catch (Exception e) {
+                    transitionHandler.changeState(new EndState(board, eventCallback, board.getBoardLevel(), transitionHandler));
+                }
+            }
+            case FINISHED -> {
+                // TODO: Understand if we need to do something here
+                break;
+            }
+            default -> throw new IllegalArgumentException("Invalid next game state: " + nextGameState);
+        }
+    }
+
+    /**
+     * Get the board associated with the state
+     * @return Board associated with the state
+     */
+    public Board getBoard() {
+        return board;
     }
 
     /**
@@ -79,6 +138,8 @@ public abstract class State implements Serializable {
             throw new NullPointerException("player is null");
         }
         playersStatus.replace(player.getColor(), PlayerStatus.PLAYING);
+        Playing playingEvent = new Playing(player.getUsername());
+        eventCallback.trigger(playingEvent);
     }
 
     /**
@@ -264,8 +325,8 @@ public abstract class State implements Serializable {
     /**
      * Select which fragment of the ship to preserve
      *
-     * @param fragmentChoice
-     * @throws IllegalStateException
+     * @param fragmentChoice         Choice of the fragment to preserve: 0 = left, 1 = right, 2 = center.
+     * @throws IllegalStateException if the state does not allow setting the fragment choice.
      */
     public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
         throw new IllegalStateException("Cannot set fragment choice in this state");

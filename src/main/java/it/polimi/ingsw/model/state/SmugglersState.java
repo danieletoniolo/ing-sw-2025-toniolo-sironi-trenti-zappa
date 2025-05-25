@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.cards.Smugglers;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.good.Good;
@@ -34,8 +35,8 @@ public class SmugglersState extends State {
         BATTERIES_PENALTY
     }
 
-    public SmugglersState(Board board, EventCallback callback, Smugglers card) {
-        super(board, callback);
+    public SmugglersState(Board board, EventCallback callback, Smugglers card, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
         this.card = card;
         this.cannonStrength = new HashMap<>();
         this.internalState = SmugglerInternalState.DEFAULT;
@@ -333,6 +334,7 @@ public class SmugglersState extends State {
                 default:
                     throw new IllegalStateException("Unknown internal state" + internalState);
             }
+            super.nextState(GameState.CARDS);
         }
 
     @Override

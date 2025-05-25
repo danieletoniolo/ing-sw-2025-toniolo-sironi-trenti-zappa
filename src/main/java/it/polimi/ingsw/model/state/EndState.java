@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.player.PlayerData;
@@ -29,10 +30,10 @@ public class EndState extends State {
         LOSSES
     }
 
-    EndState (Board board, EventCallback callback, Level level) {
+    EndState (Board board, EventCallback callback, Level level, StateTransitionHandler transitionHandler) {
         // Super constructor to initialize the board and players
         // Note: the super constructor will get only the players that have not given up
-        super(board, callback);
+        super(board, callback, transitionHandler);
         // Add the player that has given up to the players list
         players.addAll(board.getGaveUpPlayers());
         // Set the player status to waiting for the players that have given up
@@ -180,6 +181,7 @@ public class EndState extends State {
                     throw new IllegalStateException("Unknown EndInternalState: " + endInternalState);
             }
         }
+        super.nextState(GameState.FINISHED);
     }
 
     @Override

@@ -20,6 +20,7 @@ import it.polimi.ingsw.network.User;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -158,6 +159,7 @@ public class MatchController {
         ExchangeGoods.responder(networkTransceiver, this::setGoodsToExchange);
         SwapGoods.responder(networkTransceiver, this::swapGoods);
         PlayerReady.responder(networkTransceiver, this::playerReady);
+        Play.responder(networkTransceiver, this::play);
     }
 
     /**
@@ -185,10 +187,9 @@ public class MatchController {
             User user = new User(userID, data.nickname(), serverNetworkTransceiver.getConnection(userID));
             users.put(userID, user);
 
-            // TODO: is it necessary to broadcast the nicknameSet to all the users?
             // Notify that a new user has joined the server
             NicknameSet nicknameSet = new NicknameSet(user.getNickname());
-            serverNetworkTransceiver.broadcast(nicknameSet);
+            serverNetworkTransceiver.send(userID, nicknameSet);
 
             // Send to the user the list of all the lobbies
             List<Pair<Integer, Integer>> lobbiesPlayers = new ArrayList<>();
@@ -258,7 +259,7 @@ public class MatchController {
         gameControllers.put(lobby, gc);
 
         // Notifying to all the clients that a new lobby has been created
-        CreateLobby toSend = new CreateLobby(user.getNickname(), lobby.getName(), lobby.getTotalPlayers(), lobby.getLevel().getValue());
+        LobbyCreated toSend = new LobbyCreated(user.getNickname(), lobby.getName(), lobby.getTotalPlayers(), lobby.getLevel().getValue());
         serverNetworkTransceiver.broadcast(toSend);
 
         return new Tac(CreateLobby.class);
@@ -298,7 +299,7 @@ public class MatchController {
                 });
 
                 // Notify to all the clients on the networkTransceiver of the lobby that the lobby has been removed
-                RemoveLobby removeLobbyEvent = new RemoveLobby(lobby.getName());
+                LobbyRemoved removeLobbyEvent = new LobbyRemoved(lobby.getName());
                 networkTransceivers.get(lobby).broadcast(removeLobbyEvent);
 
                 // Notify to all the old lobbies user of the lobbies list
@@ -395,6 +396,8 @@ public class MatchController {
             // Broadcast the information of the new player
             PlayerAdded playerAdded = new PlayerAdded(user.getNickname(), color != null ? color.getValue() : -1);
             networkTransceiver.broadcast(playerAdded);
+
+            // TODO: SEND LIST OF PLAYERDATA IN THE LOBBY TO THE CLIENT
 
             // Notifying to all the clients that a new user has joined the lobby
             LobbyJoined lobbyJoinedEvent = new LobbyJoined(user.getNickname(), lobby.getName());
@@ -888,15 +891,47 @@ public class MatchController {
             }
 
             if (lobby.canGameStart()) {
-                StartingGame startingGameEvent = new StartingGame();
-                networkTransceivers.get(lobby).broadcast(startingGameEvent);
                 RemoveLobby removeLobbyEvent = new RemoveLobby(lobby.getName());
                 serverNetworkTransceiver.broadcast(removeLobbyEvent);
-                gc.startGame();
+
+                int timerDuration = 5000;
+                StartingGame startingGameEvent = new StartingGame(LocalDateTime.now().toString(), timerDuration);
+                networkTransceivers.get(lobby).broadcast(startingGameEvent);
+                (new Timer()).schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        gc.startGame();
+                    }
+                }, timerDuration);
             }
             return new Tac(PlayerReady.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(PlayerReady.class, e.getMessage());
+        }
+    }
+
+    /**
+     * Executes the play action for a given user using the provided play data.
+     * It retrieves user-specific information, determines the associated game controller,
+     * and performs the play action if the game controller is available.
+     *
+     * @param data The play data containing the user ID and relevant play details.
+     * @return     An Event object representing the result of the play action. Returns a Tac object
+     *             if the play action is successful, or a Pota object if an exception occurs.
+     */
+    private Event play(Play data) {
+        UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.play(player);
+            }
+            return new Tac(Play.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(Play.class, e.getMessage());
         }
     }
 

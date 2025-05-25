@@ -12,13 +12,11 @@ import java.util.function.Function;
  * Event to create a new lobby.
  *
  * @param userID     userID of the user creating the lobby
- * @param lobbyID    the name of the lobby
  * @param maxPlayers the maximum number of players allowed in the lobby
  * @param level      the level of the game
  */
 public record CreateLobby(
         String userID,
-        String lobbyID,
         int maxPlayers,
         Integer level
 ) implements Event, Serializable {

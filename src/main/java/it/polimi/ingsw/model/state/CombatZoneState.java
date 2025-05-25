@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.cards.CombatZone;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.good.Good;
@@ -56,8 +57,8 @@ public class CombatZoneState extends State {
      * @param board The board associated with the game
      * @param card CombatZone card associated with the state
      */
-    public CombatZoneState(Board board, EventCallback callback, CombatZone card) {
-        super(board, callback);
+    public CombatZoneState(Board board, EventCallback callback, CombatZone card, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
         this.card = card;
         this.stats = new ArrayList<>(3);
         for (int i = 0; i < 3; i++) {
@@ -74,7 +75,7 @@ public class CombatZoneState extends State {
         this.crewLoss = null;
         this.goodsToDiscard = null;
         this.batteriesToDiscard = null;
-        this.fightHandler = new FightHandlerSubState(super.board, super.eventCallback);
+        this.fightHandler = new FightHandlerSubState(super.board, super.eventCallback, super.transitionHandler);
     }
 
     /**
@@ -447,5 +448,6 @@ public class CombatZoneState extends State {
                 }
                 break;
         }
+        super.nextState(GameState.CARDS);
     }
 }

@@ -3,6 +3,8 @@ package it.polimi.ingsw.model.game.lobby;
 import it.polimi.ingsw.model.game.board.Level;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.UUID;
 
 public class LobbyInfo implements Serializable {
     private String name;
@@ -10,6 +12,7 @@ public class LobbyInfo implements Serializable {
     private final Level level;
     private final int totalPlayers;
     private final int numberOfPlayersEntered;
+    private final List<UUID> playersReady;
 
     /**
      * Create a new lobby
@@ -31,6 +34,7 @@ public class LobbyInfo implements Serializable {
         this.numberOfPlayersEntered = 0;
         this.totalPlayers = totalPlayers;
         this.level = level;
+        this.playersReady = null;
     }
 
     /**
@@ -81,7 +85,27 @@ public class LobbyInfo implements Serializable {
         this.name = name;
     }
 
+    /**
+     * Adds a player to the list of players who are marked as ready in the lobby.
+     * If the player is already in the list, no action is performed.
+     * @param playerId the unique identifier of the player to be marked as ready
+     */
+    public void addPlayerReady(UUID playerId) {
+        if (!this.playersReady.contains(playerId)) {
+            this.playersReady.add(playerId);
+        }
+    }
+
+    /**
+     * Removes the specified player from the list of players marked as ready in the lobby.
+     * @param playerId the unique identifier of the player to be removed from the ready list
+     */
+    public void removePlayerReady(UUID playerId) {
+        this.playersReady.remove(playerId);
+    }
+
+
     public boolean canGameStart() {
-        return this.numberOfPlayersEntered == this.totalPlayers;
+        return this.numberOfPlayersEntered == this.playersReady.size();
     }
 }

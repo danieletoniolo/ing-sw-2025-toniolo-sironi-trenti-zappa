@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
@@ -12,8 +13,8 @@ public class StardustState extends State {
      * Constructor for StardustState
      * @param board The board associated with the game
      */
-    public StardustState(Board board, EventCallback callback) {
-        super(board, callback);
+    public StardustState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
     }
 
     @Override
@@ -25,5 +26,11 @@ public class StardustState extends State {
             MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
             eventCallback.trigger(stepsEvent);
         }
+    }
+
+    @Override
+    public void execute(PlayerData player) {
+        super.execute(player);
+        super.nextState(GameState.CARDS);
     }
 }

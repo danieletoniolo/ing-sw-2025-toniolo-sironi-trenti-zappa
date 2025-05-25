@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.cards.Slavers;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
@@ -33,8 +34,8 @@ public class SlaversState extends State {
      * @param board The board associated with the game
      * @param card Slavers card associated with the state
      */
-    public SlaversState(Board board, EventCallback callback, Slavers card) {
-        super(board, callback);
+    public SlaversState(Board board, EventCallback callback, Slavers card, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
         this.internalState = SlaversInternalState.ENEMY_DEFEAT;
         this.card = card;
         this.stats = new HashMap<>();
@@ -187,6 +188,7 @@ public class SlaversState extends State {
                 internalState = SlaversInternalState.ENEMY_DEFEAT;
                 break;
         }
+        super.nextState(GameState.CARDS);
     }
 
     @Override

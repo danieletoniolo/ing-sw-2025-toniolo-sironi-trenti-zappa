@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.Cabin;
@@ -20,8 +21,8 @@ public class EpidemicState extends State {
      * Constructor for EpidemicState
      * @param board The board associated with the game
      */
-    public EpidemicState(Board board, EventCallback callback) {
-        super(board, callback);
+    public EpidemicState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
         check = new boolean[SpaceShip.getRows()][SpaceShip.getCols()];
     }
 
@@ -65,5 +66,6 @@ public class EpidemicState extends State {
             UpdateCrewMembers crewEvent = new UpdateCrewMembers(p.getUsername(), cabinsIDs);
             eventCallback.trigger(crewEvent);
         }
+        super.nextState(GameState.CARDS);
     }
 }

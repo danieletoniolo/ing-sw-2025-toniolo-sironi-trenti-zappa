@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.player.PlayerColor;
@@ -7,6 +8,7 @@ import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.Component;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.event.game.serverToClient.*;
+import it.polimi.ingsw.model.spaceship.ConnectorType;
 import org.javatuples.Pair;
 
 import java.time.LocalDateTime;
@@ -20,8 +22,8 @@ public class BuildingState extends State {
     private static final long timerDuration = 90000;
     private final Map<PlayerColor, Component> playersHandQueue;
 
-    public BuildingState(Board board, EventCallback callback) {
-        super(board, callback);
+    public BuildingState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
         this.timer = new Timer();
         this.numberOfTimerFlips = 0;
         this.timerRunning = false;
@@ -178,7 +180,7 @@ public class BuildingState extends State {
             case 0 -> {
                 // Get the tile from the board
                 component = board.popTile(tileID);
-                PickedTileFromBoard pickTileEvent = new PickedTileFromBoard(player.getUsername(), tileID);
+                PickedTileFromBoard pickTileEvent = new PickedTileFromBoard(player.getUsername(), component);
                 eventCallback.trigger(pickTileEvent);
             }
             case 1 -> {
@@ -268,7 +270,11 @@ public class BuildingState extends State {
         // Rotate the tile in the board
         component.rotateClockwise();
 
-        TileRotated rotateTile = new TileRotated(player.getUsername(), component.getID());
+        ArrayList<Integer> connectors = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            connectors.add(component.getConnection(i).getValue());
+        }
+        TileRotated rotateTile = new TileRotated(player.getUsername(), component.getID(), component.getClockwiseRotation(),connectors);
         eventCallback.trigger(rotateTile);
     }
 
@@ -292,6 +298,7 @@ public class BuildingState extends State {
     @Override
     public void execute(PlayerData playerData) {
         super.execute(playerData);
+        super.nextState(GameState.VALIDATION);
     }
 
     @Override

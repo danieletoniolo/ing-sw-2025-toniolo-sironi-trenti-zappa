@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.cards.Pirates;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
@@ -37,14 +38,14 @@ public class PiratesState extends State {
      * @param board The board associated with the game
      * @param card Pirates card associated with the state
      */
-    public PiratesState(Board board, EventCallback callback, Pirates card) {
-        super(board, callback);
+    public PiratesState(Board board, EventCallback callback, Pirates card, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
         this.card = card;
         this.stats = new HashMap<>();
         this.piratesDefeat = false;
         this.internalState = PiratesInternalState.DEFAULT;
         this.playersDefeated = new ArrayList<>();
-        this.fightHandler = new FightHandlerSubState(super.board, super.eventCallback);
+        this.fightHandler = new FightHandlerSubState(super.board, super.eventCallback, super.transitionHandler);
     }
 
     public void setInternalStatePirates(PiratesInternalState internalState) {
@@ -224,5 +225,6 @@ public class PiratesState extends State {
                 playersStatus.put(p.getColor(), PlayerStatus.WAITING);
             }
         }
+        super.nextState(GameState.CARDS);
     }
 }
