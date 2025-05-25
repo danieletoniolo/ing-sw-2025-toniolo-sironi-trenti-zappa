@@ -6,8 +6,11 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
+import view.tui.TerminalUtils;
 
 import java.util.ArrayList;
+import java.util.concurrent.*;
+import java.util.function.Supplier;
 
 public class Parser {
     private int selected;
@@ -29,19 +32,26 @@ public class Parser {
      * @return A Command object representing the selected option and its arguments.
      * @throws Exception If an error occurs during input handling.
      */
-    public int getCommand(ArrayList<String> options, int menuStartRow) throws Exception {
+    public int getCommand(ArrayList<String> options, int menuStartRow, Supplier<Boolean> isStillCurrentScreen) throws Exception {
         terminal.reader().skip(terminal.reader().available());
         terminal.enterRawMode();
-        menuStartRow += 2;
         var reader = terminal.reader();
         var writer = terminal.writer();
         selected = 0;
 
         boolean reading = true;
         while (reading) {
+            if (!isStillCurrentScreen.get()) return -1;
+
             renderMenu(writer, options, menuStartRow);
 
-            int key = reader.read();
+            int key = -1;
+            if (reader.ready()) {
+                key = reader.read();
+            } else {
+                Thread.sleep(100);
+                continue;
+            }
 
             switch (key) {
                 case 'w':
@@ -50,8 +60,7 @@ public class Parser {
                 case 's':
                     selected = (selected + 1) % options.size();
                     break;
-                case 10, 13: // Select
-                    terminal.writer().println("\nYou chose: " + options.get(selected));
+                case 10, 13:
                     terminal.flush();
                     reading = false;
                     break;
@@ -61,80 +70,101 @@ public class Parser {
         return selected;
     }
 
-    public Pair<Integer, Integer> getRowAndCol(String input, int menuStartRow) {
-        menuStartRow += 2;
+    public Pair<Integer, Integer> getRowAndCol(String prompt, int menuStartRow, Supplier<Boolean> isStillCurrentScreen) {
+        var writer = terminal.writer();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
 
         while (true) {
-            terminal.writer().printf("\033[%d;0H", menuStartRow);
-            terminal.writer().print("\033[2K");
-            terminal.writer().print(input);
-            terminal.flush();
+            if (!isStillCurrentScreen.get()) {
+                executor.shutdownNow();
+                return null;
+            }
+
+            writer.printf("\033[%d;0H", menuStartRow);
+            writer.print("\033[2K");
+            writer.print(prompt);
+            writer.flush();
+
+            Future<String> inputFuture = executor.submit(() -> reader.readLine(""));
 
             try {
-                String line = reader.readLine("");
+                while (!inputFuture.isDone()) {
+                    if (!isStillCurrentScreen.get()) {
+                        inputFuture.cancel(true);
+                        executor.shutdownNow();
+                        return null;
+                    }
+                    Thread.sleep(100);
+                }
 
+                String line = inputFuture.get();
                 String[] parts = line.trim().split("\\s+");
                 if (parts.length != 2) {
-                    terminal.writer().printf("\033[%d;0H", menuStartRow + 1);
-                    terminal.writer().print("\033[2K");
-                    terminal.writer().print("Input is not valid, type 'row col' (ex: 10 5)");
-                    terminal.flush();
+                    TerminalUtils.printLine(writer, "Input is not valid, type 'row col' (ex: 10 5)", menuStartRow + 1);
                     continue;
                 }
 
                 int x = Integer.parseInt(parts[0]);
                 int y = Integer.parseInt(parts[1]);
 
-                terminal.writer().printf("\033[%d;0H", menuStartRow + 1);
-                terminal.writer().print("\033[2K");
-                terminal.flush();
-
+                TerminalUtils.printLine(writer, "", menuStartRow + 1);
                 restoreRawMode();
+                executor.shutdownNow();
                 return new Pair<>(x, y);
 
-            } catch (Exception e) {
-                terminal.writer().printf("\033[%d;0H", menuStartRow + 1);
-                terminal.writer().print("\033[2K");
-                terminal.writer().print("Input is not valid, type 'row col' (ex: 10 5)");
-                terminal.flush();
+            } catch (InterruptedException | ExecutionException | CancellationException e) {
+                TerminalUtils.printLine(writer, "Input was interrupted.", menuStartRow + 1);
+                executor.shutdownNow();
+                return null;
             }
         }
     }
 
-    public String readNickname(String prompt, int menuStartRow) {
-        menuStartRow += 2;
+
+    public String readNickname(String prompt, int menuStartRow, Supplier<Boolean> isStillCurrentScreen) {
+        var writer = terminal.writer();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
         while (true) {
-            terminal.writer().printf("\033[%d;0H", menuStartRow);
-            terminal.writer().print("\033[2K");
-            terminal.writer().print(prompt);
-            terminal.flush();
+            if (!isStillCurrentScreen.get()) {
+                executor.shutdownNow();
+                return null;
+            }
+
+            writer.printf("\033[%d;0H", menuStartRow);
+            writer.print("\033[2K");
+            writer.print(prompt);
+            writer.flush();
+
+            Future<String> inputFuture = executor.submit(() -> reader.readLine(""));
+
+            while (!inputFuture.isDone()) {
+                if (!isStillCurrentScreen.get()) {
+                    inputFuture.cancel(true);
+                    executor.shutdownNow();
+                    return null;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignored) {}
+            }
 
             try {
-                String input = reader.readLine("").trim();
-
+                String input = inputFuture.get().trim();
                 if (!input.matches("^[a-zA-Z0-9]+$")) {
-                    terminal.writer().printf("\033[%d;0H", menuStartRow + 1);
-                    terminal.writer().print("\033[2K");
-                    terminal.writer().print("Invalid input. Use only letters and numbers, no spaces.");
-                    terminal.flush();
+                    TerminalUtils.printLine(writer, "Invalid input. Use only letters and numbers, no spaces.", menuStartRow + 1);
                     continue;
                 }
-
-                terminal.writer().printf("\033[%d;0H", menuStartRow + 1);
-                terminal.writer().print("\033[2K");
-                terminal.flush();
-
+                TerminalUtils.printLine(writer, "", menuStartRow + 1);
                 restoreRawMode();
+                executor.shutdownNow();
                 return input;
-
-            } catch (UserInterruptException | EndOfFileException e) {
-                terminal.writer().printf("\033[%d;0H", menuStartRow + 1);
-                terminal.writer().print("\033[2K");
-                terminal.writer().print("Input aborted.");
-                terminal.flush();
+            } catch (Exception e) {
+                TerminalUtils.printLine(writer, "Input aborted.", menuStartRow + 1);
             }
         }
     }
+
 
     private void restoreRawMode() {
         try {
@@ -156,12 +186,10 @@ public class Parser {
     private void renderMenu(java.io.PrintWriter writer, ArrayList<String> options, int menuStartRow) {
         for (int i = 0; i < options.size(); i++) {
             int row = menuStartRow + i;
-            writer.printf("\033[%d;0H", row);
-            writer.print("\033[2K");
             if (i == selected) {
-                writer.print("> " + options.get(i));
+                TerminalUtils.printLine(writer, "> " + options.get(i), row);
             } else {
-                writer.print("  " + options.get(i));
+                TerminalUtils.printLine(writer, "  " + options.get(i), row);
             }
         }
         writer.flush();

@@ -1,0 +1,40 @@
+package view.tui.states.menuScreens;
+
+import view.tui.input.Parser;
+import view.tui.states.MenuTuiScreen;
+import view.tui.states.TuiScreenView;
+import view.tui.states.TuiScreens;
+
+import java.util.function.Supplier;
+
+public class ChooseNumberPlayersTuiScreen extends MenuTuiScreen {
+
+    public ChooseNumberPlayersTuiScreen() {
+        options.clear();
+        options.add("2 players");
+        options.add("3 players");
+        options.add("4 players");
+        isNewScreen = true;
+    }
+
+    @Override
+    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
+        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+        maxPlayers = selected + 2;
+    }
+
+    @Override
+    public TuiScreenView setNewScreen() {
+        return new ChooseLevelTuiScreen();
+    }
+
+    @Override
+    public String lineBeforeInput() {
+        return "Choose the number of player for the game:";
+    }
+
+    @Override
+    public TuiScreens getType() {
+        return TuiScreens.ChooseNumberPlayersTuiScreen;
+    }
+}

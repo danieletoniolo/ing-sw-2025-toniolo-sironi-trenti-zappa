@@ -1,70 +1,85 @@
 package view.tui.states;
 
-import event.eventType.StatusEvent;
-import event.lobby.clientToServer.CreateLobby;
 import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
-import view.Client;
 import view.miniModel.MiniModel;
 import view.miniModel.board.LevelView;
 import view.miniModel.lobby.LobbyView;
+import view.tui.TerminalUtils;
 import view.tui.input.Parser;
+import view.tui.states.menuScreens.ChooseNumberPlayersTuiScreen;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 public class MenuTuiScreen implements TuiScreenView {
-    private final ArrayList<String> options;
-    private int selected;
-    private String message;
+    protected final ArrayList<String> options = new ArrayList<>();
+    protected int totalLines = 5;
+    protected int selected;
+    private int row;
+    protected String message;
+    protected boolean isNewScreen;
+
+    protected int maxPlayers;
+    protected int level;
 
     public MenuTuiScreen() {
-        options = new ArrayList<>();
-        options.add("Create lobby");
+
         int i = 0;
         for (LobbyView lobby : MiniModel.getInstance().lobbiesView) {
             i++;
-            options.add(i + ". Join " + lobby.getLobbyName() + " - " + lobby.getMaxPlayer() + " players - " + lobby.getLevel().toString());
+            options.add(i + ". Join " + lobby.getLobbyName() + " - " + lobby.getNumberOfPlayers() + "/" + lobby.getMaxPlayer() + " players - " + lobby.getLevel().toString());
         }
+        options.add("Create lobby");
         options.add("Exit");
+
+        isNewScreen = true;
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
-        int totalLines = 1;
-        selected = parser.getCommand(options, totalLines);
+    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
+        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
     }
 
     @Override
     public void printTui(Terminal terminal) {
         var writer = terminal.writer();
-        writer.print("\033[H\033[2J");
-        writer.flush();
+        row = 1;
 
-        if (message != null) {
-            writer.println(message);
-            writer.println();
-            writer.flush();
+        TerminalUtils.printLine(writer, "", row++);
+        TerminalUtils.printLine(writer, message == null ? "df" : message, row++);
+        TerminalUtils.printLine(writer, "", row++);
+        TerminalUtils.printLine(writer, lineBeforeInput(), row++);
+
+        if (isNewScreen) {
+            isNewScreen = false;
+            for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
+                TerminalUtils.printLine(writer, "", i);
+            }
         }
+    }
 
-        System.out.println("\nAvailable lobbies:");
-        writer.flush();
+    public String lineBeforeInput(){
+        return "Available lobbies:";
     }
 
     @Override
     public TuiScreenView setNewScreen() {
 
-        if (selected == 0) {
+        if (selected == options.size() - 2) { //TODO: togliere il nome della lobby, lo crea il server
+            return new ChooseNumberPlayersTuiScreen();
+        }
 
-            /*StatusEvent status = CreateLobby.requester(Client.transceiver, new Object()).request(new CreateLobby()) ;
-            if (status.get().equals("POTA")) {
-                return this;
-            }*/
-
-            return new LobbyTuiScreen();
+        if (selected == options.size() - 1) {
+            return new LogInTuiScreen();
         }
 
 
-        return this;
+        /*StatusEvent status = JoinLobby.requester(Client.transceiver, new Object()).request(new JoinLobby(MiniModel.getInstance().userID, MiniModel.getInstance().lobbiesView.get(selected - 1).getLobbyName()));
+        if (status.get().equals("POTA")) {
+            return this;
+        }*/
+
+        return new LobbyTuiScreen();
     }
 
     @Override
@@ -72,30 +87,8 @@ public class MenuTuiScreen implements TuiScreenView {
         this.message = message;
     }
 
-    public static void main(String[] args) throws Exception {
-        Terminal terminal;
-        try {
-            terminal = TerminalBuilder.builder()
-                    .jna(true)
-                    .jansi(true)
-                    .build();
-        } catch (Exception e) {
-            System.err.println("Creation terminal error: " + e.getMessage());
-            return;
-        }
-        Parser parser = new Parser(terminal);
-
-        ArrayList<LobbyView> currentLobbies = MiniModel.getInstance().lobbiesView;
-        currentLobbies.add(new LobbyView("pippo", 0, 4, LevelView.LEARNING));
-        currentLobbies.add(new LobbyView("nico", 0, 4, LevelView.LEARNING));
-        currentLobbies.add(new LobbyView("eli", 0, 4, LevelView.LEARNING));
-        currentLobbies.add(new LobbyView("lolo", 0, 4, LevelView.LEARNING));
-        currentLobbies.add(new LobbyView("lore", 0, 4, LevelView.LEARNING));
-        currentLobbies.add(new LobbyView("vitto", 0, 4, LevelView.LEARNING));
-
-        MenuTuiScreen menuStateView = new MenuTuiScreen();
-        menuStateView.printTui(terminal);
-        menuStateView.readCommand(parser);
-
+    @Override
+    public TuiScreens getType() {
+        return TuiScreens.Menu;
     }
 }

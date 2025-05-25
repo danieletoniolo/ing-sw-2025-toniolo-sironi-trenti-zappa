@@ -1,14 +1,10 @@
 package view.tui;
 
 public class TerminalUtils {
-    public static void clearTerminal() {
-        /*AnsiConsole.systemInstall();
-        System.out.print(Ansi.ansi().eraseScreen().cursor(0, 0));
-        System.out.flush();
-        AnsiConsole.systemUninstall();*/
-
-        for (int i = 0; i < 100; i++) {
-            System.out.println();
-        }
+    public static void printLine(java.io.PrintWriter writer, String output, int row) {
+        writer.printf("\033[%d;0H", row);
+        writer.print("\033[2K");
+        writer.println(output);
+        writer.flush();
     }
 }

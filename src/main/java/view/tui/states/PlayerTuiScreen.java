@@ -1,30 +1,29 @@
 package view.tui.states;
 
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
-import view.miniModel.MiniModel;
-import view.miniModel.board.LevelView;
-import view.miniModel.player.MarkerView;
 import view.miniModel.player.PlayerDataView;
-import view.miniModel.spaceship.SpaceShipView;
+import view.tui.TerminalUtils;
 import view.tui.input.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class PlayerTuiScreen implements TuiScreenView {
     private final ArrayList<String> options = new ArrayList<>(List.of("Back"));
     private int totalLines;
     private int selected;
     private TuiScreenView oldScreen;
-    private String message;
+    private int row;
+    protected String message;
+    protected boolean isNewScreen;
 
     private PlayerDataView playerToView;
 
     public PlayerTuiScreen(PlayerDataView playerToView, TuiScreenView oldScreen) {
         this.playerToView = playerToView;
-        totalLines = playerToView.getShip().getRowsToDraw() + 1;
+        totalLines = playerToView.getShip().getRowsToDraw() + 3 + 2;
         this.oldScreen = oldScreen;
+        isNewScreen = true;
     }
 
     public PlayerDataView getPlayerToView() {
@@ -32,8 +31,8 @@ public class PlayerTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
-        selected = parser.getCommand(options, totalLines);
+    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
+        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
     }
 
     @Override
@@ -44,18 +43,29 @@ public class PlayerTuiScreen implements TuiScreenView {
     @Override
     public void printTui(org.jline.terminal.Terminal terminal) {
         var writer = terminal.writer();
-        writer.print("\033[H\033[2J");
-        writer.flush();
+        row = 1;
+
         for (int i = 0; i < playerToView.getShip().getRowsToDraw(); i++) {
+            StringBuilder line = new StringBuilder();
             if (i >= ((playerToView.getShip().getRowsToDraw() - 2)/5*4 + 1) - 1 && i < ((playerToView.getShip().getRowsToDraw() - 2)/5*4 + 1) - 1 + playerToView.getRowsToDraw()) {
-                writer.println(playerToView.getShip().drawLineTui(i) + "   " + playerToView.drawLineTui(i % playerToView.getRowsToDraw()));
+                line.append(playerToView.getShip().drawLineTui(i)).append("   ").append(playerToView.drawLineTui(i % playerToView.getRowsToDraw()));
             }else{
-                writer.println(playerToView.getShip().drawLineTui(i));
+                line.append(playerToView.getShip().drawLineTui(i));
             }
+            TerminalUtils.printLine(writer, line.toString(), row++);
         }
 
-        writer.print("\nCommands:");
-        writer.flush();
+        TerminalUtils.printLine(writer, "", row++);
+        TerminalUtils.printLine(writer, message == null ? "" : message, row++);
+        TerminalUtils.printLine(writer, "", row++);
+        TerminalUtils.printLine(writer, "Commands:", row++);
+
+        if (isNewScreen) {
+            isNewScreen = false;
+            for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
+                TerminalUtils.printLine(writer, "", i);
+            }
+        }
     }
 
     @Override
@@ -63,25 +73,8 @@ public class PlayerTuiScreen implements TuiScreenView {
         this.message = message;
     }
 
-    public static void main(String[] args) throws Exception {
-        Terminal terminal;
-        try {
-            terminal = TerminalBuilder.builder()
-                    .jna(true)
-                    .jansi(true)
-                    .build();
-        } catch (Exception e) {
-            System.err.println("Creation terminal error: " + e.getMessage());
-            return;
-        }
-        Parser parser = new Parser(terminal);
-
-
-        ArrayList<PlayerDataView> players = MiniModel.getInstance().otherPlayers;
-        players.add(new PlayerDataView("Player1", MarkerView.GREEN, new SpaceShipView(LevelView.SECOND)));
-
-        PlayerTuiScreen playerStateView = new PlayerTuiScreen(players.getFirst(), new BuildingTuiScreen());
-        playerStateView.printTui(terminal);
-        playerStateView.readCommand(parser);
+    @Override
+    public TuiScreens getType() {
+        return TuiScreens.Player;
     }
 }

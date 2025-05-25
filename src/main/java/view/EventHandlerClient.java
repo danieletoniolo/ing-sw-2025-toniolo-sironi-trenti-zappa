@@ -1,15 +1,14 @@
 package view;
 
-import event.EventListener;
-import event.NetworkTransceiver;
 
-import event.game.serverToClient.BestLookingShips;
-import event.lobby.serverToClient.*;
-import event.receiver.CastEventReceiver;
+import it.polimi.ingsw.event.EventListener;
+import it.polimi.ingsw.event.NetworkTransceiver;
+import it.polimi.ingsw.event.game.serverToClient.BestLookingShips;
+import it.polimi.ingsw.event.lobby.serverToClient.*;
+import it.polimi.ingsw.event.receiver.CastEventReceiver;
 import view.miniModel.MiniModel;
 import view.miniModel.board.LevelView;
 import view.miniModel.lobby.LobbyView;
-import view.miniModel.player.PlayerDataView;
 
 
 public class EventHandlerClient {

@@ -7,16 +7,20 @@ import view.miniModel.cards.CardView;
 import view.miniModel.components.ComponentView;
 import view.miniModel.deck.DeckView;
 import view.miniModel.player.PlayerDataView;
+import view.tui.TerminalUtils;
 import view.tui.input.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public abstract class GameTuiScreen implements TuiScreenView {
     protected ArrayList<String> options = new ArrayList<>();
     private int totalLines;
     protected int selected;
-    private String message;
+    private int row;
+    protected String message;
+    protected boolean isNewScreen;
 
     private BoardView boardView = MiniModel.getInstance().boardView;
     private PlayerDataView clientPlayer = MiniModel.getInstance().clientPlayer;
@@ -32,13 +36,14 @@ public abstract class GameTuiScreen implements TuiScreenView {
         }
 
         totalLines = Math.max(boardView.getRowsToDraw(), DeckView.getRowsToDraw())
-                + 1 + clientPlayer.getShip().getRowsToDraw() + 2 + 3;
+                + 1 + clientPlayer.getShip().getRowsToDraw() + 2 + 2 + 2;
 
+        isNewScreen = true;
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
-        selected = parser.getCommand(options, totalLines);
+    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
+        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
     }
 
     @Override
@@ -55,59 +60,65 @@ public abstract class GameTuiScreen implements TuiScreenView {
     @Override
     public void printTui(Terminal terminal) {
         var writer = terminal.writer();
-        writer.print("\033[H\033[2J");
-        writer.flush();
+        row = 1;
 
         for (int i = 0; i < Math.max(boardView.getRowsToDraw(), DeckView.getRowsToDraw()); i++) {
-            StringBuilder str = new StringBuilder();
+            StringBuilder line = new StringBuilder();
 
             if (i < boardView.getRowsToDraw()) {
-                str.append(boardView.drawLineTui(i));
+                line.append(boardView.drawLineTui(i));
             } else {
-                str.append(" ".repeat(Math.max(0, boardView.getColsToDraw())));
+                line.append(" ".repeat(Math.max(0, boardView.getColsToDraw())));
             }
 
-            str.append("                       ");
+            line.append("                       ");
             if (i < DeckView.getRowsToDraw()) {
-                str.append(shuffledDeckView.drawLineTui(i));
+                line.append(shuffledDeckView.drawLineTui(i));
             } else {
-                str.append(" ".repeat(Math.max(0, shuffledDeckView.getColsToDraw())));
+                line.append(" ".repeat(Math.max(0, shuffledDeckView.getColsToDraw())));
             }
 
-            writer.println(str);
+            TerminalUtils.printLine(writer, line.toString(), row++);
         }
-        writer.flush();
-        writer.println();
 
-        int playerCont = 0;
+        int playerCount = 0;
         for (int i = 0; i < clientPlayer.getShip().getRowsToDraw(); i++) {
-            StringBuilder str = new StringBuilder();
-            str.append(clientPlayer.getShip().drawLineTui(i));
+            StringBuilder line = new StringBuilder();
+            line.append(clientPlayer.getShip().drawLineTui(i));
 
             if (i == 0) {
-                str.append(" Discard pile: ");
+                line.append(" Discard pile: ");
             }
             else if (i <= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1) - 1) {
-                str.append(clientPlayer.getShip().getDiscardReservedPile().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
+                line.append(clientPlayer.getShip().getDiscardReservedPile().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
             }
-            else if (i >= (clientPlayer.getShip().getRowsToDraw()-1) / 5 * 3 && i < (clientPlayer.getShip().getRowsToDraw()-1) / 5 * 3 + clientPlayer.getRowsToDraw()) {
-                str.append("       ");
-                str.append(clientPlayer.drawLineTui(playerCont));
-                playerCont++;
+            else if (i > ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 4 + 1) - 1 && i <= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 4 + clientPlayer.getRowsToDraw())) {
+                line.append("   ").append(clientPlayer.drawLineTui(playerCount));
+                if (playerCount == 0) {
+                    line.append("    ");
+                }
+                playerCount++;
             }
-            writer.println(str);
+            TerminalUtils.printLine(writer, line.toString(), row++);
         }
-        writer.flush();
-        writer.println();
 
-        writer.println(message == null ? "" : message);
-        writer.println();
-
+        TerminalUtils.printLine(writer, "", row++);
         PlayerDataView currentPlayer = MiniModel.getInstance().currentPlayer;
-        writer.println(currentPlayer.equals(clientPlayer) ? "Your turn" : "Waiting for " + currentPlayer.drawLineTui(0) + "'s turn");
-        writer.println();
-        writer.println(lineBeforeInput());
-        writer.flush();
+        String turn = currentPlayer.equals(clientPlayer) ? "Your turn" : "Waiting for " + currentPlayer.drawLineTui(0) + "'s turn";
+        TerminalUtils.printLine(writer, turn, row++);
+
+        TerminalUtils.printLine(writer, "", row++);
+        TerminalUtils.printLine(writer, message == null ? "" : message, row++);
+        TerminalUtils.printLine(writer, "", row++);
+        TerminalUtils.printLine(writer, lineBeforeInput(), row++);
+
+        if (isNewScreen) {
+            isNewScreen = false;
+            for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
+                TerminalUtils.printLine(writer, "", i);
+            }
+        }
+
     }
 
     protected String lineBeforeInput() {
@@ -117,5 +128,10 @@ public abstract class GameTuiScreen implements TuiScreenView {
     @Override
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public TuiScreens getType() {
+        return TuiScreens.Game;
     }
 }

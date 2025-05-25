@@ -42,6 +42,10 @@ public class LobbyView implements Structure {
         numberOfPlayers--;
     }
 
+    public int getNumberOfPlayers() {
+        return numberOfPlayers;
+    }
+
     public void setPlayerStatus(String playerName, boolean status) {
         players.put(playerName, status);
     }

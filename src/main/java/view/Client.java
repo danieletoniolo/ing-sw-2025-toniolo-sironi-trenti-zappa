@@ -1,6 +1,7 @@
 package view;
 
-import event.NetworkTransceiver;
+
+import it.polimi.ingsw.event.NetworkTransceiver;
 
 import java.util.Scanner;
 

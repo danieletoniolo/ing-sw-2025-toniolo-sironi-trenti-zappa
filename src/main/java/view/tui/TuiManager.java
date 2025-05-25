@@ -1,12 +1,16 @@
 package view.tui;
 
-import Model.Cards.*;
-import Model.Cards.Hits.Hit;
-import Model.Game.Board.Deck;
-import Model.Good.Good;
-import Model.SpaceShip.*;
-import event.game.serverToClient.BestLookingShips;
-import event.lobby.serverToClient.*;
+import it.polimi.ingsw.event.game.serverToClient.BestLookingShips;
+import it.polimi.ingsw.event.lobby.serverToClient.LobbyCreated;
+import it.polimi.ingsw.event.lobby.serverToClient.LobbyJoined;
+import it.polimi.ingsw.event.lobby.serverToClient.LobbyLeft;
+import it.polimi.ingsw.event.lobby.serverToClient.LobbyRemoved;
+import it.polimi.ingsw.model.cards.*;
+import it.polimi.ingsw.model.cards.hits.Hit;
+import it.polimi.ingsw.model.game.board.Deck;
+import it.polimi.ingsw.model.game.board.Level;
+import it.polimi.ingsw.model.good.Good;
+import it.polimi.ingsw.model.spaceship.*;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import view.Manager;
@@ -24,14 +28,14 @@ import view.miniModel.lobby.LobbyView;
 import view.miniModel.player.MarkerView;
 import view.miniModel.player.PlayerDataView;
 import view.miniModel.spaceship.SpaceShipView;
+import view.miniModel.timer.TimerView;
 import view.tui.input.Parser;
 import view.tui.states.*;
+import view.tui.states.gameScreens.NotClientTurnTuiScreen;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-
-import static Model.Game.Board.Level.SECOND;
 
 public class TuiManager implements Manager {
     private final Object stateLock = new Object();
@@ -82,7 +86,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyLobbyJoined(LobbyJoined data) {
-        if (/*currentScreen instanceof LobbyTuiScreen*/ MiniModel.getInstance().currentLobby != null && MiniModel.getInstance().currentLobby.getLobbyName().equals(data.lobbyID())) {
+        if (currentScreen.getType().equals(TuiScreens.Lobby)) {
             synchronized (stateLock) {
                 printInput = false;
                 stateLock.notifyAll();
@@ -126,25 +130,40 @@ public class TuiManager implements Manager {
         }
     }
 
+    //@Override
+    public void notifyStartTimer() {
+        if (currentScreen.getType().equals(TuiScreens.Building)) {
+            synchronized (stateLock) {
+                stateLock.notifyAll();
+            }
+        }
+    }
+
     public void startTui(){
         //Reading inputs thread
         Thread parserThread = new Thread(() -> {
             while (true) {
                 try {
+                    TuiScreenView screenToUse;
                     synchronized (stateLock) {
                         while (!printInput) stateLock.wait();
+                        screenToUse = currentScreen;
                     }
-                    currentScreen.readCommand(parser);
-                    currentScreen = currentScreen.setNewScreen();
+
+                    screenToUse.readCommand(parser, () -> screenToUse == currentScreen);
+
                     synchronized (stateLock) {
+                        if (currentScreen == screenToUse) {
+                            currentScreen = currentScreen.setNewScreen();
+                        }
                         printInput = false;
                         stateLock.notifyAll();
                     }
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+
         });
 
         //Thread for printing the TUI
@@ -152,12 +171,12 @@ public class TuiManager implements Manager {
             while (true) {
                 try {
                     currentScreen.printTui(terminal);
+                    currentScreen.setMessage(null);
                     printInput = true;
                     synchronized (stateLock){
                         stateLock.notifyAll();
                         stateLock.wait();
                     }
-                    currentScreen.setMessage(null);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -166,6 +185,14 @@ public class TuiManager implements Manager {
 
         parserThread.start();
         viewThread.start();
+    }
+
+    public void set(){
+        synchronized (stateLock) {
+            currentScreen = new NotClientTurnTuiScreen();
+            printInput = false;
+            stateLock.notifyAll();
+        }
     }
 
 
@@ -197,9 +224,13 @@ public class TuiManager implements Manager {
         MiniModel.getInstance().clientPlayer.setHand(new GenericComponentView());
         MiniModel.getInstance().clientPlayer.getHand().setCovered(false);
 
-        Deck[] decks = CardsManager.createDecks(SECOND);
+        Deck[] decks = CardsManager.createDecks(Level.SECOND);
 
         MiniModel.getInstance().boardView = new BoardView(currentLobby.getLevel());
+        if (currentLobby.getLevel() == LevelView.SECOND) {
+            MiniModel.getInstance().timerView = new TimerView(3);
+            //MiniModel.getInstance().timerView.setFlippedTimer(player);
+        }
 
         for (int i = 0; i < 3; i++) {
             Stack<CardView> cards = new Stack<>();
@@ -224,7 +255,7 @@ public class TuiManager implements Manager {
 
         for (ComponentView tile : MiniModel.getInstance().viewableComponents) {
             if (tile instanceof StorageView && ((StorageView) tile).getGoods().length > 1) {
-                MiniModel.getInstance().clientPlayer.getShip().placeComponent(tile, 7, 5);
+                MiniModel.getInstance().clientPlayer.getShip().placeComponent(tile, 7, 6);
                 ((StorageView) tile).setGood(GoodView.BLUE, 0);
                 ((StorageView) tile).setGood(GoodView.YELLOW, 0);
                 ((StorageView) tile).setGood(GoodView.GREEN, 1);
@@ -233,8 +264,24 @@ public class TuiManager implements Manager {
         }
 
 
+
         TuiManager tui = new TuiManager();
         tui.startTui();
+
+        /*final int[] secondsRemaining = {10};
+        new Thread(() -> {
+            while (secondsRemaining[0] >= 0) {
+                try {
+                    MiniModel.getInstance().timerView.setSecondsRemaining(secondsRemaining[0]);
+                    tui.notifyStartTimer();
+                    Thread.sleep(1000);
+                    secondsRemaining[0]--;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            tui.set();
+        }).start();*/
     }
 
     private static ComponentView converter(Component tile) {

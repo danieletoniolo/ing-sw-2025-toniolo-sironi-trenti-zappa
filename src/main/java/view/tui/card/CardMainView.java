@@ -1,9 +1,11 @@
 package view.tui.card;
 
-import Model.Cards.*;
-import Model.Cards.Hits.Hit;
-import Model.Game.Board.Deck;
-import Model.Good.Good;
+import it.polimi.ingsw.model.cards.*;
+import it.polimi.ingsw.model.cards.CardsManager;
+import it.polimi.ingsw.model.cards.hits.Hit;
+import it.polimi.ingsw.model.game.board.Deck;
+import it.polimi.ingsw.model.game.board.Level;
+import it.polimi.ingsw.model.good.Good;
 import view.miniModel.cards.*;
 import view.miniModel.cards.hit.HitDirectionView;
 import view.miniModel.cards.hit.HitTypeView;
@@ -15,13 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import static Model.Game.Board.Level.SECOND;
-
 public class CardMainView {
     public static void main(String[] args) {
         try {
             Stack<CardView> cards = new Stack<>();
-            Deck[] decks = CardsManager.createDecks(SECOND);
+            Deck[] decks = CardsManager.createDecks(Level.SECOND);
             Stack<Card> shuffledDeck = CardsManager.createShuffledDeck(decks);
 
             ArrayList<Card> allCards = new ArrayList<>();

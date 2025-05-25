@@ -7,6 +7,7 @@ import view.miniModel.deck.DeckView;
 import view.miniModel.lobby.LobbyView;
 import view.miniModel.logIn.LogInView;
 import view.miniModel.player.PlayerDataView;
+import view.miniModel.timer.TimerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,14 +22,14 @@ public class MiniModel {
     If boolean[i] = true the deck[i] is not taken by a player else deck is taken and not viewable in the building state*/
     public Pair<DeckView[], Boolean[]> deckViews = new Pair<>(new DeckView[3], new Boolean[3]);
     public DeckView shuffledDeckView;
+    public TimerView timerView;
     public BoardView boardView;
     public ArrayList<PlayerDataView> otherPlayers = new ArrayList<>();
     public ArrayList<ComponentView> viewableComponents = new ArrayList<>();
     public PlayerDataView clientPlayer;
     public String nickname;
-    public List<String> bestLookingPlayers = new ArrayList<>();
+    public String userID;
 
-    /// View Attributes
     public PlayerDataView currentPlayer;
     public LobbyView currentLobby;
 

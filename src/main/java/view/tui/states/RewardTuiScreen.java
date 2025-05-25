@@ -4,6 +4,7 @@ import org.jline.terminal.Terminal;
 import view.tui.input.Parser;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 public class RewardTuiScreen implements TuiScreenView {
     private ArrayList<String> options;
@@ -18,8 +19,8 @@ public class RewardTuiScreen implements TuiScreenView {
 
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
-        selected = parser.getCommand(options, totalLines);
+    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
+        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
     }
 
     @Override
@@ -35,5 +36,10 @@ public class RewardTuiScreen implements TuiScreenView {
     @Override
     public synchronized void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public TuiScreens getType() {
+        return TuiScreens.Reward;
     }
 }

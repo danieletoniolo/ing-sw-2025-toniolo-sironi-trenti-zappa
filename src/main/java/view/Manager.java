@@ -1,7 +1,7 @@
 package view;
 
-import event.game.serverToClient.BestLookingShips;
-import event.lobby.serverToClient.*;
+import it.polimi.ingsw.event.game.serverToClient.BestLookingShips;
+import it.polimi.ingsw.event.lobby.serverToClient.*;
 
 public interface Manager {
     void notifyNicknameSet();

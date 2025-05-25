@@ -3,26 +3,31 @@ package view.tui.states;
 import view.miniModel.MiniModel;
 import view.miniModel.lobby.LobbyView;
 import org.jline.terminal.Terminal;
+import view.tui.TerminalUtils;
 import view.tui.input.Parser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 
 public class LobbyTuiScreen implements TuiScreenView {
     private final ArrayList<String> options = new ArrayList<>(Arrays.asList("Ready", "Not ready", "Leave"));
-    private final LobbyView currentLobbyView;
+    private final LobbyView currentLobbyView = MiniModel.getInstance().currentLobby;
     private int selected;
-    private final int totalLines = LobbyView.getRowsToDraw() + 1;
+    private final int totalLines = LobbyView.getRowsToDraw() + 3 + 1;
+    private int row;
+    protected String message;
+    protected boolean isNewScreen;
 
 
     public LobbyTuiScreen() {
-        currentLobbyView = MiniModel.getInstance().currentLobby;
+        isNewScreen = true;
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
-        selected = parser.getCommand(options, totalLines);
+    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
+        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
     }
 
     @Override
@@ -42,19 +47,32 @@ public class LobbyTuiScreen implements TuiScreenView {
     @Override
     public void printTui(Terminal terminal) {
         var writer = terminal.writer();
-        terminal.writer().print("\033[H\033[2J");
-        writer.flush();
+        row = 1;
+
         for (int i = 0; i < LobbyView.getRowsToDraw(); i++) {
-            writer.println(currentLobbyView.drawLineTui(i));
+            TerminalUtils.printLine(writer, currentLobbyView.drawLineTui(i), row++);
         }
 
-        writer.println("\nSet status (ready/not ready) or leave the lobby: ");
+        TerminalUtils.printLine(writer, "", row++);
+        TerminalUtils.printLine(writer, message == null ? "" : message, row++);
+        TerminalUtils.printLine(writer, "", row++);
+        TerminalUtils.printLine(writer, "Set status (ready/not ready) or leave the lobby:", row++);
 
-        writer.flush();
+        if (isNewScreen) {
+            isNewScreen = false;
+            for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
+                TerminalUtils.printLine(writer, "", i);
+            }
+        }
     }
 
     @Override
     public void setMessage(String message) {
+        this.message = message;
+    }
 
+    @Override
+    public TuiScreens getType() {
+        return TuiScreens.Lobby;
     }
 }
