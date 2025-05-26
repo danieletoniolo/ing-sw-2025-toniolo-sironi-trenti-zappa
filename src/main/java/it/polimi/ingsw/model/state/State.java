@@ -1,7 +1,9 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.PlayerGaveUp;
 import it.polimi.ingsw.event.game.serverToClient.Playing;
+import it.polimi.ingsw.event.game.serverToClient.StateChanged;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.good.Good;
@@ -102,6 +104,9 @@ public abstract class State implements Serializable {
             }
             default -> throw new IllegalArgumentException("Invalid next game state: " + nextGameState);
         }
+
+        StateChanged stateChanged = new StateChanged(nextGameState.getValue());
+        eventCallback.trigger(stateChanged);
     }
 
     /**
@@ -140,6 +145,14 @@ public abstract class State implements Serializable {
         playersStatus.replace(player.getColor(), PlayerStatus.PLAYING);
         Playing playingEvent = new Playing(player.getUsername());
         eventCallback.trigger(playingEvent);
+    }
+
+    public void giveUp(PlayerData player) throws NullPointerException {
+        player.setGaveUp(true);
+        this.players = this.board.getInGamePlayers();
+
+        PlayerGaveUp playerGaveUpEvent = new PlayerGaveUp(player.getUsername());
+        eventCallback.trigger(playerGaveUpEvent);
     }
 
     /**
@@ -196,6 +209,15 @@ public abstract class State implements Serializable {
     }
 
     /* GameState methods */
+
+    /**
+     * Starts the game.
+     *
+     * @throws IllegalStateException if the state does not allow starting the game.
+     */
+    public void startGame() throws IllegalStateException {
+        throw new IllegalStateException("Cannot start game in this state");
+    }
 
     /**
      * Picks a tile from the board, reserve or spaceship.

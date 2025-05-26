@@ -30,6 +30,15 @@ public class LobbyState extends State {
     }
 
     /**
+     * This method is used to start the game. It is called when all the players in the lobby are ready to play.
+     * It transitions the game to the {@link GameState#BUILDING} state.
+     */
+    @Override
+    public void startGame() {
+        super.nextState(GameState.BUILDING);
+    }
+
+    /**
      * This method is used to add/remove a player to the game.
      * The event associated with this method are implemented in the {@link MatchController} class.
      * @param player The player to add/remove
@@ -76,7 +85,6 @@ public class LobbyState extends State {
     @Override
     public void execute(PlayerData player) {
         super.execute(player);
-        super.nextState(GameState.BUILDING);
     }
 
     /**

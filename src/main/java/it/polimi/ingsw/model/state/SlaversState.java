@@ -170,11 +170,8 @@ public class SlaversState extends State {
                      */
 
                     if (spaceShip.getCrewNumber() <= card.getCrewLost()) {
-                        player.setGaveUp(true);
-                        this.players = super.board.getInGamePlayers();
-
-                        PlayerLost loseEvent = new PlayerLost(player.getUsername());
-                        eventCallback.trigger(loseEvent);
+                        PlayerLost lostEvent = new PlayerLost();
+                        eventCallback.trigger(lostEvent, player.getUUID());
                     } else {
                         for (int cabinID : crewLoss) {
                             spaceShip.removeCrewMember(cabinID, 1);

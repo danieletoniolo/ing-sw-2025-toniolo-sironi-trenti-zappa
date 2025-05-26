@@ -160,6 +160,7 @@ public class MatchController {
         SwapGoods.responder(networkTransceiver, this::swapGoods);
         PlayerReady.responder(networkTransceiver, this::playerReady);
         Play.responder(networkTransceiver, this::play);
+        GiveUp.responder(networkTransceiver, this::giveUp);
     }
 
     /**
@@ -935,5 +936,27 @@ public class MatchController {
         }
     }
 
-    // TODO: giveUp event
+    /**
+     * Handles the event of a user giving up in the game.
+     * It retrieves the user ID from the data, finds the corresponding lobby,
+     * and calls the giveUp method on the game controller associated with that lobby.
+     *
+     * @param data The GiveUp event data containing the user ID.
+     * @return An Event object indicating the result of the operation.
+     */
+    private Event giveUp(GiveUp data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.giveUp(userID);
+            }
+
+            return new Tac(GiveUp.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(GiveUp.class, e.getMessage());
+        }
+    }
 }

@@ -110,11 +110,8 @@ public class CombatZoneState extends State {
 
         SpaceShip spaceShip = player.getSpaceShip();
         if (spaceShip.getCrewNumber() <= crewLost) {
-            player.setGaveUp(true);
-            this.players = super.board.getInGamePlayers();
-
-            PlayerLost gaveUpEvent = new PlayerLost(player.getUsername());
-            eventCallback.trigger(gaveUpEvent);
+            PlayerLost lostEvent = new PlayerLost();
+            eventCallback.trigger(lostEvent, player.getUUID());
         } else {
             for (int cabinID : crewLoss) {
                 spaceShip.removeCrewMember(cabinID, 1);
@@ -418,11 +415,8 @@ public class CombatZoneState extends State {
                 if (card.getCardLevel() == 2) {
                     int crewFulfillment = minPlayerEngines.getSpaceShip().getGoods().size() - card.getLost();
                     if (crewFulfillment < 0 && minPlayerEngines.getSpaceShip().getCrewNumber() < Math.abs(crewFulfillment)) {
-                        minPlayerEngines.setGaveUp(true);
-                        this.players = super.board.getInGamePlayers();
-
-                        PlayerLost gaveUpEvent = new PlayerLost(player.getUsername());
-                        eventCallback.trigger(gaveUpEvent);
+                        PlayerLost lostEvent = new PlayerLost();
+                        eventCallback.trigger(lostEvent, player.getUUID());
                     } else {
                         executeSubStateRemoveGoods(minPlayerEngines);
                         if (goodsToDiscard.size() < card.getLost()) {

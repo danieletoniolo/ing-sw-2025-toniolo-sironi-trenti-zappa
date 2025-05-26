@@ -41,7 +41,11 @@ public class GameController implements Serializable, StateTransitionHandler {
     }
 
     public void startGame() {
-        state = new BuildingState(state.getBoard(), eventManager, this);
+        try {
+            state.startGame();
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot start game in this state");
+        }
     }
 
     public void endGame() {
@@ -154,7 +158,12 @@ public class GameController implements Serializable, StateTransitionHandler {
     }
 
     public void giveUp(UUID uuid) {
-        // TODO
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            state.giveUp(player);
+        } else {
+            throw new IllegalStateException("Not the current player");
+        }
     }
 
     public void selectPlanet(UUID uuid, int planetID) {
