@@ -50,6 +50,7 @@ public class Client {
         if (tuiOrGui.equals("tui")) {
             TuiManager tui = new TuiManager();
             tui.startTui();
+
             if (rmiOrSocket.equals("rmi")) {
                 EventHandlerClient manager = new EventHandlerClient(transceiver, tui);
 
@@ -66,7 +67,6 @@ public class Client {
                         try {
                             mm.wait();
                         } catch (InterruptedException e) {
-                            Logger.getInstance().log(Logger.LogLevel.ERROR, "Error while waiting for user ID", false);
                             Thread.currentThread().interrupt();
                         }
                     }
@@ -94,8 +94,6 @@ public class Client {
                         }
                     }
                 }
-
-
             }
         }
         else {

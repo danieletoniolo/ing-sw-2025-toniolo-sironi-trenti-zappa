@@ -7,6 +7,7 @@ import it.polimi.ingsw.event.game.serverToClient.*;
 import it.polimi.ingsw.event.lobby.clientToServer.SetNickname;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
