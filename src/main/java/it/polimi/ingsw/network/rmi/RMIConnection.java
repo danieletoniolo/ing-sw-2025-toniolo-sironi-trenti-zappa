@@ -5,6 +5,7 @@ import it.polimi.ingsw.event.game.HeartBeat;
 import it.polimi.ingsw.network.Connection;
 import it.polimi.ingsw.network.exceptions.BadPortException;
 import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
+import it.polimi.ingsw.utils.Logger;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -76,7 +77,7 @@ public class RMIConnection implements Connection {
      * @throws NotBoundException will be thrown if a failure occurs in the process of connecting to the server.
      * @throws BadPortException will be thrown if a failure occurs in the process of connecting to the server.
      */
-    public RMIConnection(String address, int port) throws RemoteException, NotBoundException, BadPortException {
+    public RMIConnection(String address, int port) throws BadPortException {
         if (port < 1024 || port > 49151) {
             throw new BadPortException("port " + port + " out of range");
         }
@@ -92,7 +93,14 @@ public class RMIConnection implements Connection {
             sender = (RemoteQueue) registry.lookup("SENDER_" + boundName);
             receiver = (RemoteQueue) registry.lookup("RECEIVER_" + boundName);
         } catch (NotBoundException e) {
-            throw new NotBoundException(e.getMessage());
+            Logger.getInstance().log(Logger.LogLevel.WARNING, e.getMessage(), false);
+            throw new IllegalStateException("Failed to bind 'receiver'.", e);
+        } catch (RemoteException e) {
+            Logger.getInstance().log(Logger.LogLevel.WARNING, "Failed to connect to the server at " + address + ":" + port, false);
+            throw new IllegalStateException("Failed to initialize 'receiver'.", e);
+        } catch (IllegalArgumentException e) {
+            Logger.getInstance().log(Logger.LogLevel.WARNING, e.getMessage(), false);
+            throw new IllegalStateException("Invalid arguments during 'receiver' initialization.", e);
         }
 
         heartbeat();
