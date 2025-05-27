@@ -4,6 +4,7 @@ package it.polimi.ingsw.view;
 import it.polimi.ingsw.event.EventListener;
 import it.polimi.ingsw.event.NetworkTransceiver;
 import it.polimi.ingsw.event.game.serverToClient.*;
+import it.polimi.ingsw.event.lobby.clientToServer.SetNickname;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
 import org.javatuples.Pair;
@@ -30,10 +31,12 @@ public class EventHandlerClient {
          */
         CastEventReceiver<UserIDSet> userIDSetReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<UserIDSet> userIDSetListener = data -> {
-            MiniModel.getInstance().userID = data.userID();
+            MiniModel mm = MiniModel.getInstance();
+            mm.userID = data.userID();
 
             manager.notifyUserIDSet();
         };
+        userIDSetReceiver.registerListener(userIDSetListener);
 
         /**
          * Set the nickname of the player

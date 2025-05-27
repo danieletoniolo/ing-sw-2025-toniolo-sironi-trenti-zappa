@@ -2,8 +2,16 @@ package it.polimi.ingsw.view;
 
 
 import it.polimi.ingsw.event.NetworkTransceiver;
+import it.polimi.ingsw.event.lobby.clientToServer.SetNickname;
+import it.polimi.ingsw.network.Connection;
+import it.polimi.ingsw.network.rmi.RMIConnection;
+import it.polimi.ingsw.network.tcp.TCPConnection;
+import it.polimi.ingsw.utils.Logger;
+import it.polimi.ingsw.view.miniModel.MiniModel;
+import it.polimi.ingsw.view.tui.TuiManager;
 
 import java.util.Scanner;
+import java.util.UUID;
 
 public class Client {
     public static NetworkTransceiver transceiver = new NetworkTransceiver();
@@ -40,10 +48,54 @@ public class Client {
         } while (!rmiOrSocket.equals("rmi") && !rmiOrSocket.equals("socket"));
 
         if (tuiOrGui.equals("tui")) {
+            TuiManager tui = new TuiManager();
+            tui.startTui();
             if (rmiOrSocket.equals("rmi")) {
-                //TODO: far partire rmi e tui
+                EventHandlerClient manager = new EventHandlerClient(transceiver, tui);
+
+                /*System.out.print("Enter IP: ");
+                String address = sc.nextLine();*/
+                //String address = "140.238.173.150";
+                String address = "127.0.0.1";
+                Connection connection = new RMIConnection(address, 2551);
+                transceiver.connect(UUID.randomUUID(), connection);
+
+                MiniModel mm = MiniModel.getInstance();
+                synchronized (mm) {
+                    while (MiniModel.getInstance().userID == null) {
+                        try {
+                            mm.wait();
+                        } catch (InterruptedException e) {
+                            Logger.getInstance().log(Logger.LogLevel.ERROR, "Error while waiting for user ID", false);
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
             } else {
-                // TODO: far partire socket e tui
+                // 172.20.10.5
+
+                EventHandlerClient manager = new EventHandlerClient(transceiver, tui);
+
+                /*System.out.print("Enter IP: ");
+                String address = sc.nextLine();*/
+                //String address = "140.238.173.150";
+                String address = "127.0.0.1";
+                Connection connection = new TCPConnection(address, 2550);
+                transceiver.connect(UUID.randomUUID(), connection);
+
+                MiniModel mm = MiniModel.getInstance();
+                synchronized (mm) {
+                    while (MiniModel.getInstance().userID == null) {
+                        try {
+                            mm.wait();
+                        } catch (InterruptedException e) {
+                            Logger.getInstance().log(Logger.LogLevel.ERROR, "Error while waiting for user ID", false);
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
+
+
             }
         }
         else {

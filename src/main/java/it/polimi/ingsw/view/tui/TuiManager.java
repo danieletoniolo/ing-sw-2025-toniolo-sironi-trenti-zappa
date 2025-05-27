@@ -52,7 +52,7 @@ public class TuiManager implements Manager {
         }
         parser = new Parser(terminal);
 
-        currentScreen = new BuildingTuiScreen();
+        currentScreen = new LogInTuiScreen();
 
         /// Se metodo crea un nuovo stato impostare anche printInput a false
     }
