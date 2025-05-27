@@ -71,7 +71,7 @@ public class CastEventReceiver<T extends Event> implements EventReceiver<T> {
                 try {
                     listener.handle((T) data);
                 } catch (ClassCastException e) {
-                    throw new IllegalStateException("Event ID should always match it.polimi.ingsw.event data concrete type");
+                    throw new IllegalStateException("Cannot handle event of type " + data.getClass().getName() + " with listener of type " + listener.getClass().getName(), e);
                 }
             });
 

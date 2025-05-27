@@ -38,7 +38,7 @@ public class Server {
         ConnectionAcceptor connectionAcceptor = null;
         try {
             ConnectionAcceptor.initialize(hostname);
-            connectionAcceptor = new ConnectionAcceptor(8080, 8081);
+            connectionAcceptor = new ConnectionAcceptor(2550, 2551);
         } catch (RemoteException | ConnectionException exception) {
             logger.log(Logger.LogLevel.ERROR, exception.toString(), true);
             System.exit(1);
