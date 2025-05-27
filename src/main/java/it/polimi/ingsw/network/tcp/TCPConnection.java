@@ -97,7 +97,7 @@ public class TCPConnection implements Connection {
                     read = in.readObject();
 
                     // Check if the read object is Message
-                    if (read instanceof Event) {
+                    if (read instanceof Event  && !(read instanceof HeartBeat)) {
                         synchronized (lock) {
                             pendingMessages.add((Event) read);
                             lock.notifyAll();
