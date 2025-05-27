@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
@@ -24,8 +25,17 @@ public class LobbyState extends State {
      * When this object is created we just call the super constructor {@link State(Board)}.
      * @param board The board associated with this state.
      */
-    public LobbyState(Board board, EventCallback callback) {
-        super(board, callback);
+    public LobbyState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
+    }
+
+    /**
+     * This method is used to start the game. It is called when all the players in the lobby are ready to play.
+     * It transitions the game to the {@link GameState#BUILDING} state.
+     */
+    @Override
+    public void startGame() {
+        super.nextState(GameState.BUILDING);
     }
 
     /**

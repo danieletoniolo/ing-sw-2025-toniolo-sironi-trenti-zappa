@@ -1,26 +1,27 @@
 package it.polimi.ingsw.controller;
 
+import it.polimi.ingsw.model.cards.Card;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.lobby.LobbyInfo;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerData;
+import it.polimi.ingsw.model.state.BuildingState;
 import it.polimi.ingsw.model.state.LobbyState;
 import it.polimi.ingsw.model.state.State;
-import it.polimi.ingsw.controller.ServerEventManager;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import java.io.Serializable;
 import java.util.*;
 
-public class GameController implements Serializable {
+public class GameController implements Serializable, StateTransitionHandler {
     private State state;
     private final ServerEventManager eventManager;
     private final UUID uuid = UUID.randomUUID();
 
     public GameController(Board board, LobbyInfo lobbyInfo) {
         this.eventManager = new ServerEventManager(lobbyInfo);
-        this.state = new LobbyState(board, this.eventManager);
+        this.state = new LobbyState(board, this.eventManager, this);
     }
 
     @Override
@@ -28,21 +29,26 @@ public class GameController implements Serializable {
         return uuid.toString();
     }
 
-    public UUID getUUID() {
-        return uuid;
-    }
-
-    // TODO: add the list of states already initialize to the game controller?
-    public void nextState(State newState) {
-        if (state != null) {
-            state.exit();
-        }
-
+    @Override
+    public void changeState(State newState) {
+        state.exit();
         state = newState;
         state.entry();
     }
 
+    public UUID getUUID() {
+        return uuid;
+    }
+
     public void startGame() {
+        try {
+            state.startGame();
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot start game in this state");
+        }
+    }
+
+    public void endGame() {
     }
 
     public void manageLobby(PlayerData player, int type) {
@@ -53,10 +59,20 @@ public class GameController implements Serializable {
         }
     }
 
-    public void endGame() {
-    }
-
     // Game actions
+
+    /**
+     * It will set the player to PLAYING
+     * @param player                 the player that wants to play
+     * @throws IllegalStateException if the current state does not allow playing
+     */
+    public void play(PlayerData player) throws IllegalStateException {
+        try {
+            state.play(player);
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot play in this state");
+        }
+    }
 
     public void useDeck(PlayerData player, int usage, int deckIndex) throws IllegalStateException{
         try {
@@ -142,7 +158,12 @@ public class GameController implements Serializable {
     }
 
     public void giveUp(UUID uuid) {
-        // TODO
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            state.giveUp(player);
+        } else {
+            throw new IllegalStateException("Not the current player");
+        }
     }
 
     public void selectPlanet(UUID uuid, int planetID) {

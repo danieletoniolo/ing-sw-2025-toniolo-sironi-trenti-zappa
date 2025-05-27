@@ -1,0 +1,24 @@
+package it.polimi.ingsw.event.game.serverToClient;
+
+import it.polimi.ingsw.event.type.Event;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * This record represents an event where a player picks up a battery from the board.
+ * It is used to notify the system or other components about this action and
+ * provides details about the battery and the player involved.
+ *
+ * @param nickname     The username or identifier of the player who picked up the battery.
+ * @param tileID       The identifier of the tile from which the battery was picked.
+ * @param connectors   A list of the connector type associated with the battery.
+ * @param energyNumber The amount of energy represented by the picked battery.
+ */
+public record PickedBatteryFromBoard(
+        String nickname,
+        int tileID,
+        List<Integer> connectors,
+        int energyNumber
+) implements Event, Serializable {
+}

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
@@ -15,8 +16,8 @@ import java.util.ArrayList;
  * @author Daniele Toniolo
  */
 public class CrewState extends State {
-    public CrewState(Board board, EventCallback callback) {
-        super(board, callback);
+    public CrewState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
     }
 
     /**
@@ -54,6 +55,7 @@ public class CrewState extends State {
     public void execute(PlayerData player) {
         // TODO: Should we check if the player has filled all the cabins?
         super.execute(player);
+        super.nextState(GameState.CARDS);
     }
 
     @Override

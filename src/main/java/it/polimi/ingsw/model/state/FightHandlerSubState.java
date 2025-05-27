@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
@@ -36,8 +37,8 @@ public class FightHandlerSubState extends State {
     /**
      * Constructor
      */
-    public FightHandlerSubState(Board board, EventCallback eventCallback) {
-        super(board, eventCallback);
+    public FightHandlerSubState(Board board, EventCallback eventCallback, StateTransitionHandler transitionHandler) {
+        super(board, eventCallback, transitionHandler);
         this.dice = null;
         this.protect = null;
         this.batteryID = null;

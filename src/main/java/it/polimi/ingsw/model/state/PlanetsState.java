@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.cards.Planets;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.good.Good;
@@ -25,8 +26,8 @@ public class PlanetsState extends State {
      * @param board The board associated with the game
      * @param card Planet card associated with the state
      */
-    public PlanetsState(Board board, EventCallback callback, Planets card) {
-        super(board, callback);
+    public PlanetsState(Board board, EventCallback callback, Planets card, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
         this.card = card;
         planetSelected = new PlayerData[card.getPlanetNumbers()];
     }
@@ -197,6 +198,7 @@ public class PlanetsState extends State {
         } else if (playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {
             playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
         }
+        super.nextState(GameState.CARDS);
     }
 
     /**

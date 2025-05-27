@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.cards.AbandonedStation;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.good.Good;
@@ -21,8 +22,8 @@ public class AbandonedStationState extends State {
     private final AbandonedStation card;
     private List<Triplet<List<Good>, List<Good>, Integer>> exchangeData;
 
-    public AbandonedStationState(Board board, EventCallback callback, AbandonedStation card) {
-        super(board, callback);
+    public AbandonedStationState(Board board, EventCallback callback, AbandonedStation card, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
         this.card = card;
         this.exchangeData = new ArrayList<>();
     }
@@ -172,6 +173,7 @@ public class AbandonedStationState extends State {
         } else {
             playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
         }
+        super.nextState(GameState.CARDS);
     }
 
     @Override

@@ -1,10 +1,11 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
-import it.polimi.ingsw.model.spaceship.Component;
+import it.polimi.ingsw.model.spaceship.*;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.event.game.serverToClient.*;
 import org.javatuples.Pair;
@@ -20,8 +21,8 @@ public class BuildingState extends State {
     private static final long timerDuration = 90000;
     private final Map<PlayerColor, Component> playersHandQueue;
 
-    public BuildingState(Board board, EventCallback callback) {
-        super(board, callback);
+    public BuildingState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
         this.timer = new Timer();
         this.numberOfTimerFlips = 0;
         this.timerRunning = false;
@@ -178,8 +179,49 @@ public class BuildingState extends State {
             case 0 -> {
                 // Get the tile from the board
                 component = board.popTile(tileID);
-                PickedTileFromBoard pickTileEvent = new PickedTileFromBoard(player.getUsername(), tileID);
-                eventCallback.trigger(pickTileEvent);
+
+                // Trigger the event for picking a tile from the board
+                String username = player.getUsername();
+                int componentID = component.getID();
+                List<Integer> connectors = new ArrayList<>();
+                for (int i = 0; i < 4; i++) {
+                    connectors.add(component.getConnection(i).getValue());
+                }
+
+                switch (component.getComponentType()) {
+                    case SINGLE_ENGINE, DOUBLE_ENGINE -> {
+                        PickedEngineFromBoard pickedEngineFromBoard = new PickedEngineFromBoard(username, componentID, connectors, ((Engine) component).getEngineStrength());
+                        eventCallback.trigger(pickedEngineFromBoard);
+                    }
+                    case SINGLE_CANNON, DOUBLE_CANNON -> {
+                        PickedCannonFromBoard pickedCannonFromBoard = new PickedCannonFromBoard(username, componentID, connectors, ((Cannon) component).getCannonStrength());
+                        eventCallback.trigger(pickedCannonFromBoard);
+                    }
+                    case CABIN, CENTER_CABIN -> {
+                        PickedCabinFromBoard pickedCabinFromBoard = new PickedCabinFromBoard(username, componentID, connectors);
+                        eventCallback.trigger(pickedCabinFromBoard);
+                    }
+                    case STORAGE -> {
+                        PickedStorageFromBoard pickedStorageFromBoard = new PickedStorageFromBoard(username, componentID, connectors, ((Storage) component).getGoodsCapacity());
+                        eventCallback.trigger(pickedStorageFromBoard);
+                    }
+                    case BROWN_LIFE_SUPPORT, PURPLE_LIFE_SUPPORT -> {
+                        PickedLifeSupportFromBoard pickedLifeSupportFromBoard = new PickedLifeSupportFromBoard(username, componentID, connectors, component.getComponentType() == ComponentType.BROWN_LIFE_SUPPORT ? 1 : 2);
+                        eventCallback.trigger(pickedLifeSupportFromBoard);
+                    }
+                    case BATTERY -> {
+                        PickedBatteryFromBoard pickedBatteryFromBoard = new PickedBatteryFromBoard(username, componentID, connectors, ((Battery) component).getEnergyNumber());
+                        eventCallback.trigger(pickedBatteryFromBoard);
+                    }
+                    case SHIELD -> {
+                        PickedShieldFromBoard pickedShieldFromBoard = new PickedShieldFromBoard(username, componentID, connectors);
+                        eventCallback.trigger(pickedShieldFromBoard);
+                    }
+                    case CONNECTORS -> {
+                        PickedConnectorsFromBoard pickedConnectorsFromBoard = new PickedConnectorsFromBoard(username, componentID, connectors);
+                        eventCallback.trigger(pickedConnectorsFromBoard);
+                    }
+                }
             }
             case 1 -> {
                 // Get the tile from the reserve
@@ -194,7 +236,7 @@ public class BuildingState extends State {
                 eventCallback.trigger(pickTileEvent);
             }
             default -> throw new IllegalStateException("Invalid fromWhere value");
-        };
+        }
 
         // Check if the component is null or if the ID of the component is not the same as the tileID
         if (component == null || component.getID() != tileID) {
@@ -268,7 +310,11 @@ public class BuildingState extends State {
         // Rotate the tile in the board
         component.rotateClockwise();
 
-        TileRotated rotateTile = new TileRotated(player.getUsername(), component.getID());
+        ArrayList<Integer> connectors = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            connectors.add(component.getConnection(i).getValue());
+        }
+        TileRotated rotateTile = new TileRotated(player.getUsername(), component.getID(), component.getClockwiseRotation(),connectors);
         eventCallback.trigger(rotateTile);
     }
 
@@ -292,6 +338,7 @@ public class BuildingState extends State {
     @Override
     public void execute(PlayerData playerData) {
         super.execute(playerData);
+        super.nextState(GameState.VALIDATION);
     }
 
     @Override

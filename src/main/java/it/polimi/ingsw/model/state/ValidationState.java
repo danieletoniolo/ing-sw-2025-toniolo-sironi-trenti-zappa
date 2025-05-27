@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
@@ -31,8 +32,8 @@ public class ValidationState extends State {
         FRAGMENTED_SHIP,
     }
 
-    public ValidationState(Board board, EventCallback callback) {
-        super(board, callback);
+    public ValidationState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
         this.invalidComponents = new HashMap<>();
         this.fragmentedComponents = null;
         this.fragmentChoice = -1;
@@ -143,6 +144,7 @@ public class ValidationState extends State {
                 // Set the player status to PLAYED
                 playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
         }
+        super.nextState(GameState.CARDS);
     }
     @Override
     public void exit() {

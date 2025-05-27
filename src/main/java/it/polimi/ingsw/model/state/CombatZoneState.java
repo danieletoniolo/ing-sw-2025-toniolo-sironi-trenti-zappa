@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.cards.CombatZone;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.good.Good;
@@ -56,8 +57,8 @@ public class CombatZoneState extends State {
      * @param board The board associated with the game
      * @param card CombatZone card associated with the state
      */
-    public CombatZoneState(Board board, EventCallback callback, CombatZone card) {
-        super(board, callback);
+    public CombatZoneState(Board board, EventCallback callback, CombatZone card, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
         this.card = card;
         this.stats = new ArrayList<>(3);
         for (int i = 0; i < 3; i++) {
@@ -74,7 +75,7 @@ public class CombatZoneState extends State {
         this.crewLoss = null;
         this.goodsToDiscard = null;
         this.batteriesToDiscard = null;
-        this.fightHandler = new FightHandlerSubState(super.board, super.eventCallback);
+        this.fightHandler = new FightHandlerSubState(super.board, super.eventCallback, super.transitionHandler);
     }
 
     /**
@@ -109,11 +110,8 @@ public class CombatZoneState extends State {
 
         SpaceShip spaceShip = player.getSpaceShip();
         if (spaceShip.getCrewNumber() <= crewLost) {
-            player.setGaveUp(true);
-            this.players = super.board.getInGamePlayers();
-
-            PlayerLost gaveUpEvent = new PlayerLost(player.getUsername());
-            eventCallback.trigger(gaveUpEvent);
+            PlayerLost lostEvent = new PlayerLost();
+            eventCallback.trigger(lostEvent, player.getUUID());
         } else {
             for (int cabinID : crewLoss) {
                 spaceShip.removeCrewMember(cabinID, 1);
@@ -417,11 +415,8 @@ public class CombatZoneState extends State {
                 if (card.getCardLevel() == 2) {
                     int crewFulfillment = minPlayerEngines.getSpaceShip().getGoods().size() - card.getLost();
                     if (crewFulfillment < 0 && minPlayerEngines.getSpaceShip().getCrewNumber() < Math.abs(crewFulfillment)) {
-                        minPlayerEngines.setGaveUp(true);
-                        this.players = super.board.getInGamePlayers();
-
-                        PlayerLost gaveUpEvent = new PlayerLost(player.getUsername());
-                        eventCallback.trigger(gaveUpEvent);
+                        PlayerLost lostEvent = new PlayerLost();
+                        eventCallback.trigger(lostEvent, player.getUUID());
                     } else {
                         executeSubStateRemoveGoods(minPlayerEngines);
                         if (goodsToDiscard.size() < card.getLost()) {
@@ -447,5 +442,6 @@ public class CombatZoneState extends State {
                 }
                 break;
         }
+        super.nextState(GameState.CARDS);
     }
 }

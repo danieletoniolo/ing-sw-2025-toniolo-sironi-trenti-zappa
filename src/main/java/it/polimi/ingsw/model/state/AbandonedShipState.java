@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.cards.AbandonedShip;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
@@ -25,8 +26,8 @@ public class AbandonedShipState extends State {
      * @param board The board associated with the game
      * @param card The AbandonedShip card associated with the state
      */
-    public AbandonedShipState(Board board, EventCallback callback, AbandonedShip card) {
-        super(board, callback);
+    public AbandonedShipState(Board board, EventCallback callback, AbandonedShip card, StateTransitionHandler transitionHandler) {
+        super(board, callback, transitionHandler);
         this.card = card;
         this.crewLoss = null;
     }
@@ -111,6 +112,7 @@ public class AbandonedShipState extends State {
             played = true;
         }
         super.execute(player);
+        super.nextState(GameState.CARDS);
     }
 
     @Override
