@@ -59,7 +59,6 @@ public class NetworkTransceiver implements EventTransceiver{
             Event event;
             while (true) {
                 synchronized (receivedQueue) {
-                    Logger.getInstance().log(Logger.LogLevel.INFO, listeners.size() + " listeners registered", false);
                     while (receivedQueue.isEmpty()) {
                         try {
                             Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting message...", false);
@@ -69,6 +68,7 @@ public class NetworkTransceiver implements EventTransceiver{
                         }
                     }
                     event = receivedQueue.poll();
+                    Logger.getInstance().log(Logger.LogLevel.INFO, listeners.size() + " listeners registered", false);
                     Logger.getInstance().log(Logger.LogLevel.INFO, "Received message: " + event.getClass().getSimpleName(), false);
 
                     synchronized (lockListeners) {
