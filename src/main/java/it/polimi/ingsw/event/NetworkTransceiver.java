@@ -59,7 +59,7 @@ public class NetworkTransceiver implements EventTransceiver{
                 synchronized (receivedQueue) {
                     while (receivedQueue.isEmpty()) {
                         try {
-                            Logger.getInstance().log(Logger.LogLevel.ERROR, "Waiting message...", false);
+                            Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting message...", false);
                             receivedQueue.wait();
                         } catch (InterruptedException e) {
                             // Handle interruption
