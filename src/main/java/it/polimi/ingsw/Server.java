@@ -45,7 +45,7 @@ public class Server {
             System.exit(1);
         }
 
-        logger.log(Logger.LogLevel.INFO, "Server started at address: " + hostname + " (TCP port: 8080; RMI port: 8081)", false);
+        logger.log(Logger.LogLevel.INFO, "Server started at address: " + hostname + " (TCP port: 2550; RMI port: 2551)", false);
 
         while (true) {
             Connection connection = connectionAcceptor.accept();

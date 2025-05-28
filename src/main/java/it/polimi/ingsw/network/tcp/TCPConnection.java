@@ -24,7 +24,7 @@ public class TCPConnection implements Connection {
 
     private boolean disconnected;
 
-    private Queue<Event> pendingMessages;
+    private final Queue<Event> pendingMessages;
 
     private final Object lock = new Object();
 
@@ -102,10 +102,7 @@ public class TCPConnection implements Connection {
                             pendingMessages.add((Event) read);
                             lock.notifyAll();
                         }
-                    }
-
-                    // If the read object is not Message and neither a Heartbeat we consider the connection broken
-                    if (!(read instanceof HeartBeat)) {
+                    } else if (!(read instanceof HeartBeat)) {
                         disconnect();
                     }
 
