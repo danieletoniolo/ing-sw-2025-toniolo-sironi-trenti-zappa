@@ -70,10 +70,10 @@ public class CastEventReceiver<T extends Event> implements EventReceiver<T> {
         synchronized (lock) {
             listeners.put(listener, data -> {
                 try {
-                    Logger.getInstance().log(Logger.LogLevel.INFO, "Handling event of type: " + data.getClass().getName(), false);
                     listener.handle((T) data);
+                    Logger.getInstance().log(Logger.LogLevel.INFO, "Event handled by listener: " + listener.getClass().getName(), false);
                 } catch (ClassCastException e) {
-                    throw new IllegalStateException("Event of type " + data.getClass().getName() + " cannot be cast to " + listener.getClass().getName(), e);
+                    throw new IllegalStateException("Cannot handle event of type " + data.getClass().getName() + " with listener of type " + listener.getClass().getName(), e);
                 }
             });
 

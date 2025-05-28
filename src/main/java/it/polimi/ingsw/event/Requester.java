@@ -1,33 +1,22 @@
 package it.polimi.ingsw.event;
 
 import it.polimi.ingsw.event.type.Event;
-import it.polimi.ingsw.event.game.EventWrapper;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
 import it.polimi.ingsw.event.receiver.EventReceiver;
 import it.polimi.ingsw.event.trasmitter.EventTransmitter;
-import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
-import it.polimi.ingsw.utils.Logger;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Requester<S extends Event> {
-    private final EventReceiver<EventWrapper<StatusEvent>> receiver;
+    private final EventReceiver<StatusEvent> receiver;
     private final EventTransmitter transmitter;
 
-    private final EventListener<EventWrapper<StatusEvent>> responseHandler;
+    private final EventListener<StatusEvent> responseHandler;
 
-    private final Map<Integer, StatusEvent> pendingResponses = new HashMap<>();
+    private final Queue<StatusEvent> pendingResponses = new LinkedList<>();
 
     private final Object responseLock;
-
-    private final Set<Integer> activeRequests = new HashSet<>();
-
-    private int requestCounter;
-    private final Object counterLock = new Object();
 
     public Requester(EventTransceiver transceiver, Object responseLock) {
         this.transmitter = transceiver;
@@ -37,13 +26,20 @@ public class Requester<S extends Event> {
     }
 
     public StatusEvent request(S request) {
-        int requestId = generateRequestID();
-        Logger.getInstance().log(Logger.LogLevel.INFO, "Requesting " + request.getClass().getSimpleName() + " with ID: " + requestId, false);
+        registerListeners();
+        transmitter.broadcast(request);
 
-        addRequestToQueue(requestId);
-        transmitter.broadcast(new EventWrapper<>(requestId, request));
-
-        return waitForResponse(requestId);
+        synchronized (responseLock) {
+            while (pendingResponses.isEmpty()) {
+                try {
+                    responseLock.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            unregisterListeners();
+            return pendingResponses.poll();
+        }
     }
 
     public void registerListeners() {
@@ -59,42 +55,10 @@ public class Requester<S extends Event> {
         }
     }
 
-    private int generateRequestID() {
-        synchronized (counterLock) {
-            return requestCounter++;
-        }
-    }
-
-    private void addRequestToQueue(int requestId) {
-        registerListeners();
+    private void processResponse(StatusEvent response) {
         synchronized (responseLock) {
-            activeRequests.add(requestId);
-        }
-    }
-
-    private StatusEvent waitForResponse(int requestId) {
-        synchronized (responseLock) {
-            while (!pendingResponses.containsKey(requestId)) {
-                try {
-                    Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting for response with ID: " + requestId, false);
-                    responseLock.wait();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-            unregisterListeners();
-            Logger.getInstance().log(Logger.LogLevel.INFO, "Received response with ID: " + requestId, false);
-            return pendingResponses.remove(requestId);
-        }
-    }
-
-    private void processResponse(EventWrapper<StatusEvent> responseWrapper) {
-        synchronized (responseLock) {
-            if (activeRequests.contains(responseWrapper.ID())) {
-                activeRequests.remove(responseWrapper.ID());
-                pendingResponses.put(responseWrapper.ID(), responseWrapper.event());
-                responseLock.notifyAll();
-            }
+            pendingResponses.add(response);
+            responseLock.notifyAll();
         }
     }
 

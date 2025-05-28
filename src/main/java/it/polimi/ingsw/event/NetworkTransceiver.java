@@ -59,19 +59,19 @@ public class NetworkTransceiver implements EventTransceiver{
                 synchronized (receivedQueue) {
                     while (receivedQueue.isEmpty()) {
                         try {
-                            Logger.getInstance().log(Logger.LogLevel.INFO, "waiting", false);
+                            Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting message...", false);
                             receivedQueue.wait();
                         } catch (InterruptedException e) {
                             // Handle interruption
                         }
                     }
                     event = receivedQueue.poll();
-                    Logger.getInstance().log(Logger.LogLevel.INFO, event.toString(), false);
+                    Logger.getInstance().log(Logger.LogLevel.INFO, "Received message: " + event.getClass().getSimpleName(), false);
+                    Logger.getInstance().log(Logger.LogLevel.INFO, "Listeners list: " + listeners.stream().map(EventListener::getClass).map(Class::getSimpleName).reduce("", (a, b) -> a + ", " + b), false);
 
                     synchronized (lockListeners) {
                         List<EventListener<Event>> listenersCopy = new ArrayList<>(listeners);
                         for (EventListener<Event> listener : listenersCopy) {
-                            Logger.getInstance().log(Logger.LogLevel.INFO, "handle", false);
                             listener.handle(event);
                         }
                     }

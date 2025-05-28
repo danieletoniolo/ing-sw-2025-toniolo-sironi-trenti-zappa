@@ -2,6 +2,7 @@ package it.polimi.ingsw;
 
 import it.polimi.ingsw.controller.MatchController;
 import it.polimi.ingsw.event.NetworkTransceiver;
+import it.polimi.ingsw.event.lobby.serverToClient.UserIDSet;
 import it.polimi.ingsw.network.Connection;
 import it.polimi.ingsw.network.ConnectionAcceptor;
 import it.polimi.ingsw.network.exceptions.ConnectionException;
@@ -38,13 +39,13 @@ public class Server {
         ConnectionAcceptor connectionAcceptor = null;
         try {
             ConnectionAcceptor.initialize(hostname);
-            connectionAcceptor = new ConnectionAcceptor(8080, 8081);
+            connectionAcceptor = new ConnectionAcceptor(2550, 2551);
         } catch (RemoteException | ConnectionException exception) {
             logger.log(Logger.LogLevel.ERROR, exception.toString(), true);
             System.exit(1);
         }
 
-        logger.log(Logger.LogLevel.INFO, "Server started at address: " + hostname + " (TCP port: 8080; RMI port: 8081)", false);
+        logger.log(Logger.LogLevel.INFO, "Server started at address: " + hostname + " (TCP port: 2550; RMI port: 2551)", false);
 
         while (true) {
             Connection connection = connectionAcceptor.accept();
@@ -53,8 +54,7 @@ public class Server {
             // TODO: How we link UUID to the user
             UUID uuid = UUID.randomUUID();
             networkTransceiver.connect(uuid, connection);
-            // TODO: Replace Event with actual Event to send the uuid back to the client
-            // networkTransceiver.send(uuid, Event);
+            networkTransceiver.send(uuid, new UserIDSet(uuid.toString()));
 
             logger.log(Logger.LogLevel.INFO, "Connection accepted", false);
         }

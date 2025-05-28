@@ -24,7 +24,7 @@ public class TCPConnection implements Connection {
 
     private boolean disconnected;
 
-    private Queue<Event> pendingMessages;
+    private final Queue<Event> pendingMessages;
 
     private final Object lock = new Object();
 
@@ -97,7 +97,7 @@ public class TCPConnection implements Connection {
                     read = in.readObject();
 
                     // Check if the read object is Message
-                    if (read instanceof Event && !(read instanceof HeartBeat)) {
+                    if (read instanceof Event  && !(read instanceof HeartBeat)) {
                         synchronized (lock) {
                             pendingMessages.add((Event) read);
                             lock.notifyAll();

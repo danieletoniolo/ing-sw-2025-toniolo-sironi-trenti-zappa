@@ -17,6 +17,7 @@ import it.polimi.ingsw.event.game.serverToClient.Tac;
 import it.polimi.ingsw.event.lobby.clientToServer.*;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.network.User;
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -182,6 +183,7 @@ public class MatchController {
         }
 
         if (nicknameAlreadyUsed) {
+            Logger.getInstance().log(Logger.LogLevel.ERROR, "Nickname already used: " + data.nickname(), false);
             return new Pota(SetNickname.class, "Nickname already used");
         } else {
             UUID userID = UUID.fromString(data.userID());
@@ -201,6 +203,7 @@ public class MatchController {
             }
             Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), lobbiesPlayers, lobbiesLevels);
             serverNetworkTransceiver.send(userID, lobbiesEvent);
+            Logger.getInstance().log(Logger.LogLevel.INFO, "Nickname set", false);
         }
         return new Tac(SetNickname.class);
     }
@@ -267,15 +270,16 @@ public class MatchController {
     }
 
     /**
-     * Handles the logic for a user leaving a lobby. If the user is the founder of the lobby,
-     * additional cleanup operations are performed to remove the lobby and notify all clients
-     * about the lobby removal. If the user is not the founder, they are simply removed from the
-     * lobby and reconnected to the server's network transceiver.
+     * Handles the process of a user leaving a lobby. If the user leaving is the founder
+     * of the lobby, the lobby will be completely removed, and all users in the lobby
+     * will be reconnected to the server's main network transceiver. If the user is
+     * not the founder, they are simply removed from the lobby and reconnected to
+     * the server. Relevant notifications are sent to clients when a lobby is removed
+     * or a user leaves.
      *
-     * @param data an instance of {@code LeaveLobby} containing the information about the user
-     *             leaving the lobby, such as the user ID.
-     * @return an instance of {@code Event}, which could be a {@code Success} event if the operation
-     *         is successful or a {@code Pota} event if the lobby is not found.
+     * @param data an object containing the information about the user who is leaving the lobby
+     * @return an Event indicating the result of the leave operation. If the lobby is not found,
+     *         returns a failure event. If successful, returns a success event.
      */
     private Event leaveLobby(LeaveLobby data) {
         UUID userID = UUID.fromString(data.userID());
@@ -892,7 +896,7 @@ public class MatchController {
             }
 
             if (lobby.canGameStart()) {
-                RemoveLobby removeLobbyEvent = new RemoveLobby(lobby.getName());
+                LobbyRemoved removeLobbyEvent = new LobbyRemoved(lobby.getName());
                 serverNetworkTransceiver.broadcast(removeLobbyEvent);
 
                 int timerDuration = 5000;
