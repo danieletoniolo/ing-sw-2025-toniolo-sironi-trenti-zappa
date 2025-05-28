@@ -7,6 +7,7 @@ import it.polimi.ingsw.event.receiver.CastEventReceiver;
 import it.polimi.ingsw.event.receiver.EventReceiver;
 import it.polimi.ingsw.event.trasmitter.EventTransmitter;
 import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
+import it.polimi.ingsw.utils.Logger;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +38,7 @@ public class Requester<S extends Event> {
 
     public StatusEvent request(S request) {
         int requestId = generateRequestID();
+        Logger.getInstance().log(Logger.LogLevel.INFO, "Requesting " + request.getClass().getSimpleName() + " with ID: " + requestId, false);
 
         addRequestToQueue(requestId);
         transmitter.broadcast(new EventWrapper<>(requestId, request));
@@ -74,12 +76,14 @@ public class Requester<S extends Event> {
         synchronized (responseLock) {
             while (!pendingResponses.containsKey(requestId)) {
                 try {
+                    Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting for response with ID: " + requestId, false);
                     responseLock.wait();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             }
             unregisterListeners();
+            Logger.getInstance().log(Logger.LogLevel.INFO, "Received response with ID: " + requestId, false);
             return pendingResponses.remove(requestId);
         }
     }

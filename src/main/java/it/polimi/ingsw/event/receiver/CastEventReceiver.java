@@ -2,6 +2,7 @@ package it.polimi.ingsw.event.receiver;
 
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventListener;
+import it.polimi.ingsw.utils.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,9 +70,10 @@ public class CastEventReceiver<T extends Event> implements EventReceiver<T> {
         synchronized (lock) {
             listeners.put(listener, data -> {
                 try {
+                    Logger.getInstance().log(Logger.LogLevel.INFO, "Handling event of type: " + data.getClass().getName(), false);
                     listener.handle((T) data);
                 } catch (ClassCastException e) {
-                    throw new IllegalStateException("Event ID should always match it.polimi.ingsw.event data concrete type");
+                    throw new IllegalStateException("Event of type " + data.getClass().getName() + " cannot be cast to " + listener.getClass().getName(), e);
                 }
             });
 
