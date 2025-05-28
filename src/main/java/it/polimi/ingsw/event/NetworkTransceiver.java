@@ -67,7 +67,7 @@ public class NetworkTransceiver implements EventTransceiver{
                     }
                     event = receivedQueue.poll();
                     Logger.getInstance().log(Logger.LogLevel.INFO, "Received message: " + event.getClass().getSimpleName(), false);
-                    Logger.getInstance().log(Logger.LogLevel.INFO, "Listeners list: " + listeners.stream().map(EventListener::getClass).map(Class::getSimpleName).reduce("", (a, b) -> a + ", " + b), false);
+                    Logger.getInstance().log(Logger.LogLevel.INFO, "Listeners list: " + listeners.stream().map(EventListener::getClass).map(Class::getTypeName).reduce("", (a, b) -> a + ", " + b), false);
 
                     synchronized (lockListeners) {
                         List<EventListener<Event>> listenersCopy = new ArrayList<>(listeners);
