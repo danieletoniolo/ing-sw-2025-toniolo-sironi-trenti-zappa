@@ -59,6 +59,7 @@ public class NetworkTransceiver implements EventTransceiver{
             Event event;
             while (true) {
                 synchronized (receivedQueue) {
+                    Logger.getInstance().log(Logger.LogLevel.INFO, listeners.size() + " listeners registered", false);
                     while (receivedQueue.isEmpty()) {
                         try {
                             Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting message...", false);
@@ -69,30 +70,6 @@ public class NetworkTransceiver implements EventTransceiver{
                     }
                     event = receivedQueue.poll();
                     Logger.getInstance().log(Logger.LogLevel.INFO, "Received message: " + event.getClass().getSimpleName(), false);
-
-                    // TODO: to remove, it is only for debugging purposes
-                    List<String> listenerInfo = new ArrayList<>();
-                    for (EventListener<Event> listener : listeners) {
-                        String genericType = "Unknown";
-                        for (Type type : listener.getClass().getGenericInterfaces()) {
-                            if (type instanceof ParameterizedType parameterizedType) {
-                                if (EventListener.class.equals(parameterizedType.getRawType())) {
-                                    Type actualType = parameterizedType.getActualTypeArguments()[0];
-                                    genericType = actualType.getTypeName(); // Nome del tipo concreto
-                                    break;
-                                }
-                            }
-                        }
-                        // Aggiungi il listener e il suo tipo al log
-                        listenerInfo.add(listener.getClass().getName() + "<" + genericType + ">");
-                    }
-                    // Logga la lista dei listener con i tipi concreti generici
-                    Logger.getInstance().log(
-                            Logger.LogLevel.INFO,
-                            "Registered listeners: " + String.join(", ", listenerInfo),
-                            false
-                    );
-
 
                     synchronized (lockListeners) {
                         List<EventListener<Event>> listenersCopy = new ArrayList<>(listeners);
