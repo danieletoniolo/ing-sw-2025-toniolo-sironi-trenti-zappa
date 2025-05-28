@@ -3,6 +3,7 @@ package it.polimi.ingsw.event;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.network.Connection;
 import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
 import java.util.*;
@@ -58,12 +59,14 @@ public class NetworkTransceiver implements EventTransceiver{
                 synchronized (receivedQueue) {
                     while (receivedQueue.isEmpty()) {
                         try {
+                            Logger.getInstance().log(Logger.LogLevel.ERROR, "Waiting message...", false);
                             receivedQueue.wait();
                         } catch (InterruptedException e) {
                             // Handle interruption
                         }
                     }
                     event = receivedQueue.poll();
+                    Logger.getInstance().log(Logger.LogLevel.INFO, "Received message: " + event.getClass().getSimpleName(), false);
 
                     synchronized (lockListeners) {
                         List<EventListener<Event>> listenersCopy = new ArrayList<>(listeners);
