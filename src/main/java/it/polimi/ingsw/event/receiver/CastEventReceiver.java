@@ -78,6 +78,7 @@ public class CastEventReceiver<T extends Event> implements EventReceiver<T> {
                 }
             });
 
+            Logger.getInstance().log(Logger.LogLevel.INFO, "Listener registered: " + listener.getClass().getName(), false);
             receiver.registerListener(listeners.get(listener));
         }
     }
