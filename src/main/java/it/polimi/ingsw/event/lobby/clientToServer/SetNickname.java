@@ -29,13 +29,6 @@ public record SetNickname(
      * @return            a Responder for the SetNickname event.
      */
     public static <T extends Event> Responder<SetNickname, T> responder(EventTransceiver transceiver, Function<SetNickname, T> response) {
-        CastEventReceiver<SetNickname> transceiverReceiver = new CastEventReceiver<>(transceiver);
-        EventListener<SetNickname> eventListener = event -> {
-            T responseEvent = response.apply(event);
-            transceiver.broadcast(responseEvent);
-            Logger.getInstance().log(Logger.LogLevel.INFO, "Sending response 1: " + responseEvent, false);
-        };
-        transceiverReceiver.registerListener(eventListener);
         return new Responder<>(transceiver, response);
     }
 
