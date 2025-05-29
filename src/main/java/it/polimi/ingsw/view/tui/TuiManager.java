@@ -8,6 +8,7 @@ import it.polimi.ingsw.model.game.board.Deck;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.spaceship.*;
+import it.polimi.ingsw.view.tui.states.gameScreens.NotClientTurnTuiScreen;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import it.polimi.ingsw.view.Manager;
@@ -52,7 +53,7 @@ public class TuiManager implements Manager {
         }
         parser = new Parser(terminal);
 
-        currentScreen = new LogInTuiScreen();
+        currentScreen = new ValidationTuiScreen();
 
         /// Se metodo crea un nuovo stato impostare anche printInput a false
     }
@@ -120,6 +121,9 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Refresh the starting countdown on the screen
+     */
     @Override
     public void notifyCountDown() {
         if (currentScreen.getType().equals(TuiScreens.Building)) {
@@ -129,6 +133,9 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Change the screen: from lobby screen to building screen
+     */
     @Override
     public void notifyStartingGame() {
         synchronized (stateLock) {
@@ -263,6 +270,13 @@ public class TuiManager implements Manager {
         viewThread.start();
     }
 
+    public void set() {
+        synchronized (stateLock) {
+            currentScreen = new NotClientTurnTuiScreen();
+            stateLock.notifyAll();
+        }
+    }
+
     public static void main(String[] args) {
         ArrayList<Component> tiles = TilesManager.getTiles();
         for (int i = 0; i < 50; i++) {
@@ -334,8 +348,8 @@ public class TuiManager implements Manager {
 
         TuiManager tui = new TuiManager();
         tui.startTui();
-
-        /*final int[] secondsRemaining = {10};
+        /*
+        final int[] secondsRemaining = {15};
         new Thread(() -> {
             while (secondsRemaining[0] >= 0) {
                 try {

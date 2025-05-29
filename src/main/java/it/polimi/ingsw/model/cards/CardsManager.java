@@ -11,7 +11,7 @@ import java.util.*;
 
 public class CardsManager {
     private static final ClassLoader classLoader = CardsManager.class.getClassLoader();
-    private static final InputStream inputStream = classLoader.getResourceAsStream("json/Cards.json");
+    private static final InputStream inputStream = classLoader.getResourceAsStream("Json/Cards.json");
     private static final String json;
     static {
         if (inputStream == null) {

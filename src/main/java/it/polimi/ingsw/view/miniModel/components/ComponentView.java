@@ -2,7 +2,9 @@ package it.polimi.ingsw.view.miniModel.components;
 
 import it.polimi.ingsw.view.miniModel.Structure;
 
-public abstract class ComponentView implements Structure {
+import java.io.Serializable;
+
+public abstract class ComponentView implements Structure, Serializable {
     public static String Up0 =   "╭─────╮";
     public static String Up1 =   "╭──|──╮";
     public static String Up2 =   "╭─|─|─╮";
@@ -47,13 +49,16 @@ public abstract class ComponentView implements Structure {
     private int[] currentConnectors;
     private int ID;
     private boolean covered;
-    int row;
-    int col;
+    private int row;
+    private int col;
+    private boolean isWrong;
+    private String red = "\033[31m";
+    private String reset = "\033[0m";
 
     public ComponentView(int ID, int[] connectors) {
         this.ID = ID;
         this.currentConnectors = connectors;
-        this.covered = true;
+        this.covered = false;
     }
 
     @Override
@@ -65,34 +70,44 @@ public abstract class ComponentView implements Structure {
 
     @Override
     public String drawLineTui(int line) throws IndexOutOfBoundsException{
-        return switch (line) {
+        String str = switch (line) {
             case 0 -> isCovered() || currentConnectors[0] == 0 ? Up0 : currentConnectors[0] == 1 ? Up1 : currentConnectors[0] == 2 ? Up2 : Up3;
             case 1 -> drawLeft(line) + "  ?  " + drawRight(line);
             case 2 -> isCovered() || currentConnectors[2] == 0 ? Down0 : currentConnectors[2] == 1 ? Down1 : currentConnectors[2] == 2 ? Down2 : Down3;
             default -> throw new IndexOutOfBoundsException("Unexpected value: " + line);
         };
+
+        return isWrong ? red + str + reset : str;
     }
 
     protected String drawLeft(int line) {
         if (isCovered()) return Side0[line];
-        return switch (currentConnectors[1]) {
+        String str = switch (currentConnectors[1]) {
             case 0 -> Side0[line];
             case 1 -> Side1[line];
             case 2 -> Side2[line];
             case 3 -> Side3[line];
             default -> throw new IndexOutOfBoundsException("Unexpected value: " + currentConnectors[0]);
         };
+
+        return isWrong ? red + str + reset : str;
     }
 
     protected String drawRight(int line) {
         if (isCovered()) return Side0[line];
-        return switch (currentConnectors[3]) {
+        String str = switch (currentConnectors[3]) {
             case 0 -> Side0[line];
             case 1 -> Side1[line];
             case 2 -> Side2[line];
             case 3 -> Side3[line];
             default -> throw new IndexOutOfBoundsException("Unexpected value: " + currentConnectors[0]);
         };
+
+        return isWrong ? red + str + reset : str;
+    }
+
+    public void setIsWrong(boolean isWrong) {
+        this.isWrong = isWrong;
     }
 
     public void setID(int ID) {

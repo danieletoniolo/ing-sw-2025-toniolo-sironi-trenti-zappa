@@ -3,16 +3,17 @@ package it.polimi.ingsw.view.miniModel.spaceship;
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class DiscardReservedPileView implements Structure {
-    public String UpReserved1 =     "╭──────";
-    public String LeftReserved2 =   "│      ";
-    public String DownReserved1 =   "╰──────";
+public class DiscardReservedPileView implements Structure, Serializable {
+    private String UpReserved1 =     "╭──────";
+    private String LeftReserved2 =   "│      ";
+    private String DownReserved1 =   "╰──────";
 
-    public String UpReserved2 =     "──────╮";
-    public String RightReserved2 =  "      │";
-    public String DownReserved2 =   "──────╯";
+    private String UpReserved2 =     "──────╮";
+    private String RightReserved2 =  "      │";
+    private String DownReserved2 =   "──────╯";
 
     private ArrayList<ComponentView> reserved;
 
@@ -56,7 +57,16 @@ public class DiscardReservedPileView implements Structure {
         reserved.add(component);
     }
 
-    public void removeDiscardReserved(ComponentView component) {
-        reserved.remove(component);
+    public ComponentView removeDiscardReserved(int ID) {
+        int i;
+        boolean found = false;
+        for (i = 0; i < reserved.size(); i++) {
+            if (reserved.get(i).getID() == ID) {
+                found = true;
+                break;
+            }
+        }
+
+        return found ? reserved.remove(i) : null;
     }
 }

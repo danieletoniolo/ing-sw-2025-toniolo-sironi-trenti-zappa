@@ -11,7 +11,8 @@ public enum TuiScreens {
     ChooseLevelTuiScreen,
     Player,
     Reward,
-    Game
+    Game,
+    Validation
 
 
 }

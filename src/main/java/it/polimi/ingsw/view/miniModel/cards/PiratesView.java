@@ -31,12 +31,12 @@ public class PiratesView extends CardView {
             case 0 -> Up;
             case 1 -> "│      PIRATES      │";
             case 2 -> Clear;
-            case 3 -> "│  StrenghtReq: " + getCannonRequires();
+            case 3 -> "│  StrengthReq: " + getCannonRequires();
             case 4 -> "│  Hit1: " + hits.get(0).drawHitTui();
             case 5 -> "│  Hit2: " + hits.get(1).drawHitTui();
             case 6 -> "│  Hit3: " + hits.get(2).drawHitTui();
             case 7 -> "│  Credit: " + getCredits();
-            case 8 -> "│  FlightDays: " + getFlightDays();
+            case 8 -> "│   FlightDays: " + getFlightDays();
             case 9 -> Down;
             default -> null;
         });

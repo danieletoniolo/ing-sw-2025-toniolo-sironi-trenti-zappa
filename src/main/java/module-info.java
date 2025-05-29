@@ -11,4 +11,12 @@ module demo {
 
     opens it.polimi.ingsw.view.gui to javafx.fxml;
     exports it.polimi.ingsw.view.gui;
+
+    opens it.polimi.ingsw.model.cards to com.fasterxml.jackson.databind;
+    exports it.polimi.ingsw.model.cards to com.fasterxml.jackson.databind;
+
+    opens it.polimi.ingsw.model.good to com.fasterxml.jackson.databind;
+    exports it.polimi.ingsw.model.good to com.fasterxml.jackson.databind;
+
+    opens it.polimi.ingsw.model.cards.hits to com.fasterxml.jackson.databind;
 }

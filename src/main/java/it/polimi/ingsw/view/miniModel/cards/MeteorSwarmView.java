@@ -26,11 +26,11 @@ public class MeteorSwarmView extends CardView {
             case 0 -> Up;
             case 1 -> "│    METEORSWARM    │";
             case 2,8 -> Clear;
-            case 3 -> (hits.isEmpty() ?   ("│  Hit1: " + hits.getFirst().drawHitTui()) : Clear);
-            case 4 -> (hits.size() >= 2 ? ("│  Hit2: " + hits.get(1).drawHitTui()) : Clear);
-            case 5 -> (hits.size() >= 3 ? ("│  Hit2: " + hits.get(2).drawHitTui()) : Clear);
-            case 6 -> (hits.size() >= 4 ? ("│  Hit2: " + hits.get(3).drawHitTui()) : Clear);
-            case 7 -> (hits.size() >= 5 ? ("│  Hit2: " + hits.get(4).drawHitTui()) : Clear);
+            case 3 -> (!hits.isEmpty() ?  ("│    Hit1: " + hits.getFirst().drawHitTui()) : Clear);
+            case 4 -> (hits.size() >= 2 ? ("│    Hit2: " + hits.get(1).drawHitTui()) : Clear);
+            case 5 -> (hits.size() >= 3 ? ("│    Hit3: " + hits.get(2).drawHitTui()) : Clear);
+            case 6 -> (hits.size() >= 4 ? ("│    Hit4: " + hits.get(3).drawHitTui()) : Clear);
+            case 7 -> (hits.size() >= 5 ? ("│    Hit5: " + hits.get(4).drawHitTui()) : Clear);
             case 9 -> Down;
             default -> null;
         });

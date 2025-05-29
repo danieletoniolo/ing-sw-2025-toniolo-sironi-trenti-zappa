@@ -11,12 +11,19 @@ public class BatteryView extends ComponentView {
         this.maximumBatteries = maximumBatteries;
     }
 
-    public int getNumberOfBatteries() {
-        return numberOfBatteries;
+    public int getMaximumBatteries() {
+        return maximumBatteries;
     }
 
     public void setNumberOfBatteries(int numberOfBatteries) {
         this.numberOfBatteries = numberOfBatteries;
+    }
+
+    /**
+     * Reduce of 1 the number of batteries
+     */
+    public void reduceNumberOfButteries() {
+        this.numberOfBatteries--;
     }
 
     /**
@@ -34,7 +41,7 @@ public class BatteryView extends ComponentView {
 
         return switch (line) {
             case 0, 2 -> super.drawLineTui(line);
-            case 1 -> super.drawLeft(line) + " " + (green + getNumberOfBatteries() + "/" + maximumBatteries + reset) + " " + super.drawRight(line);
+            case 1 -> super.drawLeft(line) + " " + (green + numberOfBatteries + "/" + maximumBatteries + reset) + " " + super.drawRight(line);
             default -> throw new IndexOutOfBoundsException("Unexpected value: " + line);
         };
     }

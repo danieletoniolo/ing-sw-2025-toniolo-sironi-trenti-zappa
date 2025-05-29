@@ -1,25 +1,26 @@
 package it.polimi.ingsw.view.miniModel.spaceship;
 
+import it.polimi.ingsw.view.miniModel.components.*;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
-import it.polimi.ingsw.view.miniModel.components.ComponentView;
-import it.polimi.ingsw.view.miniModel.components.GenericComponentView;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SpaceShipView implements Structure {
+public class SpaceShipView implements Structure, Serializable {
     private LevelView level;
     private ComponentView[][] spaceShip;
     private DiscardReservedPileView discardReservedPile;
-    private Map<Integer, ComponentView> mapDoubleCannons = new LinkedHashMap<>();
-    private Map<Integer, ComponentView> mapDoubleEngines = new LinkedHashMap<>();
-    private Map<Integer, ComponentView> mapCabins = new LinkedHashMap<>();
-    private Map<Integer, ComponentView> mapShield = new LinkedHashMap<>();
-    private Map<Integer, ComponentView> mapStorages = new LinkedHashMap<>();
-    private Map<Integer, ComponentView> mapBatteries = new LinkedHashMap<>();
+    private Map<Integer, CannonView> mapDoubleCannons = new LinkedHashMap<>();
+    private Map<Integer, EngineView> mapDoubleEngines = new LinkedHashMap<>();
+    private Map<Integer, CabinView> mapCabins = new LinkedHashMap<>();
+    private Map<Integer, ShieldView> mapShield = new LinkedHashMap<>();
+    private Map<Integer, StorageView> mapStorages = new LinkedHashMap<>();
+    private Map<Integer, BatteryView> mapBatteries = new LinkedHashMap<>();
+    private ComponentView last;
     private List<List<Pair<Integer, Integer>>> fragments;
 
     private final int converterRow = 5;
@@ -63,16 +64,22 @@ public class SpaceShipView implements Structure {
         spaceShip[row-converterRow][col-converterCol].setCovered(false);
 
         switch (component.getType()) {
-            case DOUBLE_CANNON -> mapDoubleCannons.put(component.getID(), component);
-            case DOUBLE_ENGINE -> mapDoubleEngines.put(component.getID(), component);
-            case CABIN -> mapCabins.put(component.getID(), component);
-            case SHIELD -> mapShield.put(component.getID(), component);
-            case STORAGE -> mapStorages.put(component.getID(), component);
-            case BATTERY -> mapBatteries.put(component.getID(), component);
+            case DOUBLE_CANNON -> mapDoubleCannons.put(component.getID(), (CannonView) component);
+            case DOUBLE_ENGINE -> mapDoubleEngines.put(component.getID(), (EngineView) component);
+            case CABIN -> mapCabins.put(component.getID(), (CabinView) component);
+            case SHIELD -> mapShield.put(component.getID(), (ShieldView) component);
+            case STORAGE -> mapStorages.put(component.getID(), (StorageView) component);
+            case BATTERY -> mapBatteries.put(component.getID(), (BatteryView) component);
         }
 
         spaceShip[row-converterRow][col-converterCol].setRow(row);
         spaceShip[row-converterRow][col-converterCol].setCol(col);
+
+        last = component;
+    }
+
+    public ComponentView removeLast() {
+        return removeComponent(last.getRow(), last.getCol());
     }
 
     public ComponentView removeComponent(int row, int col) {
@@ -94,27 +101,27 @@ public class SpaceShipView implements Structure {
         return level;
     }
 
-    public Map<Integer, ComponentView> getMapDoubleCannons() {
+    public Map<Integer, CannonView> getMapDoubleCannons() {
         return mapDoubleCannons;
     }
 
-    public Map<Integer, ComponentView> getMapDoubleEngines() {
+    public Map<Integer, EngineView> getMapDoubleEngines() {
         return mapDoubleEngines;
     }
 
-    public Map<Integer, ComponentView> getMapCabins() {
+    public Map<Integer, CabinView> getMapCabins() {
         return mapCabins;
     }
 
-    public Map<Integer, ComponentView> getMapShield() {
+    public Map<Integer, ShieldView> getMapShield() {
         return mapShield;
     }
 
-    public Map<Integer, ComponentView> getMapStorages() {
+    public Map<Integer, StorageView> getMapStorages() {
         return mapStorages;
     }
 
-    public Map<Integer, ComponentView> getMapBatteries() {
+    public Map<Integer, BatteryView> getMapBatteries() {
         return mapBatteries;
     }
 

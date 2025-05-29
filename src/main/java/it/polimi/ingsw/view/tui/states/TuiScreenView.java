@@ -8,7 +8,7 @@ public interface TuiScreenView {
     void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception;
 
     /**
-     * Set a new Screen -> when the command is only part of the it.polimi.ingsw.view or the command is sent to the server
+     * Set a new Screen -> when the command is only part of the view or the command is sent to the server
      * @return a new ScreenTuiView
      */
     TuiScreenView setNewScreen();
