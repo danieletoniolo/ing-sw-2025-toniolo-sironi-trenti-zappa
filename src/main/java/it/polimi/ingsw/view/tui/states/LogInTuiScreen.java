@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.tui.states;
 
 import it.polimi.ingsw.event.lobby.clientToServer.SetNickname;
 import it.polimi.ingsw.event.type.StatusEvent;
+import it.polimi.ingsw.utils.Logger;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -32,9 +33,10 @@ public class LogInTuiScreen implements TuiScreenView {
         StatusEvent status = SetNickname.requester(Client.transceiver, new Object()).request(new SetNickname(MiniModel.getInstance().userID, nickname));
         if (status.get().equals("POTA")) {
             message = "Nickname already taken, please choose another one.";
+            Logger.getInstance().log(Logger.LogLevel.INFO, "Nickname already taken: " + nickname, false);
             return this;
         }
-        System.out.println(MiniModel.getInstance().nickname);
+        Logger.getInstance().log(Logger.LogLevel.INFO, "Nickname set: " + nickname, false);
         message = null;
         return new MenuTuiScreen();
     }

@@ -4,6 +4,7 @@ import it.polimi.ingsw.event.Requester;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
+import it.polimi.ingsw.event.type.StatusEvent;
 import org.javatuples.Pair;
 
 import java.io.Serializable;
@@ -25,7 +26,7 @@ public record DestroyComponents(
      * @param response    is the function that will be used to create the response event.
      * @return            a Responder for the DestroyComponents event.
      */
-    public static <T extends Event> Responder<DestroyComponents, T> responder(EventTransceiver transceiver, Function<DestroyComponents, T> response) {
+    public static Responder<DestroyComponents> responder(EventTransceiver transceiver, Function<DestroyComponents, StatusEvent> response) {
         return new Responder<>(transceiver, response);
     }
 

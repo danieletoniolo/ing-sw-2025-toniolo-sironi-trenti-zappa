@@ -4,6 +4,7 @@ import it.polimi.ingsw.event.Requester;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
+import it.polimi.ingsw.event.type.StatusEvent;
 
 import java.io.Serializable;
 import java.util.function.Function;
@@ -27,7 +28,7 @@ public record ManageCrewMember(
      * @param response    is the function that will be used to create the response event.
      * @return            a Responder for the ManageCrewMember event.
      */
-    public static <T extends Event> Responder<ManageCrewMember, T> responder(EventTransceiver transceiver, Function<ManageCrewMember, T> response) {
+    public static Responder<ManageCrewMember> responder(EventTransceiver transceiver, Function<ManageCrewMember, StatusEvent> response) {
         return new Responder<>(transceiver, response);
     }
 

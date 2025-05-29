@@ -1,5 +1,6 @@
 package it.polimi.ingsw.controller;
 
+import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.game.lobby.LobbyInfo;
@@ -9,7 +10,6 @@ import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.NetworkTransceiver;
 import it.polimi.ingsw.event.game.clientToServer.*;
 import it.polimi.ingsw.event.game.serverToClient.Pota;
@@ -173,7 +173,7 @@ public class MatchController {
      * @param data an object containing the user ID and the desired userID
      * @return an event indicating whether the userID assignment was successful or not.
      */
-    private Event setNickname(SetNickname data) {
+    private StatusEvent setNickname(SetNickname data) {
         boolean nicknameAlreadyUsed = false;
         for (User user : users.values()) {
             if (user.getNickname().equals(data.nickname())) {
@@ -184,7 +184,7 @@ public class MatchController {
 
         if (nicknameAlreadyUsed) {
             Logger.getInstance().log(Logger.LogLevel.ERROR, "Nickname already used: " + data.nickname(), false);
-            return new Pota(SetNickname.class, "Nickname already used");
+            return new Pota(data.userID(), SetNickname.class, "Nickname already used");
         } else {
             UUID userID = UUID.fromString(data.userID());
             User user = new User(userID, data.nickname(), serverNetworkTransceiver.getConnection(userID));
@@ -205,7 +205,7 @@ public class MatchController {
             serverNetworkTransceiver.send(userID, lobbiesEvent);
             Logger.getInstance().log(Logger.LogLevel.INFO, "Nickname set", false);
         }
-        return new Tac(SetNickname.class);
+        return new Tac(data.userID(), SetNickname.class);
     }
 
     /**
@@ -218,7 +218,7 @@ public class MatchController {
      * @return an {@code Event} indicating the successful creation of the lobby.
      * @throws IllegalStateException if there is an error while creating the game board.
      */
-    private Event createLobby(CreateLobby data) {
+    private StatusEvent createLobby(CreateLobby data) {
         UUID userID = UUID.fromString(data.userID());
         User user = users.get(userID);
 
@@ -232,7 +232,7 @@ public class MatchController {
             board = new Board(lobby.getLevel());
         } catch (IllegalArgumentException | JsonProcessingException e) {
             lobbies.remove(lobby.getName());
-            return new Pota(CreateLobby.class, "Error creating the board");
+            return new Pota(data.userID(), CreateLobby.class, "Error creating the board");
         }
 
         // Creating the new network transceiver for the lobby
@@ -266,7 +266,7 @@ public class MatchController {
         LobbyCreated toSend = new LobbyCreated(user.getNickname(), lobby.getName(), lobby.getTotalPlayers(), lobby.getLevel().getValue());
         serverNetworkTransceiver.broadcast(toSend);
 
-        return new Tac(CreateLobby.class);
+        return new Tac(data.userID(), CreateLobby.class);
     }
 
     /**
@@ -281,7 +281,7 @@ public class MatchController {
      * @return an Event indicating the result of the leave operation. If the lobby is not found,
      *         returns a failure event. If successful, returns a success event.
      */
-    private Event leaveLobby(LeaveLobby data) {
+    private StatusEvent leaveLobby(LeaveLobby data) {
         UUID userID = UUID.fromString(data.userID());
         User user = users.get(userID);
         LobbyInfo lobby = user.getLobby();
@@ -353,10 +353,10 @@ public class MatchController {
                 serverNetworkTransceiver.send(user.getUUID(), lobbiesEvent);
             }
         } else {
-            return new Pota(LeaveLobby.class, "Lobby not found");
+            return new Pota(data.userID(), LeaveLobby.class, "Lobby not found");
         }
 
-        return new Tac(LeaveLobby.class);
+        return new Tac(data.userID(), LeaveLobby.class);
     }
 
     /**
@@ -371,7 +371,7 @@ public class MatchController {
      *         successfully joins the lobby, a Success Event is returned. If the lobby
      *         is full or another issue occurs, an error Event is returned.
      */
-    private Event joinLobby(JoinLobby data) {
+    private StatusEvent joinLobby(JoinLobby data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = lobbies.get(data.lobbyID());
 
@@ -409,9 +409,9 @@ public class MatchController {
             serverNetworkTransceiver.broadcast(lobbyJoinedEvent);
             networkTransceiver.broadcast(lobbyJoinedEvent);
         } else {
-            return new Pota(JoinLobby.class, "Lobby is full");
+            return new Pota(data.userID(), JoinLobby.class, "Lobby is full");
         }
-        return new Tac(JoinLobby.class);
+        return new Tac(data.userID(), JoinLobby.class);
     }
 
     /**
@@ -420,7 +420,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event pickTileFromBoard(PickTileFromBoard data) {
+    private StatusEvent pickTileFromBoard(PickTileFromBoard data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -430,9 +430,9 @@ public class MatchController {
             if (gc != null) {
                 gc.pickTile(player, 0, data.tileID());
             }
-            return new Tac(PickTileFromBoard.class);
+            return new Tac(data.userID(), PickTileFromBoard.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(PickTileFromBoard.class, e.getMessage());
+            return new Pota(data.userID(), PickTileFromBoard.class, e.getMessage());
         }
     }
 
@@ -442,7 +442,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event pickTileFromReserve(PickTileFromReserve data) {
+    private StatusEvent pickTileFromReserve(PickTileFromReserve data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -452,9 +452,9 @@ public class MatchController {
             if (gc != null) {
                 gc.pickTile(player, 1, data.tileID());
             }
-            return new Tac(PickTileFromReserve.class);
+            return new Tac(data.userID(), PickTileFromReserve.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(PickTileFromReserve.class, e.getMessage());
+            return new Pota(data.userID(), PickTileFromReserve.class, e.getMessage());
         }
     }
 
@@ -464,7 +464,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event pickTileFromSpaceship(PickTileFromSpaceship data) {
+    private StatusEvent pickTileFromSpaceship(PickTileFromSpaceship data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -474,9 +474,9 @@ public class MatchController {
             if (gc != null) {
                 gc.pickTile(player, 2, PLACEHOLDER);
             }
-            return new Tac(PickTileFromSpaceship.class);
+            return new Tac(data.userID(), PickTileFromSpaceship.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(PickTileFromSpaceship.class, e.getMessage());
+            return new Pota(data.userID(), PickTileFromSpaceship.class, e.getMessage());
         }
     }
 
@@ -486,7 +486,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event placeTileToBoard(PlaceTileToBoard data) {
+    private StatusEvent placeTileToBoard(PlaceTileToBoard data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -496,9 +496,9 @@ public class MatchController {
             if (gc != null) {
                 gc.placeTile(player, 0, PLACEHOLDER, PLACEHOLDER);
             }
-            return new Tac(PlaceTileToBoard.class);
+            return new Tac(data.userID(), PlaceTileToBoard.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(PlaceTileToBoard.class, e.getMessage());
+            return new Pota(data.userID(), PlaceTileToBoard.class, e.getMessage());
         }
     }
 
@@ -508,7 +508,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event placeTileToReserve(PlaceTileToReserve data) {
+    private StatusEvent placeTileToReserve(PlaceTileToReserve data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -518,9 +518,9 @@ public class MatchController {
             if (gc != null) {
                 gc.placeTile(player, 1, PLACEHOLDER, PLACEHOLDER);
             }
-            return new Tac(PlaceTileToReserve.class);
+            return new Tac(data.userID(), PlaceTileToReserve.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(PlaceTileToReserve.class, e.getMessage());
+            return new Pota(data.userID(), PlaceTileToReserve.class, e.getMessage());
         }
     }
 
@@ -530,7 +530,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event placeTileToSpaceship(PlaceTileToSpaceship data) {
+    private StatusEvent placeTileToSpaceship(PlaceTileToSpaceship data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -540,9 +540,9 @@ public class MatchController {
             if (gc != null) {
                 gc.placeTile(player, 2, data.row(), data.column());
             }
-            return new Tac(PlaceTileToSpaceship.class);
+            return new Tac(data.userID(), PlaceTileToSpaceship.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(PlaceTileToSpaceship.class, e.getMessage());
+            return new Pota(data.userID(), PlaceTileToSpaceship.class, e.getMessage());
         }
     }
 
@@ -552,7 +552,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event useDeck(PickLeaveDeck data) {
+    private StatusEvent useDeck(PickLeaveDeck data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -562,9 +562,9 @@ public class MatchController {
             if (gc != null) {
                 gc.useDeck(player, data.usage(), data.deckIndex());
             }
-            return new Tac(PickLeaveDeck.class);
+            return new Tac(data.userID(), PickLeaveDeck.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(PickLeaveDeck.class, e.getMessage());
+            return new Pota(data.userID(), PickLeaveDeck.class, e.getMessage());
         }
     }
 
@@ -574,7 +574,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event rotateTile(RotateTile data) {
+    private StatusEvent rotateTile(RotateTile data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -584,9 +584,9 @@ public class MatchController {
             if (gc != null) {
                 gc.rotateTile(player);
             }
-            return new Tac(RotateTile.class);
+            return new Tac(data.userID(), RotateTile.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(RotateTile.class, e.getMessage());
+            return new Pota(data.userID(), RotateTile.class, e.getMessage());
         }
     }
 
@@ -596,7 +596,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event flipTimer(FlipTimer data) {
+    private StatusEvent flipTimer(FlipTimer data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -606,9 +606,9 @@ public class MatchController {
             if (gc != null) {
                 gc.flipTimer(player);
             }
-            return new Tac(FlipTimer.class);
+            return new Tac(data.userID(), FlipTimer.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(FlipTimer.class, e.getMessage());
+            return new Pota(data.userID(), FlipTimer.class, e.getMessage());
         }
     }
 
@@ -618,7 +618,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event placeMarker(PlaceMarker data) {
+    private StatusEvent placeMarker(PlaceMarker data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -628,9 +628,9 @@ public class MatchController {
             if (gc != null) {
                 gc.placeMarker(player, data.position());
             }
-            return new Tac(PlaceMarker.class);
+            return new Tac(data.userID(), PlaceMarker.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(PlaceMarker.class, e.getMessage());
+            return new Pota(data.userID(), PlaceMarker.class, e.getMessage());
         }
     }
 
@@ -640,7 +640,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event manageCrewMember(ManageCrewMember data) {
+    private StatusEvent manageCrewMember(ManageCrewMember data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -649,9 +649,9 @@ public class MatchController {
             if (gc != null) {
                 gc.manageCrewMember(userID, data.mode(), data.crewType(), data.cabinID());
             }
-            return new Tac(ManageCrewMember.class);
+            return new Tac(data.userID(), ManageCrewMember.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(ManageCrewMember.class, e.getMessage());
+            return new Pota(data.userID(), ManageCrewMember.class, e.getMessage());
         }
     }
 
@@ -661,7 +661,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event useEngines(UseEngines data) {
+    private StatusEvent useEngines(UseEngines data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -670,9 +670,9 @@ public class MatchController {
             if (gc != null) {
                 gc.useExtraStrength(userID, 0, data.enginesIDs(), data.batteriesIDs());
             }
-            return new Tac(UseEngines.class);
+            return new Tac(data.userID(), UseEngines.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(UseEngines.class, e.getMessage());
+            return new Pota(data.userID(), UseEngines.class, e.getMessage());
         }
     }
 
@@ -682,7 +682,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event useCannons(UseCannons data) {
+    private StatusEvent useCannons(UseCannons data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -691,9 +691,9 @@ public class MatchController {
             if (gc != null) {
                 gc.useExtraStrength(userID, 1, data.cannonsIDs(), data.batteriesIDs());
             }
-            return new Tac(UseCannons.class);
+            return new Tac(data.userID(), UseCannons.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(UseCannons.class, e.getMessage());
+            return new Pota(data.userID(), UseCannons.class, e.getMessage());
         }
     }
 
@@ -703,7 +703,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event setPenaltyLoss(SetPenaltyLoss data) {
+    private StatusEvent setPenaltyLoss(SetPenaltyLoss data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -712,9 +712,9 @@ public class MatchController {
             if (gc != null) {
                 gc.setPenaltyLoss(userID, data.type(), data.penaltyLoss());
             }
-            return new Tac(SetPenaltyLoss.class);
+            return new Tac(data.userID(), SetPenaltyLoss.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(SetPenaltyLoss.class, e.getMessage());
+            return new Pota(data.userID(), SetPenaltyLoss.class, e.getMessage());
         }
     }
 
@@ -724,7 +724,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event selectPlanet(SelectPlanet data) {
+    private StatusEvent selectPlanet(SelectPlanet data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -733,9 +733,9 @@ public class MatchController {
             if (gc != null) {
                 gc.selectPlanet(userID, data.planetNumber());
             }
-            return new Tac(SelectPlanet.class);
+            return new Tac(data.userID(), SelectPlanet.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(SelectPlanet.class, e.getMessage());
+            return new Pota(data.userID(), SelectPlanet.class, e.getMessage());
         }
     }
 
@@ -745,7 +745,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event setFragmentChoice(ChooseFragment data) {
+    private StatusEvent setFragmentChoice(ChooseFragment data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -754,9 +754,9 @@ public class MatchController {
             if (gc != null) {
                 gc.setFragmentChoice(userID, data.fragmentChoice());
             }
-            return new Tac(ChooseFragment.class);
+            return new Tac(data.userID(), ChooseFragment.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(ChooseFragment.class, e.getMessage());
+            return new Pota(data.userID(), ChooseFragment.class, e.getMessage());
         }
     }
 
@@ -766,7 +766,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event setComponentToDestroy(DestroyComponents data) {
+    private StatusEvent setComponentToDestroy(DestroyComponents data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -775,9 +775,9 @@ public class MatchController {
             if (gc != null) {
                 gc.setComponentToDestroy(userID, data.componentsToDestroy());
             }
-            return new Tac(DestroyComponents.class);
+            return new Tac(data.userID(), DestroyComponents.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(DestroyComponents.class, e.getMessage());
+            return new Pota(data.userID(), DestroyComponents.class, e.getMessage());
         }
     }
 
@@ -787,7 +787,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event rollDice(RollDice data) {
+    private StatusEvent rollDice(RollDice data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -796,9 +796,9 @@ public class MatchController {
             if (gc != null) {
                 gc.rollDice(userID);
             }
-            return new Tac(RollDice.class);
+            return new Tac(data.userID(), RollDice.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(RollDice.class, e.getMessage());
+            return new Pota(data.userID(), RollDice.class, e.getMessage());
         }
     }
 
@@ -808,7 +808,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event setProtect(UseShield data) {
+    private StatusEvent setProtect(UseShield data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -817,9 +817,9 @@ public class MatchController {
             if (gc != null) {
                 gc.setProtect(userID, data.batteryID());
             }
-            return new Tac(UseShield.class);
+            return new Tac(data.userID(), UseShield.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(UseShield.class, e.getMessage());
+            return new Pota(data.userID(), UseShield.class, e.getMessage());
         }
     }
 
@@ -829,7 +829,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event setGoodsToExchange(ExchangeGoods data) {
+    private StatusEvent setGoodsToExchange(ExchangeGoods data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -850,9 +850,9 @@ public class MatchController {
                         .toList();
                 gc.exchangeGoods(userID, convertedData);
             }
-            return new Tac(ExchangeGoods.class);
+            return new Tac(data.userID(), ExchangeGoods.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(ExchangeGoods.class, e.getMessage());
+            return new Pota(data.userID(), ExchangeGoods.class, e.getMessage());
         }
     }
 
@@ -862,7 +862,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event swapGoods(SwapGoods data) {
+    private StatusEvent swapGoods(SwapGoods data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -871,9 +871,9 @@ public class MatchController {
             if (gc != null) {
                 gc.swapGoods(userID, data.storageID1(), data.storageID2(), data.goods1to2().stream().map(t -> new Good(GoodType.fromInt(t))).toList(), data.goods2to1().stream().map(t -> new Good(GoodType.fromInt(t))).toList());
             }
-            return new Tac(SwapGoods.class);
+            return new Tac(data.userID(), SwapGoods.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(SwapGoods.class, e.getMessage());
+            return new Pota(data.userID(), SwapGoods.class, e.getMessage());
         }
     }
 
@@ -883,7 +883,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event playerReady(PlayerReady data) {
+    private StatusEvent playerReady(PlayerReady data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -909,9 +909,9 @@ public class MatchController {
                     }
                 }, timerDuration);
             }
-            return new Tac(PlayerReady.class);
+            return new Tac(data.userID(), PlayerReady.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(PlayerReady.class, e.getMessage());
+            return new Pota(data.userID(), PlayerReady.class, e.getMessage());
         }
     }
 
@@ -924,7 +924,7 @@ public class MatchController {
      * @return     An Event object representing the result of the play action. Returns a Tac object
      *             if the play action is successful, or a Pota object if an exception occurs.
      */
-    private Event play(Play data) {
+    private StatusEvent play(Play data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -934,9 +934,9 @@ public class MatchController {
             if (gc != null) {
                 gc.play(player);
             }
-            return new Tac(Play.class);
+            return new Tac(data.userID(), Play.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(Play.class, e.getMessage());
+            return new Pota(data.userID(), Play.class, e.getMessage());
         }
     }
 
@@ -948,7 +948,7 @@ public class MatchController {
      * @param data The GiveUp event data containing the user ID.
      * @return An Event object indicating the result of the operation.
      */
-    private Event giveUp(GiveUp data) {
+    private StatusEvent giveUp(GiveUp data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -958,9 +958,9 @@ public class MatchController {
                 gc.giveUp(userID);
             }
 
-            return new Tac(GiveUp.class);
+            return new Tac(data.userID(), GiveUp.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return new Pota(GiveUp.class, e.getMessage());
+            return new Pota(data.userID(), GiveUp.class, e.getMessage());
         }
     }
 }

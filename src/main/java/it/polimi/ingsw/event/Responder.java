@@ -2,21 +2,24 @@ package it.polimi.ingsw.event;
 
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
+import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.utils.Logger;
 
+import java.util.UUID;
 import java.util.function.Function;
 
-public class Responder<R extends Event, S extends Event> {
-    public Responder(EventTransceiver transceiver, Function<R, S> response) {
-        CastEventReceiver<R> transceiverReceiver = new CastEventReceiver<>(transceiver);
+public class Responder<R extends Event> {
+    public Responder(EventTransceiver transceiver, Function<R, StatusEvent> response) {
+        CastEventReceiver<R> receiver = new CastEventReceiver<>(transceiver);
         EventListener<R> eventListener = event -> sendResponse(transceiver, event, response);
-        transceiverReceiver.registerListener(eventListener);
+
+        receiver.registerListener(eventListener);
     }
 
-    private void sendResponse(EventTransceiver transceiver, R event, Function<R, S> responseFunc) {
-        S response = responseFunc.apply(event);
+    private void sendResponse(EventTransceiver transceiver, R event, Function<R, StatusEvent> responseFunc) {
+        StatusEvent response = responseFunc.apply(event);
 
         Logger.getInstance().log(Logger.LogLevel.INFO, "Sending response: " + response, false);
-        transceiver.broadcast(response);
+        transceiver.send(UUID.fromString(response.getUserID()), response);
     }
 }

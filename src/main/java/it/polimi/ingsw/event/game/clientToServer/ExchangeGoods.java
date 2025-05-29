@@ -4,6 +4,7 @@ import it.polimi.ingsw.event.Requester;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
+import it.polimi.ingsw.event.type.StatusEvent;
 import org.javatuples.Triplet;
 
 import java.io.Serializable;
@@ -25,7 +26,7 @@ public record ExchangeGoods(
      * @param response    is the function that will be used to create the response event.
      * @return            a Responder for the ExchangeGoods event.
      */
-    public static <T extends Event> Responder<ExchangeGoods, T> responder(EventTransceiver transceiver, Function<ExchangeGoods, T> response) {
+    public static Responder<ExchangeGoods> responder(EventTransceiver transceiver, Function<ExchangeGoods, StatusEvent> response) {
         return new Responder<>(transceiver, response);
     }
 
