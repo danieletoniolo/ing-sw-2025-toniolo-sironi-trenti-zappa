@@ -62,7 +62,7 @@ public class NetworkTransceiver implements EventTransceiver{
                             Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting message...", false);
                             receivedQueue.wait();
                         } catch (InterruptedException e) {
-                            // Handle interruption
+                            Logger.getInstance().log(Logger.LogLevel.ERROR, "Connection Interrupted", false);
                         }
                     }
                     event = receivedQueue.poll();
@@ -93,7 +93,7 @@ public class NetworkTransceiver implements EventTransceiver{
                             Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting message to send...", false);
                             sendQueue.wait();
                         } catch (InterruptedException e) {
-                            // Handle interruption
+                            Logger.getInstance().log(Logger.LogLevel.ERROR, "Connection Interrupted", false);
                         }
                     }
                     event = sendQueue.poll();
@@ -206,8 +206,9 @@ public class NetworkTransceiver implements EventTransceiver{
         synchronized (lockConnectionSend) {
             try {
                 connections.get(uuid).getValue0().send(data);
+                Logger.getInstance().log(Logger.LogLevel.INFO, "Sent message: " + data.getClass().getSimpleName(), false);
             } catch (DisconnectedConnection e) {
-                // ignore the error
+                Logger.getInstance().log(Logger.LogLevel.ERROR, "Disconnected connection", false);
             }
         }
     }
