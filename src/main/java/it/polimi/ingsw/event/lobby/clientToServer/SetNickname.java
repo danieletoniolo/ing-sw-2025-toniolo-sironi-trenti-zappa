@@ -2,6 +2,7 @@ package it.polimi.ingsw.event.lobby.clientToServer;
 
 import it.polimi.ingsw.event.*;
 import it.polimi.ingsw.event.type.Event;
+import it.polimi.ingsw.event.type.StatusEvent;
 
 import java.io.Serializable;
 import java.util.function.Function;
@@ -23,7 +24,7 @@ public record SetNickname(
      * @param response    is the function that will be used to create the response event.
      * @return            a Responder for the SetNickname event.
      */
-    public static <T extends Event> Responder<SetNickname, T> responder(EventTransceiver transceiver, Function<SetNickname, T> response) {
+    public static Responder<SetNickname> responder(EventTransceiver transceiver, Function<SetNickname, StatusEvent> response) {
         return new Responder<>(transceiver, response);
     }
 

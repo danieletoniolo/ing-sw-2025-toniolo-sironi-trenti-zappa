@@ -4,6 +4,7 @@ import it.polimi.ingsw.event.Requester;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
+import it.polimi.ingsw.event.type.StatusEvent;
 
 import java.io.Serializable;
 import java.util.function.Function;
@@ -21,7 +22,7 @@ public record PickTileFromSpaceship(
      * @param response    is the function that will be used to create the response event.
      * @return            a Responder for the PickTileFromSpaceship event.
      */
-    public static <T extends Event> Responder<PickTileFromSpaceship, T> responder(EventTransceiver transceiver, Function<PickTileFromSpaceship, T> response) {
+    public static Responder<PickTileFromSpaceship> responder(EventTransceiver transceiver, Function<PickTileFromSpaceship, StatusEvent> response) {
         return new Responder<>(transceiver, response);
     }
 
