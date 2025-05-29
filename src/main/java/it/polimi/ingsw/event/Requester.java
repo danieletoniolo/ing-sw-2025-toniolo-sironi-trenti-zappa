@@ -27,7 +27,7 @@ public class Requester<S extends Event> {
 
     public StatusEvent request(S request) {
         registerListeners();
-        transmitter.broadcast(request);
+        transmitter.broadcast(new EventWrapper<>(request));
 
         synchronized (responseLock) {
             while (pendingResponses.isEmpty()) {

@@ -8,8 +8,11 @@ import java.util.function.Function;
 
 public class Responder<R extends Event, S extends Event> {
     public Responder(EventTransceiver transceiver, Function<R, S> response) {
-        CastEventReceiver<R> transceiverReceiver = new CastEventReceiver<>(transceiver);
-        EventListener<R> eventListener = event -> sendResponse(transceiver, event, response);
+        CastEventReceiver<EventWrapper<R>> transceiverReceiver = new CastEventReceiver<>(transceiver);
+        EventListener<EventWrapper<R>> eventListener = eventWrapper -> {
+            sendResponse(transceiver, eventWrapper.getEvent(), response);
+        };
+
         transceiverReceiver.registerListener(eventListener);
     }
 

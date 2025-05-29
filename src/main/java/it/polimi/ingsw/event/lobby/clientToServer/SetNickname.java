@@ -1,12 +1,9 @@
 package it.polimi.ingsw.event.lobby.clientToServer;
 
-import it.polimi.ingsw.event.EventListener;
 import it.polimi.ingsw.event.Requester;
-import it.polimi.ingsw.event.receiver.CastEventReceiver;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
-import it.polimi.ingsw.utils.Logger;
 
 import java.io.Serializable;
 import java.util.function.Function;
