@@ -1,5 +1,6 @@
 package it.polimi.ingsw.controller;
 
+import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.game.lobby.LobbyInfo;
@@ -173,7 +174,7 @@ public class MatchController {
      * @param data an object containing the user ID and the desired userID
      * @return an event indicating whether the userID assignment was successful or not.
      */
-    private Event setNickname(SetNickname data) {
+    private StatusEvent setNickname(SetNickname data) {
         Logger.getInstance().log(Logger.LogLevel.ERROR, "Trying to handle event SetNickname", false);
         boolean nicknameAlreadyUsed = false;
         for (User user : users.values()) {
@@ -219,7 +220,7 @@ public class MatchController {
      * @return an {@code Event} indicating the successful creation of the lobby.
      * @throws IllegalStateException if there is an error while creating the game board.
      */
-    private Event createLobby(CreateLobby data) {
+    private StatusEvent createLobby(CreateLobby data) {
         UUID userID = UUID.fromString(data.userID());
         User user = users.get(userID);
 
@@ -282,7 +283,7 @@ public class MatchController {
      * @return an Event indicating the result of the leave operation. If the lobby is not found,
      *         returns a failure event. If successful, returns a success event.
      */
-    private Event leaveLobby(LeaveLobby data) {
+    private StatusEvent leaveLobby(LeaveLobby data) {
         UUID userID = UUID.fromString(data.userID());
         User user = users.get(userID);
         LobbyInfo lobby = user.getLobby();
@@ -372,7 +373,7 @@ public class MatchController {
      *         successfully joins the lobby, a Success Event is returned. If the lobby
      *         is full or another issue occurs, an error Event is returned.
      */
-    private Event joinLobby(JoinLobby data) {
+    private StatusEvent joinLobby(JoinLobby data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = lobbies.get(data.lobbyID());
 
@@ -421,7 +422,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event pickTileFromBoard(PickTileFromBoard data) {
+    private StatusEvent pickTileFromBoard(PickTileFromBoard data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -443,7 +444,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event pickTileFromReserve(PickTileFromReserve data) {
+    private StatusEvent pickTileFromReserve(PickTileFromReserve data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -465,7 +466,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event pickTileFromSpaceship(PickTileFromSpaceship data) {
+    private StatusEvent pickTileFromSpaceship(PickTileFromSpaceship data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -487,7 +488,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event placeTileToBoard(PlaceTileToBoard data) {
+    private StatusEvent placeTileToBoard(PlaceTileToBoard data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -509,7 +510,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event placeTileToReserve(PlaceTileToReserve data) {
+    private StatusEvent placeTileToReserve(PlaceTileToReserve data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -531,7 +532,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event placeTileToSpaceship(PlaceTileToSpaceship data) {
+    private StatusEvent placeTileToSpaceship(PlaceTileToSpaceship data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -553,7 +554,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event useDeck(PickLeaveDeck data) {
+    private StatusEvent useDeck(PickLeaveDeck data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -575,7 +576,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event rotateTile(RotateTile data) {
+    private StatusEvent rotateTile(RotateTile data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -597,7 +598,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event flipTimer(FlipTimer data) {
+    private StatusEvent flipTimer(FlipTimer data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -619,7 +620,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event placeMarker(PlaceMarker data) {
+    private StatusEvent placeMarker(PlaceMarker data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -641,7 +642,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event manageCrewMember(ManageCrewMember data) {
+    private StatusEvent manageCrewMember(ManageCrewMember data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -662,7 +663,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event useEngines(UseEngines data) {
+    private StatusEvent useEngines(UseEngines data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -683,7 +684,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event useCannons(UseCannons data) {
+    private StatusEvent useCannons(UseCannons data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -704,7 +705,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event setPenaltyLoss(SetPenaltyLoss data) {
+    private StatusEvent setPenaltyLoss(SetPenaltyLoss data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -725,7 +726,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event selectPlanet(SelectPlanet data) {
+    private StatusEvent selectPlanet(SelectPlanet data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -746,7 +747,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event setFragmentChoice(ChooseFragment data) {
+    private StatusEvent setFragmentChoice(ChooseFragment data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -767,7 +768,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event setComponentToDestroy(DestroyComponents data) {
+    private StatusEvent setComponentToDestroy(DestroyComponents data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -788,7 +789,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event rollDice(RollDice data) {
+    private StatusEvent rollDice(RollDice data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -809,7 +810,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event setProtect(UseShield data) {
+    private StatusEvent setProtect(UseShield data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -830,7 +831,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event setGoodsToExchange(ExchangeGoods data) {
+    private StatusEvent setGoodsToExchange(ExchangeGoods data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -863,7 +864,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event swapGoods(SwapGoods data) {
+    private StatusEvent swapGoods(SwapGoods data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -884,7 +885,7 @@ public class MatchController {
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
      */
-    private Event playerReady(PlayerReady data) {
+    private StatusEvent playerReady(PlayerReady data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
@@ -925,7 +926,7 @@ public class MatchController {
      * @return     An Event object representing the result of the play action. Returns a Tac object
      *             if the play action is successful, or a Pota object if an exception occurs.
      */
-    private Event play(Play data) {
+    private StatusEvent play(Play data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
@@ -949,7 +950,7 @@ public class MatchController {
      * @param data The GiveUp event data containing the user ID.
      * @return An Event object indicating the result of the operation.
      */
-    private Event giveUp(GiveUp data) {
+    private StatusEvent giveUp(GiveUp data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
