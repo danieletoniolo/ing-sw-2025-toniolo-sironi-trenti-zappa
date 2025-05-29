@@ -6,8 +6,6 @@ import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
 import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.*;
 
 
@@ -92,12 +90,14 @@ public class NetworkTransceiver implements EventTransceiver{
                         }
 
                         try {
+                            Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting message to send...", false);
                             sendQueue.wait();
                         } catch (InterruptedException e) {
                             // Handle interruption
                         }
                     }
                     event = sendQueue.poll();
+                    Logger.getInstance().log(Logger.LogLevel.INFO, "Sending message: " + event.getClass().getSimpleName(), false);
                 }
 
                 synchronized (lockConnectionSend) {
