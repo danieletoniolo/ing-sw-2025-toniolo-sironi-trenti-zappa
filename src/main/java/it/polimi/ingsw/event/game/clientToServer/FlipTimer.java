@@ -4,6 +4,7 @@ import it.polimi.ingsw.event.Requester;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
+import it.polimi.ingsw.event.type.StatusEvent;
 
 import java.io.Serializable;
 import java.util.function.Function;
@@ -22,7 +23,7 @@ public record FlipTimer(
      * @param response    is the function that will be used to create the response event.
      * @return            a Responder for the FlipTimer event.
      */
-    public static <T extends Event> Responder<FlipTimer, T> responder(EventTransceiver transceiver, Function<FlipTimer, T> response) {
+    public static Responder<FlipTimer> responder(EventTransceiver transceiver, Function<FlipTimer, StatusEvent> response) {
         return new Responder<>(transceiver, response);
     }
 

@@ -4,6 +4,7 @@ import it.polimi.ingsw.event.Requester;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
+import it.polimi.ingsw.event.type.StatusEvent;
 
 import java.io.Serializable;
 import java.util.List;
@@ -28,7 +29,7 @@ public record SetPenaltyLoss(
      * @param response    is the function that will be used to create the response event.
      * @return            a Responder for the SetPenaltyLoss event.
      */
-    public static <T extends Event> Responder<SetPenaltyLoss, T> responder(EventTransceiver transceiver, Function<SetPenaltyLoss, T> response) {
+    public static Responder<SetPenaltyLoss> responder(EventTransceiver transceiver, Function<SetPenaltyLoss, StatusEvent> response) {
         return new Responder<>(transceiver, response);
     }
 
