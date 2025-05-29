@@ -6,6 +6,8 @@ import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
 import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 
 
@@ -66,8 +68,8 @@ public class NetworkTransceiver implements EventTransceiver{
                         }
                     }
                     event = receivedQueue.poll();
+                    Logger.getInstance().log(Logger.LogLevel.INFO, listeners.size() + " listeners registered", false);
                     Logger.getInstance().log(Logger.LogLevel.INFO, "Received message: " + event.getClass().getSimpleName(), false);
-                    Logger.getInstance().log(Logger.LogLevel.INFO, "Listeners list: " + listeners.stream().map(EventListener::getClass).map(Class::getSimpleName).reduce("", (a, b) -> a + ", " + b), false);
 
                     synchronized (lockListeners) {
                         List<EventListener<Event>> listenersCopy = new ArrayList<>(listeners);
