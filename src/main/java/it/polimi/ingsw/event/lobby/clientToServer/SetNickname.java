@@ -32,6 +32,7 @@ public record SetNickname(
             transceiver.broadcast(response.apply(event));
         };
         transceiverReceiver.registerListener(eventListener);
+        Logger.getInstance().log(Logger.LogLevel.INFO, "Registered listener for SetNickname event", false);
     }
 
     /**
