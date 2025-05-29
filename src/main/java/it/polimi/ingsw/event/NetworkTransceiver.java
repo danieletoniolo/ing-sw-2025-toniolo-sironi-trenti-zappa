@@ -67,7 +67,6 @@ public class NetworkTransceiver implements EventTransceiver{
                     }
                     event = receivedQueue.poll();
                     Logger.getInstance().log(Logger.LogLevel.INFO, listeners.size() + " listeners registered", false);
-                    Logger.getInstance().log(Logger.LogLevel.INFO, "Received message: " + event.getClass().getSimpleName(), false);
 
                     synchronized (lockListeners) {
                         List<EventListener<Event>> listenersCopy = new ArrayList<>(listeners);
@@ -151,6 +150,7 @@ public class NetworkTransceiver implements EventTransceiver{
             Event event;
             try {
                 event = connection.receive();
+                Logger.getInstance().log(Logger.LogLevel.INFO, "Received message: " + event.getClass().getSimpleName(), false);
             } catch (DisconnectedConnection e) {
                 // Handle disconnection
                 return;
@@ -206,7 +206,7 @@ public class NetworkTransceiver implements EventTransceiver{
         synchronized (lockConnectionSend) {
             try {
                 connections.get(uuid).getValue0().send(data);
-                Logger.getInstance().log(Logger.LogLevel.INFO, "Sent message: " + data.getClass().getSimpleName(), false);
+                Logger.getInstance().log(Logger.LogLevel.INFO, "Sent event: " + data.getClass(), false);
             } catch (DisconnectedConnection e) {
                 Logger.getInstance().log(Logger.LogLevel.ERROR, "Disconnected connection", false);
             }
