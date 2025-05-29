@@ -13,15 +13,23 @@ import java.io.Serializable;
  * Event to send an error message to the client.
  * The error message is used to inform the user about an error that occurred in the server.
  *
+ * @param userID       The user ID of the player who has done the request
+ *                     We can put it in the event because this event will be sent only to the client who have made the request
  * @param eventType    The type of the event that caused the error
  * @param errorMessage The error message to be sent to the client
  */
 public record Pota(
+        String userID,
         Class<? extends Event> eventType,
         String errorMessage
 ) implements StatusEvent, Serializable  {
     @Override
     public String get() {
         return "POTA";
+    }
+
+    @Override
+    public String getUserID() {
+        return userID;
     }
 }

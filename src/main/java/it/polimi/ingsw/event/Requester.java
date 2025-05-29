@@ -5,6 +5,7 @@ import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
 import it.polimi.ingsw.event.receiver.EventReceiver;
 import it.polimi.ingsw.event.trasmitter.EventTransmitter;
+import it.polimi.ingsw.utils.Logger;
 
 import java.util.*;
 
@@ -28,6 +29,7 @@ public class Requester<S extends Event> {
     public StatusEvent request(S request) {
         registerListeners();
         transmitter.broadcast(request);
+        Logger.getInstance().log(Logger.LogLevel.INFO, "Request sent: " + request, false);
 
         synchronized (responseLock) {
             while (pendingResponses.isEmpty()) {
@@ -38,6 +40,7 @@ public class Requester<S extends Event> {
                 }
             }
             unregisterListeners();
+            Logger.getInstance().log(Logger.LogLevel.INFO, "Response received: " + pendingResponses.peek(), false);
             return pendingResponses.poll();
         }
     }
