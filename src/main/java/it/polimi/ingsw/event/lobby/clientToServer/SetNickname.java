@@ -1,9 +1,7 @@
 package it.polimi.ingsw.event.lobby.clientToServer;
 
 import it.polimi.ingsw.event.*;
-import it.polimi.ingsw.event.receiver.CastEventReceiver;
 import it.polimi.ingsw.event.type.Event;
-import it.polimi.ingsw.utils.Logger;
 
 import java.io.Serializable;
 import java.util.function.Function;
@@ -25,14 +23,8 @@ public record SetNickname(
      * @param response    is the function that will be used to create the response event.
      * @return            a Responder for the SetNickname event.
      */
-    public static <T extends Event> void responder(EventTransceiver transceiver, Function<SetNickname, T> response) {
-        CastEventReceiver<SetNickname> transceiverReceiver = new CastEventReceiver<>(transceiver);
-        EventListener<SetNickname> eventListener = event -> {
-            Logger.getInstance().log(Logger.LogLevel.INFO, "Sending response: " + response, false);
-            transceiver.broadcast(response.apply(event));
-        };
-        transceiverReceiver.registerListener(eventListener);
-        Logger.getInstance().log(Logger.LogLevel.INFO, "Registered listener for SetNickname event", false);
+    public static <T extends Event> Responder<SetNickname, T> responder(EventTransceiver transceiver, Function<SetNickname, T> response) {
+        return new Responder<>(transceiver, response);
     }
 
     /**

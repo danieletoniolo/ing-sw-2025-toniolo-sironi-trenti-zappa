@@ -1,6 +1,5 @@
 package it.polimi.ingsw.controller;
 
-import it.polimi.ingsw.event.Responder;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.game.lobby.LobbyInfo;
@@ -175,6 +174,7 @@ public class MatchController {
      * @return an event indicating whether the userID assignment was successful or not.
      */
     private Event setNickname(SetNickname data) {
+        Logger.getInstance().log(Logger.LogLevel.ERROR, "Trying to handle event SetNickname", false);
         boolean nicknameAlreadyUsed = false;
         for (User user : users.values()) {
             if (user.getNickname().equals(data.nickname())) {
