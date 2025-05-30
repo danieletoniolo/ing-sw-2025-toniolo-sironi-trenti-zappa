@@ -196,6 +196,7 @@ public class Logger {
             StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
             String callerClassName = stackTrace[2].toString();
             logMessage += " - " + callerClassName;
+            logMessage += " [Thread: " + Thread.currentThread().getName() + " - " + Thread.currentThread().threadId() + "]";
         }
         logMessage += System.lineSeparator();
         return logMessage;
