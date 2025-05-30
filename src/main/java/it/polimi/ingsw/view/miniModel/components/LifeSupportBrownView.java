@@ -4,8 +4,8 @@ public class LifeSupportBrownView extends ComponentView {
     private String brown = "\033[38;5;220m";
     private String reset = "\033[0m";
 
-    public LifeSupportBrownView(int ID, int[] connecetors) {
-        super(ID, connecetors);
+    public LifeSupportBrownView(int ID, int[] connectors) {
+        super(ID, connectors);
     }
 
     @Override
@@ -27,5 +27,10 @@ public class LifeSupportBrownView extends ComponentView {
     @Override
     public TilesTypeView getType() {
         return TilesTypeView.LIFE_SUPPORT_BROWN;
+    }
+
+    @Override
+    public LifeSupportBrownView clone() {
+        return new LifeSupportBrownView(this.getID(), this.getConnectors());
     }
 }

@@ -14,7 +14,6 @@ public class CabinView extends ComponentView {
     private int crewNumber;
     private boolean purpleAlien;
     private boolean brownAlien;
-    private boolean centralCabin;
 
     public CabinView(int ID, int[] connectors) {
         super(ID, connectors);
@@ -92,5 +91,14 @@ public class CabinView extends ComponentView {
     @Override
     public TilesTypeView getType() {
         return TilesTypeView.CABIN;
+    }
+
+    @Override
+    public CabinView clone() {
+        CabinView copy = new CabinView(this.getID(), this.getConnectors());
+        copy.setPurpleAlien(this.purpleAlien);
+        copy.setBrownAlien(this.brownAlien);
+        copy.setCrewNumber(this.crewNumber);
+        return copy;
     }
 }

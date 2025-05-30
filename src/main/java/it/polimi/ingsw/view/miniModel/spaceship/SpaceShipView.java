@@ -10,16 +10,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SpaceShipView implements Structure, Serializable {
-    private LevelView level;
+public class SpaceShipView implements Structure {
+    private final LevelView level;
     private ComponentView[][] spaceShip;
-    private DiscardReservedPileView discardReservedPile;
-    private Map<Integer, CannonView> mapDoubleCannons = new LinkedHashMap<>();
-    private Map<Integer, EngineView> mapDoubleEngines = new LinkedHashMap<>();
-    private Map<Integer, CabinView> mapCabins = new LinkedHashMap<>();
-    private Map<Integer, ShieldView> mapShield = new LinkedHashMap<>();
-    private Map<Integer, StorageView> mapStorages = new LinkedHashMap<>();
-    private Map<Integer, BatteryView> mapBatteries = new LinkedHashMap<>();
+    private final DiscardReservedPileView discardReservedPile;
+    private final Map<Integer, CannonView> mapDoubleCannons = new LinkedHashMap<>();
+    private final Map<Integer, EngineView> mapDoubleEngines = new LinkedHashMap<>();
+    private final Map<Integer, CabinView> mapCabins = new LinkedHashMap<>();
+    private final Map<Integer, ShieldView> mapShield = new LinkedHashMap<>();
+    private final Map<Integer, StorageView> mapStorages = new LinkedHashMap<>();
+    private final Map<Integer, BatteryView> mapBatteries = new LinkedHashMap<>();
     private ComponentView last;
     private List<List<Pair<Integer, Integer>>> fragments;
 
@@ -48,13 +48,6 @@ public class SpaceShipView implements Structure, Serializable {
                         {new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() }
                 };
                 break;
-        }
-        for (int i = 0; i < spaceShip.length; i++) {
-            for (int j = 0; j < spaceShip[i].length; j++) {
-                if (spaceShip[i][j] != null) {
-                    spaceShip[i][j].setCovered(false);
-                }
-            }
         }
         discardReservedPile = new DiscardReservedPileView();
     }
@@ -179,5 +172,17 @@ public class SpaceShipView implements Structure, Serializable {
         str.append(space).append(number).append(space);
 
         return str.toString();
+    }
+
+    public SpaceShipView clone() {
+        SpaceShipView copy = new SpaceShipView(this.getLevel());
+        for (int i = 0; i < this.spaceShip.length; i++) {
+            for (int j = 0; j < this.spaceShip[i].length; j++) {
+                if (this.spaceShip[i][j] != null) {
+                    copy.placeComponent(this.spaceShip[i][j].clone(), i + this.converterRow, j + this.converterCol);
+                }
+            }
+        }
+        return copy;
     }
 }

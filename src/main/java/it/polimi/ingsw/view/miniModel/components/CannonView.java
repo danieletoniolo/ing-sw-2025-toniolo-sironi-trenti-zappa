@@ -1,5 +1,7 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import javax.naming.CannotProceedException;
+
 public class CannonView extends ComponentView {
     private float power;
     private String purple = "\033[35m";
@@ -69,5 +71,11 @@ public class CannonView extends ComponentView {
     @Override
     public TilesTypeView getType() {
         return doubleCannon ? TilesTypeView.DOUBLE_CANNON : TilesTypeView.SINGLE_CANNON;
+    }
+
+    @Override
+    public CannonView clone() {
+        CannonView copy = new CannonView(this.getID(), this.getConnectors(), this.power, this.arrowRotation);
+        return copy;
     }
 }

@@ -26,4 +26,9 @@ public class ConnectorsView extends ComponentView {
     public TilesTypeView getType() {
         return TilesTypeView.CONNECTORS;
     }
+
+    @Override
+    public ConnectorsView clone() {
+        return new ConnectorsView(this.getID(), this.getConnectors());
+    }
 }

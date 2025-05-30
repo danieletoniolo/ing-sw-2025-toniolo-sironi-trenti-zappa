@@ -7,7 +7,7 @@ public class ShieldView extends ComponentView {
     public static String RightShield = ")";
     private String lightGreen = "\033[92m";
     private String reset = "\033[0m";
-    private boolean[] shields;
+    private final boolean[] shields;
 
     public ShieldView(int ID, int[] connectors, boolean[] shields) {
         super(ID, connectors);
@@ -50,5 +50,10 @@ public class ShieldView extends ComponentView {
     @Override
     public TilesTypeView getType() {
         return TilesTypeView.SHIELD;
+    }
+
+    @Override
+    public ShieldView clone() {
+        return new ShieldView(this.getID(), this.getConnectors(), this.shields);
     }
 }

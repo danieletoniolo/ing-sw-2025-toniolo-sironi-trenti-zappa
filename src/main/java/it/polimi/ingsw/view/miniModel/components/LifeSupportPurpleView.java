@@ -28,4 +28,9 @@ public class LifeSupportPurpleView extends ComponentView {
     public TilesTypeView getType() {
         return TilesTypeView.LIFE_SUPPORT_PURPLE;
     }
+
+    @Override
+    public LifeSupportPurpleView clone() {
+        return new LifeSupportPurpleView(this.getID(), this.getConnectors());
+    }
 }

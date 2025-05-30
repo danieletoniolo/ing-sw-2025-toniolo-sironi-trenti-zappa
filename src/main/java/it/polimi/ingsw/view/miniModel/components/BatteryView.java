@@ -50,4 +50,11 @@ public class BatteryView extends ComponentView {
     public TilesTypeView getType() {
         return TilesTypeView.BATTERY;
     }
+
+    @Override
+    public BatteryView clone() {
+        BatteryView copy = new BatteryView(this.getID(), this.getConnectors(), this.getMaximumBatteries());
+        copy.setNumberOfBatteries(this.numberOfBatteries);
+        return copy;
+    }
 }
