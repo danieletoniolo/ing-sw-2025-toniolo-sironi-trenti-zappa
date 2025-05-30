@@ -6,7 +6,7 @@ import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class DiscardReservedPileView implements Structure, Serializable {
+public class DiscardReservedPileView implements Structure {
     private String UpReserved1 =     "╭──────";
     private String LeftReserved2 =   "│      ";
     private String DownReserved1 =   "╰──────";

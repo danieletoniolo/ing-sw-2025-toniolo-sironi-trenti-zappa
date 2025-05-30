@@ -20,21 +20,26 @@ public class StorageView extends ComponentView {
     /**
      * Set the good at a specific index
      * @param good the good to set
-     * @param index the index to set the good at
      */
-    public void setGood(GoodView good, int index) {
-        if (index < 0 || index >= goods.length) {
-            throw new IndexOutOfBoundsException("Index out of bounds: " + index);
+    public void addGood(GoodView good) {
+        for (int i = 0; i < goods.length; i++) {
+            if (goods[i] == null) {
+                this.goods[i] = good;
+                break;
+            }
         }
-        this.goods[index] = good;
+    }
+
+    public void removeGood(GoodView good) {
+        for (int i = 0; i < goods.length; i++) {
+            if (goods[i] != null && goods[i].equals(good)) {
+                this.goods[i] = null;
+            }
+        }
     }
 
     public GoodView[] getGoods() {
         return goods;
-    }
-
-    public void setDangerous(boolean dangerous) {
-        this.dangerous = dangerous;
     }
 
     public boolean isDangerous() {
@@ -73,5 +78,16 @@ public class StorageView extends ComponentView {
     @Override
     public TilesTypeView getType() {
         return TilesTypeView.STORAGE;
+    }
+
+    @Override
+    public StorageView clone() {
+        StorageView copy = new StorageView(this.getID(), this.getConnectors(), this.dangerous, this.capacity);
+        for (GoodView good : this.goods) {
+            if (good != null) {
+                copy.addGood(GoodView.fromValue(good.getValue()));
+            }
+        }
+        return copy;
     }
 }

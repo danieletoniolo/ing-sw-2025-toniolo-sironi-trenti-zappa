@@ -56,4 +56,9 @@ public class EngineView extends ComponentView {
     public TilesTypeView getType() {
         return doubleEngine ? TilesTypeView.DOUBLE_ENGINE : TilesTypeView.SINGLE_ENGINE;
     }
+
+    @Override
+    public EngineView clone() {
+        return new EngineView(this.getID(), this.getConnectors(), this.doubleEngine ? 2 : 1, this.engineRotation);
+    }
 }

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.view.miniModel.good;
 
+import it.polimi.ingsw.view.miniModel.board.LevelView;
+
 public enum GoodView {
     BLUE(1), GREEN(2), YELLOW(3), RED(4);
 
@@ -21,6 +23,15 @@ public enum GoodView {
 
     public void drawGui() {
         //TODO: Implement the GUI drawing logic for the Good component here
+    }
+
+    public static GoodView fromValue(int value) {
+        for (GoodView good : values()) {
+            if (good.value == value) {
+                return good;
+            }
+        }
+        throw new IllegalArgumentException("No GoodView with value " + value);
     }
 
     public String drawTui() {

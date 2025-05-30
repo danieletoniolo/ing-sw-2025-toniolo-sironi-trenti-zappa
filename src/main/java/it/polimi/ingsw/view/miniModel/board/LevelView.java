@@ -21,5 +21,4 @@ public enum LevelView {
         }
         throw new IllegalArgumentException("No LevelView with value " + value);
     }
-
 }

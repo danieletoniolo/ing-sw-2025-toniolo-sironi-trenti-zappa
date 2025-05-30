@@ -8,8 +8,7 @@ import it.polimi.ingsw.model.game.board.Deck;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.spaceship.*;
-import it.polimi.ingsw.view.tui.states.buildingScreens.WatchingTuiScreen;
-import it.polimi.ingsw.view.tui.states.gameScreens.NotClientTurnTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.NotClientTurnTuiScreen;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import it.polimi.ingsw.view.Manager;
@@ -29,7 +28,7 @@ import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import it.polimi.ingsw.view.miniModel.timer.TimerView;
 import it.polimi.ingsw.view.tui.input.Parser;
-import it.polimi.ingsw.view.tui.states.*;
+import it.polimi.ingsw.view.tui.screens.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,11 +68,6 @@ public class TuiManager implements Manager {
      */
     @Override
     public void notifyNicknameSet() {
-        synchronized (stateLock) {
-            currentScreen = new MenuTuiScreen();
-            printInput = false;
-            stateLock.notifyAll();
-        }
 
     }
 
@@ -236,10 +230,11 @@ public class TuiManager implements Manager {
 
                     screenToUse.readCommand(parser, () -> screenToUse == currentScreen);
 
+                    if (currentScreen == screenToUse) {
+                        currentScreen = currentScreen.setNewScreen();
+                    }
+
                     synchronized (stateLock) {
-                        if (currentScreen == screenToUse) {
-                            currentScreen = currentScreen.setNewScreen();
-                        }
                         printInput = false;
                         stateLock.notifyAll();
                     }
@@ -338,9 +333,9 @@ public class TuiManager implements Manager {
         for (ComponentView tile : MiniModel.getInstance().getViewableComponents()) {
             if (tile instanceof StorageView && ((StorageView) tile).getGoods().length > 1) {
                 MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 7, 6);
-                ((StorageView) tile).setGood(GoodView.BLUE, 0);
-                ((StorageView) tile).setGood(GoodView.YELLOW, 0);
-                ((StorageView) tile).setGood(GoodView.GREEN, 1);
+                ((StorageView) tile).addGood(GoodView.BLUE);
+                ((StorageView) tile).addGood(GoodView.YELLOW);
+                //((StorageView) tile).removeGood(GoodView.GREEN);
                 tile.setIsWrong(true);
                 break;
             }
