@@ -44,26 +44,25 @@ public class Parser {
             renderMenu(writer, options, menuStartRow);
 
             int key = -1;
-            if (reader.ready()) {
-                key = reader.read();
+            while (!reader.ready()) Thread.sleep(50);
 
-                if (key == 27 && reader.ready()) {
-                    int second = reader.read();
-                    if (second == 91 && reader.ready()) {
-                        int third = reader.read();
-                        switch (third) {
-                            case 65:
-                                selected = (selected - 1 + options.size()) % options.size();
-                                continue;
-                            case 66:
-                                selected = (selected + 1) % options.size();
-                                continue;
-                        }
+            key = reader.read();
+
+            if (key == 27) { // ESC
+                while (!reader.ready()) Thread.sleep(10);
+                int second = reader.read();
+                if (second == 91) { // '['
+                    while (!reader.ready()) Thread.sleep(10);
+                    int third = reader.read();
+                    switch (third) {
+                        case 65:
+                            selected = (selected - 1 + options.size()) % options.size();
+                            continue;
+                        case 66:
+                            selected = (selected + 1) % options.size();
+                            continue;
                     }
                 }
-            } else {
-                Thread.sleep(100);
-                continue;
             }
 
             switch (key) {
@@ -82,6 +81,7 @@ public class Parser {
 
         return selected;
     }
+
 
     public Pair<Integer, Integer> getRowAndCol(String prompt, int menuStartRow, Supplier<Boolean> isStillCurrentScreen) {
         var writer = terminal.writer();
