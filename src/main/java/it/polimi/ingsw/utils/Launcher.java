@@ -39,6 +39,15 @@ public class Launcher {
         return path;
     }
 
+    /**
+     * Static method to launch a terminal with the specified JAR file.
+     * It determines the operating system and constructs the appropriate command to run the JAR file in a terminal.
+     * It finds the path to the binary java executable to use the Java runtime included in the application.
+     *
+     * @param jarToLaunch the name of the JAR file to launch
+     * @throws IOException if an I/O error occurs
+     * @throws URISyntaxException if the URI syntax is incorrect
+     */
     public static void launchTerminal(String jarToLaunch) throws IOException, URISyntaxException {
         String os = System.getProperty("os.name").toLowerCase();
 
@@ -46,8 +55,16 @@ public class Launcher {
         Path appDir = Paths.get(Launcher.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
         Path jarPath = appDir.resolve(jarToLaunch);
 
-        // TODO: This will be changed as soon as we have a integrated runtime
-        String javaCmd = "java -jar \"" + jarPath + "\"";
+        Path javaPath;
+        if (os.contains("win")) {
+            javaPath = appDir.resolve("../runtime/bin/java.exe").normalize();
+        } else if (os.contains("mac")) {
+            javaPath = appDir.resolve("../runtime/Contents/Home/bin/java").normalize();
+        } else {
+            javaPath = appDir.resolve("../runtime/bin/java").normalize();
+        }
+
+        String javaCmd = "\"" + javaPath + "\" -jar \"" + jarPath + "\"";
 
         if (os.contains("win")) {
             // start cmd /k "java -jar ..."

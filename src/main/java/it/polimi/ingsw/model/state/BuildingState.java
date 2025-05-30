@@ -314,8 +314,25 @@ public class BuildingState extends State {
         for (int i = 0; i < 4; i++) {
             connectors.add(component.getConnection(i).getValue());
         }
-        TileRotated rotateTile = new TileRotated(player.getUsername(), component.getID(), component.getClockwiseRotation(),connectors);
-        eventCallback.trigger(rotateTile);
+
+        switch (component.getComponentType()) {
+            case SINGLE_ENGINE, DOUBLE_ENGINE -> {
+                RotatedEngineTile rotateTile = new RotatedEngineTile(player.getUsername(), component.getID(), ((Engine) component).getDirection(), connectors);
+                eventCallback.trigger(rotateTile);
+            }
+            case SINGLE_CANNON, DOUBLE_CANNON -> {
+                RotatedCannonTile rotateTile = new RotatedCannonTile(player.getUsername(), component.getID(), ((Cannon) component).getDirection(), connectors);
+                eventCallback.trigger(rotateTile);
+            }
+            case SHIELD -> {
+                RotatedShieldTile rotateTile = new RotatedShieldTile(player.getUsername(), component.getID(), ((Shield) component).getShieldingPositions(), connectors);
+                eventCallback.trigger(rotateTile);
+            }
+            default -> {
+                RotatedGenericTile rotateTile = new RotatedGenericTile(player.getUsername(), component.getID(),connectors);
+                eventCallback.trigger(rotateTile);
+            }
+        }
     }
 
     /**

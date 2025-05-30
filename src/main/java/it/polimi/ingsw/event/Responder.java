@@ -18,8 +18,6 @@ public class Responder<R extends Event> {
 
     private void sendResponse(EventTransceiver transceiver, R event, Function<R, StatusEvent> responseFunc) {
         StatusEvent response = responseFunc.apply(event);
-
-        Logger.getInstance().log(Logger.LogLevel.INFO, "Sending response: " + response, false);
         transceiver.send(UUID.fromString(response.getUserID()), response);
     }
 }
