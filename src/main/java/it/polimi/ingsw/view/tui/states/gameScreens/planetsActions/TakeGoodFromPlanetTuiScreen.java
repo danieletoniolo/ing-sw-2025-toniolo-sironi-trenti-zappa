@@ -12,7 +12,7 @@ public class TakeGoodFromPlanetTuiScreen extends PlanetsTuiScreen {
 
     public TakeGoodFromPlanetTuiScreen(int planet) {
         super(new ArrayList<>(){{
-            for (GoodView good : ((PlanetsView) MiniModel.getInstance().shuffledDeckView.getDeck().peek()).getPlanet(planet)) {
+            for (GoodView good : ((PlanetsView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek()).getPlanet(planet)) {
                 add(good.drawTui());
             }
         }});

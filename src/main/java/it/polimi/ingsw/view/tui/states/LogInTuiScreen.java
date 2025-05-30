@@ -30,7 +30,7 @@ public class LogInTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
-        StatusEvent status = SetNickname.requester(Client.transceiver, new Object()).request(new SetNickname(MiniModel.getInstance().userID, nickname));
+        StatusEvent status = SetNickname.requester(Client.transceiver, new Object()).request(new SetNickname(MiniModel.getInstance().getUserID(), nickname));
         if (status.get().equals("POTA")) {
             message = "Nickname already taken, please choose another one.";
             Logger.getInstance().log(Logger.LogLevel.INFO, "Nickname already taken: " + nickname, false);
@@ -47,7 +47,7 @@ public class LogInTuiScreen implements TuiScreenView {
         row = 1;
 
         for (int i = 0; i < LogInView.getRowsToDraw(); i++) {
-            TerminalUtils.printLine(writer, MiniModel.getInstance().logInView.drawLineTui(i), row++);
+            TerminalUtils.printLine(writer, MiniModel.getInstance().getLogInView().drawLineTui(i), row++);
         }
 
         TerminalUtils.printLine(writer, message == null ? "" : message, row++);

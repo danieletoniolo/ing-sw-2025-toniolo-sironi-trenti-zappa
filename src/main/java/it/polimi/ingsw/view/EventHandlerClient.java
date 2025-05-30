@@ -36,7 +36,7 @@ public class EventHandlerClient {
         CastEventReceiver<UserIDSet> userIDSetReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<UserIDSet> userIDSetListener = data -> {
             MiniModel mm = MiniModel.getInstance();
-            mm.userID = data.userID();
+            mm.setUserID(data.userID());
 
             manager.notifyUserIDSet();
         };
@@ -47,7 +47,7 @@ public class EventHandlerClient {
          */
         CastEventReceiver<NicknameSet> nicknameSetReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<NicknameSet> nicknameSetListener = data -> {
-            MiniModel.getInstance().nickname = data.nickname();
+            MiniModel.getInstance().setNickname(data.nickname());
 
             manager.notifyNicknameSet();
         };
@@ -60,7 +60,7 @@ public class EventHandlerClient {
         CastEventReceiver<Lobbies> lobbiesReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<Lobbies> lobbiesListener = data -> {
             for (int i = 0; i < data.lobbiesNames().size(); i++) {
-                MiniModel.getInstance().lobbiesView.add(new LobbyView(data.lobbiesNames().get(i), data.lobbiesPlayers().get(i).getValue0(),
+                MiniModel.getInstance().getLobbiesView().add(new LobbyView(data.lobbiesNames().get(i), data.lobbiesPlayers().get(i).getValue0(),
                         data.lobbiesPlayers().get(i).getValue1(), LevelView.fromValue(data.lobbiesLevels().get(i))));
             }
 
@@ -74,9 +74,9 @@ public class EventHandlerClient {
         CastEventReceiver<LobbyCreated> lobbyCreatedReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<LobbyCreated> lobbyCreatedListener = data -> {
             LobbyView lobby = new LobbyView(data.lobbyID(), 1, data.maxPlayers(), LevelView.fromValue(data.level()));
-            MiniModel.getInstance().lobbiesView.add(lobby);
-            if (data.nickname().equals(MiniModel.getInstance().nickname)) {
-                MiniModel.getInstance().currentLobby = lobby;
+            MiniModel.getInstance().getLobbiesView().add(lobby);
+            if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
+                MiniModel.getInstance().setCurrentLobby(lobby);
             }
 
             manager.notifyCreatedLobby(data);
@@ -88,7 +88,7 @@ public class EventHandlerClient {
          */
         CastEventReceiver<LobbyJoined> lobbyJoinedReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<LobbyJoined> lobbyJoinedListener = data -> {
-            MiniModel.getInstance().lobbiesView.stream()
+            MiniModel.getInstance().getLobbiesView().stream()
                     .filter(lobby -> lobby.getLobbyName().equals(data.lobbyID()))
                     .findFirst()
                     .ifPresent(lobby -> {
@@ -104,7 +104,7 @@ public class EventHandlerClient {
          */
         CastEventReceiver<LobbyLeft> lobbyLeftReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<LobbyLeft> lobbyLeftListener = data -> {
-            MiniModel.getInstance().lobbiesView.stream()
+            MiniModel.getInstance().getLobbiesView().stream()
                     .filter(lobby -> lobby.getLobbyName().equals(data.lobbyID()))
                     .findFirst()
                     .ifPresent(lobby -> {
@@ -120,11 +120,11 @@ public class EventHandlerClient {
          */
         CastEventReceiver<LobbyRemoved> lobbyRemovedReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<LobbyRemoved> lobbyRemovedListener = data -> {
-            MiniModel.getInstance().lobbiesView.stream()
+            MiniModel.getInstance().getLobbiesView().stream()
                     .filter(lobby -> lobby.getLobbyName().equals(data.lobbyID()))
                     .findFirst()
                     .ifPresent(lobby -> {
-                        MiniModel.getInstance().lobbiesView.remove(lobby);
+                        MiniModel.getInstance().getLobbiesView().remove(lobby);
                     });
 
             manager.notifyLobbyRemoved(data);
@@ -139,11 +139,11 @@ public class EventHandlerClient {
             new Thread(() -> {
                 LocalDateTime serverTime = LocalDateTime.parse(data.startingTime());
                 LocalDateTime clientTime = LocalDateTime.now();
-                MiniModel.getInstance().countDown = new CountDown();
+                MiniModel.getInstance().setCountDown(new CountDown());
                 int time = data.timerDuration() - Math.max(0, (int)Duration.between(serverTime, clientTime).toSeconds());
                 while (time >= 0) {
                     try {
-                        MiniModel.getInstance().countDown.setSecondsRemaining(time);
+                        MiniModel.getInstance().getCountDown().setSecondsRemaining(time);
                         manager.notifyCountDown();
                         Thread.sleep(1000);
                         time--;
@@ -151,7 +151,7 @@ public class EventHandlerClient {
                         Thread.currentThread().interrupt();
                     }
                 }
-                MiniModel.getInstance().countDown = null;
+                MiniModel.getInstance().setCountDown(null);
                 manager.notifyStartingGame();
             }).start();
         };
@@ -277,7 +277,7 @@ public class EventHandlerClient {
         CastEventReceiver<MoveMarker> moveMarkerReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<MoveMarker> moveMarkerListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
-            MiniModel.getInstance().boardView.movePlayer(player.getMarkerView(), data.steps());
+            MiniModel.getInstance().getBoardView().movePlayer(player.getMarkerView(), data.steps());
         };
         moveMarkerReceiver.registerListener(moveMarkerListener);
 
@@ -364,9 +364,7 @@ public class EventHandlerClient {
          */
         CastEventReceiver<PickedLeftDeck> pickedLeftDeckReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<PickedLeftDeck> pickedLeftDeckListener = data -> {
-            MiniModel mm = MiniModel.getInstance();
-
-            mm.deckViews.getValue1()[data.deckIndex()] = data.usage() == 1;
+            MiniModel.getInstance().getDeckViews().getValue1()[data.deckIndex()] = data.usage() == 1;
 
             //TODO notify
         };
@@ -454,7 +452,7 @@ public class EventHandlerClient {
         EventListener<PlacedTileToBoard> placedTileToBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
-            MiniModel.getInstance().viewableComponents.add(player.getHand());
+            MiniModel.getInstance().getViewableComponents().add(player.getHand());
             player.setHand(null);
 
             // TODO: notify
@@ -554,11 +552,11 @@ public class EventHandlerClient {
             new Thread(() -> {
                 LocalDateTime serverTime = LocalDateTime.parse(data.startingTime());
                 LocalDateTime clientTime = LocalDateTime.now();
-                MiniModel.getInstance().timerView = new TimerView(3);
+                MiniModel.getInstance().setTimerView(new TimerView(3));
                 int time = (int)(data.timerDuration() - Math.max(0, Duration.between(serverTime, clientTime).toSeconds()));
                 while (time >= 0) {
                     try {
-                        MiniModel.getInstance().timerView.setSecondsRemaining(time);
+                        MiniModel.getInstance().getTimerView().setSecondsRemaining(time);
                         // TODO notify
                         Thread.sleep(1000);
                         time--;
@@ -566,7 +564,7 @@ public class EventHandlerClient {
                         Thread.currentThread().interrupt();
                     }
                 }
-                MiniModel.getInstance().timerView = null;
+                MiniModel.getInstance().setTimerView(null);
             }).start();
         };
         timerFlippedReceiver.registerListener(timerFlippedListener);
@@ -612,11 +610,11 @@ public class EventHandlerClient {
     }
 
     private PlayerDataView getPlayerDataView(String nickname) {
-        if (MiniModel.getInstance().currentPlayer.getUsername().equals(nickname)) {
-            return MiniModel.getInstance().currentPlayer;
+        if (MiniModel.getInstance().getClientPlayer().getUsername().equals(nickname)) {
+            return MiniModel.getInstance().getClientPlayer();
         }
 
-        return MiniModel.getInstance().otherPlayers.stream()
+        return MiniModel.getInstance().getOtherPlayers().stream()
                 .filter(p -> p.getUsername().equals(nickname))
                 .findFirst()
                 .orElse(null);

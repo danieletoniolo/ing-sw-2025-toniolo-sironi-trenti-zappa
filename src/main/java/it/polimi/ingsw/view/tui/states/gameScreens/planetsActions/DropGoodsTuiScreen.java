@@ -14,7 +14,7 @@ public class DropGoodsTuiScreen extends PlanetsTuiScreen {
     public DropGoodsTuiScreen() {
         super(new ArrayList<>() {{
             ArrayList<String> totalGoods = new ArrayList<>();
-            MiniModel.getInstance().clientPlayer.getShip().getMapStorages().forEach(
+            MiniModel.getInstance().getClientPlayer().getShip().getMapStorages().forEach(
                     (key, value) -> {
                         for (GoodView good :((StorageView) value).getGoods()) {
                             totalGoods.add(good.drawTui() + " from " + "(" + value.getRow() + "," + value.getCol() + ")");
@@ -31,13 +31,13 @@ public class DropGoodsTuiScreen extends PlanetsTuiScreen {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == options.size() - MiniModel.getInstance().otherPlayers.size() - 1) {
+        if (selected == options.size() - MiniModel.getInstance().getOtherPlayers().size() - 1) {
             // send goods to the server
             return new PlanetActionsTuiScreen();
         }
 
         int cont = 0;
-        MiniModel.getInstance().clientPlayer.getShip().getMapStorages().forEach(
+        MiniModel.getInstance().getClientPlayer().getShip().getMapStorages().forEach(
                 (key, value) -> {
                     for (GoodView good : ((StorageView) value).getGoods()) {
                         if (cont == selected) {

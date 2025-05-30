@@ -8,6 +8,7 @@ import it.polimi.ingsw.model.game.board.Deck;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.spaceship.*;
+import it.polimi.ingsw.view.tui.states.buildingScreens.WatchingTuiScreen;
 import it.polimi.ingsw.view.tui.states.gameScreens.NotClientTurnTuiScreen;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -105,7 +106,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyLobbyLeft(LobbyLeft data) {
-        if (MiniModel.getInstance().currentLobby.getLobbyName().equals(data.lobbyID())) {
+        if (MiniModel.getInstance().getCurrentLobby().getLobbyName().equals(data.lobbyID())) {
             synchronized (stateLock) {
                 printInput = false;
                 stateLock.notifyAll();
@@ -282,10 +283,10 @@ public class TuiManager implements Manager {
         for (int i = 0; i < 50; i++) {
             ComponentView tileView = converter(tiles.get(i));
             tileView.setCovered(false);
-            MiniModel.getInstance().viewableComponents.add(tileView);
+            MiniModel.getInstance().getViewableComponents().add(tileView);
         }
 
-        ArrayList<LobbyView> currentLobbies = MiniModel.getInstance().lobbiesView;
+        ArrayList<LobbyView> currentLobbies = MiniModel.getInstance().getLobbiesView();
         LobbyView currentLobby = new LobbyView("pippo", 0, 4, LevelView.SECOND);
         currentLobbies.add(new LobbyView("nico", 0, 4, LevelView.LEARNING));
         currentLobbies.add(new LobbyView("eli", 0, 4, LevelView.LEARNING));
@@ -293,23 +294,23 @@ public class TuiManager implements Manager {
         currentLobbies.add(new LobbyView("lore", 0, 4, LevelView.LEARNING));
         currentLobbies.add(new LobbyView("vitto", 0, 4, LevelView.LEARNING));
 
-        MiniModel.getInstance().currentLobby = currentLobby;
+        MiniModel.getInstance().setCurrentLobby(currentLobby);
 
-        ArrayList<PlayerDataView> otherPlayers = MiniModel.getInstance().otherPlayers;
+        ArrayList<PlayerDataView> otherPlayers = MiniModel.getInstance().getOtherPlayers();
         PlayerDataView player = new PlayerDataView("Player1", MarkerView.YELLOW, new SpaceShipView(currentLobby.getLevel()));
         otherPlayers.add(new PlayerDataView("Player2", MarkerView.RED, new SpaceShipView(currentLobby.getLevel())));
         otherPlayers.add(new PlayerDataView("Player3", MarkerView.GREEN, new SpaceShipView(currentLobby.getLevel())));
         otherPlayers.add(new PlayerDataView("Player4", MarkerView.BLUE, new SpaceShipView(currentLobby.getLevel())));
 
-        MiniModel.getInstance().clientPlayer = player;
-        MiniModel.getInstance().clientPlayer.setHand(new GenericComponentView());
-        MiniModel.getInstance().clientPlayer.getHand().setCovered(false);
+        MiniModel.getInstance().setClientPlayer(player);
+        MiniModel.getInstance().getClientPlayer().setHand(new GenericComponentView());
+        MiniModel.getInstance().getClientPlayer().getHand().setCovered(false);
 
         Deck[] decks = CardsManager.createDecks(Level.SECOND);
 
-        MiniModel.getInstance().boardView = new BoardView(currentLobby.getLevel());
+        MiniModel.getInstance().setBoardView(new BoardView(currentLobby.getLevel()));
         if (currentLobby.getLevel() == LevelView.SECOND) {
-            MiniModel.getInstance().timerView = new TimerView(3);
+            MiniModel.getInstance().setTimerView(new TimerView(3));
             //MiniModel.getInstance().timerView.setFlippedTimer(player);
         }
 
@@ -320,26 +321,27 @@ public class TuiManager implements Manager {
             }
             DeckView deckView = new DeckView();
             deckView.setDeck(cards);
-            MiniModel.getInstance().deckViews.getValue0()[i] = deckView;
-            MiniModel.getInstance().deckViews.getValue1()[i] = true;
+            MiniModel.getInstance().getDeckViews().getValue0()[i] = deckView;
+            MiniModel.getInstance().getDeckViews().getValue1()[i] = true;
         }
 
-        MiniModel.getInstance().currentPlayer = otherPlayers.getFirst();
+        MiniModel.getInstance().setCurrentPlayer(otherPlayers.getFirst());
 
         Stack<CardView> stack = new Stack<>();
         for (Card card : CardsManager.createLearningDeck()) {
             stack.add(convertCard(card));
         }
-        MiniModel.getInstance().shuffledDeckView = new DeckView();
-        MiniModel.getInstance().shuffledDeckView.setDeck(stack);
-        MiniModel.getInstance().shuffledDeckView.setOnlyLast(true);
+        MiniModel.getInstance().setShuffledDeckView(new DeckView());
+        MiniModel.getInstance().getShuffledDeckView().setDeck(stack);
+        MiniModel.getInstance().getShuffledDeckView().setOnlyLast(true);
 
-        for (ComponentView tile : MiniModel.getInstance().viewableComponents) {
+        for (ComponentView tile : MiniModel.getInstance().getViewableComponents()) {
             if (tile instanceof StorageView && ((StorageView) tile).getGoods().length > 1) {
-                MiniModel.getInstance().clientPlayer.getShip().placeComponent(tile, 7, 6);
+                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 7, 6);
                 ((StorageView) tile).setGood(GoodView.BLUE, 0);
                 ((StorageView) tile).setGood(GoodView.YELLOW, 0);
                 ((StorageView) tile).setGood(GoodView.GREEN, 1);
+                tile.setIsWrong(true);
                 break;
             }
         }

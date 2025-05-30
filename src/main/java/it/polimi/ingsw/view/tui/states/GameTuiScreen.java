@@ -22,16 +22,16 @@ public abstract class GameTuiScreen implements TuiScreenView {
     protected String message;
     protected boolean isNewScreen;
 
-    private BoardView boardView = MiniModel.getInstance().boardView;
-    private PlayerDataView clientPlayer = MiniModel.getInstance().clientPlayer;
-    private DeckView shuffledDeckView = MiniModel.getInstance().shuffledDeckView;
-    private CardView currentCard = MiniModel.getInstance().shuffledDeckView.getDeck().peek();
+    private BoardView boardView = MiniModel.getInstance().getBoardView();
+    private PlayerDataView clientPlayer = MiniModel.getInstance().getClientPlayer();
+    private DeckView shuffledDeckView = MiniModel.getInstance().getShuffledDeckView();
+    private CardView currentCard = MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
 
 
     public GameTuiScreen(List<String> otherOptions) {
         if (otherOptions != null && !otherOptions.isEmpty()) options.addAll(otherOptions);
 
-        for (PlayerDataView p : MiniModel.getInstance().otherPlayers) {
+        for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
             options.add("View " + p.getUsername() + "'s spaceship");
         }
 
@@ -48,10 +48,10 @@ public abstract class GameTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
-        if (selected < options.size() && selected >= options.size() - MiniModel.getInstance().otherPlayers.size()) {
-            int i = selected - (options.size() - MiniModel.getInstance().otherPlayers.size());
+        if (selected < options.size() && selected >= options.size() - MiniModel.getInstance().getOtherPlayers().size()) {
+            int i = selected - (options.size() - MiniModel.getInstance().getOtherPlayers().size());
 
-            return new PlayerTuiScreen(MiniModel.getInstance().otherPlayers.get(i), this);
+            return new PlayerTuiScreen(MiniModel.getInstance().getOtherPlayers().get(i), this);
         }
 
         return null;
@@ -103,7 +103,7 @@ public abstract class GameTuiScreen implements TuiScreenView {
         }
 
         TerminalUtils.printLine(writer, "", row++);
-        PlayerDataView currentPlayer = MiniModel.getInstance().currentPlayer;
+        PlayerDataView currentPlayer = MiniModel.getInstance().getCurrentPlayer();
         String turn = currentPlayer.equals(clientPlayer) ? "Your turn" : "Waiting for " + currentPlayer.drawLineTui(0) + "'s turn";
         TerminalUtils.printLine(writer, turn, row++);
 
