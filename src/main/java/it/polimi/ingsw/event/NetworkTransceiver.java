@@ -148,16 +148,18 @@ public class NetworkTransceiver implements EventTransceiver{
     public void connect(UUID userID, Connection connection) {
         Thread receiveThread = new Thread(() -> {
             Event event;
-            try {
-                event = connection.receive();
-                Logger.getInstance().log(Logger.LogLevel.INFO, "Received message: " + event.getClass().getSimpleName(), false);
-            } catch (DisconnectedConnection e) {
-                // Handle disconnection
-                return;
-            }
-            synchronized (receivedQueue) {
-                receivedQueue.add(event);
-                receivedQueue.notifyAll();
+            while (true) {
+                try {
+                    event = connection.receive();
+                    Logger.getInstance().log(Logger.LogLevel.INFO, "Received message: " + event.getClass().getSimpleName(), false);
+                } catch (DisconnectedConnection e) {
+                    // Handle disconnection
+                    return;
+                }
+                synchronized (receivedQueue) {
+                    receivedQueue.add(event);
+                    receivedQueue.notifyAll();
+                }
             }
         });
 
