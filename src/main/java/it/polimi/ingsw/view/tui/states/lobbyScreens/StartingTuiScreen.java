@@ -8,7 +8,7 @@ public class StartingTuiScreen extends LobbyTuiScreen {
     public StartingTuiScreen() {
         isNewScreen = true;
         options.clear();
-        message = MiniModel.getInstance().countDown.drawLineTui(0);
+        message = MiniModel.getInstance().getCountDown().drawLineTui(0);
     }
 
     @Override

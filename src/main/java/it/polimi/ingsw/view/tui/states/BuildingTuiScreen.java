@@ -1,5 +1,9 @@
 package it.polimi.ingsw.view.tui.states;
 
+import it.polimi.ingsw.event.game.clientToServer.*;
+import it.polimi.ingsw.event.type.StatusEvent;
+import it.polimi.ingsw.view.Client;
+import it.polimi.ingsw.view.tui.states.buildingScreens.ChoosePositionTuiScreen;
 import org.javatuples.Pair;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -18,10 +22,10 @@ import java.util.function.Supplier;
 public class BuildingTuiScreen implements TuiScreenView {
     protected final ArrayList<String> options = new ArrayList<>();
     private final int cols = 22;
-    private PlayerDataView clientPlayer = MiniModel.getInstance().clientPlayer;
+    private final PlayerDataView clientPlayer = MiniModel.getInstance().getClientPlayer();
 
-    protected int totalLines = 1 + (MiniModel.getInstance().viewableComponents.size() / cols) * ComponentView.getRowsToDraw()
-            + (MiniModel.getInstance().viewableComponents.size() % cols == 0 ? 0 : ComponentView.getRowsToDraw())
+    protected int totalLines = 1 + (MiniModel.getInstance().getViewableComponents().size() / cols) * ComponentView.getRowsToDraw()
+            + (MiniModel.getInstance().getViewableComponents().size() % cols == 0 ? 0 : ComponentView.getRowsToDraw())
             + 1 + clientPlayer.getShip().getRowsToDraw() + 3 + 2;
 
     private int row;
@@ -29,13 +33,13 @@ public class BuildingTuiScreen implements TuiScreenView {
     protected boolean isNewScreen;
 
     private final Pair<DeckView[], Boolean[]> decksView;
-    private TimerView timerView = MiniModel.getInstance().timerView;
+    private final TimerView timerView = MiniModel.getInstance().getTimerView();
     private int selected;
 
     public BuildingTuiScreen() {
-        options.add("Pick tile");
+        options.add("Pick an hidden tile");
+        options.add("Pick a tile from the board");
         options.add("Put tile on spaceship");
-        options.add("Put tile in reserve");
         options.add("Put the tile in the reserved pile");
         options.add("Rotate tile");
         if (clientPlayer.getShip().getLevel().equals(LevelView.SECOND)) {
@@ -46,9 +50,9 @@ public class BuildingTuiScreen implements TuiScreenView {
         }
         options.add("Finish building");
 
-        this.decksView = MiniModel.getInstance().deckViews;
+        this.decksView = MiniModel.getInstance().getDeckViews();
 
-        for (PlayerDataView p : MiniModel.getInstance().otherPlayers) {
+        for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
             options.add("View " + p.getUsername() + "'s spaceship");
         }
         isNewScreen = true;
@@ -62,31 +66,94 @@ public class BuildingTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
-        if (selected >= options.size() - MiniModel.getInstance().otherPlayers.size()) {
-            int i = selected - (options.size() - MiniModel.getInstance().otherPlayers.size());
-            return new PlayerTuiScreen(MiniModel.getInstance().otherPlayers.get(i), this);
+        if (selected >= options.size() - MiniModel.getInstance().getOtherPlayers().size()) {
+            int i = selected - (options.size() - MiniModel.getInstance().getOtherPlayers().size());
+            return new PlayerTuiScreen(MiniModel.getInstance().getOtherPlayers().get(i), this);
+        }
+        StatusEvent status;
+
+        if (selected == 0) {
+            status = PickTileFromBoard.requester(Client.transceiver, new Object()).request(new PickTileFromBoard(MiniModel.getInstance().getUserID(), -1));
+            if (status.get().equals("POTA")) {
+                setMessage("Problem Occurred, Try Again!");
+                return this;
+            }
+            return this;
         }
 
-        switch (selected) {
-            case 0, 2, 3, 4:
-                return this;
-            case 1:
-                return new RowAndColTuiScreen();
+        if (selected == 1) {
+            return new RowAndColTuiScreen(TuiScreens.RowColBoard);
+        }
+
+        if (selected == 2) {
+            return new RowAndColTuiScreen(TuiScreens.RowColShip);
+        }
+
+        if (selected == 3) {
+            status = PlaceTileToReserve.requester(Client.transceiver, new Object()).request(new PlaceTileToReserve(MiniModel.getInstance().getUserID()));
+            if (status.get().equals("POTA")) {
+                setMessage("Reserved pile is full");
+            }
+            return this;
+        }
+
+        if (selected == 4) {
+            status = RotateTile.requester(Client.transceiver, new Object())
+                    .request(new RotateTile(MiniModel.getInstance().getUserID(), clientPlayer.getHand().getID()));
+            if (status.get().equals("POTA")) {
+                setMessage("Rotate tile failed. Try again!");
+            }
+            return this;
         }
 
         if (clientPlayer.getShip().getLevel().equals(LevelView.SECOND)) {
             switch (selected) {
                 case 5:
+                    status = PickLeaveDeck.requester(Client.transceiver, new Object())
+                            .request(new PickLeaveDeck(MiniModel.getInstance().getUserID(), 0, 0));
+                    if (status.get().equals("POTA")) {
+                        setMessage("It is not possible to pick Deck 1");
+                        return this;
+                    }
+
                     return new DeckTuiScreen(decksView.getValue0()[0], 1);
                 case 6:
+                    status = PickLeaveDeck.requester(Client.transceiver, new Object())
+                            .request(new PickLeaveDeck(MiniModel.getInstance().getUserID(), 0, 1));
+                    if (status.get().equals("POTA")) {
+                        setMessage("It is not possible to pick Deck 2");
+                        return this;
+                    }
                     return new DeckTuiScreen(decksView.getValue0()[1], 2);
                 case 7:
+                    status = PickLeaveDeck.requester(Client.transceiver, new Object())
+                            .request(new PickLeaveDeck(MiniModel.getInstance().getUserID(), 0, 2));
+                    if (status.get().equals("POTA")) {
+                        setMessage("It is not possible to pick Deck 3");
+                        return this;
+                    }
                     return new DeckTuiScreen(decksView.getValue0()[2], 3);
                 case 8:
+                    status = FlipTimer.requester(Client.transceiver, new Object()).request(new FlipTimer(MiniModel.getInstance().getUserID()));
+                    if (status.get().equals("POTA")) {
+                        setMessage("Timer's active - can’t flip it!");
+                    }
                     return this;
             }
         }
-        return this;
+
+        /*//status = FinishBuild;
+        if (status.get().equals("POTA")) {
+            setMessage("Hold on - the timer is still running!");
+            return this;
+        }
+        if (clientPlayer.getShip().getLevel().equals(LevelView.SECOND)) {
+            status = FlipTimer.requester(Client.transceiver, new Object()).request(new FlipTimer(MiniModel.getInstance().getUserID()));
+            if (status.get().equals("POTA")) {
+                setMessage("Timer's active - can’t flip it!");
+            }
+        }*/
+        return new ChoosePositionTuiScreen();
     }
 
     @Override
@@ -99,16 +166,17 @@ public class BuildingTuiScreen implements TuiScreenView {
         var writer = terminal.writer();
         row = 1;
 
-        drawTiles(writer, MiniModel.getInstance().viewableComponents);
+        drawTiles(writer, MiniModel.getInstance().getViewableComponents());
         TerminalUtils.printLine(writer, "", row++);
 
         int deckCount = 0;
-        int playerCount = 0;
         for (int i = 0; i < clientPlayer.getShip().getRowsToDraw(); i++) {
             StringBuilder line = new StringBuilder();
             line.append(clientPlayer.getShip().drawLineTui(i));
             if (i == 0) {
-                line.append("Reserved pile:");
+                int hiddenTiles = 152 - MiniModel.getInstance().getViewableComponents().size();
+                int fraction = hiddenTiles / 10;
+                line.append("Reserved pile:").append("        ").append("Hidden tiles: ").append(hiddenTiles).append(fraction >= 10 ? "" : fraction > 0 ? " " : "  ");
             }
             else if (i <= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1) - 1) {
                 line.append(clientPlayer.getShip().getDiscardReservedPile().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
@@ -118,36 +186,30 @@ public class BuildingTuiScreen implements TuiScreenView {
             } else if (i >= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 2 + 1) && i < ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 3 + 1)) {
                 line.append("       ").append(clientPlayer.getHand().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
             }
-            else if (i > ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 4 + 1) - 1 && i <= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 4 + clientPlayer.getRowsToDraw())) {
-                line.append("   ").append(clientPlayer.drawLineTui(playerCount));
-                if (playerCount == 0) {
-                    line.append("    ");
-                }
-                playerCount++;
+            else if (i == clientPlayer.getShip().getRowsToDraw() - 1) {
+                line.append("   ").append(clientPlayer.drawLineTui(0));
             }
             else if (i >= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1)) {
                 line.append("              ");
             }
             if (clientPlayer.getShip().getLevel().equals(LevelView.SECOND)) {
                 if (i == 0) {
-                    line.append("       ");
-                    line.append(" ".repeat(Math.max(0, decksView.getValue0()[0].getColsToDraw())));
-                    line.append("   ");
+                    line.append("         ");
                     line.append(timerView.drawLineTui(0));
                 }
                 if (i == 1) {
                     line.append("       ");
                     line.append(" ".repeat(Math.max(0, decksView.getValue0()[0].getColsToDraw())));
-                    line.append("   ");
+                    line.append("    ");
                     line.append(timerView.drawLineTui(1));
                 }
-                if (i == ((clientPlayer.getShip().getRowsToDraw() - 2) / 5)) {
+                if (i == ((clientPlayer.getShip().getRowsToDraw() - 2) / 5) + 1) {
                     line.append("       ");
                     for (int j = 0; j < 3; j++) {
                         line.append("        ").append("Deck ").append(j + 1).append(":").append("        ").append("   ");
                     }
                 }
-                if (i >= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1) && i < DeckView.getRowsToDraw() + ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1)) {
+                if (i >= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1) + 1 && i < DeckView.getRowsToDraw() + ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1) + 1) {
                     line.append("    ");
                     for (int j = 0; j < 3; j++) {
                         if (decksView.getValue1()[j]) {
@@ -165,7 +227,7 @@ public class BuildingTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, message == null ? "" : message, row++);
         TerminalUtils.printLine(writer, "", row++);
-        TerminalUtils.printLine(writer, "Commands: ", row++);
+        TerminalUtils.printLine(writer, lineBeforeInput(), row++);
 
         if (isNewScreen) {
             isNewScreen = false;
@@ -175,10 +237,16 @@ public class BuildingTuiScreen implements TuiScreenView {
         }
     }
 
+    protected String lineBeforeInput(){
+        return "Commands:";
+    }
+
     @Override
     public void setMessage(String message) {
         this.message = message;
     }
+
+
 
     private void drawTiles(java.io.PrintWriter writer, ArrayList<ComponentView> tiles) {
         StringBuilder line = new StringBuilder();

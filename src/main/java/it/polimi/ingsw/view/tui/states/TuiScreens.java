@@ -2,7 +2,8 @@ package it.polimi.ingsw.view.tui.states;
 
 public enum TuiScreens {
     Building,
-    RowAndCol,
+    RowColShip,
+    RowColBoard,
     Deck,
     Lobby,
     LogIn,
@@ -12,7 +13,8 @@ public enum TuiScreens {
     Player,
     Reward,
     Game,
-    Validation
-
+    Validation,
+    ChoosePosition,
+    Watching,
 
 }

@@ -1,5 +1,8 @@
 package it.polimi.ingsw.view.tui.states;
 
+import it.polimi.ingsw.event.game.clientToServer.PlayerReady;
+import it.polimi.ingsw.event.type.StatusEvent;
+import it.polimi.ingsw.view.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.lobby.LobbyView;
 import org.jline.terminal.Terminal;
@@ -12,7 +15,7 @@ import java.util.function.Supplier;
 
 public class LobbyTuiScreen implements TuiScreenView {
     protected final ArrayList<String> options = new ArrayList<>();
-    private final LobbyView currentLobbyView = MiniModel.getInstance().currentLobby;
+    private final LobbyView currentLobbyView = MiniModel.getInstance().getCurrentLobby();
     private int selected;
     private final int totalLines = LobbyView.getRowsToDraw() + 4 + 1;
     private int row;
@@ -34,12 +37,16 @@ public class LobbyTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
+        StatusEvent status;
         switch (selected) {
-            case 0:
-                return new BuildingTuiScreen();
-            case 1:
+            case 0, 1:
+                status = PlayerReady.requester(Client.transceiver, new Object()).request(new PlayerReady(MiniModel.getInstance().getUserID(), selected == 0));
+                if (status.get().equals("POTA")) {
+                    setMessage("You are already " + ((selected == 0) ? "Ready" : "Not Ready"));
+                }
                 return this;
             case 2:
+                //status =
                 return new MenuTuiScreen();
             default:
                 throw new IllegalStateException("Unexpected value: " + selected);

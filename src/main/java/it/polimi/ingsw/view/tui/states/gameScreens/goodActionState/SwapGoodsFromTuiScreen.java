@@ -15,7 +15,7 @@ public class SwapGoodsFromTuiScreen extends GoodManagerTuiScreen {
     private static List<String> getOptions() {
         List<String> options = new ArrayList<>();
 
-        MiniModel.getInstance().clientPlayer.getShip().getMapStorages().forEach(
+        MiniModel.getInstance().getClientPlayer().getShip().getMapStorages().forEach(
                 (key, value) -> {
                     if (((StorageView) value).getGoods() != null) {
                         for (int i = 0; i < ((StorageView) value).getGoods().length; i++) {

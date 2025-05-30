@@ -45,10 +45,12 @@ public class PlayerTuiScreen implements TuiScreenView {
         var writer = terminal.writer();
         row = 1;
 
+        int countPlayer = 0;
         for (int i = 0; i < playerToView.getShip().getRowsToDraw(); i++) {
             StringBuilder line = new StringBuilder();
-            if (i >= ((playerToView.getShip().getRowsToDraw() - 2)/5*4 + 1) - 1 && i < ((playerToView.getShip().getRowsToDraw() - 2)/5*4 + 1) - 1 + playerToView.getRowsToDraw()) {
-                line.append(playerToView.getShip().drawLineTui(i)).append("   ").append(playerToView.drawLineTui(i % playerToView.getRowsToDraw()));
+            if (i >= ((playerToView.getShip().getRowsToDraw() - 2)/5*4 + 1) && i < ((playerToView.getShip().getRowsToDraw() - 2)/5*4 + 1) + playerToView.getRowsToDraw()) {
+                line.append(playerToView.getShip().drawLineTui(i)).append("   ").append(playerToView.drawLineTui(countPlayer));
+                countPlayer++;
             }else{
                 line.append(playerToView.getShip().drawLineTui(i));
             }

@@ -16,28 +16,120 @@ public class MiniModel {
     private static MiniModel instance;
 
     /// MiniModel structures:
-    public LogInView logInView = new LogInView();
-    public ArrayList<LobbyView> lobbiesView = new ArrayList<>();
-    public CountDown countDown;
+    private LogInView logInView = new LogInView();
+    private ArrayList<LobbyView> lobbiesView = new ArrayList<>();
+    private CountDown countDown;
     /** The decks are stored in a Pair: The first element is the deck views, and the second element is a boolean array.
     If boolean[i] == true the deck[i] is not taken by a player, else deck is taken and not viewable in the building screen*/
-    public Pair<DeckView[], Boolean[]> deckViews = new Pair<>(new DeckView[3], new Boolean[3]);
-    public DeckView shuffledDeckView;
-    public TimerView timerView;
-    public BoardView boardView;
-    public ArrayList<PlayerDataView> otherPlayers = new ArrayList<>();
-    public ArrayList<ComponentView> viewableComponents = new ArrayList<>();
-    public PlayerDataView clientPlayer;
-    public String nickname;
-    public String userID;
+    private Pair<DeckView[], Boolean[]> deckViews = new Pair<>(new DeckView[3], new Boolean[3]);
+    private DeckView shuffledDeckView;
+    private TimerView timerView;
+    private BoardView boardView;
+    private ArrayList<PlayerDataView> otherPlayers = new ArrayList<>();
+    private ArrayList<ComponentView> viewableComponents = new ArrayList<>();
+    private PlayerDataView clientPlayer;
+    private String nickname;
+    private String userID;
 
-    public PlayerDataView currentPlayer;
-    public LobbyView currentLobby;
+    private PlayerDataView currentPlayer;
+    private LobbyView currentLobby;
 
     public static MiniModel getInstance() {
         if (instance == null) {
             instance = new MiniModel();
         }
         return instance;
+    }
+
+    public synchronized LogInView getLogInView() {
+        return logInView;
+    }
+
+    public synchronized ArrayList<LobbyView> getLobbiesView() {
+        return lobbiesView;
+    }
+
+    public synchronized void setCountDown(CountDown countDown) {
+        this.countDown = countDown;
+    }
+
+    public synchronized CountDown getCountDown() {
+        return countDown;
+    }
+
+    public synchronized Pair<DeckView[], Boolean[]> getDeckViews() {
+        return deckViews;
+    }
+
+    public synchronized void setShuffledDeckView(DeckView shuffledDeckView) {
+        this.shuffledDeckView = shuffledDeckView;
+    }
+
+    public synchronized DeckView getShuffledDeckView() {
+        return shuffledDeckView;
+    }
+
+    public synchronized void setTimerView(TimerView timerView) {
+        this.timerView = timerView;
+    }
+
+    public synchronized TimerView getTimerView() {
+        return timerView;
+    }
+
+    public synchronized void setBoardView(BoardView boardView) {
+        this.boardView = boardView;
+    }
+
+    public synchronized BoardView getBoardView() {
+        return boardView;
+    }
+
+    public synchronized ArrayList<PlayerDataView> getOtherPlayers() {
+        return otherPlayers;
+    }
+
+    public synchronized ArrayList<ComponentView> getViewableComponents() {
+        return viewableComponents;
+    }
+
+    public synchronized void setClientPlayer(PlayerDataView clientPlayer) {
+        this.clientPlayer = clientPlayer;
+    }
+
+    public synchronized PlayerDataView getClientPlayer() {
+        return clientPlayer;
+    }
+
+    public synchronized void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public synchronized String getNickname() {
+        return nickname;
+    }
+
+    public synchronized void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    public synchronized String getUserID() {
+        return userID;
+    }
+
+    public synchronized void setCurrentPlayer(PlayerDataView currentPlayer) {
+        this.currentPlayer = currentPlayer;
+    }
+
+    public synchronized PlayerDataView getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public synchronized void setCurrentLobby(LobbyView currentLobby) {
+        this.currentLobby = currentLobby;
+    }
+
+    public synchronized LobbyView getCurrentLobby() {
+        return currentLobby;
     }
 }

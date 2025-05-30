@@ -12,7 +12,7 @@ public class SelectPlanetTuiScreen extends GameTuiScreen {
 
     public SelectPlanetTuiScreen() {
         super(new ArrayList<>() {{
-            CardView card = MiniModel.getInstance().shuffledDeckView.getDeck().peek();
+            CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
             for (int i = 0; i < ((PlanetsView) card).getNumberOfPlanets(); i++) {
                 add((i + 1) + "");
             }

@@ -7,8 +7,6 @@ import it.polimi.ingsw.view.tui.states.ValidationTuiScreen;
 import java.util.function.Supplier;
 
 public class RowAndColValidationTuiScreen extends ValidationTuiScreen {
-
-
     public RowAndColValidationTuiScreen() {
         super();
 

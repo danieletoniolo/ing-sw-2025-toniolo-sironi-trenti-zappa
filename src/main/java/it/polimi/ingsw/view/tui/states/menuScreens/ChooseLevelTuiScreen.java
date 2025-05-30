@@ -38,8 +38,7 @@ public class ChooseLevelTuiScreen extends MenuTuiScreen {
 
     @Override
     public TuiScreenView setNewScreen() {
-
-        StatusEvent status = CreateLobby.requester(Client.transceiver, new Object()).request(new CreateLobby(MiniModel.getInstance().userID, maxPlayers, level));
+        StatusEvent status = CreateLobby.requester(Client.transceiver, new Object()).request(new CreateLobby(MiniModel.getInstance().getUserID(), maxPlayers, level));
         if (status.get().equals("POTA")) {
             TuiScreenView newScreen = new MenuTuiScreen();
             newScreen.setMessage("Creation of the lobby failed. please try again.");

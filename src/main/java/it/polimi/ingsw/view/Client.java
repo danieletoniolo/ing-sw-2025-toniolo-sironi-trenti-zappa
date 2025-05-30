@@ -63,7 +63,7 @@ public class Client {
 
                 MiniModel mm = MiniModel.getInstance();
                 synchronized (mm) {
-                    while (MiniModel.getInstance().userID == null) {
+                    while (MiniModel.getInstance().getUserID() == null) {
                         try {
                             mm.wait();
                         } catch (InterruptedException e) {
@@ -85,7 +85,7 @@ public class Client {
 
                 MiniModel mm = MiniModel.getInstance();
                 synchronized (mm) {
-                    while (MiniModel.getInstance().userID == null) {
+                    while (MiniModel.getInstance().getUserID() == null) {
                         try {
                             mm.wait();
                         } catch (InterruptedException e) {

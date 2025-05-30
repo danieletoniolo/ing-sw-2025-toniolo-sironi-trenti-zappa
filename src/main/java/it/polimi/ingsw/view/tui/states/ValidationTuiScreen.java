@@ -27,7 +27,7 @@ public class ValidationTuiScreen implements TuiScreenView {
 
     public ValidationTuiScreen() {
         if (spaceShipView == null) {
-            spaceShipView = deepClone(MiniModel.getInstance().clientPlayer.getShip());
+            spaceShipView = deepClone(MiniModel.getInstance().getClientPlayer().getShip());
         }
         if (tileIDs == null) {
             tileIDs = new ArrayList<>();
@@ -37,7 +37,7 @@ public class ValidationTuiScreen implements TuiScreenView {
         options.add("Revert Changes");
         options.add("Done");
 
-        for (PlayerDataView p : MiniModel.getInstance().otherPlayers) {
+        for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
             options.add("View " + p.getUsername() + "'s spaceship");
         }
 
@@ -58,16 +58,16 @@ public class ValidationTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
-        if (selected >= options.size() - MiniModel.getInstance().otherPlayers.size()) {
-            int i = selected - (options.size() - MiniModel.getInstance().otherPlayers.size());
-            return new PlayerTuiScreen(MiniModel.getInstance().otherPlayers.get(i), this);
+        if (selected >= options.size() - MiniModel.getInstance().getOtherPlayers().size()) {
+            int i = selected - (options.size() - MiniModel.getInstance().getOtherPlayers().size());
+            return new PlayerTuiScreen(MiniModel.getInstance().getOtherPlayers().get(i), this);
         }
 
         if (selected == 0) {
             return new RowAndColValidationTuiScreen();
         }
         if (selected == 1) {
-            spaceShipView = deepClone(MiniModel.getInstance().clientPlayer.getShip());
+            spaceShipView = deepClone(MiniModel.getInstance().getClientPlayer().getShip());
             return this;
         }
 
@@ -99,8 +99,8 @@ public class ValidationTuiScreen implements TuiScreenView {
             else if (i <= ((spaceShipView.getRowsToDraw() - 2) / 5 + 1) - 1) {
                 line.append(spaceShipView.getDiscardReservedPile().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
             }
-            else if (i > ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + 1) - 1 && i <= ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + MiniModel.getInstance().clientPlayer.getRowsToDraw())) {
-                line.append("   ").append(MiniModel.getInstance().clientPlayer.drawLineTui(playerCount));
+            else if (i > ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + 1) - 1 && i <= ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + MiniModel.getInstance().getClientPlayer().getRowsToDraw())) {
+                line.append("   ").append(MiniModel.getInstance().getClientPlayer().drawLineTui(playerCount));
                 if (playerCount == 0) {
                     line.append("    ");
                 }
