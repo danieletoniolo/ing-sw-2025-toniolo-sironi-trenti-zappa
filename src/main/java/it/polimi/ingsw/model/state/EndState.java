@@ -6,8 +6,8 @@ import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.BestLookingShips;
-import it.polimi.ingsw.event.game.serverToClient.Score;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.BestLookingShips;
+import it.polimi.ingsw.event.game.serverToClient.player.Score;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;

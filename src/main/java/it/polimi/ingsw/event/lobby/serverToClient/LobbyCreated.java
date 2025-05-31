@@ -16,5 +16,5 @@ public record LobbyCreated(
         String nickname,
         String lobbyID,
         int maxPlayers,
-        Integer level
+        int level
 ) implements Event, Serializable {}

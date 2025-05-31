@@ -4,8 +4,9 @@ public enum GameState {
     LOBBY(0),
     BUILDING(1),
     VALIDATION(2),
-    CARDS(3),
-    FINISHED(4);
+    CREW(3),
+    CARDS(4),
+    FINISHED(5);
 
     private final int value;
     GameState(int value) {

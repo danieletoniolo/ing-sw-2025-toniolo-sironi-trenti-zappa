@@ -4,7 +4,7 @@ import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.UpdateCrewMembers;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.UpdateCrewMembers;
 import org.javatuples.Triplet;
 
 import java.util.ArrayList;

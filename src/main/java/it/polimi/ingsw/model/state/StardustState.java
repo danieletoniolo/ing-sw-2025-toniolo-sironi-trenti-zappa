@@ -4,7 +4,7 @@ import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.MoveMarker;
+import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 
 
 public class StardustState extends State {

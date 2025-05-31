@@ -6,9 +6,9 @@ import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.UpdateCoins;
-import it.polimi.ingsw.event.game.serverToClient.UpdateCrewMembers;
-import it.polimi.ingsw.event.game.serverToClient.MoveMarker;
+import it.polimi.ingsw.event.game.serverToClient.player.UpdateCoins;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.UpdateCrewMembers;
+import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 

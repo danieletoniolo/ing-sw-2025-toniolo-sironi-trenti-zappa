@@ -75,6 +75,14 @@ public class Board implements Serializable {
     }
 
     /**
+     * Retrieves the decks of the board.
+     * @return the decks of the board
+     */
+    public Deck[] getDecks() {
+        return this.decks;
+    }
+
+    /**
      * Retrieves the deck at the specified index if it is pickable.
      * @param index the index of the deck to retrieve
      * @return the deck at the specified index

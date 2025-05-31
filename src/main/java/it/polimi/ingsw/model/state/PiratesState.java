@@ -6,9 +6,9 @@ import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.CannonsUsed;
-import it.polimi.ingsw.event.game.serverToClient.UpdateCoins;
-import it.polimi.ingsw.event.game.serverToClient.EnemyDefeat;
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
+import it.polimi.ingsw.event.game.serverToClient.player.UpdateCoins;
+import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
 
 import java.util.ArrayList;
 import java.util.HashMap;

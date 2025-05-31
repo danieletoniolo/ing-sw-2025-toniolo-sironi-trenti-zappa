@@ -10,9 +10,9 @@ import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.model.spaceship.Storage;
 
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.GoodsSwapped;
-import it.polimi.ingsw.event.game.serverToClient.MoveMarker;
-import it.polimi.ingsw.event.game.serverToClient.UpdateGoodsExchange;
+import it.polimi.ingsw.event.game.serverToClient.goods.GoodsSwapped;
+import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
+import it.polimi.ingsw.event.game.serverToClient.goods.UpdateGoodsExchange;
 import org.javatuples.Triplet;
 
 import java.util.List;
