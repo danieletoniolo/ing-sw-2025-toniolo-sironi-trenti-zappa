@@ -99,14 +99,11 @@ public class TCPConnection implements Connection {
                     read = in.readObject();
 
                     if (read instanceof Event && !(read instanceof HeartBeat)) {
-                        Logger.getInstance().log(Logger.LogLevel.INFO, "Received message in TCPConnection before lock: " + pendingMessages.peek(), true);
                         synchronized (lock) {
                             pendingMessages.add((Event) read);
                             lock.notifyAll();
                         }
-                        Logger.getInstance().log(Logger.LogLevel.INFO, "Received message in TCPConnection after lock: " + pendingMessages.peek(), true);
                     } else if (!(read instanceof HeartBeat)) {
-                        Logger.getInstance().log(Logger.LogLevel.ERROR, "Received unexpected object: " + read.getClass().getSimpleName(), false);
                         disconnect();
                     }
 
@@ -178,7 +175,6 @@ public class TCPConnection implements Connection {
                 }
             }
 
-            Logger.getInstance().log(Logger.LogLevel.INFO, "Received message in TCPConnection.receive(): " + pendingMessages.peek(), true);
             // Return the first message in the queue
             return pendingMessages.poll();
         }
