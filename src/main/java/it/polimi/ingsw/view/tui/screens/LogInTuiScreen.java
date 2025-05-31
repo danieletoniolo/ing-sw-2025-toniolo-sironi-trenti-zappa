@@ -33,10 +33,8 @@ public class LogInTuiScreen implements TuiScreenView {
         StatusEvent status = SetNickname.requester(Client.transceiver, new Object()).request(new SetNickname(MiniModel.getInstance().getUserID(), nickname));
         if (status.get().equals("POTA")) {
             message = "Nickname already taken, please choose another one.";
-            Logger.getInstance().log(Logger.LogLevel.INFO, "Nickname already taken: " + nickname, false);
             return this;
         }
-        Logger.getInstance().log(Logger.LogLevel.INFO, "Nickname set: " + nickname, false);
         message = null;
         return new MenuTuiScreen();
     }

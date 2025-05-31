@@ -194,7 +194,7 @@ public class Logger {
         String logMessage = String.format("[%-19s] %-10s %s", timeStamp, level.toString(), message);
         if (printCallerFunction) {
             StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-            String callerClassName = stackTrace[2].toString();
+            String callerClassName = stackTrace[3].toString();
             logMessage += " - " + callerClassName;
             logMessage += " [Thread: " + Thread.currentThread().getName() + " - " + Thread.currentThread().threadId() + "]";
         }

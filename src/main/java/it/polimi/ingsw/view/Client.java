@@ -14,10 +14,12 @@ import java.util.Scanner;
 import java.util.UUID;
 
 public class Client {
-    public static NetworkTransceiver transceiver = new NetworkTransceiver();
+    public static NetworkTransceiver transceiver;
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
+        Logger.getInstance().setUp(false, true);
+        transceiver = new NetworkTransceiver();
 
         System.out.println("""
                   _______      ___       __          ___      ___   ___ ____    ____    .___________..______       __    __    ______  __  ___  _______ .______     \s
@@ -57,7 +59,8 @@ public class Client {
                 /*System.out.print("Enter IP: ");
                 String address = sc.nextLine();*/
                 //String address = "140.238.173.150";
-                String address = "127.0.0.1";
+                //String address = "127.0.0.1";
+                String address = "192.168.67.224";
                 Connection connection = new RMIConnection(address, 2551);
                 transceiver.connect(UUID.randomUUID(), connection);
 
@@ -72,14 +75,13 @@ public class Client {
                     }
                 }
             } else {
-                // 172.20.10.5
-
                 EventHandlerClient manager = new EventHandlerClient(transceiver, tui);
 
                 /*System.out.print("Enter IP: ");
                 String address = sc.nextLine();*/
                 //String address = "140.238.173.150";
-                String address = "127.0.0.1";
+                //String address = "127.0.0.1";
+                String address = "192.168.67.224";
                 Connection connection = new TCPConnection(address, 2550);
                 transceiver.connect(UUID.randomUUID(), connection);
 

@@ -2,10 +2,12 @@ package it.polimi.ingsw.network.tcp;
 
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.game.HeartBeat;
+import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.network.Connection;
 import it.polimi.ingsw.network.exceptions.BadHostException;
 import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
 import it.polimi.ingsw.network.exceptions.SocketCreationException;
+import it.polimi.ingsw.utils.Logger;
 
 import java.io.*;
 import java.net.Socket;
@@ -96,13 +98,15 @@ public class TCPConnection implements Connection {
                     socket.setSoTimeout(5000);
                     read = in.readObject();
 
-                    // Check if the read object is Message
-                    if (read instanceof Event  && !(read instanceof HeartBeat)) {
+                    if (read instanceof Event && !(read instanceof HeartBeat)) {
+                        Logger.getInstance().log(Logger.LogLevel.INFO, "Received message in TCPConnection before lock: " + pendingMessages.peek(), true);
                         synchronized (lock) {
                             pendingMessages.add((Event) read);
                             lock.notifyAll();
                         }
+                        Logger.getInstance().log(Logger.LogLevel.INFO, "Received message in TCPConnection after lock: " + pendingMessages.peek(), true);
                     } else if (!(read instanceof HeartBeat)) {
+                        Logger.getInstance().log(Logger.LogLevel.ERROR, "Received unexpected object: " + read.getClass().getSimpleName(), false);
                         disconnect();
                     }
 
@@ -174,6 +178,7 @@ public class TCPConnection implements Connection {
                 }
             }
 
+            Logger.getInstance().log(Logger.LogLevel.INFO, "Received message in TCPConnection.receive(): " + pendingMessages.peek(), true);
             // Return the first message in the queue
             return pendingMessages.poll();
         }

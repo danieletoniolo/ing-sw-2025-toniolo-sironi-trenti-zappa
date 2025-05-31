@@ -45,7 +45,7 @@ public class TuiManager implements Manager {
         try {
             this.terminal = TerminalBuilder.builder()
                     .jna(true)
-                    .jansi(true)
+                    .jansi(false)
                     .build();
         } catch (Exception e) {
             System.err.println("Creation terminal error: " + e.getMessage());
@@ -53,7 +53,7 @@ public class TuiManager implements Manager {
         }
         parser = new Parser(terminal);
 
-        currentScreen = new ValidationTuiScreen();
+        currentScreen = new LogInTuiScreen();
 
         /// Se metodo crea un nuovo stato impostare anche printInput a false
     }

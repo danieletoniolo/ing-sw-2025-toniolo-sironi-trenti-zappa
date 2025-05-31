@@ -59,20 +59,22 @@ public class NetworkTransceiver implements EventTransceiver{
                 synchronized (receivedQueue) {
                     while (receivedQueue.isEmpty()) {
                         try {
-                            Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting message...", false);
+                            Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting message...", true);
                             receivedQueue.wait();
                         } catch (InterruptedException e) {
-                            Logger.getInstance().log(Logger.LogLevel.ERROR, "Connection Interrupted", false);
+                            Logger.getInstance().log(Logger.LogLevel.ERROR, "Connection Interrupted", true);
                         }
                     }
                     event = receivedQueue.poll();
-                    Logger.getInstance().log(Logger.LogLevel.INFO, listeners.size() + " listeners registered", false);
+                    Logger.getInstance().log(Logger.LogLevel.INFO, listeners.size() + " listeners registered", true);
 
                     synchronized (lockListeners) {
                         List<EventListener<Event>> listenersCopy = new ArrayList<>(listeners);
+                        Logger.getInstance().log(Logger.LogLevel.INFO, "Handling Event...", true);
                         for (EventListener<Event> listener : listenersCopy) {
                             listener.handle(event);
                         }
+                        Logger.getInstance().log(Logger.LogLevel.INFO, "Finish handling", true);
                     }
                 }
             }
@@ -151,12 +153,14 @@ public class NetworkTransceiver implements EventTransceiver{
             while (true) {
                 try {
                     event = connection.receive();
-                    Logger.getInstance().log(Logger.LogLevel.INFO, "Received message: " + event.getClass().getSimpleName(), false);
+                    Logger.getInstance().log(Logger.LogLevel.INFO, "Received message: " + event.getClass().getSimpleName(), true);
                 } catch (DisconnectedConnection e) {
                     // Handle disconnection
                     return;
                 }
+                Logger.getInstance().log(Logger.LogLevel.INFO, "Before lock of receivedQueue: " + receivedQueue.peek(), true);
                 synchronized (receivedQueue) {
+                    Logger.getInstance().log(Logger.LogLevel.INFO, "After lock of receivedQueue", true);
                     receivedQueue.add(event);
                     receivedQueue.notifyAll();
                 }

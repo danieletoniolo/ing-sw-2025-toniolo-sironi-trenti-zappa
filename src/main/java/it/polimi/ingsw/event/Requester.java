@@ -37,6 +37,7 @@ public class Requester<S extends Event> {
         synchronized (responseLock) {
             while (pendingResponses.isEmpty()) {
                 try {
+                    Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting for response...", false);
                     responseLock.wait();
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
