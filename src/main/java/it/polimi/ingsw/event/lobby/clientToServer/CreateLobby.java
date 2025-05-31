@@ -19,7 +19,7 @@ import java.util.function.Function;
 public record CreateLobby(
         String userID,
         int maxPlayers,
-        Integer level
+        int level
 ) implements Event, Serializable {
     /**
      * This method is used to create a responder for the CreateLobby event.

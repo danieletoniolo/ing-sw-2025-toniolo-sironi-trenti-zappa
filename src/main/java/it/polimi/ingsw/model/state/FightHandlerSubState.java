@@ -1,13 +1,17 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.ShieldUsed;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.Fragments;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.Component;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.*;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;

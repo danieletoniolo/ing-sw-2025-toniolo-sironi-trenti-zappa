@@ -1,13 +1,17 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.EnginesUsed;
+import it.polimi.ingsw.event.game.serverToClient.player.MinPlayer;
+import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
+import it.polimi.ingsw.event.game.serverToClient.player.PlayerLost;
 import it.polimi.ingsw.model.cards.CombatZone;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.*;
 
 import java.util.*;
 

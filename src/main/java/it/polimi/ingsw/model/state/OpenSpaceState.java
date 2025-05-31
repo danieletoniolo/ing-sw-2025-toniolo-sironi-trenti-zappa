@@ -6,8 +6,8 @@ import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.EnginesUsed;
-import it.polimi.ingsw.event.game.serverToClient.MoveMarker;
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.EnginesUsed;
+import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 
 import java.util.ArrayList;
 import java.util.HashMap;

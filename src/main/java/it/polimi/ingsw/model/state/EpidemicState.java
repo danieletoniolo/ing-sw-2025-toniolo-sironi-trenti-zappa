@@ -8,7 +8,7 @@ import it.polimi.ingsw.model.spaceship.Component;
 import it.polimi.ingsw.model.spaceship.ComponentType;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.UpdateCrewMembers;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.UpdateCrewMembers;
 import org.javatuples.Triplet;
 
 import java.util.ArrayList;

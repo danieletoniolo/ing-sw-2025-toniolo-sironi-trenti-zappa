@@ -5,7 +5,7 @@ import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.ComponentDestroyed;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -144,7 +144,7 @@ public class ValidationState extends State {
                 // Set the player status to PLAYED
                 playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
         }
-        super.nextState(GameState.CARDS);
+        super.nextState(GameState.CREW);
     }
     @Override
     public void exit() {

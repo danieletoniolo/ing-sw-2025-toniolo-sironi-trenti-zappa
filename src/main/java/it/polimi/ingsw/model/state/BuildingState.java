@@ -1,13 +1,25 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.deck.PickedLeftDeck;
+import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
+import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToBoard;
+import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToReserve;
+import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceship;
+import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
+import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedCannonTile;
+import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedEngineTile;
+import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedGenericTile;
+import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedShieldTile;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
+import it.polimi.ingsw.event.game.serverToClient.timer.TimerFinish;
+import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.*;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.*;
 import org.javatuples.Pair;
 
 import java.time.LocalDateTime;
@@ -183,18 +195,18 @@ public class BuildingState extends State {
                 // Trigger the event for picking a tile from the board
                 String username = player.getUsername();
                 int componentID = component.getID();
-                List<Integer> connectors = new ArrayList<>();
+                Integer[] connectors = new Integer[4];
                 for (int i = 0; i < 4; i++) {
-                    connectors.add(component.getConnection(i).getValue());
+                    connectors[i] = component.getConnection(i).getValue();
                 }
 
                 switch (component.getComponentType()) {
                     case SINGLE_ENGINE, DOUBLE_ENGINE -> {
-                        PickedEngineFromBoard pickedEngineFromBoard = new PickedEngineFromBoard(username, componentID, connectors, ((Engine) component).getEngineStrength());
+                        PickedEngineFromBoard pickedEngineFromBoard = new PickedEngineFromBoard(username, componentID, ((Engine) component).getDirection(), connectors, ((Engine) component).getEngineStrength());
                         eventCallback.trigger(pickedEngineFromBoard);
                     }
                     case SINGLE_CANNON, DOUBLE_CANNON -> {
-                        PickedCannonFromBoard pickedCannonFromBoard = new PickedCannonFromBoard(username, componentID, connectors, ((Cannon) component).getCannonStrength());
+                        PickedCannonFromBoard pickedCannonFromBoard = new PickedCannonFromBoard(username, componentID, ((Cannon) component).getDirection(), connectors, ((Cannon) component).getCannonStrength());
                         eventCallback.trigger(pickedCannonFromBoard);
                     }
                     case CABIN, CENTER_CABIN -> {
@@ -202,7 +214,7 @@ public class BuildingState extends State {
                         eventCallback.trigger(pickedCabinFromBoard);
                     }
                     case STORAGE -> {
-                        PickedStorageFromBoard pickedStorageFromBoard = new PickedStorageFromBoard(username, componentID, connectors, ((Storage) component).getGoodsCapacity());
+                        PickedStorageFromBoard pickedStorageFromBoard = new PickedStorageFromBoard(username, componentID, connectors, ((Storage) component).isDangerous(), ((Storage) component).getGoodsCapacity());
                         eventCallback.trigger(pickedStorageFromBoard);
                     }
                     case BROWN_LIFE_SUPPORT, PURPLE_LIFE_SUPPORT -> {
@@ -214,7 +226,7 @@ public class BuildingState extends State {
                         eventCallback.trigger(pickedBatteryFromBoard);
                     }
                     case SHIELD -> {
-                        PickedShieldFromBoard pickedShieldFromBoard = new PickedShieldFromBoard(username, componentID, connectors);
+                        PickedShieldFromBoard pickedShieldFromBoard = new PickedShieldFromBoard(username, componentID, ((Shield) component).getShieldingPositions(), connectors);
                         eventCallback.trigger(pickedShieldFromBoard);
                     }
                     case CONNECTORS -> {
@@ -310,9 +322,9 @@ public class BuildingState extends State {
         // Rotate the tile in the board
         component.rotateClockwise();
 
-        ArrayList<Integer> connectors = new ArrayList<>();
+        Integer[] connectors = new Integer[4];
         for (int i = 0; i < 4; i++) {
-            connectors.add(component.getConnection(i).getValue());
+            connectors[i] = component.getConnection(i).getValue();
         }
 
         switch (component.getComponentType()) {

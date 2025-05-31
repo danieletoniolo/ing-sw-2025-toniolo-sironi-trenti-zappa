@@ -1,6 +1,11 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.cards.CardPlayed;
+import it.polimi.ingsw.event.game.serverToClient.goods.GoodsSwapped;
+import it.polimi.ingsw.event.game.serverToClient.goods.UpdateGoodsExchange;
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
+import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.model.cards.Smugglers;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.good.Good;
@@ -10,7 +15,6 @@ import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.model.spaceship.Storage;
 
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.*;
 import org.javatuples.Triplet;
 
 import java.util.*;
