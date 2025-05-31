@@ -32,7 +32,6 @@ public class Requester<S extends Event> {
         registerListeners(receiverPota, this::processPota);
 
         transmitter.broadcast(request);
-        Logger.getInstance().log(Logger.LogLevel.INFO, "Request sent: " + request, false);
 
         synchronized (responseLock) {
             while (pendingResponses.isEmpty()) {
@@ -47,7 +46,6 @@ public class Requester<S extends Event> {
             unregisterListeners(receiverTac, this::processTac);
             unregisterListeners(receiverPota, this::processPota);
 
-            Logger.getInstance().log(Logger.LogLevel.INFO, "Response received: " + pendingResponses.peek(), false);
             return pendingResponses.poll();
         }
     }

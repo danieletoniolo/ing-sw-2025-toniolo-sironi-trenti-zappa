@@ -3,7 +3,6 @@ package it.polimi.ingsw.event;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.network.Connection;
 import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
-import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
 import java.util.*;
@@ -42,7 +41,7 @@ public class NetworkTransceiver implements EventTransceiver{
      * {@link NetworkTransceiver#broadcast(Event)} is the producer; the consumer thread sens
      * the events over the connection.
      */
-    private final Queue<Event> sendQueue = new ArrayDeque<>();
+    private final Queue<Pair<UUID, Event>> sendQueue = new ArrayDeque<>();
 
     /**
      * It is true if the consumer thread which sends events over the connection has to remain alive.
@@ -59,57 +58,65 @@ public class NetworkTransceiver implements EventTransceiver{
                 synchronized (receivedQueue) {
                     while (receivedQueue.isEmpty()) {
                         try {
-                            Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting message...", true);
                             receivedQueue.wait();
                         } catch (InterruptedException e) {
-                            Logger.getInstance().log(Logger.LogLevel.ERROR, "Connection Interrupted", true);
+                            // TODO: Test to see if we need to do something
                         }
                     }
                     event = receivedQueue.poll();
-                    Logger.getInstance().log(Logger.LogLevel.INFO, listeners.size() + " listeners registered", true);
 
                     synchronized (lockListeners) {
                         List<EventListener<Event>> listenersCopy = new ArrayList<>(listeners);
-                        Logger.getInstance().log(Logger.LogLevel.INFO, "Handling Event...", true);
                         for (EventListener<Event> listener : listenersCopy) {
                             listener.handle(event);
                         }
-                        Logger.getInstance().log(Logger.LogLevel.INFO, "Finish handling", true);
                     }
                 }
             }
         }).start();
 
         new Thread(() -> {
-            Event event;
+            Pair<UUID, Event> event;
             while (true) {
                 synchronized (sendQueue) {
                     while (sendQueue.isEmpty()) {
                         if (!hasToSend) {
-                            // TODO: Understand if we need to break the loop
+                            /*
+                               TODO: Understand if we need to break the loop
+                                     We should not need it since since we do not support disconnection
+                             */
                             return;
                         }
 
                         try {
-                            Logger.getInstance().log(Logger.LogLevel.INFO, "Waiting message to send...", false);
                             sendQueue.wait();
                         } catch (InterruptedException e) {
-                            Logger.getInstance().log(Logger.LogLevel.ERROR, "Connection Interrupted", false);
+                            // TODO: handle exception
                         }
                     }
                     event = sendQueue.poll();
-                    Logger.getInstance().log(Logger.LogLevel.INFO, "Sending message: " + event.getClass().getSimpleName(), false);
                 }
 
-                synchronized (lockConnectionSend) {
-                    try {
-                        for (Pair<Connection, Thread> connection : connections.values()) {
-                            connection.getValue0().send(event);
+                if (event.getValue0() != null) {
+                    synchronized (lockConnectionSend) {
+                        try {
+                            connections.get(event.getValue0()).getValue0().send(event.getValue1());
+                        } catch (DisconnectedConnection e) {
+                            // TODO: Handle the error
                         }
-                    } catch (DisconnectedConnection e) {
-                        // ignore the error
+                    }
+                } else {
+                    synchronized (lockConnectionSend) {
+                        try {
+                            for (Pair<Connection, Thread> connection : connections.values()) {
+                                connection.getValue0().send(event.getValue1());
+                            }
+                        } catch (DisconnectedConnection e) {
+                            // ignore the error
+                        }
                     }
                 }
+
             }
         }).start();
     }
@@ -153,14 +160,11 @@ public class NetworkTransceiver implements EventTransceiver{
             while (true) {
                 try {
                     event = connection.receive();
-                    Logger.getInstance().log(Logger.LogLevel.INFO, "Received message: " + event.getClass().getSimpleName(), true);
                 } catch (DisconnectedConnection e) {
                     // Handle disconnection
                     return;
                 }
-                Logger.getInstance().log(Logger.LogLevel.INFO, "Before lock of receivedQueue: " + receivedQueue.peek(), true);
                 synchronized (receivedQueue) {
-                    Logger.getInstance().log(Logger.LogLevel.INFO, "After lock of receivedQueue", true);
                     receivedQueue.add(event);
                     receivedQueue.notifyAll();
                 }
@@ -196,7 +200,7 @@ public class NetworkTransceiver implements EventTransceiver{
     @Override
     public void broadcast(Event data) {
         synchronized (sendQueue) {
-            sendQueue.add(data);
+            sendQueue.add(Pair.with(null, data));
             sendQueue.notifyAll();
         }
     }
@@ -204,18 +208,14 @@ public class NetworkTransceiver implements EventTransceiver{
     /**
      * Sends the given {@link Event} to the specified {@link it.polimi.ingsw.network.Connection}.
      * It is used only for the errors message which do not need to be broadcasted.
-     * @param uuid is the {@link UUID} of the {@link it.polimi.ingsw.network.Connection} to send the it.polimi.ingsw.event to.
+     * @param uuid is the {@link UUID} of the {@link it.polimi.ingsw.network.Connection} to send the event to.
      * @param data is the {@link Event} to send.
      */
     @Override
     public void send(UUID uuid, Event data) {
-        synchronized (lockConnectionSend) {
-            try {
-                connections.get(uuid).getValue0().send(data);
-                Logger.getInstance().log(Logger.LogLevel.INFO, "Sent event: " + data.getClass(), false);
-            } catch (DisconnectedConnection e) {
-                Logger.getInstance().log(Logger.LogLevel.ERROR, "Disconnected connection", false);
-            }
+        synchronized (sendQueue) {
+            sendQueue.add(Pair.with(uuid, data));
+            sendQueue.notifyAll();
         }
     }
 }
