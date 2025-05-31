@@ -94,11 +94,10 @@ public class Launcher {
             }
 
             if (!launched) {
-                Logger.getInstance().log(Logger.LogLevel.ERROR, "No terminal emulator found. Please run the command manually: " + javaCmd, false);
+                Logger.getInstance().logError("No terminal emulator found. Please run the command manually: " + javaCmd, true);
             }
-
         } else {
-            Logger.getInstance().log(Logger.LogLevel.ERROR, "Unknown operating system: " + os, false);
+            Logger.getInstance().logError("Unknown operating system: " + os, true);
         }
     }
 }

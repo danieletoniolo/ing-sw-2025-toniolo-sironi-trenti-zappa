@@ -93,13 +93,13 @@ public class RMIConnection implements Connection {
             sender = (RemoteQueue) registry.lookup("SENDER_" + boundName);
             receiver = (RemoteQueue) registry.lookup("RECEIVER_" + boundName);
         } catch (NotBoundException e) {
-            Logger.getInstance().log(Logger.LogLevel.WARNING, e.getMessage(), false);
+            Logger.getInstance().logWarning(e.getMessage(), false);
             throw new IllegalStateException("Failed to bind 'receiver'.", e);
         } catch (RemoteException e) {
-            Logger.getInstance().log(Logger.LogLevel.WARNING, "Failed to connect to the server at " + address + ":" + port, false);
+            Logger.getInstance().logWarning("Failed to connect to the server at " + address + ":" + port, false);
             throw new IllegalStateException("Failed to initialize 'receiver'.", e);
         } catch (IllegalArgumentException e) {
-            Logger.getInstance().log(Logger.LogLevel.WARNING, e.getMessage(), false);
+            Logger.getInstance().logWarning(e.getMessage(), false);
             throw new IllegalStateException("Invalid arguments during 'receiver' initialization.", e);
         }
 
@@ -207,7 +207,7 @@ public class RMIConnection implements Connection {
                         lockReadTimeout.notifyAll();
                     }
                 } catch (RemoteException e) {
-                    throw new DisconnectedConnection("Connection close while reading message", e);
+                    // We can ignore this exception, as the connection will be closed anyway
                 }
             }
         }).start();
@@ -216,7 +216,7 @@ public class RMIConnection implements Connection {
             try {
                 lockReadTimeout.wait(TIMEOUT);
             } catch (InterruptedException e) {
-                throw new DisconnectedConnection("Connection close while reading message", e);
+                // We can ignore this exception, as the connection will be closed anyway
             }
 
             return Optional.ofNullable(read);

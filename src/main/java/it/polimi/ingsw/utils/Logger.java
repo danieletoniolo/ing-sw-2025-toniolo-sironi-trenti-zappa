@@ -48,7 +48,8 @@ public class Logger {
     public enum LogLevel {
         INFO("INFO"),
         WARNING("WARNING"),
-        ERROR("ERROR");
+        ERROR("ERROR"),
+        DEBUG("DEBUG");
 
         private final String level;
 
@@ -93,6 +94,7 @@ public class Logger {
     private static final String RED = "\u001B[31m";
     private static final String YELLOW = "\u001B[33m";
     private static final String BLUE = "\u001B[34m";
+    private static final String GREEN = "\u001B[32m";
     private static final String RESET = "\u001B[0m";
 
     /**
@@ -155,6 +157,7 @@ public class Logger {
                         case INFO -> BLUE + logMessage + RESET;
                         case WARNING -> YELLOW + logMessage + RESET;
                         case ERROR -> RED + logMessage + RESET;
+                        case DEBUG -> GREEN + logMessage + RESET;
                     };
                     System.out.print(logMessage);
                 }
@@ -162,8 +165,8 @@ public class Logger {
         });
         logThread.start();
         // Print the starting message
-        log(LogLevel.INFO, "Starting logger and cleaning up old log files", false);
-        log(LogLevel.INFO, "Current log file: " + logsFolder + logFileName, false);
+        logInfo("Starting logger and cleaning up old log files", false);
+        logInfo("Current log file: " + logsFolder + logFileName, false);
     }
 
     /**
@@ -172,7 +175,7 @@ public class Logger {
      * @param message the message to log
      * @param printCallerFunction whether to print the caller function name
      */
-    public void log(LogLevel level, String message, boolean printCallerFunction) {
+    private void log(LogLevel level, String message, boolean printCallerFunction) {
         String logMessage = formatString(level, message, printCallerFunction);
 
         // Add the message to the queue
@@ -180,6 +183,41 @@ public class Logger {
             messageQueue.add(new Pair<>(level, logMessage));
             messageQueue.notifyAll();
         }
+    }
+
+    /**
+     * Logs an informational message with the INFO log level and prints the caller function name if specified.
+     * @param message the message to log
+     * @param printCallerFunction whether to print the caller function name
+     */
+    public void logInfo(String message, boolean printCallerFunction) {
+        log(LogLevel.INFO, message, printCallerFunction);
+    }
+
+    /**
+     * Logs a warning message with the WARNING log level and prints the caller function name if specified.
+     * @param message the warning message to log
+     * @param printCallerFunction whether to print the caller function name
+     */
+    public void logWarning(String message, boolean printCallerFunction) {
+        log(LogLevel.WARNING, message, printCallerFunction);
+    }
+
+    /**
+     * Logs a warning message with the WARNING log level and prints the caller function name if specified.
+     * @param message the error message to log
+     * @param printCallerFunction whether to print the caller function name
+     */
+    public void logError(String message, boolean printCallerFunction) {
+        log(LogLevel.ERROR, message, printCallerFunction);
+    }
+
+    /**
+     * Logs a debug message with the DEBUG log level and prints the caller function name if specified.
+     * @param message the message to log
+     */
+    public void logDebug(String message, boolean printCallerFunction) {
+        log(LogLevel.DEBUG, message, printCallerFunction);
     }
 
     /**
@@ -194,7 +232,7 @@ public class Logger {
         String logMessage = String.format("[%-19s] %-10s %s", timeStamp, level.toString(), message);
         if (printCallerFunction) {
             StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-            String callerClassName = stackTrace[2].toString();
+            String callerClassName = stackTrace[3].toString();
             logMessage += " - " + callerClassName;
             logMessage += " [Thread: " + Thread.currentThread().getName() + " - " + Thread.currentThread().threadId() + "]";
         }

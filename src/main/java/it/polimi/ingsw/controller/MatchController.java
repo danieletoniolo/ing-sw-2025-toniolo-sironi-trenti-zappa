@@ -183,7 +183,7 @@ public class MatchController {
         }
 
         if (nicknameAlreadyUsed) {
-            Logger.getInstance().log(Logger.LogLevel.ERROR, "Nickname already used: " + data.nickname(), false);
+            Logger.getInstance().logWarning("User " + data.userID() + " tried to set a nickname already used: " + data.nickname(), false);
             return new Pota(data.userID(), SetNickname.class, "Nickname already used");
         } else {
             UUID userID = UUID.fromString(data.userID());
@@ -203,7 +203,7 @@ public class MatchController {
             }
             Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), lobbiesPlayers, lobbiesLevels);
             serverNetworkTransceiver.send(userID, lobbiesEvent);
-            Logger.getInstance().log(Logger.LogLevel.INFO, "Nickname set", false);
+            Logger.getInstance().logInfo("User " + data.userID() + " set nickname: " + data.nickname(), false);
         }
         return new Tac(data.userID(), SetNickname.class);
     }

@@ -41,22 +41,20 @@ public class Server {
             ConnectionAcceptor.initialize(hostname);
             connectionAcceptor = new ConnectionAcceptor(2550, 2551);
         } catch (RemoteException | ConnectionException exception) {
-            logger.log(Logger.LogLevel.ERROR, exception.toString(), true);
+            logger.logError(exception.toString(), true);
             System.exit(1);
         }
 
-        logger.log(Logger.LogLevel.INFO, "Server started at address: " + hostname + " (TCP port: 2550; RMI port: 2551)", false);
+        logger.logInfo("Server started at address: " + hostname + " (TCP port: 2550; RMI port: 2551)", false);
 
         while (true) {
             Connection connection = connectionAcceptor.accept();
-            logger.log(Logger.LogLevel.INFO, "New incoming connection", false);
 
-            // TODO: How we link UUID to the user
             UUID uuid = UUID.randomUUID();
             networkTransceiver.connect(uuid, connection);
             networkTransceiver.send(uuid, new UserIDSet(uuid.toString()));
 
-            logger.log(Logger.LogLevel.INFO, "Connection accepted", false);
+            logger.logInfo("Connection established with user: " + uuid, false);
         }
 
     }
