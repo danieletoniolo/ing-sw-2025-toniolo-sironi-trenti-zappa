@@ -62,7 +62,7 @@ public class GameController implements Serializable, StateTransitionHandler {
     // Game actions
 
     /**
-     * It will set the player to PLAYING
+     * It will set the player to PLAYING (it is like starting a turn).
      * @param player                 the player that wants to play
      * @throws IllegalStateException if the current state does not allow playing
      */
@@ -71,6 +71,19 @@ public class GameController implements Serializable, StateTransitionHandler {
             state.play(player);
         } catch (Exception e) {
             throw new IllegalStateException("Cannot play in this state");
+        }
+    }
+
+    public void endTurn(UUID uuid) {
+        PlayerData player = state.getCurrentPlayer();
+        if (player.getUUID().equals(uuid)) {
+            try {
+                state.execute(player);
+            } catch (Exception e) {
+                throw new IllegalStateException("Cannot end turn in this state");
+            }
+        } else {
+            throw new IllegalStateException("Not the current player");
         }
     }
 
@@ -139,21 +152,6 @@ public class GameController implements Serializable, StateTransitionHandler {
             }
         } else {
             throw new IllegalStateException("State is not a ChoosableFragment");
-        }
-    }
-
-    public void startTurn(UUID uuid) {
-        PlayerData player = state.getCurrentPlayer();
-        if (player.getUUID().equals(uuid)) {
-            state.play(player);
-        }
-    }
-
-    // ex finish()
-    public void endTurn(UUID uuid) {
-        PlayerData player = state.getCurrentPlayer();
-        if (player.getUUID().equals(uuid)) {
-            state.execute(player);
         }
     }
 

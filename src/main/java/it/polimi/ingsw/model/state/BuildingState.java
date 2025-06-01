@@ -12,7 +12,6 @@ import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedEngineTile;
 import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedGenericTile;
 import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedShieldTile;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
-import it.polimi.ingsw.event.game.serverToClient.timer.TimerFinish;
 import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
@@ -71,8 +70,7 @@ public class BuildingState extends State {
             throw new IllegalStateException("Cannot flip timer because is already running");
         }
 
-        TimerFlipped timerFlippedEvent = new TimerFlipped(player.getUsername(), LocalDateTime.now().toString(), timerDuration);
-        TimerFinish timerFinishEvent = new TimerFinish();
+        TimerFlipped timerFlippedEvent = new TimerFlipped(player.getUsername(), LocalDateTime.now().toString(), 3, timerDuration);
         switch (numberOfTimerFlips) {
             case 0:
                 // First flip that is done when the building phase starts
@@ -82,7 +80,6 @@ public class BuildingState extends State {
                     @Override
                     public void run() {
                         timerRunning = false;
-                        eventCallback.trigger(timerFinishEvent);
                     }
                 }, timerDuration);
                 break;
@@ -94,7 +91,6 @@ public class BuildingState extends State {
                     @Override
                     public void run() {
                         timerRunning = false;
-                        eventCallback.trigger(timerFinishEvent);
                     }
                 }, timerDuration);
                 break;
@@ -122,7 +118,6 @@ public class BuildingState extends State {
                                 }
                             }
 
-                            eventCallback.trigger(timerFinishEvent);
                             // TODO: handle the case when the player has something in is hand
 
                             timerRunning = false;

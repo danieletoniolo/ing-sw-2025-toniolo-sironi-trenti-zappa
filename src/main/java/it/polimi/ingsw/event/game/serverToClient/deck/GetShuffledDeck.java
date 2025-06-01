@@ -4,7 +4,6 @@ import it.polimi.ingsw.event.type.Event;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * This record represents an event where a shuffled deck of integers is sent to the client.
@@ -12,7 +11,7 @@ import java.util.Stack;
  *
  * @param shuffledDeck A list of integers representing the shuffled deck.
  */
-public record GetShuffledDecks(
+public record GetShuffledDeck(
         List<Integer> shuffledDeck
 ) implements Event, Serializable {
 }

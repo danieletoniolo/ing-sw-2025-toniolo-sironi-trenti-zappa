@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.InvalidComponents;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 public class ValidationState extends State {
     private ValidationInternalState internalState;
@@ -72,7 +72,6 @@ public class ValidationState extends State {
         this.componentsToDestroy = componentsToDestroy;
     }
 
-
     @Override
     public void entry() {
         for (PlayerData p : players) {
@@ -82,7 +81,11 @@ public class ValidationState extends State {
                 // Set the player status to PLAYING to indicate they have invalid components
                 playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
             }
+            InvalidComponents invalidComponentsEvent = new InvalidComponents(p.getUsername(), playerInvalidComponents);
+            eventCallback.trigger(invalidComponentsEvent);
         }
+
+
     }
 
     @Override

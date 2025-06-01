@@ -1,4 +1,4 @@
-package it.polimi.ingsw.event.game.clientToServer;
+package it.polimi.ingsw.event.game.clientToServer.planets;
 
 import it.polimi.ingsw.event.Requester;
 import it.polimi.ingsw.event.type.Event;
@@ -9,7 +9,6 @@ import it.polimi.ingsw.event.type.StatusEvent;
 import java.io.Serializable;
 import java.util.function.Function;
 
-// TODO: understand in which package this class should be placed
 /**
  * This class represents the selection of a planet.
  * @param userID       is the user ID. Only the user know his ID, so the event is not faked.
