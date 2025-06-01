@@ -1,7 +1,6 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
-import it.polimi.ingsw.event.game.serverToClient.cards.CardPlayed;
 import it.polimi.ingsw.event.game.serverToClient.goods.GoodsSwapped;
 import it.polimi.ingsw.event.game.serverToClient.goods.UpdateGoodsExchange;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
@@ -299,9 +298,6 @@ public class SmugglersState extends State {
                     }
                     // Set the player as played
                     playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
-                    // Set the state as finished
-                    CardPlayed cardPlayedEvent = new CardPlayed();
-                    eventCallback.trigger(cardPlayedEvent);
                     super.played = true;
                     break;
                 case GOODS_PENALTY:

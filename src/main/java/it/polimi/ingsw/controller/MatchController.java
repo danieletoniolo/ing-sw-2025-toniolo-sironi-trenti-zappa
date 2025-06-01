@@ -1,5 +1,6 @@
 package it.polimi.ingsw.controller;
 
+import it.polimi.ingsw.event.game.clientToServer.planets.SelectPlanet;
 import it.polimi.ingsw.event.game.clientToServer.deck.PickLeaveDeck;
 import it.polimi.ingsw.event.game.clientToServer.dice.RollDice;
 import it.polimi.ingsw.event.game.clientToServer.energyUse.UseCannons;
@@ -13,10 +14,7 @@ import it.polimi.ingsw.event.game.clientToServer.pickTile.PickTileFromSpaceship;
 import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToBoard;
 import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToReserve;
 import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToSpaceship;
-import it.polimi.ingsw.event.game.clientToServer.player.GiveUp;
-import it.polimi.ingsw.event.game.clientToServer.player.PlaceMarker;
-import it.polimi.ingsw.event.game.clientToServer.player.Play;
-import it.polimi.ingsw.event.game.clientToServer.player.PlayerReady;
+import it.polimi.ingsw.event.game.clientToServer.player.*;
 import it.polimi.ingsw.event.game.clientToServer.rotateTile.RotateTile;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.ChooseFragment;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.DestroyComponents;
@@ -24,7 +22,6 @@ import it.polimi.ingsw.event.game.clientToServer.spaceship.ManageCrewMember;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.SetPenaltyLoss;
 import it.polimi.ingsw.event.game.clientToServer.timer.FlipTimer;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.model.cards.Card;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.game.lobby.LobbyInfo;
@@ -35,7 +32,6 @@ import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.polimi.ingsw.event.NetworkTransceiver;
-import it.polimi.ingsw.event.game.clientToServer.*;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.game.serverToClient.status.Tac;
 import it.polimi.ingsw.event.lobby.clientToServer.*;
@@ -185,6 +181,7 @@ public class MatchController {
         SwapGoods.responder(networkTransceiver, this::swapGoods);
         PlayerReady.responder(networkTransceiver, this::playerReady);
         Play.responder(networkTransceiver, this::play);
+        EndTurn.responder(networkTransceiver, this::endTurn);
         GiveUp.responder(networkTransceiver, this::giveUp);
     }
 
@@ -961,6 +958,29 @@ public class MatchController {
             return new Tac(data.userID(), Play.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(data.userID(), Play.class, e.getMessage());
+        }
+    }
+
+    /**
+     * Handles the event of a user ending their turn in the game.
+     * It retrieves the user ID from the data, finds the corresponding lobby,
+     * and calls the endTurn method on the game controller associated with that lobby.
+     *
+     * @param data The EndTurn event data containing the user ID.
+     * @return An Event object indicating the result of the operation.
+     */
+    private StatusEvent endTurn(EndTurn data) {
+        UUID userID = UUID.fromString(data.userID());
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.endTurn(userID);
+            }
+            return new Tac(data.userID(), EndTurn.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(data.userID(), EndTurn.class, e.getMessage());
         }
     }
 

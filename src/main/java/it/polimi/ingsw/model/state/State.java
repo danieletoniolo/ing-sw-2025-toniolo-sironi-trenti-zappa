@@ -4,7 +4,7 @@ import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.cards.*;
 import it.polimi.ingsw.event.game.serverToClient.deck.DrawCard;
 import it.polimi.ingsw.event.game.serverToClient.deck.GetDecks;
-import it.polimi.ingsw.event.game.serverToClient.deck.GetShuffledDecks;
+import it.polimi.ingsw.event.game.serverToClient.deck.GetShuffledDeck;
 import it.polimi.ingsw.event.game.serverToClient.player.PlayerGaveUp;
 import it.polimi.ingsw.event.game.serverToClient.player.Playing;
 import it.polimi.ingsw.event.game.serverToClient.StateChanged;
@@ -193,10 +193,10 @@ public abstract class State implements Serializable {
             case CREW ->       transitionHandler.changeState(new CrewState(board, eventCallback, transitionHandler));
             case CARDS -> {
 
-                GetShuffledDecks getShuffledDecksEvent = new GetShuffledDecks(
+                GetShuffledDeck getShuffledDeckEvent = new GetShuffledDeck(
                         board.getShuffledDeck().stream().map(Card::getID).toList()
                 );
-                eventCallback.trigger(getShuffledDecksEvent);
+                eventCallback.trigger(getShuffledDeckEvent);
 
                 try {
                     Card card = board.drawCard();
