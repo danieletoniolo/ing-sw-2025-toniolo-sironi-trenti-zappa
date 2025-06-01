@@ -4,7 +4,6 @@ package it.polimi.ingsw.view;
 import it.polimi.ingsw.event.EventListener;
 import it.polimi.ingsw.event.NetworkTransceiver;
 import it.polimi.ingsw.event.game.serverToClient.*;
-import it.polimi.ingsw.event.game.serverToClient.cards.CardPlayed;
 import it.polimi.ingsw.event.game.serverToClient.deck.PickedLeftDeck;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
@@ -207,12 +206,6 @@ public class EventHandlerClient {
             manager.notifyCanShield(data);
         };
         canProtectReceiver.registerListener(canProtectListener);
-
-        CastEventReceiver<CardPlayed> cardPlayedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<CardPlayed> cardPlayedListener = data -> {
-            //TODO
-        };
-        cardPlayedReceiver.registerListener(cardPlayedListener);
 
 
         /*
@@ -551,16 +544,6 @@ public class EventHandlerClient {
             // TODO: get the ID of the card
         };
         stateChangedReceiver.registerListener(stateChangedListener);
-
-        /*
-         * Notify that the timer is finish
-         */
-        CastEventReceiver<TimerFinish> timerFinishReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<TimerFinish> timerFinishListener = data -> {
-            // TODO: notify -> cambiare con fase di building finita
-        };
-        timerFinishReceiver.registerListener(timerFinishListener);
-
 
         /*
          * Start the timer for the building phase
