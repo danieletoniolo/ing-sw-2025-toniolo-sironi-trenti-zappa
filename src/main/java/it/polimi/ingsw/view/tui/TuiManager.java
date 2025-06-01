@@ -1,6 +1,5 @@
 package it.polimi.ingsw.view.tui;
 
-import it.polimi.ingsw.event.game.serverToClient.*;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
@@ -9,6 +8,7 @@ import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.spaceship.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.NotClientTurnTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.planetsActions.PlanetsTuiScreen;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import it.polimi.ingsw.view.Manager;
@@ -29,7 +29,14 @@ import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import it.polimi.ingsw.view.miniModel.timer.TimerView;
 import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.*;
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.EnginesUsed;
+import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.BestLookingShips;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -45,7 +52,7 @@ public class TuiManager implements Manager {
         try {
             this.terminal = TerminalBuilder.builder()
                     .jna(true)
-                    .jansi(false)
+                    .jansi(true)
                     .build();
         } catch (Exception e) {
             System.err.println("Creation terminal error: " + e.getMessage());
@@ -53,9 +60,9 @@ public class TuiManager implements Manager {
         }
         parser = new Parser(terminal);
 
-        currentScreen = new LogInTuiScreen();
+        currentScreen = new BuildingTuiScreen();
 
-        /// Se metodo crea un nuovo stato impostare anche printInput a false
+        // Se metodo crea un nuovo stato impostare anche printInput a false
     }
 
     @Override
@@ -249,8 +256,15 @@ public class TuiManager implements Manager {
         Thread viewThread = new Thread(() -> {
             while (true) {
                 try {
+                    if (currentScreen.getType().equals(TuiScreens.Ending)) {
+                        try {
+                            parser.shutdown();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        System.exit(0);
+                    }
                     currentScreen.printTui(terminal);
-                    currentScreen.setMessage(null);
                     printInput = true;
                     synchronized (stateLock){
                         stateLock.notifyAll();
@@ -323,34 +337,42 @@ public class TuiManager implements Manager {
         MiniModel.getInstance().setCurrentPlayer(otherPlayers.getFirst());
 
         Stack<CardView> stack = new Stack<>();
-        for (Card card : CardsManager.createLearningDeck()) {
+        Stack<Card> shuffled;
+        do {
+            shuffled = CardsManager.createLearningDeck();
+        } while (!shuffled.peek().getCardType().equals(CardType.PLANETS));
+
+        for (Card card : shuffled) {
             stack.add(convertCard(card));
         }
         MiniModel.getInstance().setShuffledDeckView(new DeckView());
         MiniModel.getInstance().getShuffledDeckView().setDeck(stack);
         MiniModel.getInstance().getShuffledDeckView().setOnlyLast(true);
 
+        int cont = 0;
         for (ComponentView tile : MiniModel.getInstance().getViewableComponents()) {
             if (tile instanceof StorageView && ((StorageView) tile).getGoods().length > 1) {
-                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 7, 6);
+                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 7, 6 + cont);
                 ((StorageView) tile).addGood(GoodView.BLUE);
                 ((StorageView) tile).addGood(GoodView.YELLOW);
                 //((StorageView) tile).removeGood(GoodView.GREEN);
                 tile.setIsWrong(true);
-                break;
+                if (cont == 1) {
+                    break;
+                }
+                cont++;
             }
         }
 
 
-
         TuiManager tui = new TuiManager();
         tui.startTui();
-        /*
+
         final int[] secondsRemaining = {15};
         new Thread(() -> {
             while (secondsRemaining[0] >= 0) {
                 try {
-                    MiniModel.getInstance().timerView.setSecondsRemaining(secondsRemaining[0]);
+                    MiniModel.getInstance().getTimerView().setSecondsRemaining(secondsRemaining[0]);
                     tui.notifyStartTimer();
                     Thread.sleep(1000);
                     secondsRemaining[0]--;
@@ -359,7 +381,7 @@ public class TuiManager implements Manager {
                 }
             }
             tui.set();
-        }).start();*/
+        }).start();
     }
 
     private static ComponentView converter(Component tile) {

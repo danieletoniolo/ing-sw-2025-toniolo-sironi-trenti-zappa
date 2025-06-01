@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class DeckTuiScreen implements TuiScreenView {
-    private final ArrayList<String> options = new ArrayList<>(List.of("Back"));
+    private final ArrayList<String> options = new ArrayList<>(List.of("Back", "Close Program"));
     private final DeckView myDeck;
     int selected;
     int totalLines = DeckView.getRowsToDraw() + 4 + 2;
@@ -32,7 +32,10 @@ public class DeckTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
-        return new BuildingTuiScreen();
+        if (selected == 0 ) {
+            return new BuildingTuiScreen();
+        }
+        return new ClosingProgram();
     }
 
     @Override
@@ -60,7 +63,7 @@ public class DeckTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void setMessage(String message) {
+    public synchronized void setMessage(String message) {
         this.message = message;
     }
 

@@ -1,6 +1,10 @@
 package it.polimi.ingsw.view.tui.screens;
 
-import it.polimi.ingsw.event.game.clientToServer.*;
+import it.polimi.ingsw.event.game.clientToServer.deck.PickLeaveDeck;
+import it.polimi.ingsw.event.game.clientToServer.pickTile.PickTileFromBoard;
+import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToReserve;
+import it.polimi.ingsw.event.game.clientToServer.rotateTile.RotateTile;
+import it.polimi.ingsw.event.game.clientToServer.timer.FlipTimer;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.Client;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.ChoosePositionTuiScreen;
@@ -55,6 +59,7 @@ public class BuildingTuiScreen implements TuiScreenView {
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
             options.add("View " + p.getUsername() + "'s spaceship");
         }
+        options.add("Close program");
         isNewScreen = true;
     }
 
@@ -66,10 +71,15 @@ public class BuildingTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
-        if (selected >= options.size() - MiniModel.getInstance().getOtherPlayers().size()) {
+        if (selected < options.size() - 1 && selected >= options.size() - 1 - MiniModel.getInstance().getOtherPlayers().size()) {
             int i = selected - (options.size() - MiniModel.getInstance().getOtherPlayers().size());
             return new PlayerTuiScreen(MiniModel.getInstance().getOtherPlayers().get(i), this);
         }
+
+        if (selected == options.size() - 1) {
+            return new ClosingProgram();
+        }
+
         StatusEvent status;
 
         if (selected == 0) {
@@ -242,7 +252,7 @@ public class BuildingTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void setMessage(String message) {
+    public synchronized void setMessage(String message) {
         this.message = message;
     }
 

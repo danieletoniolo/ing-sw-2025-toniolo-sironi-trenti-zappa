@@ -33,14 +33,12 @@ public abstract class GameTuiScreen implements TuiScreenView {
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
             options.add("View " + p.getUsername() + "'s spaceship");
         }
+        options.add("Close program");
 
         totalLines = Math.max(boardView.getRowsToDraw(), DeckView.getRowsToDraw())
-                + 1 + clientPlayer.getShip().getRowsToDraw() + 2 + 2 + 2;
+                + 1 + clientPlayer.getShip().getRowsToDraw() + 2 + 3 + 2;
 
         isNewScreen = true;
-        if (spaceShipView == null) {
-            spaceShipView = clientPlayer.getShip();
-        }
     }
 
     @Override
@@ -50,10 +48,15 @@ public abstract class GameTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
-        if (selected < options.size() && selected >= options.size() - MiniModel.getInstance().getOtherPlayers().size()) {
+
+        if (selected < options.size() - 1 && selected >= options.size() - 1 - MiniModel.getInstance().getOtherPlayers().size()) {
             int i = selected - (options.size() - MiniModel.getInstance().getOtherPlayers().size());
 
             return new PlayerTuiScreen(MiniModel.getInstance().getOtherPlayers().get(i), this);
+        }
+
+        if (selected == options.size() - 1) {
+            return new ClosingProgram();
         }
 
         return null;
@@ -63,6 +66,9 @@ public abstract class GameTuiScreen implements TuiScreenView {
     public void printTui(Terminal terminal) {
         var writer = terminal.writer();
         int row = 1;
+        if (spaceShipView == null) {
+            spaceShipView = clientPlayer.getShip();
+        }
 
         for (int i = 0; i < Math.max(boardView.getRowsToDraw(), DeckView.getRowsToDraw()); i++) {
             StringBuilder line = new StringBuilder();
@@ -82,6 +88,7 @@ public abstract class GameTuiScreen implements TuiScreenView {
 
             TerminalUtils.printLine(writer, line.toString(), row++);
         }
+        TerminalUtils.printLine(writer, "", row++);
 
         int playerCount = 0;
         for (int i = 0; i < spaceShipView.getRowsToDraw(); i++) {
@@ -128,7 +135,7 @@ public abstract class GameTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void setMessage(String message) {
+    public synchronized void setMessage(String message) {
         GameTuiScreen.message = message;
     }
 

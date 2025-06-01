@@ -31,6 +31,8 @@ public class LifeSupportPurpleView extends ComponentView {
 
     @Override
     public LifeSupportPurpleView clone() {
-        return new LifeSupportPurpleView(this.getID(), this.getConnectors());
+        LifeSupportPurpleView copy = new LifeSupportPurpleView(this.getID(), this.getConnectors());
+        copy.setIsWrong(this.getIsWrong());
+        return copy;
     }
 }

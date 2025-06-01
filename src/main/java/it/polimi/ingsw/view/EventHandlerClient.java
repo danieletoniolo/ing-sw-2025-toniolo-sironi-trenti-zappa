@@ -4,6 +4,17 @@ package it.polimi.ingsw.view;
 import it.polimi.ingsw.event.EventListener;
 import it.polimi.ingsw.event.NetworkTransceiver;
 import it.polimi.ingsw.event.game.serverToClient.*;
+import it.polimi.ingsw.event.game.serverToClient.cards.CardPlayed;
+import it.polimi.ingsw.event.game.serverToClient.deck.PickedLeftDeck;
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
+import it.polimi.ingsw.event.game.serverToClient.goods.*;
+import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
+import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToBoard;
+import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToReserve;
+import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceship;
+import it.polimi.ingsw.event.game.serverToClient.player.*;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
+import it.polimi.ingsw.event.game.serverToClient.timer.*;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
 import it.polimi.ingsw.view.miniModel.components.*;
@@ -18,8 +29,6 @@ import org.javatuples.Triplet;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
-
 
 public class EventHandlerClient {
     NetworkTransceiver transceiver;
@@ -28,7 +37,6 @@ public class EventHandlerClient {
     public EventHandlerClient(NetworkTransceiver transceiver, Manager manager) {
         this.transceiver = transceiver;
         this.manager = manager;
-
 
         /*
          * Set the userID of the client
@@ -157,7 +165,17 @@ public class EventHandlerClient {
         };
         startingGameReceiver.registerListener(startingGameListener);
 
-        // Game events
+        // GAME EVENTS
+        // CARDS events
+
+
+
+
+
+
+
+
+
         /*
          * Notify the best looking ships
          */
@@ -620,9 +638,9 @@ public class EventHandlerClient {
                 .orElse(null);
     }
 
-    private int[] convertConnectors(List<Integer> connectors) {
-        int[] result = new int[connectors.size()];
-        for (int i = 0; i < connectors.size(); i++) result[i] = connectors.get(i);
+    private int[] convertConnectors(Integer[] connectors) {
+        int[] result = new int[connectors.length];
+        for (int i = 0; i < connectors.length; i++) result[i] = connectors[i];
         return result;
     }
 }

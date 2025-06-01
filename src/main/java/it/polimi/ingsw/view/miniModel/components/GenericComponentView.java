@@ -28,6 +28,8 @@ public class GenericComponentView extends ComponentView {
 
     @Override
     public GenericComponentView clone() {
-        return new GenericComponentView();
+        GenericComponentView copy = new GenericComponentView();
+        copy.setIsWrong(this.getIsWrong());
+        return copy;
     }
 }

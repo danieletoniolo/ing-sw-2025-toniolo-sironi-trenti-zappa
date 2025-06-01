@@ -99,6 +99,7 @@ public class CabinView extends ComponentView {
         copy.setPurpleAlien(this.purpleAlien);
         copy.setBrownAlien(this.brownAlien);
         copy.setCrewNumber(this.crewNumber);
+        copy.setIsWrong(this.getIsWrong());
         return copy;
     }
 }

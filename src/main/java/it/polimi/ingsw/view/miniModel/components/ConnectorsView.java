@@ -29,6 +29,8 @@ public class ConnectorsView extends ComponentView {
 
     @Override
     public ConnectorsView clone() {
-        return new ConnectorsView(this.getID(), this.getConnectors());
+        ConnectorsView copy = new ConnectorsView(this.getID(), this.getConnectors());
+        copy.setIsWrong(this.getIsWrong());
+        return copy;
     }
 }

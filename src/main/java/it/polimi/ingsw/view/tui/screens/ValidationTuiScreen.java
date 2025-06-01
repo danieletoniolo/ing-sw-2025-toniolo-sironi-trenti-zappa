@@ -89,7 +89,7 @@ public class ValidationTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void setMessage(String message) {
+    public synchronized void setMessage(String message) {
         this.message = message;
     }
 

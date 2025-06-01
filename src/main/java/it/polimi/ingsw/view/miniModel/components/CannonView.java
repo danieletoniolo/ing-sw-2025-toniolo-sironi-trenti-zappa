@@ -76,6 +76,7 @@ public class CannonView extends ComponentView {
     @Override
     public CannonView clone() {
         CannonView copy = new CannonView(this.getID(), this.getConnectors(), this.power, this.arrowRotation);
+        copy.setIsWrong(this.getIsWrong());
         return copy;
     }
 }

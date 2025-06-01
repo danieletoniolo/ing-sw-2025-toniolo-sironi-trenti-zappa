@@ -1,6 +1,11 @@
 package it.polimi.ingsw.view;
 
-import it.polimi.ingsw.event.game.serverToClient.*;
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.EnginesUsed;
+import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.BestLookingShips;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 
 public interface Manager {

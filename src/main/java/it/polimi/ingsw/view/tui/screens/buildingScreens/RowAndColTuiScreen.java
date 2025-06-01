@@ -1,6 +1,6 @@
 package it.polimi.ingsw.view.tui.screens.buildingScreens;
 
-import it.polimi.ingsw.event.game.clientToServer.PlaceTileToSpaceship;
+import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToSpaceship;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -14,12 +14,12 @@ import java.util.function.Supplier;
 
 public class RowAndColTuiScreen extends BuildingTuiScreen {
     private Pair<Integer, Integer> rowAndCol;
-    private TuiScreens tuiScreen;
+    private final TuiScreens oldScreenType;
 
-    public RowAndColTuiScreen(TuiScreens tuiScreen) {
+    public RowAndColTuiScreen(TuiScreens oldScreenType) {
         options.clear();
         isNewScreen = true;
-        this.tuiScreen = tuiScreen;
+        this.oldScreenType = oldScreenType;
     }
 
     @Override
@@ -29,7 +29,7 @@ public class RowAndColTuiScreen extends BuildingTuiScreen {
 
     @Override
     public TuiScreenView setNewScreen() {
-        if (tuiScreen.equals(TuiScreens.RowColShip)) {
+        if (oldScreenType.equals(TuiScreens.RowColShip)) {
             StatusEvent status = PlaceTileToSpaceship.requester(Client.transceiver, new Object())
                     .request(new PlaceTileToSpaceship(MiniModel.getInstance().getUserID(), rowAndCol.getValue0(), rowAndCol.getValue1()));
             if (status.get().equals("POTA")) {
@@ -39,7 +39,7 @@ public class RowAndColTuiScreen extends BuildingTuiScreen {
             }
         }
 
-        if (tuiScreen.equals(TuiScreens.RowColBoard)) {
+        if (oldScreenType.equals(TuiScreens.RowColBoard)) {
             /*StatusEvent status = PickTileFromBoard.requester(Client.transceiver, new Object())
                     .request(new PickTileFromBoard(MiniModel.getInstance().getUserID(), rowAndCol.getValue0(), rowAndCol.getValue1()));
             if (status.get().equals("POTA")) {
@@ -54,6 +54,6 @@ public class RowAndColTuiScreen extends BuildingTuiScreen {
 
     @Override
     public TuiScreens getType() {
-        return tuiScreen;
+        return oldScreenType;
     }
 }

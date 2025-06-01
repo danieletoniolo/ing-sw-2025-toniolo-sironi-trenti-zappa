@@ -24,7 +24,7 @@ public class StorageView extends ComponentView {
     public void addGood(GoodView good) {
         for (int i = 0; i < goods.length; i++) {
             if (goods[i] == null) {
-                this.goods[i] = good;
+                goods[i] = good;
                 break;
             }
         }
@@ -33,7 +33,7 @@ public class StorageView extends ComponentView {
     public void removeGood(GoodView good) {
         for (int i = 0; i < goods.length; i++) {
             if (goods[i] != null && goods[i].equals(good)) {
-                this.goods[i] = null;
+                goods[i] = null;
             }
         }
     }
@@ -88,6 +88,8 @@ public class StorageView extends ComponentView {
                 copy.addGood(GoodView.fromValue(good.getValue()));
             }
         }
+        copy.setCovered(this.isCovered());
+        copy.setIsWrong(this.getIsWrong());
         return copy;
     }
 }

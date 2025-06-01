@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.tui.screens;
 
+import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.lobby.clientToServer.JoinLobby;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.Client;
@@ -69,7 +70,6 @@ public class MenuTuiScreen implements TuiScreenView {
     public TuiScreenView setNewScreen() {
         if (selected == options.size() - 3) {
             return new ChooseNumberPlayersTuiScreen();
-
         }
 
         if (selected == options.size() - 2) {
@@ -84,7 +84,7 @@ public class MenuTuiScreen implements TuiScreenView {
         StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
                 .request(new JoinLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getLobbiesView().get(selected - 1).getLobbyName()));
         if (status.get().equals("POTA")) {
-            setMessage("Joining " + MiniModel.getInstance().getLobbiesView().get(selected - 1).getLobbyName() + " failed");
+            setMessage(((Pota) status).errorMessage());
             return this;
         }
 

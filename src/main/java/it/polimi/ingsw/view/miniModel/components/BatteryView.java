@@ -55,6 +55,7 @@ public class BatteryView extends ComponentView {
     public BatteryView clone() {
         BatteryView copy = new BatteryView(this.getID(), this.getConnectors(), this.getMaximumBatteries());
         copy.setNumberOfBatteries(this.numberOfBatteries);
+        copy.setIsWrong(this.getIsWrong());
         return copy;
     }
 }

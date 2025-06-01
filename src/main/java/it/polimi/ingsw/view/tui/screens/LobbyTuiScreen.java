@@ -1,6 +1,6 @@
 package it.polimi.ingsw.view.tui.screens;
 
-import it.polimi.ingsw.event.game.clientToServer.PlayerReady;
+import it.polimi.ingsw.event.game.clientToServer.player.PlayerReady;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -26,6 +26,7 @@ public class LobbyTuiScreen implements TuiScreenView {
         options.add("Ready");
         options.add("Not ready");
         options.add("Leave");
+        options.add("Close program");
         isNewScreen = true;
     }
 
@@ -79,7 +80,7 @@ public class LobbyTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void setMessage(String message) {
+    public synchronized void setMessage(String message) {
         this.message = message;
     }
 

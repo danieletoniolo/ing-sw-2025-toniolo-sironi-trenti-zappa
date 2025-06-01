@@ -59,6 +59,8 @@ public class EngineView extends ComponentView {
 
     @Override
     public EngineView clone() {
-        return new EngineView(this.getID(), this.getConnectors(), this.doubleEngine ? 2 : 1, this.engineRotation);
+        EngineView copy = new EngineView(this.getID(), this.getConnectors(), this.doubleEngine ? 2 : 1, this.engineRotation);
+        copy.setIsWrong(this.getIsWrong());
+        return copy;
     }
 }

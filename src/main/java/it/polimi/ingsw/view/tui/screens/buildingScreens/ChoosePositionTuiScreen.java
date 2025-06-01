@@ -1,6 +1,6 @@
 package it.polimi.ingsw.view.tui.screens.buildingScreens;
 
-import it.polimi.ingsw.event.game.clientToServer.PlaceMarker;
+import it.polimi.ingsw.event.game.clientToServer.player.PlaceMarker;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;

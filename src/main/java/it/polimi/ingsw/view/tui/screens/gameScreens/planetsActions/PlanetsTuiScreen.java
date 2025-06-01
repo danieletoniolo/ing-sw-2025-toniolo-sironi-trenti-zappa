@@ -1,14 +1,14 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.planetsActions;
 
+import it.polimi.ingsw.view.tui.screens.GameTuiScreen;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import it.polimi.ingsw.view.tui.screens.gameScreens.NotClientTurnTuiScreen;
-import it.polimi.ingsw.view.tui.screens.gameScreens.PlanetsTuiScreen;
 
 import java.util.List;
 
-public class AcceptRefusePlanetTuiScreen extends PlanetsTuiScreen {
+public class PlanetsTuiScreen extends GameTuiScreen {
 
-    public AcceptRefusePlanetTuiScreen() {
+    public PlanetsTuiScreen() {
         super(List.of("Accept", "Refuse"));
     }
 
@@ -19,7 +19,7 @@ public class AcceptRefusePlanetTuiScreen extends PlanetsTuiScreen {
 
         switch (selected) {
             case 0:
-                return new PlanetActionsTuiScreen();
+                return new SelectPlanetTuiScreen(this);
             case 1:
                 return new NotClientTurnTuiScreen();
         }

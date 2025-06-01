@@ -54,6 +54,8 @@ public class ShieldView extends ComponentView {
 
     @Override
     public ShieldView clone() {
-        return new ShieldView(this.getID(), this.getConnectors(), this.shields);
+        ShieldView copy = new ShieldView(this.getID(), this.getConnectors(), this.shields);
+        copy.setIsWrong(this.getIsWrong());
+        return copy;
     }
 }

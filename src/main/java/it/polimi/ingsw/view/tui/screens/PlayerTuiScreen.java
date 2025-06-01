@@ -10,14 +10,12 @@ import java.util.function.Supplier;
 
 public class PlayerTuiScreen implements TuiScreenView {
     private final ArrayList<String> options = new ArrayList<>(List.of("Back"));
-    private int totalLines;
-    private int selected;
-    private TuiScreenView oldScreen;
-    private int row;
+    private final int totalLines;
+    private final TuiScreenView oldScreen;
     protected String message;
     protected boolean isNewScreen;
 
-    private PlayerDataView playerToView;
+    private final PlayerDataView playerToView;
 
     public PlayerTuiScreen(PlayerDataView playerToView, TuiScreenView oldScreen) {
         this.playerToView = playerToView;
@@ -32,7 +30,7 @@ public class PlayerTuiScreen implements TuiScreenView {
 
     @Override
     public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+        parser.getCommand(options, totalLines, isStillCurrentScreen);
     }
 
     @Override
@@ -43,7 +41,7 @@ public class PlayerTuiScreen implements TuiScreenView {
     @Override
     public void printTui(org.jline.terminal.Terminal terminal) {
         var writer = terminal.writer();
-        row = 1;
+        int row = 1;
 
         int countPlayer = 0;
         for (int i = 0; i < playerToView.getShip().getRowsToDraw(); i++) {
@@ -60,7 +58,7 @@ public class PlayerTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, message == null ? "" : message, row++);
         TerminalUtils.printLine(writer, "", row++);
-        TerminalUtils.printLine(writer, "Commands:", row++);
+        TerminalUtils.printLine(writer, "Commands:", row);
 
         if (isNewScreen) {
             isNewScreen = false;

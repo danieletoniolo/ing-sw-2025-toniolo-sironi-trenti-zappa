@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlanetsView extends CardView{
-    private int numberOfPlanets;
-    private int flightDays;
-    private List<List<GoodView>> planets;
-    private MarkerView[] playersPosition;
+    private final int numberOfPlanets;
+    private final int flightDays;
+    private final List<List<GoodView>> planets;
+    private final MarkerView[] playersPosition;
+    private int planetSelected;
 
     public PlanetsView(int ID, boolean covered, int level, int flightDays, List<List<GoodView>> planets) {
         super(ID, covered, level);
@@ -32,9 +33,17 @@ public class PlanetsView extends CardView{
         return numberOfPlanets;
     }
 
+    public void setPlanetSelected(int planetSelected) {
+        this.planetSelected = planetSelected;
+    }
+
+    public int getPlanetSelected() {
+        return planetSelected;
+    }
+
     @Override
     public void drawGui() {
-
+        //TODO
     }
 
     @Override
@@ -51,7 +60,7 @@ public class PlanetsView extends CardView{
             case 6 -> numberOfPlanets >= 4 ? "│ " + drawPlayer(3) + " P4: " + printPlanet(getPlanet(3)) : Clear;
             case 8 -> numberOfPlanets >= 5 ? "│ " + drawPlayer(4) + " P5: " + printPlanet(getPlanet(4)) : Clear;
             case 9 -> Down;
-            default -> null;
+            default -> "";
         });
 
         while (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() < getColsToDraw() - 1) {

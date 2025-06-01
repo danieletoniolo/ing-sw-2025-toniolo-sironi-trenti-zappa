@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.tui.screens.menuScreens;
 
+import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.lobby.clientToServer.CreateLobby;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.Client;
@@ -22,7 +23,7 @@ public class ChooseLevelTuiScreen extends MenuTuiScreen {
 
     @Override
     protected String lineBeforeInput() {
-        return "Choose the game's level";
+        return "Choose the game's level:";
     }
 
     @Override
@@ -42,7 +43,7 @@ public class ChooseLevelTuiScreen extends MenuTuiScreen {
         maxPlayers = 0;
         if (status.get().equals("POTA")) {
             TuiScreenView newScreen = new MenuTuiScreen();
-            newScreen.setMessage("Creation of the lobby failed. please try again.");
+            newScreen.setMessage(((Pota) status).errorMessage());
             return newScreen;
         }
 

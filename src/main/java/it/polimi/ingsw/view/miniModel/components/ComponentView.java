@@ -2,8 +2,6 @@ package it.polimi.ingsw.view.miniModel.components;
 
 import it.polimi.ingsw.view.miniModel.Structure;
 
-import java.io.Serializable;
-
 public abstract class ComponentView implements Structure {
     public static String Up0 =   "╭─────╮";
     public static String Up1 =   "╭──|──╮";
@@ -19,8 +17,6 @@ public abstract class ComponentView implements Structure {
     public static String ArrowDown = "↓";
     public static String ArrowLeft = "←";
     public static String ArrowUp = "↑";
-
-    public static String clean = "│     │";
 
     public static String[] Side0 = {
             ".",
@@ -52,8 +48,8 @@ public abstract class ComponentView implements Structure {
     private int row;
     private int col;
     private boolean isWrong;
-    private String red = "\033[31m";
-    private String reset = "\033[0m";
+    private final String red = "\033[31m";
+    private final String reset = "\033[0m";
 
     public ComponentView(int ID, int[] connectors) {
         this.ID = ID;
@@ -108,6 +104,10 @@ public abstract class ComponentView implements Structure {
 
     public void setIsWrong(boolean isWrong) {
         this.isWrong = isWrong;
+    }
+
+    protected boolean getIsWrong() {
+        return isWrong;
     }
 
     public void setID(int ID) {

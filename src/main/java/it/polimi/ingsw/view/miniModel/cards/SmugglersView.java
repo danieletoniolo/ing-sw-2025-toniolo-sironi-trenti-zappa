@@ -5,10 +5,10 @@ import it.polimi.ingsw.view.miniModel.good.GoodView;
 import java.util.List;
 
 public class SmugglersView extends CardView{
-    private int cannonRequired;
-    private int goodsLoss;
-    private int flightDays;
-    private List<GoodView> goods;
+    private final int cannonRequired;
+    private final int goodsLoss;
+    private final int flightDays;
+    private final List<GoodView> goods;
 
     public SmugglersView(int ID, boolean covered, int level, int cannonRequired, int goodsLoss, int flightDays, List<GoodView> goods) {
         super(ID, covered, level);
@@ -20,7 +20,7 @@ public class SmugglersView extends CardView{
 
     @Override
     public void drawGui() {
-
+        //TODO
     }
 
     @Override
@@ -36,7 +36,7 @@ public class SmugglersView extends CardView{
             case 5 -> "│   Good: " + printGoods();
             case 8 -> "│   FlightDays: " + getFlightDays();
             case 9 -> Down;
-            default -> null;
+            default -> "";
         });
 
         while (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() < getColsToDraw() - 1) {

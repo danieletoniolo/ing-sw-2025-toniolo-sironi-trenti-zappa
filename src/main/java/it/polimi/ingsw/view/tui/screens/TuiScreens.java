@@ -16,5 +16,13 @@ public enum TuiScreens {
     Validation,
     ChoosePosition,
     Watching,
-    SwapGoodsFrom
+    StorageFrom,
+    StorageTo,
+    SwapFrom,
+    SwapTo,
+    PickFromCard,
+    StorageExchange,
+    DropGoods,
+
+    Ending
 }
