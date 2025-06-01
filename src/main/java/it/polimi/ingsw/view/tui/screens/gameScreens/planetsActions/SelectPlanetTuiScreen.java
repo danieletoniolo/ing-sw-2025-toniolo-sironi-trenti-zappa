@@ -1,6 +1,6 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.planetsActions;
 
-import it.polimi.ingsw.event.game.clientToServer.SelectPlanet;
+import it.polimi.ingsw.event.game.clientToServer.planets.SelectPlanet;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.Client;
