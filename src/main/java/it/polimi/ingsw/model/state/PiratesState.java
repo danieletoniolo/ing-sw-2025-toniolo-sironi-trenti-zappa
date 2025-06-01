@@ -45,7 +45,7 @@ public class PiratesState extends State {
         this.piratesDefeat = false;
         this.internalState = PiratesInternalState.DEFAULT;
         this.playersDefeated = new ArrayList<>();
-        this.fightHandler = new FightHandlerSubState(super.board, super.eventCallback, super.transitionHandler);
+        this.fightHandler = new FightHandlerSubState(super.eventCallback);
     }
 
     public void setInternalStatePirates(PiratesInternalState internalState) {

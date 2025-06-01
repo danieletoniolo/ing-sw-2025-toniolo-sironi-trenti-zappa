@@ -7,10 +7,7 @@ import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToBoard;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToReserve;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
-import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedCannonTile;
-import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedEngineTile;
-import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedGenericTile;
-import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedShieldTile;
+import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
 import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.model.game.board.Board;
@@ -190,42 +187,42 @@ public class BuildingState extends State {
                 // Trigger the event for picking a tile from the board
                 String username = player.getUsername();
                 int componentID = component.getID();
-                Integer[] connectors = new Integer[4];
+                int[] connectors = new int[4];
                 for (int i = 0; i < 4; i++) {
                     connectors[i] = component.getConnection(i).getValue();
                 }
 
                 switch (component.getComponentType()) {
                     case SINGLE_ENGINE, DOUBLE_ENGINE -> {
-                        PickedEngineFromBoard pickedEngineFromBoard = new PickedEngineFromBoard(username, componentID, ((Engine) component).getDirection(), connectors, ((Engine) component).getEngineStrength());
+                        PickedEngineFromBoard pickedEngineFromBoard = new PickedEngineFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Engine) component).getEngineStrength());
                         eventCallback.trigger(pickedEngineFromBoard);
                     }
                     case SINGLE_CANNON, DOUBLE_CANNON -> {
-                        PickedCannonFromBoard pickedCannonFromBoard = new PickedCannonFromBoard(username, componentID, ((Cannon) component).getDirection(), connectors, ((Cannon) component).getCannonStrength());
+                        PickedCannonFromBoard pickedCannonFromBoard = new PickedCannonFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Cannon) component).getCannonStrength());
                         eventCallback.trigger(pickedCannonFromBoard);
                     }
                     case CABIN, CENTER_CABIN -> {
-                        PickedCabinFromBoard pickedCabinFromBoard = new PickedCabinFromBoard(username, componentID, connectors);
+                        PickedCabinFromBoard pickedCabinFromBoard = new PickedCabinFromBoard(username, componentID, component.getClockwiseRotation(), connectors);
                         eventCallback.trigger(pickedCabinFromBoard);
                     }
                     case STORAGE -> {
-                        PickedStorageFromBoard pickedStorageFromBoard = new PickedStorageFromBoard(username, componentID, connectors, ((Storage) component).isDangerous(), ((Storage) component).getGoodsCapacity());
+                        PickedStorageFromBoard pickedStorageFromBoard = new PickedStorageFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Storage) component).isDangerous(), ((Storage) component).getGoodsCapacity());
                         eventCallback.trigger(pickedStorageFromBoard);
                     }
                     case BROWN_LIFE_SUPPORT, PURPLE_LIFE_SUPPORT -> {
-                        PickedLifeSupportFromBoard pickedLifeSupportFromBoard = new PickedLifeSupportFromBoard(username, componentID, connectors, component.getComponentType() == ComponentType.BROWN_LIFE_SUPPORT ? 1 : 2);
+                        PickedLifeSupportFromBoard pickedLifeSupportFromBoard = new PickedLifeSupportFromBoard(username, componentID, component.getClockwiseRotation(), connectors, component.getComponentType() == ComponentType.BROWN_LIFE_SUPPORT ? 1 : 2);
                         eventCallback.trigger(pickedLifeSupportFromBoard);
                     }
                     case BATTERY -> {
-                        PickedBatteryFromBoard pickedBatteryFromBoard = new PickedBatteryFromBoard(username, componentID, connectors, ((Battery) component).getEnergyNumber());
+                        PickedBatteryFromBoard pickedBatteryFromBoard = new PickedBatteryFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Battery) component).getEnergyNumber());
                         eventCallback.trigger(pickedBatteryFromBoard);
                     }
                     case SHIELD -> {
-                        PickedShieldFromBoard pickedShieldFromBoard = new PickedShieldFromBoard(username, componentID, ((Shield) component).getShieldingPositions(), connectors);
+                        PickedShieldFromBoard pickedShieldFromBoard = new PickedShieldFromBoard(username, componentID, component.getClockwiseRotation(), connectors);
                         eventCallback.trigger(pickedShieldFromBoard);
                     }
                     case CONNECTORS -> {
-                        PickedConnectorsFromBoard pickedConnectorsFromBoard = new PickedConnectorsFromBoard(username, componentID, connectors);
+                        PickedConnectorsFromBoard pickedConnectorsFromBoard = new PickedConnectorsFromBoard(username, componentID, component.getClockwiseRotation(), connectors);
                         eventCallback.trigger(pickedConnectorsFromBoard);
                     }
                 }
@@ -233,13 +230,13 @@ public class BuildingState extends State {
             case 1 -> {
                 // Get the tile from the reserve
                 component = player.getSpaceShip().unreserveComponent(tileID);
-                PickedTileFromReserve pickTileEvent = new PickedTileFromReserve(player.getUsername(), tileID);
+                PickedTileFromReserve pickTileEvent = new PickedTileFromReserve(player.getUsername(), tileID, component.getClockwiseRotation());
                 eventCallback.trigger(pickTileEvent);
             }
             case 2 -> {
                 // Get the last placed component
                 component = player.getSpaceShip().getLastPlacedComponent();
-                PickedTileFromSpaceship pickTileEvent = new PickedTileFromSpaceship(player.getUsername());
+                PickedTileFromSpaceship pickTileEvent = new PickedTileFromSpaceship(player.getUsername(), component.getClockwiseRotation());
                 eventCallback.trigger(pickTileEvent);
             }
             default -> throw new IllegalStateException("Invalid fromWhere value");
@@ -322,24 +319,8 @@ public class BuildingState extends State {
             connectors[i] = component.getConnection(i).getValue();
         }
 
-        switch (component.getComponentType()) {
-            case SINGLE_ENGINE, DOUBLE_ENGINE -> {
-                RotatedEngineTile rotateTile = new RotatedEngineTile(player.getUsername(), component.getID(), ((Engine) component).getDirection(), connectors);
-                eventCallback.trigger(rotateTile);
-            }
-            case SINGLE_CANNON, DOUBLE_CANNON -> {
-                RotatedCannonTile rotateTile = new RotatedCannonTile(player.getUsername(), component.getID(), ((Cannon) component).getDirection(), connectors);
-                eventCallback.trigger(rotateTile);
-            }
-            case SHIELD -> {
-                RotatedShieldTile rotateTile = new RotatedShieldTile(player.getUsername(), component.getID(), ((Shield) component).getShieldingPositions(), connectors);
-                eventCallback.trigger(rotateTile);
-            }
-            default -> {
-                RotatedGenericTile rotateTile = new RotatedGenericTile(player.getUsername(), component.getID(),connectors);
-                eventCallback.trigger(rotateTile);
-            }
-        }
+        RotatedTile rotatedTileEvent = new RotatedTile(player.getUsername(), component.getID(), connectors);
+        eventCallback.trigger(rotatedTileEvent);
     }
 
     /**

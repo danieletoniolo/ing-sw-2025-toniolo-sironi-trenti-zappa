@@ -19,7 +19,7 @@ public class MeteorSwarmState extends State {
     public MeteorSwarmState(Board board, EventCallback callback, MeteorSwarm card, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.card = card;
-        this.fightHandler = new FightHandlerSubState(super.board, super.eventCallback, super.transitionHandler);
+        this.fightHandler = new FightHandlerSubState(super.eventCallback);
     }
 
     public FightHandlerSubState getFightHandler() {

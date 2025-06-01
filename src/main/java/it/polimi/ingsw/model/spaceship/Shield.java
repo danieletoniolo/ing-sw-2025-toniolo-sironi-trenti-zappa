@@ -28,15 +28,4 @@ public class Shield extends Component {
     public ComponentType getComponentType() {
         return ComponentType.SHIELD;
     }
-
-    public ArrayList<Integer> getShieldingPositions() {
-        ArrayList<Integer> shieldingPositions = new ArrayList<>();
-        int clockwiseRotation = getClockwiseRotation();
-
-        // The shield can shield from the top and right
-        shieldingPositions.add(clockwiseRotation % 4); // Top
-        shieldingPositions.add((clockwiseRotation + 1) % 4); // Right
-
-        return shieldingPositions;
-    }
 }
