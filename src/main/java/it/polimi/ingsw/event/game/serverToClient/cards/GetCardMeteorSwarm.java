@@ -7,6 +7,13 @@ import org.javatuples.Pair;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * This event is used to send the Meteor Swarm card details to the client.
+ * It contains the card's ID, level, and a list of meteors.
+ * @param ID       ID of the card
+ * @param level    level of the card
+ * @param meteors  list of meteors associated with the card
+ */
 public record GetCardMeteorSwarm(
         int ID,
         int level,

@@ -131,11 +131,26 @@ public abstract class State implements Serializable {
                             eventCallback.trigger(getCardSlavers);
                         }
                         case PIRATES -> {
+                            Pirates cardPirates = (Pirates) card;
                             GetCardPirates getCardPirates = new GetCardPirates(
                                     card.getID(),
-                                    card.getCardLevel()
+                                    card.getCardLevel(),
+                                    cardPirates.getCannonStrengthRequired(),
+                                    cardPirates.getFlightDays(),
+                                    cardPirates.getFires().stream().map(t -> new Pair<>(t.getType().getValue(), t.getDirection().getValue())).toList(),
+                                    cardPirates.getCredit()
                             );
                             eventCallback.trigger(getCardPirates);
+                        }
+                        case PLANETS -> {
+                            Planets cardPlanets = (Planets) card;
+                            GetCardPlanets getCardPlanets = new GetCardPlanets(
+                                    cardPlanets.getID(),
+                                    cardPlanets.getCardLevel(),
+                                    cardPlanets.getPlanets().stream().map(t -> t.stream().map(temp -> temp.getColor().getValue()).toList()).toList(),
+                                    cardPlanets.getFlightDays()
+                            );
+                            eventCallback.trigger(getCardPlanets);
                         }
                         case OPENSPACE -> {
                             GetCardOpenSpace getCardOpenSpace = new GetCardOpenSpace(
@@ -149,7 +164,7 @@ public abstract class State implements Serializable {
                             GetCardMeteorSwarm getCardMeteorSwarm = new GetCardMeteorSwarm(
                                     cardMeteorSwarm.getID(),
                                     cardMeteorSwarm.getCardLevel(),
-                                    cardMeteorSwarm.getMeteors().stream().map(t -> t.getType().getValue()).toList()
+                                    cardMeteorSwarm.getMeteors().stream().map(t -> new Pair<>(t.getType().getValue(), t.getDirection().getValue())).toList()
                             );
                             eventCallback.trigger(getCardMeteorSwarm);
                         }
@@ -160,7 +175,7 @@ public abstract class State implements Serializable {
                                     cardCombatZone.getCardLevel(),
                                     cardCombatZone.getFlightDays(),
                                     cardCombatZone.getLost(),
-                                    cardCombatZone.getFires().stream().map(t -> t.getType().getValue()).toList()
+                                    cardCombatZone.getFires().stream().map(t -> new Pair<>(t.getType().getValue(), t.getDirection().getValue())).toList()
                             );
                             eventCallback.trigger(getCardCombatZone);
                         }

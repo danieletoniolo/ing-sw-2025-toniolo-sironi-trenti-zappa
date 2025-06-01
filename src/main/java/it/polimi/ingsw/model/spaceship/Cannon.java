@@ -50,8 +50,4 @@ public class Cannon extends Component{
             return ComponentType.DOUBLE_CANNON;
         }
     }
-
-    public int getDirection() {
-        return super.getClockwiseRotation() % 4;
-    }
 }

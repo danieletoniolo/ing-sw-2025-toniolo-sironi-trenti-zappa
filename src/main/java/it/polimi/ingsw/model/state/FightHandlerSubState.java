@@ -1,13 +1,11 @@
 package it.polimi.ingsw.model.state;
 
-import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.ShieldUsed;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.Fragments;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
 import it.polimi.ingsw.model.cards.hits.Hit;
-import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.Component;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
@@ -19,7 +17,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 
-public class FightHandlerSubState extends State {
+public class FightHandlerSubState {
     private Integer dice;
     private Boolean protect;
     private Integer batteryID;
@@ -28,6 +26,7 @@ public class FightHandlerSubState extends State {
     private Pair<Component, Integer> protectionResult;
     private int hitIndex;
     private FightHandlerInternalState internalState;
+    private final EventCallback eventCallback;
 
     /**
      * Enum to represent the internal state of the fight handler substate.
@@ -41,13 +40,13 @@ public class FightHandlerSubState extends State {
     /**
      * Constructor
      */
-    public FightHandlerSubState(Board board, EventCallback eventCallback, StateTransitionHandler transitionHandler) {
-        super(board, eventCallback, transitionHandler);
+    public FightHandlerSubState(EventCallback eventCallback) {
         this.dice = null;
         this.protect = null;
         this.batteryID = null;
         this.fragmentChoice = null;
         this.hitIndex = 0;
+        this.eventCallback = eventCallback;
         this.internalState = FightHandlerInternalState.CAN_PROTECT;
     }
 

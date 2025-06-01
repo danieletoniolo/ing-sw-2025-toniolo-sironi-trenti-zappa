@@ -9,17 +9,19 @@ import java.io.Serializable;
  * This event is used to notify the system or other players about the life support
  * being picked up and its corresponding details.
  *
- * @param nickname   The username or identifier of the player picking the life support.
- * @param tileID     The ID of the tile from which the life support was picked.
- * @param connectors A list of integers representing the connectors type of the tile, which may
- *                   determine potential connections or associations within the board.
- * @param type       The type of the life support picked up:
- *                   1 represents a "brown alien", 2 represents a "purple alien".
+ * @param nickname          The username or identifier of the player picking the life support.
+ * @param tileID            The ID of the tile from which the life support was picked.
+ * @param clockwiseRotation The clockwise rotation of the life support tile, represented as an integer.
+ * @param connectors        A list of integers representing the connectors type of the tile, which may
+ *                          determine potential connections or associations within the board.
+ * @param type              The type of the life support picked up:
+ *                          1 represents a "brown alien", 2 represents a "purple alien".
  */
 public record PickedLifeSupportFromBoard(
         String nickname,
         int tileID,
-        Integer[] connectors,
+        int clockwiseRotation,
+        int[] connectors,
         int type
 ) implements Event, Serializable {
 }

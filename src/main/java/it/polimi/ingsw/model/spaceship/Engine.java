@@ -40,8 +40,4 @@ public class Engine extends Component {
             return ComponentType.DOUBLE_ENGINE;
         }
     }
-
-    public int getDirection() {
-        return (super.getClockwiseRotation() + 2) % 4;
-    }
 }

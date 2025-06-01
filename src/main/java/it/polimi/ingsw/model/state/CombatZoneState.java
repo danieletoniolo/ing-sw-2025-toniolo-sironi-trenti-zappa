@@ -15,8 +15,6 @@ import it.polimi.ingsw.controller.EventCallback;
 
 import java.util.*;
 
-
-
 public class CombatZoneState extends State {
     private CombatZoneInternalState internalState;
     private final CombatZone card;
@@ -79,7 +77,7 @@ public class CombatZoneState extends State {
         this.crewLoss = null;
         this.goodsToDiscard = null;
         this.batteriesToDiscard = null;
-        this.fightHandler = new FightHandlerSubState(super.board, super.eventCallback, super.transitionHandler);
+        this.fightHandler = new FightHandlerSubState(super.eventCallback);
     }
 
     /**

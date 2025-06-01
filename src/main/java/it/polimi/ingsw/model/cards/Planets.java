@@ -55,6 +55,14 @@ public class Planets extends Card {
     }
 
     /**
+     * Get the list of planets
+     * @return list of planets
+     */
+    public List<List<Good>> getPlanets() {
+        return planets;
+    }
+
+    /**
      * Get the number of flight days lost
      * @return number of flight days lost
      */
