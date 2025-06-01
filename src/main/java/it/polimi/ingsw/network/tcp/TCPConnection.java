@@ -7,7 +7,6 @@ import it.polimi.ingsw.network.Connection;
 import it.polimi.ingsw.network.exceptions.BadHostException;
 import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
 import it.polimi.ingsw.network.exceptions.SocketCreationException;
-import it.polimi.ingsw.utils.Logger;
 
 import java.io.*;
 import java.net.Socket;

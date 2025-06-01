@@ -91,7 +91,6 @@ public class Client {
                         try {
                             mm.wait();
                         } catch (InterruptedException e) {
-                            Logger.getInstance().log(Logger.LogLevel.ERROR, "Error while waiting for user ID", false);
                             Thread.currentThread().interrupt();
                         }
                     }
