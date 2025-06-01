@@ -15,7 +15,8 @@ import java.util.ArrayList;
 public record RotatedShieldTile(
         String nickname,
         int tileID,
+        int clockWise,
         ArrayList<Integer> shieldingPositions,
-        Integer[] connectors
+        int[] connectors
 ) implements Event, Serializable {
 }

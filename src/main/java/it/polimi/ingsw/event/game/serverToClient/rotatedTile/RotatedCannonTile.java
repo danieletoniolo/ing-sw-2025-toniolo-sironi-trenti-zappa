@@ -18,6 +18,6 @@ public record RotatedCannonTile(
         String nickname,
         int tileID,
         int direction,
-        Integer[] connectors
+        int[] connectors
 ) implements Event, Serializable {
 }

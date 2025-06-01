@@ -2,12 +2,20 @@ package it.polimi.ingsw.view.miniModel.deck;
 
 import it.polimi.ingsw.view.miniModel.cards.CardView;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 public class DeckView {
-    private Stack<CardView> deck;
+    private final Stack<CardView> deck;
     private boolean covered;
     private boolean onlyLast;
+
+    public DeckView() {
+        deck = new Stack<>();
+    }
 
     public boolean isCovered() {
         return covered;
@@ -41,8 +49,20 @@ public class DeckView {
         return deck;
     }
 
-    public void setDeck(Stack<CardView> deck) {
-        this.deck = deck;
+    public void addCard(CardView card) {
+        this.deck.add(card);
+    }
+
+    public void order(List<Integer> ids) {
+        for (int i = 0; i < ids.size(); i++) {
+            int j;
+            for (j = 0; j < deck.size(); j++) {
+                if (deck.get(j).getID() == ids.get(i)) {
+                    break;
+                }
+            }
+            Collections.swap(deck, j, i);
+        }
     }
 
     public void drawDeckGui(){

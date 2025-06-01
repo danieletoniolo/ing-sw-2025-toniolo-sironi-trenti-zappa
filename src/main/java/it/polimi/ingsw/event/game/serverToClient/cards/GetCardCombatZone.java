@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.serverToClient.cards;
 
 import it.polimi.ingsw.event.type.Event;
+import org.javatuples.Pair;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,6 +20,6 @@ public record GetCardCombatZone(
         int level,
         int flightDays,
         int lost,
-        List<Integer> fires
+        List<Pair<Integer, Integer>> fires
 ) implements Event, Serializable {
 }

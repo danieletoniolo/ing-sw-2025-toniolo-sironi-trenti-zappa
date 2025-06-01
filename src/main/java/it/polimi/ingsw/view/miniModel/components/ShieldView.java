@@ -7,13 +7,16 @@ public class ShieldView extends ComponentView {
     public static String RightShield = ")";
     private String lightGreen = "\033[92m";
     private String reset = "\033[0m";
-    private final boolean[] shields;
+    private boolean[] shields;
 
     public ShieldView(int ID, int[] connectors, boolean[] shields) {
         super(ID, connectors);
         this.shields = shields;
     }
 
+    public void setShields(boolean[] shields) {
+        this.shields = shields;
+    }
     @Override
     public void drawGui(){
         //TODO: Implement the GUI drawing logic for the Shield component here
