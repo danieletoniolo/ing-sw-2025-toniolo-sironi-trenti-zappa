@@ -298,7 +298,7 @@ public class BuildingState extends State {
         // Rotate the tile in the board
         component.rotateClockwise();
 
-        Integer[] connectors = new Integer[4];
+        int[] connectors = new int[4];
         for (int i = 0; i < 4; i++) {
             connectors[i] = component.getConnection(i).getValue();
         }
