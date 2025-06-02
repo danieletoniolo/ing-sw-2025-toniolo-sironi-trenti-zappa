@@ -49,10 +49,6 @@ public class DeckView {
         return deck;
     }
 
-    public void addCard(CardView card) {
-        this.deck.add(card);
-    }
-
     public void order(List<Integer> ids) {
         for (int i = 0; i < ids.size(); i++) {
             int j;

@@ -2,8 +2,8 @@ package it.polimi.ingsw.view.miniModel.components;
 
 public class ConnectorsView extends ComponentView {
 
-    public ConnectorsView(int ID, int[] connectors) {
-        super(ID, connectors);
+    public ConnectorsView(int ID, int[] connectors, int clockWise) {
+        super(ID, connectors, clockWise);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class ConnectorsView extends ComponentView {
 
     @Override
     public ConnectorsView clone() {
-        ConnectorsView copy = new ConnectorsView(this.getID(), this.getConnectors());
+        ConnectorsView copy = new ConnectorsView(this.getID(), this.getConnectors(), this.getClockWise());
         copy.setIsWrong(this.getIsWrong());
         return copy;
     }

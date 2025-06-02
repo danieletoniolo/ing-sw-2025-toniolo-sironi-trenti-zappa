@@ -9,6 +9,7 @@ module demo {
     requires org.jline;
     requires com.fasterxml.jackson.datatype.jsr310;
     requires java.naming;
+    requires java.desktop;
 
     opens it.polimi.ingsw.view.gui to javafx.fxml;
     exports it.polimi.ingsw.view.gui;

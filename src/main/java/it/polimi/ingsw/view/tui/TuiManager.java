@@ -8,7 +8,9 @@ import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.spaceship.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.NotClientTurnTuiScreen;
-import it.polimi.ingsw.view.tui.screens.gameScreens.planetsActions.PlanetsTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.SmugglersTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.openSpaceAcitons.OpenSpaceTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.slaversActions.SlaversTuiScreen;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import it.polimi.ingsw.view.Manager;
@@ -36,7 +38,6 @@ import it.polimi.ingsw.event.game.serverToClient.spaceship.BestLookingShips;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -60,7 +61,7 @@ public class TuiManager implements Manager {
         }
         parser = new Parser(terminal);
 
-        currentScreen = new LogInTuiScreen();
+        currentScreen = new SlaversTuiScreen();
 
         // Se metodo crea un nuovo stato impostare anche printInput a false
     }
@@ -289,7 +290,7 @@ public class TuiManager implements Manager {
 
     public static void main(String[] args) {
         ArrayList<Component> tiles = TilesManager.getTiles();
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < tiles.size(); i++) {
             ComponentView tileView = converter(tiles.get(i));
             tileView.setCovered(false);
             MiniModel.getInstance().getViewableComponents().add(tileView);
@@ -323,40 +324,66 @@ public class TuiManager implements Manager {
             //MiniModel.getInstance().timerView.setFlippedTimer(player);
         }
 
+        DeckView deckView = new DeckView();
         for (int i = 0; i < 3; i++) {
-            Stack<CardView> cards = new Stack<>();
             for (Card card : decks[i].getCards()) {
-                cards.add(convertCard(card));
+                deckView.getDeck().add(convertCard(card));
             }
-            DeckView deckView = new DeckView();
-            deckView.setDeck(cards);
             MiniModel.getInstance().getDeckViews().getValue0()[i] = deckView;
             MiniModel.getInstance().getDeckViews().getValue1()[i] = true;
         }
 
         MiniModel.getInstance().setCurrentPlayer(otherPlayers.getFirst());
 
-        Stack<CardView> stack = new Stack<>();
         Stack<Card> shuffled;
         do {
             shuffled = CardsManager.createLearningDeck();
         } while (!shuffled.peek().getCardType().equals(CardType.PLANETS));
 
         for (Card card : shuffled) {
-            stack.add(convertCard(card));
+            MiniModel.getInstance().getShuffledDeckView().getDeck().add(convertCard(card));
         }
-        MiniModel.getInstance().setShuffledDeckView(new DeckView());
-        MiniModel.getInstance().getShuffledDeckView().setDeck(stack);
         MiniModel.getInstance().getShuffledDeckView().setOnlyLast(true);
 
         int cont = 0;
         for (ComponentView tile : MiniModel.getInstance().getViewableComponents()) {
             if (tile instanceof StorageView && ((StorageView) tile).getGoods().length > 1) {
-                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 7, 6 + cont);
+                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 6, 6 + cont);
                 ((StorageView) tile).addGood(GoodView.BLUE);
                 ((StorageView) tile).addGood(GoodView.YELLOW);
                 //((StorageView) tile).removeGood(GoodView.GREEN);
                 tile.setIsWrong(true);
+                if (cont == 1) {
+                    break;
+                }
+                cont++;
+            }
+        }
+        cont = 0;
+        for (ComponentView tile : MiniModel.getInstance().getViewableComponents()) {
+            if (tile instanceof CannonView && tile.getType().equals(TilesTypeView.DOUBLE_CANNON)) {
+                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 7, 6 + cont);
+                if (cont == 1) {
+                    break;
+                }
+                cont++;
+            }
+        }
+        cont = 0;
+        for (ComponentView tile : MiniModel.getInstance().getViewableComponents()) {
+            if (tile instanceof BatteryView ) {
+                ((BatteryView) tile).setNumberOfBatteries(1);
+                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 8, 8 + cont);
+                if (cont == 1) {
+                    break;
+                }
+                cont++;
+            }
+        }
+        cont = 0;
+        for (ComponentView tile : MiniModel.getInstance().getViewableComponents()) {
+            if (tile instanceof EngineView && tile.getType().equals(TilesTypeView.DOUBLE_ENGINE) ) {
+                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 9, 8 + cont);
                 if (cont == 1) {
                     break;
                 }
@@ -368,7 +395,7 @@ public class TuiManager implements Manager {
         TuiManager tui = new TuiManager();
         tui.startTui();
 
-        final int[] secondsRemaining = {15};
+        /*final int[] secondsRemaining = {15};
         new Thread(() -> {
             while (secondsRemaining[0] >= 0) {
                 try {
@@ -381,7 +408,7 @@ public class TuiManager implements Manager {
                 }
             }
             tui.set();
-        }).start();
+        }).start();*/
     }
 
     private static ComponentView converter(Component tile) {
@@ -396,19 +423,19 @@ public class TuiManager implements Manager {
         }
 
         return switch (tile.getComponentType()) {
-            case BATTERY -> new BatteryView(tile.getID(), connectors, ((Battery) tile).getEnergyNumber());
-            case CABIN -> new CabinView(tile.getID(), connectors);
-            case STORAGE -> new StorageView(tile.getID(), connectors, ((Storage) tile).isDangerous(), ((Storage) tile).getGoodsCapacity());
-            case BROWN_LIFE_SUPPORT -> new LifeSupportBrownView(tile.getID(), connectors);
-            case PURPLE_LIFE_SUPPORT -> new LifeSupportPurpleView(tile.getID(), connectors);
-            case SINGLE_CANNON, DOUBLE_CANNON -> new CannonView(tile.getID(), connectors, ((Cannon) tile).getCannonStrength(), tile.getClockwiseRotation());
-            case SINGLE_ENGINE, DOUBLE_ENGINE -> new EngineView(tile.getID(), connectors, ((Engine) tile).getEngineStrength(), tile.getClockwiseRotation());
+            case BATTERY -> new BatteryView(tile.getID(), connectors, tile.getClockwiseRotation(), ((Battery) tile).getEnergyNumber());
+            case CABIN -> new CabinView(tile.getID(), connectors, tile.getClockwiseRotation());
+            case STORAGE -> new StorageView(tile.getID(), connectors, tile.getClockwiseRotation(), ((Storage) tile).isDangerous(), ((Storage) tile).getGoodsCapacity());
+            case BROWN_LIFE_SUPPORT -> new LifeSupportBrownView(tile.getID(), connectors, tile.getClockwiseRotation());
+            case PURPLE_LIFE_SUPPORT -> new LifeSupportPurpleView(tile.getID(), connectors, tile.getClockwiseRotation());
+            case SINGLE_CANNON, DOUBLE_CANNON -> new CannonView(tile.getID(), connectors, tile.getClockwiseRotation(), ((Cannon) tile).getCannonStrength(), tile.getClockwiseRotation());
+            case SINGLE_ENGINE, DOUBLE_ENGINE -> new EngineView(tile.getID(), connectors, tile.getClockwiseRotation(), ((Engine) tile).getEngineStrength(), tile.getClockwiseRotation());
             case SHIELD -> {
                 boolean[] shields = new boolean[4];
                 for (int i = 0; i < 4; i++) shields[i] = ((Shield) tile).canShield(i);
-                yield new ShieldView(tile.getID(), connectors, shields);
+                yield new ShieldView(tile.getID(), connectors, tile.getClockwiseRotation(), shields);
             }
-            case CONNECTORS -> new ConnectorsView(tile.getID(), connectors);
+            case CONNECTORS -> new ConnectorsView(tile.getID(), connectors, tile.getClockwiseRotation());
             default -> throw new IllegalStateException("Unexpected value: " + tile.getComponentType());
         };
     }

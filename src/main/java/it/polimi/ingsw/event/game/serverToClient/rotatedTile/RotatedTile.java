@@ -16,6 +16,6 @@ import java.io.Serializable;
 public record RotatedTile(
         String nickname,
         int tileID,
-        Integer[] connectors
+        int[] connectors
 ) implements Event, Serializable {
 }

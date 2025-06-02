@@ -4,8 +4,8 @@ public class LifeSupportBrownView extends ComponentView {
     private String brown = "\033[38;5;220m";
     private String reset = "\033[0m";
 
-    public LifeSupportBrownView(int ID, int[] connectors) {
-        super(ID, connectors);
+    public LifeSupportBrownView(int ID, int[] connectors, int clockWise) {
+        super(ID, connectors, clockWise);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class LifeSupportBrownView extends ComponentView {
 
     @Override
     public LifeSupportBrownView clone() {
-        LifeSupportBrownView copy = new LifeSupportBrownView(this.getID(), this.getConnectors());
+        LifeSupportBrownView copy = new LifeSupportBrownView(this.getID(), this.getConnectors(), this.getClockWise());
         copy.setIsWrong(this.getIsWrong());
         return copy;
     }

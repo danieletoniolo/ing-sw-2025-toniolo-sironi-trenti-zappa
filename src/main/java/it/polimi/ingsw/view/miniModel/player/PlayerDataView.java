@@ -5,12 +5,12 @@ import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 
 public class PlayerDataView implements Structure {
-    private String username;
-    private String color;
-    private MarkerView markerView;
+    private final String username;
+    private final String color;
+    private final MarkerView markerView;
     private int step;
     private int coins;
-    private SpaceShipView ship;
+    private final SpaceShipView ship;
     private ComponentView hand;
     private final String blue =   "\033[34m";
     private final String green =  "\033[32m";
@@ -43,8 +43,8 @@ public class PlayerDataView implements Structure {
     public String drawLineTui(int line) {
         return switch (line) {
             case 0 -> color + username + reset;
-            case 1 -> "Step: " + String.valueOf(step);
-            case 2 -> "Coins: " + String.valueOf(coins);
+            case 1 -> "Step: " + step;
+            case 2 -> "Coins: " + coins;
             default -> throw new IllegalStateException("Unexpected value: " + line);
         };
     }

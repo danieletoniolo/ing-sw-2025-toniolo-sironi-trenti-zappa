@@ -1,7 +1,5 @@
 package it.polimi.ingsw.view.miniModel.components;
 
-import javax.naming.CannotProceedException;
-
 public class CannonView extends ComponentView {
     private float power;
     private String purple = "\033[35m";
@@ -9,8 +7,8 @@ public class CannonView extends ComponentView {
     private int arrowRotation;
     private boolean doubleCannon;
 
-    public CannonView(int ID, int[] connectors, float power, int arrowRotation) {
-        super(ID, connectors);
+    public CannonView(int ID, int[] connectors, int clockWise, float power, int arrowRotation) {
+        super(ID, connectors, clockWise);
         this.power = power;
         this.arrowRotation = arrowRotation;
         if ((arrowRotation == 0 && power == 2) || (arrowRotation != 0 && power == 1)) {
@@ -75,7 +73,7 @@ public class CannonView extends ComponentView {
 
     @Override
     public CannonView clone() {
-        CannonView copy = new CannonView(this.getID(), this.getConnectors(), this.power, this.arrowRotation);
+        CannonView copy = new CannonView(this.getID(), this.getConnectors(), this.getClockWise(), this.power, this.arrowRotation);
         copy.setIsWrong(this.getIsWrong());
         return copy;
     }

@@ -26,7 +26,14 @@ public class StorageWithTuiScreen extends ManagerSwapGoodTuiScreen {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == spaceShipView.getMapStorages().size() - 1) {
+        int num = 0;
+        for (var entry : spaceShipView.getMapStorages().entrySet()) {
+            if (!entry.getKey().equals(fromStorage.getID())) {
+                num++;
+            }
+        }
+
+        if (selected == num) {
             destroyStatics();
             setMessage(null);
             return oldScreen;

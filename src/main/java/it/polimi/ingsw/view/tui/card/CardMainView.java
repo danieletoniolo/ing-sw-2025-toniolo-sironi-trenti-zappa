@@ -29,88 +29,11 @@ public class CardMainView {
                 allCards.add(CardsManager.getCard(i));
             }
 
+            DeckView deckView = new DeckView();
             for (Card card : allCards) {
-                switch (card.getCardType()) {
-                    case PIRATES:
-                        int cannon = ((Pirates) card).getCannonStrengthRequired();
-                        int credits = ((Pirates) card).getCredit();
-                        int flight = ((Pirates) card).getFlightDays();
-                        ArrayList<HitView> hits = new ArrayList<>();
-                        for (Hit hit : ((Pirates) card).getFires()) {
-                            hits.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
-                        }
-                        cards.add(new PiratesView(card.getID(), false, card.getCardLevel(), cannon, credits, flight, hits));
-                        break;
-                    case PLANETS:
-                        int numberOfPlanets = ((Planets) card).getPlanetNumbers();
-                        List<List<GoodView>> goodViews = new ArrayList<>();
-                        for (int i = 0; i < numberOfPlanets; i++) {
-                            List<GoodView> goodList = new ArrayList<>();
-                            for (Good good : ((Planets) card).getPlanet(i)) {
-                                goodList.add(GoodView.valueOf(good.getColor().name()));
-                            }
-                            goodViews.add(goodList);
-                        }
-                        cards.add(new PlanetsView(card.getID(), false, card.getCardLevel(), ((Planets) card).getFlightDays(), goodViews));
-                        break;
-                    case SLAVERS:
-                        cards.add(new SlaversView(card.getID(), false, card.getCardLevel(), ((Slavers) card).getCannonStrengthRequired(), ((Slavers) card).getCredit(), ((Slavers) card).getFlightDays(), ((Slavers) card).getCrewLost()));
-                        break;
-                    case EPIDEMIC:
-                        cards.add(new EpidemicView(card.getID(), false, card.getCardLevel()));
-                        break;
-                    case STARDUST:
-                        cards.add(new StarDustView(card.getID(), false, card.getCardLevel()));
-                        break;
-                    case OPENSPACE:
-                        cards.add(new OpenSpaceView(card.getID(), false, card.getCardLevel()));
-                        break;
-                    case SMUGGLERS:
-                        int cannonStrength = ((Smugglers) card).getCannonStrengthRequired();
-                        int goodsLost = ((Smugglers) card).getGoodsLoss();
-                        int flightDays = ((Smugglers) card).getFlightDays();
-                        List<GoodView> goods = new ArrayList<>();
-                        for (Good good : ((Smugglers) card).getGoodsReward()) {
-                            goods.add(GoodView.valueOf(good.getColor().name()));
-                        }
-                        cards.add(new SmugglersView(card.getID(), false, card.getCardLevel(), cannonStrength, goodsLost, flightDays, goods));
-                        break;
-                    case COMBATZONE:
-                        int loss = ((CombatZone) card).getLost();
-                        int flights = ((CombatZone) card).getFlightDays();
-                        List<HitView> hitsList = new ArrayList<>();
-                        for (Hit hit : ((CombatZone) card).getFires()) {
-                            hitsList.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
-                        }
-                        cards.add(new CombatZoneView(card.getID(), false, card.getCardLevel(), loss, flights, hitsList));
-                        break;
-                    case METEORSWARM:
-                        List<HitView> meteorHits = new ArrayList<>();
-                        for (Hit hit : ((MeteorSwarm) card).getMeteors()) {
-                            meteorHits.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
-                        }
-                        cards.add(new MeteorSwarmView(card.getID(), false, card.getCardLevel(), meteorHits));
-                        break;
-                    case ABANDONEDSHIP:
-                        int crewLost = ((AbandonedShip) card).getCrewRequired();
-                        int creditsRequired = ((AbandonedShip) card).getCredit();
-                        int flightDaysRequired = ((AbandonedShip) card).getFlightDays();
-                        cards.add(new AbandonedShipView(card.getID(), false, card.getCardLevel(), crewLost, creditsRequired, flightDaysRequired));
-                        break;
-                    case ABANDONEDSTATION:
-                        int crew = ((AbandonedStation) card).getCrewRequired();
-                        int days = ((AbandonedStation) card).getFlightDays();
-                        List<GoodView> goodsList = new ArrayList<>();
-                        for (Good good : ((AbandonedStation) card).getGoods()) {
-                            goodsList.add(GoodView.valueOf(good.getColor().name()));
-                        }
-                        cards.add(new AbandonedStationView(card.getID(), false, card.getCardLevel(), crew, days, goodsList));
-                        break;
-                }
+                deckView.getDeck().add(convertCard(card));
             }
 
-            DeckView deckView = new DeckView();
-            deckView.setDeck(cards);
             deckView.setCovered(false);
             deckView.setOnlyLast(true);
             printDeck(deckView);
@@ -119,10 +42,6 @@ public class CardMainView {
                 card.setCovered(false);
             }
             printCards(cards, 7);
-
-
-
-
         }
         catch (Exception e) {
             System.out.println(e.getMessage());
@@ -151,6 +70,77 @@ public class CardMainView {
                 System.out.print(cards.get((cards.size() / cols) * cols + k).drawLineTui(i));
             }
             System.out.println();
+        }
+    }
+
+    public static CardView convertCard(Card card) {
+        switch (card.getCardType()) {
+            case PIRATES:
+                int cannon = ((Pirates) card).getCannonStrengthRequired();
+                int credits = ((Pirates) card).getCredit();
+                int flight = ((Pirates) card).getFlightDays();
+                ArrayList<HitView> hits = new ArrayList<>();
+                for (Hit hit : ((Pirates) card).getFires()) {
+                    hits.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
+                }
+                return new PiratesView(card.getID(), false, card.getCardLevel(), cannon, credits, flight, hits);
+            case PLANETS:
+                int numberOfPlanets = ((Planets) card).getPlanetNumbers();
+                List<List<GoodView>> goodViews = new ArrayList<>();
+                for (int i = 0; i < numberOfPlanets; i++) {
+                    List<GoodView> goodList = new ArrayList<>();
+                    for (Good good : ((Planets) card).getPlanet(i)) {
+                        goodList.add(GoodView.valueOf(good.getColor().name()));
+                    }
+                    goodViews.add(goodList);
+                }
+                return new PlanetsView(card.getID(), false, card.getCardLevel(), ((Planets) card).getFlightDays(), goodViews);
+            case SLAVERS:
+                return new SlaversView(card.getID(), false, card.getCardLevel(), ((Slavers) card).getCannonStrengthRequired(), ((Slavers) card).getCredit(), ((Slavers) card).getFlightDays(), ((Slavers) card).getCrewLost());
+            case EPIDEMIC:
+                return new EpidemicView(card.getID(), false, card.getCardLevel());
+            case STARDUST:
+                return new StarDustView(card.getID(), false, card.getCardLevel());
+            case OPENSPACE:
+                return new OpenSpaceView(card.getID(), false, card.getCardLevel());
+            case SMUGGLERS:
+                int cannonStrength = ((Smugglers) card).getCannonStrengthRequired();
+                int goodsLost = ((Smugglers) card).getGoodsLoss();
+                int flightDays = ((Smugglers) card).getFlightDays();
+                List<GoodView> goods = new ArrayList<>();
+                for (Good good : ((Smugglers) card).getGoodsReward()) {
+                    goods.add(GoodView.valueOf(good.getColor().name()));
+                }
+                return new SmugglersView(card.getID(), false, card.getCardLevel(), cannonStrength, goodsLost, flightDays, goods);
+            case COMBATZONE:
+                int loss = ((CombatZone) card).getLost();
+                int flights = ((CombatZone) card).getFlightDays();
+                List<HitView> hitsList = new ArrayList<>();
+                for (Hit hit : ((CombatZone) card).getFires()) {
+                    hitsList.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
+                }
+                return new CombatZoneView(card.getID(), false, card.getCardLevel(), loss, flights, hitsList);
+            case METEORSWARM:
+                List<HitView> meteorHits = new ArrayList<>();
+                for (Hit hit : ((MeteorSwarm) card).getMeteors()) {
+                    meteorHits.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
+                }
+                return new MeteorSwarmView(card.getID(), false, card.getCardLevel(), meteorHits);
+            case ABANDONEDSHIP:
+                int crewLost = ((AbandonedShip) card).getCrewRequired();
+                int creditsRequired = ((AbandonedShip) card).getCredit();
+                int flightDaysRequired = ((AbandonedShip) card).getFlightDays();
+                return new AbandonedShipView(card.getID(), false, card.getCardLevel(), crewLost, creditsRequired, flightDaysRequired);
+            case ABANDONEDSTATION:
+                int crew = ((AbandonedStation) card).getCrewRequired();
+                int days = ((AbandonedStation) card).getFlightDays();
+                List<GoodView> goodsList = new ArrayList<>();
+                for (Good good : ((AbandonedStation) card).getGoods()) {
+                    goodsList.add(GoodView.valueOf(good.getColor().name()));
+                }
+                return new AbandonedStationView(card.getID(), false, card.getCardLevel(), crew, days, goodsList);
+            default:
+                return null;
         }
     }
 }

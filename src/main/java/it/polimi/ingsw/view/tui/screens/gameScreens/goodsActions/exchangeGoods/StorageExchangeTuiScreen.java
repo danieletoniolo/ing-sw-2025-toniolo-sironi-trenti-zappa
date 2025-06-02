@@ -15,9 +15,6 @@ public class StorageExchangeTuiScreen extends ManagerExchangeGoodsTuiScreen{
 
     public StorageExchangeTuiScreen(TuiScreenView oldScreen) {
         super(new ArrayList<>(){{
-            if (spaceShipView == null) {
-                spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
-            }
             spaceShipView.getMapStorages().forEach(
                     (key, value) -> {
                         if (exchanges == null || exchanges.stream().noneMatch(triplet -> triplet.getValue2().equals(key))) {
@@ -35,7 +32,13 @@ public class StorageExchangeTuiScreen extends ManagerExchangeGoodsTuiScreen{
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == options.size() - MiniModel.getInstance().getOtherPlayers().size() - 2) {
+        int num = 0;
+        for (var entry : spaceShipView.getMapStorages().entrySet()) {
+            if (exchanges == null || exchanges.stream().noneMatch(triplet -> triplet.getValue2().equals(entry.getKey()))) {
+                num++;
+            }
+        }
+        if (selected == num) {
             StatusEvent status = ExchangeGoods.requester(Client.transceiver, new Object()).request(
                     new ExchangeGoods(MiniModel.getInstance().getUserID(), exchanges));
             if (status.get().equals("POTA")) {
@@ -49,20 +52,21 @@ public class StorageExchangeTuiScreen extends ManagerExchangeGoodsTuiScreen{
 
         }
 
-        if (selected == options.size() - MiniModel.getInstance().getOtherPlayers().size() - 1) {
+        if (selected == num + 1) {
             destroyStatics();
-            spaceShipView = MiniModel.getInstance().getClientPlayer().getShip();
             return oldScreen;
         }
 
         int cont = 0;
         int ID = -1;
         for (var entry : spaceShipView.getMapStorages().entrySet()) {
-            if (cont == selected) {
-                ID = entry.getKey();
-                break;
+            if (exchanges == null || exchanges.stream().noneMatch(triplet -> triplet.getValue2().equals(entry.getKey()))) {
+                if (cont == selected) {
+                    ID = entry.getKey();
+                    break;
+                }
+                cont++;
             }
-            cont++;
         }
         storage = spaceShipView.getMapStorages().get(ID);
         return new DropGoodsTuiScreen(oldScreen);

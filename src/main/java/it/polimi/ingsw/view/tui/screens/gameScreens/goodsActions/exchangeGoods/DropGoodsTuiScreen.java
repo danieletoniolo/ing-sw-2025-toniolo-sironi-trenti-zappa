@@ -33,33 +33,17 @@ public class DropGoodsTuiScreen extends ManagerExchangeGoodsTuiScreen{
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == options.size() - MiniModel.getInstance().getOtherPlayers().size() - 2) {
-            List<GoodView> copy = new ArrayList<>();
-            CardView card = shuffledDeckView.getDeck().peek();
-            switch (card.getCardViewType()) {
-                case PLANETS:
-                    for (GoodView good : ((PlanetsView) card).getPlanet(((PlanetsView) card).getPlanetSelected())) {
-                        copy.add(GoodView.fromValue(good.getValue()));
-                    }
-                    break;
-                case SMUGGLERS:
-                    for (GoodView good : ((SmugglersView) card).getGoods()) {
-                        copy.add(GoodView.fromValue(good.getValue()));
-                    }
-                    break;
-                case ABANDONEDSTATION:
-                    for (GoodView good : ((AbandonedStationView) card).getGoods()) {
-                        copy.add(GoodView.fromValue(good.getValue()));
-                    }
-                    break;
-                default:
-                    break;
+        int num = 0;
+        for(GoodView good : storage.getGoods()) {
+            if (good != null) {
+                num++;
             }
-
+        }
+        if (selected == num) {
             return new PickGoodsFromCardTuiScreen(copy, oldScreen);
         }
 
-        if (selected == options.size() - MiniModel.getInstance().getOtherPlayers().size() - 1) {
+        if (selected == num + 1) {
             destroyStatics();
             return oldScreen;
         }

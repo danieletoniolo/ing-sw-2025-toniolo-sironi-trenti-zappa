@@ -41,7 +41,8 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == options.size() - MiniModel.getInstance().getOtherPlayers().size() - 2) {
+        int num = times == 0 ? 0 : oldGoods.size();
+        if (selected == num) {
             StatusEvent status = SwapGoods.requester(Client.transceiver, new Object()).request(
                     new SwapGoods(MiniModel.getInstance().getUserID(), fromStorage.getID(), withStorage.getID(), fromList, withList));
             if (status.get().equals("POTA")) {
@@ -54,7 +55,7 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
             return oldScreen;
         }
 
-        if (selected == options.size() - MiniModel.getInstance().getOtherPlayers().size() - 1) {
+        if (selected == num + 1) {
             destroyStatics();
             setMessage(null);
             return oldScreen;

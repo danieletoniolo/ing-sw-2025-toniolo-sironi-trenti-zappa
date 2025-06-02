@@ -16,17 +16,17 @@ public class MiniModel {
     private static MiniModel instance;
 
     /// MiniModel structures:
-    private LogInView logInView = new LogInView();
-    private ArrayList<LobbyView> lobbiesView = new ArrayList<>();
+    private final LogInView logInView = new LogInView();
+    private final ArrayList<LobbyView> lobbiesView = new ArrayList<>();
     private CountDown countDown;
     /** The decks are stored in a Pair: The first element is the deck views, and the second element is a boolean array.
     If boolean[i] == true the deck[i] is not taken by a player, else deck is taken and not viewable in the building screen*/
-    private Pair<DeckView[], Boolean[]> deckViews = new Pair<>(new DeckView[3], new Boolean[3]);
-    private DeckView shuffledDeckView;
+    private final Pair<DeckView[], Boolean[]> deckViews = new Pair<>(new DeckView[3], new Boolean[3]);
+    private final DeckView shuffledDeckView = new DeckView();
     private TimerView timerView;
     private BoardView boardView;
-    private ArrayList<PlayerDataView> otherPlayers = new ArrayList<>();
-    private ArrayList<ComponentView> viewableComponents = new ArrayList<>();
+    private final ArrayList<PlayerDataView> otherPlayers = new ArrayList<>();
+    private final ArrayList<ComponentView> viewableComponents = new ArrayList<>();
     private PlayerDataView clientPlayer;
     private String nickname;
     private String userID;
@@ -59,10 +59,6 @@ public class MiniModel {
 
     public synchronized Pair<DeckView[], Boolean[]> getDeckViews() {
         return deckViews;
-    }
-
-    public synchronized void setShuffledDeckView(DeckView shuffledDeckView) {
-        this.shuffledDeckView = shuffledDeckView;
     }
 
     public synchronized DeckView getShuffledDeckView() {

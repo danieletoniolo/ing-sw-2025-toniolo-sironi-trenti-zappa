@@ -2,7 +2,7 @@ package it.polimi.ingsw.view.miniModel.components;
 
 public class GenericComponentView extends ComponentView {
     public GenericComponentView() {
-        super(-1, new int[]{0, 0, 0, 0});
+        super(-1, new int[]{0, 0, 0, 0}, 0);
     }
 
     @Override

@@ -50,8 +50,9 @@ public abstract class ComponentView implements Structure {
     private boolean isWrong;
     private final String red = "\033[31m";
     private final String reset = "\033[0m";
+    private int clockWise;
 
-    public ComponentView(int ID, int[] connectors) {
+    public ComponentView(int ID, int[] connectors, int clockWise) {
         this.ID = ID;
         this.connectors = connectors;
         this.covered = false;
@@ -153,4 +154,12 @@ public abstract class ComponentView implements Structure {
     }
 
     public abstract ComponentView clone();
+
+    public void rotate() {
+        this.clockWise++;
+    }
+
+    public int getClockWise() {
+        return clockWise;
+    }
 }

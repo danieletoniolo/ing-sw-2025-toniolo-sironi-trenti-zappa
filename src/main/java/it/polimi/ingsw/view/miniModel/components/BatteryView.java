@@ -2,12 +2,12 @@ package it.polimi.ingsw.view.miniModel.components;
 
 public class BatteryView extends ComponentView {
     private int numberOfBatteries;
-    private int maximumBatteries;
-    private String green = "\033[32m";
-    private String reset = "\033[0m";
+    private final int maximumBatteries;
+    private final String green = "\033[32m";
+    private final String reset = "\033[0m";
 
-    public BatteryView(int ID, int[] connectors, int maximumBatteries) {
-        super(ID, connectors);
+    public BatteryView(int ID, int[] connectors, int clockWise, int maximumBatteries) {
+        super(ID, connectors, clockWise);
         this.maximumBatteries = maximumBatteries;
     }
 
@@ -17,6 +17,10 @@ public class BatteryView extends ComponentView {
 
     public void setNumberOfBatteries(int numberOfBatteries) {
         this.numberOfBatteries = numberOfBatteries;
+    }
+
+    public int getNumberOfBatteries() {
+        return numberOfBatteries;
     }
 
     /**
@@ -53,7 +57,7 @@ public class BatteryView extends ComponentView {
 
     @Override
     public BatteryView clone() {
-        BatteryView copy = new BatteryView(this.getID(), this.getConnectors(), this.getMaximumBatteries());
+        BatteryView copy = new BatteryView(this.getID(), this.getConnectors(), this.getClockWise(), this.getMaximumBatteries());
         copy.setNumberOfBatteries(this.numberOfBatteries);
         copy.setIsWrong(this.getIsWrong());
         return copy;

@@ -6,8 +6,8 @@ public class EngineView extends ComponentView {
     private boolean doubleEngine;
     private int engineRotation;
 
-    public EngineView(int ID, int[] connectors, int power, int engineRotation) {
-        super(ID, connectors);
+    public EngineView(int ID, int[] connectors, int clockWise, int power, int engineRotation) {
+        super(ID, connectors, clockWise);
         this.doubleEngine = power == 2;
         this.engineRotation = engineRotation;
     }
@@ -59,7 +59,7 @@ public class EngineView extends ComponentView {
 
     @Override
     public EngineView clone() {
-        EngineView copy = new EngineView(this.getID(), this.getConnectors(), this.doubleEngine ? 2 : 1, this.engineRotation);
+        EngineView copy = new EngineView(this.getID(), this.getConnectors(), this.getClockWise(), this.doubleEngine ? 2 : 1, this.engineRotation);
         copy.setIsWrong(this.getIsWrong());
         return copy;
     }

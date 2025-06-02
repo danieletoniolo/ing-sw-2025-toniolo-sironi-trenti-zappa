@@ -9,8 +9,8 @@ public class ShieldView extends ComponentView {
     private String reset = "\033[0m";
     private boolean[] shields;
 
-    public ShieldView(int ID, int[] connectors, boolean[] shields) {
-        super(ID, connectors);
+    public ShieldView(int ID, int[] connectors, int clockWise, boolean[] shields) {
+        super(ID, connectors, clockWise);
         this.shields = shields;
     }
 
@@ -57,7 +57,7 @@ public class ShieldView extends ComponentView {
 
     @Override
     public ShieldView clone() {
-        ShieldView copy = new ShieldView(this.getID(), this.getConnectors(), this.shields);
+        ShieldView copy = new ShieldView(this.getID(), this.getConnectors(), this.getClockWise(), this.shields);
         copy.setIsWrong(this.getIsWrong());
         return copy;
     }

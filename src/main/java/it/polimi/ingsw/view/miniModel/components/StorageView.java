@@ -10,8 +10,8 @@ public class StorageView extends ComponentView {
     private final String lightBlue = "\033[94m";
     private String reset = "\033[0m";
 
-    public StorageView(int ID, int[] connectors, boolean dangerous, int capacity) {
-        super(ID, connectors);
+    public StorageView(int ID, int[] connectors, int clockWise, boolean dangerous, int capacity) {
+        super(ID, connectors, clockWise);
         this.dangerous = dangerous;
         this.goods = new GoodView[capacity];
         this.capacity = capacity;
@@ -36,6 +36,10 @@ public class StorageView extends ComponentView {
                 goods[i] = null;
             }
         }
+    }
+
+    public void changeGoods(GoodView[] newGoods) {
+        this.goods = newGoods;
     }
 
     public GoodView[] getGoods() {
@@ -82,7 +86,7 @@ public class StorageView extends ComponentView {
 
     @Override
     public StorageView clone() {
-        StorageView copy = new StorageView(this.getID(), this.getConnectors(), this.dangerous, this.capacity);
+        StorageView copy = new StorageView(this.getID(), this.getConnectors(), this.getClockWise(), this.dangerous, this.capacity);
         for (GoodView good : this.goods) {
             if (good != null) {
                 copy.addGood(GoodView.fromValue(good.getValue()));

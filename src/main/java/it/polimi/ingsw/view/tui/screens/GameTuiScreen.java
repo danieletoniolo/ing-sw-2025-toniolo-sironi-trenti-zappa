@@ -20,7 +20,6 @@ public abstract class GameTuiScreen implements TuiScreenView {
     private final int totalLines;
     protected int selected;
     protected static String message;
-    protected boolean isNewScreen;
     protected static SpaceShipView spaceShipView;
 
     protected BoardView boardView = MiniModel.getInstance().getBoardView();
@@ -37,8 +36,6 @@ public abstract class GameTuiScreen implements TuiScreenView {
 
         totalLines = Math.max(boardView.getRowsToDraw(), DeckView.getRowsToDraw())
                 + 1 + clientPlayer.getShip().getRowsToDraw() + 2 + 3 + 2;
-
-        isNewScreen = true;
     }
 
     @Override
@@ -48,9 +45,8 @@ public abstract class GameTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
-
-        if (selected < options.size() - 1 && selected >= options.size() - 1 - MiniModel.getInstance().getOtherPlayers().size()) {
-            int i = selected - (options.size() - MiniModel.getInstance().getOtherPlayers().size());
+        if ((selected < options.size() - 1) && (selected >= options.size() - 1 - MiniModel.getInstance().getOtherPlayers().size())) {
+            int i = selected - (options.size() - MiniModel.getInstance().getOtherPlayers().size() - 1);
 
             return new PlayerTuiScreen(MiniModel.getInstance().getOtherPlayers().get(i), this);
         }
@@ -121,11 +117,8 @@ public abstract class GameTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, lineBeforeInput(), row);
 
-        if (isNewScreen) {
-            isNewScreen = false;
-            for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
-                TerminalUtils.printLine(writer, "", i);
-            }
+        for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
+            TerminalUtils.printLine(writer, "", i);
         }
 
     }

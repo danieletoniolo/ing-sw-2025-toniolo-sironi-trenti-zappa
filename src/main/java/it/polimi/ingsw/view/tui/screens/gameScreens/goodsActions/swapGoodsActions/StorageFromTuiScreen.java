@@ -11,7 +11,6 @@ public class StorageFromTuiScreen extends ManagerSwapGoodTuiScreen {
 
     public StorageFromTuiScreen(TuiScreenView oldScreen) {
         super(new ArrayList<>(){{
-            spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
             spaceShipView.getMapStorages().forEach(
                     (key, value) -> {
                         add("Swap from the storage " + "(" + value.getRow() + "," + value.getCol() + ")");
@@ -26,7 +25,7 @@ public class StorageFromTuiScreen extends ManagerSwapGoodTuiScreen {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == options.size() - MiniModel.getInstance().getOtherPlayers().size() - 1) {
+        if (selected == spaceShipView.getMapStorages().size()) {
             destroyStatics();
             setMessage(null);
             return oldScreen;

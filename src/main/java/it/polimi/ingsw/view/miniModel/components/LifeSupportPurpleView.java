@@ -4,8 +4,8 @@ public class LifeSupportPurpleView extends ComponentView {
     private String purple = "\033[35m";
     private String reset = "\033[0m";
 
-    public LifeSupportPurpleView(int ID, int[] connectors) {
-        super(ID, connectors);
+    public LifeSupportPurpleView(int ID, int[] connectors, int clockWise) {
+        super(ID, connectors, clockWise);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class LifeSupportPurpleView extends ComponentView {
 
     @Override
     public LifeSupportPurpleView clone() {
-        LifeSupportPurpleView copy = new LifeSupportPurpleView(this.getID(), this.getConnectors());
+        LifeSupportPurpleView copy = new LifeSupportPurpleView(this.getID(), this.getConnectors(), this.getClockWise());
         copy.setIsWrong(this.getIsWrong());
         return copy;
     }

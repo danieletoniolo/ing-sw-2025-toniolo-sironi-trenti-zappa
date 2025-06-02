@@ -15,8 +15,8 @@ public class CabinView extends ComponentView {
     private boolean purpleAlien;
     private boolean brownAlien;
 
-    public CabinView(int ID, int[] connectors) {
-        super(ID, connectors);
+    public CabinView(int ID, int[] connectors, int clockWise) {
+        super(ID, connectors, clockWise);
         this.crewNumber = 0;
         this.purpleAlien = false;
         this.brownAlien = false;
@@ -95,7 +95,7 @@ public class CabinView extends ComponentView {
 
     @Override
     public CabinView clone() {
-        CabinView copy = new CabinView(this.getID(), this.getConnectors());
+        CabinView copy = new CabinView(this.getID(), this.getConnectors(), this.getClockWise());
         copy.setPurpleAlien(this.purpleAlien);
         copy.setBrownAlien(this.brownAlien);
         copy.setCrewNumber(this.crewNumber);

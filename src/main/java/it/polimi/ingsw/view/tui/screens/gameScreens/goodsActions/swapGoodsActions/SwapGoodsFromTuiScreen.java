@@ -30,7 +30,13 @@ public class SwapGoodsFromTuiScreen extends ManagerSwapGoodTuiScreen{
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == options.size() - MiniModel.getInstance().getOtherPlayers().size() - 1) {
+        int num = 0;
+        for (GoodView good : fromStorage.getGoods()) {
+            if (good != null) {
+                num++;
+            }
+        }
+        if (selected == num + 1) {
             destroyStatics();
             setMessage(null);
             return oldScreen;
@@ -41,7 +47,7 @@ public class SwapGoodsFromTuiScreen extends ManagerSwapGoodTuiScreen{
             line.append(value != null ? GoodView.fromValue(value).drawTui() : "| |").append(" ");
         }
 
-        if (selected == options.size() - MiniModel.getInstance().getOtherPlayers().size() - 2) {
+        if (selected == num) {
             TuiScreenView newScreen = new SwapGoodsWithTuiScreen(Arrays.asList(withStorage.getGoods()), oldScreen);
             newScreen.setMessage("You are swapping " + line + "from (" + fromStorage.getRow() + " " + fromStorage.getCol() + ")");
             return newScreen;

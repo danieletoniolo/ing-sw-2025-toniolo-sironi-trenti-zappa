@@ -23,6 +23,7 @@ public enum TuiScreens {
     PickFromCard,
     StorageExchange,
     DropGoods,
+    MenuCannons,
 
     Ending
 }

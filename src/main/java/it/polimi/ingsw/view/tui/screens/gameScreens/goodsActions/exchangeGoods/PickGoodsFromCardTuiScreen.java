@@ -31,7 +31,7 @@ public class PickGoodsFromCardTuiScreen extends ManagerExchangeGoodsTuiScreen{
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == options.size() - MiniModel.getInstance().getOtherPlayers().size() - 2) {
+        if (selected == goods.size()) {
             exchanges.add(new Triplet<>(
                     new ArrayList<>(goodsToGet),
                     new ArrayList<>(goodsToLeave),
@@ -41,7 +41,7 @@ public class PickGoodsFromCardTuiScreen extends ManagerExchangeGoodsTuiScreen{
             return new StorageExchangeTuiScreen(oldScreen);
         }
 
-        if (selected == options.size() - MiniModel.getInstance().getOtherPlayers().size() - 1) {
+        if (selected == goods.size() + 1) {
             destroyStatics();
             return oldScreen;
         }
