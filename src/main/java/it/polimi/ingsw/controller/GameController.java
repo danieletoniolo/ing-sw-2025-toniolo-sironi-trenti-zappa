@@ -144,7 +144,7 @@ public class GameController implements Serializable, StateTransitionHandler {
         PlayerData player = state.getCurrentPlayer();
         if (player.getUUID().equals(uuid)) {
             try {
-                state.setFragmentChoice(fragmentID);
+                state.setFragmentChoice(player, fragmentID);
             } catch (IllegalStateException e) {
                 throw new IllegalStateException("Cannot choose fragment in this state");
             } catch (IllegalArgumentException e) {
@@ -228,6 +228,7 @@ public class GameController implements Serializable, StateTransitionHandler {
         if (player.getUUID().equals(uuid)) {
             try {
                 state.useExtraStrength(player, type, IDs, batteriesID);
+                state.execute(player);
             } catch (IllegalStateException e) {
                 throw new IllegalStateException("Cannot use extra power in this state");
             } catch (IllegalArgumentException e) {
@@ -248,7 +249,7 @@ public class GameController implements Serializable, StateTransitionHandler {
     public void rollDice(UUID uuid) {
         PlayerData player = state.getCurrentPlayer();
         if (player.getUUID().equals(uuid)) {
-            state.rollDice();
+            state.rollDice(player);
         } else {
             throw new IllegalStateException("Not the current player");
         }
@@ -257,7 +258,7 @@ public class GameController implements Serializable, StateTransitionHandler {
     public void setFragmentChoice(UUID uuid, int fragmentChoice) throws IllegalStateException {
         PlayerData player = state.getCurrentPlayer();
         if (player.getUUID().equals(uuid)) {
-            state.setFragmentChoice(fragmentChoice);
+            state.setFragmentChoice(player, fragmentChoice);
         } else {
             throw new IllegalStateException("Not the current player");
         }

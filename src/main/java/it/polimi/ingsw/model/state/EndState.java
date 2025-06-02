@@ -18,7 +18,7 @@ import java.util.Map;
 public class EndState extends State {
     private final Map<PlayerData, Integer> scores;
     private final Level level;
-    private EndInternalState endInternalState;
+    private EndInternalState internalState;
 
     /**
      * Enum to represent the internal state of the end state.
@@ -44,38 +44,7 @@ public class EndState extends State {
         }
         this.scores = new HashMap<>();
         this.level = level;
-    }
-
-    /**
-     * Getter for the players scores
-     * @return The players scores
-     */
-    public Map<PlayerData, Integer> getScores() {
-        return scores;
-    }
-
-    /**
-     * Getter for the level
-     * @return The level
-     */
-    public Level getLevel() {
-        return level;
-    }
-
-    /**
-     * Getter for the end internal state
-     * @return The end internal state
-     */
-    public EndInternalState getEndInternalState() {
-        return endInternalState;
-    }
-
-    /**
-     * Setter for the end internal state
-     * @param endInternalState
-     */
-    public void setEndInternalState(EndInternalState endInternalState) {
-        this.endInternalState = endInternalState;
+        this.internalState = EndInternalState.FINISH_ORDER;
     }
 
     @Override
@@ -95,7 +64,7 @@ public class EndState extends State {
         // Check if all players have confirmed their end of turn
         if (players.indexOf(player) == players.size() - 1) {
             // Execute the end of turn actions
-            switch (endInternalState) {
+            switch (internalState) {
                 case FINISH_ORDER:
                     // Calculate the new score based on the finish order and the level
                     int reward = 4 * level.getValue();
@@ -111,7 +80,7 @@ public class EndState extends State {
                     eventCallback.trigger(scoreEvent);
 
                     // Go to the next scoring state
-                    endInternalState = EndInternalState.BEST_LOOKING_SHIP;
+                    internalState = EndInternalState.BEST_LOOKING_SHIP;
                     break;
                 case BEST_LOOKING_SHIP:
                     // Find the player (could be more than one) with the least exposed connectors (best looking ship)
@@ -129,7 +98,7 @@ public class EndState extends State {
                             }
                         }
                     }
-                    BestLookingShips bestLookingShipsEvent = new BestLookingShips((ArrayList<String>) playersWithLeastConnectors.stream().map(PlayerData::getUsername).toList());
+                    BestLookingShips bestLookingShipsEvent = new BestLookingShips(playersWithLeastConnectors.stream().map(PlayerData::getUsername).toList());
                     eventCallback.trigger(bestLookingShipsEvent);
 
                     // Calculate the new score based on the best looking ship
@@ -143,7 +112,7 @@ public class EndState extends State {
                     eventCallback.trigger(scoreEvent);
 
                     // Go to the next scoring state
-                    endInternalState = EndInternalState.SALE_OF_GOODS;
+                    internalState = EndInternalState.SALE_OF_GOODS;
                     break;
                 case SALE_OF_GOODS:
                     // Calculate the new score based on the sale of goods
@@ -161,7 +130,7 @@ public class EndState extends State {
 
                     scoreEvent = new Score(eventScores);
                     eventCallback.trigger(scoreEvent);
-
+                    internalState = EndInternalState.LOSSES;
                     break;
                 case LOSSES:
                     // Calculate the new score based on the component losses
@@ -178,7 +147,7 @@ public class EndState extends State {
 
                     break;
                 default:
-                    throw new IllegalStateException("Unknown EndInternalState: " + endInternalState);
+                    throw new IllegalStateException("Unknown EndInternalState: " + internalState);
             }
         }
         super.nextState(GameState.FINISHED);

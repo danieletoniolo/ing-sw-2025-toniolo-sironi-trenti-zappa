@@ -1,17 +1,10 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
-import it.polimi.ingsw.event.game.serverToClient.cards.*;
-import it.polimi.ingsw.event.game.serverToClient.deck.GetDecks;
-import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.game.board.Board;
-import it.polimi.ingsw.model.game.board.Deck;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.MatchController;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class represents the lobby state of the game. In this state, players can join, leave and start the game.

@@ -2,6 +2,7 @@ package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.InvalidComponents;
+import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
@@ -19,11 +20,6 @@ public class ValidationState extends State {
     private final Map<PlayerData, ArrayList<Pair<Integer, Integer>>> invalidComponents;
     private List<List<Pair<Integer, Integer>>> fragmentedComponents;
 
-    // Tmp variable to store the choice of the fragment
-    private int fragmentChoice;
-    // Tmp variable to store the choice of the component to destroy
-    private List<Pair<Integer, Integer>> componentsToDestroy;
-
     /**
      * Enum to represent the internal state of the validation state.
      */
@@ -36,16 +32,14 @@ public class ValidationState extends State {
         super(board, callback, transitionHandler);
         this.invalidComponents = new HashMap<>();
         this.fragmentedComponents = null;
-        this.fragmentChoice = -1;
-        this.componentsToDestroy = null;
         this.internalState = ValidationInternalState.DEFAULT;
     }
 
     /**
-     * Implementation of {@link State#setFragmentChoice(int)} to set the fragment choice.
+     * Implementation of {@link State#setFragmentChoice(PlayerData, int)} to set the fragment choice.
      */
     @Override
-    public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
+    public void setFragmentChoice(PlayerData player, int fragmentChoice) throws IllegalStateException {
         if (internalState != ValidationInternalState.FRAGMENTED_SHIP) {
             throw new IllegalStateException("No fragment to choose");
         }
@@ -53,23 +47,26 @@ public class ValidationState extends State {
         if (fragmentChoice < 0 || fragmentChoice >= fragmentedComponents.size()) {
             throw new IllegalArgumentException("Fragment choice is out of bounds");
         }
-        this.fragmentChoice = fragmentChoice;
+        Event event = Handler.destroyFragment(player, fragmentedComponents.get(fragmentChoice));
+        eventCallback.trigger(event);
     }
 
 
     @Override
-    public void setComponentToDestroy(PlayerData player, List<Pair<Integer, Integer>> componentsToDestroy) throws IllegalStateException {
+    public void setComponentToDestroy(PlayerData player, List<Pair<Integer, Integer>> componentsToDestroy) throws IllegalStateException, IllegalArgumentException {
         if (internalState != ValidationInternalState.DEFAULT) {
             throw new IllegalStateException("Cannot destroy componentsToDestroy in this state, you have to choose a fragment");
         }
+        SpaceShip ship = player.getSpaceShip();
         for (Pair<Integer, Integer> component : componentsToDestroy) {
-            try {
-                player.getSpaceShip().getComponent(component.getValue0(), component.getValue1());
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Invalid row" + component.getValue0() + "or column " + component.getValue1() + "for the component to destroy");
-            }
+            player.getSpaceShip().getComponent(component.getValue0(), component.getValue1());
         }
-        this.componentsToDestroy = componentsToDestroy;
+        // Destroy the components given by the player
+        for (Pair<Integer, Integer> component : componentsToDestroy) {
+            ship.destroyComponent(component.getValue0(), component.getValue1());
+        }
+        Event event = new ComponentDestroyed(player.getUsername(), componentsToDestroy);
+        eventCallback.trigger(event);
     }
 
     @Override
@@ -84,29 +81,16 @@ public class ValidationState extends State {
             InvalidComponents invalidComponentsEvent = new InvalidComponents(p.getUsername(), playerInvalidComponents);
             eventCallback.trigger(invalidComponentsEvent);
         }
-
-
     }
 
     @Override
     public void execute(PlayerData player) {
-        ComponentDestroyed destroyableComponentEvent;
         SpaceShip ship = player.getSpaceShip();
         switch (internalState) {
             case DEFAULT:
-                if (componentsToDestroy == null) {
-                    throw new IllegalStateException("Player has not set the components to destroy");
-                }
-                // Get the invalid components of the player
+                // Recalculate the invalid components of the player
+                invalidComponents.replace(player, ship.getInvalidComponents());
                 ArrayList<Pair<Integer, Integer>> playerInvalidComponents = invalidComponents.get(player);
-                // Destroy the components given by the player
-                for (Pair<Integer, Integer> component : componentsToDestroy) {
-                    ship.destroyComponent(component.getValue0(), component.getValue1());
-                    playerInvalidComponents.remove(component);
-                }
-
-                destroyableComponentEvent = new ComponentDestroyed(player.getUsername(), componentsToDestroy);
-                eventCallback.trigger(destroyableComponentEvent);
 
                 if (playerInvalidComponents.isEmpty()) {
                     // Check if the ship is now fragmented
@@ -120,32 +104,16 @@ public class ValidationState extends State {
                         // Set the player status to PLAYED
                         playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
                     }
+                } else {
+                    InvalidComponents invalidComponentsEvent = new InvalidComponents(player.getUsername(), playerInvalidComponents);
+                    eventCallback.trigger(invalidComponentsEvent);
                 }
                 break;
             case FRAGMENTED_SHIP:
-                if (fragmentChoice == -1) {
-                    throw new IllegalStateException("Player has not set the fragment choice");
-                }
-                // Destroy all the other fragment of the ship other than the chosen one
-                for (List<Pair<Integer, Integer>> chosenFragment : fragmentedComponents) {
-                    if (fragmentedComponents.indexOf(chosenFragment) != fragmentChoice) {
-                        // Destroy the components in the chosen fragment
-                        for (Pair<Integer, Integer> component : chosenFragment) {
-                            ship.destroyComponent(component.getValue0(), component.getValue1());
-                        }
-                    }
-                }
-
-                destroyableComponentEvent = new ComponentDestroyed(player.getUsername(), componentsToDestroy);
-                eventCallback.trigger(destroyableComponentEvent);
-
-                // Reset the fragmented components and the fragment choice
                 fragmentedComponents = null;
-                fragmentChoice = -1;
-                // Switch the internal state to DEFAULT
                 internalState = ValidationInternalState.DEFAULT;
-                // Set the player status to PLAYED
                 playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
+                break;
         }
         super.nextState(GameState.CREW);
     }

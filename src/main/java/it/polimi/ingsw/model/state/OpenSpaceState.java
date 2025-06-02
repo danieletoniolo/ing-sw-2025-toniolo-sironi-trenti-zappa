@@ -1,21 +1,22 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
+import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.OpenSpace;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
-import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.energyUsed.EnginesUsed;
-import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class OpenSpaceState extends State {
+    private final OpenSpace card;
     private final Map<PlayerData, Float> stats;
+
 
     /**
      * Constructor
@@ -25,27 +26,17 @@ public class OpenSpaceState extends State {
     public OpenSpaceState(Board board, EventCallback callback, OpenSpace card, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.stats = new HashMap<>();
-    }
-
-    public Map<PlayerData, Float> getStats() {
-        return stats;
+        // TODO: We never use the card in this state, so we can remove it
+        this.card = card;
     }
 
     @Override
     public void useExtraStrength(PlayerData player, int type, List<Integer> IDs, List<Integer> batteriesID) throws IllegalStateException {
         switch (type) {
             case 0 -> {
-                // Use the energy to power the engines
-                SpaceShip ship = player.getSpaceShip();
-                for (Integer batteryID : batteriesID) {
-                    ship.useEnergy(batteryID);
-                }
-
-                // Update the engine strength stats
-                this.stats.merge(player, (float) IDs.size() * 2, Float::sum);
-
-                EnginesUsed useEnginesEvent = new EnginesUsed(player.getUsername(), IDs, (ArrayList<Integer>) batteriesID);
-                eventCallback.trigger(useEnginesEvent);
+                Event event = Handler.useExtraStrength(player, type, IDs, batteriesID);
+                this.stats.merge(player, player.getSpaceShip().getEnginesStrength(IDs), Float::sum);
+                eventCallback.trigger(event);
             }
             case 1 -> throw new IllegalStateException("Cannot use double cannons in this state");
             default -> throw new IllegalArgumentException("Invalid type: " + type);

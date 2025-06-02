@@ -1,15 +1,23 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.MeteorSwarm;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
-import it.polimi.ingsw.model.spaceship.SpaceShip;
-import it.polimi.ingsw.controller.EventCallback;
+import it.polimi.ingsw.model.spaceship.Component;
+import org.javatuples.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MeteorSwarmState extends State {
     private final MeteorSwarm card;
-    private final FightHandlerSubState fightHandler;
+    private final Pair<Component, Integer> protectionResult;
+    private final List<List<Pair<Integer, Integer>>> fragments;
+    private boolean diceRolled = false;
+    private int hitIndex;
 
     /**
      * Constructor
@@ -19,23 +27,22 @@ public class MeteorSwarmState extends State {
     public MeteorSwarmState(Board board, EventCallback callback, MeteorSwarm card, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.card = card;
-        this.fightHandler = new FightHandlerSubState(super.eventCallback);
-    }
-
-    public FightHandlerSubState getFightHandler() {
-        return fightHandler;
-    }
-
-    public MeteorSwarm getCard() {
-        return card;
+        this.protectionResult = new Pair<>(null, -1);
+        this.fragments = new ArrayList<>();
+        this.hitIndex = 0;
     }
 
     /**
-     * Implementation of {@link State#setFragmentChoice(int)} to set the fragment choice.
+     * Implementation of {@link State#setFragmentChoice(PlayerData, int)} to set the fragment choice.
      */
     @Override
-    public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
-        fightHandler.setFragmentChoice(fragmentChoice);
+    public void setFragmentChoice(PlayerData player, int fragmentChoice) throws IllegalStateException {
+        if (fragments.isEmpty()) {
+            throw new IllegalStateException("No fragments to choose from");
+        }
+        Event event = Handler.destroyFragment(player, fragments.get(fragmentChoice));
+        eventCallback.trigger(event);
+        fragments.clear();
     }
 
     /**
@@ -43,34 +50,32 @@ public class MeteorSwarmState extends State {
      */
     @Override
     public void setProtect(PlayerData player, int batteryID) throws IllegalStateException, IllegalArgumentException {
-        try {
-            if (batteryID != -1) {
-                SpaceShip ship = player.getSpaceShip();
-                if (ship.getBattery(batteryID).getEnergyNumber() < 1) {
-                    throw new IllegalArgumentException("Not enough energy in battery " + batteryID);
-                }
-            }
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid battery ID: " + batteryID);
+        if (!diceRolled) {
+            throw new IllegalStateException("Dice not rolled yet");
         }
-        if (batteryID == -1) {
-            fightHandler.setProtect(false, null);
+        Event event = Handler.protectFromHit(player, protectionResult, batteryID);
+        if (event != null) {
+            eventCallback.trigger(event);
+        }
+        event = Handler.checkForFragments(player, fragments);
+        if (event != null) {
+            eventCallback.trigger(event);
         } else {
-            fightHandler.setProtect(true, batteryID);
+            fragments.clear();
         }
     }
 
     /**
-     * Implementation of the {@link State#rollDice()} to roll the dice and set the value in the fight handler.
+     * Implementation of the {@link State#rollDice(PlayerData)} to roll the dice and set the value in the fight handler.
      */
     @Override
-    public void rollDice() throws IllegalStateException {
-        // Roll the first dice
-        int firstDice = (int) (Math.random() * 6) + 1;
-        // Roll the second dice
-        int secondDice = (int) (Math.random() * 6) + 1;
-        // TODO: We should notify the two dice separately to handle visualization in the UI
-        fightHandler.setDice(firstDice + secondDice);
+    public void rollDice(PlayerData player) throws IllegalStateException {
+        if (diceRolled) {
+            throw new IllegalStateException("Dice already rolled for this hit");
+        }
+        Event event = Handler.rollDice(player, card.getMeteors().get(hitIndex), protectionResult);
+        eventCallback.trigger(event);
+        diceRolled = true;
     }
 
     /**
@@ -81,12 +86,16 @@ public class MeteorSwarmState extends State {
      */
     @Override
     public void execute(PlayerData player) throws IndexOutOfBoundsException, IllegalStateException {
-        int currentHitIndex = fightHandler.getHitIndex();
-        if (currentHitIndex >= card.getMeteors().size()) {
-            throw new IndexOutOfBoundsException("Hit index out of bounds");
+        super.execute(player);
+        if (players.indexOf(player) == players.size() - 1) {
+            hitIndex++;
+            if (hitIndex < card.getMeteors().size()) {
+                for (PlayerData p : players) {
+                    playersStatus.put(p.getColor(), PlayerStatus.WAITING);
+                }
+                diceRolled = false;
+            }
         }
-
-        fightHandler.executeFight(player, () -> card.getMeteors().get(currentHitIndex));
         super.nextState(GameState.CARDS);
     }
 }

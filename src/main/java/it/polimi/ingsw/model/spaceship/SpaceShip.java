@@ -1,13 +1,13 @@
 package it.polimi.ingsw.model.spaceship;
 
-import java.util.*;
-
 import it.polimi.ingsw.model.cards.hits.Direction;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerColor;
 import org.javatuples.Pair;
+
+import java.util.*;
 
 public class SpaceShip {
     private final Level level;
@@ -22,10 +22,11 @@ public class SpaceShip {
     private List<Component> lostComponents;
     private ArrayList<Component> reservedComponents;
 
-    private Map<Integer, Storage> storages;
-    private Map<Integer, Battery> batteries;
-    private Map<Integer, Cabin> cabins;
-    private Map<Integer, Cannon> cannons;
+    private final Map<Integer, Storage> storages;
+    private final Map<Integer, Battery> batteries;
+    private final Map<Integer, Cabin> cabins;
+    private final Map<Integer, Cannon> cannons;
+    private final Map<Integer, Engine> engines;
     private PriorityQueue<Good> goods;
     private Component lastPlacedComponent;
 
@@ -112,6 +113,7 @@ public class SpaceShip {
         batteries = new HashMap<>();
         cabins = new HashMap<>();
         cannons = new HashMap<>();
+        engines = new HashMap<>();
         goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
         lastPlacedComponent = null;
 
@@ -288,6 +290,23 @@ public class SpaceShip {
             cannon = cannons.get(ID);
             if (cannon != null) {
                 strength += cannon.getCannonStrength();
+            }
+        }
+        return strength;
+    }
+
+    /**
+     * Calculates and returns the total strength of engines based on their IDs.
+     * @param IDs a list of integer IDs corresponding to the engines whose strength is to be calculated
+     * @return the total strength of the engines as a float
+     */
+    public float getEnginesStrength(List<Integer> IDs) {
+        float strength = 0;
+        Engine engine;
+        for (int ID : IDs) {
+            engine = engines.get(ID);
+            if (engine != null) {
+                strength += engine.getEngineStrength();
             }
         }
         return strength;
@@ -528,6 +547,9 @@ public class SpaceShip {
      */
     public boolean useEnergy(int ID) throws IllegalArgumentException {
         Battery battery = batteries.get(ID);
+        if (battery == null) {
+            throw new IllegalArgumentException("The battery with the given ID does not exist");
+        }
         try {
             battery.removeEnergy();
             energyNumber--;
@@ -576,20 +598,13 @@ public class SpaceShip {
      * @param row row of the component to get
      * @param column column of the component to get
      * @return component at the given row and column
+     * @throws IllegalArgumentException if the row and column are not valid
      */
     public Component getComponent(int row, int column) {
         if (row < 0 || row >= rows || column < 0 || column >= cols) {
             throw new IllegalArgumentException("The row and column are not valid");
         }
         return components[row][column];
-    }
-
-    /**
-     * Get the components of the ship
-     * @return components of the ship
-     */
-    public Component[][] getComponents() {
-        return components;
     }
 
     /**
@@ -682,9 +697,11 @@ public class SpaceShip {
                     break;
                 case SINGLE_ENGINE:
                     singleEnginesStrength++;
+                    engines.put(c.getID(), (Engine) components[row][column]);
                     break;
                 case DOUBLE_ENGINE:
                     doubleEnginesStrength+=2;
+                    engines.put(c.getID(), (Engine) components[row][column]);
                     break;
                 default:
                     break;
@@ -701,7 +718,8 @@ public class SpaceShip {
 
     /**
      * Get the cabin in the ship by ID
-     * @return cabin in the ship
+     * @return cabin in the ship with the given ID
+     * @throws IllegalArgumentException if there is no cabin with the given ID
      */
     public Cabin getCabin(int ID) throws IllegalArgumentException {
         if (cabins.get(ID) == null) {
@@ -720,7 +738,8 @@ public class SpaceShip {
 
     /**
      * Get the storage in the ship by ID
-     * @return storage in the ship
+     * @return storage in the ship with the given ID
+     * @throws IllegalArgumentException if there is no storage with the given ID
      */
     public Storage getStorage(int ID) throws IllegalArgumentException {
         if (storages.get(ID) == null) {
@@ -731,7 +750,8 @@ public class SpaceShip {
 
     /**
      * Get the battery in the ship by ID
-     * @return battery in the ship
+     * @return battery in the ship with the given ID
+     * @throws IllegalArgumentException if there is no battery with the given ID
      */
     public Battery getBattery(int ID) throws IllegalArgumentException {
         if (batteries.get(ID) == null) {
@@ -742,7 +762,8 @@ public class SpaceShip {
 
     /**
      * Get the cannon in the ship by ID
-     * @return cannon in the ship
+     * @return cannon in the ship with the given ID
+     * @throws IllegalArgumentException if there is no cannon with the given ID
      */
     public Cannon getCannon(int ID) throws IllegalArgumentException {
         if (cannons.get(ID) == null) {
@@ -752,11 +773,16 @@ public class SpaceShip {
     }
 
     /**
-     * Get the cannons in the ship
-     * @return cannons in the ship
+     * Get the engine in the ship by ID
+     * @param ID ID of the engine to get
+     * @return engine in the ship with the given ID
+     * @throws IllegalArgumentException if there is no engine with the given ID
      */
-    public Map<Integer, Cannon> getCannons() {
-        return cannons;
+    public Engine getEngine(int ID) throws IllegalArgumentException {
+        if (engines.get(ID) == null) {
+            throw new IllegalArgumentException("The ID of the engine is not valid");
+        }
+        return this.engines.get(ID);
     }
 
     /**
@@ -767,14 +793,11 @@ public class SpaceShip {
         return lastPlacedComponent;
     }
 
-    /**
-     * Set the last placed component
-     * @param component the component to set as last placed
+    /*
+       TODO: This method should be obsolete since we can only take the last placed component all
+             the other components are automatically fixed.
+             So also the fix method in the Component class should be removed.
      */
-    public void setLastPlacedComponent(Component component) {
-        lastPlacedComponent = component;
-    }
-
     /**
      * Fix a component at the given row and column
      * @param row row of the component to fix
@@ -806,9 +829,11 @@ public class SpaceShip {
         switch (destroyedComponent.getComponentType()) {
             case SINGLE_ENGINE:
                 singleEnginesStrength--;
+                engines.remove(destroyedComponent.getID());
                 break;
             case DOUBLE_ENGINE:
                 doubleEnginesStrength-=2;
+                engines.remove(destroyedComponent.getID());
                 break;
             case SINGLE_CANNON:
                 Cannon singlecannon = (Cannon) destroyedComponent;

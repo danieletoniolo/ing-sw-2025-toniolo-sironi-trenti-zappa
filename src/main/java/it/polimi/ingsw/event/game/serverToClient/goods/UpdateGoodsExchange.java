@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * This event is used when a player have to exchange goods between two storages.
  * @param nickname     is the user username when the event is sent to the other client.
- * @param exchangeData exchangeData contains an arraylist of pairs, each pair contains (in this order) the ID of the storage, the goods of the goods of the storage (value == null -> position is empty)
+ * @param exchangeData exchangeData contains an arraylist of pairs, each pairs contains (in this order) the storage ID and a list of goods IDs in the storage.
  * */
 public record UpdateGoodsExchange (
         String nickname,
