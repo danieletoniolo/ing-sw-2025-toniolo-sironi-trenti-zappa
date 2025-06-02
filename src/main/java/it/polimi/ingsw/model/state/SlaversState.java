@@ -1,18 +1,17 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
-import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
 import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.player.PlayerLost;
 import it.polimi.ingsw.event.game.serverToClient.player.UpdateCoins;
+import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.Slavers;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
-import it.polimi.ingsw.controller.EventCallback;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,6 @@ public class SlaversState extends State {
     private SlaversInternalState internalState;
     private final Slavers card;
     private final Map<PlayerData, Float> stats;
-    private List<Integer> crewLoss;
     private Boolean slaversDefeat;
 
     /**
@@ -43,7 +41,6 @@ public class SlaversState extends State {
         this.internalState = SlaversInternalState.ENEMY_DEFEAT;
         this.card = card;
         this.stats = new HashMap<>();
-        this.crewLoss = null;
         this.slaversDefeat = false;
     }
 
@@ -60,24 +57,16 @@ public class SlaversState extends State {
                 if (internalState != SlaversInternalState.ENEMY_DEFEAT) {
                     throw new IllegalStateException("Use cannon not allowed in this state");
                 }
-                // Use the energy to power the cannon
-                SpaceShip ship = player.getSpaceShip();
-                for (Integer batteryID : batteriesID) {
-                    ship.useEnergy(batteryID);
-                }
-
-                // Update the cannon strength stats
-                this.stats.merge(player, ship.getCannonsStrength(IDs), Float::sum);
-
-                CannonsUsed useCannonsEvent = new CannonsUsed(player.getUsername(), IDs, (ArrayList<Integer>) batteriesID);
-                eventCallback.trigger(useCannonsEvent);
+                Event event = Handler.useExtraStrength(player, type, IDs, batteriesID);
+                this.stats.merge(player, player.getSpaceShip().getCannonsStrength(IDs), Float::sum);
+                eventCallback.trigger(event);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
         }
     }
 
     /**
-     * Implementation of the {@link State #setPenaltyLoss(PlayerData, int, List)} to set the crew to lose in
+     * Implementation of the {@link State #loseCrew(PlayerData, int, List)} to set the crew to lose in
      * order to serve the penalty.
      * @throws IllegalArgumentException if the type is not 0, 1 or 2.
      */
@@ -87,33 +76,11 @@ public class SlaversState extends State {
             case 0 -> throw new IllegalStateException("No goods to remove in this state");
             case 1 -> throw new IllegalStateException("No batteries to remove in this state");
             case 2 -> {
-                // Check if there are the provided number of crew members in the provided cabins
-                Map<Integer, Integer> cabinCrewMap = new HashMap<>();
-                for (int cabinID : cabinsID) {
-                    cabinCrewMap.merge(cabinID, 1, Integer::sum);
-                }
-                SpaceShip ship = player.getSpaceShip();
-                for (int cabinID : cabinCrewMap.keySet()) {
-                    if (ship.getCabin(cabinID).getCrewNumber() < cabinCrewMap.get(cabinID)) {
-                        throw new IllegalStateException("Not enough crew members in cabin " + cabinID);
-                    }
-                }
-                // Check if the number of crew members to remove is equal to the number of crew members required to lose
-                if (cabinsID.size() != card.getCrewLost()) {
-                    throw new IllegalStateException("The crew removed is not equal to the crew required to lose");
-                }
-                this.crewLoss = cabinsID;
+                Event event = Handler.loseCrew(player, cabinsID, card.getCrewLost());
+                eventCallback.trigger(event);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0, 1 or 2.");
         }
-    }
-
-    /**
-     * Check if the slavers are defeated
-     * @return Boolean value
-     */
-    public Boolean isSlaversDefeat() {
-        return slaversDefeat;
     }
 
     /**
@@ -163,23 +130,17 @@ public class SlaversState extends State {
                     }
                     super.execute(player);
                 } else if (slaversDefeat != null) {
-                    if (crewLoss == null) {
-                        throw new IllegalStateException("crewLost not set");
-                    }
                     /*
                        TODO:
                         I think we need to check if the player has enough crew members before going to the penalty
                         So that if the player has not enough crew members we send the lose event without making the player
-                        send an unnecessary setPenaltyLoss
+                        send an unnecessary loseCrew
                      */
 
                     if (spaceShip.getCrewNumber() <= card.getCrewLost()) {
                         PlayerLost lostEvent = new PlayerLost();
                         eventCallback.trigger(lostEvent, player.getUUID());
                     } else {
-                        for (int cabinID : crewLoss) {
-                            spaceShip.removeCrewMember(cabinID, 1);
-                        }
                         // TODO: Due to the change of crewLoss to List<Integer> we need to change the event
                         //AddLoseCrew crewEvent = new AddLoseCrew(player.getUsername(), false, crewLoss);
                         //eventCallback.trigger(crewEvent);

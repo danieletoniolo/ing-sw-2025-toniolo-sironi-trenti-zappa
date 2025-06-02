@@ -1,14 +1,16 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
+import it.polimi.ingsw.event.game.serverToClient.player.UpdateCoins;
+import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.Pirates;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
+import it.polimi.ingsw.model.spaceship.Component;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
-import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
-import it.polimi.ingsw.event.game.serverToClient.player.UpdateCoins;
-import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
+import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,9 +22,12 @@ public class PiratesState extends State {
     private final Pirates card;
     private final Map<PlayerData, Float> stats;
     private PiratesInternalState internalState;
-    Boolean piratesDefeat;
-    ArrayList<PlayerData> playersDefeated;
-    FightHandlerSubState fightHandler;
+    private Boolean piratesDefeat;
+    private final ArrayList<PlayerData> playersDefeated;
+    private final List<List<Pair<Integer, Integer>>> fragments;
+    private final Pair<Component, Integer> protectionResult;
+    private int hitIndex;
+    private boolean diceRolled;
 
     /**
      * Enum to represent the internal state of the pirates state.
@@ -45,33 +50,26 @@ public class PiratesState extends State {
         this.piratesDefeat = false;
         this.internalState = PiratesInternalState.DEFAULT;
         this.playersDefeated = new ArrayList<>();
-        this.fightHandler = new FightHandlerSubState(super.eventCallback);
-    }
-
-    public void setInternalStatePirates(PiratesInternalState internalState) {
-        this.internalState = internalState;
-    }
-
-    public Map<PlayerData, Float> getStats() {
-        return stats;
-    }
-
-    public Pirates getCard() {
-        return card;
+        this.fragments = new ArrayList<>();
+        this.protectionResult = new Pair<>(null, -1);
+        this.hitIndex = 0;
+        this.diceRolled = false;
     }
 
     /**
-     * Implementation of {@link State#setFragmentChoice(int)} to set the fragment choice.
+     * Implementation of {@link State#setFragmentChoice(PlayerData, int)} to set the fragment choice.
      */
     @Override
-    public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
+    public void setFragmentChoice(PlayerData player, int fragmentChoice) throws IllegalStateException {
         if (internalState != PiratesInternalState.PENALTY) {
             throw new IllegalStateException("Fragment choice not allowed in this state");
         }
-        if (fragmentChoice < 0 || fragmentChoice >= card.getFires().size()) {
-            throw new IllegalArgumentException("Fragment choice is out of bounds");
+        if (fragments.isEmpty()) {
+            throw new IllegalArgumentException("No fragments available to choose from");
         }
-        fightHandler.setFragmentChoice(fragmentChoice);
+        Event event = Handler.destroyFragment(player, fragments.get(fragmentChoice));
+        eventCallback.trigger(event);
+        fragments.clear();
     }
 
     /**
@@ -79,40 +77,35 @@ public class PiratesState extends State {
      */
     @Override
     public void setProtect(PlayerData player, int batteryID) throws IllegalStateException, IllegalArgumentException {
-        if (internalState != PiratesInternalState.PENALTY) {
+        if (internalState != PiratesInternalState.PENALTY || !diceRolled) {
             throw new IllegalStateException("setProtect not allowed in this state");
         }
-        try {
-            if (batteryID != -1) {
-                SpaceShip ship = player.getSpaceShip();
-                if (ship.getBattery(batteryID).getEnergyNumber() < 1) {
-                    throw new IllegalArgumentException("Not enough energy in battery " + batteryID);
-                }
-            }
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid battery ID: " + batteryID);
+        Event event = Handler.protectFromHit(player, protectionResult, batteryID);
+        if (event != null) {
+            eventCallback.trigger(event);
         }
-        if (batteryID == -1) {
-            fightHandler.setProtect(false, null);
+        event = Handler.checkForFragments(player, fragments);
+        if (event != null) {
+            eventCallback.trigger(event);
         } else {
-            fightHandler.setProtect(true, batteryID);
+            fragments.clear();
         }
     }
 
     /**
-     * Implementation of the {@link State#rollDice()} to roll the dice and set the value in the fight handler.
+     * Implementation of the {@link State#rollDice(PlayerData)} to roll the dice and set the value in the fight handler.
      */
     @Override
-    public void rollDice() throws IllegalStateException {
+    public void rollDice(PlayerData player) throws IllegalStateException {
         if (internalState != PiratesInternalState.PENALTY) {
             throw new IllegalStateException("setDice not allowed in this state");
         }
-        // Roll the first dice
-        int firstDice = (int) (Math.random() * 6) + 1;
-        // Roll the second dice
-        int secondDice = (int) (Math.random() * 6) + 1;
-        // TODO: We should notify the two dice separately to handle visualization in the UI
-        fightHandler.setDice(firstDice + secondDice);
+        if (diceRolled) {
+            throw new IllegalStateException("Dice already rolled in this state");
+        }
+        Event event = Handler.rollDice(player, card.getFires().get(hitIndex), protectionResult);
+        eventCallback.trigger(event);
+        diceRolled = true;
     }
 
     /**
@@ -128,17 +121,9 @@ public class PiratesState extends State {
                 if (internalState == PiratesInternalState.DEFAULT) {
                     throw new IllegalStateException("Cannot use double cannons in this state");
                 }
-                // Use the energy to power the cannon
-                SpaceShip ship = player.getSpaceShip();
-                for (Integer batteryID : batteriesID) {
-                    ship.useEnergy(batteryID);
-                }
-
-                // Update the cannon strength stats
-                this.stats.merge(player, ship.getCannonsStrength(IDs), Float::sum);
-
-                CannonsUsed useCannonsEvent = new CannonsUsed(player.getUsername(), IDs, (ArrayList<Integer>) batteriesID);
-                eventCallback.trigger(useCannonsEvent);
+                Event event = Handler.useExtraStrength(player, type, IDs, batteriesID);
+                this.stats.merge(player, player.getSpaceShip().getCannonsStrength(IDs), Float::sum);
+                eventCallback.trigger(event);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
         }
@@ -186,7 +171,6 @@ public class PiratesState extends State {
                 if (piratesDefeat == null) {
                     break;
                 }
-
                 if (piratesDefeat) {
                     if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
                         player.addCoins(card.getCredit());
@@ -203,11 +187,6 @@ public class PiratesState extends State {
                 if (!playersDefeated.contains(player)) {
                     throw new IllegalStateException("Player was not defeated");
                 }
-                int currentHitIndex = fightHandler.getHitIndex();
-                if (currentHitIndex >= card.getFires().size()) {
-                    throw new IndexOutOfBoundsException("Hit index out of bounds");
-                }
-                fightHandler.executeFight(player, () -> card.getFires().get(currentHitIndex));
                 break;
         }
 
@@ -221,8 +200,12 @@ public class PiratesState extends State {
 
         if (players.indexOf(player) == players.size() - 1 && (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED || playersStatus.get(player.getColor()) == PlayerStatus.SKIPPED)) {
             internalState = PiratesInternalState.PENALTY;
-            for (PlayerData p : players) {
-                playersStatus.put(p.getColor(), PlayerStatus.WAITING);
+            hitIndex++;
+            if (hitIndex < card.getFires().size()) {
+                for (PlayerData p : players) {
+                    playersStatus.put(p.getColor(), PlayerStatus.WAITING);
+                }
+                diceRolled = false;
             }
         }
         super.nextState(GameState.CARDS);

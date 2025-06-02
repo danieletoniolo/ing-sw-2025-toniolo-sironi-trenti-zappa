@@ -37,22 +37,6 @@ public class BuildingState extends State {
         this.playersHandQueue = new HashMap<>();
     }
 
-    public boolean getTimerRunning() {
-        return timerRunning;
-    }
-
-    public Map<PlayerColor, Component> getPlayersHandQueue() {
-        return playersHandQueue;
-    }
-
-    public int getNumberOfTimerFlips() {
-        return numberOfTimerFlips;
-    }
-
-    public static long getTimerDuration() {
-        return timerDuration;
-    }
-
     /**
      * Implementation of the method to flip the timer.
      * @see State#flipTimer(PlayerData)
@@ -109,7 +93,7 @@ public class BuildingState extends State {
                                 // If someone has something in his hand it must be added to the lost components
                                 if (playersHandQueue.get(p.getColor()) != null) {
                                     p.getSpaceShip().getLostComponents().add(playersHandQueue.get(p.getColor()));
-                                    ComponentDestroyed lostComponentsEvent = new ComponentDestroyed(p.getUsername(), (ArrayList<Pair<Integer, Integer>>) p.getSpaceShip().getLostComponents().stream()
+                                    ComponentDestroyed lostComponentsEvent = new ComponentDestroyed(p.getUsername(), p.getSpaceShip().getLostComponents().stream()
                                             .map(temp -> new Pair<>(temp.getRow(), temp.getColumn())).toList());
                                     eventCallback.trigger(lostComponentsEvent);
                                 }

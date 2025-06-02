@@ -245,14 +245,6 @@ public abstract class State implements Serializable {
     }
 
     /**
-     * Get the board associated with the state
-     * @return Board associated with the state
-     */
-    public Board getBoard() {
-        return board;
-    }
-
-    /**
      * Get the player who has not played yet (current player to play)
      *
      * @return PlayerData of the current player that is playing
@@ -260,7 +252,7 @@ public abstract class State implements Serializable {
      */
     public PlayerData getCurrentPlayer() throws IllegalStateException {
         for (PlayerData player : players) {
-            if (playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {
+            if (playersStatus.get(player.getColor()) == PlayerStatus.WAITING || playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
                 return player;
             }
         }
@@ -300,7 +292,6 @@ public abstract class State implements Serializable {
      * Make the player play in the state
      *
      * @param player PlayerData of the player to play
-     * @return Pair of EventType and Object which contains the record that will be sent to the client. In the super.execute(PlayerData player) method we return null
      * @throws NullPointerException player == null
      */
     public void execute(PlayerData player) throws NullPointerException {
@@ -485,7 +476,7 @@ public abstract class State implements Serializable {
      * @param fragmentChoice         Choice of the fragment to preserve: 0 = left, 1 = right, 2 = center.
      * @throws IllegalStateException if the state does not allow setting the fragment choice.
      */
-    public void setFragmentChoice(int fragmentChoice) throws IllegalStateException {
+    public void setFragmentChoice(PlayerData player, int fragmentChoice) throws IllegalStateException {
         throw new IllegalStateException("Cannot set fragment choice in this state");
     }
 
@@ -506,7 +497,7 @@ public abstract class State implements Serializable {
      *
      * @throws IllegalStateException if the state does not allow rolling the dice.
      */
-    public void rollDice() throws IllegalStateException {
+    public void rollDice(PlayerData player) throws IllegalStateException {
         throw new IllegalStateException("Cannot roll dice in this state");
     }
 
@@ -525,7 +516,7 @@ public abstract class State implements Serializable {
     /**
      * Set the goods to exchange (the goods to leave and the goods to get).
      * @param player PlayerData of the player who is exchanging the goods.
-     * @param exchangeData contains an List of triplets, each triplet contains (in this order):
+     * @param exchangeData contains a List of triplets, each triplet contains (in this order):
      * the goods that the player wants to get, the good that the player wants to leave, the storage ID.
      * @throws IllegalStateException if the state does not allow setting the goods to exchange.
      * @throws IllegalArgumentException if the exchangeData is invalid.
