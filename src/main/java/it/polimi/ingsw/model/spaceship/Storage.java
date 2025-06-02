@@ -41,6 +41,14 @@ public class Storage extends Component{
     }
 
     /**
+     * Get the list of goods in the storage
+     * @return A list of goods in the storage
+     */
+    public List<Good> getGoods() {
+        return goods.stream().toList();
+    }
+
+    /**
      * Add a good to the storage if there is enough space
      * @param good the Good to add
      * @throws IllegalStateException if the storage is full or if the good is red and the storage is not dangerous

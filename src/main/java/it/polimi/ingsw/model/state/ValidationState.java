@@ -105,7 +105,8 @@ public class ValidationState extends State {
                         playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
                     }
                 } else {
-                    // TODO: We should notify the player it still has invalid components
+                    InvalidComponents invalidComponentsEvent = new InvalidComponents(player.getUsername(), playerInvalidComponents);
+                    eventCallback.trigger(invalidComponentsEvent);
                 }
                 break;
             case FRAGMENTED_SHIP:

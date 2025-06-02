@@ -2,6 +2,7 @@ package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.Smugglers;
@@ -150,7 +151,9 @@ public class SmugglersState extends State {
                 // Check if the player has enough cannon strength to beat the card
                 if (cannonStrength.get(player) > card.getCannonStrengthRequired()) {
                     internalState = SmugglerInternalState.GOODS_REWARD;
-                    // TODO: Notify the player that we won the fight
+
+                    EnemyDefeat enemyDefeat = new EnemyDefeat(player.getUsername(), true);
+                    eventCallback.trigger(enemyDefeat);
                 } else if (cannonStrength.get(player) == card.getCannonStrengthRequired()) {
                     // Set the player as played
                     playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);

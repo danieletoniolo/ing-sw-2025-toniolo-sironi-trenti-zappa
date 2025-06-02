@@ -1,5 +1,6 @@
 package it.polimi.ingsw.model.state;
 
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.BatteriesUsed;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.EnginesUsed;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.ShieldUsed;
@@ -152,8 +153,15 @@ public class Handler {
         for (int storageID : storagesID) {
             ship.pollGood(storageID);
         }
-        // TODO: There is no event to update the goods we remove
-        return null;
+
+        return new UpdateGoodsExchange(
+                player.getUsername(),
+                storagesID.stream()
+                        .map(t -> new Pair<>(
+                                t,
+                                ship.getStorage(t).getGoods().stream().map(g -> g.getColor().getValue()).toList()
+                        )).toList()
+        );
     }
 
     static Event loseBatteries(PlayerData player, List<Integer> batteriesID, int requiredBatteryLoss) throws IllegalStateException {
@@ -177,8 +185,11 @@ public class Handler {
         for (int batterieID : batteriesID) {
             ship.useEnergy(batterieID);
         }
-        // TODO: There is no event to update the batteries we remove
-        return null;
+
+        return new BatteriesUsed(
+                player.getUsername(),
+                batteriesID
+        );
     }
 
     static Event loseCrew(PlayerData player, List<Integer> cabinsID, int requiredCrewLoss) throws IllegalStateException {
@@ -248,16 +259,13 @@ public class Handler {
             ship.exchangeGood(triplet.getValue0(), triplet.getValue1(), triplet.getValue2());
         }
         // Convert the exchange data to the format expected by the event and trigger the event
-        List<Triplet<List<Integer>, List<Integer>, Integer>> convertedData = exchangeData.stream()
-                .map(t -> new Triplet<>(
-                        t.getValue0().stream()
-                                .map(Good::getValue)
-                                .toList(),
-                        t.getValue1().stream()
-                                .map(Good::getValue)
-                                .toList(),
-                        t.getValue2()))
-                .toList();
+        List<Pair<Integer, List<Integer>>> convertedData = exchangeData.stream()
+                .map(t -> new Pair<>(
+                        t.getValue2(),
+                        ship.getStorage(t.getValue2()).getGoods().stream()
+                                .map(g -> g.getColor().getValue())
+                                .toList()
+                )).toList();
         return new UpdateGoodsExchange(player.getUsername(), convertedData);
     }
 
