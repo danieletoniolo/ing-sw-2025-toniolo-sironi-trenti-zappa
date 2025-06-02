@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.serverToClient.energyUsed;
 
 import it.polimi.ingsw.event.type.Event;
+import org.javatuples.Pair;
 
 import java.io.Serializable;
 import java.util.List;
@@ -10,10 +11,10 @@ import java.util.List;
  * It is used to notify the other players that the player has used the cannons.
  * @param nickname     is the user userID. Only the user know his ID, so the event is not faked.
  * @param cannonsIDs   The IDs of the cannons to use.
- * @param batteriesIDs The IDs of the batteries to use, in order to reach the power.
+ * @param batteriesIDs List of Pairs with the first element being the battery ID and the second element being the number of batteries in the battery.v
  * */
 public record CannonsUsed(
         String nickname,
         List<Integer> cannonsIDs,
-        List<Integer> batteriesIDs
+        List<Pair<Integer, Integer>> batteriesIDs
 ) implements Event, Serializable {}
