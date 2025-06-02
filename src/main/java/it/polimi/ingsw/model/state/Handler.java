@@ -38,7 +38,7 @@ public class Handler {
         if (protectionType == 0 || protectionType == -1) {
             if (batteryID != -1 && protectionType != -1) {
                 ship.useEnergy(batteryID);
-                return new ShieldUsed(player.getUsername(), batteryID);
+                return new ShieldUsed(player.getUsername(), new Pair<>(batteryID, ship.getBattery(batteryID).getEnergyNumber()));
             } else {
                 ship.destroyComponent(component.getRow(), component.getColumn());
 
@@ -101,14 +101,14 @@ public class Handler {
                 for (int engineID : cannonsOrEnginesID) {
                     ship.getEngine(engineID);
                 }
-                event = new EnginesUsed(player.getUsername(), cannonsOrEnginesID, batteriesID);
+                event = new EnginesUsed(player.getUsername(), cannonsOrEnginesID, batteriesID.stream().map(t -> new Pair<>(t, ship.getBattery(t).getEnergyNumber())).toList());
             }
             case 1 -> {
                 // Check if the cannons are valid
                 for (int cannonID : cannonsOrEnginesID) {
                     ship.getCannon(cannonID);
                 }
-                event  = new CannonsUsed(player.getUsername(), cannonsOrEnginesID, batteriesID);
+                event  = new CannonsUsed(player.getUsername(), cannonsOrEnginesID, batteriesID.stream().map(t -> new Pair<>(t, ship.getBattery(t).getEnergyNumber())).toList());
             }
         }
         for (int batteryID : batteriesMap.keySet()) {
@@ -188,7 +188,7 @@ public class Handler {
 
         return new BatteriesUsed(
                 player.getUsername(),
-                batteriesID
+                batteriesID.stream().map(t -> new Pair<>(t, ship.getBattery(t).getEnergyNumber())).toList()
         );
     }
 
