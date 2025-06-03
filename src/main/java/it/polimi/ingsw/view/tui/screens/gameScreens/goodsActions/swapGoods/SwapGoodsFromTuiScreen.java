@@ -1,13 +1,11 @@
-package it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.swapGoodsActions;
+package it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.swapGoods;
 
-import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import it.polimi.ingsw.view.tui.screens.TuiScreens;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class SwapGoodsFromTuiScreen extends ManagerSwapGoodTuiScreen{
     private final TuiScreenView oldScreen;

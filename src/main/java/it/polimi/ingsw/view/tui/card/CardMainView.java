@@ -22,7 +22,7 @@ public class CardMainView {
         try {
             Stack<CardView> cards = new Stack<>();
             Deck[] decks = CardsManager.createDecks(Level.SECOND);
-            Stack<Card> shuffledDeck = CardsManager.createShuffledDeck(decks);
+            Stack<Card> shuffledDeck = CardsManager.createLearningDeck();
 
             ArrayList<Card> allCards = new ArrayList<>();
             for (int i = 0; i < 40; i++){
@@ -30,12 +30,12 @@ public class CardMainView {
             }
 
             DeckView deckView = new DeckView();
-            for (Card card : allCards) {
+            for (Card card : shuffledDeck) {
                 deckView.getDeck().add(convertCard(card));
             }
 
             deckView.setCovered(false);
-            deckView.setOnlyLast(true);
+            deckView.setOnlyLast(false);
             printDeck(deckView);
 
             for (CardView card : cards) {

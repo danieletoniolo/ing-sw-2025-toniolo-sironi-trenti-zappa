@@ -1,4 +1,4 @@
-package it.polimi.ingsw.view.tui.screens.gameScreens.slaversActions;
+package it.polimi.ingsw.view.tui.screens.gameScreens.piratesActions;
 
 import it.polimi.ingsw.event.game.clientToServer.player.Play;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
@@ -11,9 +11,9 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.cannonsActions.ChooseDoubleC
 
 import java.util.List;
 
-public class SlaversTuiScreen extends GameTuiScreen {
+public class PiratesTuiScreen extends GameTuiScreen {
 
-    public SlaversTuiScreen() {
+    public PiratesTuiScreen() {
         super(List.of("Active cannons", "Surrender"));
     }
 

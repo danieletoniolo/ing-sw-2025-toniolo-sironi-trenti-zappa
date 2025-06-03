@@ -1,16 +1,10 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.exchangeGoods;
 
-import it.polimi.ingsw.view.miniModel.MiniModel;
-import it.polimi.ingsw.view.miniModel.cards.AbandonedStationView;
-import it.polimi.ingsw.view.miniModel.cards.CardView;
-import it.polimi.ingsw.view.miniModel.cards.PlanetsView;
-import it.polimi.ingsw.view.miniModel.cards.SmugglersView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import it.polimi.ingsw.view.tui.screens.TuiScreens;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class DropGoodsTuiScreen extends ManagerExchangeGoodsTuiScreen{
     private final TuiScreenView oldScreen;

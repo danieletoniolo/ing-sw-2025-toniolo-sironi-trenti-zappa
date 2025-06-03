@@ -14,7 +14,6 @@ public class ChooseNumberPlayersTuiScreen extends MenuTuiScreen {
         options.add("2 players");
         options.add("3 players");
         options.add("4 players");
-        isNewScreen = true;
     }
 
     @Override

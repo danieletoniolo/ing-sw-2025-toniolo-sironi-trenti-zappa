@@ -73,7 +73,7 @@ public class CannonsBatteryTuiScreen extends MangerCannonsTuiScreen{
                 .findFirst()
                 .ifPresent(entry -> {
                     batteriesIDs.add(entry.getKey());
-                    entry.getValue().reduceNumberOfButteries();
+                    entry.getValue().setNumberOfBatteries(entry.getValue().getNumberOfBatteries() - 1);
                 });
 
 

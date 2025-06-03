@@ -4,7 +4,7 @@ import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.screens.GameTuiScreen;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.exchangeGoods.StorageExchangeTuiScreen;
-import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.swapGoodsActions.StorageFromTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.swapGoods.StorageFromTuiScreen;
 
 import java.util.List;
 

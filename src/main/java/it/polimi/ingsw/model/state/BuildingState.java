@@ -303,8 +303,8 @@ public class BuildingState extends State {
             connectors[i] = component.getConnection(i).getValue();
         }
 
-        RotatedTile rotatedTileEvent = new RotatedTile(player.getUsername(), component.getID(), connectors);
-        eventCallback.trigger(rotatedTileEvent);
+        //RotatedTile rotatedTileEvent = new RotatedTile(player.getUsername(), component.getID(), connectors);
+        //eventCallback.trigger(rotatedTileEvent);
     }
 
     /**

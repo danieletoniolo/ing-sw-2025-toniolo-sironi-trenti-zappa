@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.tui.screens;
 
 import it.polimi.ingsw.event.game.clientToServer.player.PlayerReady;
+import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -42,12 +43,14 @@ public class LobbyTuiScreen implements TuiScreenView {
             case 0, 1:
                 status = PlayerReady.requester(Client.transceiver, new Object()).request(new PlayerReady(MiniModel.getInstance().getUserID(), selected == 0));
                 if (status.get().equals("POTA")) {
-                    setMessage("You are already " + ((selected == 0) ? "Ready" : "Not Ready"));
+                    setMessage(((Pota) status).errorMessage());
                 }
                 return this;
             case 2:
                 //status = EventPerScaricareLobbies
                 return new MenuTuiScreen();
+            case 3:
+                return new ClosingProgram();
             default:
                 throw new IllegalStateException("Unexpected value: " + selected);
         }

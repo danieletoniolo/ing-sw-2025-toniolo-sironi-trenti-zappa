@@ -24,13 +24,6 @@ public class BatteryView extends ComponentView {
     }
 
     /**
-     * Reduce of 1 the number of batteries
-     */
-    public void reduceNumberOfButteries() {
-        this.numberOfBatteries--;
-    }
-
-    /**
      * Draws the component GUI.
      * This method is called to draw the component GUI.
      */

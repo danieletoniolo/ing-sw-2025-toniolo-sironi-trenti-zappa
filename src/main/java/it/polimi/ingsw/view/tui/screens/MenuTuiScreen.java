@@ -19,14 +19,12 @@ public class MenuTuiScreen implements TuiScreenView {
     protected int totalLines = 5;
     protected int selected;
     protected String message;
-    protected boolean isNewScreen;
 
     //Creation of the lobby
     protected static int maxPlayers;
     protected int level;
 
     public MenuTuiScreen() {
-
         int i = 0;
         for (LobbyView lobby : MiniModel.getInstance().getLobbiesView()) {
             i++;
@@ -35,8 +33,6 @@ public class MenuTuiScreen implements TuiScreenView {
         options.add("Create lobby");
         options.add("Reload lobbies");
         options.add("Exit");
-
-        isNewScreen = true;
     }
 
     @Override
@@ -48,17 +44,15 @@ public class MenuTuiScreen implements TuiScreenView {
     public void printTui(Terminal terminal) {
         var writer = terminal.writer();
         int row = 1;
+        TerminalUtils.printLine(writer, "Welcome " + MiniModel.getInstance().getNickname(), row++);
 
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, message == null ? "" : message, row++);
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, lineBeforeInput(), row);
 
-        if (isNewScreen) {
-            isNewScreen = false;
-            for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
-                TerminalUtils.printLine(writer, "", i);
-            }
+        for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
+            TerminalUtils.printLine(writer, "", i);
         }
     }
 

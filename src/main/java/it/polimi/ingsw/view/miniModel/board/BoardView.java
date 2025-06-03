@@ -125,16 +125,4 @@ public class BoardView implements Structure {
         print.append("    ").append(ArrowDown).append("  ");
         return print.toString();
     }
-
-    public static void main(String[] args) {
-        LevelView level = LevelView.SECOND;
-        BoardView board = new BoardView(level);
-        board.movePlayer(MarkerView.BLUE, 3);
-        board.movePlayer(MarkerView.RED, 7);
-        board.movePlayer(MarkerView.RED, 10);
-
-        for (int i = 0; i < board.getRowsToDraw(); i++) {
-            System.out.println(board.drawLineTui(i));
-        }
-    }
 }

@@ -1,4 +1,4 @@
-package it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.swapGoodsActions;
+package it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.swapGoods;
 
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import it.polimi.ingsw.view.tui.screens.TuiScreens;

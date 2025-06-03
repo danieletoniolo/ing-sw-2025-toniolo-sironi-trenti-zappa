@@ -6,10 +6,12 @@ import java.util.List;
 
 public class MeteorSwarmView extends CardView {
     public List<HitView> hits;
+    private int currentHit;
 
     public MeteorSwarmView(int ID, boolean covered, int level, List<HitView> hits) {
         super(ID, covered, level);
         this.hits = hits;
+        this.currentHit = 0;
     }
 
     @Override
@@ -26,11 +28,11 @@ public class MeteorSwarmView extends CardView {
             case 0 -> Up;
             case 1 -> "│    METEORSWARM    │";
             case 2,8 -> Clear;
-            case 3 -> (!hits.isEmpty() ?  ("│    Hit1: " + hits.getFirst().drawHitTui()) : Clear);
-            case 4 -> (hits.size() >= 2 ? ("│    Hit2: " + hits.get(1).drawHitTui()) : Clear);
-            case 5 -> (hits.size() >= 3 ? ("│    Hit3: " + hits.get(2).drawHitTui()) : Clear);
-            case 6 -> (hits.size() >= 4 ? ("│    Hit4: " + hits.get(3).drawHitTui()) : Clear);
-            case 7 -> (hits.size() >= 5 ? ("│    Hit5: " + hits.get(4).drawHitTui()) : Clear);
+            case 3 -> (!hits.isEmpty() ?  ("│   " + (currentHit == 0 ? drawCurrent() : " ") + " Hit1: " + hits.getFirst().drawHitTui()) : Clear);
+            case 4 -> (hits.size() >= 2 ? ("│   " + (currentHit == 1 ? drawCurrent() : " ") + " Hit2: " + hits.get(1).drawHitTui()) : Clear);
+            case 5 -> (hits.size() >= 3 ? ("│   " + (currentHit == 2 ? drawCurrent() : " ") + " Hit3: " + hits.get(2).drawHitTui()) : Clear);
+            case 6 -> (hits.size() >= 4 ? ("│   " + (currentHit == 3 ? drawCurrent() : " ") + " Hit4: " + hits.get(3).drawHitTui()) : Clear);
+            case 7 -> (hits.size() >= 5 ? ("│   " + (currentHit == 4 ? drawCurrent() : " ") + " Hit5: " + hits.get(4).drawHitTui()) : Clear);
             case 9 -> Down;
             default -> null;
         });
@@ -46,6 +48,14 @@ public class MeteorSwarmView extends CardView {
 
     public List<HitView> getHits() {
         return hits;
+    }
+
+    public void nextHit() {
+        this.currentHit++;
+    }
+
+    private String drawCurrent(){
+        return "◉";
     }
 
     @Override

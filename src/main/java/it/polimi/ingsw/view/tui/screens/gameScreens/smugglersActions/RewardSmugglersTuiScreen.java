@@ -1,14 +1,15 @@
-package it.polimi.ingsw.view.tui.screens.gameScreens.slaversActions;
+package it.polimi.ingsw.view.tui.screens.gameScreens.smugglersActions;
 
-import it.polimi.ingsw.view.tui.TuiManager;
 import it.polimi.ingsw.view.tui.screens.GameTuiScreen;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
+import it.polimi.ingsw.view.tui.screens.gameScreens.NotClientTurnTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.MenuGoodsTuiScreen;
 
 import java.util.List;
 
-public class RewardSlaversTuiScreen extends GameTuiScreen {
+public class RewardSmugglersTuiScreen extends GameTuiScreen {
 
-    public RewardSlaversTuiScreen() {
+    public RewardSmugglersTuiScreen() {
         super(List.of("Claim rewards", "Refuse rewards"));
     }
 
@@ -20,7 +21,8 @@ public class RewardSlaversTuiScreen extends GameTuiScreen {
         switch (selected) {
             case 0:
 
-                break;
+
+                return new MenuGoodsTuiScreen(new NotClientTurnTuiScreen());
             case 1:
 
                 break;

@@ -16,6 +16,7 @@ import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
 import it.polimi.ingsw.event.game.serverToClient.timer.*;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
+import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
@@ -23,6 +24,8 @@ import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
 import it.polimi.ingsw.view.miniModel.components.*;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
+import it.polimi.ingsw.view.miniModel.player.MarkerView;
+import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import it.polimi.ingsw.view.miniModel.timer.TimerView;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -50,10 +53,7 @@ public class EventHandlerClient {
          */
         CastEventReceiver<UserIDSet> userIDSetReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<UserIDSet> userIDSetListener = data -> {
-            MiniModel mm = MiniModel.getInstance();
-            mm.setUserID(data.userID());
-
-            manager.notifyUserIDSet();
+            MiniModel.getInstance().setUserID(data.userID());
         };
         userIDSetReceiver.registerListener(userIDSetListener);
 
@@ -92,6 +92,7 @@ public class EventHandlerClient {
             MiniModel.getInstance().getLobbiesView().add(lobby);
             if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
                 MiniModel.getInstance().setCurrentLobby(lobby);
+                MiniModel.getInstance().setBoardView(new BoardView(LevelView.fromValue(data.level())));
             }
 
             manager.notifyCreatedLobby(data);
@@ -103,11 +104,18 @@ public class EventHandlerClient {
          */
         CastEventReceiver<LobbyJoined> lobbyJoinedReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<LobbyJoined> lobbyJoinedListener = data -> {
-            MiniModel.getInstance().getLobbiesView().stream()
+            LobbyView lobbyView = MiniModel.getInstance().getLobbiesView().stream()
                     .filter(lobby -> lobby.getLobbyName().equals(data.lobbyID()))
                     .findFirst()
-                    .ifPresent(lobby -> lobby.addPlayer(data.nickname()));
+                    .orElse(null);
 
+            if (lobbyView != null) {
+                lobbyView.addPlayer(data.nickname());
+                if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
+                    MiniModel.getInstance().setCurrentLobby(lobbyView);
+                    MiniModel.getInstance().setBoardView(new BoardView(lobbyView.getLevel()));
+                }
+            }
             manager.notifyLobbyJoined(data);
         };
         lobbyJoinedReceiver.registerListener(lobbyJoinedListener);
@@ -121,6 +129,9 @@ public class EventHandlerClient {
                     .filter(lobby -> lobby.getLobbyName().equals(data.lobbyID()))
                     .findFirst()
                     .ifPresent(lobby -> lobby.removePlayer(data.nickname()));
+
+            MiniModel.getInstance().getOtherPlayers()
+                    .removeIf(player -> player.getUsername().equals(data.nickname()));
 
             manager.notifyLobbyLeft(data);
         };
@@ -139,6 +150,20 @@ public class EventHandlerClient {
             manager.notifyLobbyRemoved(data);
         };
         lobbyRemovedReceiver.registerListener(lobbyRemovedListener);
+
+        CastEventReceiver<PlayerAdded> playerAddedReceiver = new CastEventReceiver<>(this.transceiver);
+        EventListener<PlayerAdded> playerAddedListener = data -> {
+            PlayerDataView player = new PlayerDataView(data.nickname(), MarkerView.fromValue(data.color()), new SpaceShipView(MiniModel.getInstance().getBoardView().getLevel()));
+            if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
+                MiniModel.getInstance().setClientPlayer(player);
+            }
+            else {
+                MiniModel.getInstance().getOtherPlayers().add(player);
+            }
+
+            manager.notifyPlayerAdded(data);
+        };
+        playerAddedReceiver.registerListener(playerAddedListener);
 
         /*
          * Start a countdown to announce that the game is starting
@@ -161,7 +186,7 @@ public class EventHandlerClient {
                     }
                 }
                 MiniModel.getInstance().setCountDown(null);
-                manager.notifyStartingGame();
+                manager.notifyStartingGame(data);
             }).start();
         };
         startingGameReceiver.registerListener(startingGameListener);
@@ -313,7 +338,7 @@ public class EventHandlerClient {
         EventListener<DrawCard> getCardDrawListener = data -> {
             MiniModel.getInstance().getShuffledDeckView().getDeck().pop();
 
-            //TODO: notify
+            manager.notifyDrawCard(data);
         };
         drawCardReceiver.registerListener(getCardDrawListener);
 
@@ -354,12 +379,23 @@ public class EventHandlerClient {
         EventListener<PickedLeftDeck> pickedLeftDeckListener = data -> {
             MiniModel.getInstance().getDeckViews().getValue1()[data.deckIndex()] = data.usage() == 1;
 
-            //TODO notify
+            manager.notifyPickedLeftDeck(data);
         };
         pickedLeftDeckReceiver.registerListener(pickedLeftDeckListener);
 
 
         // ENERGY USED events
+        CastEventReceiver<BatteriesUsed> batteriesUsedReceiver = new CastEventReceiver<>(this.transceiver);
+        EventListener<BatteriesUsed> getBatteriesUsedListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+            for (Pair<Integer, Integer> pair : data.batteriesIDs()) {
+                player.getShip().getMapBatteries().get(pair.getValue0()).setNumberOfBatteries(pair.getValue1());
+            }
+
+            manager.notifyBatteriesUsed(data);
+        };
+        batteriesUsedReceiver.registerListener(getBatteriesUsedListener);
+
         /*
          * Remove a battery from the tiles in the batteriesIDs list
          */
@@ -368,8 +404,8 @@ public class EventHandlerClient {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             if (player != null) {
-                for (Integer id : data.batteriesIDs()) {
-                    ((BatteryView) player.getShip().getMapBatteries().get(id)).reduceNumberOfButteries();
+                for (Pair<Integer, Integer> pair : data.batteriesIDs()) {
+                    player.getShip().getMapBatteries().get(pair.getValue0()).setNumberOfBatteries(pair.getValue1());
                 }
             }
             manager.notifyCannonsUsed(data);
@@ -384,8 +420,8 @@ public class EventHandlerClient {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             if (player != null) {
-                for (Integer id : data.batteriesIDs()) {
-                    ((BatteryView) player.getShip().getMapBatteries().get(id)).reduceNumberOfButteries();
+                for (Pair<Integer, Integer> pair : data.batteriesIDs()) {
+                    player.getShip().getMapBatteries().get(pair.getValue0()).setNumberOfBatteries(pair.getValue1());
                 }
             }
             manager.notifyEnginesUsed(data);
@@ -398,8 +434,9 @@ public class EventHandlerClient {
         CastEventReceiver<ShieldUsed> shieldUsedReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<ShieldUsed> shieldUsedListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
+            player.getShip().getMapBatteries().get(data.batteryID().getValue0()).setNumberOfBatteries(data.batteryID().getValue1());
 
-            ((BatteryView) player.getShip().getMapBatteries().get(data.batteryID())).reduceNumberOfButteries();
+            manager.notifyShieldUsed(data);
         };
         shieldUsedReceiver.registerListener(shieldUsedListener);
 
@@ -423,7 +460,7 @@ public class EventHandlerClient {
             }
             player.getShip().getMapStorages().get(data.storageID1()).changeGoods(newGoods2);
 
-            // TODO: notify
+            manager.notifyGoodsSwapped(data);
         };
         goodsSwappedReceiver.registerListener(goodsSwappedListener);
 
@@ -440,6 +477,8 @@ public class EventHandlerClient {
                 }
                 player.getShip().getMapStorages().get(pair.getValue0()).changeGoods(newGoods);
             }
+
+            manager.notifyUpdateGoodsExchange(data);
         };
         updateGoodsExchangeReceiver.registerListener(updateGoodsExchangeListener);
 
@@ -455,7 +494,7 @@ public class EventHandlerClient {
             BatteryView battery = new BatteryView(data.tileID(), data.connectors(), data.clockwiseRotation(), data.energyNumber());
             player.setHand(battery);
 
-            //TODO manager.notify
+            manager.notifyPickedTileFromBoard();
         };
         pickedBatteryFromBoardReceiver.registerListener(pickedBatteryFromBoardListener);
 
@@ -469,7 +508,7 @@ public class EventHandlerClient {
             CabinView cabin = new CabinView(data.tileID(), data.connectors(), data.clockwiseRotation());
             player.setHand(cabin);
 
-            //TODO: notify
+            manager.notifyPickedTileFromBoard();
         };
         pickedCabinFromBoardReceiver.registerListener(pickedCabinFromBoardListener);
 
@@ -483,7 +522,7 @@ public class EventHandlerClient {
             CannonView cannon = new CannonView(data.tileID(), data.connectors(), data.clockwiseRotation(), data.cannonStrength(), 0);
             player.setHand(cannon);
 
-            //TODO: notify
+            manager.notifyPickedTileFromBoard();
         };
         pickedCannonFromBoardReceiver.registerListener(pickedCannonFromBoardListener);
 
@@ -497,7 +536,7 @@ public class EventHandlerClient {
             ConnectorsView pipes = new ConnectorsView(data.tileID(), data.connectors(), data.clockwiseRotation());
             player.setHand(pipes);
 
-            //TODO: notify
+            manager.notifyPickedTileFromBoard();
         };
         pickedConnectorsFromBoardReceiver.registerListener(pickedConnectorsFromBoardListener);
 
@@ -511,7 +550,7 @@ public class EventHandlerClient {
             EngineView engine = new EngineView(data.tileID(), data.connectors(), data.clockwiseRotation(), data.cannonStrength(), 0);
             player.setHand(engine);
 
-            //TODO notify
+            manager.notifyPickedTileFromBoard();
         };
         pickedEngineFromBoardReceiver.registerListener(pickedEngineFromBoardListener);
 
@@ -531,7 +570,7 @@ public class EventHandlerClient {
             }
             player.setHand(lifeSupport);
 
-            //TODO: notify
+            manager.notifyPickedTileFromBoard();
         };
         pickedLifeSupportFromBoardReceiver.registerListener(pickedLifeSupportFromBoardListener);
 
@@ -547,7 +586,7 @@ public class EventHandlerClient {
             ShieldView shield = new ShieldView(data.tileID(), data.connectors(), data.clockwiseRotation(), shields);
             player.setHand(shield);
 
-            //TODO: notify
+            manager.notifyPickedTileFromBoard();
         };
         pickedShieldFromBoardReceiver.registerListener(pickedShieldFromBoardListener);
 
@@ -561,7 +600,7 @@ public class EventHandlerClient {
             StorageView storage = new StorageView(data.tileID(), data.connectors(), data.clockwiseRotation(), false, data.goodsCapacity());
             player.setHand(storage);
 
-            //TODO: notify
+            manager.notifyPickedTileFromBoard();
         };
         pickedStorageFromBoardReceiver.registerListener(pickedStorageFromBoardListener);
 
@@ -575,7 +614,7 @@ public class EventHandlerClient {
             ComponentView tile = player.getShip().getDiscardReservedPile().removeDiscardReserved(data.tileID());
             player.setHand(tile);
 
-            //TODO: notify
+            manager.notifyPickedTileFromBoard();
         };
         pickedTileFromReserveReceiver.registerListener(pickedTileFromReserveListener);
 
@@ -588,7 +627,7 @@ public class EventHandlerClient {
 
             player.setHand(player.getShip().removeLast());
 
-            //TODO notify
+            manager.notifyPickedTileFromBoard();
         };
         pickedTileFromSpaceshipReceiver.registerListener(pickedTileFromSpaceshipListener);
 
@@ -604,7 +643,7 @@ public class EventHandlerClient {
             MiniModel.getInstance().getViewableComponents().add(player.getHand());
             player.setHand(null);
 
-            // TODO: notify
+            manager.notifyPlacedTileToBoard(data);
         };
         placedTileToBoardReceiver.registerListener(placedTileToBoardListener);
 
@@ -618,7 +657,7 @@ public class EventHandlerClient {
             player.getShip().getDiscardReservedPile().addDiscardReserved(player.getHand());
             player.setHand(null);
 
-            //TODO: notify
+            manager.notifyPlacedTileToReserve(data);
         };
         placedTileToReserveReceiver.registerListener(placedTileToReserveListener);
 
@@ -632,7 +671,7 @@ public class EventHandlerClient {
             player.getShip().placeComponent(player.getHand(), data.row(), data.column());
             player.setHand(null);
 
-            //TODO notify
+            manager.notifyPlacedTileToSpaceship(data);
         };
         placedTileToSpaceshipReceiver.registerListener(placedTileToSpaceshipListener);
 
@@ -648,7 +687,7 @@ public class EventHandlerClient {
             card.setPlanetSelected(data.planetNumber());
             card.setPlayersPosition(data.planetNumber(), player.getMarkerView());
 
-            //TODO: notify
+            manager.notifyPlanetSelected(data);
         };
         planetSelectedReceiver.registerListener(planetSelectedListener);
 
@@ -656,21 +695,13 @@ public class EventHandlerClient {
         // PLAYER events
         CastEventReceiver<EnemyDefeat> enemyDefeatReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<EnemyDefeat> enemyDefeatListener = data -> {
-            if (data.enemyDefeat() == null) {
-                manager.notifyEnemyDrew(data);
-            }
-            else if (data.enemyDefeat()) {
-                manager.notifyEnemyLost(data);
-            }
-            else {
-                manager.notifyEnemyLost(data);
-            }
+            manager.notifyEnemyDefeat(data);
         };
         enemyDefeatReceiver.registerListener(enemyDefeatListener);
 
         CastEventReceiver<MinPlayer> minPlayerReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<MinPlayer> minPlayerListener = data -> {
-
+            //TODO
         };
         minPlayerReceiver.registerListener(minPlayerListener);
 
@@ -681,6 +712,8 @@ public class EventHandlerClient {
         EventListener<MoveMarker> moveMarkerListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
             MiniModel.getInstance().getBoardView().movePlayer(player.getMarkerView(), data.steps());
+
+            manager.notifyMoveMarker(data);
         };
         moveMarkerReceiver.registerListener(moveMarkerListener);
 
@@ -689,13 +722,14 @@ public class EventHandlerClient {
          */
         CastEventReceiver<PlayerGaveUp> playerGaveUpReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<PlayerGaveUp> playerGaveUpListener = data -> {
-            //TODO notify
+            manager.notifyPlayerGaveUp(data);
         };
         playerGaveUpReceiver.registerListener(playerGaveUpListener);
 
         CastEventReceiver<PlayerLost> playerLostReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<PlayerLost> playerLostListener = data -> {
             //TODO
+            manager.notifyPlayerLost(data);
         };
         playerLostReceiver.registerListener(playerLostListener);
 
@@ -704,13 +738,17 @@ public class EventHandlerClient {
          */
         CastEventReceiver<Playing> playingReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<Playing> playingListener = data -> {
-            // TODO: notify
+            PlayerDataView player = getPlayerDataView(data.nickname());
+            MiniModel.getInstance().setCurrentPlayer(player);
+
+            manager.notifyPlaying(data);
         };
         playingReceiver.registerListener(playingListener);
 
         CastEventReceiver<Score> scoreReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<Score> scoreListener = data -> {
             //TODO
+            manager.notifyScore(data);
         };
         scoreReceiver.registerListener(scoreListener);
 
@@ -723,7 +761,7 @@ public class EventHandlerClient {
 
             player.setCoins(data.coins());
 
-            //TODO notify
+            manager.notifyUpdateCoins(data);
         };
         updateCoinsReceiver.registerListener(updateCoinsListener);
 
@@ -749,7 +787,7 @@ public class EventHandlerClient {
             }
             card.setConnectors(data.connectors());
 
-            //TODO: notify
+            manager.notifyRotatedTile(data);
         };
         rotatedGenericReceiver.registerListener(rotatedGenericTileListener);
 
@@ -759,7 +797,6 @@ public class EventHandlerClient {
          */
         CastEventReceiver<BestLookingShips> bestLookingShipsReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<BestLookingShips> bestLookingShipsListener = data -> {
-
             manager.notifyBestLookingShips(data);
         };
         bestLookingShipsReceiver.registerListener(bestLookingShipsListener);
@@ -769,7 +806,7 @@ public class EventHandlerClient {
          */
         CastEventReceiver<CanProtect> canProtectReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<CanProtect> canProtectListener = data -> {
-            manager.notifyCanShield(data);
+            manager.notifyCanProtect(data);
         };
         canProtectReceiver.registerListener(canProtectListener);
 
@@ -801,6 +838,8 @@ public class EventHandlerClient {
             if (player != null) {
                 player.getShip().setFragments(data.fragments());
             }
+
+            manager.notifyFragments(data);
         };
         fragmentsReceiver.registerListener(fragmentsListener);
 
@@ -812,22 +851,27 @@ public class EventHandlerClient {
             PlayerDataView player = getPlayerDataView(data.nickname());
             ComponentView[][] ship = player.getShip().getSpaceShip();
             for (ComponentView[] componentViews : ship) {
-                for (int j = 0; j < componentViews.length; j++) {
-                    componentViews[j].setIsWrong(false);
+                for (ComponentView componentView : componentViews) {
+                    if (componentView != null) {
+                        componentView.setIsWrong(false);
+                    }
                 }
             }
             for (Pair<Integer, Integer> pair : data.invalidComponents()) {
                 ship[pair.getValue0()][pair.getValue1()].setIsWrong(true);
             }
 
-            //TODO: notify
+            manager.notifyInvalidComponents(data);
         };
         invalidComponentsReceiver.registerListener(invalidComponentsListener);
 
 
         CastEventReceiver<NextHit> nextHitReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<NextHit> nextHitListener = data -> {
+            MeteorSwarmView card = (MeteorSwarmView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
+            card.nextHit();
 
+            manager.notifyNextHit(data);
         };
         nextHitReceiver.registerListener(nextHitListener);
 
@@ -850,7 +894,7 @@ public class EventHandlerClient {
                 }
             }
 
-            //TODO: notify
+            manager.notifyUpdateCrewMembers(data);
         };
         updateCrewMembersReceiver.registerListener(updateCrewMembersListener);
 
@@ -860,6 +904,7 @@ public class EventHandlerClient {
         CastEventReceiver<TimerFlipped> timerFlippedReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<TimerFlipped> timerFlippedListener = data -> {
             new Thread(() -> {
+                MiniModel.getInstance().getTimerView().setFlippedTimer(getPlayerDataView(data.nickname()));
                 LocalDateTime serverTime = LocalDateTime.parse(data.startingTime());
                 LocalDateTime clientTime = LocalDateTime.now();
                 MiniModel.getInstance().setTimerView(new TimerView(3));
@@ -867,7 +912,7 @@ public class EventHandlerClient {
                 while (time >= 0) {
                     try {
                         MiniModel.getInstance().getTimerView().setSecondsRemaining(time);
-                        // TODO notify
+                        manager.notifyTimer();
                         Thread.sleep(1000);
                         time--;
                     } catch (InterruptedException e) {
@@ -883,7 +928,7 @@ public class EventHandlerClient {
 
         CastEventReceiver<StateChanged> stateChangedReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<StateChanged> stateChangedListener = data -> {
-            // TODO: get the ID of the card
+            manager.notifyStateChange(data);
         };
         stateChangedReceiver.registerListener(stateChangedListener);
     }

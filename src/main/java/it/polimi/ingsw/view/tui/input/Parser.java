@@ -6,7 +6,6 @@ import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.*;
@@ -39,12 +38,12 @@ public class Parser {
                 while (!Thread.currentThread().isInterrupted()) {
                     if (reader.ready()) {
                         int ch = reader.read();
-                        if (ch == 27 && reader.ready()) { // ESC
-                            if (reader.read() == 91 && reader.ready()) { // [
+                        if (ch == 27 && reader.ready()) {
+                            if (reader.read() == 91 && reader.ready()) {
                                 int arrow = reader.read();
                                 switch (arrow) {
-                                    case 'A' -> keyQueue.put((int) 'w'); // ↑
-                                    case 'B' -> keyQueue.put((int) 's'); // ↓
+                                    case 'A' -> keyQueue.put((int) 'w');
+                                    case 'B' -> keyQueue.put((int) 's');
                                 }
                             }
                         } else {

@@ -1,5 +1,14 @@
 package it.polimi.ingsw.view.tui;
 
+import it.polimi.ingsw.event.game.serverToClient.StateChanged;
+import it.polimi.ingsw.event.game.serverToClient.deck.*;
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
+import it.polimi.ingsw.event.game.serverToClient.goods.*;
+import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
+import it.polimi.ingsw.event.game.serverToClient.planets.PlanetSelected;
+import it.polimi.ingsw.event.game.serverToClient.player.*;
+import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
@@ -7,10 +16,14 @@ import it.polimi.ingsw.model.game.board.Deck;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.spaceship.*;
-import it.polimi.ingsw.view.tui.screens.gameScreens.NotClientTurnTuiScreen;
-import it.polimi.ingsw.view.tui.screens.gameScreens.SmugglersTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.*;
+import it.polimi.ingsw.view.tui.screens.gameScreens.enemyActions.EnemyRewardsTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions.UseShieldTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.openSpaceAcitons.OpenSpaceTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.piratesActions.PiratesTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.planetsActions.PlanetsTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.slaversActions.SlaversTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.smugglersActions.SmugglersTuiScreen;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import it.polimi.ingsw.view.Manager;
@@ -33,10 +46,6 @@ import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.*;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.EnginesUsed;
-import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.BestLookingShips;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +61,7 @@ public class TuiManager implements Manager {
     public TuiManager() {
         try {
             this.terminal = TerminalBuilder.builder()
-                    .jna(true)
-                    .jansi(true)
+                    .system(true)
                     .build();
         } catch (Exception e) {
             System.err.println("Creation terminal error: " + e.getMessage());
@@ -61,7 +69,7 @@ public class TuiManager implements Manager {
         }
         parser = new Parser(terminal);
 
-        currentScreen = new SlaversTuiScreen();
+        currentScreen = new BuildingTuiScreen();
 
         // Se metodo crea un nuovo stato impostare anche printInput a false
     }
@@ -110,7 +118,7 @@ public class TuiManager implements Manager {
     public void notifyLobbyLeft(LobbyLeft data) {
         if (MiniModel.getInstance().getCurrentLobby().getLobbyName().equals(data.lobbyID())) {
             synchronized (stateLock) {
-                printInput = false;
+                currentScreen.setMessage(data.nickname() + " has left the lobby");
                 stateLock.notifyAll();
             }
         }
@@ -121,6 +129,22 @@ public class TuiManager implements Manager {
         if (currentScreen instanceof MenuTuiScreen) {
             currentScreen = new MenuTuiScreen();
             printInput = false;
+        }
+    }
+
+    @Override
+    public void notifyPlayerAdded(PlayerAdded data) {
+    }
+
+    /**
+     * Change the screen: from lobby screen to building screen
+     */
+    @Override
+    public void notifyStartingGame(StartingGame data) {
+        synchronized (stateLock) {
+            currentScreen = new BuildingTuiScreen();
+            printInput = false;
+            stateLock.notifyAll();
         }
     }
 
@@ -136,15 +160,232 @@ public class TuiManager implements Manager {
         }
     }
 
-    /**
-     * Change the screen: from lobby screen to building screen
-     */
+
+
+
+
     @Override
-    public void notifyStartingGame() {
+    public void notifyDrawCard(DrawCard data) {
         synchronized (stateLock) {
-            currentScreen = new BuildingTuiScreen();
+            if (MiniModel.getInstance().getClientPlayer().equals(MiniModel.getInstance().getCurrentPlayer())) {
+                CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
+                currentScreen = switch (card.getCardViewType()) {
+                    case ABANDONEDSTATION -> new AbandonedStationTuiScreen();
+                    case ABANDONEDSHIP -> new AbandonedShipTuiScreen();
+                    case SMUGGLERS -> new SmugglersTuiScreen();
+                    case PLANETS -> new PlanetsTuiScreen();
+                    case COMBATZONE -> new CombatZoneTuiScreen();
+                    case OPENSPACE -> new OpenSpaceTuiScreen();
+                    case STARDUST -> new StarDustTuiScreen();
+                    case EPIDEMIC -> new EpidemicTuiScreen();
+                    case SLAVERS -> new SlaversTuiScreen();
+                    case PIRATES -> new PiratesTuiScreen();
+                    case METEORSSWARM -> new MeteorsSwarmTuiScreen();
+                };
+            }
+            else{
+                currentScreen = new NotClientTurnTuiScreen();
+            }
             printInput = false;
+            currentScreen.setMessage("A new card has been drawn!");
             stateLock.notifyAll();
+        }
+    }
+
+    @Override
+    public void notifyPickedLeftDeck(PickedLeftDeck data) {
+        if (currentScreen.getType().equals(TuiScreens.Building) && !MiniModel.getInstance().getClientPlayer().getUsername().equals(data.nickname())) {
+            synchronized (stateLock) {
+                currentScreen.setMessage(data.nickname() + " has picked deck " + (data.deckIndex() + 1));
+                stateLock.notifyAll();
+            }
+        }
+    }
+
+    @Override
+    public void notifyBatteriesUsed(BatteriesUsed data) {
+        synchronized (stateLock) {
+            currentScreen.setMessage(data.nickname() + " has used " + data.batteriesIDs().size() + " batteries!");
+            stateLock.notifyAll();
+        }
+    }
+
+    @Override
+    public void notifyCannonsUsed(CannonsUsed data) {
+        //if (currentScreen.getType().equals(TuiScreens.Player)) {
+            //if (((PlayerTuiScreen) currentScreen).getPlayerToView().getUsername().equals(data.nickname())) {
+                synchronized (stateLock) {
+                    currentScreen.setMessage(data.nickname() + " has turned on " + data.batteriesIDs().size() + " cannons!");
+                    stateLock.notifyAll();
+                }
+            //}
+        //}
+    }
+
+    @Override
+    public void notifyEnginesUsed(EnginesUsed data) {
+        synchronized (stateLock) {
+            currentScreen.setMessage(data.nickname() + " has turned on " + data.batteriesIDs().size() + " engines!");
+            stateLock.notifyAll();
+        }
+    }
+
+    @Override
+    public void notifyShieldUsed(ShieldUsed data) {
+        synchronized (stateLock) {
+            currentScreen.setMessage(data.nickname() + " has turned on the shield");
+        }
+    }
+
+    @Override
+    public void notifyGoodsSwapped(GoodsSwapped data) {
+        synchronized (stateLock) {
+            currentScreen.setMessage(data.nickname() + " has swapped goods");
+            stateLock.notifyAll();
+        };
+    }
+
+    @Override
+    public void notifyUpdateGoodsExchange(UpdateGoodsExchange data) {
+        synchronized (stateLock) {
+            currentScreen.setMessage(data.nickname() + " has exchanged goods");
+            currentScreen.notifyAll();
+        }
+    }
+
+    @Override
+    public void notifyPickedTileFromBoard() {
+        if (currentScreen.getType().equals(TuiScreens.Building)) {
+            synchronized (stateLock) {
+                stateLock.notifyAll();
+            }
+        }
+    }
+
+    @Override
+    public void notifyPlacedTileToBoard(PlacedTileToBoard data) {
+        if (currentScreen.getType().equals(TuiScreens.Building)) {
+            synchronized (stateLock) {
+                stateLock.notifyAll();
+            }
+        }
+    }
+
+    @Override
+    public void notifyPlacedTileToReserve(PlacedTileToReserve data) {
+        if (currentScreen.getType().equals(TuiScreens.Building)) {
+            synchronized (stateLock) {
+                stateLock.notifyAll();
+            }
+        }
+    }
+
+    @Override
+    public void notifyPlacedTileToSpaceship(PlacedTileToSpaceship data) {
+        if (currentScreen.getType().equals(TuiScreens.Building)) {
+            synchronized (stateLock) {
+                stateLock.notifyAll();
+            }
+        }
+    }
+
+    @Override
+    public void notifyPlanetSelected(PlanetSelected data) {
+        synchronized (stateLock) {
+            currentScreen.setMessage(data.nickname() + " has selected planet " + (data.planetNumber() + 1));
+            stateLock.notifyAll();
+        }
+    }
+
+    @Override
+    public void notifyEnemyDefeat(EnemyDefeat data) {
+        synchronized (stateLock) {
+            if (data.enemyDefeat() == null) {
+                if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
+                    currentScreen = new NotClientTurnTuiScreen();
+                    printInput = false;
+                }
+                currentScreen.setMessage("It's a tie! Enemies lose interest... and seek a new target.");
+            } else if (data.enemyDefeat()) {
+                if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
+                    currentScreen = new EnemyRewardsTuiScreen();
+                    printInput = false;
+                }
+                currentScreen.setMessage(data.nickname() + " has defeated enemies! Everyone is safe");
+            } else {
+                if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
+                    currentScreen = new NotClientTurnTuiScreen();
+                    printInput = false;
+                }
+                currentScreen.setMessage(data.nickname() + " has lost! Enemies are seeking a new target");
+            }
+            stateLock.notifyAll();
+        }
+    }
+
+    @Override
+    public void notifyMinPlayer(MinPlayer data) {
+
+    }
+
+    @Override
+    public void notifyMoveMarker(MoveMarker data) {
+        //if (currentScreen.getType().equals(TuiScreens.Game)) {
+        synchronized (stateLock) {
+            currentScreen.setMessage(data.nickname() + " has moved");
+            stateLock.notifyAll();
+        }
+        //}
+    }
+
+    @Override
+    public void notifyPlayerGaveUp(PlayerGaveUp data) {
+        synchronized (stateLock) {
+            currentScreen.setMessage(data.nickname() + " has given up");
+            stateLock.notifyAll();
+        }
+    }
+
+    @Override
+    public void notifyPlayerLost(PlayerLost data) {
+        synchronized (stateLock) {
+            currentScreen.setMessage("Oh no! You lost");
+            stateLock.notifyAll();
+        }
+    }
+
+    @Override
+    public void notifyPlaying(Playing data) {
+        if (!MiniModel.getInstance().getNickname().equals(data.nickname())) {
+            synchronized (stateLock) {
+                currentScreen = new NotClientTurnTuiScreen();
+                printInput = false;
+                stateLock.notifyAll();
+            }
+        }
+    }
+
+    @Override
+    public void notifyScore(Score data) {
+
+    }
+
+    @Override
+    public void notifyUpdateCoins(UpdateCoins data) {
+        if (currentScreen.getType().equals(TuiScreens.Player)) {
+            synchronized (stateLock) {
+                currentScreen.setMessage(data.nickname() + " has updated coins");
+                stateLock.notifyAll();
+            }
+        }
+    }
+
+    @Override
+    public void notifyRotatedTile(RotatedTile data) {
+        if (currentScreen.getType().equals(TuiScreens.Building) && MiniModel.getInstance().getNickname().equals(data.nickname())) {
+            synchronized (stateLock) {
+                stateLock.notifyAll();
+            }
         }
     }
 
@@ -168,61 +409,75 @@ public class TuiManager implements Manager {
     }
 
     @Override
-    public void notifyCannonsUsed(CannonsUsed data) {
-        if (currentScreen.getType().equals(TuiScreens.Player)) {
-            if (((PlayerTuiScreen) currentScreen).getPlayerToView().getUsername().equals(data.nickname())) {
-                synchronized (stateLock) {
-                    currentScreen.setMessage(data.nickname() + " has used " + data.batteriesIDs().size() + " batteries!");
-                    stateLock.notifyAll();
+    public void notifyCanProtect(CanProtect data) {
+        if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
+            synchronized (stateLock) {
+                if (data.canProtect().getValue1() == -1) {
+                    currentScreen = new NotClientTurnTuiScreen();
                 }
+                else {
+                    currentScreen = new UseShieldTuiScreen();
+                }
+                printInput = false;
+                stateLock.notifyAll();
             }
         }
-    }
-
-    @Override
-    public void notifyCanShield(CanProtect data) {
-
     }
 
     @Override
     public void notifyComponentDestroyed(ComponentDestroyed data) {
-        if (currentScreen.getType().equals(TuiScreens.Player)) {
-            if (((PlayerTuiScreen) currentScreen).getPlayerToView().getUsername().equals(data.nickname())) {
+        //if (currentScreen.getType().equals(TuiScreens.Player)) {
+            //if (((PlayerTuiScreen) currentScreen).getPlayerToView().getUsername().equals(data.nickname())) {
                 synchronized (stateLock) {
                     currentScreen.setMessage(data.nickname() + " has lost " + data.destroyedComponents().size() + " components");
                     stateLock.notifyAll();
                 }
+            //}
+        //}
+    }
+
+    @Override
+    public void notifyFragments(Fragments data) {
+
+    }
+
+    @Override
+    public void notifyInvalidComponents(InvalidComponents data) {
+        if (currentScreen.getType().equals(TuiScreens.Validation)) {
+            synchronized (stateLock) {
+                stateLock.notifyAll();
             }
         }
     }
 
     @Override
-    public void notifyEnemyDrew(EnemyDefeat data) {
-
+    public void notifyNextHit(NextHit data) {
+        synchronized (stateLock) {
+            currentScreen.setMessage("New hit is coming! Good luck");
+            stateLock.notifyAll();
+        }
     }
 
     @Override
-    public void notifyEnemyLost(EnemyDefeat data) {
-
+    public void notifyUpdateCrewMembers(UpdateCrewMembers data) {
+        synchronized (stateLock) {
+            currentScreen.setMessage("Crew on " + data.nickname() + "'s spaceship is changed");
+            stateLock.notifyAll();
+        }
     }
 
     @Override
-    public void notifyEnemyWon(EnemyDefeat data) {
-
-    }
-
-    @Override
-    public void notifyEnginesUsed(EnginesUsed data) {
-
-    }
-
-    //@Override
-    public void notifyStartTimer() {
+    public void notifyTimer() {
         if (currentScreen.getType().equals(TuiScreens.Building)) {
             synchronized (stateLock) {
                 stateLock.notifyAll();
             }
         }
+    }
+
+    @Override
+    public void notifyStateChange(StateChanged data) {
+
     }
 
     public void startTui(){
@@ -260,6 +515,7 @@ public class TuiManager implements Manager {
                     if (currentScreen.getType().equals(TuiScreens.Ending)) {
                         try {
                             parser.shutdown();
+                            terminal.close();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
