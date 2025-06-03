@@ -6,6 +6,7 @@ import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.*;
@@ -26,21 +27,21 @@ public class Parser {
     }
 
     public int getCommand(ArrayList<String> options, int menuStartRow, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        terminal.reader().skip(terminal.reader().available());
         terminal.enterRawMode();
-        var reader = terminal.reader();
         var writer = terminal.writer();
         selected = 0;
 
+        InputStream in = terminal.input();
         BlockingQueue<Integer> keyQueue = new ArrayBlockingQueue<>(10);
+
         inputThread = new Thread(() -> {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
-                    if (reader.ready()) {
-                        int ch = reader.read();
-                        if (ch == 27 && reader.ready()) {
-                            if (reader.read() == 91 && reader.ready()) {
-                                int arrow = reader.read();
+                    if (in.available() > 0) {
+                        int ch = in.read();
+                        if (ch == 27 && in.available() >= 2) {
+                            if (in.read() == 91) {
+                                int arrow = in.read();
                                 switch (arrow) {
                                     case 'A' -> keyQueue.put((int) 'w');
                                     case 'B' -> keyQueue.put((int) 's');
@@ -50,7 +51,7 @@ public class Parser {
                             keyQueue.put(ch);
                         }
                     } else {
-                        Thread.sleep(100);
+                        Thread.sleep(50);
                     }
                 }
             } catch (Exception ignored) {}
@@ -60,7 +61,7 @@ public class Parser {
         renderMenu(writer, options, menuStartRow);
 
         while (isStillCurrentScreen.get()) {
-            Integer key = keyQueue.poll(100, TimeUnit.MILLISECONDS);
+            Integer key = keyQueue.poll(50, TimeUnit.MILLISECONDS);
             if (key == null) continue;
 
             switch (key.intValue()) {
@@ -72,12 +73,14 @@ public class Parser {
                     return selected;
                 }
             }
+
             renderMenu(writer, options, menuStartRow);
         }
 
         inputThread.interrupt();
         return -1;
     }
+
 
     public Pair<Integer, Integer> getRowAndCol(String prompt, int menuStartRow, Supplier<Boolean> isStillCurrentScreen) {
         var writer = terminal.writer();

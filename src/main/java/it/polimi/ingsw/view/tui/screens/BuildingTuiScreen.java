@@ -34,7 +34,6 @@ public class BuildingTuiScreen implements TuiScreenView {
 
     private int row;
     protected String message;
-    protected boolean isNewScreen;
 
     private final Pair<DeckView[], Boolean[]> decksView;
     private final TimerView timerView = MiniModel.getInstance().getTimerView();
@@ -60,7 +59,6 @@ public class BuildingTuiScreen implements TuiScreenView {
             options.add("View " + p.getUsername() + "'s spaceship");
         }
         options.add("Close program");
-        isNewScreen = true;
     }
 
     @Override
@@ -239,11 +237,8 @@ public class BuildingTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, lineBeforeInput(), row++);
 
-        if (isNewScreen) {
-            isNewScreen = false;
-            for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
-                TerminalUtils.printLine(writer, "", i);
-            }
+        for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
+            TerminalUtils.printLine(writer, "", i);
         }
     }
 
