@@ -76,9 +76,9 @@ public class Client {
                 /*System.out.print("Enter IP: ");
                 String address = sc.nextLine();*/
                 //String address = "140.238.173.150";
-                //String address = "127.0.0.1";
+                String address = "127.0.0.1";
                 //String address = "192.168.67.224";
-                String address = "129.152.14.114";
+                //String address = "129.152.14.114";
                 Connection connection = new RMIConnection(address, 2551);
                 transceiver.connect(UUID.randomUUID(), connection);
 
@@ -98,9 +98,9 @@ public class Client {
                 /*System.out.print("Enter IP: ");
                 String address = sc.nextLine();*/
                 //String address = "140.238.173.150";
-                //String address = "127.0.0.1";
+                String address = "127.0.0.1";
                 //String address = "192.168.67.224";
-                String address = "129.152.14.114";
+                //String address = "129.152.14.114";
                 Connection connection = new TCPConnection(address, 2550);
                 transceiver.connect(UUID.randomUUID(), connection);
 
