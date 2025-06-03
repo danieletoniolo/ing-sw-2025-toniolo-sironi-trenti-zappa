@@ -18,7 +18,6 @@ public class RowAndColTuiScreen extends BuildingTuiScreen {
 
     public RowAndColTuiScreen(TuiScreens oldScreenType) {
         options.clear();
-        isNewScreen = true;
         this.oldScreenType = oldScreenType;
     }
 

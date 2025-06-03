@@ -242,7 +242,7 @@ public class TuiManager implements Manager {
         synchronized (stateLock) {
             currentScreen.setMessage(data.nickname() + " has swapped goods");
             stateLock.notifyAll();
-        };
+        }
     }
 
     @Override
@@ -546,7 +546,7 @@ public class TuiManager implements Manager {
 
     public static void main(String[] args) {
         ArrayList<Component> tiles = TilesManager.getTiles();
-        for (int i = 0; i < tiles.size(); i++) {
+        for (int i = 0; i < 30; i++) {
             ComponentView tileView = converter(tiles.get(i));
             tileView.setCovered(false);
             MiniModel.getInstance().getViewableComponents().add(tileView);
@@ -651,12 +651,12 @@ public class TuiManager implements Manager {
         TuiManager tui = new TuiManager();
         tui.startTui();
 
-        /*final int[] secondsRemaining = {15};
+        final int[] secondsRemaining = {15};
         new Thread(() -> {
             while (secondsRemaining[0] >= 0) {
                 try {
                     MiniModel.getInstance().getTimerView().setSecondsRemaining(secondsRemaining[0]);
-                    tui.notifyStartTimer();
+                    tui.notifyTimer();
                     Thread.sleep(1000);
                     secondsRemaining[0]--;
                 } catch (InterruptedException e) {
@@ -664,7 +664,7 @@ public class TuiManager implements Manager {
                 }
             }
             tui.set();
-        }).start();*/
+        }).start();
     }
 
     private static ComponentView converter(Component tile) {
