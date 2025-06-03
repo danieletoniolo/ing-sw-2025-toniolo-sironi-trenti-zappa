@@ -29,7 +29,7 @@ public class ChooseLevelTuiScreen extends MenuTuiScreen {
     @Override
     public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
         selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
-        level = selected == 0 ? 0 : 2;
+        level = selected == 0 ? 1 : 2;
     }
 
     @Override

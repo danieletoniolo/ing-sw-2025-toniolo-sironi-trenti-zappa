@@ -122,7 +122,6 @@ public class TuiManager implements Manager {
                     e.printStackTrace();
                 }
             }
-
         });
 
         //Thread for printing the TUI

@@ -9,7 +9,7 @@
    <children>
       <ImageView fitHeight="373.0" fitWidth="558.0" layoutX="21.0" layoutY="45.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@Image/cardboard/board_I.png" />
+            <Image url="@image/cardboard/board_I.png" />
          </image>
       </ImageView>
    </children>

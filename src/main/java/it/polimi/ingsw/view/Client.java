@@ -54,18 +54,17 @@ public class Client {
         do {
             tuiOrGui = parser.readNickname("Choose 'tui' or 'gui': ", row++, () -> true);
             if (!tuiOrGui.equals("tui") && !tuiOrGui.equals("gui")) {
-                TerminalUtils.printLine(terminal.writer(), "Invalid input. Please enter 'tui' or 'gui'.", row++);
+                TerminalUtils.printLine(terminal.writer(), "Invalid input. Please enter 'tui' or 'gui'.", row--);
             }
         } while (!tuiOrGui.equals("tui") && !tuiOrGui.equals("gui"));
 
         String rmiOrSocket;
         do {
-            System.out.print("Choose 'rmi' or 'socket': ");
-            rmiOrSocket = parser.readNickname("Choose 'rmi' or 'socket': ", row++, () -> true);
-            if (!rmiOrSocket.equals("rmi") && !rmiOrSocket.equals("socket")) {
-                TerminalUtils.printLine(terminal.writer(), "Invalid input. Please enter 'rmi' or 'socket'.", row++);
+            rmiOrSocket = parser.readNickname("Choose 'rmi' or 'tcp': ", row++, () -> true);
+            if (!rmiOrSocket.equals("rmi") && !rmiOrSocket.equals("tcp")) {
+                TerminalUtils.printLine(terminal.writer(), "Invalid input. Please enter 'rmi' or 'tcp'.", row--);
             }
-        } while (!rmiOrSocket.equals("rmi") && !rmiOrSocket.equals("socket"));
+        } while (!rmiOrSocket.equals("rmi") && !rmiOrSocket.equals("tcp"));
 
         if (tuiOrGui.equals("tui")) {
             TuiManager tui = new TuiManager(terminal, parser);
@@ -77,8 +76,9 @@ public class Client {
                 /*System.out.print("Enter IP: ");
                 String address = sc.nextLine();*/
                 //String address = "140.238.173.150";
-                String address = "127.0.0.1";
+                //String address = "127.0.0.1";
                 //String address = "192.168.67.224";
+                String address = "129.152.14.114";
                 Connection connection = new RMIConnection(address, 2551);
                 transceiver.connect(UUID.randomUUID(), connection);
 
@@ -98,8 +98,9 @@ public class Client {
                 /*System.out.print("Enter IP: ");
                 String address = sc.nextLine();*/
                 //String address = "140.238.173.150";
-                String address = "127.0.0.1";
+                //String address = "127.0.0.1";
                 //String address = "192.168.67.224";
+                String address = "129.152.14.114";
                 Connection connection = new TCPConnection(address, 2550);
                 transceiver.connect(UUID.randomUUID(), connection);
 
@@ -123,8 +124,5 @@ public class Client {
                 //TODO: far partire socket e gui
             }
         }
-
-        parser.shutdown();
-        terminal.close();
     }
 }
