@@ -24,6 +24,6 @@ public enum TuiScreens {
     StorageExchange,
     DropGoods,
     MenuCannons,
-
+    AddCrew,
     Ending
 }
