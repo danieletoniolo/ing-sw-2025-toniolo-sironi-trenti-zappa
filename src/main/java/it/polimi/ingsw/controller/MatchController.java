@@ -312,7 +312,7 @@ public class MatchController {
             if (user.getNickname().equals(lobby.getFounderNickname())) {
                 // If it is the founder, we need to remove the lobby
                 gameControllers.remove(lobby);
-                users.forEach((key, value) -> {
+                users.forEach((_, value) -> {
                     if (value.getLobby() != null && value.getLobby().equals(lobby)) {
                         value.setLobby(null);
                         userPlayers.remove(value);
