@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.tui.screens;
 
 import it.polimi.ingsw.event.game.clientToServer.player.PlayerReady;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
+import it.polimi.ingsw.event.lobby.clientToServer.LeaveLobby;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -47,7 +48,11 @@ public class LobbyTuiScreen implements TuiScreenView {
                 }
                 return this;
             case 2:
-                //status = EventPerScaricareLobbies
+                status = LeaveLobby.requester(Client.transceiver, new Object()).request(new LeaveLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getCurrentLobby().getLobbyName()));
+                if (status.get().equals("POTA")) {
+                    setMessage(((Pota) status).errorMessage());
+                    return this;
+                }
                 return new MenuTuiScreen();
             case 3:
                 return new ClosingProgram();

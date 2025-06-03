@@ -79,7 +79,6 @@ public class Parser {
         return -1;
     }
 
-
     public Pair<Integer, Integer> getRowAndCol(String prompt, int menuStartRow, Supplier<Boolean> isStillCurrentScreen) {
         var writer = terminal.writer();
         executor = Executors.newSingleThreadExecutor();

@@ -4,13 +4,11 @@ import it.polimi.ingsw.event.game.serverToClient.StateChanged;
 import it.polimi.ingsw.event.game.serverToClient.deck.*;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
-import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.planets.PlanetSelected;
 import it.polimi.ingsw.event.game.serverToClient.player.*;
 import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
-import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 
 public interface Manager {
@@ -28,14 +26,12 @@ public interface Manager {
 
     void notifyLobbyRemoved(LobbyRemoved data);
 
-    void notifyPlayerAdded(PlayerAdded data);
-
     void notifyStartingGame(StartingGame data);
 
     void notifyCountDown();
 
     // Deck
-    void notifyDrawCard(DrawCard data);
+    void notifyDrawCard();
 
     void notifyPickedLeftDeck(PickedLeftDeck data);
 

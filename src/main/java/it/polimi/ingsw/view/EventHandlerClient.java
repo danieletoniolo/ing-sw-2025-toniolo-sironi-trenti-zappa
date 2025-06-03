@@ -151,6 +151,10 @@ public class EventHandlerClient {
         };
         lobbyRemovedReceiver.registerListener(lobbyRemovedListener);
 
+
+        /*
+         * Initialize playersDataView
+         */
         CastEventReceiver<PlayerAdded> playerAddedReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<PlayerAdded> playerAddedListener = data -> {
             PlayerDataView player = new PlayerDataView(data.nickname(), MarkerView.fromValue(data.color()), new SpaceShipView(MiniModel.getInstance().getBoardView().getLevel()));
@@ -160,8 +164,6 @@ public class EventHandlerClient {
             else {
                 MiniModel.getInstance().getOtherPlayers().add(player);
             }
-
-            manager.notifyPlayerAdded(data);
         };
         playerAddedReceiver.registerListener(playerAddedListener);
 
@@ -338,7 +340,7 @@ public class EventHandlerClient {
         EventListener<DrawCard> getCardDrawListener = data -> {
             MiniModel.getInstance().getShuffledDeckView().getDeck().pop();
 
-            manager.notifyDrawCard(data);
+            manager.notifyDrawCard();
         };
         drawCardReceiver.registerListener(getCardDrawListener);
 

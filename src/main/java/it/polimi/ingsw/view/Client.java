@@ -8,49 +8,67 @@ import it.polimi.ingsw.network.rmi.RMIConnection;
 import it.polimi.ingsw.network.tcp.TCPConnection;
 import it.polimi.ingsw.utils.Logger;
 import it.polimi.ingsw.view.miniModel.MiniModel;
+import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.TuiManager;
+import it.polimi.ingsw.view.tui.input.Parser;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 
+import java.io.IOException;
 import java.util.Scanner;
 import java.util.UUID;
 
 public class Client {
     public static NetworkTransceiver transceiver;
 
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
+    public static void main(String[] args) throws IOException {
+        Terminal terminal;
+        try {
+            terminal = TerminalBuilder.builder()
+                    .system(true)
+                    .build();
+        } catch (Exception e) {
+            System.err.println("Creation terminal error: " + e.getMessage());
+            return;
+        }
+        Parser parser = new Parser(terminal);
+        for (int i = 1; i < terminal.getSize().getRows(); i++ ) {
+            TerminalUtils.printLine(terminal.writer(), "", i);
+        }
+        int row = 1;
+
         Logger.getInstance().setUp(false, true);
         transceiver = new NetworkTransceiver();
 
-        System.out.println("""
-                  _______      ___       __          ___      ___   ___ ____    ____    .___________..______       __    __    ______  __  ___  _______ .______     \s
-                 /  _____|    /   \\     |  |        /   \\     \\  \\ /  / \\   \\  /   /    |           ||   _  \\     |  |  |  |  /      ||  |/  / |   ____||   _  \\    \s
-                |  |  __     /  ^  \\    |  |       /  ^  \\     \\  V  /   \\   \\/   /     `---|  |----`|  |_)  |    |  |  |  | |  ,----'|  '  /  |  |__   |  |_)  |   \s
-                |  | |_ |   /  /_\\  \\   |  |      /  /_\\  \\     >   <     \\_    _/          |  |     |      /     |  |  |  | |  |     |    <   |   __|  |      /    \s
-                |  |__| |  /  _____  \\  |  `----./  _____  \\   /  .  \\      |  |            |  |     |  |\\  \\----.|  `--'  | |  `----.|  .  \\  |  |____ |  |\\  \\----.
-                 \\______| /__/     \\__\\ |_______/__/     \\__\\ /__/ \\__\\     |__|            |__|     | _| `._____| \\______/   \\______||__|\\__\\ |_______|| _| `._____|
-                
-                    """);
+        TerminalUtils.printLine(terminal.writer(), "  _______      ___       __          ___      ___   ___ ____    ____    .___________..______       __    __    ______  __  ___  _______ .______     \s", row++);
+        TerminalUtils.printLine(terminal.writer(), " /  _____|    /   \\     |  |        /   \\     \\  \\ /  / \\   \\  /   /    |           ||   _  \\     |  |  |  |  /      ||  |/  / |   ____||   _  \\    \s", row++);
+        TerminalUtils.printLine(terminal.writer(), "|  |  __     /  ^  \\    |  |       /  ^  \\     \\  V  /   \\   \\/   /     `---|  |----`|  |_)  |    |  |  |  | |  ,----'|  '  /  |  |__   |  |_)  |   \s", row++);
+        TerminalUtils.printLine(terminal.writer(), "|  | |_ |   /  /_\\  \\   |  |      /  /_\\  \\     >   <     \\_    _/          |  |     |      /     |  |  |  | |  |     |    <   |   __|  |      /    \s", row++);
+        TerminalUtils.printLine(terminal.writer(), "|  |__| |  /  _____  \\  |  `----./  _____  \\   /  .  \\      |  |            |  |     |  |\\  \\----.|  `--'  | |  `----.|  .  \\  |  |____ |  |\\  \\----.", row++);
+        TerminalUtils.printLine(terminal.writer(), " \\______| /__/     \\__\\ |_______/__/     \\__\\ /__/ \\__\\     |__|            |__|     | _| `._____| \\______/   \\______||__|\\__\\ |_______|| _| `._____|", row++);
 
+        for (int i = 0; i < 3; i++) {
+            TerminalUtils.printLine(terminal.writer(), "", row++);
+        }
         String tuiOrGui;
         do {
-            System.out.print("Choose 'tui' or 'gui': ");
-            tuiOrGui = sc.nextLine();
+            tuiOrGui = parser.readNickname("Choose 'tui' or 'gui': ", row++, () -> true);
             if (!tuiOrGui.equals("tui") && !tuiOrGui.equals("gui")) {
-                System.out.println("Invalid input. Please enter 'tui' or 'gui'.");
+                TerminalUtils.printLine(terminal.writer(), "Invalid input. Please enter 'tui' or 'gui'.", row++);
             }
         } while (!tuiOrGui.equals("tui") && !tuiOrGui.equals("gui"));
 
         String rmiOrSocket;
         do {
             System.out.print("Choose 'rmi' or 'socket': ");
-            rmiOrSocket = sc.nextLine();
+            rmiOrSocket = parser.readNickname("Choose 'rmi' or 'socket': ", row++, () -> true);
             if (!rmiOrSocket.equals("rmi") && !rmiOrSocket.equals("socket")) {
-                System.out.println("Invalid input. Please enter 'rmi' or 'socket'.");
+                TerminalUtils.printLine(terminal.writer(), "Invalid input. Please enter 'rmi' or 'socket'.", row++);
             }
         } while (!rmiOrSocket.equals("rmi") && !rmiOrSocket.equals("socket"));
 
         if (tuiOrGui.equals("tui")) {
-            TuiManager tui = new TuiManager();
+            TuiManager tui = new TuiManager(terminal, parser);
             tui.startTui();
 
             if (rmiOrSocket.equals("rmi")) {
@@ -105,5 +123,8 @@ public class Client {
                 //TODO: far partire socket e gui
             }
         }
+
+        parser.shutdown();
+        terminal.close();
     }
 }

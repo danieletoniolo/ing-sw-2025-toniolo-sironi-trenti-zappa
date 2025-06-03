@@ -16,6 +16,7 @@ import it.polimi.ingsw.model.game.board.Deck;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.spaceship.*;
+import it.polimi.ingsw.model.state.GameState;
 import it.polimi.ingsw.view.tui.screens.gameScreens.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.enemyActions.EnemyRewardsTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions.UseShieldTuiScreen;
@@ -51,27 +52,105 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+enum GamePhases {
+    LOBBY(0),
+    BUILDING(1),
+    VALIDATION(2),
+    CREW(3),
+    CARDS(4),
+    FINISHED(5);
+
+    private final int value;
+    GamePhases(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public static GamePhases fromValue(int value) {
+        for (GamePhases phase : GamePhases.values()) {
+            if (phase.value == value) {
+                return phase;
+            }
+        }
+        throw new IllegalArgumentException("Invalid value for GameState: " + value);
+    }
+}
+
 public class TuiManager implements Manager {
     private final Object stateLock = new Object();
     private TuiScreenView currentScreen;
-    private Parser parser;
-    private Terminal terminal;
+    private final Parser parser;
+    private final Terminal terminal;
     private boolean printInput;
+    private volatile boolean running;
 
-    public TuiManager() {
-        try {
-            this.terminal = TerminalBuilder.builder()
-                    .system(true)
-                    .build();
-        } catch (Exception e) {
-            System.err.println("Creation terminal error: " + e.getMessage());
-            return;
-        }
-        parser = new Parser(terminal);
+    public TuiManager(Terminal terminal, Parser parser) {
+        this.terminal = terminal;
+        this.parser = parser;
 
-        currentScreen = new BuildingTuiScreen();
+        currentScreen = new LogInTuiScreen();
+        this.running = true;
 
         // Se metodo crea un nuovo stato impostare anche printInput a false
+    }
+
+    public void startTui(){
+        //Reading inputs thread
+        Thread parserThread = new Thread(() -> {
+            while (running) {
+                try {
+                    TuiScreenView screenToUse;
+                    synchronized (stateLock) {
+                        while (!printInput) stateLock.wait();
+                        screenToUse = currentScreen;
+                    }
+
+                    screenToUse.readCommand(parser, () -> screenToUse == currentScreen);
+
+                    if (currentScreen == screenToUse) {
+                        currentScreen = currentScreen.setNewScreen();
+                    }
+
+                    synchronized (stateLock) {
+                        printInput = false;
+                        stateLock.notifyAll();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+
+        //Thread for printing the TUI
+        Thread viewThread = new Thread(() -> {
+            while (running) {
+                try {
+                    if (currentScreen.getType().equals(TuiScreens.Ending)) {
+                        try {
+                            running = false;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        System.exit(0);
+                    }
+                    currentScreen.printTui(terminal);
+                    printInput = true;
+                    synchronized (stateLock){
+                        stateLock.notifyAll();
+                        stateLock.wait();
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+
+        parserThread.start();
+        viewThread.start();
     }
 
     @Override
@@ -132,10 +211,6 @@ public class TuiManager implements Manager {
         }
     }
 
-    @Override
-    public void notifyPlayerAdded(PlayerAdded data) {
-    }
-
     /**
      * Change the screen: from lobby screen to building screen
      */
@@ -165,7 +240,7 @@ public class TuiManager implements Manager {
 
 
     @Override
-    public void notifyDrawCard(DrawCard data) {
+    public void notifyDrawCard() {
         synchronized (stateLock) {
             if (MiniModel.getInstance().getClientPlayer().equals(MiniModel.getInstance().getCurrentPlayer())) {
                 CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
@@ -477,65 +552,20 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyStateChange(StateChanged data) {
-
+        GamePhases phase = GamePhases.fromValue(data.newState());
+        synchronized (stateLock) {
+            switch (phase) {
+                case LOBBY -> currentScreen = new LobbyTuiScreen();
+                case BUILDING -> currentScreen = new BuildingTuiScreen();
+                case VALIDATION -> currentScreen = new ValidationTuiScreen();
+                case CREW -> {}
+                case CARDS -> notifyDrawCard();
+                case FINISHED -> currentScreen = new RewardTuiScreen();
+            }
+        }
     }
 
-    public void startTui(){
-        //Reading inputs thread
-        Thread parserThread = new Thread(() -> {
-            while (true) {
-                try {
-                    TuiScreenView screenToUse;
-                    synchronized (stateLock) {
-                        while (!printInput) stateLock.wait();
-                        screenToUse = currentScreen;
-                    }
 
-                    screenToUse.readCommand(parser, () -> screenToUse == currentScreen);
-
-                    if (currentScreen == screenToUse) {
-                        currentScreen = currentScreen.setNewScreen();
-                    }
-
-                    synchronized (stateLock) {
-                        printInput = false;
-                        stateLock.notifyAll();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-        });
-
-        //Thread for printing the TUI
-        Thread viewThread = new Thread(() -> {
-            while (true) {
-                try {
-                    if (currentScreen.getType().equals(TuiScreens.Ending)) {
-                        try {
-                            parser.shutdown();
-                            terminal.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        System.exit(0);
-                    }
-                    currentScreen.printTui(terminal);
-                    printInput = true;
-                    synchronized (stateLock){
-                        stateLock.notifyAll();
-                        stateLock.wait();
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
-
-        parserThread.start();
-        viewThread.start();
-    }
 
     public void set() {
         synchronized (stateLock) {
@@ -545,6 +575,17 @@ public class TuiManager implements Manager {
     }
 
     public static void main(String[] args) {
+        Terminal terminal;
+        try {
+            terminal = TerminalBuilder.builder()
+                    .system(true)
+                    .build();
+        } catch (Exception e) {
+            System.err.println("Creation terminal error: " + e.getMessage());
+            return;
+        }
+        Parser parser = new Parser(terminal);
+
         ArrayList<Component> tiles = TilesManager.getTiles();
         for (int i = 0; i < 30; i++) {
             ComponentView tileView = converter(tiles.get(i));
@@ -648,10 +689,10 @@ public class TuiManager implements Manager {
         }
 
 
-        TuiManager tui = new TuiManager();
+        TuiManager tui = new TuiManager(terminal, parser);
         tui.startTui();
 
-        final int[] secondsRemaining = {15};
+        /*final int[] secondsRemaining = {15};
         new Thread(() -> {
             while (secondsRemaining[0] >= 0) {
                 try {
@@ -664,7 +705,7 @@ public class TuiManager implements Manager {
                 }
             }
             tui.set();
-        }).start();
+        }).start();*/
     }
 
     private static ComponentView converter(Component tile) {
