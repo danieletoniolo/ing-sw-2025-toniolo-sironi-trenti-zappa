@@ -178,8 +178,10 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyCreatedLobby(LobbyCreated data) {
-        printInput = false;
-        currentScreen = new LobbyTuiScreen();
+        synchronized (stateLock) {
+            currentScreen.setMessage(data.nickname() + " has created a new lobby: ");
+            stateLock.notifyAll();
+        }
     }
 
     @Override
@@ -233,10 +235,6 @@ public class TuiManager implements Manager {
             }
         }
     }
-
-
-
-
 
     @Override
     public void notifyDrawCard() {

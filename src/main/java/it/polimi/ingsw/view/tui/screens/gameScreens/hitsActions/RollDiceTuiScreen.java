@@ -3,7 +3,7 @@ package it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions;
 import it.polimi.ingsw.event.game.clientToServer.dice.RollDice;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.view.Client;
+import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.screens.GameTuiScreen;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;

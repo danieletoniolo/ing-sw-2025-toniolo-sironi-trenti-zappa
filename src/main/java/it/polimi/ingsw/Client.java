@@ -1,12 +1,12 @@
-package it.polimi.ingsw.view;
+package it.polimi.ingsw;
 
 
 import it.polimi.ingsw.event.NetworkTransceiver;
-import it.polimi.ingsw.event.lobby.clientToServer.SetNickname;
 import it.polimi.ingsw.network.Connection;
 import it.polimi.ingsw.network.rmi.RMIConnection;
 import it.polimi.ingsw.network.tcp.TCPConnection;
 import it.polimi.ingsw.utils.Logger;
+import it.polimi.ingsw.view.EventHandlerClient;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.TuiManager;
@@ -15,7 +15,6 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
 import java.io.IOException;
-import java.util.Scanner;
 import java.util.UUID;
 
 public class Client {
@@ -68,7 +67,6 @@ public class Client {
 
         if (tuiOrGui.equals("tui")) {
             TuiManager tui = new TuiManager(terminal, parser);
-            tui.startTui();
 
             if (rmiOrSocket.equals("rmi")) {
                 EventHandlerClient manager = new EventHandlerClient(transceiver, tui);
@@ -76,9 +74,9 @@ public class Client {
                 /*System.out.print("Enter IP: ");
                 String address = sc.nextLine();*/
                 //String address = "140.238.173.150";
-                //String address = "127.0.0.1";
+                String address = "127.0.0.1";
                 //String address = "192.168.67.224";
-                String address = "129.152.14.114";
+                //String address = "129.152.14.114";
                 Connection connection = new RMIConnection(address, 2551);
                 transceiver.connect(UUID.randomUUID(), connection);
 
@@ -98,9 +96,9 @@ public class Client {
                 /*System.out.print("Enter IP: ");
                 String address = sc.nextLine();*/
                 //String address = "140.238.173.150";
-                //String address = "127.0.0.1";
+                String address = "127.0.0.1";
                 //String address = "192.168.67.224";
-                String address = "129.152.14.114";
+                //String address = "129.152.14.114";
                 Connection connection = new TCPConnection(address, 2550);
                 transceiver.connect(UUID.randomUUID(), connection);
 
@@ -115,6 +113,7 @@ public class Client {
                     }
                 }
             }
+            tui.startTui();
         }
         else {
             if (rmiOrSocket.equals("rmi")) {

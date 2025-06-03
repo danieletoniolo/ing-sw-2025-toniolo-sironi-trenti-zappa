@@ -196,6 +196,10 @@ public class MatchController {
      */
     private StatusEvent setNickname(SetNickname data) {
         boolean nicknameAlreadyUsed = false;
+        if (data.nickname() == null || data.nickname().isEmpty()) {
+            Logger.getInstance().logWarning("User " + data.userID() + " tried to set an null or empty nickname", false);
+            return new Pota(data.userID(), SetNickname.class, "Nickname cannot be null or empty");
+        }
         for (User user : users.values()) {
             if (user.getNickname().equals(data.nickname())) {
                 nicknameAlreadyUsed = true;
@@ -270,23 +274,30 @@ public class MatchController {
 
         // Creating the playerData for the user
         PlayerColor color = PlayerColor.BLUE;
-        PlayerData player = new PlayerData(user.getNickname(), color, new SpaceShip(lobby.getLevel(), color));
+        PlayerData player = new PlayerData(user.getNickname(), data.userID(), color, new SpaceShip(lobby.getLevel(), color));
         userPlayers.put(user, player);
         userLobbyInfo.put(user, lobby);
-
-        // Broadcast the information of the new player
-        PlayerAdded playerAdded = new PlayerAdded(user.getNickname(), color.getValue());
-        networkTransceiver.broadcast(playerAdded);
 
         // Creating the game controller
         GameController gc = new GameController(board, lobby);
         gc.manageLobby(player, 1);
         gameControllers.put(lobby, gc);
 
+        // Linking the user to the lobby
+        user.setLobby(lobby);
+
         // Notifying to all the clients that a new lobby has been created
         LobbyCreated toSend = new LobbyCreated(user.getNickname(), lobby.getName(), lobby.getTotalPlayers(), lobby.getLevel().getValue());
         serverNetworkTransceiver.broadcast(toSend);
+        networkTransceiver.broadcast(toSend);
 
+        // Broadcast the information of the new player
+        PlayerAdded playerAdded = new PlayerAdded(user.getNickname(), color.getValue());
+        networkTransceiver.broadcast(playerAdded);
+
+        Logger.getInstance().logInfo("User " + data.userID() + " created lobby: " + lobby.getName(), false);
+
+        networkTransceiver.broadcast(new Tac(data.userID(), CreateLobby.class));
         return new Tac(data.userID(), CreateLobby.class);
     }
 
@@ -318,11 +329,15 @@ public class MatchController {
                         userPlayers.remove(value);
                     }
                 });
-                userLobbyInfo.forEach((key, value) -> {
-                    if (value.equals(lobby)) {
-                        userLobbyInfo.remove(key);
+                List<User> toRemove = new ArrayList<>();
+                for (User u : userLobbyInfo.keySet()) {
+                    if (userLobbyInfo.get(u).equals(lobby)) {
+                        toRemove.add(u);
                     }
-                });
+                }
+                for (User u : toRemove) {
+                    userLobbyInfo.remove(u);
+                }
 
                 // Notify to all the clients on the networkTransceiver of the lobby that the lobby has been removed
                 LobbyRemoved removeLobbyEvent = new LobbyRemoved(lobby.getName());
@@ -374,9 +389,11 @@ public class MatchController {
                 serverNetworkTransceiver.send(user.getUUID(), lobbiesEvent);
             }
         } else {
+            Logger.getInstance().logWarning("User " + data.userID() + " tried to leave a lobby that does not exist", false);
             return new Pota(data.userID(), LeaveLobby.class, "Lobby not found");
         }
 
+        Logger.getInstance().logInfo("Game " + lobby.getName() + ": User " + data.userID() + " left the lobby", false);
         return new Tac(data.userID(), LeaveLobby.class);
     }
 
@@ -409,7 +426,7 @@ public class MatchController {
             PlayerColor color = PlayerColor.getFreeColor(colorsAlreadyUsed);
 
             // Creating the playerData for the user
-            PlayerData player = new PlayerData(user.getNickname(), color, new SpaceShip(lobby.getLevel(), color));
+            PlayerData player = new PlayerData(user.getNickname(), data.userID(), color, new SpaceShip(lobby.getLevel(), color));
             userPlayers.put(user, player);
             userLobbyInfo.put(user, lobby);
             gc.manageLobby(player, 0);
@@ -930,8 +947,10 @@ public class MatchController {
                     }
                 }, timerDuration);
             }
+            Logger.getInstance().logInfo("Game " + lobby.getName() + ": user " + data.userID() + " is ready: " + data.isReady(), false);
             return new Tac(data.userID(), PlayerReady.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
+            Logger.getInstance().logWarning("Game " + lobby.getName() + ": user " + data.userID() + " try to set ready to " + data.isReady() + " but an error occurred: " + e.getMessage(), false);
             return new Pota(data.userID(), PlayerReady.class, e.getMessage());
         }
     }

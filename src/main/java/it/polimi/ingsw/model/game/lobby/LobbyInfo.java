@@ -1,8 +1,10 @@
 package it.polimi.ingsw.model.game.lobby;
 
 import it.polimi.ingsw.model.game.board.Level;
+import it.polimi.ingsw.utils.Logger;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,7 +13,6 @@ public class LobbyInfo implements Serializable {
     private final String founderNickname;
     private final Level level;
     private final int totalPlayers;
-    private final int numberOfPlayersEntered;
     private final List<UUID> playersReady;
 
     /**
@@ -31,10 +32,9 @@ public class LobbyInfo implements Serializable {
         }
         this.name = founderNickname + "'s lobby";
         this.founderNickname = founderNickname;
-        this.numberOfPlayersEntered = 0;
         this.totalPlayers = totalPlayers;
         this.level = level;
-        this.playersReady = null;
+        this.playersReady = new ArrayList<>();
     }
 
     /**
@@ -58,7 +58,7 @@ public class LobbyInfo implements Serializable {
      * @return the number of players in the lobby
      */
     public int getNumberOfPlayersEntered() {
-        return this.numberOfPlayersEntered;
+        return this.playersReady.size();
     }
 
     /**
@@ -91,8 +91,12 @@ public class LobbyInfo implements Serializable {
      * @param playerId the unique identifier of the player to be marked as ready
      */
     public void addPlayerReady(UUID playerId) {
-        if (!this.playersReady.contains(playerId)) {
-            this.playersReady.add(playerId);
+        if (this.playersReady.size() < this.totalPlayers) {
+            if (!this.playersReady.contains(playerId)) {
+                this.playersReady.add(playerId);
+            }
+        } else {
+            throw new IllegalStateException("Game has already started, cannot add player to ready list");
         }
     }
 
@@ -101,11 +105,15 @@ public class LobbyInfo implements Serializable {
      * @param playerId the unique identifier of the player to be removed from the ready list
      */
     public void removePlayerReady(UUID playerId) {
-        this.playersReady.remove(playerId);
+        if (this.playersReady.size() < this.totalPlayers) {
+            this.playersReady.remove(playerId);
+        } else {
+            throw new IllegalStateException("Game has already started, cannot remove player from ready list");
+        }
     }
 
 
     public boolean canGameStart() {
-        return this.numberOfPlayersEntered == this.playersReady.size();
+        return this.playersReady.size() == this.totalPlayers;
     }
 }

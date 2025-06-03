@@ -16,6 +16,7 @@ import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
 import it.polimi.ingsw.event.game.serverToClient.timer.*;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
+import it.polimi.ingsw.utils.Logger;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
@@ -88,7 +89,7 @@ public class EventHandlerClient {
          */
         CastEventReceiver<LobbyCreated> lobbyCreatedReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<LobbyCreated> lobbyCreatedListener = data -> {
-            LobbyView lobby = new LobbyView(data.lobbyID(), 1, data.maxPlayers(), LevelView.fromValue(data.level()));
+            LobbyView lobby = new LobbyView(data.lobbyID(), 0, data.maxPlayers(), LevelView.fromValue(data.level()));
             MiniModel.getInstance().getLobbiesView().add(lobby);
             if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
                 MiniModel.getInstance().setCurrentLobby(lobby);
@@ -164,6 +165,8 @@ public class EventHandlerClient {
             else {
                 MiniModel.getInstance().getOtherPlayers().add(player);
             }
+
+            MiniModel.getInstance().getCurrentLobby().addPlayer(player.getUsername());
         };
         playerAddedReceiver.registerListener(playerAddedListener);
 

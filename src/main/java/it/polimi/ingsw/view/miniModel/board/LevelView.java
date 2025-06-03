@@ -1,7 +1,7 @@
 package it.polimi.ingsw.view.miniModel.board;
 
 public enum LevelView {
-    LEARNING(0), SECOND(2);
+    LEARNING(1), SECOND(2);
 
     private final int value;
 

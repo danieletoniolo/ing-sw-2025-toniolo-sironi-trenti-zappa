@@ -107,6 +107,7 @@ public class MiniModel {
 
     public synchronized void setUserID(String userID) {
         this.userID = userID;
+        this.notifyAll();
     }
 
     public synchronized String getUserID() {

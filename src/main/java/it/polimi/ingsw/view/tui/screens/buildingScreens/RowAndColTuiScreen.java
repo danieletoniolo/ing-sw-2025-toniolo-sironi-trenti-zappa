@@ -2,7 +2,7 @@ package it.polimi.ingsw.view.tui.screens.buildingScreens;
 
 import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToSpaceship;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.view.Client;
+import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.tui.input.Parser;

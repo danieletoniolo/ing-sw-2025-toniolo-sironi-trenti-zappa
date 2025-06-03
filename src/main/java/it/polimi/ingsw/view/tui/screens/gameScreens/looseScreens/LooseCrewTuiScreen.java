@@ -3,7 +3,7 @@ package it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.ManageCrewMember;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.view.Client;
+import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.components.CabinView;
 import it.polimi.ingsw.view.tui.screens.GameTuiScreen;

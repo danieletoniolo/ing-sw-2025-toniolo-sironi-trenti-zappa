@@ -6,7 +6,7 @@ import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToReserve;
 import it.polimi.ingsw.event.game.clientToServer.rotateTile.RotateTile;
 import it.polimi.ingsw.event.game.clientToServer.timer.FlipTimer;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.view.Client;
+import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.ChoosePositionTuiScreen;
 import org.javatuples.Pair;
 import org.jline.terminal.Terminal;

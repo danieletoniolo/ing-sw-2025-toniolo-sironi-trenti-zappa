@@ -3,6 +3,7 @@ package it.polimi.ingsw.event;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.network.Connection;
 import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
 import java.util.*;
@@ -46,7 +47,7 @@ public class NetworkTransceiver implements EventTransceiver{
     /**
      * It is true if the consumer thread which sends events over the connection has to remain alive.
      */
-    private boolean hasToSend = true;
+    // private boolean hasToSend = true;
 
     public NetworkTransceiver() {
         this.lockListeners = new Object();
@@ -80,13 +81,15 @@ public class NetworkTransceiver implements EventTransceiver{
             while (true) {
                 synchronized (sendQueue) {
                     while (sendQueue.isEmpty()) {
+                        /*
                         if (!hasToSend) {
-                            /*
                                TODO: Understand if we need to break the loop
                                      We should not need it since since we do not support disconnection
-                             */
+
                             return;
                         }
+                         */
+
 
                         try {
                             sendQueue.wait();
@@ -97,12 +100,17 @@ public class NetworkTransceiver implements EventTransceiver{
                     event = sendQueue.poll();
                 }
 
+                Logger.getInstance().logDebug("Sending event: " + event.getValue1().getClass().getSimpleName() + " to " + (event.getValue0() != null ? event.getValue0() : "all connections"), true);
                 if (event.getValue0() != null) {
                     synchronized (lockConnectionSend) {
                         try {
                             connections.get(event.getValue0()).getValue0().send(event.getValue1());
                         } catch (DisconnectedConnection e) {
                             // TODO: Handle the error
+                        } catch (NullPointerException e) {
+                            Logger.getInstance().logError("Trying to send event: " + event.getValue1().getClass().getSimpleName() + " to connection with ID: " + event.getValue0() + " but the connection is not present in the transceiver.", true);
+                            // This can happen if the connection has been removed before the event is sent
+                            // We can ignore this error since it is not critical
                         }
                     }
                 } else {
@@ -182,13 +190,15 @@ public class NetworkTransceiver implements EventTransceiver{
      * @param userID The {@link UUID} to disconnect from the transceiver.
      */
     public void disconnect(UUID userID) {
-        Thread receiveThread = connections.remove(userID).getValue1();
-        if (receiveThread != null) {
-            receiveThread.interrupt();
+        synchronized (lockConnectionSend) {
+            Thread receiveThread = connections.remove(userID).getValue1();
+            if (receiveThread != null) {
+                receiveThread.interrupt();
+            }
         }
 
         synchronized (sendQueue) {
-            hasToSend = false;
+            // hasToSend = false;
             sendQueue.notifyAll();
         }
     }
