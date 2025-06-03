@@ -41,6 +41,26 @@
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>11.2.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.fusesource.jansi</groupId>
             <artifactId>jansi</artifactId>
             <version>2.4.0</version>
@@ -50,49 +70,92 @@
             <artifactId>jline</artifactId>
             <version>3.30.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
     </dependencies>
 
     <profiles>
         <profile>
             <id>client</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-controls</artifactId>
-                    <version>${javafx.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-fxml</artifactId>
-                    <version>${javafx.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.controlsfx</groupId>
-                    <artifactId>controlsfx</artifactId>
-                    <version>11.2.1</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.fusesource.jansi</groupId>
-                    <artifactId>jansi</artifactId>
-                    <version>2.4.0</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.jline</groupId>
-                    <artifactId>jline</artifactId>
-                    <version>3.30.0</version>
-                </dependency>
-            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.13.0</version>
+                        <configuration>
+                            <source>23</source>
+                            <target>23</target>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>3.7.0</version>
+                        <executions>
+                            <execution>
+                                <id>package-client</id>
+                                <phase>package</phase>
+                                <goals><goal>single</goal></goals>
+                                <configuration>
+                                    <finalName>libs/Client</finalName>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                    <archive>
+                                        <manifest>
+                                            <mainClass>it.polimi.ingsw.view.Client</mainClass>
+                                        </manifest>
+                                    </archive>
+                                    <descriptorRefs>
+                                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                                    </descriptorRefs>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>jpackage-client</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>jpackage</executable>
+                                    <arguments>
+                                        <argument>--input</argument>
+                                        <argument>target/libs</argument>
+                                        <argument>--main-jar</argument>
+                                        <argument>Client.jar</argument>
+                                        <argument>--main-class</argument>
+                                        <argument>it.polimi.ingsw.app.ApplicationClient</argument>
+                                        <argument>--type</argument>
+                                        <argument>app-image</argument>
+                                        <argument>--name</argument>
+                                        <argument>Galaxy Trucker</argument>
+                                        <argument>--app-version</argument>
+                                        <argument>1.0</argument>
+                                        <argument>--dest</argument>
+                                        <argument>target/jpackage</argument>
+                                        <argument>--java-options</argument>
+                                        <argument>-Xmx512m</argument>
+                                        <argument>--jlink-options</argument>
+                                        <argument>--bind-services</argument>
+                                        <argument>--module-path</argument>
+                                        <argument>java.base,java.sql,java.xml,java.rmi,java.desktop, javafx.controls, javafx.fxml, org.jline</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>server</id>
             <build>
                 <plugins>
-                    <!-- Build Server JAR -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
@@ -147,9 +210,9 @@
                                         <argument>--main-class</argument>
                                         <argument>it.polimi.ingsw.app.ApplicationServer</argument>
                                         <argument>--type</argument>
-                                        <argument>app-image</argument> <!-- oppure dmg, msi, deb -->
+                                        <argument>app-image</argument>
                                         <argument>--name</argument>
-                                        <argument>GalaxyTruckerServer</argument>
+                                        <argument>Galaxy Trucker Server</argument>
                                         <argument>--app-version</argument>
                                         <argument>1.0</argument>
                                         <argument>--dest</argument>
