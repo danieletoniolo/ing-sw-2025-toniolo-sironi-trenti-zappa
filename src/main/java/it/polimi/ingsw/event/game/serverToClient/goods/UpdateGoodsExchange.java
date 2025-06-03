@@ -2,7 +2,6 @@ package it.polimi.ingsw.event.game.serverToClient.goods;
 
 import it.polimi.ingsw.event.type.Event;
 import org.javatuples.Pair;
-import org.javatuples.Triplet;
 
 import java.io.Serializable;
 import java.util.List;

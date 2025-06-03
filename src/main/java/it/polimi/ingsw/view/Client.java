@@ -1,0 +1,130 @@
+package it.polimi.ingsw.view;
+
+
+import it.polimi.ingsw.event.NetworkTransceiver;
+import it.polimi.ingsw.event.lobby.clientToServer.SetNickname;
+import it.polimi.ingsw.network.Connection;
+import it.polimi.ingsw.network.rmi.RMIConnection;
+import it.polimi.ingsw.network.tcp.TCPConnection;
+import it.polimi.ingsw.utils.Logger;
+import it.polimi.ingsw.view.miniModel.MiniModel;
+import it.polimi.ingsw.view.tui.TerminalUtils;
+import it.polimi.ingsw.view.tui.TuiManager;
+import it.polimi.ingsw.view.tui.input.Parser;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
+import java.io.IOException;
+import java.util.Scanner;
+import java.util.UUID;
+
+public class Client {
+    public static NetworkTransceiver transceiver;
+
+    public static void main(String[] args) throws IOException {
+        Terminal terminal;
+        try {
+            terminal = TerminalBuilder.builder()
+                    .system(true)
+                    .build();
+        } catch (Exception e) {
+            System.err.println("Creation terminal error: " + e.getMessage());
+            return;
+        }
+        Parser parser = new Parser(terminal);
+        for (int i = 1; i < terminal.getSize().getRows(); i++ ) {
+            TerminalUtils.printLine(terminal.writer(), "", i);
+        }
+        int row = 1;
+
+        Logger.getInstance().setUp(false, true);
+        transceiver = new NetworkTransceiver();
+
+        TerminalUtils.printLine(terminal.writer(), "  _______      ___       __          ___      ___   ___ ____    ____    .___________..______       __    __    ______  __  ___  _______ .______     \s", row++);
+        TerminalUtils.printLine(terminal.writer(), " /  _____|    /   \\     |  |        /   \\     \\  \\ /  / \\   \\  /   /    |           ||   _  \\     |  |  |  |  /      ||  |/  / |   ____||   _  \\    \s", row++);
+        TerminalUtils.printLine(terminal.writer(), "|  |  __     /  ^  \\    |  |       /  ^  \\     \\  V  /   \\   \\/   /     `---|  |----`|  |_)  |    |  |  |  | |  ,----'|  '  /  |  |__   |  |_)  |   \s", row++);
+        TerminalUtils.printLine(terminal.writer(), "|  | |_ |   /  /_\\  \\   |  |      /  /_\\  \\     >   <     \\_    _/          |  |     |      /     |  |  |  | |  |     |    <   |   __|  |      /    \s", row++);
+        TerminalUtils.printLine(terminal.writer(), "|  |__| |  /  _____  \\  |  `----./  _____  \\   /  .  \\      |  |            |  |     |  |\\  \\----.|  `--'  | |  `----.|  .  \\  |  |____ |  |\\  \\----.", row++);
+        TerminalUtils.printLine(terminal.writer(), " \\______| /__/     \\__\\ |_______/__/     \\__\\ /__/ \\__\\     |__|            |__|     | _| `._____| \\______/   \\______||__|\\__\\ |_______|| _| `._____|", row++);
+
+        for (int i = 0; i < 3; i++) {
+            TerminalUtils.printLine(terminal.writer(), "", row++);
+        }
+        String tuiOrGui;
+        do {
+            tuiOrGui = parser.readNickname("Choose 'tui' or 'gui': ", row++, () -> true);
+            if (!tuiOrGui.equals("tui") && !tuiOrGui.equals("gui")) {
+                TerminalUtils.printLine(terminal.writer(), "Invalid input. Please enter 'tui' or 'gui'.", row++);
+            }
+        } while (!tuiOrGui.equals("tui") && !tuiOrGui.equals("gui"));
+
+        String rmiOrSocket;
+        do {
+            System.out.print("Choose 'rmi' or 'socket': ");
+            rmiOrSocket = parser.readNickname("Choose 'rmi' or 'socket': ", row++, () -> true);
+            if (!rmiOrSocket.equals("rmi") && !rmiOrSocket.equals("socket")) {
+                TerminalUtils.printLine(terminal.writer(), "Invalid input. Please enter 'rmi' or 'socket'.", row++);
+            }
+        } while (!rmiOrSocket.equals("rmi") && !rmiOrSocket.equals("socket"));
+
+        if (tuiOrGui.equals("tui")) {
+            TuiManager tui = new TuiManager(terminal, parser);
+            tui.startTui();
+
+            if (rmiOrSocket.equals("rmi")) {
+                EventHandlerClient manager = new EventHandlerClient(transceiver, tui);
+
+                /*System.out.print("Enter IP: ");
+                String address = sc.nextLine();*/
+                //String address = "140.238.173.150";
+                String address = "127.0.0.1";
+                //String address = "192.168.67.224";
+                Connection connection = new RMIConnection(address, 2551);
+                transceiver.connect(UUID.randomUUID(), connection);
+
+                MiniModel mm = MiniModel.getInstance();
+                synchronized (mm) {
+                    while (MiniModel.getInstance().getUserID() == null) {
+                        try {
+                            mm.wait();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
+            } else {
+                EventHandlerClient manager = new EventHandlerClient(transceiver, tui);
+
+                /*System.out.print("Enter IP: ");
+                String address = sc.nextLine();*/
+                //String address = "140.238.173.150";
+                String address = "127.0.0.1";
+                //String address = "192.168.67.224";
+                Connection connection = new TCPConnection(address, 2550);
+                transceiver.connect(UUID.randomUUID(), connection);
+
+                MiniModel mm = MiniModel.getInstance();
+                synchronized (mm) {
+                    while (MiniModel.getInstance().getUserID() == null) {
+                        try {
+                            mm.wait();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            if (rmiOrSocket.equals("rmi")) {
+                //TODO: far partire rmi e gui
+            }
+            else {
+                //TODO: far partire socket e gui
+            }
+        }
+
+        parser.shutdown();
+        terminal.close();
+    }
+}

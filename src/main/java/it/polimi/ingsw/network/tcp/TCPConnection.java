@@ -2,6 +2,7 @@ package it.polimi.ingsw.network.tcp;
 
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.game.HeartBeat;
+import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.network.Connection;
 import it.polimi.ingsw.network.exceptions.BadHostException;
 import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
@@ -96,8 +97,7 @@ public class TCPConnection implements Connection {
                     socket.setSoTimeout(5000);
                     read = in.readObject();
 
-                    // Check if the read object is Message
-                    if (read instanceof Event  && !(read instanceof HeartBeat)) {
+                    if (read instanceof Event && !(read instanceof HeartBeat)) {
                         synchronized (lock) {
                             pendingMessages.add((Event) read);
                             lock.notifyAll();

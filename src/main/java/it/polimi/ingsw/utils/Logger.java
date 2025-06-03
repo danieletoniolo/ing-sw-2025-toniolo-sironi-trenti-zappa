@@ -175,7 +175,7 @@ public class Logger {
      * @param message the message to log
      * @param printCallerFunction whether to print the caller function name
      */
-    private void log(LogLevel level, String message, boolean printCallerFunction) {
+    public void log(LogLevel level, String message, boolean printCallerFunction) {
         String logMessage = formatString(level, message, printCallerFunction);
 
         // Add the message to the queue
