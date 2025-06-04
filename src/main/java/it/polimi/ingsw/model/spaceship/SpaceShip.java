@@ -15,19 +15,19 @@ public class SpaceShip {
     private static final float alienStrength = 2.0f;
     private static final int rows = 12;
     private static final int cols = 12;
-    private Component[][] components;
+    private final Component[][] components;
     private int numberOfComponents;
-    private boolean[][] validSpots;
+    private final boolean[][] validSpots;
 
-    private List<Component> lostComponents;
-    private ArrayList<Component> reservedComponents;
+    private final List<Component> lostComponents;
+    private final ArrayList<Component> reservedComponents;
 
     private final Map<Integer, Storage> storages;
     private final Map<Integer, Battery> batteries;
     private final Map<Integer, Cabin> cabins;
     private final Map<Integer, Cannon> cannons;
     private final Map<Integer, Engine> engines;
-    private PriorityQueue<Good> goods;
+    private final PriorityQueue<Good> goods;
     private Component lastPlacedComponent;
 
     private int singleEnginesStrength;
@@ -283,13 +283,15 @@ public class SpaceShip {
      * @param IDs a list of integer IDs corresponding to the cannons whose strength is to be calculated
      * @return the total strength of the cannons as a float
      */
-    public float getCannonsStrength(List<Integer> IDs) {
+    public float getCannonsStrength(List<Integer> IDs) throws IllegalArgumentException {
         float strength = 0;
         Cannon cannon;
         for (int ID : IDs) {
             cannon = cannons.get(ID);
             if (cannon != null) {
                 strength += cannon.getCannonStrength();
+            } else {
+                throw new IllegalArgumentException("Cannon with ID " + ID + " not found in the ship.");
             }
         }
         return strength;
@@ -300,13 +302,15 @@ public class SpaceShip {
      * @param IDs a list of integer IDs corresponding to the engines whose strength is to be calculated
      * @return the total strength of the engines as a float
      */
-    public float getEnginesStrength(List<Integer> IDs) {
+    public float getEnginesStrength(List<Integer> IDs) throws IllegalArgumentException {
         float strength = 0;
         Engine engine;
         for (int ID : IDs) {
             engine = engines.get(ID);
             if (engine != null) {
                 strength += engine.getEngineStrength();
+            } else {
+                throw new IllegalArgumentException("Engine with ID " + ID + " not found in the ship.");
             }
         }
         return strength;
@@ -798,6 +802,7 @@ public class SpaceShip {
              the other components are automatically fixed.
              So also the fix method in the Component class should be removed.
      */
+
     /**
      * Fix a component at the given row and column
      * @param row row of the component to fix
