@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.clientToServer.spaceship;
 
 import it.polimi.ingsw.event.Requester;
+import it.polimi.ingsw.event.game.clientToServer.goods.SwapGoods;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
@@ -29,7 +30,9 @@ public record ManageCrewMember(
      * @return            a Responder for the ManageCrewMember event.
      */
     public static Responder<ManageCrewMember> responder(EventTransceiver transceiver, Function<ManageCrewMember, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<ManageCrewMember> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

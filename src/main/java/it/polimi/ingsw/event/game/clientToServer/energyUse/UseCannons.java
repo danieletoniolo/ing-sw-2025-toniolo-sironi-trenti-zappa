@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.clientToServer.energyUse;
 
 import it.polimi.ingsw.event.Requester;
+import it.polimi.ingsw.event.lobby.clientToServer.SetNickname;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
@@ -29,7 +30,9 @@ public record UseCannons(
      * @return            a Responder for the UseCannons event.
      */
     public static Responder<UseCannons> responder(EventTransceiver transceiver, Function<UseCannons, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<UseCannons> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

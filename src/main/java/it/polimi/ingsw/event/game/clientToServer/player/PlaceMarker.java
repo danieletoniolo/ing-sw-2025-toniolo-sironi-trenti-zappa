@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.clientToServer.player;
 
 import it.polimi.ingsw.event.Requester;
+import it.polimi.ingsw.event.game.clientToServer.goods.SwapGoods;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
@@ -25,7 +26,9 @@ public record PlaceMarker(
      * @return            a Responder for the PlaceMarker event.
      */
     public static Responder<PlaceMarker> responder(EventTransceiver transceiver, Function<PlaceMarker, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<PlaceMarker> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

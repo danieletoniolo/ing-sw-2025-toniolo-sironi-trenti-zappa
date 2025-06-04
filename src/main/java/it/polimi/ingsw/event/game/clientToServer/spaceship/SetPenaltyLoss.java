@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.clientToServer.spaceship;
 
 import it.polimi.ingsw.event.Requester;
+import it.polimi.ingsw.event.game.clientToServer.goods.SwapGoods;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
@@ -30,7 +31,9 @@ public record SetPenaltyLoss(
      * @return            a Responder for the SetPenaltyLoss event.
      */
     public static Responder<SetPenaltyLoss> responder(EventTransceiver transceiver, Function<SetPenaltyLoss, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<SetPenaltyLoss> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**
