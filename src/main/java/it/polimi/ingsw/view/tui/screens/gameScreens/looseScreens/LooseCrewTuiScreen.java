@@ -24,7 +24,6 @@ public class LooseCrewTuiScreen extends GameTuiScreen {
         }});
     }
 
-
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

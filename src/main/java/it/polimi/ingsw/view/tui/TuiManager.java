@@ -156,9 +156,6 @@ public class TuiManager implements Manager {
 
     }
 
-    /**
-     * Create the Menu screen after the nickname is set
-     */
     @Override
     public void notifyNicknameSet() {
 
@@ -166,7 +163,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyLobbies() {
-        if (currentScreen instanceof MenuTuiScreen) {
+        if (currentScreen.getType().equals(TuiScreens.Menu)) {
             synchronized (stateLock) {
                 printInput = false;
                 currentScreen = new MenuTuiScreen();
@@ -177,16 +174,10 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyCreatedLobby(LobbyCreated data) {
-        synchronized (stateLock) {
-            currentScreen.setMessage(data.nickname() + " has created a new lobby: ");
-            stateLock.notifyAll();
-        }
-    }
-
-    @Override
-    public void notifyLobbyJoined(LobbyJoined data) {
-        if (currentScreen.getType().equals(TuiScreens.Lobby)) {
+        if (!data.nickname().equals(MiniModel.getInstance().getNickname())) {
             synchronized (stateLock) {
+                currentScreen = new MenuTuiScreen();
+                currentScreen.setMessage(data.nickname() + " has created a new lobby: ");
                 printInput = false;
                 stateLock.notifyAll();
             }
@@ -194,20 +185,36 @@ public class TuiManager implements Manager {
     }
 
     @Override
+    public void notifyLobbyJoined(LobbyJoined data) {
+        if (!data.nickname().equals(MiniModel.getInstance().getNickname())) {
+            if (currentScreen.getType().equals(TuiScreens.Lobby)) {
+                synchronized (stateLock) {
+                    stateLock.notifyAll();
+                }
+            }
+        }
+    }
+
+    @Override
     public void notifyLobbyLeft(LobbyLeft data) {
-        if (MiniModel.getInstance().getCurrentLobby().getLobbyName().equals(data.lobbyID())) {
-            synchronized (stateLock) {
-                currentScreen.setMessage(data.nickname() + " has left the lobby");
-                stateLock.notifyAll();
+        if (!data.nickname().equals(MiniModel.getInstance().getNickname())) {
+            if (MiniModel.getInstance().getCurrentLobby().getLobbyName().equals(data.lobbyID())) {
+                synchronized (stateLock) {
+                    currentScreen.setMessage(data.nickname() + " has left the lobby");
+                    stateLock.notifyAll();
+                }
             }
         }
     }
 
     @Override
     public void notifyLobbyRemoved(LobbyRemoved data) {
-        if (currentScreen instanceof MenuTuiScreen) {
-            currentScreen = new MenuTuiScreen();
-            printInput = false;
+        if (currentScreen.getType().equals(TuiScreens.Menu)) {
+            synchronized (stateLock) {
+                currentScreen = new MenuTuiScreen();
+                printInput = false;
+                stateLock.notifyAll();
+            }
         }
     }
 
@@ -217,7 +224,7 @@ public class TuiManager implements Manager {
     @Override
     public void notifyStartingGame(StartingGame data) {
         synchronized (stateLock) {
-            currentScreen = new BuildingTuiScreen();
+            currentScreen = new ValidationTuiScreen();
             printInput = false;
             stateLock.notifyAll();
         }

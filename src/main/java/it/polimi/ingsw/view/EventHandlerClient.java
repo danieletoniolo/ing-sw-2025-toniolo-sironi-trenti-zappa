@@ -134,6 +134,11 @@ public class EventHandlerClient {
             MiniModel.getInstance().getOtherPlayers()
                     .removeIf(player -> player.getUsername().equals(data.nickname()));
 
+            if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
+                MiniModel.getInstance().setCurrentLobby(null);
+                MiniModel.getInstance().setCurrentPlayer(null);
+            }
+
             manager.notifyLobbyLeft(data);
         };
         lobbyLeftReceiver.registerListener(lobbyLeftListener);

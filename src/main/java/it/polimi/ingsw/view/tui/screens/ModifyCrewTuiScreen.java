@@ -11,16 +11,16 @@ import org.jline.terminal.Terminal;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
-public class AddCrewTuiScreen implements TuiScreenView{
+public class ModifyCrewTuiScreen implements TuiScreenView{
     protected ArrayList<String> options;
     protected int totalLines;
     protected int selected;
     protected String message;
 
-    private SpaceShipView spaceShipView = MiniModel.getInstance().getClientPlayer().getShip();
-    private PlayerDataView clientPlayer = MiniModel.getInstance().getClientPlayer();
+    private final SpaceShipView spaceShipView = MiniModel.getInstance().getClientPlayer().getShip();
+    private final PlayerDataView clientPlayer = MiniModel.getInstance().getClientPlayer();
 
-    public AddCrewTuiScreen() {
+    public ModifyCrewTuiScreen() {
         options = new ArrayList<>();
 
         options.addAll(spaceShipView.getMapCabins().values().stream()
