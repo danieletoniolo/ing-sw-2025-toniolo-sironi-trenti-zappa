@@ -45,6 +45,10 @@ public class DeckView {
         }
     }
 
+    public void addCard(CardView card) {
+        deck.push(card);
+    }
+
     public Stack<CardView> getDeck() {
         return deck;
     }

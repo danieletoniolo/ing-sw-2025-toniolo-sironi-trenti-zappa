@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.tui.screens.buildingScreens;
 
 import it.polimi.ingsw.event.game.clientToServer.player.PlaceMarker;
+import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -43,7 +44,7 @@ public class ChoosePositionTuiScreen implements TuiScreenView {
 
         StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object()).request(new PlaceMarker(MiniModel.getInstance().getUserID(), selected));
         if (status.get().equals("POTA")) {
-            setMessage("Can't place the marker there! Pick a different spot.");
+            setMessage(((Pota) status).errorMessage());
             return this;
         }
 

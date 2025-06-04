@@ -6,6 +6,7 @@ import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
+import it.polimi.ingsw.view.tui.screens.crewScreens.AddCrewTuiScreen;
 import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
@@ -17,27 +18,45 @@ public class ModifyCrewTuiScreen implements TuiScreenView{
     protected int selected;
     protected String message;
 
-    private final SpaceShipView spaceShipView = MiniModel.getInstance().getClientPlayer().getShip();
-    private final PlayerDataView clientPlayer = MiniModel.getInstance().getClientPlayer();
+    protected static int typeOfOption;
+
+    protected final SpaceShipView spaceShipView = MiniModel.getInstance().getClientPlayer().getShip();
+    protected final PlayerDataView clientPlayer = MiniModel.getInstance().getClientPlayer();
 
     public ModifyCrewTuiScreen() {
         options = new ArrayList<>();
 
-        options.addAll(spaceShipView.getMapCabins().values().stream()
-                .map(cabin -> "(" + cabin.getRow() + " " + cabin.getCol() + ")")
-                .toList());
+        options.add("Add human");
+        options.add("Add brown alien");
+        options.add("Add purple alien");
+        options.add("Remove crew from cabin");
+        for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
+            options.add("View " + p.getUsername() + "'s spaceship");
+        }
+        options.add("Close program");
 
         totalLines = spaceShipView.getMapCabins().size() + 4;
     }
 
     @Override
-    public TuiScreenView setNewScreen() {
-        return null;
+    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
+        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+        typeOfOption = selected;
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public TuiScreenView setNewScreen() {
+        if ((selected < options.size() - 1) && (selected >= options.size() - 1 - MiniModel.getInstance().getOtherPlayers().size())) {
+            int i = selected - (options.size() - MiniModel.getInstance().getOtherPlayers().size() - 1);
+
+            return new PlayerTuiScreen(MiniModel.getInstance().getOtherPlayers().get(i), this);
+        }
+
+        if (selected == options.size() - 1) {
+            return new ClosingProgram();
+        }
+
+        return new AddCrewTuiScreen(this);
     }
 
     @Override
@@ -47,7 +66,7 @@ public class ModifyCrewTuiScreen implements TuiScreenView{
 
     @Override
     public TuiScreens getType() {
-        return TuiScreens.AddCrew;
+        return TuiScreens.ModifyCrew;
     }
 
     @Override

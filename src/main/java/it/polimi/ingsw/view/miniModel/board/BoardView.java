@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.miniModel.board;
 
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
+import it.polimi.ingsw.view.miniModel.timer.TimerView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,12 +21,18 @@ public class BoardView implements Structure {
     public static String Bow2 = "╮";
     public static String Bow3 = "╰";
     public static String Bow4 = "╯";
+    private TimerView timerView;
 
     public BoardView(LevelView level) {
         this.level = level;
         switch (level) {
-            case LEARNING -> this.stepsForALap = 18;
-            case SECOND -> this.stepsForALap = 24;
+            case LEARNING:
+                this.stepsForALap = 18;
+                break;
+            case SECOND:
+                this.stepsForALap = 24;
+                this.timerView = new TimerView(3);
+                break;
         }
         this.players = new HashMap<MarkerView, Integer>();
         initializeBoard();
@@ -34,6 +41,10 @@ public class BoardView implements Structure {
     @Override
     public void drawGui(){
         //TODO: Implements board gui
+    }
+
+    public TimerView getTimerView() {
+        return timerView;
     }
 
     public int getRowsToDraw() {

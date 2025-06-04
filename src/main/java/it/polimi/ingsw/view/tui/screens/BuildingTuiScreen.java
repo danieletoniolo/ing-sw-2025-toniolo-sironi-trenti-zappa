@@ -5,6 +5,7 @@ import it.polimi.ingsw.event.game.clientToServer.pickTile.PickTileFromBoard;
 import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToReserve;
 import it.polimi.ingsw.event.game.clientToServer.rotateTile.RotateTile;
 import it.polimi.ingsw.event.game.clientToServer.timer.FlipTimer;
+import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.ChoosePositionTuiScreen;
@@ -30,7 +31,7 @@ public class BuildingTuiScreen implements TuiScreenView {
 
     protected int totalLines = 1 + (MiniModel.getInstance().getViewableComponents().size() / cols) * ComponentView.getRowsToDraw()
             + (MiniModel.getInstance().getViewableComponents().size() % cols == 0 ? 0 : ComponentView.getRowsToDraw())
-            + 1 + clientPlayer.getShip().getRowsToDraw() + 3 + 2;
+            + 1 + clientPlayer.getShip().getRowsToDraw() + 3 + 5;
 
     private int row;
     protected String message;
@@ -83,7 +84,7 @@ public class BuildingTuiScreen implements TuiScreenView {
         if (selected == 0) {
             status = PickTileFromBoard.requester(Client.transceiver, new Object()).request(new PickTileFromBoard(MiniModel.getInstance().getUserID(), -1));
             if (status.get().equals("POTA")) {
-                setMessage("Problem Occurred, Try Again!");
+                setMessage(((Pota) status).errorMessage());
                 return this;
             }
             return this;
@@ -100,7 +101,7 @@ public class BuildingTuiScreen implements TuiScreenView {
         if (selected == 3) {
             status = PlaceTileToReserve.requester(Client.transceiver, new Object()).request(new PlaceTileToReserve(MiniModel.getInstance().getUserID()));
             if (status.get().equals("POTA")) {
-                setMessage("Reserved pile is full");
+                setMessage(((Pota) status).errorMessage());
             }
             return this;
         }
@@ -109,7 +110,7 @@ public class BuildingTuiScreen implements TuiScreenView {
             status = RotateTile.requester(Client.transceiver, new Object())
                     .request(new RotateTile(MiniModel.getInstance().getUserID(), clientPlayer.getHand().getID()));
             if (status.get().equals("POTA")) {
-                setMessage("Rotate tile failed. Try again!");
+                setMessage(((Pota) status).errorMessage());
             }
             return this;
         }
@@ -120,7 +121,7 @@ public class BuildingTuiScreen implements TuiScreenView {
                     status = PickLeaveDeck.requester(Client.transceiver, new Object())
                             .request(new PickLeaveDeck(MiniModel.getInstance().getUserID(), 0, 0));
                     if (status.get().equals("POTA")) {
-                        setMessage("It is not possible to pick Deck 1");
+                        setMessage(((Pota) status).errorMessage());
                         return this;
                     }
 
@@ -129,7 +130,7 @@ public class BuildingTuiScreen implements TuiScreenView {
                     status = PickLeaveDeck.requester(Client.transceiver, new Object())
                             .request(new PickLeaveDeck(MiniModel.getInstance().getUserID(), 0, 1));
                     if (status.get().equals("POTA")) {
-                        setMessage("It is not possible to pick Deck 2");
+                        setMessage(((Pota) status).errorMessage());
                         return this;
                     }
                     return new DeckTuiScreen(decksView.getValue0()[1], 2);
@@ -137,14 +138,14 @@ public class BuildingTuiScreen implements TuiScreenView {
                     status = PickLeaveDeck.requester(Client.transceiver, new Object())
                             .request(new PickLeaveDeck(MiniModel.getInstance().getUserID(), 0, 2));
                     if (status.get().equals("POTA")) {
-                        setMessage("It is not possible to pick Deck 3");
+                        setMessage(((Pota) status).errorMessage());
                         return this;
                     }
                     return new DeckTuiScreen(decksView.getValue0()[2], 3);
                 case 8:
                     status = FlipTimer.requester(Client.transceiver, new Object()).request(new FlipTimer(MiniModel.getInstance().getUserID()));
                     if (status.get().equals("POTA")) {
-                        setMessage("Timer's active - can’t flip it!");
+                        setMessage(((Pota) status).errorMessage());
                     }
                     return this;
             }
@@ -182,7 +183,7 @@ public class BuildingTuiScreen implements TuiScreenView {
             StringBuilder line = new StringBuilder();
             line.append(clientPlayer.getShip().drawLineTui(i));
             if (i == 0) {
-                int hiddenTiles = 152 - MiniModel.getInstance().getViewableComponents().size();
+                int hiddenTiles = MiniModel.getInstance().getNumberViewableComponents();
                 int fraction = hiddenTiles / 10;
                 line.append("Reserved pile:").append("        ").append("Hidden tiles: ").append(hiddenTiles).append(fraction >= 10 ? "" : fraction > 0 ? " " : "  ");
             }

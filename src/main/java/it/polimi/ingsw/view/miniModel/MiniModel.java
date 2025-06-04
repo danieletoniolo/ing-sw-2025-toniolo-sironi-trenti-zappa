@@ -23,13 +23,14 @@ public class MiniModel {
     If boolean[i] == true the deck[i] is not taken by a player, else deck is taken and not viewable in the building screen*/
     private final Pair<DeckView[], Boolean[]> deckViews = new Pair<>(new DeckView[3], new Boolean[3]);
     private final DeckView shuffledDeckView = new DeckView();
-    private TimerView timerView;
     private BoardView boardView;
     private final ArrayList<PlayerDataView> otherPlayers = new ArrayList<>();
     private final ArrayList<ComponentView> viewableComponents = new ArrayList<>();
+    private int numberViewableComponents = 152;
     private PlayerDataView clientPlayer;
     private String nickname;
     private String userID;
+    private Pair<Integer, Integer> dice;
 
     private PlayerDataView currentPlayer;
     private LobbyView currentLobby;
@@ -39,6 +40,17 @@ public class MiniModel {
             instance = new MiniModel();
         }
         return instance;
+    }
+
+    public synchronized void reduceViewableComponents() {
+        numberViewableComponents--;
+        if (numberViewableComponents < 0) {
+            numberViewableComponents = 0;
+        }
+    }
+
+    public synchronized int getNumberViewableComponents() {
+        return numberViewableComponents;
     }
 
     public synchronized LogInView getLogInView() {
@@ -65,12 +77,8 @@ public class MiniModel {
         return shuffledDeckView;
     }
 
-    public synchronized void setTimerView(TimerView timerView) {
-        this.timerView = timerView;
-    }
-
     public synchronized TimerView getTimerView() {
-        return timerView;
+        return boardView.getTimerView();
     }
 
     public synchronized void setBoardView(BoardView boardView) {
@@ -128,5 +136,13 @@ public class MiniModel {
 
     public synchronized LobbyView getCurrentLobby() {
         return currentLobby;
+    }
+
+    public synchronized void setDice(Pair<Integer, Integer> dice) {
+        this.dice = dice;
+    }
+
+    public synchronized Pair<Integer, Integer> getDice() {
+        return dice;
     }
 }

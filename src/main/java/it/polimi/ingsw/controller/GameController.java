@@ -8,6 +8,7 @@ import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.state.BuildingState;
 import it.polimi.ingsw.model.state.LobbyState;
 import it.polimi.ingsw.model.state.State;
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -44,7 +45,8 @@ public class GameController implements Serializable, StateTransitionHandler {
         try {
             state.startGame();
         } catch (Exception e) {
-            throw new IllegalStateException("Cannot start game in this state");
+            e.printStackTrace();
+            throw new IllegalStateException("Cannot start game in this state: " + e.getMessage() + ". Current state: " + state.getClass().getSimpleName());
         }
     }
 

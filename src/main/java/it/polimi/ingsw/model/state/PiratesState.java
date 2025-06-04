@@ -4,6 +4,7 @@ import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
 import it.polimi.ingsw.event.game.serverToClient.player.UpdateCoins;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.Pirates;
 import it.polimi.ingsw.model.game.board.Board;
@@ -103,8 +104,9 @@ public class PiratesState extends State {
         if (diceRolled) {
             throw new IllegalStateException("Dice already rolled in this state");
         }
-        Event event = Handler.rollDice(player, card.getFires().get(hitIndex), protectionResult);
-        eventCallback.trigger(event);
+        Pair<Event, Event> event = Handler.rollDice(player, card.getFires().get(hitIndex), protectionResult);
+        eventCallback.trigger(event.getValue0());
+        eventCallback.trigger(event.getValue1());
         diceRolled = true;
     }
 
@@ -141,6 +143,7 @@ public class PiratesState extends State {
             }
             this.stats.put(player, initialStrength);
         }
+        super.entry();
     }
 
     /**
@@ -201,6 +204,8 @@ public class PiratesState extends State {
         if (players.indexOf(player) == players.size() - 1 && (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED || playersStatus.get(player.getColor()) == PlayerStatus.SKIPPED)) {
             internalState = PiratesInternalState.PENALTY;
             hitIndex++;
+            NextHit nextHitEvent = new NextHit(player.getUsername());
+            eventCallback.trigger(nextHitEvent);
             if (hitIndex < card.getFires().size()) {
                 for (PlayerData p : players) {
                     playersStatus.put(p.getColor(), PlayerStatus.WAITING);

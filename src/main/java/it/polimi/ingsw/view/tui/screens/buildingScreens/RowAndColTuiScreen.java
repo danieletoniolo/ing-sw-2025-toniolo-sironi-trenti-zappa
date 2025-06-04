@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.tui.screens.buildingScreens;
 
 import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToSpaceship;
+import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -30,10 +31,10 @@ public class RowAndColTuiScreen extends BuildingTuiScreen {
     public TuiScreenView setNewScreen() {
         if (oldScreenType.equals(TuiScreens.RowColShip)) {
             StatusEvent status = PlaceTileToSpaceship.requester(Client.transceiver, new Object())
-                    .request(new PlaceTileToSpaceship(MiniModel.getInstance().getUserID(), rowAndCol.getValue0(), rowAndCol.getValue1()));
+                    .request(new PlaceTileToSpaceship(MiniModel.getInstance().getUserID(), rowAndCol.getValue0() - 1, rowAndCol.getValue1() - 1));
             if (status.get().equals("POTA")) {
                 TuiScreenView newScreen = new BuildingTuiScreen();
-                newScreen.setMessage("Problem Occurred, Try Again!");
+                newScreen.setMessage(((Pota) status).errorMessage());
                 return newScreen;
             }
         }

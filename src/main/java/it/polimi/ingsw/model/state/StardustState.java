@@ -26,6 +26,7 @@ public class StardustState extends State {
             MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
             eventCallback.trigger(stepsEvent);
         }
+        super.entry();
     }
 
     @Override

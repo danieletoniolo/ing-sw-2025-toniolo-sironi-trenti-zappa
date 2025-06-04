@@ -136,6 +136,7 @@ public class SmugglersState extends State {
             }
             cannonStrength.put(player, initialStrength);
         }
+        super.entry();
     }
 
     /**

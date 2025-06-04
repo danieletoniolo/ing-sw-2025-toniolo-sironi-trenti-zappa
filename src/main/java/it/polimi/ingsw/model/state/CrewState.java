@@ -2,12 +2,16 @@ package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.model.game.board.Board;
+import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.UpdateCrewMembers;
+import it.polimi.ingsw.model.spaceship.Cabin;
+import it.polimi.ingsw.model.spaceship.SpaceShip;
 import org.javatuples.Triplet;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class represents the state of the game when the player is managing their crew members.
@@ -27,6 +31,9 @@ public class CrewState extends State {
      * @see State#manageCrewMember(PlayerData, int, int, int)
      */
     public void manageCrewMember(PlayerData player, int mode, int crewType, int cabinID) {
+        if (super.played == true) {
+            throw new IllegalStateException("This state has already been played");
+        }
         UpdateCrewMembers updateCrewMembers;
         ArrayList<Triplet<Integer, Integer, Integer>> crewMembers = new ArrayList<>();
 
@@ -48,6 +55,16 @@ public class CrewState extends State {
 
     @Override
     public void entry() {
+        if (board.getBoardLevel() == Level.LEARNING) {
+            for (PlayerData player : players) {
+                SpaceShip ship = player.getSpaceShip();
+                List<Cabin> cabins = ship.getCabins();
+                for (Cabin cabin : cabins) {
+                    manageCrewMember(player, 0, 0, cabin.getID());
+                }
+            }
+            super.played = true;
+        }
         super.entry();
     }
 

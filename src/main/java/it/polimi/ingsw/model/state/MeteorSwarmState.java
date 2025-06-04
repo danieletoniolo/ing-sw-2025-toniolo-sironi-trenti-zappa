@@ -2,6 +2,7 @@ package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.MeteorSwarm;
 import it.polimi.ingsw.model.game.board.Board;
@@ -73,8 +74,9 @@ public class MeteorSwarmState extends State {
         if (diceRolled) {
             throw new IllegalStateException("Dice already rolled for this hit");
         }
-        Event event = Handler.rollDice(player, card.getMeteors().get(hitIndex), protectionResult);
-        eventCallback.trigger(event);
+        Pair<Event, Event> event = Handler.rollDice(player, card.getMeteors().get(hitIndex), protectionResult);
+        eventCallback.trigger(event.getValue0());
+        eventCallback.trigger(event.getValue1());
         diceRolled = true;
     }
 
@@ -89,6 +91,8 @@ public class MeteorSwarmState extends State {
         super.execute(player);
         if (players.indexOf(player) == players.size() - 1) {
             hitIndex++;
+            NextHit nextHitEvent = new NextHit(player.getUsername());
+            eventCallback.trigger(nextHitEvent);
             if (hitIndex < card.getMeteors().size()) {
                 for (PlayerData p : players) {
                     playersStatus.put(p.getColor(), PlayerStatus.WAITING);

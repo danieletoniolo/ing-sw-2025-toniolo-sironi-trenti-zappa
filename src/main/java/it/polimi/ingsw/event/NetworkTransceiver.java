@@ -66,6 +66,7 @@ public class NetworkTransceiver implements EventTransceiver{
                     }
                     event = receivedQueue.poll();
 
+                    Logger.getInstance().logDebug("Received event: " + event.getClass().getSimpleName(), true);
                     synchronized (lockListeners) {
                         List<EventListener<Event>> listenersCopy = new ArrayList<>(listeners);
                         for (EventListener<Event> listener : listenersCopy) {

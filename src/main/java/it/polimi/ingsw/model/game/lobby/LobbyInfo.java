@@ -1,7 +1,6 @@
 package it.polimi.ingsw.model.game.lobby;
 
 import it.polimi.ingsw.model.game.board.Level;
-import it.polimi.ingsw.utils.Logger;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,6 +12,7 @@ public class LobbyInfo implements Serializable {
     private final String founderNickname;
     private final Level level;
     private final int totalPlayers;
+    private  int numberOfPlayersEntered;
     private final List<UUID> playersReady;
 
     /**
@@ -35,6 +35,7 @@ public class LobbyInfo implements Serializable {
         this.totalPlayers = totalPlayers;
         this.level = level;
         this.playersReady = new ArrayList<>();
+        this.numberOfPlayersEntered = 0;
     }
 
     /**
@@ -58,7 +59,7 @@ public class LobbyInfo implements Serializable {
      * @return the number of players in the lobby
      */
     public int getNumberOfPlayersEntered() {
-        return this.playersReady.size();
+        return this.numberOfPlayersEntered;
     }
 
     /**
@@ -101,18 +102,45 @@ public class LobbyInfo implements Serializable {
     }
 
     /**
+     * Increments the number of players who have entered the lobby.
+     * If the number of players exceeds the total allowed, an exception is thrown.
+     */
+    public void addPlayer() {
+        if (this.numberOfPlayersEntered < this.totalPlayers) {
+            this.numberOfPlayersEntered++;
+        } else {
+            throw new IllegalStateException("Lobby is full, cannot add more players");
+        }
+    }
+
+    /**
+     * Removes a player from the lobby by decrementing the number of players entered.
+     * If there are no players to remove, an exception is thrown.
+     */
+    public void removePlayer() {
+        if (this.numberOfPlayersEntered > 0) {
+            this.numberOfPlayersEntered--;
+        } else {
+            throw new IllegalStateException("No players to remove from the lobby");
+        }
+    }
+
+    /**
      * Removes the specified player from the list of players marked as ready in the lobby.
      * @param playerId the unique identifier of the player to be removed from the ready list
      */
     public void removePlayerReady(UUID playerId) {
-        if (this.playersReady.size() < this.totalPlayers) {
+        if (!this.playersReady.isEmpty()) {
             this.playersReady.remove(playerId);
         } else {
             throw new IllegalStateException("Game has already started, cannot remove player from ready list");
         }
     }
 
-
+    /**
+     * Checks if the game can start based on the number of players marked as ready.
+     * @return true if the number of players ready matches the total players, false otherwise
+     */
     public boolean canGameStart() {
         return this.playersReady.size() == this.totalPlayers;
     }

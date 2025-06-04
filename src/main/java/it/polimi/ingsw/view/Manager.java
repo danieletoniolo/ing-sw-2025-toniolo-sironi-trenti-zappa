@@ -2,6 +2,7 @@ package it.polimi.ingsw.view;
 
 import it.polimi.ingsw.event.game.serverToClient.StateChanged;
 import it.polimi.ingsw.event.game.serverToClient.deck.*;
+import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
@@ -26,6 +27,8 @@ public interface Manager {
 
     void notifyLobbyRemoved(LobbyRemoved data);
 
+    void notifyReadyPlayer();
+
     void notifyStartingGame(StartingGame data);
 
     void notifyCountDown();
@@ -35,8 +38,11 @@ public interface Manager {
 
     void notifyPickedLeftDeck(PickedLeftDeck data);
 
+    // Dice
+    void notifyDiceRolled(DiceRolled data);
+
     // Energy used
-    void notifyBatteriesUsed(BatteriesUsed data);
+    void notifyBatteriesUsed(BatteriesLoss data);
 
     void notifyCannonsUsed(CannonsUsed data);
 
@@ -73,7 +79,7 @@ public interface Manager {
 
     void notifyPlayerLost(PlayerLost data);
 
-    void notifyPlaying(Playing data);
+    void notifyPlaying(CurrentPlayer data);
 
     void notifyScore(Score data);
 

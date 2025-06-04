@@ -71,10 +71,7 @@ public class LobbyState extends State {
      * @see State#entry()
      */
     @Override
-    public void entry() {
-        // TODO: If we want to do something when entering the lobby state, we can do it here
-        super.entry();
-    }
+    public void entry() {}
 
     /**
      * The execute method in this state is used to communicate that the player is isReady to play the game.

@@ -5,12 +5,13 @@ import it.polimi.ingsw.event.game.serverToClient.cards.*;
 import it.polimi.ingsw.event.game.serverToClient.deck.DrawCard;
 import it.polimi.ingsw.event.game.serverToClient.deck.GetDecks;
 import it.polimi.ingsw.event.game.serverToClient.deck.GetShuffledDeck;
+import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.PlayerGaveUp;
-import it.polimi.ingsw.event.game.serverToClient.player.Playing;
 import it.polimi.ingsw.event.game.serverToClient.StateChanged;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Deck;
+import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
@@ -196,11 +197,15 @@ public abstract class State implements Serializable {
                     }
                 }
 
-                List<List<Integer>> decks = new ArrayList<>();
-                for(Deck deck : board.getDecks()) {
-                    decks.add(deck.getCards().stream().map(Card::getID).toList());
+                if (board.getBoardLevel() == Level.SECOND) {
+                    List<List<Integer>> decks = new ArrayList<>();
+                    for (Deck deck : board.getDecks()) {
+                        if (deck.isPickable()) {
+                            decks.add(deck.getCards().stream().map(Card::getID).toList());
+                        }
+                    }
+                    eventCallback.trigger(new GetDecks(decks));
                 }
-                eventCallback.trigger(new GetDecks(decks));
 
                 transitionHandler.changeState(new BuildingState(board, eventCallback, transitionHandler));
             }
@@ -270,8 +275,6 @@ public abstract class State implements Serializable {
             throw new NullPointerException("player is null");
         }
         playersStatus.replace(player.getColor(), PlayerStatus.PLAYING);
-        Playing playingEvent = new Playing(player.getUsername());
-        eventCallback.trigger(playingEvent);
     }
 
     public void giveUp(PlayerData player) throws NullPointerException {
@@ -286,6 +289,8 @@ public abstract class State implements Serializable {
      * Execute at the beginning of the state
      */
     public void entry() {
+        CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
+        eventCallback.trigger(currentPlayerEvent);
     }
 
     /**

@@ -162,6 +162,11 @@ public class BuildingState extends State {
             throw new IllegalStateException("Player has finished building");
         }
 
+        // Check if the player has a tile in his hand
+        if (playersHandQueue.get(player.getColor()) != null) {
+            throw new IllegalStateException("Player already has a tile in his hand");
+        }
+
         Component component;
         switch (fromWhere) {
             case 0 -> {
@@ -176,39 +181,44 @@ public class BuildingState extends State {
                     connectors[i] = component.getConnection(i).getValue();
                 }
 
-                switch (component.getComponentType()) {
-                    case SINGLE_ENGINE, DOUBLE_ENGINE -> {
-                        PickedEngineFromBoard pickedEngineFromBoard = new PickedEngineFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Engine) component).getEngineStrength());
-                        eventCallback.trigger(pickedEngineFromBoard);
+                if (tileID == -1) {
+                    switch (component.getComponentType()) {
+                        case SINGLE_ENGINE, DOUBLE_ENGINE -> {
+                            PickedEngineFromBoard pickedEngineFromBoard = new PickedEngineFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Engine) component).getEngineStrength());
+                            eventCallback.trigger(pickedEngineFromBoard);
+                        }
+                        case SINGLE_CANNON, DOUBLE_CANNON -> {
+                            PickedCannonFromBoard pickedCannonFromBoard = new PickedCannonFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Cannon) component).getCannonStrength());
+                            eventCallback.trigger(pickedCannonFromBoard);
+                        }
+                        case CABIN, CENTER_CABIN -> {
+                            PickedCabinFromBoard pickedCabinFromBoard = new PickedCabinFromBoard(username, componentID, component.getClockwiseRotation(), connectors);
+                            eventCallback.trigger(pickedCabinFromBoard);
+                        }
+                        case STORAGE -> {
+                            PickedStorageFromBoard pickedStorageFromBoard = new PickedStorageFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Storage) component).isDangerous(), ((Storage) component).getGoodsCapacity());
+                            eventCallback.trigger(pickedStorageFromBoard);
+                        }
+                        case BROWN_LIFE_SUPPORT, PURPLE_LIFE_SUPPORT -> {
+                            PickedLifeSupportFromBoard pickedLifeSupportFromBoard = new PickedLifeSupportFromBoard(username, componentID, component.getClockwiseRotation(), connectors, component.getComponentType() == ComponentType.BROWN_LIFE_SUPPORT ? 1 : 2);
+                            eventCallback.trigger(pickedLifeSupportFromBoard);
+                        }
+                        case BATTERY -> {
+                            PickedBatteryFromBoard pickedBatteryFromBoard = new PickedBatteryFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Battery) component).getEnergyNumber());
+                            eventCallback.trigger(pickedBatteryFromBoard);
+                        }
+                        case SHIELD -> {
+                            PickedShieldFromBoard pickedShieldFromBoard = new PickedShieldFromBoard(username, componentID, component.getClockwiseRotation(), connectors);
+                            eventCallback.trigger(pickedShieldFromBoard);
+                        }
+                        case CONNECTORS -> {
+                            PickedConnectorsFromBoard pickedConnectorsFromBoard = new PickedConnectorsFromBoard(username, componentID, component.getClockwiseRotation(), connectors);
+                            eventCallback.trigger(pickedConnectorsFromBoard);
+                        }
                     }
-                    case SINGLE_CANNON, DOUBLE_CANNON -> {
-                        PickedCannonFromBoard pickedCannonFromBoard = new PickedCannonFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Cannon) component).getCannonStrength());
-                        eventCallback.trigger(pickedCannonFromBoard);
-                    }
-                    case CABIN, CENTER_CABIN -> {
-                        PickedCabinFromBoard pickedCabinFromBoard = new PickedCabinFromBoard(username, componentID, component.getClockwiseRotation(), connectors);
-                        eventCallback.trigger(pickedCabinFromBoard);
-                    }
-                    case STORAGE -> {
-                        PickedStorageFromBoard pickedStorageFromBoard = new PickedStorageFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Storage) component).isDangerous(), ((Storage) component).getGoodsCapacity());
-                        eventCallback.trigger(pickedStorageFromBoard);
-                    }
-                    case BROWN_LIFE_SUPPORT, PURPLE_LIFE_SUPPORT -> {
-                        PickedLifeSupportFromBoard pickedLifeSupportFromBoard = new PickedLifeSupportFromBoard(username, componentID, component.getClockwiseRotation(), connectors, component.getComponentType() == ComponentType.BROWN_LIFE_SUPPORT ? 1 : 2);
-                        eventCallback.trigger(pickedLifeSupportFromBoard);
-                    }
-                    case BATTERY -> {
-                        PickedBatteryFromBoard pickedBatteryFromBoard = new PickedBatteryFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Battery) component).getEnergyNumber());
-                        eventCallback.trigger(pickedBatteryFromBoard);
-                    }
-                    case SHIELD -> {
-                        PickedShieldFromBoard pickedShieldFromBoard = new PickedShieldFromBoard(username, componentID, component.getClockwiseRotation(), connectors);
-                        eventCallback.trigger(pickedShieldFromBoard);
-                    }
-                    case CONNECTORS -> {
-                        PickedConnectorsFromBoard pickedConnectorsFromBoard = new PickedConnectorsFromBoard(username, componentID, component.getClockwiseRotation(), connectors);
-                        eventCallback.trigger(pickedConnectorsFromBoard);
-                    }
+                } else {
+                    PickedTile pickedTileEvent = new PickedTile(player.getUsername(), tileID);
+                    eventCallback.trigger(pickedTileEvent);
                 }
             }
             case 1 -> {
@@ -227,7 +237,7 @@ public class BuildingState extends State {
         }
 
         // Check if the component is null or if the ID of the component is not the same as the tileID
-        if (component == null || component.getID() != tileID) {
+        if (tileID != -1 && component.getID() != tileID) {
             throw new IllegalStateException("No tile matching the ID found in fromWhere" + fromWhere);
         }
 
@@ -303,8 +313,8 @@ public class BuildingState extends State {
             connectors[i] = component.getConnection(i).getValue();
         }
 
-        //RotatedTile rotatedTileEvent = new RotatedTile(player.getUsername(), component.getID(), connectors);
-        //eventCallback.trigger(rotatedTileEvent);
+        RotatedTile rotatedTileEvent = new RotatedTile(player.getUsername(), component.getID(), connectors);
+        eventCallback.trigger(rotatedTileEvent);
     }
 
     /**
@@ -319,8 +329,6 @@ public class BuildingState extends State {
      */
     @Override
     public void entry() {
-        super.entry();
-
         board.clearInGamePlayers();
     }
 

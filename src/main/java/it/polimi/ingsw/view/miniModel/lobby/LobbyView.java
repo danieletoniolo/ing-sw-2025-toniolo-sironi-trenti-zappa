@@ -121,7 +121,7 @@ public class LobbyView implements Structure {
             str.append(Vertical);
             str.append(String.valueOf(" ").repeat((width/2 - 2) % 2 == 0 ? (width/2 - 2) : (width/2 - 1)));
             str.append(numberOfPlayers).append("/").append(maxPlayer);
-            while (str.length() < width - 1) {
+            while (str.length() < width) {
                 str.append(" ");
             }
             str.append(Vertical);

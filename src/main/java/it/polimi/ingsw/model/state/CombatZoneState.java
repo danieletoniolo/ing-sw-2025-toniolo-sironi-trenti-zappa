@@ -4,6 +4,7 @@ import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.player.MinPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.player.PlayerLost;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.CombatZone;
 import it.polimi.ingsw.model.game.board.Board;
@@ -125,8 +126,9 @@ public class CombatZoneState extends State {
                 (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
             throw new IllegalStateException("Dice not allowed in this state");
         }
-        Event event = Handler.rollDice(player, card.getFires().get(hitIndex), protectionResult);
-        eventCallback.trigger(event);
+        Pair<Event, Event> event = Handler.rollDice(player, card.getFires().get(hitIndex), protectionResult);
+        eventCallback.trigger(event.getValue0());
+        eventCallback.trigger(event.getValue1());
     }
 
     /**
@@ -246,6 +248,7 @@ public class CombatZoneState extends State {
                 playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
             }
         }
+        super.entry();
     }
 
     /**
@@ -309,6 +312,8 @@ public class CombatZoneState extends State {
                 break;
             case HIT_PENALTY:
                 hitIndex++;
+                NextHit nextHitEvent = new NextHit(player.getUsername());
+                eventCallback.trigger(nextHitEvent);
                 if (hitIndex >= card.getFires().size()) {
                     playersStatus.replace(playerBeingHit.getColor(), PlayerStatus.PLAYED);
                 }

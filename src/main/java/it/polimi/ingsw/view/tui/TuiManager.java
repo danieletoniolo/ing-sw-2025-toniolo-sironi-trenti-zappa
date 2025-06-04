@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.tui;
 
 import it.polimi.ingsw.event.game.serverToClient.StateChanged;
 import it.polimi.ingsw.event.game.serverToClient.deck.*;
+import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
@@ -24,6 +25,7 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.piratesActions.PiratesTuiScr
 import it.polimi.ingsw.view.tui.screens.gameScreens.planetsActions.PlanetsTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.slaversActions.SlaversTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.smugglersActions.SmugglersTuiScreen;
+import it.polimi.ingsw.view.tui.screens.lobbyScreens.StartingTuiScreen;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import it.polimi.ingsw.view.Manager;
@@ -51,32 +53,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-enum GamePhases {
-    LOBBY(0),
-    BUILDING(1),
-    VALIDATION(2),
-    CREW(3),
-    CARDS(4),
-    FINISHED(5);
-
-    private final int value;
-    GamePhases(int value) {
-        this.value = value;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    public static GamePhases fromValue(int value) {
-        for (GamePhases phase : GamePhases.values()) {
-            if (phase.value == value) {
-                return phase;
-            }
-        }
-        throw new IllegalArgumentException("Invalid value for GameState: " + value);
-    }
-}
 
 public class TuiManager implements Manager {
     private final Object stateLock = new Object();
@@ -85,6 +61,33 @@ public class TuiManager implements Manager {
     private final Terminal terminal;
     private boolean printInput;
     private volatile boolean running;
+
+    enum GamePhases {
+        LOBBY(0),
+        BUILDING(1),
+        VALIDATION(2),
+        CREW(3),
+        CARDS(4),
+        FINISHED(5);
+
+        private final int value;
+        GamePhases(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static GamePhases fromValue(int value) {
+            for (GamePhases phase : GamePhases.values()) {
+                if (phase.value == value) {
+                    return phase;
+                }
+            }
+            throw new IllegalArgumentException("Invalid value for GameState: " + value);
+        }
+    }
 
     public TuiManager(Terminal terminal, Parser parser) {
         this.terminal = terminal;
@@ -186,33 +189,41 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyLobbyJoined(LobbyJoined data) {
-        if (!data.nickname().equals(MiniModel.getInstance().getNickname())) {
-            if (currentScreen.getType().equals(TuiScreens.Lobby)) {
-                synchronized (stateLock) {
-                    stateLock.notifyAll();
-                }
-            }
+        synchronized (stateLock) {
+            currentScreen.setMessage(data.nickname() + " has joined the lobby");
+            stateLock.notifyAll();
         }
     }
 
     @Override
     public void notifyLobbyLeft(LobbyLeft data) {
-        if (!data.nickname().equals(MiniModel.getInstance().getNickname())) {
-            if (MiniModel.getInstance().getCurrentLobby().getLobbyName().equals(data.lobbyID())) {
-                synchronized (stateLock) {
+        synchronized (stateLock) {
+            if (!data.nickname().equals(MiniModel.getInstance().getNickname())) {
+                if (MiniModel.getInstance().getCurrentLobby().getLobbyName().equals(data.lobbyID())) {
                     currentScreen.setMessage(data.nickname() + " has left the lobby");
-                    stateLock.notifyAll();
                 }
             }
+            stateLock.notifyAll();
         }
     }
 
     @Override
     public void notifyLobbyRemoved(LobbyRemoved data) {
         if (currentScreen.getType().equals(TuiScreens.Menu)) {
+            if (currentScreen.getType().equals(TuiScreens.Lobby) && MiniModel.getInstance().getCurrentLobby().getLobbyName().equals(data.lobbyID())) {
+                synchronized (stateLock) {
+                    currentScreen = new MenuTuiScreen();
+                    printInput = false;
+                    stateLock.notifyAll();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void notifyReadyPlayer() {
+        if (currentScreen.getType().equals(TuiScreens.Lobby)) {
             synchronized (stateLock) {
-                currentScreen = new MenuTuiScreen();
-                printInput = false;
                 stateLock.notifyAll();
             }
         }
@@ -223,11 +234,7 @@ public class TuiManager implements Manager {
      */
     @Override
     public void notifyStartingGame(StartingGame data) {
-        synchronized (stateLock) {
-            currentScreen = new ValidationTuiScreen();
-            printInput = false;
-            stateLock.notifyAll();
-        }
+
     }
 
     /**
@@ -235,8 +242,10 @@ public class TuiManager implements Manager {
      */
     @Override
     public void notifyCountDown() {
-        if (currentScreen.getType().equals(TuiScreens.Building)) {
+        if (currentScreen.getType().equals(TuiScreens.Lobby)) {
             synchronized (stateLock) {
+                currentScreen = new StartingTuiScreen();
+                printInput = false;
                 stateLock.notifyAll();
             }
         }
@@ -281,7 +290,14 @@ public class TuiManager implements Manager {
     }
 
     @Override
-    public void notifyBatteriesUsed(BatteriesUsed data) {
+    public void notifyDiceRolled(DiceRolled data) {
+        synchronized (stateLock) {
+            currentScreen.setMessage(data.nickname() + " rolled the dice: " + data.diceValue1() + " (" + data.diceValue2() + ")");
+        }
+    }
+
+    @Override
+    public void notifyBatteriesUsed(BatteriesLoss data) {
         synchronized (stateLock) {
             currentScreen.setMessage(data.nickname() + " has used " + data.batteriesIDs().size() + " batteries!");
             stateLock.notifyAll();
@@ -433,7 +449,7 @@ public class TuiManager implements Manager {
     }
 
     @Override
-    public void notifyPlaying(Playing data) {
+    public void notifyPlaying(CurrentPlayer data) {
         if (!MiniModel.getInstance().getNickname().equals(data.nickname())) {
             synchronized (stateLock) {
                 currentScreen = new NotClientTurnTuiScreen();
@@ -460,10 +476,9 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyRotatedTile(RotatedTile data) {
-        if (currentScreen.getType().equals(TuiScreens.Building) && MiniModel.getInstance().getNickname().equals(data.nickname())) {
-            synchronized (stateLock) {
-                stateLock.notifyAll();
-            }
+        synchronized (stateLock) {
+            currentScreen.setMessage("You have rotated a tile");
+            stateLock.notifyAll();
         }
     }
 
@@ -561,14 +576,12 @@ public class TuiManager implements Manager {
                 case LOBBY -> currentScreen = new LobbyTuiScreen();
                 case BUILDING -> currentScreen = new BuildingTuiScreen();
                 case VALIDATION -> currentScreen = new ValidationTuiScreen();
-                case CREW -> {}
+                case CREW -> currentScreen = new ModifyCrewTuiScreen();
                 case CARDS -> notifyDrawCard();
                 case FINISHED -> currentScreen = new RewardTuiScreen();
             }
         }
     }
-
-
 
     public void set() {
         synchronized (stateLock) {
@@ -620,7 +633,6 @@ public class TuiManager implements Manager {
 
         MiniModel.getInstance().setBoardView(new BoardView(currentLobby.getLevel()));
         if (currentLobby.getLevel() == LevelView.SECOND) {
-            MiniModel.getInstance().setTimerView(new TimerView(3));
             //MiniModel.getInstance().timerView.setFlippedTimer(player);
         }
 

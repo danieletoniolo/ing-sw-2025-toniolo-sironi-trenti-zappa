@@ -122,25 +122,31 @@ public class Board implements Serializable {
 
     /**
      * Pops a tile from the board (if index is -1, it pops a random tile from the hidden tiles list).
-     * @param index the index of the tile to pop from the viewable tiles list (if index is -1, it pops a random tile from the hidden tiles list)
+     * @param tileID the index of the tile to pop from the viewable tiles list (if index is -1, it pops a random tile from the hidden tiles list)
      * @return the tile popped from the board
-     * @throws IndexOutOfBoundsException if the index is out of bounds of the viewable tiles list or if there are no more hidden tiles
+     * @throws IndexOutOfBoundsException if the tileID is out of bounds or if there are no more hidden tiles
      */
-    public Component popTile(int index) throws IndexOutOfBoundsException {
-        if (index == -1) {
+    public Component popTile(int tileID) throws IndexOutOfBoundsException {
+        if (tileID == -1) {
             if (hiddenTiles.isEmpty()) {
                 throw new IndexOutOfBoundsException("There are no more hidden tiles");
             }
             Random random = new Random();
-            index = random.nextInt(hiddenTiles.size());
-            return hiddenTiles.remove(index);
+            tileID = random.nextInt(hiddenTiles.size());
+            return hiddenTiles.remove(tileID);
         }
 
-        if (index < 0 || index >= viewableTiles.size()) {
+        if (tileID < 0 || tileID >= viewableTiles.size()) {
             throw new IndexOutOfBoundsException("Index is out of bounds");
         }
 
-        return viewableTiles.remove(index);
+        for (Component tile : viewableTiles) {
+            if (tile.getID() == tileID) {
+                viewableTiles.remove(tile);
+                return tile;
+            }
+        }
+        throw new IndexOutOfBoundsException("Tile with ID " + tileID + " not found in viewable tiles");
     }
 
     /**
