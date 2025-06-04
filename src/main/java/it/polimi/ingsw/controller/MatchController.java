@@ -1,5 +1,6 @@
 package it.polimi.ingsw.controller;
 
+import it.polimi.ingsw.event.TransmitterEventWrapper;
 import it.polimi.ingsw.event.game.clientToServer.planets.SelectPlanet;
 import it.polimi.ingsw.event.game.clientToServer.deck.PickLeaveDeck;
 import it.polimi.ingsw.event.game.clientToServer.dice.RollDice;
@@ -243,7 +244,7 @@ public class MatchController {
      * @return an {@code Event} indicating the successful creation of the lobby.
      * @throws IllegalStateException if there is an error while creating the game board.
      */
-    private StatusEvent createLobby(CreateLobby data) {
+    private TransmitterEventWrapper createLobby(CreateLobby data) {
         UUID userID = UUID.fromString(data.userID());
         User user = users.get(userID);
 
@@ -257,7 +258,7 @@ public class MatchController {
             board = new Board(lobby.getLevel());
         } catch (IllegalArgumentException | JsonProcessingException e) {
             lobbies.remove(lobby.getName());
-            return new Pota(data.userID(), CreateLobby.class, "Error creating the board");
+            return new TransmitterEventWrapper(serverNetworkTransceiver, new Pota(data.userID(), CreateLobby.class, "Error creating the board"));
         }
 
         // Creating the new network transceiver for the lobby
@@ -297,8 +298,7 @@ public class MatchController {
 
         Logger.getInstance().logInfo("User " + data.userID() + " created lobby: " + lobby.getName(), false);
 
-        networkTransceiver.broadcast(new Tac(data.userID(), CreateLobby.class));
-        return new Tac(data.userID(), CreateLobby.class);
+        return new TransmitterEventWrapper(networkTransceiver, new Tac(data.userID(), CreateLobby.class));
     }
 
     /**
@@ -313,7 +313,7 @@ public class MatchController {
      * @return an Event indicating the result of the leave operation. If the lobby is not found,
      *         returns a failure event. If successful, returns a success event.
      */
-    private StatusEvent leaveLobby(LeaveLobby data) {
+    private TransmitterEventWrapper leaveLobby(LeaveLobby data) {
         UUID userID = UUID.fromString(data.userID());
         User user = users.get(userID);
         LobbyInfo lobby = user.getLobby();
@@ -338,6 +338,8 @@ public class MatchController {
                 for (User u : toRemove) {
                     userLobbyInfo.remove(u);
                 }
+
+                lobbies.remove(lobby.getName());
 
                 // Notify to all the clients on the networkTransceiver of the lobby that the lobby has been removed
                 LobbyRemoved removeLobbyEvent = new LobbyRemoved(lobby.getName());
@@ -390,11 +392,11 @@ public class MatchController {
             }
         } else {
             Logger.getInstance().logWarning("User " + data.userID() + " tried to leave a lobby that does not exist", false);
-            return new Pota(data.userID(), LeaveLobby.class, "Lobby not found");
+            return new TransmitterEventWrapper(serverNetworkTransceiver, new Pota(data.userID(), LeaveLobby.class, "Lobby not found"));
         }
 
         Logger.getInstance().logInfo("Game " + lobby.getName() + ": User " + data.userID() + " left the lobby", false);
-        return new Tac(data.userID(), LeaveLobby.class);
+        return new TransmitterEventWrapper(serverNetworkTransceiver, new Tac(data.userID(), LeaveLobby.class));
     }
 
     /**
@@ -409,7 +411,7 @@ public class MatchController {
      *         successfully joins the lobby, a Success Event is returned. If the lobby
      *         is full or another issue occurs, an error Event is returned.
      */
-    private StatusEvent joinLobby(JoinLobby data) {
+    private TransmitterEventWrapper joinLobby(JoinLobby data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = lobbies.get(data.lobbyID());
 
@@ -446,10 +448,10 @@ public class MatchController {
             LobbyJoined lobbyJoinedEvent = new LobbyJoined(user.getNickname(), lobby.getName());
             serverNetworkTransceiver.broadcast(lobbyJoinedEvent);
             networkTransceiver.broadcast(lobbyJoinedEvent);
-        } else {
-            return new Pota(data.userID(), JoinLobby.class, "Lobby is full");
+
+            return new TransmitterEventWrapper(networkTransceiver, new Tac(data.userID(), JoinLobby.class));
         }
-        return new Tac(data.userID(), JoinLobby.class);
+        return new TransmitterEventWrapper(serverNetworkTransceiver, new Pota(data.userID(), JoinLobby.class, "Lobby is full"));
     }
 
     /**

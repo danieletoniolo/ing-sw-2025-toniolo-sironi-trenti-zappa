@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.clientToServer.dice;
 
 import it.polimi.ingsw.event.Requester;
+import it.polimi.ingsw.event.lobby.clientToServer.SetNickname;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
@@ -23,7 +24,9 @@ public record RollDice(
      * @return            a Responder for the RollDice event.
      */
     public static Responder<RollDice> responder(EventTransceiver transceiver, Function<RollDice, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<RollDice> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

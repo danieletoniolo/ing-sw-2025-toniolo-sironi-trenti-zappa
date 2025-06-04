@@ -3,6 +3,7 @@ package it.polimi.ingsw.event.game.clientToServer.player;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Requester;
 import it.polimi.ingsw.event.Responder;
+import it.polimi.ingsw.event.game.clientToServer.goods.SwapGoods;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.type.StatusEvent;
 
@@ -25,7 +26,9 @@ public record EndTurn(
      * @return            a Responder for the EndTurn event.
      */
     public static Responder<EndTurn> responder(EventTransceiver transceiver, Function<EndTurn, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<EndTurn> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**
