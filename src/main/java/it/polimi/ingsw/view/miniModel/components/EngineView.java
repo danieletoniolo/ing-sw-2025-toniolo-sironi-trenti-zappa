@@ -4,16 +4,10 @@ public class EngineView extends ComponentView {
     private String brown = "\033[38;5;220m";
     private String reset = "\033[0m";
     private boolean doubleEngine;
-    private int engineRotation;
 
-    public EngineView(int ID, int[] connectors, int clockWise, int power, int engineRotation) {
+    public EngineView(int ID, int[] connectors, int clockWise, int power) {
         super(ID, connectors, clockWise);
         this.doubleEngine = power == 2;
-        this.engineRotation = engineRotation;
-    }
-
-    public void setEngineRotation(int engineRotation) {
-        this.engineRotation = engineRotation;
     }
 
     @Override
@@ -33,22 +27,22 @@ public class EngineView extends ComponentView {
     }
 
     private String drawSingleEngine(){
-        return switch (engineRotation) {
+        return switch ((getClockWise() + 2) % getConnectors().length) {
             case 0 -> "  " + brown + ArrowUp + reset + "  ";
             case 1 -> "  " + brown + ArrowRight + reset + "  ";
             case 2 -> "  " + brown + ArrowDown + reset + "  ";
             case 3 -> "  " + brown + ArrowLeft + reset + "  ";
-            default -> throw new IllegalStateException("Unexpected value: " + engineRotation);
+            default -> throw new IllegalStateException("Unexpected value: " + (getClockWise() + 2) % getConnectors().length);
         };
     }
 
     private String drawDoubleEngine(){
-        return switch (engineRotation) {
+        return switch ((getClockWise() + 2) % getConnectors().length) {
             case 0 -> " " + brown + ArrowUp + reset + " " + brown + ArrowUp + reset + " ";
             case 1 -> " " + brown + ArrowRight + reset + " " + brown + ArrowRight + reset + " ";
             case 2 -> " " + brown + ArrowDown + reset + " " + brown + ArrowDown + reset + " ";
             case 3 -> " " + brown + ArrowLeft + reset + " " + brown + ArrowLeft + reset + " ";
-            default -> throw new IllegalStateException("Unexpected value: " + engineRotation);
+            default -> throw new IllegalStateException("Unexpected value: " + (getClockWise() + 2) % getConnectors().length);
         };
     }
 
@@ -59,7 +53,7 @@ public class EngineView extends ComponentView {
 
     @Override
     public EngineView clone() {
-        EngineView copy = new EngineView(this.getID(), this.getConnectors(), this.getClockWise(), this.doubleEngine ? 2 : 1, this.engineRotation);
+        EngineView copy = new EngineView(this.getID(), this.getConnectors(), this.getClockWise(), this.doubleEngine ? 2 : 1);
         copy.setIsWrong(this.getIsWrong());
         return copy;
     }

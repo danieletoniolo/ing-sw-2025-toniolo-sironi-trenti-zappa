@@ -56,6 +56,7 @@ public abstract class ComponentView implements Structure {
         this.ID = ID;
         this.connectors = connectors;
         this.covered = false;
+        this.clockWise = clockWise;
     }
 
     @Override
@@ -157,6 +158,7 @@ public abstract class ComponentView implements Structure {
 
     public void rotate() {
         this.clockWise++;
+        this.clockWise = this.clockWise % this.connectors.length;
     }
 
     public int getClockWise() {

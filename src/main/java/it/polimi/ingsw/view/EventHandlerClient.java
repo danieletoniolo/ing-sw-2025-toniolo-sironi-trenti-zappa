@@ -37,6 +37,7 @@ import org.javatuples.Triplet;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,8 +63,8 @@ public class EventHandlerClient {
     private final CastEventReceiver<PlayerAdded> playerAddedReceiver;
     private final EventListener<PlayerAdded> playerAddedListener;
 
-    private final CastEventReceiver<ReadyPlayer> playerReadyReceiver;
-    private final EventListener<ReadyPlayer> playerReadyListener;
+    private final CastEventReceiver<ReadyPlayer> readyPlayerReceiver;
+    private final EventListener<ReadyPlayer> readyPlayerListener;
 
     private final CastEventReceiver<StartingGame> startingGameReceiver;
     private final EventListener<StartingGame> startingGameListener;
@@ -258,6 +259,7 @@ public class EventHandlerClient {
             MiniModel.getInstance().setNickname(data.nickname());
 
             manager.notifyNicknameSet();
+            registerListeners();
         };
         nicknameSetReceiver.registerListener(nicknameSetListener);
 
@@ -267,6 +269,7 @@ public class EventHandlerClient {
          */
         lobbiesReceiver = new CastEventReceiver<>(this.transceiver);
         lobbiesListener = data -> {
+            MiniModel.getInstance().getLobbiesView().clear();
             for (int i = 0; i < data.lobbiesNames().size(); i++) {
                 MiniModel.getInstance().getLobbiesView().add(new LobbyView(data.lobbiesNames().get(i), data.lobbiesPlayers().get(i).getValue0(),
                         data.lobbiesPlayers().get(i).getValue1(), LevelView.fromValue(data.lobbiesLevels().get(i))));
@@ -317,12 +320,17 @@ public class EventHandlerClient {
          */
         lobbyLeftReceiver = new CastEventReceiver<>(this.transceiver);
         lobbyLeftListener = data -> {
-            MiniModel.getInstance().getOtherPlayers()
-                    .removeIf(player -> player.getUsername().equals(data.nickname()));
+            if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
+                MiniModel.getInstance().getOtherPlayers().clear();
+            }
+            else {
+                MiniModel.getInstance().getOtherPlayers()
+                        .removeIf(player -> player.getUsername().equals(data.nickname()));
+            }
 
             if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
                 MiniModel.getInstance().setCurrentLobby(null);
-                MiniModel.getInstance().setCurrentPlayer(null);
+                MiniModel.getInstance().setClientPlayer(null);
                 MiniModel.getInstance().setBoardView(null);
             }
 
@@ -366,8 +374,8 @@ public class EventHandlerClient {
         /*
          * Set status player in the lobby
          */
-        playerReadyReceiver = new CastEventReceiver<>(this.transceiver);
-        playerReadyListener = data -> {
+        readyPlayerReceiver = new CastEventReceiver<>(this.transceiver);
+        readyPlayerListener = data -> {
             MiniModel.getInstance().getCurrentLobby().setPlayerStatus(data.nickname(), data.isReady());
 
             manager.notifyReadyPlayer();
@@ -379,8 +387,8 @@ public class EventHandlerClient {
         startingGameReceiver = new CastEventReceiver<>(this.transceiver);
         startingGameListener = data -> {
             new Thread(() -> {
-                LocalDateTime serverTime = LocalDateTime.parse(data.startingTime());
-                LocalDateTime clientTime = LocalDateTime.now();
+                LocalTime serverTime = LocalTime.parse(data.startingTime());
+                LocalTime clientTime = LocalTime.now();
                 MiniModel.getInstance().setCountDown(new CountDown());
                 int time = (data.timerDuration() / 1000) - Math.max(0, (int)Duration.between(serverTime, clientTime).toSeconds());
                 while (time >= 0) {
@@ -715,7 +723,7 @@ public class EventHandlerClient {
         pickedCannonFromBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
-            CannonView cannon = new CannonView(data.tileID(), data.connectors(), data.clockwiseRotation(), data.cannonStrength(), 0);
+            CannonView cannon = new CannonView(data.tileID(), data.connectors(), data.clockwiseRotation(), data.cannonStrength());
             player.setHand(cannon);
             MiniModel.getInstance().reduceViewableComponents();
 
@@ -743,7 +751,7 @@ public class EventHandlerClient {
         pickedEngineFromBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
-            EngineView engine = new EngineView(data.tileID(), data.connectors(), data.clockwiseRotation(), data.cannonStrength(), 0);
+            EngineView engine = new EngineView(data.tileID(), data.connectors(), data.clockwiseRotation(), data.cannonStrength());
             player.setHand(engine);
             MiniModel.getInstance().reduceViewableComponents();
 
@@ -983,9 +991,8 @@ public class EventHandlerClient {
         rotatedGenericTileListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
             ComponentView tile = player.getHand();
+            tile.rotate();
             switch (tile.getType()) {
-                case DOUBLE_CANNON, SINGLE_CANNON -> ((CannonView) tile).setArrowRotation(tile.getClockWise());
-                case DOUBLE_ENGINE, SINGLE_ENGINE -> ((EngineView) tile).setEngineRotation((tile.getClockWise() + 2) % data.connectors().length);
                 case SHIELD -> {
                     boolean[] shields = new boolean[data.connectors().length];
                     shields[tile.getClockWise()] = true;
@@ -993,7 +1000,6 @@ public class EventHandlerClient {
                     ((ShieldView) tile).setShields(shields);
                 }
             }
-            tile.rotate();
             tile.setConnectors(data.connectors());
 
             manager.notifyRotatedTile(data);
@@ -1148,7 +1154,7 @@ public class EventHandlerClient {
         lobbyLeftReceiver.registerListener(lobbyLeftListener);
         lobbyRemovedReceiver.registerListener(lobbyRemovedListener);
         playerAddedReceiver.registerListener(playerAddedListener);
-        playerReadyReceiver.registerListener(playerReadyListener);
+        readyPlayerReceiver.registerListener(readyPlayerListener);
         startingGameReceiver.registerListener(startingGameListener);
         getCardAbandonedShipReceiver.registerListener(getCardAbandonedShipListener);
         getCardAbandonedStationReceiver.registerListener(getCardAbandonedStationListener);

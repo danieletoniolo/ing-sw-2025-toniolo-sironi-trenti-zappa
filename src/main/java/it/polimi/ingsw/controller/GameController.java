@@ -8,11 +8,14 @@ import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.state.BuildingState;
 import it.polimi.ingsw.model.state.LobbyState;
 import it.polimi.ingsw.model.state.State;
+import it.polimi.ingsw.model.state.SynchronousStateException;
 import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 public class GameController implements Serializable, StateTransitionHandler {
@@ -32,7 +35,6 @@ public class GameController implements Serializable, StateTransitionHandler {
 
     @Override
     public void changeState(State newState) {
-        state.exit();
         state = newState;
         state.entry();
     }
@@ -41,9 +43,9 @@ public class GameController implements Serializable, StateTransitionHandler {
         return uuid;
     }
 
-    public void startGame() {
+    public void startGame(LocalTime startTime, int timerDuration) {
         try {
-            state.startGame();
+            state.startGame(startTime, timerDuration);
         } catch (Exception e) {
             e.printStackTrace();
             throw new IllegalStateException("Cannot start game in this state: " + e.getMessage() + ". Current state: " + state.getClass().getSimpleName());
@@ -76,16 +78,23 @@ public class GameController implements Serializable, StateTransitionHandler {
         }
     }
 
-    public void endTurn(UUID uuid) {
-        PlayerData player = state.getCurrentPlayer();
-        if (player.getUUID().equals(uuid)) {
-            try {
-                state.execute(player);
-            } catch (Exception e) {
-                throw new IllegalStateException(e.getMessage());
+    public void endTurn(PlayerData player) {
+        try {
+            PlayerData currentPlayer = state.getCurrentPlayer();
+            if (!currentPlayer.equals(player)) {
+                Logger.getInstance().logDebug("Sono dentro if !currentPlayer.equals(player)", false);
+                throw new IllegalStateException("Not the current player");
             }
-        } else {
-            throw new IllegalStateException("Not the current player");
+        } catch (SynchronousStateException e) {
+            // Ignore the exception, it is expected in synchronous states
+        }
+
+        try {
+            state.execute(player);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            Logger.getInstance().logDebug("Error executing endTurn: " + exception.getMessage() + " eccezione " + exception.getClass().getSimpleName(), false);
+            throw new IllegalStateException(exception.getMessage());
         }
     }
 

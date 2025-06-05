@@ -16,6 +16,7 @@ import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.*;
 import it.polimi.ingsw.controller.EventCallback;
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
 import java.time.LocalDateTime;
@@ -35,6 +36,11 @@ public class BuildingState extends State {
         this.numberOfTimerFlips = 0;
         this.timerRunning = false;
         this.playersHandQueue = new HashMap<>();
+    }
+
+    @Override
+    public PlayerData getCurrentPlayer() throws SynchronousStateException {
+        throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state");
     }
 
     /**
@@ -147,7 +153,7 @@ public class BuildingState extends State {
     public void placeMarker(PlayerData player, int position) throws IllegalStateException {
         board.setPlayer(player, position);
 
-        MoveMarker moveMarkerEvent = new MoveMarker(player.getUsername(), position);
+        MoveMarker moveMarkerEvent = new MoveMarker(player.getUsername(), player.getStep());
         eventCallback.trigger(moveMarkerEvent);
     }
 
@@ -184,10 +190,12 @@ public class BuildingState extends State {
                 if (tileID == -1) {
                     switch (component.getComponentType()) {
                         case SINGLE_ENGINE, DOUBLE_ENGINE -> {
+                            Logger.getInstance().logDebug("Picked an engine with rotation " + component.getClockwiseRotation() + " and connectors " + Arrays.toString(connectors), true);
                             PickedEngineFromBoard pickedEngineFromBoard = new PickedEngineFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Engine) component).getEngineStrength());
                             eventCallback.trigger(pickedEngineFromBoard);
                         }
                         case SINGLE_CANNON, DOUBLE_CANNON -> {
+                            Logger.getInstance().logDebug("Picked a cannon with rotation " + component.getClockwiseRotation() + " and connectors " + Arrays.toString(connectors), true);
                             PickedCannonFromBoard pickedCannonFromBoard = new PickedCannonFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Cannon) component).getCannonStrength());
                             eventCallback.trigger(pickedCannonFromBoard);
                         }

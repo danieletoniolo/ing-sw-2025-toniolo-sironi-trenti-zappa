@@ -22,15 +22,20 @@ import it.polimi.ingsw.event.game.clientToServer.spaceship.DestroyComponents;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.ManageCrewMember;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.SetPenaltyLoss;
 import it.polimi.ingsw.event.game.clientToServer.timer.FlipTimer;
+import it.polimi.ingsw.event.game.serverToClient.deck.GetDecks;
+import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedMainCabin;
 import it.polimi.ingsw.event.lobby.serverToClient.ReadyPlayer;
 import it.polimi.ingsw.event.type.StatusEvent;
+import it.polimi.ingsw.model.cards.Card;
 import it.polimi.ingsw.model.game.board.Board;
+import it.polimi.ingsw.model.game.board.Deck;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.game.lobby.LobbyInfo;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.good.GoodType;
 import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
+import it.polimi.ingsw.model.spaceship.Component;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.polimi.ingsw.event.NetworkTransceiver;
@@ -44,6 +49,7 @@ import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 /**
@@ -475,7 +481,7 @@ public class MatchController {
                 if (tempUser.getLobby() != null && tempUser.getLobby().equals(lobby) && !tempUser.getUUID().equals(userID)) {
                     networkTransceiver.send(userID, new PlayerAdded(tempUser.getNickname(), userPlayers.get(tempUser).getColor().getValue()));
 
-                    PlayerReady playerReadyEvent = new PlayerReady(tempUser.getNickname(), lobby.isPlayerReady(tempUser.getUUID()));
+                    ReadyPlayer playerReadyEvent = new ReadyPlayer(tempUser.getNickname(), lobby.isPlayerReady(tempUser.getUUID()));
                     networkTransceiver.send(userID, playerReadyEvent);
                 }
             }
@@ -971,15 +977,12 @@ public class MatchController {
             networkTransceivers.get(lobby).broadcast(readyPlayerEvent);
 
             if (lobby.canGameStart()) {
-                int timerDuration = 5000;
-                StartingGame startingGameEvent = new StartingGame(LocalDateTime.now().toString(), timerDuration);
+                int timerDuration = 10000;
+
+                LocalTime startTime = LocalTime.now();
+                StartingGame startingGameEvent = new StartingGame(startTime.toString(), timerDuration);
                 networkTransceivers.get(lobby).broadcast(startingGameEvent);
-                (new Timer()).schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        gc.startGame();
-                    }
-                }, timerDuration);
+                gc.startGame(startTime, timerDuration);
 
                 LobbyRemoved removeLobbyEvent = new LobbyRemoved(lobby.getName());
                 serverNetworkTransceiver.broadcast(removeLobbyEvent);
@@ -1028,12 +1031,13 @@ public class MatchController {
      */
     private StatusEvent endTurn(EndTurn data) {
         UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
         GameController gc = gameControllers.get(lobby);
         try {
             if (gc != null) {
-                gc.endTurn(userID);
+                gc.endTurn(player);
             }
             return new Tac(data.userID(), EndTurn.class);
         } catch (IllegalStateException | IllegalArgumentException e) {

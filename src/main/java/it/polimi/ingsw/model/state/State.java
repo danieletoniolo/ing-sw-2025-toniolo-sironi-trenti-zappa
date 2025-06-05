@@ -23,6 +23,8 @@ import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -82,149 +84,11 @@ public abstract class State implements Serializable {
             }
         }
 
+        exit();
+
         switch (nextGameState) {
             case LOBBY ->      transitionHandler.changeState(new LobbyState(board, eventCallback, transitionHandler));
-            case BUILDING ->   {
-
-                for (Card card: board.getShuffledDeck()) {
-                    switch (card.getCardType()) {
-                        case ABANDONEDSHIP -> {
-                            AbandonedShip cardAbandonedShip = (AbandonedShip) card;
-                            GetCardAbandonedShip getCardAbandonedShip = new GetCardAbandonedShip(
-                                    cardAbandonedShip.getID(),
-                                    cardAbandonedShip.getCardLevel(),
-                                    cardAbandonedShip.getCrewRequired(),
-                                    cardAbandonedShip.getFlightDays(),
-                                    cardAbandonedShip.getCredit()
-                            );
-                            eventCallback.trigger(getCardAbandonedShip);
-                        }
-                        case ABANDONEDSTATION -> {
-                            AbandonedStation cardAbandonedStation = (AbandonedStation) card;
-                            GetCardAbandonedStation getCardAbandonedStation = new GetCardAbandonedStation(
-                                    cardAbandonedStation.getID(),
-                                    cardAbandonedStation.getCardLevel(),
-                                    cardAbandonedStation.getCrewRequired(),
-                                    cardAbandonedStation.getFlightDays(),
-                                    cardAbandonedStation.getGoods().stream().map(t -> t.getColor().getValue()).toList()
-                            );
-                            eventCallback.trigger(getCardAbandonedStation);
-                        }
-                        case SMUGGLERS -> {
-                            Smugglers cardSmugglers = (Smugglers) card;
-                            GetCardSmugglers getCardSmugglers = new GetCardSmugglers(
-                                    cardSmugglers.getID(),
-                                    cardSmugglers.getCardLevel(),
-                                    cardSmugglers.getCannonStrengthRequired(),
-                                    cardSmugglers.getFlightDays(),
-                                    cardSmugglers.getGoodsReward().stream().map(t -> t.getColor().getValue()).toList(),
-                                    cardSmugglers.getGoodsLoss()
-                            );
-                            eventCallback.trigger(getCardSmugglers);
-                        }
-                        case SLAVERS -> {
-                            Slavers cardSlavers = (Slavers) card;
-                            GetCardSlavers getCardSlavers = new GetCardSlavers(
-                                    cardSlavers.getID(),
-                                    cardSlavers.getCardLevel(),
-                                    cardSlavers.getCannonStrengthRequired(),
-                                    cardSlavers.getFlightDays(),
-                                    cardSlavers.getCrewLost(),
-                                    cardSlavers.getCredit()
-                            );
-                            eventCallback.trigger(getCardSlavers);
-                        }
-                        case PIRATES -> {
-                            Pirates cardPirates = (Pirates) card;
-                            GetCardPirates getCardPirates = new GetCardPirates(
-                                    card.getID(),
-                                    card.getCardLevel(),
-                                    cardPirates.getCannonStrengthRequired(),
-                                    cardPirates.getFlightDays(),
-                                    cardPirates.getFires().stream().map(t -> new Pair<>(t.getType().getValue(), t.getDirection().getValue())).toList(),
-                                    cardPirates.getCredit()
-                            );
-                            eventCallback.trigger(getCardPirates);
-                        }
-                        case PLANETS -> {
-                            Planets cardPlanets = (Planets) card;
-                            GetCardPlanets getCardPlanets = new GetCardPlanets(
-                                    cardPlanets.getID(),
-                                    cardPlanets.getCardLevel(),
-                                    cardPlanets.getPlanets().stream().map(t -> t.stream().map(temp -> temp.getColor().getValue()).toList()).toList(),
-                                    cardPlanets.getFlightDays()
-                            );
-                            eventCallback.trigger(getCardPlanets);
-                        }
-                        case OPENSPACE -> {
-                            GetCardOpenSpace getCardOpenSpace = new GetCardOpenSpace(
-                                    card.getID(),
-                                    card.getCardLevel()
-                            );
-                            eventCallback.trigger(getCardOpenSpace);
-                        }
-                        case METEORSWARM -> {
-                            MeteorSwarm cardMeteorSwarm = (MeteorSwarm) card;
-                            GetCardMeteorSwarm getCardMeteorSwarm = new GetCardMeteorSwarm(
-                                    cardMeteorSwarm.getID(),
-                                    cardMeteorSwarm.getCardLevel(),
-                                    cardMeteorSwarm.getMeteors().stream().map(t -> new Pair<>(t.getType().getValue(), t.getDirection().getValue())).toList()
-                            );
-                            eventCallback.trigger(getCardMeteorSwarm);
-                        }
-                        case COMBATZONE -> {
-                            CombatZone cardCombatZone = (CombatZone) card;
-                            GetCardCombatZone getCardCombatZone = new GetCardCombatZone(
-                                    cardCombatZone.getID(),
-                                    cardCombatZone.getCardLevel(),
-                                    cardCombatZone.getFlightDays(),
-                                    cardCombatZone.getLost(),
-                                    cardCombatZone.getFires().stream().map(t -> new Pair<>(t.getType().getValue(), t.getDirection().getValue())).toList()
-                            );
-                            eventCallback.trigger(getCardCombatZone);
-                        }
-                        case STARDUST -> {
-                            GetCardStardust getCardStardust = new GetCardStardust(
-                                    card.getID(),
-                                    card.getCardLevel()
-                            );
-                            eventCallback.trigger(getCardStardust);
-                        }
-                        case EPIDEMIC -> {
-                            GetCardEpidemic getCardEpidemic = new GetCardEpidemic(
-                                    card.getID(),
-                                    card.getCardLevel()
-                            );
-                            eventCallback.trigger(getCardEpidemic);
-                        }
-                    }
-                }
-
-                if (board.getBoardLevel() == Level.SECOND) {
-                    List<List<Integer>> decks = new ArrayList<>();
-                    for (Deck deck : board.getDecks()) {
-                        if (deck.isPickable()) {
-                            decks.add(deck.getCards().stream().map(Card::getID).toList());
-                        }
-                    }
-                    eventCallback.trigger(new GetDecks(decks));
-                }
-
-                for (PlayerData player : players) {
-                    Component mainCabin = player.getSpaceShip().getComponent(6, 6);
-                    int[] connectors = new int[4];
-                    for (int i = 0; i < 4; i++) {
-                        connectors[i] = mainCabin.getConnection(i).getValue();
-                    }
-
-                    PlacedMainCabin placedMainCabinEvent = new PlacedMainCabin(player.getUsername(),
-                                                                               player.getSpaceShip().getComponent(6, 6).getID(),
-                                                                               connectors);
-                    eventCallback.trigger(placedMainCabinEvent);
-                }
-
-                transitionHandler.changeState(new BuildingState(board, eventCallback, transitionHandler));
-            }
+            case BUILDING ->   transitionHandler.changeState(new BuildingState(board, eventCallback, transitionHandler));
             case VALIDATION -> transitionHandler.changeState(new ValidationState(board, eventCallback, transitionHandler));
             case CREW ->       transitionHandler.changeState(new CrewState(board, eventCallback, transitionHandler));
             case CARDS -> {
@@ -362,7 +226,7 @@ public abstract class State implements Serializable {
      *
      * @throws IllegalStateException if the state does not allow starting the game.
      */
-    public void startGame() throws IllegalStateException {
+    public void startGame(LocalTime startTime, int timerDuration) throws IllegalStateException {
         throw new IllegalStateException("Cannot start game in this state");
     }
 

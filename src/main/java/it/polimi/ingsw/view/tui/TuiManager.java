@@ -209,13 +209,11 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyLobbyRemoved(LobbyRemoved data) {
-        if (currentScreen.getType().equals(TuiScreens.Menu)) {
-            if (currentScreen.getType().equals(TuiScreens.Lobby) && MiniModel.getInstance().getCurrentLobby().getLobbyName().equals(data.lobbyID())) {
-                synchronized (stateLock) {
-                    currentScreen = new MenuTuiScreen();
-                    printInput = false;
-                    stateLock.notifyAll();
-                }
+        if (MiniModel.getInstance().getCurrentLobby() == null) {
+            synchronized (stateLock) {
+                currentScreen = new MenuTuiScreen();
+                printInput = false;
+                stateLock.notifyAll();
             }
         }
     }
@@ -485,9 +483,11 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyRotatedTile(RotatedTile data) {
-        synchronized (stateLock) {
-            currentScreen.setMessage("You have rotated a tile");
-            stateLock.notifyAll();
+        if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
+            synchronized (stateLock) {
+                currentScreen.setMessage("You have rotated a tile");
+                stateLock.notifyAll();
+            }
         }
     }
 
@@ -760,8 +760,8 @@ public class TuiManager implements Manager {
             case STORAGE -> new StorageView(tile.getID(), connectors, tile.getClockwiseRotation(), ((Storage) tile).isDangerous(), ((Storage) tile).getGoodsCapacity());
             case BROWN_LIFE_SUPPORT -> new LifeSupportBrownView(tile.getID(), connectors, tile.getClockwiseRotation());
             case PURPLE_LIFE_SUPPORT -> new LifeSupportPurpleView(tile.getID(), connectors, tile.getClockwiseRotation());
-            case SINGLE_CANNON, DOUBLE_CANNON -> new CannonView(tile.getID(), connectors, tile.getClockwiseRotation(), ((Cannon) tile).getCannonStrength(), tile.getClockwiseRotation());
-            case SINGLE_ENGINE, DOUBLE_ENGINE -> new EngineView(tile.getID(), connectors, tile.getClockwiseRotation(), ((Engine) tile).getEngineStrength(), tile.getClockwiseRotation());
+            case SINGLE_CANNON, DOUBLE_CANNON -> new CannonView(tile.getID(), connectors, tile.getClockwiseRotation(), ((Cannon) tile).getCannonStrength());
+            case SINGLE_ENGINE, DOUBLE_ENGINE -> new EngineView(tile.getID(), connectors, tile.getClockwiseRotation(), ((Engine) tile).getEngineStrength());
             case SHIELD -> {
                 boolean[] shields = new boolean[4];
                 for (int i = 0; i < 4; i++) shields[i] = ((Shield) tile).canShield(i);
