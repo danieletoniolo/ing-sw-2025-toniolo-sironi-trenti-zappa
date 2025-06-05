@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.tui.screens;
 
+import it.polimi.ingsw.view.tui.screens.buildingScreens.MainCommandsTuiScreen;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
@@ -10,14 +11,13 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class DeckTuiScreen implements TuiScreenView {
-    private final ArrayList<String> options = new ArrayList<>(List.of("Back", "Close Program"));
+    private final ArrayList<String> options = new ArrayList<>(List.of("Back"));
     private final DeckView myDeck;
     int selected;
     int totalLines = DeckView.getRowsToDraw() + 4 + 2;
-    private int row;
     protected String message;
     protected boolean isNewScreen;
-    private int num;
+    private final int num;
 
     public DeckTuiScreen(DeckView deck, int num) {
         this.myDeck = deck;
@@ -32,16 +32,13 @@ public class DeckTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
-        if (selected == 0 ) {
-            return new BuildingTuiScreen();
-        }
-        return new ClosingProgram();
+        return new MainCommandsTuiScreen();
     }
 
     @Override
     public void printTui(Terminal terminal) {
         var writer = terminal.writer();
-        row = 1;
+        int row = 1;
 
         TerminalUtils.printLine(writer, "Deck " + num + ":", row++);
 

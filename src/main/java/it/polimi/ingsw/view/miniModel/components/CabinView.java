@@ -9,7 +9,7 @@ public class CabinView extends ComponentView {
     private final String yellow = "\033[33m";
     private final String red = "\033[31m";
     private final String reset = "\033[0m";
-    private String color;
+    private final String color;
 
     private int crewNumber;
     private boolean purpleAlien;

@@ -671,6 +671,15 @@ public class EventHandlerClient {
 
 
         // PLACED TILE events
+        CastEventReceiver<PlacedMainCabin> placedMainCabinReceiver = new CastEventReceiver<>(this.transceiver);
+        EventListener<PlacedMainCabin> placedMainCabinListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+            CabinView cabin = new CabinView(data.tileID(), data.connectors(), 0);
+
+            player.getShip().placeComponent(cabin, 6, 6);
+        };
+        placedMainCabinReceiver.registerListener(placedMainCabinListener);
+
         /*
          * Remove the tile from the player's hand and add it to the viewable components
          */

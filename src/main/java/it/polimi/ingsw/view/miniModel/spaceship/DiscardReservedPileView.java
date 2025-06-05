@@ -15,7 +15,7 @@ public class DiscardReservedPileView implements Structure {
     private String RightReserved2 =  "      │";
     private String DownReserved2 =   "──────╯";
 
-    private ArrayList<ComponentView> reserved;
+    private final ArrayList<ComponentView> reserved;
 
     public DiscardReservedPileView() {
         reserved = new ArrayList<>();
@@ -68,5 +68,9 @@ public class DiscardReservedPileView implements Structure {
         }
 
         return found ? reserved.remove(i) : null;
+    }
+
+    public ArrayList<ComponentView> getReserved() {
+        return reserved;
     }
 }

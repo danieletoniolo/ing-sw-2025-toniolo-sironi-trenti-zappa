@@ -17,6 +17,7 @@ import it.polimi.ingsw.model.game.board.Deck;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.spaceship.*;
+import it.polimi.ingsw.view.tui.screens.buildingScreens.MainCommandsTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.enemyActions.EnemyRewardsTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions.UseShieldTuiScreen;
@@ -574,7 +575,7 @@ public class TuiManager implements Manager {
         synchronized (stateLock) {
             switch (phase) {
                 case LOBBY -> currentScreen = new LobbyTuiScreen();
-                case BUILDING -> currentScreen = new BuildingTuiScreen();
+                case BUILDING -> currentScreen = new MainCommandsTuiScreen();
                 case VALIDATION -> currentScreen = new ValidationTuiScreen();
                 case CREW -> currentScreen = new ModifyCrewTuiScreen();
                 case CARDS -> notifyDrawCard();

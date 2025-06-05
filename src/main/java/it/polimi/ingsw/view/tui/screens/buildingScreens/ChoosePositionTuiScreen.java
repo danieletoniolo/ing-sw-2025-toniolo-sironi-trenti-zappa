@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.tui.screens.buildingScreens;
 
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.clientToServer.player.PlaceMarker;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
@@ -43,6 +44,11 @@ public class ChoosePositionTuiScreen implements TuiScreenView {
     public TuiScreenView setNewScreen() {
 
         StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object()).request(new PlaceMarker(MiniModel.getInstance().getUserID(), selected));
+        if (status.get().equals("POTA")) {
+            setMessage(((Pota) status).errorMessage());
+            return this;
+        }
+        status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
         if (status.get().equals("POTA")) {
             setMessage(((Pota) status).errorMessage());
             return this;
