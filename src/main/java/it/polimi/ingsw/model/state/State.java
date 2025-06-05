@@ -5,6 +5,7 @@ import it.polimi.ingsw.event.game.serverToClient.cards.*;
 import it.polimi.ingsw.event.game.serverToClient.deck.DrawCard;
 import it.polimi.ingsw.event.game.serverToClient.deck.GetDecks;
 import it.polimi.ingsw.event.game.serverToClient.deck.GetShuffledDeck;
+import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedMainCabin;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.PlayerGaveUp;
 import it.polimi.ingsw.event.game.serverToClient.StateChanged;
@@ -16,6 +17,7 @@ import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
+import it.polimi.ingsw.model.spaceship.Component;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -205,6 +207,19 @@ public abstract class State implements Serializable {
                         }
                     }
                     eventCallback.trigger(new GetDecks(decks));
+                }
+
+                for (PlayerData player : players) {
+                    Component mainCabin = player.getSpaceShip().getComponent(6, 6);
+                    int[] connectors = new int[4];
+                    for (int i = 0; i < 4; i++) {
+                        connectors[i] = mainCabin.getConnection(i).getValue();
+                    }
+
+                    PlacedMainCabin placedMainCabinEvent = new PlacedMainCabin(player.getUsername(),
+                                                                               player.getSpaceShip().getComponent(6, 6).getID(),
+                                                                               connectors);
+                    eventCallback.trigger(placedMainCabinEvent);
                 }
 
                 transitionHandler.changeState(new BuildingState(board, eventCallback, transitionHandler));
