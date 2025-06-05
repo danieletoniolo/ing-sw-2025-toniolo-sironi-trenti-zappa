@@ -96,8 +96,6 @@ public class TuiManager implements Manager {
 
         currentScreen = new LogInTuiScreen();
         this.running = true;
-
-        // Se metodo crea un nuovo stato impostare anche printInput a false
     }
 
     public void startTui(){
@@ -634,11 +632,11 @@ public class TuiManager implements Manager {
 
         MiniModel.getInstance().setBoardView(new BoardView(currentLobby.getLevel()));
         if (currentLobby.getLevel() == LevelView.SECOND) {
-            //MiniModel.getInstance().timerView.setFlippedTimer(player);
+            MiniModel.getInstance().getTimerView().setFlippedTimer(player);
         }
 
-        DeckView deckView = new DeckView();
         for (int i = 0; i < 3; i++) {
+            DeckView deckView = new DeckView();
             for (Card card : decks[i].getCards()) {
                 deckView.getDeck().add(convertCard(card));
             }
@@ -661,7 +659,7 @@ public class TuiManager implements Manager {
         int cont = 0;
         for (ComponentView tile : MiniModel.getInstance().getViewableComponents()) {
             if (tile instanceof StorageView && ((StorageView) tile).getGoods().length > 1) {
-                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 6, 6 + cont);
+                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 5, 5 + cont);
                 ((StorageView) tile).addGood(GoodView.BLUE);
                 ((StorageView) tile).addGood(GoodView.YELLOW);
                 //((StorageView) tile).removeGood(GoodView.GREEN);
@@ -675,7 +673,7 @@ public class TuiManager implements Manager {
         cont = 0;
         for (ComponentView tile : MiniModel.getInstance().getViewableComponents()) {
             if (tile instanceof CannonView && tile.getType().equals(TilesTypeView.DOUBLE_CANNON)) {
-                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 7, 6 + cont);
+                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 6, 5 + cont);
                 if (cont == 1) {
                     break;
                 }
@@ -686,7 +684,7 @@ public class TuiManager implements Manager {
         for (ComponentView tile : MiniModel.getInstance().getViewableComponents()) {
             if (tile instanceof BatteryView ) {
                 ((BatteryView) tile).setNumberOfBatteries(1);
-                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 8, 8 + cont);
+                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 7, 7 + cont);
                 if (cont == 1) {
                     break;
                 }
@@ -696,7 +694,7 @@ public class TuiManager implements Manager {
         cont = 0;
         for (ComponentView tile : MiniModel.getInstance().getViewableComponents()) {
             if (tile instanceof EngineView && tile.getType().equals(TilesTypeView.DOUBLE_ENGINE) ) {
-                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 9, 8 + cont);
+                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 8, 7 + cont);
                 if (cont == 1) {
                     break;
                 }

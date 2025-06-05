@@ -1,16 +1,18 @@
 package it.polimi.ingsw.view.miniModel.board;
 
 import it.polimi.ingsw.view.miniModel.Structure;
+import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
 import it.polimi.ingsw.view.miniModel.timer.TimerView;
+import org.javatuples.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class BoardView implements Structure {
     private String[] path;
-    private Map<MarkerView, Integer> players;
-    private LevelView level;
+    private final Map<MarkerView, Integer> players;
+    private final LevelView level;
     private int stepsForALap;
     public static String ArrowUp = "↑";
     public static String ArrowDown = "↓";
@@ -22,6 +24,8 @@ public class BoardView implements Structure {
     public static String Bow3 = "╰";
     public static String Bow4 = "╯";
     private TimerView timerView;
+    private Pair<DeckView[], Boolean[]> decksView;
+
 
     public BoardView(LevelView level) {
         this.level = level;
@@ -32,6 +36,7 @@ public class BoardView implements Structure {
             case SECOND:
                 this.stepsForALap = 24;
                 this.timerView = new TimerView(3);
+                decksView = new Pair<>(new DeckView[3], new Boolean[3]);
                 break;
         }
         this.players = new HashMap<MarkerView, Integer>();
@@ -45,6 +50,10 @@ public class BoardView implements Structure {
 
     public TimerView getTimerView() {
         return timerView;
+    }
+
+    public Pair<DeckView[], Boolean[]> getDecksView() {
+        return decksView;
     }
 
     public int getRowsToDraw() {

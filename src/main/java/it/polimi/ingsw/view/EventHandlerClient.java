@@ -222,7 +222,7 @@ public class EventHandlerClient {
         CastEventReceiver<GetCardAbandonedShip> getCardAbandonedShipReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<GetCardAbandonedShip> getCardAbandonedShipListener = data -> {
             AbandonedShipView card = new AbandonedShipView(data.ID(), false, data.level(), data.crewRequired(), data.credit(), data.flightDays());
-            MiniModel.getInstance().getShuffledDeckView().getDeck().add(card);
+            MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
         getCardAbandonedShipReceiver.registerListener(getCardAbandonedShipListener);
 
@@ -236,7 +236,7 @@ public class EventHandlerClient {
                 goods.add(GoodView.fromValue(integer));
             }
             AbandonedStationView card = new AbandonedStationView(data.ID(), false, data.level(), data.crewRequired(), data.flightDays(), goods);
-            MiniModel.getInstance().getShuffledDeckView().getDeck().add(card);
+            MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
         getCardAbandonedStationReceiver.registerListener(getCardAbandonedStationListener);
 
@@ -250,7 +250,7 @@ public class EventHandlerClient {
                 hits.add(new HitView(HitTypeView.fromValue(pair.getValue0()), HitDirectionView.fromValue(pair.getValue1())));
             }
             CombatZoneView card = new CombatZoneView(data.ID(), false, data.level(), data.lost(), data.flightDays(), hits);
-            MiniModel.getInstance().getShuffledDeckView().getDeck().add(card);
+            MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
         getCardCombatZoneReceiver.registerListener(getCardCombatZoneListener);
 
@@ -260,7 +260,7 @@ public class EventHandlerClient {
         CastEventReceiver<GetCardEpidemic> getCardEpidemicReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<GetCardEpidemic> getCardEpidemicListener = data -> {
             EpidemicView card = new EpidemicView(data.ID(), false, data.level());
-            MiniModel.getInstance().getShuffledDeckView().getDeck().add(card);
+            MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
         getCardEpidemicReceiver.registerListener(getCardEpidemicListener);
 
@@ -275,7 +275,7 @@ public class EventHandlerClient {
             }
 
             MeteorSwarmView card = new MeteorSwarmView(data.ID(), false, data.level(), hits);
-            MiniModel.getInstance().getShuffledDeckView().getDeck().add(card);
+            MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
         getCardMeteorSwarmReceiver.registerListener(getCardMeteorSwarmListener);
 
@@ -285,7 +285,7 @@ public class EventHandlerClient {
         CastEventReceiver<GetCardOpenSpace> getCardOpenSpaceReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<GetCardOpenSpace> getCardOpenSpaceListener = data -> {
             OpenSpaceView card = new OpenSpaceView(data.ID(), false, data.level());
-            MiniModel.getInstance().getShuffledDeckView().getDeck().add(card);
+            MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
         getCardOpenSpaceReceiver.registerListener(getCardOpenSpaceListener);
 
@@ -300,10 +300,13 @@ public class EventHandlerClient {
             }
             PiratesView card = new PiratesView(data.ID(), false, data.level(), data.cannonStrengthRequired(), data.credit(), data.flightDays(), hits);
 
-            MiniModel.getInstance().getShuffledDeckView().getDeck().add(card);
+            MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
         getCardPiratesReceiver.registerListener(getCardPiratesListener);
 
+        /*
+         * Initialize Pirates card and add it to the shuffledDeck
+         */
         CastEventReceiver<GetCardPlanets> getCardPlanetsReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<GetCardPlanets> getCardPlanetsListener = data -> {
             List<List<GoodView>> planets = new ArrayList<>();
@@ -316,6 +319,7 @@ public class EventHandlerClient {
             }
 
             PlanetsView card = new PlanetsView(data.ID(), false, data.level(), data.flightDays(), planets);
+            MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
         getCardPlanetsReceiver.registerListener(getCardPlanetsListener);
 
@@ -325,7 +329,7 @@ public class EventHandlerClient {
         CastEventReceiver<GetCardSlavers> getCardSlaversReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<GetCardSlavers> getCardSlaversListener = data -> {
             SlaversView card = new SlaversView(data.ID(), false, data.level(), data.cannonStrengthRequired(), data.credit(), data.flightDays(), data.crewLost());
-            MiniModel.getInstance().getShuffledDeckView().getDeck().add(card);
+            MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
         getCardSlaversReceiver.registerListener(getCardSlaversListener);
 
@@ -339,7 +343,7 @@ public class EventHandlerClient {
                 goods.add(GoodView.fromValue(integer));
             }
             SmugglersView card = new SmugglersView(data.ID(), false, data.level(), data.cannonStrengthRequired(), data.goodsLoss(), data.flightDays(), goods);
-            MiniModel.getInstance().getShuffledDeckView().getDeck().add(card);
+            MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
         getCardSmugglersReceiver.registerListener(getCardSmugglersListener);
 
@@ -349,7 +353,7 @@ public class EventHandlerClient {
         CastEventReceiver<GetCardStardust> getCardStardustReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<GetCardStardust> getCardStardustListener = data -> {
             StarDustView card = new StarDustView(data.ID(), false, data.level());
-            MiniModel.getInstance().getShuffledDeckView().getDeck().add(card);
+            MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
         getCardStardustReceiver.registerListener(getCardStardustListener);
 
@@ -359,7 +363,7 @@ public class EventHandlerClient {
          */
         CastEventReceiver<DrawCard> drawCardReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<DrawCard> getCardDrawListener = data -> {
-            MiniModel.getInstance().getShuffledDeckView().getDeck().pop();
+            MiniModel.getInstance().getShuffledDeckView().popCard();
 
             manager.notifyDrawCard();
         };
@@ -373,11 +377,11 @@ public class EventHandlerClient {
             for (int i = 0; i < data.decks().size(); i++) {
                 DeckView deck = new DeckView();
                 for (Integer integer : data.decks().get(i)) {
-                    CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck()
-                            .stream()
+                    CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().stream()
                             .filter(c -> c.getID() == integer)
                             .findFirst()
                             .orElse(null);
+
                     deck.addCard(card);
                 }
                 MiniModel.getInstance().getDeckViews().getValue0()[i] = deck;

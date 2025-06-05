@@ -49,6 +49,10 @@ public class DeckView {
         deck.push(card);
     }
 
+    public void popCard() {
+        deck.pop();
+    }
+
     public Stack<CardView> getDeck() {
         return deck;
     }

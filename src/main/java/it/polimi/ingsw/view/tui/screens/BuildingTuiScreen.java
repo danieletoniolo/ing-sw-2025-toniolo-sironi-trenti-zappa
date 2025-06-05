@@ -19,10 +19,7 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
     protected final ArrayList<String> options = new ArrayList<>();
     protected final int cols = 22;
     protected final PlayerDataView clientPlayer = MiniModel.getInstance().getClientPlayer();
-
-    protected int totalLines = 1 + (MiniModel.getInstance().getViewableComponents().size() / cols) * ComponentView.getRowsToDraw()
-            + (MiniModel.getInstance().getViewableComponents().size() % cols == 0 ? 0 : ComponentView.getRowsToDraw())
-            + 1 + clientPlayer.getShip().getRowsToDraw() + 3 + 5;
+    protected int totalLines;
 
     private int row;
     protected String message;
@@ -39,6 +36,11 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
             options.add("View " + p.getUsername() + "'s spaceship");
         }
         options.add("Close program");
+
+        int componentsSize = (MiniModel.getInstance().getViewableComponents().isEmpty()) ? 1 : (MiniModel.getInstance().getViewableComponents().size() / cols);
+        totalLines = 1 + componentsSize * ComponentView.getRowsToDraw()
+                + (MiniModel.getInstance().getViewableComponents().size() % cols == 0 ? 0 : ComponentView.getRowsToDraw())
+                + 1 + clientPlayer.getShip().getRowsToDraw() + 3 + 2;
     }
 
     @Override
@@ -148,8 +150,6 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
     public synchronized void setMessage(String message) {
         this.message = message;
     }
-
-
 
     private void drawTiles(java.io.PrintWriter writer, ArrayList<ComponentView> tiles) {
         StringBuilder line = new StringBuilder();
