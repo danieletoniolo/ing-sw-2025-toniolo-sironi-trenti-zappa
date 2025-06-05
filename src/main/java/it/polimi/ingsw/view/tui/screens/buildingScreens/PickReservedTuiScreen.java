@@ -18,6 +18,7 @@ public class PickReservedTuiScreen extends BuildingTuiScreen {
             for (int i = 0; i < MiniModel.getInstance().getClientPlayer().getShip().getDiscardReservedPile().getReserved().size(); i++) {
                 add((i + 1) + "");
             }
+            add("Back");
         }});
     }
 
@@ -25,6 +26,11 @@ public class PickReservedTuiScreen extends BuildingTuiScreen {
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
+
+        int num = MiniModel.getInstance().getClientPlayer().getShip().getDiscardReservedPile().getReserved().size();
+        if (selected == num) {
+            return new PickCommandsTuiScreen();
+        }
 
         int ID = MiniModel.getInstance().getClientPlayer().getShip().getDiscardReservedPile().getReserved().stream()
                 .skip(selected)

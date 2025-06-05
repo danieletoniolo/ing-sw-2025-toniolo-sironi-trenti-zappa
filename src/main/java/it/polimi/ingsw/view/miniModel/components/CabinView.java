@@ -77,15 +77,15 @@ public class CabinView extends ComponentView {
         return switch (crewNumber) {
             case 0 -> color + "(" + reset + "   " + color + ")" + reset;
             case 1 -> color + "(" + reset + " " + drawSingle() + " " + color + ")" + reset;
-            case 2 -> color + "(" + reset + " " + drawSingle() + " " + drawSingle() + color + ")" + reset;
+            case 2 -> color + "(" + reset + drawSingle() + " " + drawSingle() + color + ")" + reset;
             default -> throw new IllegalStateException("Unexpected value: " + crewNumber);
         };
     }
 
     private String drawSingle() {
-        if (purpleAlien) return purple + "A" + reset;
-        if (brownAlien) return brown + "A" + reset;
-        return "C";
+        if (purpleAlien) return purple + "&" + reset;
+        if (brownAlien) return brown + "&" + reset;
+        return "☺";
     }
 
     @Override

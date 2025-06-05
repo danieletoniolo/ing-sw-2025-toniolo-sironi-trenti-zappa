@@ -21,6 +21,7 @@ import it.polimi.ingsw.view.tui.screens.buildingScreens.MainCommandsTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.enemyActions.EnemyRewardsTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions.UseShieldTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens.LooseCrewTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.openSpaceAcitons.OpenSpaceTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.piratesActions.PiratesTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.planetsActions.PlanetsTuiScreen;
@@ -638,7 +639,7 @@ public class TuiManager implements Manager {
         for (int i = 0; i < 3; i++) {
             DeckView deckView = new DeckView();
             for (Card card : decks[i].getCards()) {
-                deckView.getDeck().add(convertCard(card));
+                deckView.addCard(convertCard(card));
             }
             MiniModel.getInstance().getDeckViews().getValue0()[i] = deckView;
             MiniModel.getInstance().getDeckViews().getValue1()[i] = true;
@@ -695,6 +696,17 @@ public class TuiManager implements Manager {
         for (ComponentView tile : MiniModel.getInstance().getViewableComponents()) {
             if (tile instanceof EngineView && tile.getType().equals(TilesTypeView.DOUBLE_ENGINE) ) {
                 MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 8, 7 + cont);
+                if (cont == 1) {
+                    break;
+                }
+                cont++;
+            }
+        }
+        cont = 0;
+        for (ComponentView tile : MiniModel.getInstance().getViewableComponents()) {
+            if (tile instanceof CabinView) {
+                ((CabinView) tile).setCrewNumber(2);
+                MiniModel.getInstance().getClientPlayer().getShip().placeComponent(tile, 8, 4 + cont);
                 if (cont == 1) {
                     break;
                 }
