@@ -1,0 +1,45 @@
+package it.polimi.ingsw.view.miniModel.good;
+
+import it.polimi.ingsw.view.miniModel.board.LevelView;
+
+public enum GoodView {
+    BLUE(1), GREEN(2), YELLOW(3), RED(4);
+
+    private final int value;
+    private final String blue =   "\033[34m";
+    private final String green =  "\033[32m";
+    private final String yellow = "\033[33m";
+    private final String red =    "\033[31m";
+    private final String reset =  "\033[0m";
+    private final String Cell = "■";
+
+    GoodView(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void drawGui() {
+        //TODO: Implement the GUI drawing logic for the Good component here
+    }
+
+    public static GoodView fromValue(int value) {
+        for (GoodView good : values()) {
+            if (good.value == value) {
+                return good;
+            }
+        }
+        throw new IllegalArgumentException("No GoodView with value " + value);
+    }
+
+    public String drawTui() {
+        return switch (this) {
+            case BLUE -> blue + Cell + reset;
+            case GREEN -> green + Cell + reset;
+            case YELLOW -> yellow + Cell + reset;
+            case RED -> red + Cell + reset;
+        };
+    }
+}

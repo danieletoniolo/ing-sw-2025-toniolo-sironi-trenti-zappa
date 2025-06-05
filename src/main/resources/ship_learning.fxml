@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="545.0" prefWidth="823.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <ImageView fitHeight="693.0" fitWidth="823.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/cardboard/ship_I.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="358.0" layoutY="27.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="249.0" layoutY="135.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="140.0" layoutY="244.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="249.0" layoutY="244.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="358.0" layoutY="135.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="467.0" layoutY="135.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="358.0" layoutY="244.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="467.0" layoutY="244.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="140.0" layoutY="353.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="140.0" layoutY="462.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="249.0" layoutY="353.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="358.0" layoutY="353.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="249.0" layoutY="462.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="467.0" layoutY="353.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="576.0" layoutY="353.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="467.0" layoutY="462.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="576.0" layoutY="462.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="576.0" layoutY="244.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@image/tiles/152.jpg" />            </image>
+        </ImageView>
+    </children>
+</AnchorPane>

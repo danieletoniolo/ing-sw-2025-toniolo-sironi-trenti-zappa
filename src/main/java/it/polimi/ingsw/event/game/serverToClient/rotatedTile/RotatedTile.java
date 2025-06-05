@@ -1,0 +1,21 @@
+package it.polimi.ingsw.event.game.serverToClient.rotatedTile;
+
+import it.polimi.ingsw.event.type.Event;
+
+import java.io.Serializable;
+
+/**
+ * Represents an event that notifies the rotation of a cannon tile.
+ * This record encapsulates the nickname of the player who rotated the cannon,
+ * the ID of the tile, the direction of rotation, and the connectors associated with it.
+ *
+ * @param nickname    The nickname of the player who rotated the cannon.
+ * @param tileID      The identifier of the cannon tile that was rotated.
+ * @param connectors  A list of integers representing the connectors associated with the cannon.
+ */
+public record RotatedTile(
+        String nickname,
+        int tileID,
+        int[] connectors
+) implements Event, Serializable {
+}

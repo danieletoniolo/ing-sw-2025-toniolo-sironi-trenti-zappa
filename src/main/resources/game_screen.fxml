@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Text?>
+
+
+<AnchorPane prefHeight="476.0" prefWidth="719.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="339.0" layoutX="22.0" layoutY="118.0" stroke="BLACK" strokeType="INSIDE" width="424.0" />
+      <Text layoutX="203.0" layoutY="290.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spaceship" />
+      <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="536.0" layoutY="55.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@image/card/8.jpg" />
+         </image>
+      </ImageView>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="102.0" layoutX="34.0" layoutY="9.0" stroke="BLACK" strokeType="INSIDE" width="147.0" />
+      <Text layoutX="51.0" layoutY="66.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Info generali (crediti)" />
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="200.0" layoutX="484.0" layoutY="254.0" stroke="BLACK" strokeType="INSIDE" width="200.0" />
+      <Text layoutX="570.0" layoutY="358.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Board" />
+   </children>
+</AnchorPane>
