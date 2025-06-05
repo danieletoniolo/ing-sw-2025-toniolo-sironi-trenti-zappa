@@ -58,6 +58,8 @@ public interface Manager {
     // Picked tile
     void notifyPickedTileFromBoard();
 
+    void notifyPickedHiddenTile(String nickname);
+
     // Placed tile
     void notifyPlacedTileToBoard(PlacedTileToBoard data);
 

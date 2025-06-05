@@ -212,26 +212,27 @@ public class MatchController {
         if (nicknameAlreadyUsed) {
             Logger.getInstance().logWarning("User " + data.userID() + " tried to set a nickname already used: " + data.nickname(), false);
             return new Pota(data.userID(), SetNickname.class, "Nickname already used");
-        } else {
-            UUID userID = UUID.fromString(data.userID());
-            User user = new User(userID, data.nickname(), serverNetworkTransceiver.getConnection(userID));
-            users.put(userID, user);
-
-            // Notify that a new user has joined the server
-            NicknameSet nicknameSet = new NicknameSet(user.getNickname());
-            serverNetworkTransceiver.send(userID, nicknameSet);
-
-            // Send to the user the list of all the lobbies
-            List<Pair<Integer, Integer>> lobbiesPlayers = new ArrayList<>();
-            List<Integer> lobbiesLevels = new ArrayList<>();
-            for (LobbyInfo lobby : lobbies.values()) {
-                lobbiesPlayers.add(new Pair<>(lobby.getNumberOfPlayersEntered(), lobby.getTotalPlayers()));
-                lobbiesLevels.add(lobby.getLevel().getValue());
-            }
-            Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), lobbiesPlayers, lobbiesLevels);
-            serverNetworkTransceiver.send(userID, lobbiesEvent);
-            Logger.getInstance().logInfo("User " + data.userID() + " set nickname: " + data.nickname(), false);
         }
+
+        UUID userID = UUID.fromString(data.userID());
+        User user = new User(userID, data.nickname(), serverNetworkTransceiver.getConnection(userID));
+        users.put(userID, user);
+
+        // Notify that a new user has joined the server
+        NicknameSet nicknameSet = new NicknameSet(user.getNickname());
+        serverNetworkTransceiver.send(userID, nicknameSet);
+
+        // Send to the user the list of all the lobbies
+        List<Pair<Integer, Integer>> lobbiesPlayers = new ArrayList<>();
+        List<Integer> lobbiesLevels = new ArrayList<>();
+        for (LobbyInfo lobby : lobbies.values()) {
+            lobbiesPlayers.add(new Pair<>(lobby.getNumberOfPlayersEntered(), lobby.getTotalPlayers()));
+            lobbiesLevels.add(lobby.getLevel().getValue());
+        }
+        Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), lobbiesPlayers, lobbiesLevels);
+        serverNetworkTransceiver.send(userID, lobbiesEvent);
+
+        Logger.getInstance().logInfo("User " + data.userID() + " set nickname: " + data.nickname(), false);
         return new Tac(data.userID(), SetNickname.class);
     }
 
@@ -288,7 +289,7 @@ public class MatchController {
 
         // Creating the game controller
         GameController gc = new GameController(board, lobby);
-        gc.manageLobby(player, 1);
+        gc.manageLobby(player, 0);
         gameControllers.put(lobby, gc);
 
         // Linking the user to the lobby
@@ -473,6 +474,9 @@ public class MatchController {
             for (User tempUser : users.values()) {
                 if (tempUser.getLobby() != null && tempUser.getLobby().equals(lobby) && !tempUser.getUUID().equals(userID)) {
                     networkTransceiver.send(userID, new PlayerAdded(tempUser.getNickname(), userPlayers.get(tempUser).getColor().getValue()));
+
+                    PlayerReady playerReadyEvent = new PlayerReady(tempUser.getNickname(), lobby.isPlayerReady(tempUser.getUUID()));
+                    networkTransceiver.send(userID, playerReadyEvent);
                 }
             }
 
@@ -967,9 +971,6 @@ public class MatchController {
             networkTransceivers.get(lobby).broadcast(readyPlayerEvent);
 
             if (lobby.canGameStart()) {
-                LobbyRemoved removeLobbyEvent = new LobbyRemoved(lobby.getName());
-                serverNetworkTransceiver.broadcast(removeLobbyEvent);
-
                 int timerDuration = 5000;
                 StartingGame startingGameEvent = new StartingGame(LocalDateTime.now().toString(), timerDuration);
                 networkTransceivers.get(lobby).broadcast(startingGameEvent);
@@ -979,6 +980,10 @@ public class MatchController {
                         gc.startGame();
                     }
                 }, timerDuration);
+
+                LobbyRemoved removeLobbyEvent = new LobbyRemoved(lobby.getName());
+                serverNetworkTransceiver.broadcast(removeLobbyEvent);
+                lobbies.remove(lobby.getName());
             }
             Logger.getInstance().logInfo("Game " + lobby.getName() + ": user " + data.userID() + " is ready: " + data.isReady(), false);
             return new Tac(data.userID(), PlayerReady.class);

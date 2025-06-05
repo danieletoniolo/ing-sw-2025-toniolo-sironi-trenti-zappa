@@ -357,6 +357,15 @@ public class TuiManager implements Manager {
     }
 
     @Override
+    public void notifyPickedHiddenTile(String nickname) {
+        if (MiniModel.getInstance().getNickname().equals(nickname)) {
+            synchronized (stateLock) {
+                stateLock.notifyAll();
+            }
+        }
+    }
+
+    @Override
     public void notifyPlacedTileToBoard(PlacedTileToBoard data) {
         if (currentScreen.getType().equals(TuiScreens.Building)) {
             synchronized (stateLock) {

@@ -5,6 +5,7 @@ import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.MatchController;
+import it.polimi.ingsw.utils.Logger;
 
 /**
  * This class represents the lobby state of the game. In this state, players can join, leave and start the game.

@@ -72,7 +72,7 @@ public class GameController implements Serializable, StateTransitionHandler {
         try {
             state.play(player);
         } catch (Exception e) {
-            throw new IllegalStateException("Cannot play in this state");
+            throw new IllegalStateException(e.getMessage());
         }
     }
 
@@ -82,7 +82,7 @@ public class GameController implements Serializable, StateTransitionHandler {
             try {
                 state.execute(player);
             } catch (Exception e) {
-                throw new IllegalStateException("Cannot end turn in this state");
+                throw new IllegalStateException(e.getMessage());
             }
         } else {
             throw new IllegalStateException("Not the current player");
@@ -93,7 +93,7 @@ public class GameController implements Serializable, StateTransitionHandler {
         try {
             state.useDeck(player, usage, deckIndex);
         } catch (Exception e) {
-            throw new IllegalStateException("Cannot use deck in this state");
+            throw new IllegalStateException(e.getMessage());
         }
     }
 
@@ -101,7 +101,7 @@ public class GameController implements Serializable, StateTransitionHandler {
         try {
             state.pickTile(player, fromWhere, tileID);
         } catch (Exception e) {
-            throw new IllegalStateException("Cannot pick tile in this state");
+            throw new IllegalStateException(e.getMessage());
         }
     }
 
@@ -113,7 +113,7 @@ public class GameController implements Serializable, StateTransitionHandler {
         try {
             state.rotateTile(player);
         } catch (Exception e) {
-            throw new IllegalStateException("Cannot rotate tile in this state");
+            throw new IllegalStateException(e.getMessage());
         }
     }
 
@@ -121,7 +121,7 @@ public class GameController implements Serializable, StateTransitionHandler {
         try {
             state.placeMarker(player, position);
         } catch (Exception e) {
-            throw new IllegalStateException("Cannot place marker in this state");
+            throw new IllegalStateException(e.getMessage());
         }
     }
 
@@ -138,7 +138,7 @@ public class GameController implements Serializable, StateTransitionHandler {
         try {
             state.flipTimer(player);
         } catch (Exception e) {
-            throw new IllegalStateException("Cannot flip timer in this state");
+            throw new IllegalStateException(e.getMessage());
         }
     }
 
@@ -148,7 +148,7 @@ public class GameController implements Serializable, StateTransitionHandler {
             try {
                 state.setFragmentChoice(player, fragmentID);
             } catch (IllegalStateException e) {
-                throw new IllegalStateException("Cannot choose fragment in this state");
+                throw new IllegalStateException(e.getMessage());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Invalid fragment ID: " + fragmentID);
             }
@@ -172,7 +172,7 @@ public class GameController implements Serializable, StateTransitionHandler {
             try {
                 state.selectPlanet(player, planetID);
             } catch (IllegalStateException e) {
-                throw new IllegalStateException("Cannot select planet in this state");
+                throw new IllegalStateException(e.getMessage());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Invalid planet ID: " + planetID);
             }
@@ -190,7 +190,7 @@ public class GameController implements Serializable, StateTransitionHandler {
             try {
                 state.setGoodsToExchange(player, exchangeData);
             } catch (IllegalStateException e) {
-                throw new IllegalStateException("Cannot exchange goods in this state");
+                throw new IllegalStateException(e.getMessage());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Invalid exchange data: " + exchangeData);
             }
@@ -211,7 +211,7 @@ public class GameController implements Serializable, StateTransitionHandler {
             try {
                 state.swapGoods(player, storageID1, storageID2, goods1to2, goods2to1);
             } catch (IllegalStateException e) {
-                throw new IllegalStateException("Cannot swap goods in this state");
+                throw new IllegalStateException(e.getMessage());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Invalid swap data: " + goods1to2 + " " + goods2to1);
             }
@@ -232,7 +232,7 @@ public class GameController implements Serializable, StateTransitionHandler {
                 state.useExtraStrength(player, type, IDs, batteriesID);
                 state.execute(player);
             } catch (IllegalStateException e) {
-                throw new IllegalStateException("Cannot use extra power in this state");
+                throw new IllegalStateException(e.getMessage());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
             }

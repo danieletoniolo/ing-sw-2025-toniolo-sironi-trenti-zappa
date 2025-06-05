@@ -136,10 +136,6 @@ public class Board implements Serializable {
             return hiddenTiles.remove(tileID);
         }
 
-        if (tileID < 0 || tileID >= viewableTiles.size()) {
-            throw new IndexOutOfBoundsException("Index is out of bounds");
-        }
-
         for (Component tile : viewableTiles) {
             if (tile.getID() == tileID) {
                 viewableTiles.remove(tile);

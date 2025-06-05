@@ -27,7 +27,6 @@ import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
-import it.polimi.ingsw.view.miniModel.timer.TimerView;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
@@ -44,6 +43,199 @@ import java.util.List;
 public class EventHandlerClient {
     NetworkTransceiver transceiver;
     Manager manager;
+
+    private final CastEventReceiver<Lobbies> lobbiesReceiver;
+    private final EventListener<Lobbies> lobbiesListener;
+
+    private final CastEventReceiver<LobbyCreated> lobbyCreatedReceiver;
+    private final EventListener<LobbyCreated> lobbyCreatedListener;
+
+    private final CastEventReceiver<LobbyJoined> lobbyJoinedReceiver;
+    private final EventListener<LobbyJoined> lobbyJoinedListener;
+
+    private final CastEventReceiver<LobbyLeft> lobbyLeftReceiver;
+    private final EventListener<LobbyLeft> lobbyLeftListener;
+
+    private final CastEventReceiver<LobbyRemoved> lobbyRemovedReceiver;
+    private final EventListener<LobbyRemoved> lobbyRemovedListener;
+
+    private final CastEventReceiver<PlayerAdded> playerAddedReceiver;
+    private final EventListener<PlayerAdded> playerAddedListener;
+
+    private final CastEventReceiver<ReadyPlayer> playerReadyReceiver;
+    private final EventListener<ReadyPlayer> playerReadyListener;
+
+    private final CastEventReceiver<StartingGame> startingGameReceiver;
+    private final EventListener<StartingGame> startingGameListener;
+
+    private final CastEventReceiver<GetCardAbandonedShip> getCardAbandonedShipReceiver;
+    private final EventListener<GetCardAbandonedShip> getCardAbandonedShipListener;
+
+    private final CastEventReceiver<GetCardAbandonedStation> getCardAbandonedStationReceiver;
+    private final EventListener<GetCardAbandonedStation> getCardAbandonedStationListener;
+
+    private final CastEventReceiver<GetCardCombatZone> getCardCombatZoneReceiver;
+    private final EventListener<GetCardCombatZone> getCardCombatZoneListener;
+
+    private final CastEventReceiver<GetCardEpidemic> getCardEpidemicReceiver;
+    private final EventListener<GetCardEpidemic> getCardEpidemicListener;
+
+    private final CastEventReceiver<GetCardMeteorSwarm> getCardMeteorSwarmReceiver;
+    private final EventListener<GetCardMeteorSwarm> getCardMeteorSwarmListener;
+
+    private final CastEventReceiver<GetCardOpenSpace> getCardOpenSpaceReceiver;
+    private final EventListener<GetCardOpenSpace> getCardOpenSpaceListener;
+
+    private final CastEventReceiver<GetCardPirates> getCardPiratesReceiver;
+    private final EventListener<GetCardPirates> getCardPiratesListener;
+
+    private final CastEventReceiver<GetCardPlanets> getCardPlanetsReceiver;
+    private final EventListener<GetCardPlanets> getCardPlanetsListener;
+
+    private final CastEventReceiver<GetCardSlavers> getCardSlaversReceiver;
+    private final EventListener<GetCardSlavers> getCardSlaversListener;
+
+    private final CastEventReceiver<GetCardSmugglers> getCardSmugglersReceiver;
+    private final EventListener<GetCardSmugglers> getCardSmugglersListener;
+
+    private final CastEventReceiver<GetCardStardust> getCardStardustReceiver;
+    private final EventListener<GetCardStardust> getCardStardustListener;
+
+    private final CastEventReceiver<DrawCard> drawCardReceiver;
+    private final EventListener<DrawCard> getCardDrawListener;
+
+    private final CastEventReceiver<GetDecks> getDecksReceiver;
+    private final EventListener<GetDecks> getDecksListener;
+
+    private final CastEventReceiver<GetShuffledDeck> getShuffledDeckReceiver;
+    private final EventListener<GetShuffledDeck> getShuffledDeckListener;
+
+    private final CastEventReceiver<PickedLeftDeck> pickedLeftDeckReceiver;
+    private final EventListener<PickedLeftDeck> pickedLeftDeckListener;
+
+    private final CastEventReceiver<DiceRolled> diceRolledReceiver;
+    private final EventListener<DiceRolled> diceRolledListener;
+
+    private final CastEventReceiver<BatteriesLoss> batteriesUsedReceiver;
+    private final EventListener<BatteriesLoss> getBatteriesUsedListener;
+
+    private final CastEventReceiver<CannonsUsed> cannonsUsedReceiver;
+    private final EventListener<CannonsUsed> cannonsUsedListener;
+
+    private final CastEventReceiver<EnginesUsed> enginesUsedReceiver;
+    private final EventListener<EnginesUsed> enginesUsedListener;
+
+    private final CastEventReceiver<ShieldUsed> shieldUsedReceiver;
+    private final EventListener<ShieldUsed> shieldUsedListener;
+
+    private final CastEventReceiver<GoodsSwapped> goodsSwappedReceiver;
+    private final EventListener<GoodsSwapped> goodsSwappedListener;
+
+    private final CastEventReceiver<UpdateGoodsExchange> updateGoodsExchangeReceiver;
+    private final EventListener<UpdateGoodsExchange> updateGoodsExchangeListener;
+
+    private final CastEventReceiver<PickedBatteryFromBoard> pickedBatteryFromBoardReceiver;
+    private final EventListener<PickedBatteryFromBoard> pickedBatteryFromBoardListener;
+
+    private final CastEventReceiver<PickedCabinFromBoard> pickedCabinFromBoardReceiver;
+    private final EventListener<PickedCabinFromBoard> pickedCabinFromBoardListener;
+
+    private final CastEventReceiver<PickedCannonFromBoard> pickedCannonFromBoardReceiver;
+    private final EventListener<PickedCannonFromBoard> pickedCannonFromBoardListener;
+
+    private final CastEventReceiver<PickedConnectorsFromBoard> pickedConnectorsFromBoardReceiver;
+    private final EventListener<PickedConnectorsFromBoard> pickedConnectorsFromBoardListener;
+
+    private final CastEventReceiver<PickedEngineFromBoard> pickedEngineFromBoardReceiver;
+    private final EventListener<PickedEngineFromBoard> pickedEngineFromBoardListener;
+
+    private final CastEventReceiver<PickedLifeSupportFromBoard> pickedLifeSupportFromBoardReceiver;
+    private final EventListener<PickedLifeSupportFromBoard> pickedLifeSupportFromBoardListener;
+
+    private final CastEventReceiver<PickedShieldFromBoard> pickedShieldFromBoardReceiver;
+    private final EventListener<PickedShieldFromBoard> pickedShieldFromBoardListener;
+
+    private final CastEventReceiver<PickedStorageFromBoard> pickedStorageFromBoardReceiver;
+    private final EventListener<PickedStorageFromBoard> pickedStorageFromBoardListener;
+
+    private final CastEventReceiver<PickedTile> pickedTileReceiver;
+    private final EventListener<PickedTile> pickedTileListener;
+
+    private final CastEventReceiver<PickedTileFromReserve> pickedTileFromReserveReceiver;
+    private final EventListener<PickedTileFromReserve> pickedTileFromReserveListener;
+
+    private final CastEventReceiver<PickedTileFromSpaceship> pickedTileFromSpaceshipReceiver;
+    private final EventListener<PickedTileFromSpaceship> pickedTileFromSpaceshipListener;
+
+    private final CastEventReceiver<PlacedMainCabin> placedMainCabinReceiver;
+    private final EventListener<PlacedMainCabin> placedMainCabinListener;
+
+    private final CastEventReceiver<PlacedTileToBoard> placedTileToBoardReceiver;
+    private final EventListener<PlacedTileToBoard> placedTileToBoardListener;
+
+    private final CastEventReceiver<PlacedTileToReserve> placedTileToReserveReceiver;
+    private final EventListener<PlacedTileToReserve> placedTileToReserveListener;
+
+    private final CastEventReceiver<PlacedTileToSpaceship> placedTileToSpaceshipReceiver;
+    private final EventListener<PlacedTileToSpaceship> placedTileToSpaceshipListener;
+
+    private final CastEventReceiver<PlanetSelected> planetSelectedReceiver;
+    private final EventListener<PlanetSelected> planetSelectedListener;
+
+    private final CastEventReceiver<EnemyDefeat> enemyDefeatReceiver;
+    private final EventListener<EnemyDefeat> enemyDefeatListener;
+
+    private final CastEventReceiver<MinPlayer> minPlayerReceiver;
+    private final EventListener<MinPlayer> minPlayerListener;
+
+    private final CastEventReceiver<MoveMarker> moveMarkerReceiver;
+    private final EventListener<MoveMarker> moveMarkerListener;
+
+    private final CastEventReceiver<PlayerGaveUp> playerGaveUpReceiver;
+    private final EventListener<PlayerGaveUp> playerGaveUpListener;
+
+    private final CastEventReceiver<PlayerLost> playerLostReceiver;
+    private final EventListener<PlayerLost> playerLostListener;
+
+    private final CastEventReceiver<CurrentPlayer> playingReceiver;
+    private final EventListener<CurrentPlayer> playingListener;
+
+    private final CastEventReceiver<Score> scoreReceiver;
+    private final EventListener<Score> scoreListener;
+
+    private final CastEventReceiver<UpdateCoins> updateCoinsReceiver;
+    private final EventListener<UpdateCoins> updateCoinsListener;
+
+    private final CastEventReceiver<RotatedTile> rotatedGenericReceiver;
+    private final EventListener<RotatedTile> rotatedGenericTileListener;
+
+    private final CastEventReceiver<BestLookingShips> bestLookingShipsReceiver;
+    private final EventListener<BestLookingShips> bestLookingShipsListener;
+
+    private final CastEventReceiver<CanProtect> canProtectReceiver;
+    private final EventListener<CanProtect> canProtectListener;
+
+    private final CastEventReceiver<ComponentDestroyed> componentDestroyedReceiver;
+    private final EventListener<ComponentDestroyed> componentDestroyedListener;
+
+    private final CastEventReceiver<Fragments> fragmentsReceiver;
+    private final EventListener<Fragments> fragmentsListener;
+
+    private final CastEventReceiver<InvalidComponents> invalidComponentsReceiver;
+    private final EventListener<InvalidComponents> invalidComponentsListener;
+
+    private final CastEventReceiver<NextHit> nextHitReceiver;
+    private final EventListener<NextHit> nextHitListener;
+
+    private final CastEventReceiver<UpdateCrewMembers> updateCrewMembersReceiver;
+    private final EventListener<UpdateCrewMembers> updateCrewMembersListener;
+
+    private final CastEventReceiver<TimerFlipped> timerFlippedReceiver;
+    private final EventListener<TimerFlipped> timerFlippedListener;
+
+    private final CastEventReceiver<StateChanged> stateChangedReceiver;
+    private final EventListener<StateChanged> stateChangedListener;
+
 
     public EventHandlerClient(NetworkTransceiver transceiver, Manager manager) {
         this.transceiver = transceiver;
@@ -73,8 +265,8 @@ public class EventHandlerClient {
         /*
          * Set all the lobbies
          */
-        CastEventReceiver<Lobbies> lobbiesReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<Lobbies> lobbiesListener = data -> {
+        lobbiesReceiver = new CastEventReceiver<>(this.transceiver);
+        lobbiesListener = data -> {
             for (int i = 0; i < data.lobbiesNames().size(); i++) {
                 MiniModel.getInstance().getLobbiesView().add(new LobbyView(data.lobbiesNames().get(i), data.lobbiesPlayers().get(i).getValue0(),
                         data.lobbiesPlayers().get(i).getValue1(), LevelView.fromValue(data.lobbiesLevels().get(i))));
@@ -82,13 +274,12 @@ public class EventHandlerClient {
 
             manager.notifyLobbies();
         };
-        lobbiesReceiver.registerListener(lobbiesListener);
 
         /*
          * Create a new lobby, if it is created by this client it is set as tha main current lobby
          */
-        CastEventReceiver<LobbyCreated> lobbyCreatedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<LobbyCreated> lobbyCreatedListener = data -> {
+        lobbyCreatedReceiver = new CastEventReceiver<>(this.transceiver);
+        lobbyCreatedListener = data -> {
             LobbyView lobby = new LobbyView(data.lobbyID(), 0, data.maxPlayers(), LevelView.fromValue(data.level()));
             MiniModel.getInstance().getLobbiesView().add(lobby);
             if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
@@ -99,13 +290,12 @@ public class EventHandlerClient {
 
             manager.notifyCreatedLobby(data);
         };
-        lobbyCreatedReceiver.registerListener(lobbyCreatedListener);
 
         /*
          * Add a new player inside a specific lobby
          */
-        CastEventReceiver<LobbyJoined> lobbyJoinedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<LobbyJoined> lobbyJoinedListener = data -> {
+        lobbyJoinedReceiver = new CastEventReceiver<>(this.transceiver);
+        lobbyJoinedListener = data -> {
             LobbyView lobbyView = MiniModel.getInstance().getLobbiesView().stream()
                     .filter(lobby -> lobby.getLobbyName().equals(data.lobbyID()))
                     .findFirst()
@@ -121,13 +311,12 @@ public class EventHandlerClient {
 
             manager.notifyLobbyJoined(data);
         };
-        lobbyJoinedReceiver.registerListener(lobbyJoinedListener);
 
         /*
          * Remove a player from a specific lobby
          */
-        CastEventReceiver<LobbyLeft> lobbyLeftReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<LobbyLeft> lobbyLeftListener = data -> {
+        lobbyLeftReceiver = new CastEventReceiver<>(this.transceiver);
+        lobbyLeftListener = data -> {
             MiniModel.getInstance().getOtherPlayers()
                     .removeIf(player -> player.getUsername().equals(data.nickname()));
 
@@ -144,13 +333,12 @@ public class EventHandlerClient {
 
             manager.notifyLobbyLeft(data);
         };
-        lobbyLeftReceiver.registerListener(lobbyLeftListener);
 
         /*
          * Remove a lobby
          */
-        CastEventReceiver<LobbyRemoved> lobbyRemovedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<LobbyRemoved> lobbyRemovedListener = data -> {
+        lobbyRemovedReceiver = new CastEventReceiver<>(this.transceiver);
+        lobbyRemovedListener = data -> {
             MiniModel.getInstance().getLobbiesView().stream()
                     .filter(lobby -> lobby.getLobbyName().equals(data.lobbyID()))
                     .findFirst()
@@ -159,13 +347,12 @@ public class EventHandlerClient {
             MiniModel.getInstance().setCurrentLobby(null);
             manager.notifyLobbyRemoved(data);
         };
-        lobbyRemovedReceiver.registerListener(lobbyRemovedListener);
 
         /*
          * Initialize playersDataView
          */
-        CastEventReceiver<PlayerAdded> playerAddedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PlayerAdded> playerAddedListener = data -> {
+        playerAddedReceiver = new CastEventReceiver<>(this.transceiver);
+        playerAddedListener = data -> {
             PlayerDataView player = new PlayerDataView(data.nickname(), MarkerView.fromValue(data.color()), new SpaceShipView(MiniModel.getInstance().getBoardView().getLevel()));
             player.setHand(new GenericComponentView());
             if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
@@ -175,24 +362,22 @@ public class EventHandlerClient {
                 MiniModel.getInstance().getOtherPlayers().add(player);
             }
         };
-        playerAddedReceiver.registerListener(playerAddedListener);
 
         /*
          * Set status player in the lobby
          */
-        CastEventReceiver<ReadyPlayer> playerReadyReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<ReadyPlayer> playerReadyListener = data -> {
+        playerReadyReceiver = new CastEventReceiver<>(this.transceiver);
+        playerReadyListener = data -> {
             MiniModel.getInstance().getCurrentLobby().setPlayerStatus(data.nickname(), data.isReady());
 
             manager.notifyReadyPlayer();
         };
-        playerReadyReceiver.registerListener(playerReadyListener);
 
         /*
          * Start a countdown to announce that the game is starting
          */
-        CastEventReceiver<StartingGame> startingGameReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<StartingGame> startingGameListener = data -> {
+        startingGameReceiver = new CastEventReceiver<>(this.transceiver);
+        startingGameListener = data -> {
             new Thread(() -> {
                 LocalDateTime serverTime = LocalDateTime.parse(data.startingTime());
                 LocalDateTime clientTime = LocalDateTime.now();
@@ -212,25 +397,23 @@ public class EventHandlerClient {
                 manager.notifyStartingGame(data);
             }).start();
         };
-        startingGameReceiver.registerListener(startingGameListener);
 
         // GAME EVENTS
         // CARDS events
         /*
          * Initialize AbandonedShip card and add it to the shuffledDeck
          */
-        CastEventReceiver<GetCardAbandonedShip> getCardAbandonedShipReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GetCardAbandonedShip> getCardAbandonedShipListener = data -> {
+        getCardAbandonedShipReceiver = new CastEventReceiver<>(this.transceiver);
+        getCardAbandonedShipListener = data -> {
             AbandonedShipView card = new AbandonedShipView(data.ID(), false, data.level(), data.crewRequired(), data.credit(), data.flightDays());
             MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
-        getCardAbandonedShipReceiver.registerListener(getCardAbandonedShipListener);
 
         /*
          * Initialize AbandonedStation card and add it to the shuffledDeck
          */
-        CastEventReceiver<GetCardAbandonedStation> getCardAbandonedStationReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GetCardAbandonedStation> getCardAbandonedStationListener = data -> {
+        getCardAbandonedStationReceiver = new CastEventReceiver<>(this.transceiver);
+        getCardAbandonedStationListener = data -> {
             List<GoodView> goods = new ArrayList<>();
             for (Integer integer : data.goods()) {
                 goods.add(GoodView.fromValue(integer));
@@ -238,13 +421,12 @@ public class EventHandlerClient {
             AbandonedStationView card = new AbandonedStationView(data.ID(), false, data.level(), data.crewRequired(), data.flightDays(), goods);
             MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
-        getCardAbandonedStationReceiver.registerListener(getCardAbandonedStationListener);
 
         /*
          * Initialize CombatZone card and add it to the shuffledDeck
          */
-        CastEventReceiver<GetCardCombatZone> getCardCombatZoneReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GetCardCombatZone> getCardCombatZoneListener = data -> {
+        getCardCombatZoneReceiver = new CastEventReceiver<>(this.transceiver);
+        getCardCombatZoneListener = data -> {
             List<HitView> hits = new ArrayList<>();
             for (Pair<Integer, Integer> pair : data.fires()) {
                 hits.add(new HitView(HitTypeView.fromValue(pair.getValue0()), HitDirectionView.fromValue(pair.getValue1())));
@@ -252,23 +434,21 @@ public class EventHandlerClient {
             CombatZoneView card = new CombatZoneView(data.ID(), false, data.level(), data.lost(), data.flightDays(), hits);
             MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
-        getCardCombatZoneReceiver.registerListener(getCardCombatZoneListener);
 
         /*
          * Initialize Epidemic card and add it to the shuffledDeck
          */
-        CastEventReceiver<GetCardEpidemic> getCardEpidemicReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GetCardEpidemic> getCardEpidemicListener = data -> {
+        getCardEpidemicReceiver = new CastEventReceiver<>(this.transceiver);
+        getCardEpidemicListener = data -> {
             EpidemicView card = new EpidemicView(data.ID(), false, data.level());
             MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
-        getCardEpidemicReceiver.registerListener(getCardEpidemicListener);
 
         /*
          * Initialize MeteorSwarm card and add it to the shuffledDeck
          */
-        CastEventReceiver<GetCardMeteorSwarm> getCardMeteorSwarmReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GetCardMeteorSwarm> getCardMeteorSwarmListener = data -> {
+        getCardMeteorSwarmReceiver = new CastEventReceiver<>(this.transceiver);
+        getCardMeteorSwarmListener = data -> {
             List<HitView> hits = new ArrayList<>();
             for (Pair<Integer, Integer> pair : data.meteors()) {
                 hits.add(new HitView(HitTypeView.fromValue(pair.getValue0()), HitDirectionView.fromValue(pair.getValue1())));
@@ -277,23 +457,21 @@ public class EventHandlerClient {
             MeteorSwarmView card = new MeteorSwarmView(data.ID(), false, data.level(), hits);
             MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
-        getCardMeteorSwarmReceiver.registerListener(getCardMeteorSwarmListener);
 
         /*
          * Initialize OpenSpace card and add it to the shuffledDeck
          */
-        CastEventReceiver<GetCardOpenSpace> getCardOpenSpaceReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GetCardOpenSpace> getCardOpenSpaceListener = data -> {
+        getCardOpenSpaceReceiver = new CastEventReceiver<>(this.transceiver);
+        getCardOpenSpaceListener = data -> {
             OpenSpaceView card = new OpenSpaceView(data.ID(), false, data.level());
             MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
-        getCardOpenSpaceReceiver.registerListener(getCardOpenSpaceListener);
 
         /*
          * Initialize Pirates card and add it to the shuffledDeck
          */
-        CastEventReceiver<GetCardPirates> getCardPiratesReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GetCardPirates> getCardPiratesListener = data -> {
+        getCardPiratesReceiver = new CastEventReceiver<>(this.transceiver);
+        getCardPiratesListener = data -> {
             List<HitView> hits = new ArrayList<>();
             for (Pair<Integer, Integer> pair : data.fires()) {
                 hits.add(new HitView(HitTypeView.fromValue(pair.getValue0()), HitDirectionView.fromValue(pair.getValue1())));
@@ -302,13 +480,12 @@ public class EventHandlerClient {
 
             MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
-        getCardPiratesReceiver.registerListener(getCardPiratesListener);
 
         /*
          * Initialize Pirates card and add it to the shuffledDeck
          */
-        CastEventReceiver<GetCardPlanets> getCardPlanetsReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GetCardPlanets> getCardPlanetsListener = data -> {
+        getCardPlanetsReceiver = new CastEventReceiver<>(this.transceiver);
+        getCardPlanetsListener = data -> {
             List<List<GoodView>> planets = new ArrayList<>();
             for(List<Integer> planet : data.planets()) {
                 List<GoodView> goods = new ArrayList<>();
@@ -321,23 +498,21 @@ public class EventHandlerClient {
             PlanetsView card = new PlanetsView(data.ID(), false, data.level(), data.flightDays(), planets);
             MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
-        getCardPlanetsReceiver.registerListener(getCardPlanetsListener);
 
         /*
          * Initialize Slavers card and add it to the shuffledDeck
          */
-        CastEventReceiver<GetCardSlavers> getCardSlaversReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GetCardSlavers> getCardSlaversListener = data -> {
+        getCardSlaversReceiver = new CastEventReceiver<>(this.transceiver);
+        getCardSlaversListener = data -> {
             SlaversView card = new SlaversView(data.ID(), false, data.level(), data.cannonStrengthRequired(), data.credit(), data.flightDays(), data.crewLost());
             MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
-        getCardSlaversReceiver.registerListener(getCardSlaversListener);
 
         /*
          * Initialize Smugglers card and add it to the shuffledDeck
          */
-        CastEventReceiver<GetCardSmugglers> getCardSmugglersReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GetCardSmugglers> getCardSmugglersListener = data -> {
+        getCardSmugglersReceiver = new CastEventReceiver<>(this.transceiver);
+        getCardSmugglersListener = data -> {
             List<GoodView> goods = new ArrayList<>();
             for (Integer integer : data.goodsReward()) {
                 goods.add(GoodView.fromValue(integer));
@@ -345,35 +520,32 @@ public class EventHandlerClient {
             SmugglersView card = new SmugglersView(data.ID(), false, data.level(), data.cannonStrengthRequired(), data.goodsLoss(), data.flightDays(), goods);
             MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
-        getCardSmugglersReceiver.registerListener(getCardSmugglersListener);
 
         /*
          * Initialize StarDust card and add it to the shuffledDeck
          */
-        CastEventReceiver<GetCardStardust> getCardStardustReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GetCardStardust> getCardStardustListener = data -> {
+        getCardStardustReceiver = new CastEventReceiver<>(this.transceiver);
+        getCardStardustListener = data -> {
             StarDustView card = new StarDustView(data.ID(), false, data.level());
             MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
-        getCardStardustReceiver.registerListener(getCardStardustListener);
 
         // DECK events
         /*
          * Set the next line of the shuffled deck;
          */
-        CastEventReceiver<DrawCard> drawCardReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<DrawCard> getCardDrawListener = data -> {
+        drawCardReceiver = new CastEventReceiver<>(this.transceiver);
+        getCardDrawListener = data -> {
             MiniModel.getInstance().getShuffledDeckView().popCard();
 
             manager.notifyDrawCard();
         };
-        drawCardReceiver.registerListener(getCardDrawListener);
 
         /*
          * Initialize Decks in the MiniModel
          */
-        CastEventReceiver<GetDecks> getDecksReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GetDecks> getDecksListener = data -> {
+        getDecksReceiver = new CastEventReceiver<>(this.transceiver);
+        getDecksListener = data -> {
             for (int i = 0; i < data.decks().size(); i++) {
                 DeckView deck = new DeckView();
                 for (Integer integer : data.decks().get(i)) {
@@ -388,40 +560,36 @@ public class EventHandlerClient {
                 MiniModel.getInstance().getDeckViews().getValue1()[i] = true;
             }
         };
-        getDecksReceiver.registerListener(getDecksListener);
 
         /*
          * Order the shuffled deck
          */
-        CastEventReceiver<GetShuffledDeck> getShuffledDeckReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GetShuffledDeck> getShuffledDeckListener = data -> {
+        getShuffledDeckReceiver = new CastEventReceiver<>(this.transceiver);
+        getShuffledDeckListener = data -> {
             MiniModel.getInstance().getShuffledDeckView().order(data.shuffledDeck());
         };
-        getShuffledDeckReceiver.registerListener(getShuffledDeckListener);
 
         /*
          * Set the viewable status of the deck. If deck == false it is not viewable in the building screen
          */
-        CastEventReceiver<PickedLeftDeck> pickedLeftDeckReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PickedLeftDeck> pickedLeftDeckListener = data -> {
+        pickedLeftDeckReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedLeftDeckListener = data -> {
             MiniModel.getInstance().getDeckViews().getValue1()[data.deckIndex()] = data.usage() == 1;
 
             manager.notifyPickedLeftDeck(data);
         };
-        pickedLeftDeckReceiver.registerListener(pickedLeftDeckListener);
 
         // DICE
-        CastEventReceiver<DiceRolled> diceRolledReceiver = new CastEventReceiver<DiceRolled>(this.transceiver);
-        EventListener<DiceRolled> diceRolledListener = data -> {
+        diceRolledReceiver = new CastEventReceiver<DiceRolled>(this.transceiver);
+        diceRolledListener = data -> {
             MiniModel.getInstance().setDice(new Pair<>(data.diceValue1(), data.diceValue2()));
 
 
         };
-        diceRolledReceiver.registerListener(diceRolledListener);
 
         // ENERGY USED events
-        CastEventReceiver<BatteriesLoss> batteriesUsedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<BatteriesLoss> getBatteriesUsedListener = data -> {
+        batteriesUsedReceiver = new CastEventReceiver<>(this.transceiver);
+        getBatteriesUsedListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
             for (Pair<Integer, Integer> pair : data.batteriesIDs()) {
                 player.getShip().getMapBatteries().get(pair.getValue0()).setNumberOfBatteries(pair.getValue1());
@@ -429,13 +597,12 @@ public class EventHandlerClient {
 
             manager.notifyBatteriesUsed(data);
         };
-        batteriesUsedReceiver.registerListener(getBatteriesUsedListener);
 
         /*
          * Remove a battery from the tiles in the batteriesIDs list
          */
-        CastEventReceiver<CannonsUsed> cannonsUsedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<CannonsUsed> cannonsUsedListener = data -> {
+        cannonsUsedReceiver = new CastEventReceiver<>(this.transceiver);
+        cannonsUsedListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             if (player != null) {
@@ -445,13 +612,12 @@ public class EventHandlerClient {
             }
             manager.notifyCannonsUsed(data);
         };
-        cannonsUsedReceiver.registerListener(cannonsUsedListener);
 
         /*
          * Remove a battery from the tiles in the batteriesIDs list
          */
-        CastEventReceiver<EnginesUsed> enginesUsedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<EnginesUsed> enginesUsedListener = data -> {
+        enginesUsedReceiver = new CastEventReceiver<>(this.transceiver);
+        enginesUsedListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             if (player != null) {
@@ -461,26 +627,24 @@ public class EventHandlerClient {
             }
             manager.notifyEnginesUsed(data);
         };
-        enginesUsedReceiver.registerListener(enginesUsedListener);
 
         /*
          * Reduce the number of battery
          */
-        CastEventReceiver<ShieldUsed> shieldUsedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<ShieldUsed> shieldUsedListener = data -> {
+        shieldUsedReceiver = new CastEventReceiver<>(this.transceiver);
+        shieldUsedListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
             player.getShip().getMapBatteries().get(data.batteryID().getValue0()).setNumberOfBatteries(data.batteryID().getValue1());
 
             manager.notifyShieldUsed(data);
         };
-        shieldUsedReceiver.registerListener(shieldUsedListener);
 
         // GOODS events
         /*
          * Update the status of storages
          */
-        CastEventReceiver<GoodsSwapped> goodsSwappedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<GoodsSwapped> goodsSwappedListener = data -> {
+        goodsSwappedReceiver = new CastEventReceiver<>(this.transceiver);
+        goodsSwappedListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             GoodView[] newGoods1 = new GoodView[data.goods2to1().size()];
@@ -497,13 +661,12 @@ public class EventHandlerClient {
 
             manager.notifyGoodsSwapped(data);
         };
-        goodsSwappedReceiver.registerListener(goodsSwappedListener);
 
         /*
          * Update status of storages
          */
-        CastEventReceiver<UpdateGoodsExchange> updateGoodsExchangeReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<UpdateGoodsExchange> updateGoodsExchangeListener = data -> {
+        updateGoodsExchangeReceiver = new CastEventReceiver<>(this.transceiver);
+        updateGoodsExchangeListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
             for (Pair<Integer, List<Integer>> pair : data.exchangeData()) {
                 GoodView[] newGoods = new GoodView[pair.getValue1().size()];
@@ -515,90 +678,83 @@ public class EventHandlerClient {
 
             manager.notifyUpdateGoodsExchange(data);
         };
-        updateGoodsExchangeReceiver.registerListener(updateGoodsExchangeListener);
-
 
         // PICK TILE events
         /*
          * Create a new BatteryView and set it in the player's hand
          */
-        CastEventReceiver<PickedBatteryFromBoard> pickedBatteryFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PickedBatteryFromBoard> pickedBatteryFromBoardListener = data -> {
+        pickedBatteryFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedBatteryFromBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             BatteryView battery = new BatteryView(data.tileID(), data.connectors(), data.clockwiseRotation(), data.energyNumber());
             player.setHand(battery);
             MiniModel.getInstance().reduceViewableComponents();
 
-            manager.notifyPickedTileFromBoard();
+            manager.notifyPickedHiddenTile(data.nickname());
         };
-        pickedBatteryFromBoardReceiver.registerListener(pickedBatteryFromBoardListener);
 
         /*
          * Create a new CabinView and set it in the player's hand
          */
-        CastEventReceiver<PickedCabinFromBoard> pickedCabinFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PickedCabinFromBoard> pickedCabinFromBoardListener = data -> {
+        pickedCabinFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedCabinFromBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             CabinView cabin = new CabinView(data.tileID(), data.connectors(), data.clockwiseRotation());
             player.setHand(cabin);
             MiniModel.getInstance().reduceViewableComponents();
 
-            manager.notifyPickedTileFromBoard();
+            manager.notifyPickedHiddenTile(data.nickname());
         };
-        pickedCabinFromBoardReceiver.registerListener(pickedCabinFromBoardListener);
 
         /*
          * Create a new CannonView and set it in the player's hand
          */
-        CastEventReceiver<PickedCannonFromBoard> pickedCannonFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PickedCannonFromBoard> pickedCannonFromBoardListener = data -> {
+        pickedCannonFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedCannonFromBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             CannonView cannon = new CannonView(data.tileID(), data.connectors(), data.clockwiseRotation(), data.cannonStrength(), 0);
             player.setHand(cannon);
             MiniModel.getInstance().reduceViewableComponents();
 
-            manager.notifyPickedTileFromBoard();
+            manager.notifyPickedHiddenTile(data.nickname());
         };
-        pickedCannonFromBoardReceiver.registerListener(pickedCannonFromBoardListener);
 
         /*
          * Create a new ConnectorsView and set it in the player's hand
          */
-        CastEventReceiver<PickedConnectorsFromBoard> pickedConnectorsFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PickedConnectorsFromBoard> pickedConnectorsFromBoardListener = data -> {
+        pickedConnectorsFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedConnectorsFromBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             ConnectorsView pipes = new ConnectorsView(data.tileID(), data.connectors(), data.clockwiseRotation());
             player.setHand(pipes);
             MiniModel.getInstance().reduceViewableComponents();
 
-            manager.notifyPickedTileFromBoard();
+            manager.notifyPickedHiddenTile(data.nickname());
         };
-        pickedConnectorsFromBoardReceiver.registerListener(pickedConnectorsFromBoardListener);
 
         /*
          * Create a new EngineView and set it in the player's hand
          */
-        CastEventReceiver<PickedEngineFromBoard> pickedEngineFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PickedEngineFromBoard> pickedEngineFromBoardListener = data -> {
+        pickedEngineFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedEngineFromBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             EngineView engine = new EngineView(data.tileID(), data.connectors(), data.clockwiseRotation(), data.cannonStrength(), 0);
             player.setHand(engine);
             MiniModel.getInstance().reduceViewableComponents();
 
-            manager.notifyPickedTileFromBoard();
+            manager.notifyPickedHiddenTile(data.nickname());
         };
-        pickedEngineFromBoardReceiver.registerListener(pickedEngineFromBoardListener);
 
         /*
          * Create a new LifeSupportView and set it in the player's hand
          */
-        CastEventReceiver<PickedLifeSupportFromBoard> pickedLifeSupportFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PickedLifeSupportFromBoard> pickedLifeSupportFromBoardListener = data -> {
+        pickedLifeSupportFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedLifeSupportFromBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             ComponentView lifeSupport;
@@ -611,15 +767,14 @@ public class EventHandlerClient {
             player.setHand(lifeSupport);
             MiniModel.getInstance().reduceViewableComponents();
 
-            manager.notifyPickedTileFromBoard();
+            manager.notifyPickedHiddenTile(data.nickname());
         };
-        pickedLifeSupportFromBoardReceiver.registerListener(pickedLifeSupportFromBoardListener);
 
         /*
          * Create a new ShieldView and set it in the player's hand
          */
-        CastEventReceiver<PickedShieldFromBoard> pickedShieldFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PickedShieldFromBoard> pickedShieldFromBoardListener = data -> {
+        pickedShieldFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedShieldFromBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
             boolean[] shields = new boolean[data.connectors().length];
             shields[data.clockwiseRotation()] = true;
@@ -628,15 +783,14 @@ public class EventHandlerClient {
             player.setHand(shield);
             MiniModel.getInstance().reduceViewableComponents();
 
-            manager.notifyPickedTileFromBoard();
+            manager.notifyPickedHiddenTile(data.nickname());
         };
-        pickedShieldFromBoardReceiver.registerListener(pickedShieldFromBoardListener);
 
         /*
          * Create a new StorageView and set it in the player's hand
          */
-        CastEventReceiver<PickedStorageFromBoard> pickedStorageFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PickedStorageFromBoard> pickedStorageFromBoardListener = data -> {
+        pickedStorageFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedStorageFromBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             StorageView storage = new StorageView(data.tileID(), data.connectors(), data.clockwiseRotation(), false, data.goodsCapacity());
@@ -645,13 +799,30 @@ public class EventHandlerClient {
 
             manager.notifyPickedTileFromBoard();
         };
-        pickedStorageFromBoardReceiver.registerListener(pickedStorageFromBoardListener);
+
+        pickedTileReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedTileListener = data -> {
+            ComponentView tile = MiniModel.getInstance().getViewableComponents().stream()
+                    .filter(component -> component.getID() == data.tileID())
+                    .findFirst()
+                    .orElse(null);
+
+            if (tile != null) {
+                MiniModel.getInstance().getViewableComponents().remove(tile);
+            }
+
+            PlayerDataView player = getPlayerDataView(data.nickname());
+            player.setHand(tile);
+
+            manager.notifyPickedTileFromBoard();
+
+        };
 
         /*
          * Remove a tile from the reserved list and add it into the hand
          */
-        CastEventReceiver<PickedTileFromReserve> pickedTileFromReserveReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PickedTileFromReserve> pickedTileFromReserveListener = data -> {
+        pickedTileFromReserveReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedTileFromReserveListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             ComponentView tile = player.getShip().getDiscardReservedPile().removeDiscardReserved(data.tileID());
@@ -659,37 +830,34 @@ public class EventHandlerClient {
 
             manager.notifyPickedTileFromBoard();
         };
-        pickedTileFromReserveReceiver.registerListener(pickedTileFromReserveListener);
 
         /*
          * Remove the last tile on the ship and add it into the hand
          */
-        CastEventReceiver<PickedTileFromSpaceship> pickedTileFromSpaceshipReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PickedTileFromSpaceship> pickedTileFromSpaceshipListener = data -> {
+        pickedTileFromSpaceshipReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedTileFromSpaceshipListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             player.setHand(player.getShip().removeLast());
 
             manager.notifyPickedTileFromBoard();
         };
-        pickedTileFromSpaceshipReceiver.registerListener(pickedTileFromSpaceshipListener);
 
 
         // PLACED TILE events
-        CastEventReceiver<PlacedMainCabin> placedMainCabinReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PlacedMainCabin> placedMainCabinListener = data -> {
+        placedMainCabinReceiver = new CastEventReceiver<>(this.transceiver);
+        placedMainCabinListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
             CabinView cabin = new CabinView(data.tileID(), data.connectors(), 0);
 
             player.getShip().placeComponent(cabin, 6, 6);
         };
-        placedMainCabinReceiver.registerListener(placedMainCabinListener);
 
         /*
          * Remove the tile from the player's hand and add it to the viewable components
          */
-        CastEventReceiver<PlacedTileToBoard> placedTileToBoardReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PlacedTileToBoard> placedTileToBoardListener = data -> {
+        placedTileToBoardReceiver = new CastEventReceiver<>(this.transceiver);
+        placedTileToBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             MiniModel.getInstance().getViewableComponents().add(player.getHand());
@@ -697,13 +865,12 @@ public class EventHandlerClient {
 
             manager.notifyPlacedTileToBoard(data);
         };
-        placedTileToBoardReceiver.registerListener(placedTileToBoardListener);
 
         /*
          * Remove tile from the player's hand and add it to the reserved pile
          */
-        CastEventReceiver<PlacedTileToReserve> placedTileToReserveReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PlacedTileToReserve> placedTileToReserveListener = data -> {
+        placedTileToReserveReceiver = new CastEventReceiver<>(this.transceiver);
+        placedTileToReserveListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             player.getShip().getDiscardReservedPile().addDiscardReserved(player.getHand());
@@ -711,13 +878,12 @@ public class EventHandlerClient {
 
             manager.notifyPlacedTileToReserve(data);
         };
-        placedTileToReserveReceiver.registerListener(placedTileToReserveListener);
 
         /*
          * Remove tile from the player's hand and add it to the spaceship
          */
-        CastEventReceiver<PlacedTileToSpaceship> placedTileToSpaceshipReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PlacedTileToSpaceship> placedTileToSpaceshipListener = data -> {
+        placedTileToSpaceshipReceiver = new CastEventReceiver<>(this.transceiver);
+        placedTileToSpaceshipListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             player.getShip().placeComponent(player.getHand(), data.row(), data.column());
@@ -725,15 +891,14 @@ public class EventHandlerClient {
 
             manager.notifyPlacedTileToSpaceship(data);
         };
-        placedTileToSpaceshipReceiver.registerListener(placedTileToSpaceshipListener);
 
 
         // PLANETS events
         /*
          * Set the select planet and add the player's marker on the card
          */
-        CastEventReceiver<PlanetSelected> planetSelectedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PlanetSelected> planetSelectedListener = data -> {
+        planetSelectedReceiver = new CastEventReceiver<>(this.transceiver);
+        planetSelectedListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
             PlanetsView card = (PlanetsView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
             card.setPlanetSelected(data.planetNumber());
@@ -741,132 +906,120 @@ public class EventHandlerClient {
 
             manager.notifyPlanetSelected(data);
         };
-        planetSelectedReceiver.registerListener(planetSelectedListener);
 
 
         // PLAYER events
-        CastEventReceiver<EnemyDefeat> enemyDefeatReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<EnemyDefeat> enemyDefeatListener = data -> {
+        enemyDefeatReceiver = new CastEventReceiver<>(this.transceiver);
+        enemyDefeatListener = data -> {
             manager.notifyEnemyDefeat(data);
         };
-        enemyDefeatReceiver.registerListener(enemyDefeatListener);
 
-        CastEventReceiver<MinPlayer> minPlayerReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<MinPlayer> minPlayerListener = data -> {
+        minPlayerReceiver = new CastEventReceiver<>(this.transceiver);
+        minPlayerListener = data -> {
             //TODO
         };
-        minPlayerReceiver.registerListener(minPlayerListener);
 
         /*
          * Move the marker of the player on the board
          */
-        CastEventReceiver<MoveMarker> moveMarkerReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<MoveMarker> moveMarkerListener = data -> {
+        moveMarkerReceiver = new CastEventReceiver<>(this.transceiver);
+        moveMarkerListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
             MiniModel.getInstance().getBoardView().movePlayer(player.getMarkerView(), data.steps());
 
             manager.notifyMoveMarker(data);
         };
-        moveMarkerReceiver.registerListener(moveMarkerListener);
 
         /*
          * Notify the player has given up
          */
-        CastEventReceiver<PlayerGaveUp> playerGaveUpReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PlayerGaveUp> playerGaveUpListener = data -> {
+        playerGaveUpReceiver = new CastEventReceiver<>(this.transceiver);
+        playerGaveUpListener = data -> {
             manager.notifyPlayerGaveUp(data);
         };
-        playerGaveUpReceiver.registerListener(playerGaveUpListener);
 
-        CastEventReceiver<PlayerLost> playerLostReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<PlayerLost> playerLostListener = data -> {
+        playerLostReceiver = new CastEventReceiver<>(this.transceiver);
+        playerLostListener = data -> {
             //TODO
             manager.notifyPlayerLost(data);
         };
-        playerLostReceiver.registerListener(playerLostListener);
 
         /*
          * Notify who is the player who is playing
          */
-        CastEventReceiver<CurrentPlayer> playingReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<CurrentPlayer> playingListener = data -> {
+        playingReceiver = new CastEventReceiver<>(this.transceiver);
+        playingListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
             MiniModel.getInstance().setCurrentPlayer(player);
 
             manager.notifyPlaying(data);
         };
-        playingReceiver.registerListener(playingListener);
 
-        CastEventReceiver<Score> scoreReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<Score> scoreListener = data -> {
+        scoreReceiver = new CastEventReceiver<>(this.transceiver);
+        scoreListener = data -> {
             //TODO
             manager.notifyScore(data);
         };
-        scoreReceiver.registerListener(scoreListener);
+
 
         /*
          * Set the number if coins to the player
          */
-        CastEventReceiver<UpdateCoins> updateCoinsReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<UpdateCoins> updateCoinsListener = data -> {
+        updateCoinsReceiver = new CastEventReceiver<>(this.transceiver);
+        updateCoinsListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             player.setCoins(data.coins());
 
             manager.notifyUpdateCoins(data);
         };
-        updateCoinsReceiver.registerListener(updateCoinsListener);
 
 
         // ROTATED TILE events
         /*
          * Rotate tiles
          */
-        CastEventReceiver<RotatedTile> rotatedGenericReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<RotatedTile> rotatedGenericTileListener = data -> {
+        rotatedGenericReceiver = new CastEventReceiver<>(this.transceiver);
+        rotatedGenericTileListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
-            ComponentView card = player.getHand();
-            card.rotate();
-            switch (card.getType()) {
-                case DOUBLE_CANNON, SINGLE_CANNON -> ((CannonView) card).setArrowRotation(card.getClockWise());
-                case DOUBLE_ENGINE, SINGLE_ENGINE -> ((EngineView) card).setEngineRotation((card.getClockWise() + 2) % data.connectors().length);
+            ComponentView tile = player.getHand();
+            switch (tile.getType()) {
+                case DOUBLE_CANNON, SINGLE_CANNON -> ((CannonView) tile).setArrowRotation(tile.getClockWise());
+                case DOUBLE_ENGINE, SINGLE_ENGINE -> ((EngineView) tile).setEngineRotation((tile.getClockWise() + 2) % data.connectors().length);
                 case SHIELD -> {
                     boolean[] shields = new boolean[data.connectors().length];
-                    shields[card.getClockWise()] = true;
-                    shields[((card.getClockWise() - 1) + data.connectors().length) % data.connectors().length] = true;
-                    ((ShieldView) card).setShields(shields);
+                    shields[tile.getClockWise()] = true;
+                    shields[((tile.getClockWise() - 1) + data.connectors().length) % data.connectors().length] = true;
+                    ((ShieldView) tile).setShields(shields);
                 }
             }
-            card.setConnectors(data.connectors());
+            tile.rotate();
+            tile.setConnectors(data.connectors());
 
             manager.notifyRotatedTile(data);
         };
-        rotatedGenericReceiver.registerListener(rotatedGenericTileListener);
+
 
         // SPACESHIP events
         /*
          * Notify the best looking ships
          */
-        CastEventReceiver<BestLookingShips> bestLookingShipsReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<BestLookingShips> bestLookingShipsListener = data -> {
-            manager.notifyBestLookingShips(data);
-        };
-        bestLookingShipsReceiver.registerListener(bestLookingShipsListener);
+        bestLookingShipsReceiver = new CastEventReceiver<>(this.transceiver);
+        bestLookingShipsListener = manager::notifyBestLookingShips;
+
 
         /*
          *
          */
-        CastEventReceiver<CanProtect> canProtectReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<CanProtect> canProtectListener = data -> {
-            manager.notifyCanProtect(data);
-        };
-        canProtectReceiver.registerListener(canProtectListener);
+        canProtectReceiver = new CastEventReceiver<>(this.transceiver);
+        canProtectListener = manager::notifyCanProtect;
+
 
         /*
          * Move the tiles from the board to the discard pile
          */
-        CastEventReceiver<ComponentDestroyed> componentDestroyedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<ComponentDestroyed> componentDestroyedListener = data -> {
+        componentDestroyedReceiver = new CastEventReceiver<>(this.transceiver);
+        componentDestroyedListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             if (player != null) {
@@ -878,13 +1031,13 @@ public class EventHandlerClient {
 
             manager.notifyComponentDestroyed(data);
         };
-        componentDestroyedReceiver.registerListener(componentDestroyedListener);
+
 
         /*
          * Set the fragments of the ship
          */
-        CastEventReceiver<Fragments> fragmentsReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<Fragments> fragmentsListener = data -> {
+        fragmentsReceiver = new CastEventReceiver<>(this.transceiver);
+        fragmentsListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             if (player != null) {
@@ -893,13 +1046,13 @@ public class EventHandlerClient {
 
             manager.notifyFragments(data);
         };
-        fragmentsReceiver.registerListener(fragmentsListener);
+
 
         /*
          * Set wrong tiles
          */
-        CastEventReceiver<InvalidComponents> invalidComponentsReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<InvalidComponents> invalidComponentsListener = data -> {
+        invalidComponentsReceiver = new CastEventReceiver<>(this.transceiver);
+        invalidComponentsListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
             ComponentView[][] ship = player.getShip().getSpaceShip();
             for (ComponentView[] componentViews : ship) {
@@ -915,23 +1068,21 @@ public class EventHandlerClient {
 
             manager.notifyInvalidComponents(data);
         };
-        invalidComponentsReceiver.registerListener(invalidComponentsListener);
 
 
-        CastEventReceiver<NextHit> nextHitReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<NextHit> nextHitListener = data -> {
+        nextHitReceiver = new CastEventReceiver<>(this.transceiver);
+        nextHitListener = data -> {
             MeteorSwarmView card = (MeteorSwarmView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
             card.nextHit();
 
             manager.notifyNextHit(data);
         };
-        nextHitReceiver.registerListener(nextHitListener);
 
         /*
          * Update crew members
          */
-        CastEventReceiver<UpdateCrewMembers> updateCrewMembersReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<UpdateCrewMembers> updateCrewMembersListener = data -> {
+        updateCrewMembersReceiver = new CastEventReceiver<>(this.transceiver);
+        updateCrewMembersListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             for (Triplet<Integer, Integer, Integer> cabin : data.cabins()) {
@@ -948,13 +1099,13 @@ public class EventHandlerClient {
 
             manager.notifyUpdateCrewMembers(data);
         };
-        updateCrewMembersReceiver.registerListener(updateCrewMembersListener);
+
 
         /*
          * Start the timer for the building phase
          */
-        CastEventReceiver<TimerFlipped> timerFlippedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<TimerFlipped> timerFlippedListener = data -> {
+        timerFlippedReceiver = new CastEventReceiver<>(this.transceiver);
+        timerFlippedListener = data -> {
             new Thread(() -> {
                 MiniModel.getInstance().getTimerView().setFlippedTimer(getPlayerDataView(data.nickname()));
                 LocalDateTime serverTime = LocalDateTime.parse(data.startingTime());
@@ -972,15 +1123,11 @@ public class EventHandlerClient {
                 }
             }).start();
         };
-        timerFlippedReceiver.registerListener(timerFlippedListener);
 
 
 
-        CastEventReceiver<StateChanged> stateChangedReceiver = new CastEventReceiver<>(this.transceiver);
-        EventListener<StateChanged> stateChangedListener = data -> {
-            manager.notifyStateChange(data);
-        };
-        stateChangedReceiver.registerListener(stateChangedListener);
+        stateChangedReceiver =  new CastEventReceiver<>(this.transceiver);
+        stateChangedListener = manager::notifyStateChange;
     }
 
     private PlayerDataView getPlayerDataView(String nickname) {
@@ -992,5 +1139,72 @@ public class EventHandlerClient {
                 .filter(p -> p.getUsername().equals(nickname))
                 .findFirst()
                 .orElse(null);
+    }
+
+    private void registerListeners() {
+        lobbiesReceiver.registerListener(lobbiesListener);
+        lobbyCreatedReceiver.registerListener(lobbyCreatedListener);
+        lobbyJoinedReceiver.registerListener(lobbyJoinedListener);
+        lobbyLeftReceiver.registerListener(lobbyLeftListener);
+        lobbyRemovedReceiver.registerListener(lobbyRemovedListener);
+        playerAddedReceiver.registerListener(playerAddedListener);
+        playerReadyReceiver.registerListener(playerReadyListener);
+        startingGameReceiver.registerListener(startingGameListener);
+        getCardAbandonedShipReceiver.registerListener(getCardAbandonedShipListener);
+        getCardAbandonedStationReceiver.registerListener(getCardAbandonedStationListener);
+        getCardCombatZoneReceiver.registerListener(getCardCombatZoneListener);
+        getCardEpidemicReceiver.registerListener(getCardEpidemicListener);
+        getCardMeteorSwarmReceiver.registerListener(getCardMeteorSwarmListener);
+        getCardOpenSpaceReceiver.registerListener(getCardOpenSpaceListener);
+        getCardPiratesReceiver.registerListener(getCardPiratesListener);
+        getCardPlanetsReceiver.registerListener(getCardPlanetsListener);
+        getCardSlaversReceiver.registerListener(getCardSlaversListener);
+        getCardSmugglersReceiver.registerListener(getCardSmugglersListener);
+        getCardStardustReceiver.registerListener(getCardStardustListener);
+        drawCardReceiver.registerListener(getCardDrawListener);
+        getDecksReceiver.registerListener(getDecksListener);
+        getShuffledDeckReceiver.registerListener(getShuffledDeckListener);
+        pickedLeftDeckReceiver.registerListener(pickedLeftDeckListener);
+        diceRolledReceiver.registerListener(diceRolledListener);
+        batteriesUsedReceiver.registerListener(getBatteriesUsedListener);
+        cannonsUsedReceiver.registerListener(cannonsUsedListener);
+        enginesUsedReceiver.registerListener(enginesUsedListener);
+        shieldUsedReceiver.registerListener(shieldUsedListener);
+        goodsSwappedReceiver.registerListener(goodsSwappedListener);
+        updateGoodsExchangeReceiver.registerListener(updateGoodsExchangeListener);
+        pickedBatteryFromBoardReceiver.registerListener(pickedBatteryFromBoardListener);
+        pickedCabinFromBoardReceiver.registerListener(pickedCabinFromBoardListener);
+        pickedCannonFromBoardReceiver.registerListener(pickedCannonFromBoardListener);
+        pickedConnectorsFromBoardReceiver.registerListener(pickedConnectorsFromBoardListener);
+        pickedEngineFromBoardReceiver.registerListener(pickedEngineFromBoardListener);
+        pickedLifeSupportFromBoardReceiver.registerListener(pickedLifeSupportFromBoardListener);
+        pickedShieldFromBoardReceiver.registerListener(pickedShieldFromBoardListener);
+        pickedStorageFromBoardReceiver.registerListener(pickedStorageFromBoardListener);
+        pickedTileReceiver.registerListener(pickedTileListener);
+        pickedTileFromReserveReceiver.registerListener(pickedTileFromReserveListener);
+        pickedTileFromSpaceshipReceiver.registerListener(pickedTileFromSpaceshipListener);
+        placedMainCabinReceiver.registerListener(placedMainCabinListener);
+        placedTileToBoardReceiver.registerListener(placedTileToBoardListener);
+        placedTileToReserveReceiver.registerListener(placedTileToReserveListener);
+        placedTileToSpaceshipReceiver.registerListener(placedTileToSpaceshipListener);
+        planetSelectedReceiver.registerListener(planetSelectedListener);
+        enemyDefeatReceiver.registerListener(enemyDefeatListener);
+        minPlayerReceiver.registerListener(minPlayerListener);
+        moveMarkerReceiver.registerListener(moveMarkerListener);
+        playerGaveUpReceiver.registerListener(playerGaveUpListener);
+        playerLostReceiver.registerListener(playerLostListener);
+        playingReceiver.registerListener(playingListener);
+        scoreReceiver.registerListener(scoreListener);
+        updateCoinsReceiver.registerListener(updateCoinsListener);
+        rotatedGenericReceiver.registerListener(rotatedGenericTileListener);
+        bestLookingShipsReceiver.registerListener(bestLookingShipsListener);
+        canProtectReceiver.registerListener(canProtectListener);
+        componentDestroyedReceiver.registerListener(componentDestroyedListener);
+        fragmentsReceiver.registerListener(fragmentsListener);
+        invalidComponentsReceiver.registerListener(invalidComponentsListener);
+        nextHitReceiver.registerListener(nextHitListener);
+        updateCrewMembersReceiver.registerListener(updateCrewMembersListener);
+        timerFlippedReceiver.registerListener(timerFlippedListener);
+        stateChangedReceiver.registerListener(stateChangedListener);
     }
 }
