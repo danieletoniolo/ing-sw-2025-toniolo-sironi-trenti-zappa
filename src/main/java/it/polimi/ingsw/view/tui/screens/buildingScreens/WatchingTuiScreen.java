@@ -8,7 +8,7 @@ import it.polimi.ingsw.view.tui.screens.TuiScreens;
 public class WatchingTuiScreen extends BuildingTuiScreen {
 
     public WatchingTuiScreen() {
-        super();
+        super(null);
 
         options.clear();
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {

@@ -157,7 +157,6 @@ public class EventHandlerClient {
                     .ifPresent(lobby -> MiniModel.getInstance().getLobbiesView().remove(lobby));
 
             MiniModel.getInstance().setCurrentLobby(null);
-            MiniModel.getInstance().setCurrentPlayer(null);
             manager.notifyLobbyRemoved(data);
         };
         lobbyRemovedReceiver.registerListener(lobbyRemovedListener);
@@ -184,6 +183,8 @@ public class EventHandlerClient {
         CastEventReceiver<ReadyPlayer> playerReadyReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<ReadyPlayer> playerReadyListener = data -> {
             MiniModel.getInstance().getCurrentLobby().setPlayerStatus(data.nickname(), data.isReady());
+
+            manager.notifyReadyPlayer();
         };
         playerReadyReceiver.registerListener(playerReadyListener);
 

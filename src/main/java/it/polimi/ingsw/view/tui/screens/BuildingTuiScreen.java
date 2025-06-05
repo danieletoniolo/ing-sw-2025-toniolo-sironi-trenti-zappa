@@ -1,11 +1,5 @@
 package it.polimi.ingsw.view.tui.screens;
 
-import it.polimi.ingsw.event.game.clientToServer.deck.PickLeaveDeck;
-import it.polimi.ingsw.event.game.clientToServer.pickTile.PickTileFromBoard;
-import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToReserve;
-import it.polimi.ingsw.event.game.serverToClient.status.Pota;
-import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.Client;
 import org.javatuples.Pair;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -16,7 +10,6 @@ import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.miniModel.timer.TimerView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
-import it.polimi.ingsw.view.tui.screens.buildingScreens.RowAndColTuiScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +31,10 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
     private final TimerView timerView = MiniModel.getInstance().getTimerView();
     protected int selected;
 
-    public BuildingTuiScreen(List<String> options) {
+    public BuildingTuiScreen(List<String> otherOptions) {
         this.decksView = MiniModel.getInstance().getDeckViews();
 
-        this.options.addAll(options);
+        if (otherOptions != null && !otherOptions.isEmpty()) options.addAll(otherOptions);
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
             options.add("View " + p.getUsername() + "'s spaceship");
         }
@@ -58,6 +51,7 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
     public TuiScreenView setNewScreen() {
         if ((selected < options.size() - 1) && (selected >= options.size() - 1 - MiniModel.getInstance().getOtherPlayers().size())) {
             int i = selected - (options.size() - MiniModel.getInstance().getOtherPlayers().size() - 1);
+
             return new PlayerTuiScreen(MiniModel.getInstance().getOtherPlayers().get(i), this);
         }
 
