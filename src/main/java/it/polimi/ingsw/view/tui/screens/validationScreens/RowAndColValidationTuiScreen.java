@@ -20,13 +20,12 @@ public class RowAndColValidationTuiScreen extends ValidationTuiScreen {
     @Override
     public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
         rowAndCol = parser.getRowAndCol("Type coordinates to destroy a component (row col):", totalLines, isStillCurrentScreen);
-
     }
 
     @Override
     public TuiScreenView setNewScreen() {
         destroyTiles.add(rowAndCol);
-        spaceShipView.removeComponent(rowAndCol.getValue0(), rowAndCol.getValue1());
+        spaceShipView.removeComponent(rowAndCol.getValue0() -1, rowAndCol.getValue1() - 1);
         return oldScreen;
     }
 }

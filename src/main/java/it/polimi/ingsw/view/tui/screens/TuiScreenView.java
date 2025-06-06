@@ -18,4 +18,11 @@ public interface TuiScreenView {
     void setMessage(String message);
 
     TuiScreens getType();
+
+    /**
+     * This method is used when the TuiManger has to decide which screen to show to the client
+     * as a consequence of an event, while the client is waiting for the TAC
+     * @param nextScreen the screen tu show after the TAC
+     */
+    void setNextScreen(TuiScreenView nextScreen);
 }

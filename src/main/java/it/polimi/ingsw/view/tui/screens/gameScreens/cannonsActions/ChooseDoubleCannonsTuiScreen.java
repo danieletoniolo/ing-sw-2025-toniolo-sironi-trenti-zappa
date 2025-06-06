@@ -15,7 +15,7 @@ public class ChooseDoubleCannonsTuiScreen extends MangerCannonsTuiScreen {
             spaceShipView.getMapDoubleCannons().forEach(
                     (key, value) -> {
                         if (!cannonsIDs.contains(key)) {
-                            add("Active double cannons (" + value.getRow() + " " + value.getCol() + ")");
+                            add("Active double cannon (" + value.getRow() + " " + value.getCol() + ")");
                         }
                     }
             );

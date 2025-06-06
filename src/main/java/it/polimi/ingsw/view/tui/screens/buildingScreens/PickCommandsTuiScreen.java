@@ -3,6 +3,7 @@ package it.polimi.ingsw.view.tui.screens.buildingScreens;
 import it.polimi.ingsw.Client;
 import it.polimi.ingsw.event.game.clientToServer.pickTile.PickTileFromBoard;
 import it.polimi.ingsw.event.game.clientToServer.pickTile.PickTileFromReserve;
+import it.polimi.ingsw.event.game.clientToServer.pickTile.PickTileFromSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.PickedTileFromReserve;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
@@ -16,9 +17,10 @@ public class PickCommandsTuiScreen extends BuildingTuiScreen {
 
     public PickCommandsTuiScreen() {
         super(new ArrayList<>(){{
-            add("Pick an hidden tile");
-            add("Pick a tile from the pile");
-            add("Pick a tile from the reserved pile");
+            add("Pick an hidden component");
+            add("Pick from the pile");
+            add("Pick last component put on the spaceship");
+            add("Pick from the reserved pile");
             add("Back");
         }});
     }
@@ -41,6 +43,13 @@ public class PickCommandsTuiScreen extends BuildingTuiScreen {
         }
 
         if (selected == 2) {
+            status = PickTileFromSpaceship.requester(Client.transceiver, new Object()).request(new PickTileFromSpaceship(MiniModel.getInstance().getUserID()));
+            if (status.get().equals("POTA")) {
+                setMessage(((Pota) status).errorMessage());
+            }
+        }
+
+        if (selected == 3) {
             return new PickReservedTuiScreen();
         }
 

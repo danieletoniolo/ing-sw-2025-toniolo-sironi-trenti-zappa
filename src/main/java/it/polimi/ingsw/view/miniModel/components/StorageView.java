@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 
 public class StorageView extends ComponentView {
@@ -36,6 +37,19 @@ public class StorageView extends ComponentView {
                 goods[i] = null;
             }
         }
+    }
+
+    public GoodView removeOneGood() {
+        int i = 0;
+        for (i = 0; i < goods.length; i++) {
+            if (goods[i] != null) {
+                break;
+            }
+        }
+
+        GoodView good = goods[i];
+        goods[i] = null;
+        return good;
     }
 
     public void changeGoods(GoodView[] newGoods) {

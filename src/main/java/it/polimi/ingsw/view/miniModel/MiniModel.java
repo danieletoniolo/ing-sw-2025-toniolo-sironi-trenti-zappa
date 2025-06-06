@@ -33,12 +33,21 @@ public class MiniModel {
 
     private PlayerDataView currentPlayer;
     private LobbyView currentLobby;
+    private GamePhases phase;
 
     public static MiniModel getInstance() {
         if (instance == null) {
             instance = new MiniModel();
         }
         return instance;
+    }
+
+    public void setGamePhase(int phase) {
+        this.phase = GamePhases.fromValue(phase);
+    }
+
+    public GamePhases getGamePhase() {
+        return phase;
     }
 
     public synchronized void reduceViewableComponents() {

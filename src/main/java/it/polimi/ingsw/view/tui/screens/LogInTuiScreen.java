@@ -67,4 +67,9 @@ public class LogInTuiScreen implements TuiScreenView {
     public TuiScreens getType() {
         return TuiScreens.LogIn;
     }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
+    }
 }

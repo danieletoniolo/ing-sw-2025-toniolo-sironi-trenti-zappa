@@ -77,4 +77,9 @@ public class PlayerTuiScreen implements TuiScreenView {
     public TuiScreens getType() {
         return TuiScreens.Player;
     }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
+    }
 }

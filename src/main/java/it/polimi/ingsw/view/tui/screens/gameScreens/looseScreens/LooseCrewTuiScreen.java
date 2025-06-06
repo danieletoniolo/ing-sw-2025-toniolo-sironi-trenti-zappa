@@ -17,12 +17,15 @@ import java.util.Map;
 
 public class LooseCrewTuiScreen extends GameTuiScreen {
     private static List<Integer> cabinIDs;
+    private static boolean reset;
+    private final TuiScreenView nextScreen;
 
-    public LooseCrewTuiScreen() {
+    public LooseCrewTuiScreen(TuiScreenView nextScreen) {
         super(new ArrayList<>(){{
-            if (spaceShipView == null) {
+            if (!reset) {
                 spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
             }
+            if (!reset) reset = true;
             addAll(
                     spaceShipView.getMapCabins().values().stream()
                             .filter(cabin -> cabin.getCrewNumber() != 0)
@@ -35,11 +38,13 @@ public class LooseCrewTuiScreen extends GameTuiScreen {
         if (cabinIDs == null) {
             cabinIDs = new ArrayList<>();
         }
+        this.nextScreen = nextScreen;
     }
 
     private void destroyStatic() {
         cabinIDs = null;
-        spaceShipView = clientPlayer.getShip();
+        reset = false;
+        setMessage(null);
     }
 
     @Override
@@ -58,28 +63,35 @@ public class LooseCrewTuiScreen extends GameTuiScreen {
 
         if (selected == num) {
             destroyStatic();
-            return new LooseCrewTuiScreen();
+            return new LooseCrewTuiScreen(nextScreen);
         }
 
         if (selected == num + 1) {
             StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object())
                     .request(new SetPenaltyLoss(MiniModel.getInstance().getUserID(), 2, cabinIDs));
+            destroyStatic();
             if (status.get().equals("POTA")) {
                 setMessage(((Pota) status).errorMessage());
-                spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
-                return new LooseCrewTuiScreen();
+                return new LooseCrewTuiScreen(nextScreen);
             }
-            spaceShipView = null;
-            return new NotClientTurnTuiScreen();
+            spaceShipView = clientPlayer.getShip();
+            return nextScreen;
         }
 
         spaceShipView.getMapCabins().entrySet().stream()
                 .filter(entry -> entry.getValue().getCrewNumber() != 0)
-                .map(Map.Entry::getKey)
                 .skip(selected)
                 .findFirst()
-                .ifPresent(cabinIDs::add);
+                .ifPresent(entry -> {
+                    cabinIDs.add(entry.getKey());
+                    entry.getValue().setCrewNumber(entry.getValue().getCrewNumber() - 1);
+                });
 
-        return new LooseCrewTuiScreen();
+        StringBuilder line = new StringBuilder();
+        for (Integer integer : cabinIDs) {
+            line.append(spaceShipView.getMapCabins().get(integer).getCrewType().drawTui()).append("(").append(spaceShipView.getMapCabins().get(integer).getRow()).append(" ").append(spaceShipView.getMapCabins().get(integer).getCol()).append(") ");
+        }
+        setMessage("You are loosing a crew member from " + line);
+        return new LooseCrewTuiScreen(nextScreen);
     }
 }

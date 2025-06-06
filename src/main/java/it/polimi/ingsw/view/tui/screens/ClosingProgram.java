@@ -30,4 +30,9 @@ public class ClosingProgram implements TuiScreenView{
     public TuiScreens getType() {
         return TuiScreens.Ending;
     }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
+    }
 }

@@ -72,7 +72,7 @@ public class SpaceShipView implements Structure {
     }
 
     public ComponentView removeLast() {
-        return removeComponent(last.getRow(), last.getCol());
+        return removeComponent(last.getRow() - 1, last.getCol() - 1);
     }
 
     public ComponentView removeComponent(int row, int col) {

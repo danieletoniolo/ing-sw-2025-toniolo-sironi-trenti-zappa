@@ -96,4 +96,9 @@ public class LobbyTuiScreen implements TuiScreenView {
     public TuiScreens getType() {
         return TuiScreens.Lobby;
     }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
+    }
 }

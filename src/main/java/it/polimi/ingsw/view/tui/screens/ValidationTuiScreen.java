@@ -135,4 +135,9 @@ public class ValidationTuiScreen implements TuiScreenView {
             TerminalUtils.printLine(writer, "", i);
         }
     }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
+    }
 }

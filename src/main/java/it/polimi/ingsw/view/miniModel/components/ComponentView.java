@@ -59,13 +59,11 @@ public abstract class ComponentView implements Structure {
         this.clockWise = clockWise;
     }
 
+    // GUI methods
     @Override
     public void drawGui(){}
 
-    public static int getRowsToDraw() {
-        return 3;
-    }
-
+    // TUI methods
     @Override
     public String drawLineTui(int line) throws IndexOutOfBoundsException{
         String str = switch (line) {
@@ -76,6 +74,10 @@ public abstract class ComponentView implements Structure {
         };
 
         return isWrong ? red + str + reset : str;
+    }
+
+    public static int getRowsToDraw() {
+        return 3;
     }
 
     protected String drawLeft(int line) {
@@ -139,7 +141,7 @@ public abstract class ComponentView implements Structure {
     public abstract TilesTypeView getType();
 
     public void setRow(int row) {
-        this.row = row;
+        this.row = row + 1;
     }
 
     public int getRow() {
@@ -147,7 +149,7 @@ public abstract class ComponentView implements Structure {
     }
 
     public void setCol(int col) {
-        this.col = col;
+        this.col = col + 1;
     }
 
     public int getCol() {

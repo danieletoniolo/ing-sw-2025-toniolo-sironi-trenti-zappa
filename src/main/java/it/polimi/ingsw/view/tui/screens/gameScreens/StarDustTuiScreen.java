@@ -6,5 +6,6 @@ public class StarDustTuiScreen extends GameTuiScreen {
 
     public StarDustTuiScreen() {
         super(null);
+        setMessage("Sensor report: high-density star dust incoming.");
     }
 }

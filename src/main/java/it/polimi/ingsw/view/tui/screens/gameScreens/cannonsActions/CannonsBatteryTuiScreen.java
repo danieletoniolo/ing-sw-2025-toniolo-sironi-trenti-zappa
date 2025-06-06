@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.cannonsActions;
 
 import it.polimi.ingsw.event.game.clientToServer.energyUse.UseCannons;
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.Client;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 
 public class CannonsBatteryTuiScreen extends MangerCannonsTuiScreen{
     private final TuiScreenView oldScreen;
+    private TuiScreenView nextScreen;
 
     public CannonsBatteryTuiScreen(TuiScreenView oldScreen) {
         super(new ArrayList<>(){{
@@ -55,15 +57,23 @@ public class CannonsBatteryTuiScreen extends MangerCannonsTuiScreen{
         }
 
         if (selected == num + 1) {
-            StatusEvent status = UseCannons.requester(Client.transceiver, new Object()).request(new UseCannons(MiniModel.getInstance().getUserID(), cannonsIDs, batteriesIDs));
+            StatusEvent status;
+            status = UseCannons.requester(Client.transceiver, new Object()).request(new UseCannons(MiniModel.getInstance().getUserID(), cannonsIDs, batteriesIDs));
             if (status.get().equals("POTA")) {
-                oldScreen.setMessage(((Pota) status).errorMessage());
+                setMessage(((Pota) status).errorMessage());
+                return oldScreen;
             }
             else {
-                oldScreen.setMessage(null);
+                setMessage(null);
             }
+            status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+            if (status.get().equals("POTA")) {
+                setMessage(((Pota) status).errorMessage());
+                return oldScreen;
+            }
+
             destroyStatic();
-            return oldScreen;
+            return nextScreen; // This screen is set by the TuiManager in the notifyEnemyDefeat method
         }
 
         spaceShipView.getMapBatteries().entrySet().stream()
@@ -88,5 +98,10 @@ public class CannonsBatteryTuiScreen extends MangerCannonsTuiScreen{
         TuiScreenView newScreen = new CannonsBatteryTuiScreen(oldScreen);
         newScreen.setMessage("You are activating " + line);
         return newScreen;
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+        this.nextScreen = nextScreen;
     }
 }

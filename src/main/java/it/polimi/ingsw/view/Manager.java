@@ -5,6 +5,7 @@ import it.polimi.ingsw.event.game.serverToClient.deck.*;
 import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
+import it.polimi.ingsw.event.game.serverToClient.pickedTile.PickedTileFromSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.planets.PlanetSelected;
 import it.polimi.ingsw.event.game.serverToClient.player.*;
@@ -58,6 +59,8 @@ public interface Manager {
     // Picked tile
     void notifyPickedTileFromBoard();
 
+    void notifyPickedTileFromSpaceShip(PickedTileFromSpaceship data);
+
     void notifyPickedHiddenTile(String nickname);
 
     // Placed tile
@@ -109,5 +112,5 @@ public interface Manager {
     void notifyTimer();
 
 
-    void notifyStateChange(StateChanged data);
+    void notifyStateChange();
 }

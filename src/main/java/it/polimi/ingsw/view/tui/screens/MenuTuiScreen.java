@@ -83,7 +83,6 @@ public class MenuTuiScreen implements TuiScreenView {
         }
 
         return new LobbyTuiScreen();
-
     }
 
     @Override
@@ -94,5 +93,10 @@ public class MenuTuiScreen implements TuiScreenView {
     @Override
     public TuiScreens getType() {
         return TuiScreens.Menu;
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
     }
 }

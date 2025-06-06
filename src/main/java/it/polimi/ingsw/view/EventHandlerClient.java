@@ -117,8 +117,8 @@ public class EventHandlerClient {
     private final CastEventReceiver<DiceRolled> diceRolledReceiver;
     private final EventListener<DiceRolled> diceRolledListener;
 
-    private final CastEventReceiver<BatteriesLoss> batteriesUsedReceiver;
-    private final EventListener<BatteriesLoss> getBatteriesUsedListener;
+    private final CastEventReceiver<BatteriesLoss> batteriesLossReceiver;
+    private final EventListener<BatteriesLoss> getBatteriesLossListener;
 
     private final CastEventReceiver<CannonsUsed> cannonsUsedReceiver;
     private final EventListener<CannonsUsed> cannonsUsedListener;
@@ -596,8 +596,8 @@ public class EventHandlerClient {
         };
 
         // ENERGY USED events
-        batteriesUsedReceiver = new CastEventReceiver<>(this.transceiver);
-        getBatteriesUsedListener = data -> {
+        batteriesLossReceiver = new CastEventReceiver<>(this.transceiver);
+        getBatteriesLossListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
             for (Pair<Integer, Integer> pair : data.batteriesIDs()) {
                 player.getShip().getMapBatteries().get(pair.getValue0()).setNumberOfBatteries(pair.getValue1());
@@ -845,10 +845,9 @@ public class EventHandlerClient {
         pickedTileFromSpaceshipReceiver = new CastEventReceiver<>(this.transceiver);
         pickedTileFromSpaceshipListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
-
             player.setHand(player.getShip().removeLast());
 
-            manager.notifyPickedTileFromBoard();
+            manager.notifyPickedTileFromSpaceShip(data);
         };
 
 
@@ -1078,9 +1077,10 @@ public class EventHandlerClient {
 
         nextHitReceiver = new CastEventReceiver<>(this.transceiver);
         nextHitListener = data -> {
-            MeteorSwarmView card = (MeteorSwarmView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
-            card.nextHit();
-
+            if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
+                MeteorSwarmView card = (MeteorSwarmView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
+                card.nextHit();
+            }
             manager.notifyNextHit(data);
         };
 
@@ -1095,8 +1095,6 @@ public class EventHandlerClient {
                 CabinView c = player.getShip().getMapCabins().get(cabin.getValue0());
                 if (cabin.getValue2() == 1) {
                     c.setCrewNumber(0);
-                    c.setBrownAlien(false);
-                    c.setPurpleAlien(false);
                 }
                 else {
                     c.setCrewNumber(cabin.getValue1());
@@ -1130,10 +1128,11 @@ public class EventHandlerClient {
             }).start();
         };
 
-
-
         stateChangedReceiver =  new CastEventReceiver<>(this.transceiver);
-        stateChangedListener = manager::notifyStateChange;
+        stateChangedListener = data -> {
+            MiniModel.getInstance().setGamePhase(data.newState());
+            manager.notifyStateChange();
+        };
     }
 
     private PlayerDataView getPlayerDataView(String nickname) {
@@ -1172,7 +1171,7 @@ public class EventHandlerClient {
         getShuffledDeckReceiver.registerListener(getShuffledDeckListener);
         pickedLeftDeckReceiver.registerListener(pickedLeftDeckListener);
         diceRolledReceiver.registerListener(diceRolledListener);
-        batteriesUsedReceiver.registerListener(getBatteriesUsedListener);
+        batteriesLossReceiver.registerListener(getBatteriesLossListener);
         cannonsUsedReceiver.registerListener(cannonsUsedListener);
         enginesUsedReceiver.registerListener(enginesUsedListener);
         shieldUsedReceiver.registerListener(shieldUsedListener);

@@ -42,4 +42,9 @@ public class RewardTuiScreen implements TuiScreenView {
     public TuiScreens getType() {
         return TuiScreens.Reward;
     }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
+    }
 }

@@ -108,4 +108,9 @@ public class ModifyCrewTuiScreen implements TuiScreenView{
     protected String lineBeforeInput() {
         return "Commands";
     }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
+    }
 }

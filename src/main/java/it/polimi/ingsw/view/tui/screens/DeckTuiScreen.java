@@ -68,4 +68,9 @@ public class DeckTuiScreen implements TuiScreenView {
     public TuiScreens getType() {
         return TuiScreens.Deck;
     }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
+    }
 }

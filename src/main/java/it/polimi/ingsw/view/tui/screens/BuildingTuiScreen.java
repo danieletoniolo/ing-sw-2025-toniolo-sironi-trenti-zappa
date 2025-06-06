@@ -188,4 +188,9 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
             line.setLength(0);
         }
     }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
+    }
 }

@@ -88,4 +88,9 @@ public class ChoosePositionTuiScreen implements TuiScreenView {
     public TuiScreens getType() {
         return TuiScreens.ChoosePosition;
     }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
+    }
 }

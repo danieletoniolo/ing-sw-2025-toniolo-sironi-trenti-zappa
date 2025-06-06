@@ -75,7 +75,7 @@ public abstract class GameTuiScreen implements TuiScreenView {
                 line.append(" ".repeat(Math.max(0, boardView.getColsToDraw())));
             }
 
-            line.append("                       ");
+            line.append("              ");
             if (i < DeckView.getRowsToDraw()) {
                 line.append(shuffledDeckView.drawLineTui(i));
             } else {
@@ -135,5 +135,10 @@ public abstract class GameTuiScreen implements TuiScreenView {
     @Override
     public TuiScreens getType() {
         return TuiScreens.Game;
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
     }
 }
