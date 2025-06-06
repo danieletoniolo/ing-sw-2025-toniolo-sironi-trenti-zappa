@@ -582,6 +582,11 @@ public class EventHandlerClient {
          */
         pickedLeftDeckReceiver = new CastEventReceiver<>(this.transceiver);
         pickedLeftDeckListener = data -> {
+            Pair<DeckView[], Boolean[]> decksView = MiniModel.getInstance().getDeckViews();
+            if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
+                decksView.getValue1()[data.deckIndex()] = data.usage() == 1;
+                decksView.getValue0()[data.deckIndex()].setCovered(false);
+            }
             MiniModel.getInstance().getDeckViews().getValue1()[data.deckIndex()] = data.usage() == 1;
 
             manager.notifyPickedLeftDeck(data);

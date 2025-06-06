@@ -19,8 +19,6 @@ public class MiniModel {
     private final LogInView logInView = new LogInView();
     private final ArrayList<LobbyView> lobbiesView = new ArrayList<>();
     private CountDown countDown;
-    /** The decks are stored in a Pair: The first element is the deck views, and the second element is a boolean array.
-    If boolean[i] == true the deck[i] is not taken by a player, else deck is taken and not viewable in the building screen*/
     private final DeckView shuffledDeckView = new DeckView();
     private BoardView boardView;
     private final ArrayList<PlayerDataView> otherPlayers = new ArrayList<>();

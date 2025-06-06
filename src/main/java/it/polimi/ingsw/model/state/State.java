@@ -63,7 +63,7 @@ public abstract class State implements Serializable {
         this.board = board;
         this.eventCallback = eventCallback;
         this.transitionHandler = transitionHandler;
-        this.players = board.getInGamePlayers();
+        this.players = new ArrayList<>(board.getInGamePlayers());
         this.playersStatus = new HashMap<>();
         for (PlayerData player : players) {
             this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
@@ -159,7 +159,7 @@ public abstract class State implements Serializable {
 
     public void giveUp(PlayerData player) throws NullPointerException {
         player.setGaveUp(true);
-        this.players = this.board.getInGamePlayers();
+        this.players = new ArrayList<>(this.board.getInGamePlayers());
 
         PlayerGaveUp playerGaveUpEvent = new PlayerGaveUp(player.getUsername());
         eventCallback.trigger(playerGaveUpEvent);

@@ -24,6 +24,8 @@ public class BoardView implements Structure {
     public static String Bow3 = "╰";
     public static String Bow4 = "╯";
     private TimerView timerView;
+    /** The decks are stored in a Pair: The first element is the deck views, and the second element is a boolean array.
+     If boolean[i] == true the deck[i] is not taken by a player, else deck is taken and not viewable in the building screen*/
     private Pair<DeckView[], Boolean[]> decksView;
 
 

@@ -1,5 +1,10 @@
 package it.polimi.ingsw.view.tui.screens;
 
+import it.polimi.ingsw.Client;
+import it.polimi.ingsw.event.game.clientToServer.deck.PickLeaveDeck;
+import it.polimi.ingsw.event.game.serverToClient.status.Pota;
+import it.polimi.ingsw.event.type.StatusEvent;
+import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.MainCommandsTuiScreen;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
@@ -32,6 +37,11 @@ public class DeckTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
+        StatusEvent status = PickLeaveDeck.requester(Client.transceiver, new Object()).request(new PickLeaveDeck(MiniModel.getInstance().getUserID(), 1, (num - 1)));
+        if (status.get().equals("POTA")) {
+            setMessage(((Pota) status).errorMessage());
+            return this;
+        }
         return new MainCommandsTuiScreen();
     }
 

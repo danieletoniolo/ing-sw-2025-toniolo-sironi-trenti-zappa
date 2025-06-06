@@ -139,7 +139,7 @@ public class BuildingState extends State {
                 eventCallback.trigger(pickLeaveDeckEvent);
             }
             case 1 -> {
-                // TODO: we miss the method to leave the deck
+                board.leaveDeck(deckIndex, player);
                 eventCallback.trigger(pickLeaveDeckEvent);
             }
         }

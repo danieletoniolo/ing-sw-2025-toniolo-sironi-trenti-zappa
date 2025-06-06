@@ -9,11 +9,6 @@ public class WatchingTuiScreen extends BuildingTuiScreen {
 
     public WatchingTuiScreen() {
         super(null);
-
-        options.clear();
-        for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
-            options.add("View " + p.getUsername() + "'s spaceship");
-        }
     }
 
     @Override

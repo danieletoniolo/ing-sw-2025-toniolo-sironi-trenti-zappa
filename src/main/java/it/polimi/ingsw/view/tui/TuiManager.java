@@ -69,7 +69,7 @@ public class TuiManager implements Manager {
         this.terminal = terminal;
         this.parser = parser;
 
-        currentScreen = new LooseCrewTuiScreen(new NotClientTurnTuiScreen());
+        currentScreen = new LogInTuiScreen();
         this.running = true;
     }
 
@@ -564,8 +564,13 @@ public class TuiManager implements Manager {
         synchronized (stateLock) {
             switch (MiniModel.getInstance().getGamePhase()) {
                 case LOBBY -> currentScreen = new LobbyTuiScreen();
-                case BUILDING -> currentScreen = new MainCommandsTuiScreen();
-                case VALIDATION -> currentScreen = new ValidationTuiScreen();
+                case BUILDING -> {
+                    currentScreen = new MainCommandsTuiScreen();
+                }
+                case VALIDATION -> {
+                    currentScreen.setNextScreen(new ValidationTuiScreen());
+                    currentScreen = new ValidationTuiScreen();
+                }
                 case CREW -> currentScreen = new ModifyCrewTuiScreen();
                 case CARDS -> notifyDrawCard();
                 case FINISHED -> currentScreen = new RewardTuiScreen();

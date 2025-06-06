@@ -99,8 +99,37 @@ public class Board implements Serializable {
             throw new IndexOutOfBoundsException("Index is out of bounds");
         }
         if (!this.decks[index].isPickable() || player.getSpaceShip().getNumberOfComponents() <= 1) {
-            throw new IllegalStateException("Deck is not pickable");
+            throw new IllegalStateException("Deck is not pickable or player has not enough components");
         }
+
+        this.decks[index].setPickable(false);
+        return this.decks[index];
+    }
+
+    /**
+     * Allows a player to leave a deck, making it pickable again.
+     * @param index the index of the deck to leave
+     * @param player the player who is leaving the deck
+     * @return the deck that was left
+     * @throws IllegalStateException if the level is LEARNING or if the deck is already pickable
+     * @throws NullPointerException if player is null
+     * @throws IndexOutOfBoundsException if index is out of bounds
+     */
+    public Deck leaveDeck(int index, PlayerData player) throws IllegalStateException, NullPointerException, IndexOutOfBoundsException {
+        if (level == Level.LEARNING) {
+            throw new IllegalStateException("There is no deck in the learning level");
+        }
+        if (player == null) {
+            throw new NullPointerException("Player is null");
+        }
+        if (index < 0 || index >= this.decks.length) {
+            throw new IndexOutOfBoundsException("Index is out of bounds");
+        }
+        if (this.decks[index].isPickable()) {
+            throw new IllegalStateException("You cannot leave a deck that is already on the board");
+        }
+
+        this.decks[index].setPickable(true);
         return this.decks[index];
     }
 

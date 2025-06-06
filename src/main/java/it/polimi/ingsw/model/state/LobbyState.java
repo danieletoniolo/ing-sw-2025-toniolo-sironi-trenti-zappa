@@ -258,7 +258,6 @@ public class LobbyState extends State {
      */
     @Override
     public void exit() {
-        Logger.getInstance().logError("Cugula", false);
         super.exit();
     }
 }

@@ -11,16 +11,18 @@ import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import it.polimi.ingsw.view.tui.screens.TuiScreens;
+import it.polimi.ingsw.view.tui.screens.ValidationTuiScreen;
 import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
 public class ChoosePositionTuiScreen implements TuiScreenView {
-    private ArrayList<String> options = new ArrayList<>();
-    private int totalLines;
+    private final ArrayList<String> options = new ArrayList<>();
+    private final int totalLines;
+    private TuiScreenView nextScreen;
 
-    private BoardView boardView = MiniModel.getInstance().getBoardView();
+    private final BoardView boardView = MiniModel.getInstance().getBoardView();
     private int selected;
     private String message;
     private boolean isNewScreen;
@@ -54,7 +56,10 @@ public class ChoosePositionTuiScreen implements TuiScreenView {
             return this;
         }
 
-        return new WatchingTuiScreen();
+        if (nextScreen == null) {
+            return new WatchingTuiScreen();
+        }
+        return nextScreen;
     }
 
     @Override
@@ -91,6 +96,6 @@ public class ChoosePositionTuiScreen implements TuiScreenView {
 
     @Override
     public void setNextScreen(TuiScreenView nextScreen) {
-
+        this.nextScreen = nextScreen;
     }
 }
