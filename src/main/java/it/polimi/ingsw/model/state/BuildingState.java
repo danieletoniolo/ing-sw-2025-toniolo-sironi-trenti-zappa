@@ -365,8 +365,10 @@ public class BuildingState extends State {
      */
     @Override
     public void entry() {
-        this.board.clearInGamePlayers();
-        this.flipTimer(null);
+        super.board.clearInGamePlayers();
+        if (super.board.getBoardLevel() == Level.SECOND) {
+            this.flipTimer(null);
+        }
         for (PlayerData player : players) {
             playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
         }

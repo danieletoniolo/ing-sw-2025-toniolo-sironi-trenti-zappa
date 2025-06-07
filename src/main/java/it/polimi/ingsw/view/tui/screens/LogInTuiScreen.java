@@ -10,8 +10,6 @@ import it.polimi.ingsw.view.miniModel.logIn.LogInView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
 
-import java.util.function.Supplier;
-
 public class LogInTuiScreen implements TuiScreenView {
     private String nickname;
     private final int totalLines = LogInView.getRowsToDraw() + 1 + 2;
@@ -23,8 +21,8 @@ public class LogInTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        nickname = parser.readNickname("Enter your nickname: ", totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) throws Exception {
+        nickname = parser.readNickname("Enter your nickname: ", totalLines);
     }
 
     @Override

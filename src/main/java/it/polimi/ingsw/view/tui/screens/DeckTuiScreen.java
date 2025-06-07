@@ -13,7 +13,6 @@ import it.polimi.ingsw.view.tui.input.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class DeckTuiScreen implements TuiScreenView {
     private final ArrayList<String> options = new ArrayList<>(List.of("Back"));
@@ -31,8 +30,8 @@ public class DeckTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) throws Exception {
+        selected = parser.getCommand(options, totalLines);
     }
 
     @Override

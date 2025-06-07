@@ -2,10 +2,8 @@ package it.polimi.ingsw.view.tui.screens;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.tui.input.Parser;
 
-import java.util.function.Supplier;
-
 public interface TuiScreenView {
-    void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception;
+    void readCommand(Parser parser) throws Exception;
 
     /**
      * Set a new Screen -> when the command is only part of the view or the command is sent to the server

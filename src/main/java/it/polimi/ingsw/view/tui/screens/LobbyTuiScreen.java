@@ -12,7 +12,6 @@ import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
 
 import java.util.ArrayList;
-import java.util.function.Supplier;
 
 
 public class LobbyTuiScreen implements TuiScreenView {
@@ -33,8 +32,8 @@ public class LobbyTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) throws Exception {
+        selected = parser.getCommand(options, totalLines);
     }
 
     @Override

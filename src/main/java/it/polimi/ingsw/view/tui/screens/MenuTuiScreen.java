@@ -12,7 +12,6 @@ import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.menuScreens.ChooseNumberPlayersTuiScreen;
 
 import java.util.ArrayList;
-import java.util.function.Supplier;
 
 public class MenuTuiScreen implements TuiScreenView {
     protected final ArrayList<String> options = new ArrayList<>();
@@ -36,8 +35,8 @@ public class MenuTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) throws Exception {
+        selected = parser.getCommand(options, totalLines);
     }
 
     @Override

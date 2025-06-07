@@ -2,39 +2,53 @@ package it.polimi.ingsw.view.tui.input;
 
 import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.concurrent.*;
-import java.util.function.Supplier;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.function.Predicate;
 
 public class Parser {
     private int selected;
     private final Terminal terminal;
-    private final LineReader reader;
     private Thread inputThread;
-    private ExecutorService executor = null;
-    private BlockingQueue<Integer> keyQueue;
+    private final Queue<Integer> keyQueue;
+    private final Queue<String> stringsQueue;
 
+    /**
+     * Constructor for the Parser class, which initializes the terminal.
+     *
+     * @param terminal The terminal to be used for input and output operations.
+     */
     public Parser(Terminal terminal) {
         this.terminal = terminal;
-        this.reader = LineReaderBuilder.builder()
-                .terminal(terminal)
-                .build();
-
+        this.keyQueue = new LinkedList<>();
+        this.stringsQueue = new LinkedList<>();
     }
 
-    public int getCommand(ArrayList<String> options, int menuStartRow, Supplier<Boolean> isStillCurrentScreen) throws Exception {
+    /**
+     * This method displays a menu with the given options and allows the user to navigate through them using 'w' and 's' keys
+     * or the arrow keys. The user can select an option by pressing 'Enter'.
+     *
+     * @param options The list of options to display in the menu.
+     * @param menuStartRow The row where the menu starts on the terminal.
+     * @return The index of the selected option, or -1 if the menu must be closed due to an external event that changed the screen.
+     * @throws InterruptedException If the poll for user input is interrupted. This should only happen if we have an
+     * unexpected shutdown.
+     */
+    public int getCommand(ArrayList<String> options, int menuStartRow) throws InterruptedException {
         terminal.enterRawMode();
         var reader = terminal.reader();
         var writer = terminal.writer();
         selected = 0;
 
-        this.keyQueue = new LinkedBlockingQueue<>();
+        synchronized (keyQueue) {
+            this.keyQueue.clear();
+        }
 
         this.inputThread = new Thread(() -> {
             try {
@@ -43,23 +57,37 @@ public class Parser {
                     if (ch == 27) {
                         if (reader.read() == 91) {
                             int arrow = reader.read();
-                            switch (arrow) {
-                                case 'A' -> this.keyQueue.put((int) 'w');
-                                case 'B' -> this.keyQueue.put((int) 's');
+                            synchronized (keyQueue) {
+                                switch (arrow) {
+                                    case 'A' -> this.keyQueue.add((int) 'w');
+                                    case 'B' -> this.keyQueue.add((int) 's');
+                                }
+                                this.keyQueue.notifyAll();
                             }
                         }
                     } else {
-                        this.keyQueue.put(ch);
+                        synchronized (keyQueue) {
+                            this.keyQueue.add(ch);
+                            keyQueue.notifyAll();
+                        }
                     }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+                Thread.currentThread().interrupt();
+            }
         });
         this.inputThread.start();
 
         renderMenu(writer, options, menuStartRow);
 
         while (true) {
-            int key = this.keyQueue.take();
+            int key;
+            synchronized (keyQueue) {
+                while (keyQueue.isEmpty()) {
+                    keyQueue.wait();
+                }
+                key = this.keyQueue.poll();
+            }
             switch (key) {
                 case (int) 'w' -> selected = (selected - 1 + options.size()) % options.size();
                 case (int) 's' -> selected = (selected + 1) % options.size();
@@ -85,109 +113,147 @@ public class Parser {
         if (inputThread != null && inputThread.isAlive()) {
             inputThread.interrupt();
         }
-        if (keyQueue != null) {
-            try {
-                // Signal the getCommand method to stop waiting for input
-                keyQueue.put(-1);
-            } catch (InterruptedException e) {
-                Logger.getInstance().logError("Unable to signal input thread to stop: " + e.getMessage(), true);
-            }
+        synchronized (keyQueue) {
+            keyQueue.add(-1); // Use -1 to signal the end of input
+            keyQueue.notifyAll();
+        }
+        synchronized (stringsQueue) {
+            stringsQueue.add(null); // Use null to signal the end of input
+            stringsQueue.notifyAll();
         }
     }
 
-    public Pair<Integer, Integer> getRowAndCol(String prompt, int menuStartRow, Supplier<Boolean> isStillCurrentScreen) {
+    /**
+     * Reads a string input from the user, validating it with the provided predicate.
+     * The input is displayed at the specified row in the terminal.
+     *
+     * @param prompt The prompt to display to the user.
+     * @param menuStartRow The row where the input should be displayed.
+     * @param validator A predicate to validate the input.
+     * @param errorMessage The message to display if validation fails.
+     * @return The validated string input from the user, or null if interrupted.
+     */
+    private String getString(String prompt, int menuStartRow, Predicate<String> validator, String errorMessage) {
         var writer = terminal.writer();
-        executor = Executors.newSingleThreadExecutor();
+        var reader = terminal.reader();
 
-        while (true) {
-            if (!isStillCurrentScreen.get()) {
-                executor.shutdownNow();
-                return null;
-            }
+        synchronized (stringsQueue) {
+            stringsQueue.clear();
+        }
 
-            writer.printf("\033[%d;0H", menuStartRow);
-            writer.print("\033[2K");
-            writer.print(prompt);
-            writer.flush();
-
-            Future<String> inputFuture = executor.submit(() -> reader.readLine(""));
-
+        inputThread = new Thread(() -> {
             try {
                 while (true) {
-                    try {
-                        String line = inputFuture.get(100, TimeUnit.MILLISECONDS);
-                        String[] parts = line.trim().split("\\s+");
-                        if (parts.length != 2) {
-                            TerminalUtils.printLine(writer, "Input is not valid, type 'row col' (ex: 10 5)", menuStartRow + 1);
-                            break;
-                        }
+                    writer.printf("\033[%d;0H", menuStartRow);
+                    writer.print("\033[2K");
+                    writer.print(prompt);
+                    writer.flush();
 
-                        int x = Integer.parseInt(parts[0]);
-                        int y = Integer.parseInt(parts[1]);
+                    StringBuilder sb = new StringBuilder();
+                    while (true) {
+                        int ch = reader.read();
+                        if (ch == 10 || ch == 13) {
+                            String entered = sb.toString().trim();
+                            if (validator.test(entered)) {
+                                TerminalUtils.printLine(writer, "", menuStartRow + 1);
+                                TerminalUtils.restoreRawMode(terminal);
+                                synchronized (stringsQueue) {
+                                    stringsQueue.add(entered);
+                                    stringsQueue.notifyAll();
+                                }
+                            } else {
+                                TerminalUtils.printLine(writer, errorMessage, menuStartRow + 1);
+                                break;
+                            }
 
-                        TerminalUtils.printLine(writer, "", menuStartRow + 1);
-                        TerminalUtils.restoreRawMode(terminal);
-                        executor.shutdownNow();
-                        return new Pair<>(x, y);
-                    } catch (TimeoutException e) {
-                        if (!isStillCurrentScreen.get()) {
-                            inputFuture.cancel(true);
-                            executor.shutdownNow();
-                            return null;
+                        } else if (ch == 127 || ch == 8) { // Handle backspace
+                            if (!sb.isEmpty()) {
+                                sb.deleteCharAt(sb.length() - 1);
+                                writer.print("\b \b"); // Move back, print space, move back again
+                                writer.flush();
+                            }
+                        } else if (ch >= 32 && ch < 127) { // Printable characters
+                            sb.append((char) ch);
+                            writer.print((char) ch);
+                            writer.flush();
                         }
                     }
                 }
-            } catch (Exception e) {
-                TerminalUtils.printLine(writer, "Input was interrupted.", menuStartRow + 1);
-                executor.shutdownNow();
-                return null;
+            } catch (IOException ignored) {
+                Thread.currentThread().interrupt();
+                Logger.getInstance().logError("Parser thread stopped due to IOException", false);
             }
-        }
-    }
+        });
+        inputThread.start();
 
-    public String readNickname(String prompt, int menuStartRow, Supplier<Boolean> isStillCurrentScreen) {
-        var writer = terminal.writer();
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-
-        while (true) {
-            if (!isStillCurrentScreen.get()) {
-                executor.shutdownNow();
-                return null;
-            }
-
-            writer.printf("\033[%d;0H", menuStartRow);
-            writer.print("\033[2K");
-            writer.print(prompt);
-            writer.flush();
-
-            Future<String> inputFuture = executor.submit(() -> reader.readLine(""));
-
-            while (true) {
+        String input;
+        synchronized (stringsQueue) {
+            while (stringsQueue.isEmpty()) {
                 try {
-                    String input = inputFuture.get(100, TimeUnit.MILLISECONDS).trim();
-                    if (!input.matches("^[a-zA-Z0-9]+$")) {
-                        TerminalUtils.printLine(writer, "Invalid input. Use only letters and numbers, no spaces.", menuStartRow + 1);
-                        break;
-                    }
-                    TerminalUtils.printLine(writer, "", menuStartRow + 1);
-                    TerminalUtils.restoreRawMode(terminal);
-                    executor.shutdownNow();
-                    return input;
-                } catch (TimeoutException e) {
-                    if (!isStillCurrentScreen.get()) {
-                        inputFuture.cancel(true);
-                        executor.shutdownNow();
-                        return null;
-                    }
-                } catch (Exception e) {
-                    TerminalUtils.printLine(writer, "Input aborted.", menuStartRow + 1);
-                    executor.shutdownNow();
-                    return null;
+                    stringsQueue.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    Logger.getInstance().logError("Parser thread stopped while waiting for input", false);
                 }
             }
+            input = stringsQueue.poll();
         }
+        TerminalUtils.restoreRawMode(terminal);
+        inputThread.interrupt();
+        return input;
     }
 
+
+    /**
+     * Reads a pair of integers from the user, expecting input in the format "row col".
+     * The is taken using the {@link #getString} method, which validates the input format.
+     *
+     * @param prompt The prompt to display to the user.
+     * @param menuStartRow The row where the input should be displayed.
+     * @return A Pair containing the row and column integers, or null if interrupted or invalid input.
+     */
+    public Pair<Integer, Integer> getRowAndCol(String prompt, int menuStartRow) {
+        String input = getString(prompt, menuStartRow, s -> {
+            String[] parts = s.trim().split("\\s+");
+            if (parts.length != 2) return false;
+            try {
+                Integer.parseInt(parts[0]);
+                Integer.parseInt(parts[1]);
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+            }, "Input is not valid, type 'row col' (ex: 10 5)");
+
+        if (input != null) {
+            String[] parts = input.trim().split("\\s+");
+            return new Pair<>(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
+        }
+        return null;
+    }
+
+    /**
+     * Reads a nickname from the user, validating that it contains only letters and numbers.
+     * The input is taken using the {@link #getString} method, which validates the input format.
+     *
+     * @param prompt The prompt to display to the user.
+     * @param menuStartRow The row where the input should be displayed.
+     * @return The validated nickname string, or null if interrupted or invalid input.
+     */
+    public String readNickname(String prompt, int menuStartRow) {
+        return getString(prompt, menuStartRow,
+                s -> s.matches("^[a-zA-Z0-9]+$"),
+                "Invalid input. Use only letters and numbers, no spaces.");
+    }
+
+    /**
+     * Prints the menu options to the terminal at the specified starting row, with the specified options
+     * and highlights the selected option.
+     *
+     * @param writer The PrintWriter to write the menu to the terminal.
+     * @param options The list of options to display in the menu.
+     * @param menuStartRow The row where the menu starts on the terminal.
+     */
     private void renderMenu(PrintWriter writer, ArrayList<String> options, int menuStartRow) {
         for (int i = 0; i < options.size(); i++) {
             int row = menuStartRow + i;
@@ -195,15 +261,5 @@ public class Parser {
             TerminalUtils.printLine(writer, prefix + options.get(i), row);
         }
         writer.flush();
-    }
-
-    public void shutdown() {
-        if (inputThread != null && inputThread.isAlive()) {
-            inputThread.interrupt();
-        }
-        if (executor != null && !executor.isShutdown()) {
-            executor.shutdownNow();
-        }
-        TerminalUtils.restoreRawMode(terminal);
     }
 }

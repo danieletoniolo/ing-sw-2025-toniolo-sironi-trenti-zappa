@@ -86,7 +86,7 @@ public class TuiManager implements Manager {
                         screenToUse = currentScreen;
                     }
 
-                    screenToUse.readCommand(parser, () -> screenToUse == currentScreen);
+                    screenToUse.readCommand(parser);
 
                     if (currentScreen == screenToUse) {
                         currentScreen = currentScreen.setNewScreen();

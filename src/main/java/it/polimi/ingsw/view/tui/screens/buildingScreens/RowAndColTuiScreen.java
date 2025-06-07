@@ -12,8 +12,6 @@ import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.BuildingTuiScreen;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
-import java.util.function.Supplier;
-
 public class RowAndColTuiScreen extends BuildingTuiScreen {
     private Pair<Integer, Integer> rowAndCol;
     private final int num;
@@ -25,8 +23,8 @@ public class RowAndColTuiScreen extends BuildingTuiScreen {
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        rowAndCol = parser.getRowAndCol("Type coordinates (row col): ", totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) throws Exception {
+        rowAndCol = parser.getRowAndCol("Type coordinates (row col): ", totalLines);
     }
 
     @Override

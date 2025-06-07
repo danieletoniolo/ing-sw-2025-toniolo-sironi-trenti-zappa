@@ -3,8 +3,6 @@ package it.polimi.ingsw.view.tui.screens;
 import it.polimi.ingsw.view.tui.input.Parser;
 import org.jline.terminal.Terminal;
 
-import java.util.function.Supplier;
-
 public class ClosingProgram implements TuiScreenView{
     @Override
     public TuiScreenView setNewScreen() {
@@ -17,7 +15,7 @@ public class ClosingProgram implements TuiScreenView{
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
+    public void readCommand(Parser parser) throws Exception {
 
     }
 

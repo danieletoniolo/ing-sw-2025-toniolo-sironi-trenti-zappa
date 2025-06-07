@@ -10,7 +10,6 @@ import it.polimi.ingsw.view.tui.screens.crewScreens.AddCrewTuiScreen;
 import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
-import java.util.function.Supplier;
 
 public class ModifyCrewTuiScreen implements TuiScreenView{
     protected ArrayList<String> options;
@@ -39,8 +38,8 @@ public class ModifyCrewTuiScreen implements TuiScreenView{
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) throws Exception {
+        selected = parser.getCommand(options, totalLines);
         typeOfOption = selected;
     }
 

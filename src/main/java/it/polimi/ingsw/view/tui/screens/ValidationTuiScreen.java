@@ -16,7 +16,6 @@ import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class ValidationTuiScreen implements TuiScreenView {
     protected ArrayList<String> options = new ArrayList<>();
@@ -53,8 +52,8 @@ public class ValidationTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) throws Exception {
+        selected = parser.getCommand(options, totalLines);
     }
 
     @Override
