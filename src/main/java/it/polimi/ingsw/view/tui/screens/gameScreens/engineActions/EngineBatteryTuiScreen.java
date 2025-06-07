@@ -50,17 +50,17 @@ public class EngineBatteryTuiScreen extends ManagerEnginesTuiScreen{
 
         if (selected == num) {
             destroyStatic();
-            oldScreen.setMessage(null);
+            setMessage(null);
             return oldScreen;
         }
 
         if (selected == num + 1) {
             StatusEvent status = UseEngines.requester(Client.transceiver, new Object()).request(new UseEngines(MiniModel.getInstance().getUserID(), enginesIDs, batteriesIDs));
             if (status.get().equals("POTA")) {
-                oldScreen.setMessage(((Pota) status).errorMessage());
+                setMessage(((Pota) status).errorMessage());
             }
             else {
-                oldScreen.setMessage(null);
+                setMessage(null);
             }
             destroyStatic();
             return oldScreen;
@@ -85,8 +85,7 @@ public class EngineBatteryTuiScreen extends ManagerEnginesTuiScreen{
             line.append("(").append(spaceShipView.getMapBatteries().get(ID).getRow()).append(" ").append(spaceShipView.getMapBatteries().get(ID).getCol()).append(") ");
         }
 
-        TuiScreenView newScreen = new EngineBatteryTuiScreen(oldScreen);
-        newScreen.setMessage("You are activating " + line);
-        return newScreen;
+        setMessage("You are activating " + line);
+        return new EngineBatteryTuiScreen(oldScreen);
     }
 }

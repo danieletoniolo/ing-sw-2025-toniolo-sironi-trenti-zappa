@@ -11,9 +11,7 @@ public abstract class MangerCannonsTuiScreen extends GameTuiScreen {
 
     public MangerCannonsTuiScreen(List<String> options) {
         super(options);
-
     }
-
 
     @Override
     public TuiScreens getType() {

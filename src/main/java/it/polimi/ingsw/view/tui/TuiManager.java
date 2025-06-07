@@ -685,7 +685,7 @@ public class TuiManager implements Manager {
         Stack<Card> shuffled;
         do {
             shuffled = CardsManager.createLearningDeck();
-        } while (!shuffled.peek().getCardType().equals(CardType.PLANETS));
+        } while (!shuffled.peek().getCardType().equals(CardType.OPENSPACE));
 
         for (Card card : shuffled) {
             MiniModel.getInstance().getShuffledDeckView().getDeck().add(convertCard(card));
