@@ -1,5 +1,7 @@
 package Model.Game.Lobby;
 
+import it.polimi.ingsw.model.game.board.Level;
+import it.polimi.ingsw.model.game.lobby.LobbyInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +12,7 @@ class LobbyInfoTest {
 
     @BeforeEach
     void setUp() {
-        lobbyInfo = new LobbyInfo("123e4567-e89b-12d3-a456-426616578345", 4);
+        lobbyInfo = new LobbyInfo("123e4567-e89b-12d3-a456-426616578345", 4, Level.SECOND);
     }
 
     @Test

@@ -1,7 +1,9 @@
 package Model.Cards;
 
-import Model.Good.Good;
-import Model.Good.GoodType;
+import it.polimi.ingsw.model.good.*;
+import it.polimi.ingsw.model.cards.Card;
+import it.polimi.ingsw.model.cards.CardType;
+import it.polimi.ingsw.model.cards.Planets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;

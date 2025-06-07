@@ -1,5 +1,8 @@
 package Model.Cards;
 
+import it.polimi.ingsw.model.cards.Card;
+import it.polimi.ingsw.model.cards.CardType;
+import it.polimi.ingsw.model.cards.OpenSpace;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;

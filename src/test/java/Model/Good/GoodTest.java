@@ -1,5 +1,6 @@
 package Model.Good;
 
+import it.polimi.ingsw.model.good.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

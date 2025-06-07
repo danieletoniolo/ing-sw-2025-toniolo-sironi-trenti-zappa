@@ -1,7 +1,10 @@
 package Model.Cards;
 
-import Model.Good.Good;
-import Model.Good.GoodType;
+import it.polimi.ingsw.model.cards.Card;
+import it.polimi.ingsw.model.cards.CardType;
+import it.polimi.ingsw.model.good.Good;
+import it.polimi.ingsw.model.good.GoodType;
+import it.polimi.ingsw.model.cards.AbandonedStation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;

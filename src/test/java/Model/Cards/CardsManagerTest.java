@@ -1,8 +1,10 @@
 package Model.Cards;
 
-import Model.Game.Board.Board;
-import Model.Game.Board.Deck;
-import Model.Game.Board.Level;
+import it.polimi.ingsw.model.cards.Card;
+import it.polimi.ingsw.model.cards.CardsManager;
+import it.polimi.ingsw.model.game.board.Board;
+import it.polimi.ingsw.model.game.board.Deck;
+import it.polimi.ingsw.model.game.board.Level;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

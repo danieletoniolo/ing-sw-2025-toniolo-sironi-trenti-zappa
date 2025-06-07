@@ -1,12 +1,10 @@
 package Model.SpaceShip;
 
-import Model.Cards.Hits.Direction;
-import Model.Cards.Hits.Hit;
-import Model.Cards.Hits.HitType;
-import Model.Game.Board.Level;
-import Model.Good.Good;
-import Model.Good.GoodType;
-import Model.Player.PlayerColor;
+import it.polimi.ingsw.model.cards.hits.*;
+import it.polimi.ingsw.model.game.board.Level;
+import it.polimi.ingsw.model.good.*;
+import it.polimi.ingsw.model.player.PlayerColor;
+import it.polimi.ingsw.model.spaceship.*;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;

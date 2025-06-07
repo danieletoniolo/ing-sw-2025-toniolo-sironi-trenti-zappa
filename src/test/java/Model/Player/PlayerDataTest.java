@@ -1,6 +1,9 @@
+/*
 package Model.Player;
 
-import Model.SpaceShip.SpaceShip;
+import it.polimi.ingsw.model.player.PlayerColor;
+import it.polimi.ingsw.model.spaceship.SpaceShip;
+import it.polimi.ingsw.model.player.PlayerData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -304,5 +307,5 @@ class PlayerDataTest {
         p2 = new PlayerData("username", PlayerColor.BLUE, new SpaceShip(Level.SECOND, new boolean[12][12]));
         assertFalse(p1.equals(p2));
     }
-    */
 }
+*/

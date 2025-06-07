@@ -1,5 +1,8 @@
 package Model.Cards.Hits;
 
+import it.polimi.ingsw.model.cards.hits.Direction;
+import it.polimi.ingsw.model.cards.hits.Hit;
+import it.polimi.ingsw.model.cards.hits.HitType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;

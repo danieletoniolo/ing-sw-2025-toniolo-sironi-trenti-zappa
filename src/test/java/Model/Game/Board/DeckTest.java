@@ -1,7 +1,8 @@
 package Model.Game.Board;
 
-import Model.Cards.Card;
-import Model.Cards.Epidemic;
+import it.polimi.ingsw.model.cards.Card;
+import it.polimi.ingsw.model.cards.Epidemic;
+import it.polimi.ingsw.model.game.board.Deck;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 

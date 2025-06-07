@@ -127,20 +127,6 @@ public class SpaceShip {
         numberOfComponents = 1;
     }
 
-    public void setDisconnectedComponents(ArrayList<ArrayList<Pair<Integer, Integer>>> disconnectedComponents) {
-        this.lostComponents = new ArrayList<>();
-        for (ArrayList<Pair<Integer, Integer>> component : disconnectedComponents) {
-            for (Pair<Integer, Integer> pair : component) {
-                int row = pair.getValue0();
-                int column = pair.getValue1();
-                if (components[row][column] != null) {
-                    lostComponents.add(components[row][column]);
-                    components[row][column] = null;
-                }
-            }
-        }
-    }
-
     /**
      * Find the component in the ship that is being hit from the given direction
      * @param dice direction of the hit (Number picked by dice roll)

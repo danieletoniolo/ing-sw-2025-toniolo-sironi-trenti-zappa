@@ -1,7 +1,8 @@
 package Model.SpaceShip;
 
-import Model.Game.Board.Level;
-import Model.Player.PlayerColor;
+import it.polimi.ingsw.model.game.board.Level;
+import it.polimi.ingsw.model.player.PlayerColor;
+import it.polimi.ingsw.model.spaceship.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;

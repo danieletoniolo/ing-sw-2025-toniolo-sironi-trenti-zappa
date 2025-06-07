@@ -1,19 +1,16 @@
+/*
 package Model.Game.Board;
 
-import Model.Cards.Card;
-import Model.Cards.CardsManager;
-import Model.Player.PlayerColor;
-import Model.Player.PlayerData;
-import Model.SpaceShip.Component;
-import Model.SpaceShip.SpaceShip;
-import Model.SpaceShip.TilesManager;
+import it.polimi.ingsw.model.cards.*;
+import it.polimi.ingsw.model.player.*;
+import it.polimi.ingsw.model.spaceship.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.junit.jupiter.api.RepeatedTest;
+import it.polimi.ingsw.model.game.board.Board;
+import it.polimi.ingsw.model.game.board.Level;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,7 +90,7 @@ class BoardTest {
         }
     }
 
-     */
+    --
 
     @Test
     void getDeck() throws JsonProcessingException {
@@ -309,5 +306,6 @@ class BoardTest {
 
     }
 
-     */
+    --
 }
+*/

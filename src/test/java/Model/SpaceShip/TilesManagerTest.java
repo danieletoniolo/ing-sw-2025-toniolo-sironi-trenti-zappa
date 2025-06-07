@@ -1,6 +1,9 @@
 package Model.SpaceShip;
 
-import Model.Player.PlayerColor;
+import it.polimi.ingsw.model.player.PlayerColor;
+import it.polimi.ingsw.model.spaceship.Cabin;
+import it.polimi.ingsw.model.spaceship.Component;
+import it.polimi.ingsw.model.spaceship.TilesManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;

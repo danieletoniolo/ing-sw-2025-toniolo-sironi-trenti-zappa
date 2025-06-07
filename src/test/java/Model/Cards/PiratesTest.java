@@ -1,8 +1,9 @@
 package Model.Cards;
 
-import Model.Cards.Hits.Direction;
-import Model.Cards.Hits.Hit;
-import Model.Cards.Hits.HitType;
+import it.polimi.ingsw.model.cards.CardType;
+import it.polimi.ingsw.model.cards.hits.*;
+import it.polimi.ingsw.model.cards.Card;
+import it.polimi.ingsw.model.cards.Pirates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
