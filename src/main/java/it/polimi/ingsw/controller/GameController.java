@@ -1,11 +1,9 @@
 package it.polimi.ingsw.controller;
 
-import it.polimi.ingsw.model.cards.Card;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.lobby.LobbyInfo;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerData;
-import it.polimi.ingsw.model.state.BuildingState;
 import it.polimi.ingsw.model.state.LobbyState;
 import it.polimi.ingsw.model.state.State;
 import it.polimi.ingsw.model.state.SynchronousStateException;
@@ -14,7 +12,6 @@ import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -82,7 +79,6 @@ public class GameController implements Serializable, StateTransitionHandler {
         try {
             PlayerData currentPlayer = state.getCurrentPlayer();
             if (!currentPlayer.equals(player)) {
-                Logger.getInstance().logDebug("Sono dentro if !currentPlayer.equals(player)", false);
                 throw new IllegalStateException("Not the current player");
             }
         } catch (SynchronousStateException e) {
@@ -92,8 +88,6 @@ public class GameController implements Serializable, StateTransitionHandler {
         try {
             state.execute(player);
         } catch (Exception exception) {
-            exception.printStackTrace();
-            Logger.getInstance().logDebug("Error executing endTurn: " + exception.getMessage() + " eccezione " + exception.getClass().getSimpleName(), false);
             throw new IllegalStateException(exception.getMessage());
         }
     }

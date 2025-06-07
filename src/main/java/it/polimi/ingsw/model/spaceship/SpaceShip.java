@@ -632,7 +632,7 @@ public class SpaceShip {
      * @param c the component to reserve
      * @throws IllegalStateException if there are already two components reserved
      */
-    public void reserveComponent(Component c) throws IllegalStateException {
+    public void putReserveComponent(Component c) throws IllegalStateException {
         if (reservedComponents.size() < 2) {
             if (reservedComponents.isEmpty() || reservedComponents.getFirst() == null) {
                 reservedComponents.addFirst(c);
@@ -647,12 +647,18 @@ public class SpaceShip {
     /**
      * Unreserve a component in the reservedComponents ArrayList
      * @param tileID The ID of component to unreserve
-     * @return The component that was unreserved
      */
-    public Component unreserveComponent(int tileID) {
+    public void removeReserveComponent(int tileID) {
         for (Component c : reservedComponents) {
             if (c.getID() == tileID) {
                 reservedComponents.remove(c);
+            }
+        }
+    }
+
+    public Component peekReservedComponent(int tileID) {
+        for (Component c : reservedComponents) {
+            if (c.getID() == tileID) {
                 return c;
             }
         }
@@ -797,26 +803,12 @@ public class SpaceShip {
         return lastPlacedComponent;
     }
 
-    /*
-       TODO: This method should be obsolete since we can only take the last placed component all
-             the other components are automatically fixed.
-             So also the fix method in the Component class should be removed.
-     */
-
     /**
-     * Fix a component at the given row and column
-     * @param row row of the component to fix
-     * @param column column of the component to fix
-     * @throws IllegalStateException if the component is null or already fixed
+     * Clean the last placed component
+     * @implNote This method is used to reset the last placed component after it has been fixed.
      */
-    public void fixComponent(int row, int column) throws IllegalStateException{
-        Component component = components[row][column];
-        if (component != null && !component.isFixed()) {
-            component.fix();
-            lastPlacedComponent = null;
-        } else {
-            throw new IllegalStateException("The component at the given row and column is null or already fixed");
-        }
+    public void cleanLastPlacedComponent() {
+        lastPlacedComponent = null;
     }
 
     /**
@@ -901,7 +893,6 @@ public class SpaceShip {
             default:
                 break;
         }
-        lastPlacedComponent = null;
         numberOfComponents--;
         lostComponents.add(destroyedComponent);
     }

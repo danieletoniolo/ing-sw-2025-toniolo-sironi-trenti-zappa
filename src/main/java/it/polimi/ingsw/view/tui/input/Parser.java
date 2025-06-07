@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.tui.input;
 
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
@@ -15,68 +16,83 @@ public class Parser {
     private int selected;
     private final Terminal terminal;
     private final LineReader reader;
-    private Thread inputThread = null;
+    private Thread inputThread;
     private ExecutorService executor = null;
+    private BlockingQueue<Integer> keyQueue;
 
     public Parser(Terminal terminal) {
         this.terminal = terminal;
         this.reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .build();
+
     }
 
     public int getCommand(ArrayList<String> options, int menuStartRow, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        terminal.reader().skip(terminal.reader().available());
         terminal.enterRawMode();
         var reader = terminal.reader();
         var writer = terminal.writer();
         selected = 0;
 
-        BlockingQueue<Integer> keyQueue = new ArrayBlockingQueue<>(10);
-        inputThread = new Thread(() -> {
+        this.keyQueue = new LinkedBlockingQueue<>();
+
+        this.inputThread = new Thread(() -> {
             try {
-                while (!Thread.currentThread().isInterrupted()) {
-                    if (reader.peek(0) != -1) {
-                        int ch = reader.read();
-                        if (ch == 27) {
-                            if (reader.read() == 91) {
-                                int arrow = reader.read();
-                                switch (arrow) {
-                                    case 'A' -> keyQueue.put((int) 'w');
-                                    case 'B' -> keyQueue.put((int) 's');
-                                }
+                while (true) {
+                    int ch = reader.read();
+                    if (ch == 27) {
+                        if (reader.read() == 91) {
+                            int arrow = reader.read();
+                            switch (arrow) {
+                                case 'A' -> this.keyQueue.put((int) 'w');
+                                case 'B' -> this.keyQueue.put((int) 's');
                             }
-                        } else {
-                            keyQueue.put(ch);
                         }
                     } else {
-                        Thread.sleep(100);
+                        this.keyQueue.put(ch);
                     }
                 }
             } catch (Exception ignored) {}
         });
-        inputThread.start();
+        this.inputThread.start();
 
         renderMenu(writer, options, menuStartRow);
 
-        while (isStillCurrentScreen.get()) {
-            Integer key = keyQueue.poll(100, TimeUnit.MILLISECONDS);
-            if (key == null) continue;
-
-            switch (key.intValue()) {
-                case 'w' -> selected = (selected - 1 + options.size()) % options.size();
-                case 's' -> selected = (selected + 1) % options.size();
+        while (true) {
+            int key = this.keyQueue.take();
+            switch (key) {
+                case (int) 'w' -> selected = (selected - 1 + options.size()) % options.size();
+                case (int) 's' -> selected = (selected + 1) % options.size();
                 case 10, 13 -> {
                     terminal.flush();
                     inputThread.interrupt();
                     return selected;
                 }
+                case -1 -> {
+                    inputThread.interrupt();
+                    return -1;
+                }
             }
             renderMenu(writer, options, menuStartRow);
         }
+    }
 
-        inputThread.interrupt();
-        return -1;
+    /**
+     * Changes the current screen by interrupting the input thread and signaling it to stop waiting for input.
+     * This method is used when we have to switch screens by an external event and not by user input.
+     */
+    public void changeScreen() {
+        if (inputThread != null && inputThread.isAlive()) {
+            inputThread.interrupt();
+        }
+        if (keyQueue != null) {
+            try {
+                // Signal the getCommand method to stop waiting for input
+                keyQueue.put(-1);
+            } catch (InterruptedException e) {
+                Logger.getInstance().logError("Unable to signal input thread to stop: " + e.getMessage(), true);
+            }
+        }
     }
 
     public Pair<Integer, Integer> getRowAndCol(String prompt, int menuStartRow, Supplier<Boolean> isStillCurrentScreen) {

@@ -9,6 +9,7 @@ import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceshi
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
+import it.polimi.ingsw.event.game.serverToClient.timer.LastTimerFinished;
 import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
@@ -19,7 +20,7 @@ import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 
@@ -33,7 +34,7 @@ public class BuildingState extends State {
     public BuildingState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.timer = new Timer();
-        this.numberOfTimerFlips = 0;
+        this.numberOfTimerFlips = 1;
         this.timerRunning = false;
         this.playersHandQueue = new HashMap<>();
     }
@@ -48,7 +49,7 @@ public class BuildingState extends State {
      * @see State#flipTimer(PlayerData)
      */
     @Override
-    public void flipTimer(PlayerData player) throws IllegalStateException{
+    public void flipTimer(PlayerData player) throws IllegalStateException {
         if (board.getBoardLevel() == Level.LEARNING) {
             throw new IllegalStateException("Cannot flip timer in learning level");
         }
@@ -57,37 +58,40 @@ public class BuildingState extends State {
             throw new IllegalStateException("Cannot flip timer because is already running");
         }
 
-        TimerFlipped timerFlippedEvent = new TimerFlipped(player.getUsername(), LocalDateTime.now().toString(), 3, timerDuration);
+        TimerFlipped timerFlippedEvent;
+        LocalTime time;
         switch (numberOfTimerFlips) {
-            case 0:
-                // First flip that is done when the building phase starts
-                eventCallback.trigger(timerFlippedEvent);
-                timerRunning = true;
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        timerRunning = false;
-                    }
-                }, timerDuration);
-                break;
             case 1:
-                // This is the second flip that can be done by anyone after the time has run out
-                eventCallback.trigger(timerFlippedEvent);
+                // First flip that is done when the building phase starts
                 timerRunning = true;
+                time = LocalTime.now();
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         timerRunning = false;
                     }
                 }, timerDuration);
+                timerFlippedEvent = new TimerFlipped(null, time.toString(), numberOfTimerFlips,3, timerDuration);
+                eventCallback.trigger(timerFlippedEvent);
                 break;
             case 2:
+                // This is the second flip that can be done by anyone after the time has run out
+                timerRunning = true;
+                time = LocalTime.now();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        timerRunning = false;
+                    }
+                }, timerDuration);
+                timerFlippedEvent = new TimerFlipped(player.getUsername(), time.toString(), numberOfTimerFlips, 3, timerDuration);
+                eventCallback.trigger(timerFlippedEvent);
+                break;
+            case 3:
                 // This is the third flip that can be done only by the player who has finished building
-
-                // Check if the player has finished building
                 if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-                    eventCallback.trigger(timerFlippedEvent);
                     timerRunning = true;
+                    time = LocalTime.now();
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
@@ -104,20 +108,23 @@ public class BuildingState extends State {
                                     eventCallback.trigger(lostComponentsEvent);
                                 }
                             }
-
-                            // TODO: handle the case when the player has something in is hand
-
                             timerRunning = false;
+
+                            // Trigger to all the users that the last timer has finished
+                            LastTimerFinished lastTimerFinishedEvent = new LastTimerFinished();
+                            eventCallback.trigger(lastTimerFinishedEvent);
                         }
                     }, timerDuration);
+                    timerFlippedEvent = new TimerFlipped(player.getUsername(),time.toString(), numberOfTimerFlips, 3, timerDuration);
+                    eventCallback.trigger(timerFlippedEvent);
                 } else {
                     throw new IllegalStateException("Cannot flip timer because the player has not finished building");
                 }
-
                 break;
             default:
                 throw new IllegalStateException("Cannot flip timer more than twice");
         }
+        eventCallback.trigger(timerFlippedEvent);
         numberOfTimerFlips++;
     }
 
@@ -143,6 +150,7 @@ public class BuildingState extends State {
                 eventCallback.trigger(pickLeaveDeckEvent);
             }
         }
+        player.getSpaceShip().cleanLastPlacedComponent();
     }
 
     /**
@@ -151,6 +159,10 @@ public class BuildingState extends State {
      */
     @Override
     public void placeMarker(PlayerData player, int position) throws IllegalStateException {
+        if (numberOfTimerFlips < 3 || (timerRunning && numberOfTimerFlips != 4)) {
+            throw new IllegalStateException("Cannot place marker before the second timer flip");
+        }
+
         board.setPlayer(player, position);
 
         MoveMarker moveMarkerEvent = new MoveMarker(player.getUsername(), player.getStep());
@@ -231,13 +243,14 @@ public class BuildingState extends State {
             }
             case 1 -> {
                 // Get the tile from the reserve
-                component = player.getSpaceShip().unreserveComponent(tileID);
+                component = player.getSpaceShip().peekReservedComponent(tileID);
                 PickedTileFromReserve pickTileEvent = new PickedTileFromReserve(player.getUsername(), tileID, component.getClockwiseRotation());
                 eventCallback.trigger(pickTileEvent);
             }
             case 2 -> {
                 // Get the last placed component
                 component = player.getSpaceShip().getLastPlacedComponent();
+                player.getSpaceShip().destroyComponent(component.getRow(), component.getColumn());
                 PickedTileFromSpaceship pickTileEvent = new PickedTileFromSpaceship(player.getUsername(), component.getClockwiseRotation());
                 eventCallback.trigger(pickTileEvent);
             }
@@ -270,22 +283,37 @@ public class BuildingState extends State {
             throw new IllegalStateException("Player has no tile in his hand");
         }
 
+        SpaceShip ship = player.getSpaceShip();
+
+        Component lastPlacedComponent = ship.getLastPlacedComponent();
+        if (lastPlacedComponent != null && ship.getLastPlacedComponent().getID() == component.getID()) {
+            ship.cleanLastPlacedComponent();
+        }
+
         switch (toWhere) {
             case 0 -> {
                 // Place the tile in the board
+                if (ship.peekReservedComponent(component.getID()) != null) {
+                    throw new IllegalStateException("Cannot put in the pile a reserved component");
+                }
                 board.putTile(component);
                 PlacedTileToBoard placeTileEvent = new PlacedTileToBoard(player.getUsername());
                 eventCallback.trigger(placeTileEvent);
             }
             case 1 -> {
                 // Place the tile in the reserve
-                player.getSpaceShip().reserveComponent(component);
+                if (ship.peekReservedComponent(component.getID()) == null) {
+                    ship.putReserveComponent(component);
+                }
                 PlacedTileToReserve placeTileEvent = new PlacedTileToReserve(player.getUsername());
                 eventCallback.trigger(placeTileEvent);
             }
             case 2 -> {
                 // Place the tile in the spaceship
-                player.getSpaceShip().placeComponent(component, row, col);
+                if (ship.peekReservedComponent(component.getID()) != null) {
+                    ship.removeReserveComponent(component.getID());
+                }
+                ship.placeComponent(component, row, col);
                 PlacedTileToSpaceship placeTileEvent = new PlacedTileToSpaceship(player.getUsername(), row, col);
                 eventCallback.trigger(placeTileEvent);
             }
@@ -337,12 +365,19 @@ public class BuildingState extends State {
      */
     @Override
     public void entry() {
-        board.clearInGamePlayers();
+        this.board.clearInGamePlayers();
+        this.flipTimer(null);
+        for (PlayerData player : players) {
+            playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
+        }
     }
 
     @Override
     public void execute(PlayerData playerData) {
         super.execute(playerData);
+        if (numberOfTimerFlips == 3 && !timerRunning) {
+            flipTimer(playerData);
+        }
         super.nextState(GameState.VALIDATION);
     }
 

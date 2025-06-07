@@ -4,6 +4,7 @@ import it.polimi.ingsw.model.game.board.Deck;
 import it.polimi.ingsw.model.game.board.Level;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.polimi.ingsw.utils.Logger;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -60,7 +61,8 @@ public class CardsManager {
                 i++;
             }
         }
-        while (i < 12) {
+        i = 0;
+        while (i < 8) {
             int randomIndex = random.nextInt(cards.length/2, cards.length);
             if (!selectedCards.contains(cards[randomIndex])) {
                 selectedCards.add(cards[randomIndex]);
@@ -133,8 +135,11 @@ public class CardsManager {
             Collections.shuffle(shuffledDeck);
         } while (shuffledDeck.peek().getCardLevel() != 2);
         // Ensure the first card is a level 2 card
-        return shuffledDeck;
 
+        for (Card card : shuffledDeck) {
+            Logger.getInstance().logError("Card ID: " + card.getID(), true);
+        }
+        return shuffledDeck;
     }
 
     /// TODO: METODO DA ELIMINARE

@@ -17,6 +17,7 @@ import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
 import it.polimi.ingsw.event.game.serverToClient.timer.*;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
+import it.polimi.ingsw.utils.Logger;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
@@ -27,6 +28,7 @@ import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
+import it.polimi.ingsw.view.miniModel.timer.TimerView;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
@@ -230,6 +232,9 @@ public class EventHandlerClient {
 
     private final CastEventReceiver<UpdateCrewMembers> updateCrewMembersReceiver;
     private final EventListener<UpdateCrewMembers> updateCrewMembersListener;
+
+    private final CastEventReceiver<LastTimerFinished> lastTimerFinishedReceiver;
+    private final EventListener<LastTimerFinished> lastTimerFinishedListener;
 
     private final CastEventReceiver<TimerFlipped> timerFlippedReceiver;
     private final EventListener<TimerFlipped> timerFlippedListener;
@@ -485,7 +490,7 @@ public class EventHandlerClient {
                 hits.add(new HitView(HitTypeView.fromValue(pair.getValue0()), HitDirectionView.fromValue(pair.getValue1())));
             }
             PiratesView card = new PiratesView(data.ID(), false, data.level(), data.cannonStrengthRequired(), data.credit(), data.flightDays(), hits);
-
+            
             MiniModel.getInstance().getShuffledDeckView().addCard(card);
         };
 
@@ -554,16 +559,20 @@ public class EventHandlerClient {
          */
         getDecksReceiver = new CastEventReceiver<>(this.transceiver);
         getDecksListener = data -> {
+            Logger.getInstance().logError("Number of cards in the shuffled deck: " + MiniModel.getInstance().getShuffledDeckView().getDeck().size(), true);
+            for (CardView card : MiniModel.getInstance().getShuffledDeckView().getDeck()) {
+                Logger.getInstance().logError("Card ID: " + card.getID(), true);
+            }
             for (int i = 0; i < data.decks().size(); i++) {
                 DeckView deck = new DeckView();
-                for (Integer integer : data.decks().get(i)) {
-                    CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().stream()
-                            .filter(c -> c.getID() == integer)
+                for (Integer ID : data.decks().get(i)) {
+                    MiniModel.getInstance().getShuffledDeckView().getDeck().stream()
+                            .filter(card -> card.getID() == ID)
                             .findFirst()
-                            .orElse(null);
-
-                    deck.addCard(card);
+                            .ifPresent(deck::addCard);
                 }
+                Logger.getInstance().logError("Deck " + i + " has " + deck.getDeck().size() + " cards", true);
+                deck.setCovered(true);
                 MiniModel.getInstance().getDeckViews().getValue0()[i] = deck;
                 MiniModel.getInstance().getDeckViews().getValue1()[i] = true;
             }
@@ -582,12 +591,20 @@ public class EventHandlerClient {
          */
         pickedLeftDeckReceiver = new CastEventReceiver<>(this.transceiver);
         pickedLeftDeckListener = data -> {
+            /* The decks are stored in a Pair: The first element is the deck views, and the second element is a boolean array.
+             If boolean[i] == true the deck[i] is not taken by a player, else deck is taken and not viewable in the building screen*/
             Pair<DeckView[], Boolean[]> decksView = MiniModel.getInstance().getDeckViews();
-            if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
-                decksView.getValue1()[data.deckIndex()] = data.usage() == 1;
-                decksView.getValue0()[data.deckIndex()].setCovered(false);
+
+            if (data.usage() == 0) {
+                decksView.getValue1()[data.deckIndex()] = false;
+                if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
+                    decksView.getValue0()[data.deckIndex()].setCovered(false);
+                }
             }
-            MiniModel.getInstance().getDeckViews().getValue1()[data.deckIndex()] = data.usage() == 1;
+            else{
+                decksView.getValue1()[data.deckIndex()] = true;
+                decksView.getValue0()[data.deckIndex()].setCovered(true);
+            }
 
             manager.notifyPickedLeftDeck(data);
         };
@@ -597,7 +614,7 @@ public class EventHandlerClient {
         diceRolledListener = data -> {
             MiniModel.getInstance().setDice(new Pair<>(data.diceValue1(), data.diceValue2()));
 
-
+            manager.notifyDiceRolled(data);
         };
 
         // ENERGY USED events
@@ -1109,31 +1126,40 @@ public class EventHandlerClient {
             manager.notifyUpdateCrewMembers(data);
         };
 
+        lastTimerFinishedReceiver = new CastEventReceiver<>(this.transceiver);
+        lastTimerFinishedListener = data -> {
+            manager.notifyLastTimerFlipped();
+        };
+
 
         /*
          * Start the timer for the building phase
          */
         timerFlippedReceiver = new CastEventReceiver<>(this.transceiver);
         timerFlippedListener = data -> {
+            TimerView timer = MiniModel.getInstance().getTimerView();
+            timer.setNumberOfFlips(data.numberOfFlips());
+            timer.setTotalFlips(data.maxNumberOfFlips());
             new Thread(() -> {
-                MiniModel.getInstance().getTimerView().setFlippedTimer(getPlayerDataView(data.nickname()));
-                LocalDateTime serverTime = LocalDateTime.parse(data.startingTime());
-                LocalDateTime clientTime = LocalDateTime.now();
-                int time = (int)(data.timerDuration() - Math.max(0, Duration.between(serverTime, clientTime).toSeconds()));
+                timer.setFlippedTimer(getPlayerDataView(data.nickname()));
+                LocalTime serverTime = LocalTime.parse(data.startingTime());
+                LocalTime clientTime = LocalTime.now();
+                int time = (int) ((data.timerDuration() / 1000) - Math.max(0, Duration.between(serverTime, clientTime).toSeconds()));
                 while (time >= 0) {
                     try {
                         MiniModel.getInstance().getTimerView().setSecondsRemaining(time);
-                        manager.notifyTimer();
+                        manager.notifyTimer(data);
                         Thread.sleep(1000);
                         time--;
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }
                 }
+                manager.notifyTimerFinished(data);
             }).start();
         };
 
-        stateChangedReceiver =  new CastEventReceiver<>(this.transceiver);
+        stateChangedReceiver = new CastEventReceiver<>(this.transceiver);
         stateChangedListener = data -> {
             MiniModel.getInstance().setGamePhase(data.newState());
             manager.notifyStateChange();

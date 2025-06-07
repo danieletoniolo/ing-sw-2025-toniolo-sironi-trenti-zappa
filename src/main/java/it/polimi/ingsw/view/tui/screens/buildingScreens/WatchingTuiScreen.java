@@ -15,9 +15,4 @@ public class WatchingTuiScreen extends BuildingTuiScreen {
     protected String lineBeforeInput() {
         return "Waiting for other players...";
     }
-
-    @Override
-    public TuiScreens getType() {
-        return TuiScreens.Watching;
-    }
 }

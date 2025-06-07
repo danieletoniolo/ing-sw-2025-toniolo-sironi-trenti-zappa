@@ -11,6 +11,7 @@ import it.polimi.ingsw.event.game.serverToClient.planets.PlanetSelected;
 import it.polimi.ingsw.event.game.serverToClient.player.*;
 import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
+import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 
 public interface Manager {
@@ -108,8 +109,11 @@ public interface Manager {
 
     void notifyUpdateCrewMembers(UpdateCrewMembers data);
 
+    void notifyLastTimerFlipped();
     // Timer
-    void notifyTimer();
+    void notifyTimer(TimerFlipped data);
+
+    void notifyTimerFinished(TimerFlipped data);
 
 
     void notifyStateChange();

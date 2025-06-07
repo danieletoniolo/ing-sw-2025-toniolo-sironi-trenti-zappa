@@ -21,9 +21,11 @@ public class MainCommandsTuiScreen extends BuildingTuiScreen {
             add("Rotate tile");
             if (MiniModel.getInstance().getBoardView().getLevel().equals(LevelView.SECOND)) {
                 add("Pick deck");
-                add("Flip timer");
+                if (MiniModel.getInstance().getTimerView().getNumberOfFlips() < MiniModel.getInstance().getTimerView().getTotalFlips()) {
+                    add("Flip timer");
+                }
             }
-            add("Finish building");
+            add("Place marker");
         }});
     }
 
@@ -54,14 +56,19 @@ public class MainCommandsTuiScreen extends BuildingTuiScreen {
             if (selected == 3) {
                 return new DeckCommandsTuiScreen();
             }
-            if (selected == 4) {
-                status = FlipTimer.requester(Client.transceiver, new Object()).request(new FlipTimer(MiniModel.getInstance().getUserID()));
-                if (status.get().equals("POTA")) {
-                    setMessage(((Pota) status).errorMessage());
+            if (MiniModel.getInstance().getTimerView().getNumberOfFlips() < MiniModel.getInstance().getTimerView().getTotalFlips() - 1) {
+                if (selected == 4) {
+                    status = FlipTimer.requester(Client.transceiver, new Object()).request(new FlipTimer(MiniModel.getInstance().getUserID()));
+                    if (status.get().equals("POTA")) {
+                        setMessage(((Pota) status).errorMessage());
+                    }
+                    return this;
                 }
-                return this;
+                selected -= 2;
             }
-            selected -= 2;
+            else {
+                selected -= 1;
+            }
         }
 
         if (selected == 3) {

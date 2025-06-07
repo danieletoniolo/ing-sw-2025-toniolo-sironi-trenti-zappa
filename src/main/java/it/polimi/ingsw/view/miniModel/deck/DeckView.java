@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.miniModel.deck;
 
+import it.polimi.ingsw.utils.Logger;
 import it.polimi.ingsw.view.miniModel.cards.CardView;
 
 import java.util.Collections;

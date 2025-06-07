@@ -35,6 +35,7 @@ public class PickCommandsTuiScreen extends BuildingTuiScreen {
             status = PickTileFromBoard.requester(Client.transceiver, new Object()).request(new PickTileFromBoard(MiniModel.getInstance().getUserID(), -1));
             if (status.get().equals("POTA")) {
                 setMessage(((Pota) status).errorMessage());
+                return this;
             }
         }
 
@@ -46,6 +47,7 @@ public class PickCommandsTuiScreen extends BuildingTuiScreen {
             status = PickTileFromSpaceship.requester(Client.transceiver, new Object()).request(new PickTileFromSpaceship(MiniModel.getInstance().getUserID()));
             if (status.get().equals("POTA")) {
                 setMessage(((Pota) status).errorMessage());
+                return this;
             }
         }
 

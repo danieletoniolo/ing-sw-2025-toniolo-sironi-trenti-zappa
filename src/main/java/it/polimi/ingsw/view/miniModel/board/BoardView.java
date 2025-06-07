@@ -37,11 +37,11 @@ public class BoardView implements Structure {
                 break;
             case SECOND:
                 this.stepsForALap = 24;
-                this.timerView = new TimerView(3);
+                this.timerView = new TimerView();
                 decksView = new Pair<>(new DeckView[3], new Boolean[3]);
                 break;
         }
-        this.players = new HashMap<MarkerView, Integer>();
+        this.players = new HashMap<>();
         initializeBoard();
     }
 

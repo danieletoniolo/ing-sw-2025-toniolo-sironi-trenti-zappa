@@ -8,11 +8,12 @@ import java.io.Serializable;
  * @param nickname         is the userID of the player who flipped the timer.
  * @param startingTime     is the time when the timer was flipped.
  * @param maxNumberOfFlips is the maximum number of times the timer can be flipped.
- * @param timerDuration    is the duration of the timer in seconds.
+ * @param timerDuration    is the duration of the timer in milliseconds.
  */
 public record TimerFlipped(
         String nickname,
         String startingTime,
+        int numberOfFlips,
         int maxNumberOfFlips,
         long timerDuration
 ) implements Event, Serializable {

@@ -121,10 +121,9 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
                     line.append("    ");
                     for (int j = 0; j < 3; j++) {
                         if (decksView.getValue1()[j]) {
-                            decksView.getValue0()[j].setCovered(true);
                             line.append("   ").append(decksView.getValue0()[j].drawLineTui(deckCount));
                         } else {
-                            line.append("                            ");
+                            line.append("                          ");
                         }
                     }
                     deckCount++;

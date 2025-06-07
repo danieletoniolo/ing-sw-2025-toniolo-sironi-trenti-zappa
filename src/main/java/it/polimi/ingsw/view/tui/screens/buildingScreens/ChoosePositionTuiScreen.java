@@ -32,6 +32,7 @@ public class ChoosePositionTuiScreen implements TuiScreenView {
         options.add("2");
         options.add("3");
         options.add("4");
+        options.add("Back");
 
         totalLines = MiniModel.getInstance().getBoardView().getRowsToDraw() + 5;
         isNewScreen = true;
@@ -44,6 +45,9 @@ public class ChoosePositionTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
+        if (selected == 4) {
+            return new MainCommandsTuiScreen();
+        }
 
         StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object()).request(new PlaceMarker(MiniModel.getInstance().getUserID(), selected));
         if (status.get().equals("POTA")) {

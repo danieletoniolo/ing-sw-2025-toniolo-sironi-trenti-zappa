@@ -28,7 +28,6 @@ public abstract class Component implements Serializable {
     protected int row;
     protected int column;
 
-    private boolean fixed;
     @JsonProperty
     private ConnectorType[] connectors;
 
@@ -37,7 +36,6 @@ public abstract class Component implements Serializable {
     public Component(int ID, ConnectorType[] connectors) {
         this.ID = ID;
         this.ship = null;
-        this.fixed = false;
         this.connectors = connectors;
         this.clockwiseRotation = 0;
     }
@@ -149,21 +147,6 @@ public abstract class Component implements Serializable {
             }
         }
         return false;
-    }
-
-    /**
-     * Check if the component is fixed and cannot be moved
-     * @return true if the component is fixed, false otherwise
-     */
-    public boolean isFixed() {
-        return fixed;
-    }
-
-    /**
-     * Fix the component so it cannot be moved
-     */
-    public void fix() {
-        fixed = true;
     }
 
     /**

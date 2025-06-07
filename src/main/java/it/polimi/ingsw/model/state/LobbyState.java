@@ -102,8 +102,8 @@ public class LobbyState extends State {
                 case PIRATES -> {
                     Pirates cardPirates = (Pirates) card;
                     GetCardPirates getCardPirates = new GetCardPirates(
-                            card.getID(),
-                            card.getCardLevel(),
+                            cardPirates.getID(),
+                            cardPirates.getCardLevel(),
                             cardPirates.getCannonStrengthRequired(),
                             cardPirates.getFlightDays(),
                             cardPirates.getFires().stream().map(t -> new Pair<>(t.getType().getValue(), t.getDirection().getValue())).toList(),
@@ -179,6 +179,7 @@ public class LobbyState extends State {
             for (Deck deck : board.getDecks()) {
                 if (deck.isPickable()) {
                     decks.add(deck.getCards().stream().map(Card::getID).toList());
+                    Logger.getInstance().logError("Cards ids: " + deck.getCards().stream().map(Card::getID).toList(), true);
                 }
             }
             eventCallback.trigger(new GetDecks(decks));
