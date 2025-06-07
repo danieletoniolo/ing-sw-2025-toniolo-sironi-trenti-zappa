@@ -17,7 +17,13 @@ public class OpenSpaceView extends CardView {
         return switch(l) {
             case 0 -> Up;
             case 1 -> "│     OPENSPACE     │";
-            case 2,3,4,5,6,7,8 -> Clear;
+            case 2 -> Clear;
+            case 3 -> "│        / \\        │";
+            case 4 -> "│       /   \\       │";
+            case 5 -> "│       │===│       │";
+            case 6 -> "│      /     \\      │";
+            case 7 -> "│      │_____│      │";
+            case 8 -> "│       /|||\\       │";
             case 9 -> Down;
             default -> null;
         };

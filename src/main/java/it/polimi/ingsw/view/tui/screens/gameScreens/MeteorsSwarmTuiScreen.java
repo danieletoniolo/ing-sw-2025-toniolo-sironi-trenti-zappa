@@ -6,5 +6,6 @@ public class MeteorsSwarmTuiScreen extends GameTuiScreen {
 
     public MeteorsSwarmTuiScreen() {
         super(null);
+        setMessage("A meteor swarn is coming! Good luck!");
     }
 }
