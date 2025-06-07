@@ -36,7 +36,7 @@ public class Client {
         }
         int row = 1;
 
-        Logger.getInstance().setUp(false, true);
+        Logger.getInstance(false, true);
         transceiver = new NetworkTransceiver();
 
         TerminalUtils.printLine(terminal.writer(), "  _______      ___       __          ___      ___   ___ ____    ____    .___________..______       __    __    ______  __  ___  _______ .______     \s", row++);

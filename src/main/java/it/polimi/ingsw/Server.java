@@ -26,8 +26,7 @@ public class Server {
         String hostname = scanner.nextLine();
 
         // Start up Logger
-        Logger logger = Logger.getInstance();
-        logger.setUp(true, true);
+        Logger logger = Logger.getInstance(true, true);
 
         // Create a new NetworkTransceiver object (this will be the main transceiver for the pre-game phase)
         NetworkTransceiver networkTransceiver = new NetworkTransceiver();
