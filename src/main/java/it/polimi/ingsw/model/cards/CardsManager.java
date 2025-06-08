@@ -136,9 +136,6 @@ public class CardsManager {
         } while (shuffledDeck.peek().getCardLevel() != 2);
         // Ensure the first card is a level 2 card
 
-        for (Card card : shuffledDeck) {
-            Logger.getInstance().logError("Card ID: " + card.getID(), true);
-        }
         return shuffledDeck;
     }
 

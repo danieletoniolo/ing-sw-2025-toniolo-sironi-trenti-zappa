@@ -122,6 +122,18 @@ public class SpaceShipView implements Structure {
         return discardReservedPile;
     }
 
+    public ComponentView getComponent(int row, int col) {
+        return spaceShip[row - converterRow][col - converterCol];
+    }
+
+    public int getRows() {
+        return spaceShip.length;
+    }
+
+    public int getCols() {
+        return spaceShip[0].length;
+    }
+
     public ComponentView[][] getSpaceShip() {
         return spaceShip;
     }

@@ -283,9 +283,9 @@ public class MatchController {
         registerAllGameListeners(networkTransceiver);
 
         // Remove the current user from the serverNetworkTransceiver to the lobbyNetworkTransceiver
+        serverNetworkTransceiver.disconnect(userID);
         networkTransceiver.connect(user.getUUID(), user.getConnection());
         networkTransceivers.put(lobby, networkTransceiver);
-        serverNetworkTransceiver.disconnect(userID);
 
         // Creating the playerData for the user
         PlayerColor color = PlayerColor.BLUE;
@@ -353,14 +353,14 @@ public class MatchController {
                 Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), lobbiesPlayers, lobbiesLevels);
 
                 // Removing the network transceiver of the lobby and attaching the users to the network transceiver of the server
-                networkTransceivers.get(lobby).disconnect(userID);
-                networkTransceivers.remove(lobby);
                 for (User tempUser : users.values()) {
-                    if (user.getLobby().equals(lobby)) {
+                    if (tempUser.getLobby() != null && tempUser.getLobby().equals(lobby)) {
+                        networkTransceivers.get(lobby).disconnect(tempUser.getUUID());
                         serverNetworkTransceiver.connect(tempUser.getUUID(), tempUser.getConnection());
                         serverNetworkTransceiver.send(tempUser.getUUID(), lobbiesEvent);
                     }
                 }
+                networkTransceivers.remove(lobby);
 
                 // If it is the founder, we need to remove the lobby
                 users.forEach((_, value) -> {
@@ -395,8 +395,8 @@ public class MatchController {
                 userLobbyInfo.remove(user);
 
                 // Attaching the user to the network transceiver of the server
-                serverNetworkTransceiver.connect(user.getUUID(), user.getConnection());
                 networkTransceivers.get(lobby).disconnect(user.getUUID());
+                serverNetworkTransceiver.connect(user.getUUID(), user.getConnection());
 
                 // Notifying to all the clients that a user has left the lobby
                 LobbyLeft lobbyLeftEvent = new LobbyLeft(user.getNickname(), lobby.getName());
@@ -463,9 +463,9 @@ public class MatchController {
             gc.manageLobby(player, 0);
 
             // Attaching the user to the network transceiver of the lobby
+            serverNetworkTransceiver.disconnect(user.getUUID());
             NetworkTransceiver networkTransceiver = networkTransceivers.get(lobby);
             networkTransceiver.connect(user.getUUID(), user.getConnection());
-            serverNetworkTransceiver.disconnect(user.getUUID());
 
             // Notifying to all the clients that a new user has joined the lobby
             LobbyJoined lobbyJoinedEvent = new LobbyJoined(user.getNickname(), lobby.getName());
@@ -845,12 +845,13 @@ public class MatchController {
      */
     private StatusEvent setComponentToDestroy(DestroyComponents data) {
         UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
         GameController gc = gameControllers.get(lobby);
         try {
             if (gc != null) {
-                gc.setComponentToDestroy(userID, data.componentsToDestroy());
+                gc.setComponentToDestroy(player, data.componentsToDestroy());
             }
             return new Tac(data.userID(), DestroyComponents.class);
         } catch (IllegalStateException | IllegalArgumentException e) {

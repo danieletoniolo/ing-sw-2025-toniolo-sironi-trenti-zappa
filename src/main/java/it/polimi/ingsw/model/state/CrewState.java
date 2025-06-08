@@ -54,6 +54,11 @@ public class CrewState extends State {
     }
 
     @Override
+    public PlayerData getCurrentPlayer() throws SynchronousStateException {
+        throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state");
+    }
+
+    @Override
     public void entry() {
         if (board.getBoardLevel() == Level.LEARNING) {
             for (PlayerData player : players) {

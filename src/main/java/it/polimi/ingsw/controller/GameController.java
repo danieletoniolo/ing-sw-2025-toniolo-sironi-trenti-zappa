@@ -49,9 +49,6 @@ public class GameController implements Serializable, StateTransitionHandler {
         }
     }
 
-    public void endGame() {
-    }
-
     public void manageLobby(PlayerData player, int type) {
         try {
             state.manageLobby(player, type);
@@ -142,21 +139,6 @@ public class GameController implements Serializable, StateTransitionHandler {
             state.flipTimer(player);
         } catch (Exception e) {
             throw new IllegalStateException(e.getMessage());
-        }
-    }
-
-    public void choseFragment(UUID uuid, int fragmentID) {
-        PlayerData player = state.getCurrentPlayer();
-        if (player.getUUID().equals(uuid)) {
-            try {
-                state.setFragmentChoice(player, fragmentID);
-            } catch (IllegalStateException e) {
-                throw new IllegalStateException(e.getMessage());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Invalid fragment ID: " + fragmentID);
-            }
-        } else {
-            throw new IllegalStateException("State is not a ChoosableFragment");
         }
     }
 
@@ -269,12 +251,20 @@ public class GameController implements Serializable, StateTransitionHandler {
         }
     }
 
-    public void setComponentToDestroy(UUID uuid, List<Pair<Integer, Integer>> componentsToDestroy) {
-        PlayerData player = state.getCurrentPlayer();
-        if (player.getUUID().equals(uuid)) {
+    public void setComponentToDestroy(PlayerData player, List<Pair<Integer, Integer>> componentsToDestroy) {
+        try {
+            PlayerData currentPlayer = state.getCurrentPlayer();
+            if (!currentPlayer.equals(player)) {
+                throw new IllegalStateException("Not the current player");
+            }
+        } catch (SynchronousStateException e) {
+            // Ignore the exception, it is expected in synchronous states
+        }
+
+        try {
             state.setComponentToDestroy(player, componentsToDestroy);
-        } else {
-            throw new IllegalStateException("Not the current player");
+        } catch (Exception exception) {
+            throw new IllegalStateException(exception.getMessage());
         }
     }
 

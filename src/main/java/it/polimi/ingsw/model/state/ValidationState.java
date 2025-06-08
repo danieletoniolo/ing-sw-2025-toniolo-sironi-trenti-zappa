@@ -35,6 +35,11 @@ public class ValidationState extends State {
         this.internalState = ValidationInternalState.DEFAULT;
     }
 
+    @Override
+    public PlayerData getCurrentPlayer() throws SynchronousStateException {
+        throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state");
+    }
+
     /**
      * Implementation of {@link State#setFragmentChoice(PlayerData, int)} to set the fragment choice.
      */

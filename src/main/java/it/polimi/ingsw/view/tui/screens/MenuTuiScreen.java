@@ -31,7 +31,7 @@ public class MenuTuiScreen implements TuiScreenView {
         }
         options.add("Create lobby");
         options.add("Reload lobbies");
-        options.add("Exit");
+        options.add("Close program");
     }
 
     @Override

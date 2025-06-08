@@ -17,7 +17,6 @@ import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
 import it.polimi.ingsw.event.game.serverToClient.timer.*;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
-import it.polimi.ingsw.utils.Logger;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
@@ -559,10 +558,6 @@ public class EventHandlerClient {
          */
         getDecksReceiver = new CastEventReceiver<>(this.transceiver);
         getDecksListener = data -> {
-            Logger.getInstance().logError("Number of cards in the shuffled deck: " + MiniModel.getInstance().getShuffledDeckView().getDeck().size(), true);
-            for (CardView card : MiniModel.getInstance().getShuffledDeckView().getDeck()) {
-                Logger.getInstance().logError("Card ID: " + card.getID(), true);
-            }
             for (int i = 0; i < data.decks().size(); i++) {
                 DeckView deck = new DeckView();
                 for (Integer ID : data.decks().get(i)) {
@@ -571,7 +566,6 @@ public class EventHandlerClient {
                             .findFirst()
                             .ifPresent(deck::addCard);
                 }
-                Logger.getInstance().logError("Deck " + i + " has " + deck.getDeck().size() + " cards", true);
                 deck.setCovered(true);
                 MiniModel.getInstance().getDeckViews().getValue0()[i] = deck;
                 MiniModel.getInstance().getDeckViews().getValue1()[i] = true;
@@ -1090,7 +1084,7 @@ public class EventHandlerClient {
                 }
             }
             for (Pair<Integer, Integer> pair : data.invalidComponents()) {
-                ship[pair.getValue0()][pair.getValue1()].setIsWrong(true);
+                player.getShip().getComponent(pair.getValue0(), pair.getValue1()).setIsWrong(true);
             }
 
             manager.notifyInvalidComponents(data);
@@ -1241,6 +1235,7 @@ public class EventHandlerClient {
         nextHitReceiver.registerListener(nextHitListener);
         updateCrewMembersReceiver.registerListener(updateCrewMembersListener);
         timerFlippedReceiver.registerListener(timerFlippedListener);
+        lastTimerFinishedReceiver.registerListener(lastTimerFinishedListener);
         stateChangedReceiver.registerListener(stateChangedListener);
     }
 }

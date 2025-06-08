@@ -7,6 +7,7 @@ import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
+import it.polimi.ingsw.view.tui.screens.TuiScreens;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.BuildingTuiScreen;
@@ -61,5 +62,10 @@ public class RowAndColTuiScreen extends BuildingTuiScreen {
         }
 
         return new MainCommandsTuiScreen();
+    }
+
+    @Override
+    public TuiScreens getType() {
+        return TuiScreens.Writing;
     }
 }

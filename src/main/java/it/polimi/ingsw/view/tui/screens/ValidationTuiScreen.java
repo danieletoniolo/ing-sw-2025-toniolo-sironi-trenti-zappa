@@ -11,6 +11,7 @@ import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.validationScreens.RowAndColValidationTuiScreen;
+import it.polimi.ingsw.view.tui.screens.validationScreens.WaitingValidationTuiScreen;
 import org.javatuples.Pair;
 import org.jline.terminal.Terminal;
 
@@ -20,7 +21,7 @@ import java.util.List;
 public class ValidationTuiScreen implements TuiScreenView {
     protected ArrayList<String> options = new ArrayList<>();
     protected int totalLines;
-    private int selected;
+    protected int selected;
 
     protected static SpaceShipView spaceShipView;
     protected static List<Pair<Integer, Integer>> destroyTiles;
@@ -34,8 +35,8 @@ public class ValidationTuiScreen implements TuiScreenView {
             destroyTiles = new ArrayList<>();
         }
 
-        options.add("Cancel");
         options.add("Destroy a component");
+        options.add("Cancel");
         options.add("Done");
 
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
@@ -44,11 +45,6 @@ public class ValidationTuiScreen implements TuiScreenView {
         options.add("Close program");
 
         totalLines = spaceShipView.getRowsToDraw() + 5;
-    }
-
-    private void destroyStatics() {
-        spaceShipView = null;
-        destroyTiles = null;
     }
 
     @Override
@@ -84,11 +80,13 @@ public class ValidationTuiScreen implements TuiScreenView {
                         new DestroyComponents(MiniModel.getInstance().getUserID(), destroyTiles));
                 if (status.get().equals("POTA")) {
                     setMessage(((Pota) status).errorMessage());
+                    destroyTiles.clear();
+                    spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
                     return this;
                 }
                 setMessage(null);
-                destroyStatics();
-                return this;
+                spaceShipView = MiniModel.getInstance().getClientPlayer().getShip();
+                return new WaitingValidationTuiScreen();
         }
 
         return this;

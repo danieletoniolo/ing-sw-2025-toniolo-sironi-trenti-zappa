@@ -109,11 +109,12 @@ public interface Manager {
 
     void notifyUpdateCrewMembers(UpdateCrewMembers data);
 
-    void notifyLastTimerFlipped();
     // Timer
     void notifyTimer(TimerFlipped data);
 
     void notifyTimerFinished(TimerFlipped data);
+
+    void notifyLastTimerFlipped();
 
 
     void notifyStateChange();

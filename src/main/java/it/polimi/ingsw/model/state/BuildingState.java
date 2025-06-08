@@ -159,7 +159,7 @@ public class BuildingState extends State {
      */
     @Override
     public void placeMarker(PlayerData player, int position) throws IllegalStateException {
-        if (numberOfTimerFlips < 3 || (timerRunning && numberOfTimerFlips != 4)) {
+        if (super.board.getBoardLevel() == Level.SECOND && (numberOfTimerFlips < 3 || (timerRunning && numberOfTimerFlips != 4))) {
             throw new IllegalStateException("Cannot place marker before the second timer flip");
         }
 

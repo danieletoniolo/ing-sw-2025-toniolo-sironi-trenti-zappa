@@ -589,7 +589,7 @@ public class TuiManager implements Manager {
     public void notifyTimerFinished(TimerFlipped data) {
         if (data.numberOfFlips() == data.maxNumberOfFlips() - 1) {
             synchronized (stateLock) {
-                currentScreen = new ChoosePositionTuiScreen();
+                currentScreen = new MainCommandsTuiScreen();
                 parser.changeScreen();
                 printInput = false;
                 stateLock.notifyAll();
