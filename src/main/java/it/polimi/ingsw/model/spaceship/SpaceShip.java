@@ -214,9 +214,7 @@ public class SpaceShip {
         if (comp != null) {
             if (comp.getComponentType() == ComponentType.SINGLE_CANNON && comp.getClockwiseRotation() == direction) {
                 return true;
-            } else if (comp.getComponentType() == ComponentType.DOUBLE_CANNON && comp.getClockwiseRotation() == direction) {
-                return true;
-            }
+            } else return comp.getComponentType() == ComponentType.DOUBLE_CANNON && comp.getClockwiseRotation() == direction;
         }
         return false;
     }
@@ -649,11 +647,7 @@ public class SpaceShip {
      * @param tileID The ID of component to unreserve
      */
     public void removeReserveComponent(int tileID) {
-        for (Component c : reservedComponents) {
-            if (c.getID() == tileID) {
-                reservedComponents.remove(c);
-            }
-        }
+        reservedComponents.removeIf(c -> c.getID() == tileID);
     }
 
     public Component peekReservedComponent(int tileID) {
@@ -855,7 +849,7 @@ public class SpaceShip {
                         if (cabinBrown.hasBrownAlien()) {
                             brownAlien = false;
                             crewNumber -= cabinBrown.getCrewNumber();
-                            cabinBrown.removeCrewMember(1);;
+                            cabinBrown.removeCrewMember(1);
                             break;
                         }
                     }
@@ -909,7 +903,7 @@ public class SpaceShip {
                 if (components[i][j] != null && !visited[i][j]) {
                     ArrayList<Pair<Integer, Integer>> disconnectedComponent = new ArrayList<>();
                     Queue<Pair<Integer, Integer>> queue = new LinkedList<>();
-                    queue.add(new Pair<Integer, Integer>(i, j));
+                    queue.add(new Pair<>(i, j));
                     visited[i][j] = true;
 
                     while (!queue.isEmpty()) {
@@ -931,7 +925,7 @@ public class SpaceShip {
                                         currentComponent.getConnection(face) == adjacentComponent.getConnection((face + 2) % 4)) &&
                                         currentComponent.getConnection(face) != ConnectorType.EMPTY) {
                                     visited[newRow][newColumn] = true;
-                                    queue.add(new Pair<Integer, Integer>(newRow, newColumn));
+                                    queue.add(new Pair<>(newRow, newColumn));
                                 }
                             }
                         }

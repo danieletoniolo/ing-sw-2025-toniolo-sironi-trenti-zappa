@@ -137,6 +137,8 @@ public class Parser {
         var writer = terminal.writer();
         var reader = terminal.reader();
 
+        TerminalUtils.restoreRawMode(terminal);
+
         synchronized (stringsQueue) {
             stringsQueue.clear();
         }
@@ -144,15 +146,12 @@ public class Parser {
         inputThread = new Thread(() -> {
             try {
                 while (true) {
-                    writer.printf("\033[%d;0H", menuStartRow);
-                    writer.print("\033[2K");
-                    writer.print(prompt);
-                    writer.flush();
+                    TerminalUtils.printLine(writer, prompt, menuStartRow);
 
                     StringBuilder sb = new StringBuilder();
                     while (true) {
                         int ch = reader.read();
-                        if (ch == 10 || ch == 13) {
+                        if (ch == 10 || ch == 13) { // Enter key pressed
                             String entered = sb.toString().trim();
                             if (validator.test(entered)) {
                                 TerminalUtils.printLine(writer, "", menuStartRow + 1);
@@ -169,19 +168,16 @@ public class Parser {
                         } else if (ch == 127 || ch == 8) { // Handle backspace
                             if (!sb.isEmpty()) {
                                 sb.deleteCharAt(sb.length() - 1);
-                                writer.print("\b \b"); // Move back, print space, move back again
-                                writer.flush();
+                                TerminalUtils.printLine(writer, prompt + sb, menuStartRow);
                             }
                         } else if (ch >= 32 && ch < 127) { // Printable characters
                             sb.append((char) ch);
-                            writer.print((char) ch);
-                            writer.flush();
+                            TerminalUtils.printLine(writer, prompt + sb, menuStartRow);
                         }
                     }
                 }
             } catch (IOException ignored) {
                 Thread.currentThread().interrupt();
-                Logger.getInstance().logError("Parser thread stopped due to IOException", false);
             }
         });
         inputThread.start();
