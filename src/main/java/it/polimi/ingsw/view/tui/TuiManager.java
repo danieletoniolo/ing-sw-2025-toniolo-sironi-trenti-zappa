@@ -338,10 +338,16 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyPickedTileFromSpaceShip(PickedTileFromSpaceship data) {
-        if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
+        if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
             synchronized (stateLock) {
-                currentScreen.setMessage("You picked the tile from the ship");
                 stateLock.notifyAll();
+            }
+        }
+        else {
+            if (currentScreen.getType().equals(TuiScreens.Player) && ((PlayerTuiScreen) currentScreen).getPlayerToView().getUsername().equals(data.nickname())) {
+                synchronized (stateLock) {
+                    stateLock.notifyAll();
+                }
             }
         }
     }
@@ -375,9 +381,16 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyPlacedTileToSpaceship(PlacedTileToSpaceship data) {
-        if (currentScreen.getType().equals(TuiScreens.Building)) {
+        if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
             synchronized (stateLock) {
                 stateLock.notifyAll();
+            }
+        }
+        else {
+            if (currentScreen.getType().equals(TuiScreens.Player) && ((PlayerTuiScreen) currentScreen).getPlayerToView().getUsername().equals(data.nickname())) {
+                synchronized (stateLock) {
+                    stateLock.notifyAll();
+                }
             }
         }
     }

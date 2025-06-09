@@ -133,7 +133,7 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, message == null ? "" : message, row++);
         TerminalUtils.printLine(writer, "", row++);
-        TerminalUtils.printLine(writer, lineBeforeInput(), row++);
+        TerminalUtils.printLine(writer, lineBeforeInput(), row);
 
         for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
             TerminalUtils.printLine(writer, "", i);
@@ -172,18 +172,20 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
             }
         }
 
-        line.setLength(0);
-        for (int i = 0; i < ComponentView.getRowsToDraw(); i++) {
-            if (i == 1) {
-                line.append(((tiles.size() / cols + 1) / 10 == 0 ? ((tiles.size() / cols + 1) + "  ") : ((tiles.size() / cols + 1) + " ")));
-            } else {
-                line.append("   ");
-            }
-            for (int k = 0; k < tiles.size() % cols; k++) {
-                line.append(tiles.get((tiles.size() / cols) * cols + k).drawLineTui(i));
-            }
-            TerminalUtils.printLine(writer, line.toString(), row++);
+        if (tiles.size() % cols != 0 || tiles.isEmpty()) {
             line.setLength(0);
+            for (int i = 0; i < ComponentView.getRowsToDraw(); i++) {
+                if (i == 1) {
+                    line.append(((tiles.size() / cols + 1) / 10 == 0 ? ((tiles.size() / cols + 1) + "  ") : ((tiles.size() / cols + 1) + " ")));
+                } else {
+                    line.append("   ");
+                }
+                for (int k = 0; k < tiles.size() % cols; k++) {
+                    line.append(tiles.get((tiles.size() / cols) * cols + k).drawLineTui(i));
+                }
+                TerminalUtils.printLine(writer, line.toString(), row++);
+                line.setLength(0);
+            }
         }
     }
 

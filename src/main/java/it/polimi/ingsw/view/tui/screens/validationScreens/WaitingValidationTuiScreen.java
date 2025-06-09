@@ -10,13 +10,14 @@ import it.polimi.ingsw.view.tui.screens.ValidationTuiScreen;
 public class WaitingValidationTuiScreen extends ValidationTuiScreen {
 
     public WaitingValidationTuiScreen() {
+        super();
         options.clear();
 
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
             options.add("View " + p.getUsername() + "'s spaceship");
         }
         options.add("Close program");
-        setMessage("Waiting for other players to validate their actions...");
+        super.setMessage("Waiting for other players to validate their spaceships...");
     }
 
     @Override

@@ -21,7 +21,7 @@ public class MainCommandsTuiScreen extends BuildingTuiScreen {
             add("Rotate tile");
             if (MiniModel.getInstance().getBoardView().getLevel().equals(LevelView.SECOND)) {
                 add("Pick deck");
-                if (MiniModel.getInstance().getTimerView().getNumberOfFlips() < MiniModel.getInstance().getTimerView().getTotalFlips()) {
+                if (MiniModel.getInstance().getTimerView().getNumberOfFlips() < MiniModel.getInstance().getTimerView().getTotalFlips() - 1) {
                     add("Flip timer");
                 }
             }

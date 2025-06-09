@@ -63,9 +63,4 @@ public class RowAndColTuiScreen extends BuildingTuiScreen {
 
         return new MainCommandsTuiScreen();
     }
-
-    @Override
-    public TuiScreens getType() {
-        return TuiScreens.Writing;
-    }
 }
