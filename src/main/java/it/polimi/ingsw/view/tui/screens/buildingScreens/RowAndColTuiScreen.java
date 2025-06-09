@@ -20,6 +20,7 @@ public class RowAndColTuiScreen extends BuildingTuiScreen {
     public RowAndColTuiScreen(int num) {
         super(null);
         options.clear();
+        options.add("");
         this.num = num;
     }
 

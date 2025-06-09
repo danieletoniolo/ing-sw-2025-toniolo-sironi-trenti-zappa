@@ -41,8 +41,12 @@ public class MeteorSwarmState extends State {
         if (fragments.isEmpty()) {
             throw new IllegalStateException("No fragments to choose from");
         }
-        Event event = Handler.destroyFragment(player, fragments.get(fragmentChoice));
-        eventCallback.trigger(event);
+        for (int i = 0; i < fragments.size(); i++) {
+            if (i != fragmentChoice) {
+                Event event = Handler.destroyFragment(player, fragments.get(i));
+                eventCallback.trigger(event);
+            }
+        }
         fragments.clear();
     }
 

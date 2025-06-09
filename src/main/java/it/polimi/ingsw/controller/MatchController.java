@@ -22,20 +22,15 @@ import it.polimi.ingsw.event.game.clientToServer.spaceship.DestroyComponents;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.ManageCrewMember;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.SetPenaltyLoss;
 import it.polimi.ingsw.event.game.clientToServer.timer.FlipTimer;
-import it.polimi.ingsw.event.game.serverToClient.deck.GetDecks;
-import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedMainCabin;
 import it.polimi.ingsw.event.lobby.serverToClient.ReadyPlayer;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.model.cards.Card;
 import it.polimi.ingsw.model.game.board.Board;
-import it.polimi.ingsw.model.game.board.Deck;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.game.lobby.LobbyInfo;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.good.GoodType;
 import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
-import it.polimi.ingsw.model.spaceship.Component;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import it.polimi.ingsw.event.NetworkTransceiver;
@@ -48,7 +43,6 @@ import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -65,6 +59,8 @@ public class MatchController {
      * Map of all the lobbies created in the game. The key is the name of the lobby and the value is the LobbyInfo object.
      */
     private final Map<String, LobbyInfo> lobbies;
+    // TODO: decrease numberOfPlayersEntered when a player disconnects from the lobby and launch a LeaveLobby event (if we are in the loobby state)
+    // TODO: if there was only one player in the lobby and the player has been disconnected, than remove the lobby
 
     /**
      * Represents the server's network transceiver responsible for handling communication processes such as sending and receiving data over the network.
@@ -75,28 +71,33 @@ public class MatchController {
      * Map of all the network transceivers created in the game. The key is the LobbyInfo object and the value is the NetworkTransceiver object.
      */
     private final Map<LobbyInfo, NetworkTransceiver> networkTransceivers;
+    // TODO: if there was only one player in the lobby and the player has been disconnected, than remove the association between lobby and network transceiver
 
     /**
      * Map of all the game controllers. The key is the LobbyInfo object and the value is the GameController object.
      */
     private final Map<LobbyInfo, GameController> gameControllers;
+    // TODO: remove the game controller associated with the lobby, if there was only one player in the lobby and the player has been disconnected
 
     /**
      * Map of all the users connected to the server. The key is the UUID of the user and the value is the User object.
      * The User is created only after the user has set the userID. The UUID associated to the user is the same ID that is associated to the connection.
      */
     private final Map<UUID, User> users;
+    // TODO: remove the user from the users map, when disconnecting from the server
 
     /**
      * Map of all the players in the game. The key is the User object and the value is the PlayerData object.
      * The PlayerData is created only after the user has created or joined a lobby.
      */
     private final Map<User, PlayerData> userPlayers;
+    // TODO: remove the playerData associates with the user, when disconnecting from the server
 
     /**
      * Map of all the lobbies associated to the users. The key is the User object and the value is the LobbyInfo object.
      */
     private final Map<User, LobbyInfo> userLobbyInfo;
+    // TODO: remove user from userLobbyInfo, when disconnecting from the server
 
     static private final Integer PLACEHOLDER = -1;
 

@@ -18,7 +18,7 @@ import java.util.Map;
 public class ValidationState extends State {
     private ValidationInternalState internalState;
     private final Map<PlayerData, ArrayList<Pair<Integer, Integer>>> invalidComponents;
-    private List<List<Pair<Integer, Integer>>> fragmentedComponents;
+    private final Map<PlayerData, List<List<Pair<Integer, Integer>>>> fragmentedComponents;
 
     /**
      * Enum to represent the internal state of the validation state.
@@ -31,7 +31,7 @@ public class ValidationState extends State {
     public ValidationState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.invalidComponents = new HashMap<>();
-        this.fragmentedComponents = null;
+        this.fragmentedComponents = new HashMap<>();
         this.internalState = ValidationInternalState.DEFAULT;
     }
 
@@ -52,8 +52,13 @@ public class ValidationState extends State {
         if (fragmentChoice < 0 || fragmentChoice >= fragmentedComponents.size()) {
             throw new IllegalArgumentException("Fragment choice is out of bounds");
         }
-        Event event = Handler.destroyFragment(player, fragmentedComponents.get(fragmentChoice));
-        eventCallback.trigger(event);
+        for (int i = 0; i < fragmentedComponents.size(); i++) {
+            if (i != fragmentChoice) {
+                Event event = Handler.destroyFragment(player, fragmentedComponents.get(player).get(i));
+                eventCallback.trigger(event);
+            }
+        }
+        fragmentedComponents.get(player).clear();
     }
 
 
@@ -91,37 +96,27 @@ public class ValidationState extends State {
     @Override
     public void execute(PlayerData player) {
         SpaceShip ship = player.getSpaceShip();
-        switch (internalState) {
-            case DEFAULT:
-                // Recalculate the invalid components of the player
-                invalidComponents.replace(player, ship.getInvalidComponents());
-                ArrayList<Pair<Integer, Integer>> playerInvalidComponents = invalidComponents.get(player);
 
-                if (playerInvalidComponents.isEmpty()) {
-                    // Check if the ship is now fragmented
-                    fragmentedComponents = ship.getDisconnectedComponents();
-                    if (fragmentedComponents.size() > 1) {
-                        // Set the internal state to FRAGMENTED_SHIP
-                        internalState = ValidationInternalState.FRAGMENTED_SHIP;
-                    } else {
-                        // Reset the fragment components
-                        fragmentedComponents = null;
-                        // Set the player status to PLAYED
-                        playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
-                    }
-                } else {
-                    InvalidComponents invalidComponentsEvent = new InvalidComponents(player.getUsername(), playerInvalidComponents);
-                    eventCallback.trigger(invalidComponentsEvent);
-                }
-                break;
-            case FRAGMENTED_SHIP:
-                fragmentedComponents = null;
-                internalState = ValidationInternalState.DEFAULT;
+        // Recalculate the invalid components of the player
+        invalidComponents.replace(player, ship.getInvalidComponents());
+        ArrayList<Pair<Integer, Integer>> playerInvalidComponents = invalidComponents.get(player);
+
+        if (playerInvalidComponents.isEmpty()) {
+            // Check if the ship is now fragmented
+            fragmentedComponents.replace(player, ship.getDisconnectedComponents());
+            if (fragmentedComponents.get(player).size() <= 1) {
                 playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
-                break;
+            }
+            // Reset the fragment components
+            fragmentedComponents.replace(player, null);
+        } else {
+            InvalidComponents invalidComponentsEvent = new InvalidComponents(player.getUsername(), playerInvalidComponents);
+            eventCallback.trigger(invalidComponentsEvent);
         }
+
         super.nextState(GameState.CREW);
     }
+
     @Override
     public void exit() {
         for (PlayerData p : players) {
