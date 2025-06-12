@@ -24,6 +24,7 @@ public class ValidationTuiScreen implements TuiScreenView {
     protected ArrayList<String> options = new ArrayList<>();
     protected int totalLines;
     protected int selected;
+    private TuiScreenView nextState;
 
     protected static SpaceShipView spaceShipView;
     protected static List<Pair<Integer, Integer>> destroyTiles;
@@ -98,22 +99,7 @@ public class ValidationTuiScreen implements TuiScreenView {
                 setMessage(null);
                 spaceShipView = MiniModel.getInstance().getClientPlayer().getShip();
 
-                boolean isSpaceShipValid = true;
-                for (ComponentView[] row : spaceShipView.getSpaceShip()) {
-                    for (ComponentView component : row) {
-                        if (component != null && component.getIsWrong()) {
-                            isSpaceShipValid = false;
-                            break;
-                        }
-                    }
-
-                    if (!isSpaceShipValid) {
-                        break;
-                    }
-                }
-                if (isSpaceShipValid) {
-                    return new WaitingValidationTuiScreen();
-                }
+                return nextState;
         }
 
         return this;
@@ -153,15 +139,19 @@ public class ValidationTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, message == null ? "" : message, row++);
         TerminalUtils.printLine(writer, "", row++);
-        TerminalUtils.printLine(writer, "Commands: ", row);
+        TerminalUtils.printLine(writer, lineBeforeInput(), row);
 
         for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
             TerminalUtils.printLine(writer, "", i);
         }
     }
 
+    protected String lineBeforeInput() {
+        return "Commands:";
+    }
+
     @Override
     public void setNextScreen(TuiScreenView nextScreen) {
-
+        this.nextState = nextScreen;
     }
 }

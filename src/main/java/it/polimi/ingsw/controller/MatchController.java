@@ -720,12 +720,13 @@ public class MatchController {
      */
     private StatusEvent manageCrewMember(ManageCrewMember data) {
         UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
         GameController gc = gameControllers.get(lobby);
         try {
             if (gc != null) {
-                gc.manageCrewMember(userID, data.mode(), data.crewType(), data.cabinID());
+                gc.manageCrewMember(player, data.mode(), data.crewType(), data.cabinID());
             }
             return new Tac(data.userID(), ManageCrewMember.class);
         } catch (IllegalStateException | IllegalArgumentException e) {

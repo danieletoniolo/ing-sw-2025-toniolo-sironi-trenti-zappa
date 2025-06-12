@@ -80,7 +80,7 @@ public class CrewState extends State {
             for (Cabin cabin : p.getSpaceShip().getCabins()) {
                 if ((cabin.getCrewNumber() <= 1 && !cabin.hasPurpleAlien() && !cabin.hasBrownAlien()) ||
                      cabin.getCrewNumber() == 0 && (cabin.hasBrownAlien()) || cabin.hasPurpleAlien()) {
-                    throw new IllegalStateException("You hace to fill all the cabins with crew members before proceeding");
+                    throw new IllegalStateException("You have to fill all the cabins with crew members before proceeding");
                 }
             }
         }

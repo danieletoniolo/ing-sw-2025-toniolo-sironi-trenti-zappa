@@ -9,6 +9,7 @@ import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -100,6 +101,9 @@ public class ValidationState extends State {
         invalidComponents.put(player, ship.getInvalidComponents());
         ArrayList<Pair<Integer, Integer>> playerInvalidComponents = invalidComponents.get(player);
 
+        InvalidComponents invalidComponentsEvent = new InvalidComponents(player.getUsername(), playerInvalidComponents);
+        eventCallback.trigger(invalidComponentsEvent);
+
         if (playerInvalidComponents.isEmpty()) {
             // Check if the ship is now fragmented
             fragmentedComponents.put(player, ship.getDisconnectedComponents());
@@ -109,13 +113,11 @@ public class ValidationState extends State {
 
             Fragments fragmentsEvent = new Fragments(player.getUsername(), fragmentedComponents.get(player));
             eventCallback.trigger(fragmentsEvent);
+            Logger.getInstance().logError("Player " + player.getUsername() + " has a fragmented ship with " + fragmentedComponents.get(player).size() + " fragments", false);
 
             // Reset the fragment components
             fragmentedComponents.put(player, null);
         }
-
-        InvalidComponents invalidComponentsEvent = new InvalidComponents(player.getUsername(), playerInvalidComponents);
-        eventCallback.trigger(invalidComponentsEvent);
 
         super.nextState(GameState.CREW);
     }

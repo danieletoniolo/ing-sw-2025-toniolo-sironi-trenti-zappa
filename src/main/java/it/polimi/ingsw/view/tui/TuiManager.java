@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.tui;
 
+import it.polimi.ingsw.Client;
 import it.polimi.ingsw.event.game.serverToClient.deck.*;
 import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
@@ -32,6 +33,8 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens.LooseGoodsTuiSc
 import it.polimi.ingsw.view.tui.screens.gameScreens.openSpaceAcitons.OpenSpaceTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.planetsActions.PlanetsTuiScreen;
 import it.polimi.ingsw.view.tui.screens.lobbyScreens.StartingTuiScreen;
+import it.polimi.ingsw.view.tui.screens.validationScreens.ValidationFragments;
+import it.polimi.ingsw.view.tui.screens.validationScreens.WaitingValidationTuiScreen;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import it.polimi.ingsw.view.Manager;
@@ -543,13 +546,34 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyFragments(Fragments data) {
-
+        if (currentScreen.getType().equals(TuiScreens.Validation)) {
+            synchronized (stateLock) {
+                if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
+                    if (data.fragments().size() > 1) {
+                        currentScreen.setNextScreen(new ValidationFragments());
+                    }
+                } else {
+                    if (data.fragments().size() > 1) {
+                        currentScreen.setMessage(data.nickname() + " has fragmented components");
+                    }
+                }
+                stateLock.notifyAll();
+            }
+        }
     }
 
     @Override
     public void notifyInvalidComponents(InvalidComponents data) {
         if (currentScreen.getType().equals(TuiScreens.Validation)) {
             synchronized (stateLock) {
+                if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
+                    if (data.invalidComponents().isEmpty()) {
+                        currentScreen.setNextScreen(new WaitingValidationTuiScreen());
+                    }
+                    else {
+                        currentScreen.setNextScreen(new ValidationTuiScreen());
+                    }
+                }
                 stateLock.notifyAll();
             }
         }

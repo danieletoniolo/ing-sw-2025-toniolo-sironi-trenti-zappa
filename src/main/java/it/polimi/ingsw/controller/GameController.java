@@ -125,12 +125,20 @@ public class GameController implements Serializable, StateTransitionHandler {
         }
     }
 
-    public void manageCrewMember(UUID userID, int mode, int crewType, int cabinID) throws IllegalStateException {
-        PlayerData currentPlayer = state.getCurrentPlayer();
-        if (currentPlayer.getUUID().equals(userID)) {
-            state.manageCrewMember(currentPlayer, mode, crewType, cabinID);
-        } else {
-            throw new IllegalStateException("You are not the current player");
+    public void manageCrewMember(PlayerData player, int mode, int crewType, int cabinID) throws IllegalStateException {
+        try {
+            PlayerData currentPlayer = state.getCurrentPlayer();
+            if (!currentPlayer.equals(player)) {
+                throw new IllegalStateException("Not the current player");
+            }
+        } catch (SynchronousStateException e) {
+            // Ignore the exception, it is expected in synchronous states
+        }
+
+        try {
+            state.manageCrewMember(player, mode, crewType, cabinID);
+        } catch (Exception exception) {
+            throw new IllegalStateException(exception.getMessage());
         }
     }
 
