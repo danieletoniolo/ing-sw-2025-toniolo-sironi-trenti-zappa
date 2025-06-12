@@ -250,12 +250,20 @@ public class GameController implements Serializable, StateTransitionHandler {
         }
     }
 
-    public void setFragmentChoice(UUID uuid, int fragmentChoice) throws IllegalStateException {
-        PlayerData player = state.getCurrentPlayer();
-        if (player.getUUID().equals(uuid)) {
+    public void setFragmentChoice(PlayerData player, int fragmentChoice) throws IllegalStateException {
+        try {
+            PlayerData currentPlayer = state.getCurrentPlayer();
+            if (!currentPlayer.equals(player)) {
+                throw new IllegalStateException("Not the current player");
+            }
+        } catch (SynchronousStateException e) {
+            // Ignore the exception, it is expected in synchronous states
+        }
+
+        try {
             state.setFragmentChoice(player, fragmentChoice);
-        } else {
-            throw new IllegalStateException("Not the current player");
+        } catch (Exception exception) {
+            throw new IllegalStateException(exception.getMessage());
         }
     }
 

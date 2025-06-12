@@ -24,11 +24,12 @@ public class ValidationFragments extends ValidationTuiScreen {
         int i = 1;
         for (List<Pair<Integer, Integer>> group : MiniModel.getInstance().getClientPlayer().getShip().getFragments()) {
             StringBuilder line = new StringBuilder();
-            line.append("Fragment : ");
+            line.append("Group ").append(i).append(": ");
             for (Pair<Integer, Integer> tile : group) {
                 line.append("(").append(tile.getValue0() + 1).append(" ").append(tile.getValue1() + 1).append(") ");
             }
             options.add(line.toString());
+            i++;
         }
 
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {

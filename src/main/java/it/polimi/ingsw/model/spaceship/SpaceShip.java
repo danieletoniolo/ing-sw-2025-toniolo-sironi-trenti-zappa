@@ -921,7 +921,7 @@ public class SpaceShip {
                         Component currentComponent = components[currentRow][currentColumn];
 
                         for (int face = 0; face < 4; face++) {
-                            int newRow = currentRow + (face == 0 ? 1 : face == 2 ? -1 : 0);
+                            int newRow = currentRow + (face == 0 ? -1 : face == 2 ? 1 : 0);
                             int newColumn = currentColumn + (face == 1 ? -1 : face == 3 ? 1 : 0);
 
                             if (newRow >= 0 && newRow < 12 && newColumn >= 0 && newColumn < 12 && components[newRow][newColumn] != null && !visited[newRow][newColumn]) {
@@ -940,7 +940,7 @@ public class SpaceShip {
                 }
             }
         }
-        // TODO: check witch group of disconnected components are still valid
+        // TODO: check which group of disconnected components are still valid
         return disconnectedComponents;
     }
 }

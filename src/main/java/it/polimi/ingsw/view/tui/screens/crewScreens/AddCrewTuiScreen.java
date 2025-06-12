@@ -13,7 +13,7 @@ import it.polimi.ingsw.view.tui.screens.PlayerTuiScreen;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 public class AddCrewTuiScreen extends ModifyCrewTuiScreen {
-    private TuiScreenView oldScreen;
+    private final TuiScreenView oldScreen;
 
     public AddCrewTuiScreen(TuiScreenView oldScreen) {
         super();
@@ -47,20 +47,23 @@ public class AddCrewTuiScreen extends ModifyCrewTuiScreen {
                 .orElse(-1);
 
         CabinView cabin = spaceShipView.getMapCabins().get(ID);
-        int type = cabin.hasBrownAlien() ? 1 : cabin.hasPurpleAlien() ? 2 : 0;
 
-        StatusEvent status;
+        int mode = 0;
+        int type;
         if (typeOfOption == 3) {
-            status = ManageCrewMember.requester(Client.transceiver, new Object()).request(new ManageCrewMember(MiniModel.getInstance().getUserID(), 1, type, ID));
-            if (status.get().equals("POTA")) {
-                setMessage(((Pota) status).errorMessage());
-                return this;
-            }
-            return oldScreen;
+            mode = 1;
+            type = cabin.hasBrownAlien() ? 1 : cabin.hasPurpleAlien() ? 2 : 0;
+        }
+        else{
+            type = typeOfOption;
         }
 
-
-
-        return this;
+        StatusEvent status;
+        status = ManageCrewMember.requester(Client.transceiver, new Object()).request(new ManageCrewMember(MiniModel.getInstance().getUserID(), mode, type, ID));
+        if (status.get().equals("POTA")) {
+            setMessage(((Pota) status).errorMessage());
+            return this;
+        }
+        return oldScreen;
     }
 }

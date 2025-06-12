@@ -81,8 +81,6 @@ public class ValidationTuiScreen implements TuiScreenView {
             case 2:
                 StatusEvent status = DestroyComponents.requester(Client.transceiver, new Object()).request(
                         new DestroyComponents(MiniModel.getInstance().getUserID(), destroyTiles));
-                // TODO: Check if destroyTiles.clear() is corrected here
-                // TODO: there is a problem with the discard pile, because they do not appear
                 destroyTiles.clear();
                 if (status.get().equals("POTA")) {
                     setMessage(((Pota) status).errorMessage());

@@ -167,6 +167,23 @@ public abstract class Component implements Serializable {
                         (currentConnection != ConnectorType.TRIPLE && currentConnection != adjacentConnection && adjacentConnection != ConnectorType.TRIPLE)) {
                     return false;
                 }
+
+                if (adjacent.getComponentType() == ComponentType.SINGLE_CANNON || adjacent.getComponentType() == ComponentType.DOUBLE_CANNON) {
+                    if ((face == 0 && adjacent.getClockwiseRotation() == 2) ||
+                        (face == 1 && adjacent.getClockwiseRotation() == 1) ||
+                        (face == 2 && adjacent.getClockwiseRotation() == 0) ||
+                        (face == 3 && adjacent.getClockwiseRotation() == 3)) {
+                        return false;
+                    }
+                }
+
+                if (face == 0) {
+                    if (adjacent.getComponentType() == ComponentType.SINGLE_ENGINE || adjacent.getComponentType() == ComponentType.DOUBLE_ENGINE) {
+                        if (adjacent.getClockwiseRotation() == 0) {
+                            return false;
+                        }
+                    }
+                }
             }
         }
         return true;

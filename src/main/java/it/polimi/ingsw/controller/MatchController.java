@@ -826,12 +826,13 @@ public class MatchController {
      */
     private StatusEvent setFragmentChoice(ChooseFragment data) {
         UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
 
         GameController gc = gameControllers.get(lobby);
         try {
             if (gc != null) {
-                gc.setFragmentChoice(userID, data.fragmentChoice());
+                gc.setFragmentChoice(player, data.fragmentChoice());
             }
             return new Tac(data.userID(), ChooseFragment.class);
         } catch (IllegalStateException | IllegalArgumentException e) {

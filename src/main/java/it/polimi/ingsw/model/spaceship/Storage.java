@@ -21,8 +21,10 @@ public class Storage extends Component{
         this.goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
     }
 
-    public Storage(){
+    public Storage() {
         super();
+        this.goodsValue = 0;
+        // this.goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
     }
     /**
      * Check if the storage is dangerous

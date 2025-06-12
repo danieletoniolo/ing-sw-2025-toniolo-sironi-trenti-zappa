@@ -18,23 +18,13 @@ import java.util.List;
 import java.util.Map;
 
 public class ValidationState extends State {
-    private ValidationInternalState internalState;
     private final Map<PlayerData, ArrayList<Pair<Integer, Integer>>> invalidComponents;
     private final Map<PlayerData, List<List<Pair<Integer, Integer>>>> fragmentedComponents;
-
-    /**
-     * Enum to represent the internal state of the validation state.
-     */
-    private enum ValidationInternalState {
-        DEFAULT,
-        FRAGMENTED_SHIP,
-    }
 
     public ValidationState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.invalidComponents = new HashMap<>();
         this.fragmentedComponents = new HashMap<>();
-        this.internalState = ValidationInternalState.DEFAULT;
     }
 
     @Override
@@ -47,28 +37,23 @@ public class ValidationState extends State {
      */
     @Override
     public void setFragmentChoice(PlayerData player, int fragmentChoice) throws IllegalStateException {
-        if (internalState != ValidationInternalState.FRAGMENTED_SHIP) {
-            throw new IllegalStateException("No fragment to choose");
-        }
         // Check if the fragment choice is valid
         if (fragmentChoice < 0 || fragmentChoice >= fragmentedComponents.size()) {
             throw new IllegalArgumentException("Fragment choice is out of bounds");
         }
+
         for (int i = 0; i < fragmentedComponents.size(); i++) {
             if (i != fragmentChoice) {
                 Event event = Handler.destroyFragment(player, fragmentedComponents.get(player).get(i));
                 eventCallback.trigger(event);
             }
         }
-        fragmentedComponents.get(player).clear();
+        fragmentedComponents.put(player, null);
     }
 
 
     @Override
     public void setComponentToDestroy(PlayerData player, List<Pair<Integer, Integer>> componentsToDestroy) throws IllegalStateException, IllegalArgumentException {
-        if (internalState != ValidationInternalState.DEFAULT) {
-            throw new IllegalStateException("Cannot destroy componentsToDestroy in this state, you have to choose a fragment");
-        }
         SpaceShip ship = player.getSpaceShip();
         for (Pair<Integer, Integer> component : componentsToDestroy) {
             player.getSpaceShip().getComponent(component.getValue0(), component.getValue1());
@@ -113,10 +98,6 @@ public class ValidationState extends State {
 
             Fragments fragmentsEvent = new Fragments(player.getUsername(), fragmentedComponents.get(player));
             eventCallback.trigger(fragmentsEvent);
-            Logger.getInstance().logError("Player " + player.getUsername() + " has a fragmented ship with " + fragmentedComponents.get(player).size() + " fragments", false);
-
-            // Reset the fragment components
-            fragmentedComponents.put(player, null);
         }
 
         super.nextState(GameState.CREW);

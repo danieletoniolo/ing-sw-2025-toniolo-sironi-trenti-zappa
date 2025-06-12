@@ -23,6 +23,7 @@ import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
 import it.polimi.ingsw.view.miniModel.components.*;
+import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewMembers;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
@@ -1109,12 +1110,8 @@ public class EventHandlerClient {
 
             for (Triplet<Integer, Integer, Integer> cabin : data.cabins()) {
                 CabinView c = player.getShip().getMapCabins().get(cabin.getValue0());
-                if (cabin.getValue2() == 1) {
-                    c.setCrewNumber(0);
-                }
-                else {
-                    c.setCrewNumber(cabin.getValue1());
-                }
+                c.setCrewNumber(cabin.getValue1());
+                c.setCrewType(CrewMembers.fromValue(cabin.getValue2()));
             }
 
             manager.notifyUpdateCrewMembers(data);

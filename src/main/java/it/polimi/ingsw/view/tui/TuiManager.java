@@ -496,7 +496,6 @@ public class TuiManager implements Manager {
     public void notifyRotatedTile(RotatedTile data) {
         if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
             synchronized (stateLock) {
-                currentScreen.setMessage("You have rotated a tile");
                 stateLock.notifyAll();
             }
         }
@@ -539,7 +538,9 @@ public class TuiManager implements Manager {
     @Override
     public void notifyComponentDestroyed(ComponentDestroyed data) {
         synchronized (stateLock) {
-            currentScreen.setMessage(data.nickname() + " has lost " + data.destroyedComponents().size() + " components");
+            if (!MiniModel.getInstance().getNickname().equals(data.nickname())) {
+                currentScreen.setMessage(data.nickname() + " has lost " + data.destroyedComponents().size() + " components");
+            }
             stateLock.notifyAll();
         }
     }
@@ -650,8 +651,9 @@ public class TuiManager implements Manager {
                 case CARDS -> notifyDrawCard();
                 case FINISHED -> currentScreen = new RewardTuiScreen();
             }
+            parser.changeScreen();
+            stateLock.notifyAll();
         }
-        parser.changeScreen();
     }
 
     public void set() {

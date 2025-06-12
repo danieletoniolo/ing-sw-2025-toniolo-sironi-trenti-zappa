@@ -24,6 +24,7 @@ public class CabinView extends ComponentView {
             case 155 -> this.color = yellow;
             default -> this.color = lightBlue;
         }
+        crew = CrewMembers.HUMAN;
     }
 
     public int getCrewNumber() {

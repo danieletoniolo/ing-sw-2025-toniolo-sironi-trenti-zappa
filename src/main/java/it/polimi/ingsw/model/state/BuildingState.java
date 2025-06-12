@@ -202,16 +202,14 @@ public class BuildingState extends State {
                 if (tileID == -1) {
                     switch (component.getComponentType()) {
                         case SINGLE_ENGINE, DOUBLE_ENGINE -> {
-                            Logger.getInstance().logDebug("Picked an engine with rotation " + component.getClockwiseRotation() + " and connectors " + Arrays.toString(connectors), true);
                             PickedEngineFromBoard pickedEngineFromBoard = new PickedEngineFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Engine) component).getEngineStrength());
                             eventCallback.trigger(pickedEngineFromBoard);
                         }
                         case SINGLE_CANNON, DOUBLE_CANNON -> {
-                            Logger.getInstance().logDebug("Picked a cannon with rotation " + component.getClockwiseRotation() + " and connectors " + Arrays.toString(connectors), true);
                             PickedCannonFromBoard pickedCannonFromBoard = new PickedCannonFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Cannon) component).getCannonStrength());
                             eventCallback.trigger(pickedCannonFromBoard);
                         }
-                        case CABIN, CENTER_CABIN -> {
+                        case CABIN -> {
                             PickedCabinFromBoard pickedCabinFromBoard = new PickedCabinFromBoard(username, componentID, component.getClockwiseRotation(), connectors);
                             eventCallback.trigger(pickedCabinFromBoard);
                         }

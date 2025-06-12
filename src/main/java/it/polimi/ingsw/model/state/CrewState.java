@@ -34,6 +34,9 @@ public class CrewState extends State {
         if (super.played) {
             throw new IllegalStateException("This state has already been played");
         }
+        if (cabinID >= 152 && cabinID <= 155 && crewType >= 1) {
+            throw new IllegalStateException("Cannot place alien in the main cabin");
+        }
         UpdateCrewMembers updateCrewMembers;
         ArrayList<Triplet<Integer, Integer, Integer>> crewMembers = new ArrayList<>();
 
