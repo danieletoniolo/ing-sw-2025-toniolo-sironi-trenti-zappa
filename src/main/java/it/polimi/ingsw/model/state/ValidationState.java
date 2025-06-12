@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.Fragments;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.InvalidComponents;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.game.board.Board;
@@ -83,11 +84,9 @@ public class ValidationState extends State {
     public void entry() {
         for (PlayerData p : players) {
             ArrayList<Pair<Integer, Integer>> playerInvalidComponents = p.getSpaceShip().getInvalidComponents();
-            if (!playerInvalidComponents.isEmpty()) {
-                invalidComponents.put(p, playerInvalidComponents);
-                // Set the player status to PLAYING to indicate they have invalid components
-                playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
-            }
+            invalidComponents.put(p, playerInvalidComponents);
+            // Set the player status to PLAYING to indicate they have invalid components
+            playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
             InvalidComponents invalidComponentsEvent = new InvalidComponents(p.getUsername(), playerInvalidComponents);
             eventCallback.trigger(invalidComponentsEvent);
         }
@@ -98,21 +97,25 @@ public class ValidationState extends State {
         SpaceShip ship = player.getSpaceShip();
 
         // Recalculate the invalid components of the player
-        invalidComponents.replace(player, ship.getInvalidComponents());
+        invalidComponents.put(player, ship.getInvalidComponents());
         ArrayList<Pair<Integer, Integer>> playerInvalidComponents = invalidComponents.get(player);
 
         if (playerInvalidComponents.isEmpty()) {
             // Check if the ship is now fragmented
-            fragmentedComponents.replace(player, ship.getDisconnectedComponents());
+            fragmentedComponents.put(player, ship.getDisconnectedComponents());
             if (fragmentedComponents.get(player).size() <= 1) {
-                playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
+                playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
             }
+
+            Fragments fragmentsEvent = new Fragments(player.getUsername(), fragmentedComponents.get(player));
+            eventCallback.trigger(fragmentsEvent);
+
             // Reset the fragment components
-            fragmentedComponents.replace(player, null);
-        } else {
-            InvalidComponents invalidComponentsEvent = new InvalidComponents(player.getUsername(), playerInvalidComponents);
-            eventCallback.trigger(invalidComponentsEvent);
+            fragmentedComponents.put(player, null);
         }
+
+        InvalidComponents invalidComponentsEvent = new InvalidComponents(player.getUsername(), playerInvalidComponents);
+        eventCallback.trigger(invalidComponentsEvent);
 
         super.nextState(GameState.CREW);
     }

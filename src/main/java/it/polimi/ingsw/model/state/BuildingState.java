@@ -277,6 +277,10 @@ public class BuildingState extends State {
             throw new IllegalStateException("Player has finished building");
         }
 
+        if (toWhere == 2 && (row < 0 || row >= SpaceShip.getRows() || col < 0 || col >= SpaceShip.getCols())) {
+            throw new IllegalArgumentException("Invalid row or column for placing the tile in the spaceship");
+        }
+
         // Has the player a tile in his hand?
         Component component = playersHandQueue.get(player.getColor());
         if (component == null) {

@@ -31,7 +31,7 @@ public class CrewState extends State {
      * @see State#manageCrewMember(PlayerData, int, int, int)
      */
     public void manageCrewMember(PlayerData player, int mode, int crewType, int cabinID) {
-        if (super.played == true) {
+        if (super.played) {
             throw new IllegalStateException("This state has already been played");
         }
         UpdateCrewMembers updateCrewMembers;
@@ -75,7 +75,15 @@ public class CrewState extends State {
 
     @Override
     public void execute(PlayerData player) {
-        // TODO: Should we check if the player has filled all the cabins?
+        // Check if all the cabins have been filled by the player
+        for (PlayerData p : players) {
+            for (Cabin cabin : p.getSpaceShip().getCabins()) {
+                if ((cabin.getCrewNumber() <= 1 && !cabin.hasPurpleAlien() && !cabin.hasBrownAlien()) ||
+                     cabin.getCrewNumber() == 0 && (cabin.hasBrownAlien()) || cabin.hasPurpleAlien()) {
+                    throw new IllegalStateException("You hace to fill all the cabins with crew members before proceeding");
+                }
+            }
+        }
         super.execute(player);
         super.nextState(GameState.CARDS);
     }

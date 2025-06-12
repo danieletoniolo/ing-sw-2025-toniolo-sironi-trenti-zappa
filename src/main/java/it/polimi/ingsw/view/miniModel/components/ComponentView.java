@@ -110,7 +110,7 @@ public abstract class ComponentView implements Structure {
         this.isWrong = isWrong;
     }
 
-    protected boolean getIsWrong() {
+    public boolean getIsWrong() {
         return isWrong;
     }
 

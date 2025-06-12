@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.tui.screens;
 
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.DestroyComponents;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
@@ -16,6 +17,7 @@ import org.javatuples.Pair;
 import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ValidationTuiScreen implements TuiScreenView {
@@ -78,15 +80,40 @@ public class ValidationTuiScreen implements TuiScreenView {
             case 2:
                 StatusEvent status = DestroyComponents.requester(Client.transceiver, new Object()).request(
                         new DestroyComponents(MiniModel.getInstance().getUserID(), destroyTiles));
+                // TODO: Check if destroyTiles.clear() is corrected here
+                // TODO: there is a problem with the discard pile, because they do not appear
+                destroyTiles.clear();
                 if (status.get().equals("POTA")) {
                     setMessage(((Pota) status).errorMessage());
-                    destroyTiles.clear();
+                    spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
+                    return this;
+                }
+                status = EndTurn.requester(Client.transceiver, new Object()).request(
+                        new EndTurn(MiniModel.getInstance().getUserID()));
+                if (status.get().equals("POTA")) {
+                    setMessage(((Pota) status).errorMessage());
                     spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
                     return this;
                 }
                 setMessage(null);
                 spaceShipView = MiniModel.getInstance().getClientPlayer().getShip();
-                return new WaitingValidationTuiScreen();
+
+                boolean isSpaceShipValid = true;
+                for (ComponentView[] row : spaceShipView.getSpaceShip()) {
+                    for (ComponentView component : row) {
+                        if (component != null && component.getIsWrong()) {
+                            isSpaceShipValid = false;
+                            break;
+                        }
+                    }
+
+                    if (!isSpaceShipValid) {
+                        break;
+                    }
+                }
+                if (isSpaceShipValid) {
+                    return new WaitingValidationTuiScreen();
+                }
         }
 
         return this;

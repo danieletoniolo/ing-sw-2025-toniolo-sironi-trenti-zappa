@@ -5,6 +5,7 @@ import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerColor;
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
 import java.util.*;
@@ -870,9 +871,14 @@ public class SpaceShip {
                 break;
             case STORAGE:
                 Storage storage = (Storage) destroyedComponent;
+                Logger.getInstance().logError("Goods -1: " + goods, false);
                 Good good = storage.peekGood();
+                Logger.getInstance().logError("Destroying storage with ID: " + storage.getID() + " and removing goods from it.", false);
+                Logger.getInstance().logError("Goods 0: " + goods, false);
                 while (good != null) {
+                    Logger.getInstance().logError("Goods 1: " + goods, false);
                     goods.remove(good);
+                    Logger.getInstance().logError("Goods 2: " + goods, false);
                     storage.removeGood(good);
                     good = storage.peekGood();
                 }
