@@ -8,6 +8,7 @@ import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class SpaceShip {
@@ -47,7 +48,20 @@ public class SpaceShip {
     private boolean brownAlien;
 
     private int goodsValue;
-    private int exposedConnectors;
+
+    /**
+     * Comparator for sorting goods by value in descending order.
+     * This comparator is used to maintain the priority queue of goods in the storage.
+     * <p>
+     * We use a static inner class to avoid serialization issues with the comparator.
+     */
+    private static class ValueDescendingComparator implements Comparator<Good>, Serializable {
+        // TODO: We might need the serialVersionUID
+        @Override
+        public int compare(Good g1, Good g2) {
+            return Integer.compare(g2.getValue(), g1.getValue());
+        }
+    }
 
     public SpaceShip(Level level, PlayerColor color) throws IllegalArgumentException{
         this.level = level;
@@ -115,7 +129,7 @@ public class SpaceShip {
         cabins = new HashMap<>();
         cannons = new HashMap<>();
         engines = new HashMap<>();
-        goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
+        goods = new PriorityQueue<>(new ValueDescendingComparator());
         lastPlacedComponent = null;
 
         int pos = 6;
@@ -585,7 +599,7 @@ public class SpaceShip {
      * @return The number of the exposed connectors
      */
     public int getExposedConnectors() {
-        exposedConnectors = 0;
+        int exposedConnectors = 0;
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
                 if (c2 != null) {
