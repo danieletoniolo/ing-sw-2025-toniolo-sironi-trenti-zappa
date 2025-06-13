@@ -96,6 +96,7 @@ public class SlaversState extends State {
             }
             stats.put(player, initialStrength);
         }
+        super.entry();
     }
 
     /**

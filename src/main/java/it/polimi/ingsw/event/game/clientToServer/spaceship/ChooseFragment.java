@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.clientToServer.spaceship;
 
 import it.polimi.ingsw.event.Requester;
+import it.polimi.ingsw.event.game.clientToServer.goods.SwapGoods;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
@@ -12,7 +13,7 @@ import java.util.function.Function;
 /**
  * This event is used when a player have to choose the fragments of the ship. So it returns the fragments from which the user can choose
  * @param userID         is the user ID. Only the user know his ID, so the event is not faked.
- * @param fragmentChoice The list of fragments that the player has to choose, the pair represent the row and the columns of the components that are in the fragment
+ * @param fragmentChoice The fragment to keep
  */
 public record ChooseFragment(
         String userID,
@@ -25,7 +26,9 @@ public record ChooseFragment(
      * @return            a Responder for the FragmentChoice event.
      */
     public static Responder<ChooseFragment> responder(EventTransceiver transceiver, Function<ChooseFragment, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<ChooseFragment> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

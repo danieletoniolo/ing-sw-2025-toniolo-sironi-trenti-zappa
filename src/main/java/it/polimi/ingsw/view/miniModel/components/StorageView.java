@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.miniModel.components;
 
 import it.polimi.ingsw.view.miniModel.good.GoodView;
+import javafx.scene.image.Image;
 
 public class StorageView extends ComponentView {
     private GoodView[] goods;
@@ -38,6 +39,19 @@ public class StorageView extends ComponentView {
         }
     }
 
+    public GoodView removeOneGood() {
+        int i = 0;
+        for (i = 0; i < goods.length; i++) {
+            if (goods[i] != null) {
+                break;
+            }
+        }
+
+        GoodView good = goods[i];
+        goods[i] = null;
+        return good;
+    }
+
     public void changeGoods(GoodView[] newGoods) {
         this.goods = newGoods;
     }
@@ -50,9 +64,17 @@ public class StorageView extends ComponentView {
         return dangerous;
     }
 
+    /**
+     * Draws the component GUI.
+     * This method is called to draw the component GUI.
+     *
+     * @return an Image representing the image of the component
+     */
     @Override
-    public void drawGui() {
-        //TODO: Implement the GUI drawing logic for the Storage component here
+    public Image drawGui() {
+        String path = "/image/tiles/" + this.getID() + ".jpg";
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
     @Override

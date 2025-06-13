@@ -19,26 +19,44 @@ public class MiniModel {
     private final LogInView logInView = new LogInView();
     private final ArrayList<LobbyView> lobbiesView = new ArrayList<>();
     private CountDown countDown;
-    /** The decks are stored in a Pair: The first element is the deck views, and the second element is a boolean array.
-    If boolean[i] == true the deck[i] is not taken by a player, else deck is taken and not viewable in the building screen*/
-    private final Pair<DeckView[], Boolean[]> deckViews = new Pair<>(new DeckView[3], new Boolean[3]);
     private final DeckView shuffledDeckView = new DeckView();
-    private TimerView timerView;
     private BoardView boardView;
     private final ArrayList<PlayerDataView> otherPlayers = new ArrayList<>();
     private final ArrayList<ComponentView> viewableComponents = new ArrayList<>();
+    private int numberViewableComponents = 152;
     private PlayerDataView clientPlayer;
     private String nickname;
     private String userID;
+    private Pair<Integer, Integer> dice;
 
     private PlayerDataView currentPlayer;
     private LobbyView currentLobby;
+    private GamePhases phase;
 
     public static MiniModel getInstance() {
         if (instance == null) {
             instance = new MiniModel();
         }
         return instance;
+    }
+
+    public void setGamePhase(int phase) {
+        this.phase = GamePhases.fromValue(phase);
+    }
+
+    public GamePhases getGamePhase() {
+        return phase;
+    }
+
+    public synchronized void reduceViewableComponents() {
+        numberViewableComponents--;
+        if (numberViewableComponents < 0) {
+            numberViewableComponents = 0;
+        }
+    }
+
+    public synchronized int getNumberViewableComponents() {
+        return numberViewableComponents;
     }
 
     public synchronized LogInView getLogInView() {
@@ -58,19 +76,15 @@ public class MiniModel {
     }
 
     public synchronized Pair<DeckView[], Boolean[]> getDeckViews() {
-        return deckViews;
+        return boardView.getDecksView();
     }
 
     public synchronized DeckView getShuffledDeckView() {
         return shuffledDeckView;
     }
 
-    public synchronized void setTimerView(TimerView timerView) {
-        this.timerView = timerView;
-    }
-
     public synchronized TimerView getTimerView() {
-        return timerView;
+        return boardView.getTimerView();
     }
 
     public synchronized void setBoardView(BoardView boardView) {
@@ -107,6 +121,7 @@ public class MiniModel {
 
     public synchronized void setUserID(String userID) {
         this.userID = userID;
+        this.notifyAll();
     }
 
     public synchronized String getUserID() {
@@ -127,5 +142,13 @@ public class MiniModel {
 
     public synchronized LobbyView getCurrentLobby() {
         return currentLobby;
+    }
+
+    public synchronized void setDice(Pair<Integer, Integer> dice) {
+        this.dice = dice;
+    }
+
+    public synchronized Pair<Integer, Integer> getDice() {
+        return dice;
     }
 }

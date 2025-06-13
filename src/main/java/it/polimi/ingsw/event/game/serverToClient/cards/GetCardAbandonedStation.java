@@ -14,8 +14,8 @@ import java.util.List;
  * @param goods        list of goods rewarded
  */
 public record GetCardAbandonedStation(
-        int level,
         int ID,
+        int level,
         int crewRequired,
         int flightDays,
         List<Integer>goods

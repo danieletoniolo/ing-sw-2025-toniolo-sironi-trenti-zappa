@@ -1,8 +1,10 @@
 package it.polimi.ingsw.view.tui.screens.buildingScreens;
 
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.clientToServer.player.PlaceMarker;
+import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.view.Client;
+import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
@@ -12,13 +14,13 @@ import it.polimi.ingsw.view.tui.screens.TuiScreens;
 import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
-import java.util.function.Supplier;
 
 public class ChoosePositionTuiScreen implements TuiScreenView {
-    private ArrayList<String> options = new ArrayList<>();
-    private int totalLines;
+    private final ArrayList<String> options = new ArrayList<>();
+    private final int totalLines;
+    private TuiScreenView nextScreen;
 
-    private BoardView boardView = MiniModel.getInstance().getBoardView();
+    private final BoardView boardView = MiniModel.getInstance().getBoardView();
     private int selected;
     private String message;
     private boolean isNewScreen;
@@ -28,26 +30,38 @@ public class ChoosePositionTuiScreen implements TuiScreenView {
         options.add("2");
         options.add("3");
         options.add("4");
+        options.add("Back");
 
         totalLines = MiniModel.getInstance().getBoardView().getRowsToDraw() + 5;
         isNewScreen = true;
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) throws Exception {
+        selected = parser.getCommand(options, totalLines);
     }
 
     @Override
     public TuiScreenView setNewScreen() {
+        if (selected == 4) {
+            return new MainCommandsTuiScreen();
+        }
 
         StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object()).request(new PlaceMarker(MiniModel.getInstance().getUserID(), selected));
         if (status.get().equals("POTA")) {
-            setMessage("Can't place the marker there! Pick a different spot.");
+            setMessage(((Pota) status).errorMessage());
+            return this;
+        }
+        status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+        if (status.get().equals("POTA")) {
+            setMessage(((Pota) status).errorMessage());
             return this;
         }
 
-        return new WatchingTuiScreen();
+        if (nextScreen == null) {
+            return new WatchingTuiScreen();
+        }
+        return nextScreen;
     }
 
     @Override
@@ -80,5 +94,10 @@ public class ChoosePositionTuiScreen implements TuiScreenView {
     @Override
     public TuiScreens getType() {
         return TuiScreens.ChoosePosition;
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+        this.nextScreen = nextScreen;
     }
 }

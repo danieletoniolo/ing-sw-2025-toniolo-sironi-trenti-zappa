@@ -99,8 +99,37 @@ public class Board implements Serializable {
             throw new IndexOutOfBoundsException("Index is out of bounds");
         }
         if (!this.decks[index].isPickable() || player.getSpaceShip().getNumberOfComponents() <= 1) {
-            throw new IllegalStateException("Deck is not pickable");
+            throw new IllegalStateException("Deck is not pickable or player has not enough components");
         }
+
+        this.decks[index].setPickable(false);
+        return this.decks[index];
+    }
+
+    /**
+     * Allows a player to leave a deck, making it pickable again.
+     * @param index the index of the deck to leave
+     * @param player the player who is leaving the deck
+     * @return the deck that was left
+     * @throws IllegalStateException if the level is LEARNING or if the deck is already pickable
+     * @throws NullPointerException if player is null
+     * @throws IndexOutOfBoundsException if index is out of bounds
+     */
+    public Deck leaveDeck(int index, PlayerData player) throws IllegalStateException, NullPointerException, IndexOutOfBoundsException {
+        if (level == Level.LEARNING) {
+            throw new IllegalStateException("There is no deck in the learning level");
+        }
+        if (player == null) {
+            throw new NullPointerException("Player is null");
+        }
+        if (index < 0 || index >= this.decks.length) {
+            throw new IndexOutOfBoundsException("Index is out of bounds");
+        }
+        if (this.decks[index].isPickable()) {
+            throw new IllegalStateException("You cannot leave a deck that is already on the board");
+        }
+
+        this.decks[index].setPickable(true);
         return this.decks[index];
     }
 
@@ -122,25 +151,27 @@ public class Board implements Serializable {
 
     /**
      * Pops a tile from the board (if index is -1, it pops a random tile from the hidden tiles list).
-     * @param index the index of the tile to pop from the viewable tiles list (if index is -1, it pops a random tile from the hidden tiles list)
+     * @param tileID the index of the tile to pop from the viewable tiles list (if index is -1, it pops a random tile from the hidden tiles list)
      * @return the tile popped from the board
-     * @throws IndexOutOfBoundsException if the index is out of bounds of the viewable tiles list or if there are no more hidden tiles
+     * @throws IndexOutOfBoundsException if the tileID is out of bounds or if there are no more hidden tiles
      */
-    public Component popTile(int index) throws IndexOutOfBoundsException {
-        if (index == -1) {
+    public Component popTile(int tileID) throws IndexOutOfBoundsException {
+        if (tileID == -1) {
             if (hiddenTiles.isEmpty()) {
                 throw new IndexOutOfBoundsException("There are no more hidden tiles");
             }
             Random random = new Random();
-            index = random.nextInt(hiddenTiles.size());
-            return hiddenTiles.remove(index);
+            tileID = random.nextInt(hiddenTiles.size());
+            return hiddenTiles.remove(tileID);
         }
 
-        if (index < 0 || index >= viewableTiles.size()) {
-            throw new IndexOutOfBoundsException("Index is out of bounds");
+        for (Component tile : viewableTiles) {
+            if (tile.getID() == tileID) {
+                viewableTiles.remove(tile);
+                return tile;
+            }
         }
-
-        return viewableTiles.remove(index);
+        throw new IndexOutOfBoundsException("Tile with ID " + tileID + " not found in viewable tiles");
     }
 
     /**

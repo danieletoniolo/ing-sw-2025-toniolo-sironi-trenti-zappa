@@ -3,6 +3,7 @@ package it.polimi.ingsw.model.game.lobby;
 import it.polimi.ingsw.model.game.board.Level;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,7 +12,7 @@ public class LobbyInfo implements Serializable {
     private final String founderNickname;
     private final Level level;
     private final int totalPlayers;
-    private final int numberOfPlayersEntered;
+    private  int numberOfPlayersEntered;
     private final List<UUID> playersReady;
 
     /**
@@ -31,10 +32,10 @@ public class LobbyInfo implements Serializable {
         }
         this.name = founderNickname + "'s lobby";
         this.founderNickname = founderNickname;
-        this.numberOfPlayersEntered = 0;
         this.totalPlayers = totalPlayers;
         this.level = level;
-        this.playersReady = null;
+        this.playersReady = new ArrayList<>();
+        this.numberOfPlayersEntered = 0;
     }
 
     /**
@@ -78,6 +79,14 @@ public class LobbyInfo implements Serializable {
     }
 
     /**
+     * Get if a player is ready in the lobby
+     * @return a boolean indicating whether the player is ready
+     */
+    public boolean isPlayerReady(UUID uuid) {
+        return this.playersReady.contains(uuid);
+    }
+
+    /**
      * Set the name of the lobby
      * @param name the name of the lobby
      */
@@ -91,8 +100,36 @@ public class LobbyInfo implements Serializable {
      * @param playerId the unique identifier of the player to be marked as ready
      */
     public void addPlayerReady(UUID playerId) {
-        if (!this.playersReady.contains(playerId)) {
-            this.playersReady.add(playerId);
+        if (this.playersReady.size() < this.totalPlayers) {
+            if (!this.playersReady.contains(playerId)) {
+                this.playersReady.add(playerId);
+            }
+        } else {
+            throw new IllegalStateException("Game has already started, cannot add player to ready list");
+        }
+    }
+
+    /**
+     * Increments the number of players who have entered the lobby.
+     * If the number of players exceeds the total allowed, an exception is thrown.
+     */
+    public void addPlayer() {
+        if (this.numberOfPlayersEntered < this.totalPlayers) {
+            this.numberOfPlayersEntered++;
+        } else {
+            throw new IllegalStateException("Lobby is full, cannot add more players");
+        }
+    }
+
+    /**
+     * Removes a player from the lobby by decrementing the number of players entered.
+     * If there are no players to remove, an exception is thrown.
+     */
+    public void removePlayer() {
+        if (this.numberOfPlayersEntered > 0) {
+            this.numberOfPlayersEntered--;
+        } else {
+            throw new IllegalStateException("No players to remove from the lobby");
         }
     }
 
@@ -101,11 +138,18 @@ public class LobbyInfo implements Serializable {
      * @param playerId the unique identifier of the player to be removed from the ready list
      */
     public void removePlayerReady(UUID playerId) {
-        this.playersReady.remove(playerId);
+        if (!this.playersReady.isEmpty()) {
+            this.playersReady.remove(playerId);
+        } else {
+            throw new IllegalStateException("Game has already started, cannot remove player from ready list");
+        }
     }
 
-
+    /**
+     * Checks if the game can start based on the number of players marked as ready.
+     * @return true if the number of players ready matches the total players, false otherwise
+     */
     public boolean canGameStart() {
-        return this.numberOfPlayersEntered == this.playersReady.size();
+        return this.playersReady.size() == this.totalPlayers;
     }
 }

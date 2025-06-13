@@ -1,4 +1,4 @@
-package it.polimi.ingsw.event.game.clientToServer.player;
+package it.polimi.ingsw.event.lobby.clientToServer;
 
 import it.polimi.ingsw.event.Requester;
 import it.polimi.ingsw.event.type.Event;
@@ -25,7 +25,9 @@ public record PlayerReady(
      * @return            a Responder for the PlayerReady event.
      */
     public static Responder<PlayerReady> responder(EventTransceiver transceiver, Function<PlayerReady, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<PlayerReady> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

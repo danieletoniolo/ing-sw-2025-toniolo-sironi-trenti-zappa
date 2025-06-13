@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.state;
 
-import it.polimi.ingsw.event.game.serverToClient.energyUsed.BatteriesUsed;
+import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
+import it.polimi.ingsw.event.game.serverToClient.energyUsed.BatteriesLoss;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.EnginesUsed;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.ShieldUsed;
@@ -69,15 +70,15 @@ public class Handler {
         return new ComponentDestroyed(player.getUsername(), fragments);
     }
 
-    static Event rollDice(PlayerData player, Hit hit, Pair<Component, Integer> protectionResult) {
-        int fistDice = (int) (Math.random() * 6) + 1;
+    static Pair<Event, Event> rollDice(PlayerData player, Hit hit, Pair<Component, Integer> protectionResult) {
+        int firstDice = (int) (Math.random() * 6) + 1;
         int secondDice = (int) (Math.random() * 6) + 1;
         SpaceShip ship = player.getSpaceShip();
-        Pair<Component, Integer> result = ship.canProtect(fistDice + secondDice, hit);
+        Pair<Component, Integer> result = ship.canProtect(firstDice + secondDice, hit);
         protectionResult.setAt0(result.getValue0());
         protectionResult.setAt1(result.getValue1());
 
-        return new CanProtect(player.getUsername(), new Pair<>(result.getValue0().getID(), result.getValue1()));
+        return new Pair<>(new CanProtect(player.getUsername(), new Pair<>(result.getValue0().getID(), result.getValue1())), new DiceRolled(player.getUsername(), firstDice, secondDice));
     }
 
     static Event useExtraStrength(PlayerData player, int type, List<Integer> cannonsOrEnginesID, List<Integer> batteriesID) throws IllegalStateException {
@@ -186,7 +187,7 @@ public class Handler {
             ship.useEnergy(batterieID);
         }
 
-        return new BatteriesUsed(
+        return new BatteriesLoss(
                 player.getUsername(),
                 batteriesID.stream().map(t -> new Pair<>(t, ship.getBattery(t).getEnergyNumber())).toList()
         );

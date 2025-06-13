@@ -52,6 +52,7 @@ public class EndState extends State {
          for (PlayerData player : players) {
              scores.put(player, player.getCoins());
          }
+         super.entry();
     }
 
     @Override

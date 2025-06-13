@@ -25,7 +25,9 @@ public record SetNickname(
      * @return            a Responder for the SetNickname event.
      */
     public static Responder<SetNickname> responder(EventTransceiver transceiver, Function<SetNickname, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<SetNickname> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

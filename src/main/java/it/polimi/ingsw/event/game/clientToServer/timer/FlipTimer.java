@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.clientToServer.timer;
 
 import it.polimi.ingsw.event.Requester;
+import it.polimi.ingsw.event.game.clientToServer.goods.SwapGoods;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
@@ -24,7 +25,9 @@ public record FlipTimer(
      * @return            a Responder for the FlipTimer event.
      */
     public static Responder<FlipTimer> responder(EventTransceiver transceiver, Function<FlipTimer, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<FlipTimer> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

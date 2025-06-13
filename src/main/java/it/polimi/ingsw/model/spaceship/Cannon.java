@@ -20,7 +20,7 @@ public class Cannon extends Component{
         if (getClockwiseRotation() == 0) {
             return cannonStrength;
         } else {
-            return ((float) cannonStrength)/2;
+            return (float) cannonStrength/2;
         }
     }
 
@@ -33,9 +33,9 @@ public class Cannon extends Component{
         if (ship != null) {
             c = switch (getClockwiseRotation()) {
                 case 0 -> ship.getComponent(row - 1, column);
-                case 1 -> ship.getComponent(row, column - 1);
+                case 1 -> ship.getComponent(row, column + 1);
                 case 2 -> ship.getComponent(row + 1, column);
-                case 3 -> ship.getComponent(row, column + 1);
+                case 3 -> ship.getComponent(row, column - 1);
                 default -> null;
             };
         }

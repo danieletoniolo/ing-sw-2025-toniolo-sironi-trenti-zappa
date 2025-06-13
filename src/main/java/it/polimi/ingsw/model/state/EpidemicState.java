@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EpidemicState extends State {
-    private final boolean[][] check;
+
 
     /**
      * Constructor for EpidemicState
@@ -23,7 +23,6 @@ public class EpidemicState extends State {
      */
     public EpidemicState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
-        check = new boolean[SpaceShip.getRows()][SpaceShip.getCols()];
     }
 
     /**
@@ -31,38 +30,49 @@ public class EpidemicState extends State {
      */
     @Override
     public void entry() {
-        ArrayList<Triplet<Integer, Integer, Integer>> cabinsIDs;
+
         for (PlayerData p : players) {
-            cabinsIDs = new ArrayList<>();
+            // Create a list to store the IDs, crew numbers and the type of the crew members in each cabin
+            ArrayList<Triplet<Integer, Integer, Integer>> cabinsIDs = new ArrayList<>();
 
-            for(int i = 0; i < SpaceShip.getRows(); i++){
-                for(int j = 0; j < SpaceShip.getCols(); j++){
-                    check[i][j] = false;
-                }
-            }
+            // Initialize a check array to keep track of which cabins have been processed
+            boolean[][] check = new boolean[SpaceShip.getRows()][SpaceShip.getCols()];
 
+
+            // Iterate through the player's spaceship cabins
             List<Cabin> cabins = p.getSpaceShip().getCabins();
-            for(Cabin ca : cabins){
-                if(!check[ca.getRow()][ca.getColumn()]){
-                    ArrayList<Component> surroundingComponents = p.getSpaceShip().getSurroundingComponents(ca.getRow(), ca.getColumn());
-                    for(Component co : surroundingComponents){
-                        if(co != null && co.getComponentType() == ComponentType.CABIN && ((Cabin) co).getCrewNumber() > 0){
-                            if (!check[ca.getRow()][ca.getColumn()]) {
-                                check[ca.getRow()][ca.getColumn()] = true;
-                                ca.removeCrewMember(1);
+            for(Cabin currentCabin : cabins) {
+
+                // If the current cabin has not been processed yet search for surrounding components
+                if(!check[currentCabin.getRow()][currentCabin.getColumn()]) {
+                    check[currentCabin.getRow()][currentCabin.getColumn()] = true;
+                    ArrayList<Component> surroundingComponents = p.getSpaceShip().getSurroundingComponents(currentCabin.getRow(), currentCabin.getColumn());
+
+                    // Iterate through the surrounding components
+                    for(Component surroundingComponent : surroundingComponents) {
+
+                        // If the surrounding component is a cabin and has crew members, remove one crew member from the current cabin
+                        if(surroundingComponent != null && surroundingComponent.getComponentType() == ComponentType.CABIN && ((Cabin) surroundingComponent).getCrewNumber() > 0) {
+                            currentCabin.removeCrewMember(1);
+
+                            // If we have not already processed the surrounding cabin, remove a crew member from it as well and mark it as processed
+                            Cabin surroundingCabin = (Cabin) surroundingComponent;
+                            if(!check[surroundingCabin.getRow()][surroundingCabin.getColumn()]) {
+                                surroundingCabin.removeCrewMember(1);
+                                check[surroundingCabin.getRow()][surroundingCabin.getColumn()] = true;
+
+                                // Add the surrounding cabin's ID, crew numbers and types of the crew members in both cabins to the list of modified cabins
+                                cabinsIDs.add(new Triplet<>(surroundingCabin.getID(), surroundingCabin.getCrewNumber(), surroundingCabin.hasBrownAlien() ? 1 : (surroundingCabin.hasPurpleAlien() ? 2 : 0)));
                             }
 
-                            Cabin cabin = (Cabin) co;
-                            if(!check[cabin.getRow()][cabin.getColumn()]){
-                                cabin.removeCrewMember(1);
-                                check[cabin.getRow()][cabin.getColumn()] = true;
-                            }
+                            // Add the current cabin's ID, crew number and type of crew member to the list of modified cabins
+                            cabinsIDs.add(new Triplet<>(currentCabin.getID(), currentCabin.getCrewNumber(), currentCabin.hasBrownAlien() ? 1 : (currentCabin.hasPurpleAlien() ? 2 : 0)));
                         }
                     }
                 }
-                cabinsIDs.add(new Triplet<>(ca.getID(), ca.getCrewNumber(), 0));
             }
 
+            // Trigger the UpdateCrewMembers event with the modified cabins' IDs and crew information
             UpdateCrewMembers crewEvent = new UpdateCrewMembers(p.getUsername(), cabinsIDs);
             eventCallback.trigger(crewEvent);
         }

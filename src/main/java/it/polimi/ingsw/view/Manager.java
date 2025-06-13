@@ -2,13 +2,16 @@ package it.polimi.ingsw.view;
 
 import it.polimi.ingsw.event.game.serverToClient.StateChanged;
 import it.polimi.ingsw.event.game.serverToClient.deck.*;
+import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
+import it.polimi.ingsw.event.game.serverToClient.pickedTile.PickedTileFromSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.planets.PlanetSelected;
 import it.polimi.ingsw.event.game.serverToClient.player.*;
 import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
+import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 
 public interface Manager {
@@ -26,6 +29,8 @@ public interface Manager {
 
     void notifyLobbyRemoved(LobbyRemoved data);
 
+    void notifyReadyPlayer();
+
     void notifyStartingGame(StartingGame data);
 
     void notifyCountDown();
@@ -35,8 +40,11 @@ public interface Manager {
 
     void notifyPickedLeftDeck(PickedLeftDeck data);
 
+    // Dice
+    void notifyDiceRolled(DiceRolled data);
+
     // Energy used
-    void notifyBatteriesUsed(BatteriesUsed data);
+    void notifyBatteriesUsed(BatteriesLoss data);
 
     void notifyCannonsUsed(CannonsUsed data);
 
@@ -51,6 +59,10 @@ public interface Manager {
 
     // Picked tile
     void notifyPickedTileFromBoard();
+
+    void notifyPickedTileFromSpaceShip(PickedTileFromSpaceship data);
+
+    void notifyPickedHiddenTile(String nickname);
 
     // Placed tile
     void notifyPlacedTileToBoard(PlacedTileToBoard data);
@@ -73,7 +85,7 @@ public interface Manager {
 
     void notifyPlayerLost(PlayerLost data);
 
-    void notifyPlaying(Playing data);
+    void notifyPlaying(CurrentPlayer data);
 
     void notifyScore(Score data);
 
@@ -98,8 +110,12 @@ public interface Manager {
     void notifyUpdateCrewMembers(UpdateCrewMembers data);
 
     // Timer
-    void notifyTimer();
+    void notifyTimer(TimerFlipped data);
+
+    void notifyTimerFinished(TimerFlipped data);
+
+    void notifyLastTimerFlipped();
 
 
-    void notifyStateChange(StateChanged data);
+    void notifyStateChange();
 }

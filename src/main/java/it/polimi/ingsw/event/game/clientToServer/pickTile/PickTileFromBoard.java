@@ -25,7 +25,9 @@ public record PickTileFromBoard(
      * @return            a Responder for the PickTileFromBoard event.
      */
     public static Responder<PickTileFromBoard> responder(EventTransceiver transceiver, Function<PickTileFromBoard, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<PickTileFromBoard> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

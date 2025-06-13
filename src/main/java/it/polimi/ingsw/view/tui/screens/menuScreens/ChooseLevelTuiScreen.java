@@ -3,15 +3,13 @@ package it.polimi.ingsw.view.tui.screens.menuScreens;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.lobby.clientToServer.CreateLobby;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.view.Client;
+import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.LobbyTuiScreen;
 import it.polimi.ingsw.view.tui.screens.MenuTuiScreen;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import it.polimi.ingsw.view.tui.screens.TuiScreens;
-
-import java.util.function.Supplier;
 
 public class ChooseLevelTuiScreen extends MenuTuiScreen {
 
@@ -27,8 +25,8 @@ public class ChooseLevelTuiScreen extends MenuTuiScreen {
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) throws Exception {
+        selected = parser.getCommand(options, totalLines);
         level = selected == 0 ? 1 : 2;
     }
 
@@ -41,12 +39,12 @@ public class ChooseLevelTuiScreen extends MenuTuiScreen {
     public TuiScreenView setNewScreen() {
         StatusEvent status = CreateLobby.requester(Client.transceiver, new Object()).request(new CreateLobby(MiniModel.getInstance().getUserID(), maxPlayers, level));
         maxPlayers = 0;
+
         if (status.get().equals("POTA")) {
             TuiScreenView newScreen = new MenuTuiScreen();
             newScreen.setMessage(((Pota) status).errorMessage());
             return newScreen;
         }
-
         return new LobbyTuiScreen();
     }
 }

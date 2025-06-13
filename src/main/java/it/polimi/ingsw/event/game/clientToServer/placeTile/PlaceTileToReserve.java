@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.clientToServer.placeTile;
 
 import it.polimi.ingsw.event.Requester;
+import it.polimi.ingsw.event.game.clientToServer.goods.SwapGoods;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
@@ -23,7 +24,9 @@ public record PlaceTileToReserve(
      * @return            a Responder for the PlaceTileToReserve event.
      */
     public static Responder<PlaceTileToReserve> responder(EventTransceiver transceiver, Function<PlaceTileToReserve, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<PlaceTileToReserve> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

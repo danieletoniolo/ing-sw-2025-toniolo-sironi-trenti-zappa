@@ -2,8 +2,7 @@ package it.polimi.ingsw.view.tui.screens;
 
 public enum TuiScreens {
     Building,
-    RowColShip,
-    RowColBoard,
+    Writing,
     Deck,
     Lobby,
     LogIn,
@@ -24,6 +23,6 @@ public enum TuiScreens {
     StorageExchange,
     DropGoods,
     MenuCannons,
-    AddCrew,
+    ModifyCrew,
     Ending
 }

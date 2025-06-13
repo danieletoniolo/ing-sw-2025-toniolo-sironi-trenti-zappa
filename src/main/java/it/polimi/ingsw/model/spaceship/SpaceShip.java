@@ -5,8 +5,10 @@ import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerColor;
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class SpaceShip {
@@ -15,19 +17,19 @@ public class SpaceShip {
     private static final float alienStrength = 2.0f;
     private static final int rows = 12;
     private static final int cols = 12;
-    private Component[][] components;
+    private final Component[][] components;
     private int numberOfComponents;
-    private boolean[][] validSpots;
+    private final boolean[][] validSpots;
 
-    private List<Component> lostComponents;
-    private ArrayList<Component> reservedComponents;
+    private final List<Component> lostComponents;
+    private final ArrayList<Component> reservedComponents;
 
     private final Map<Integer, Storage> storages;
     private final Map<Integer, Battery> batteries;
     private final Map<Integer, Cabin> cabins;
     private final Map<Integer, Cannon> cannons;
     private final Map<Integer, Engine> engines;
-    private PriorityQueue<Good> goods;
+    private final PriorityQueue<Good> goods;
     private Component lastPlacedComponent;
 
     private int singleEnginesStrength;
@@ -46,7 +48,20 @@ public class SpaceShip {
     private boolean brownAlien;
 
     private int goodsValue;
-    private int exposedConnectors;
+
+    /**
+     * Comparator for sorting goods by value in descending order.
+     * This comparator is used to maintain the priority queue of goods in the storage.
+     * <p>
+     * We use a static inner class to avoid serialization issues with the comparator.
+     */
+    private static class ValueDescendingComparator implements Comparator<Good>, Serializable {
+        // TODO: We might need the serialVersionUID
+        @Override
+        public int compare(Good g1, Good g2) {
+            return Integer.compare(g2.getValue(), g1.getValue());
+        }
+    }
 
     public SpaceShip(Level level, PlayerColor color) throws IllegalArgumentException{
         this.level = level;
@@ -114,7 +129,7 @@ public class SpaceShip {
         cabins = new HashMap<>();
         cannons = new HashMap<>();
         engines = new HashMap<>();
-        goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
+        goods = new PriorityQueue<>(new ValueDescendingComparator());
         lastPlacedComponent = null;
 
         int pos = 6;
@@ -214,9 +229,7 @@ public class SpaceShip {
         if (comp != null) {
             if (comp.getComponentType() == ComponentType.SINGLE_CANNON && comp.getClockwiseRotation() == direction) {
                 return true;
-            } else if (comp.getComponentType() == ComponentType.DOUBLE_CANNON && comp.getClockwiseRotation() == direction) {
-                return true;
-            }
+            } else return comp.getComponentType() == ComponentType.DOUBLE_CANNON && comp.getClockwiseRotation() == direction;
         }
         return false;
     }
@@ -283,13 +296,15 @@ public class SpaceShip {
      * @param IDs a list of integer IDs corresponding to the cannons whose strength is to be calculated
      * @return the total strength of the cannons as a float
      */
-    public float getCannonsStrength(List<Integer> IDs) {
+    public float getCannonsStrength(List<Integer> IDs) throws IllegalArgumentException {
         float strength = 0;
         Cannon cannon;
         for (int ID : IDs) {
             cannon = cannons.get(ID);
             if (cannon != null) {
                 strength += cannon.getCannonStrength();
+            } else {
+                throw new IllegalArgumentException("Cannon with ID " + ID + " not found in the ship.");
             }
         }
         return strength;
@@ -300,13 +315,15 @@ public class SpaceShip {
      * @param IDs a list of integer IDs corresponding to the engines whose strength is to be calculated
      * @return the total strength of the engines as a float
      */
-    public float getEnginesStrength(List<Integer> IDs) {
+    public float getEnginesStrength(List<Integer> IDs) throws IllegalArgumentException {
         float strength = 0;
         Engine engine;
         for (int ID : IDs) {
             engine = engines.get(ID);
             if (engine != null) {
                 strength += engine.getEngineStrength();
+            } else {
+                throw new IllegalArgumentException("Engine with ID " + ID + " not found in the ship.");
             }
         }
         return strength;
@@ -582,7 +599,7 @@ public class SpaceShip {
      * @return The number of the exposed connectors
      */
     public int getExposedConnectors() {
-        exposedConnectors = 0;
+        int exposedConnectors = 0;
         for (Component[] c1 : components) {
             for (Component c2 : c1) {
                 if (c2 != null) {
@@ -628,7 +645,7 @@ public class SpaceShip {
      * @param c the component to reserve
      * @throws IllegalStateException if there are already two components reserved
      */
-    public void reserveComponent(Component c) throws IllegalStateException {
+    public void putReserveComponent(Component c) throws IllegalStateException {
         if (reservedComponents.size() < 2) {
             if (reservedComponents.isEmpty() || reservedComponents.getFirst() == null) {
                 reservedComponents.addFirst(c);
@@ -643,12 +660,14 @@ public class SpaceShip {
     /**
      * Unreserve a component in the reservedComponents ArrayList
      * @param tileID The ID of component to unreserve
-     * @return The component that was unreserved
      */
-    public Component unreserveComponent(int tileID) {
+    public void removeReserveComponent(int tileID) {
+        reservedComponents.removeIf(c -> c.getID() == tileID);
+    }
+
+    public Component peekReservedComponent(int tileID) {
         for (Component c : reservedComponents) {
             if (c.getID() == tileID) {
-                reservedComponents.remove(c);
                 return c;
             }
         }
@@ -793,25 +812,12 @@ public class SpaceShip {
         return lastPlacedComponent;
     }
 
-    /*
-       TODO: This method should be obsolete since we can only take the last placed component all
-             the other components are automatically fixed.
-             So also the fix method in the Component class should be removed.
-     */
     /**
-     * Fix a component at the given row and column
-     * @param row row of the component to fix
-     * @param column column of the component to fix
-     * @throws IllegalStateException if the component is null or already fixed
+     * Clean the last placed component
+     * @implNote This method is used to reset the last placed component after it has been fixed.
      */
-    public void fixComponent(int row, int column) throws IllegalStateException{
-        Component component = components[row][column];
-        if (component != null && !component.isFixed()) {
-            component.fix();
-            lastPlacedComponent = null;
-        } else {
-            throw new IllegalStateException("The component at the given row and column is null or already fixed");
-        }
+    public void cleanLastPlacedComponent() {
+        lastPlacedComponent = null;
     }
 
     /**
@@ -858,7 +864,7 @@ public class SpaceShip {
                         if (cabinBrown.hasBrownAlien()) {
                             brownAlien = false;
                             crewNumber -= cabinBrown.getCrewNumber();
-                            cabinBrown.removeCrewMember(1);;
+                            cabinBrown.removeCrewMember(1);
                             break;
                         }
                     }
@@ -879,9 +885,14 @@ public class SpaceShip {
                 break;
             case STORAGE:
                 Storage storage = (Storage) destroyedComponent;
+                Logger.getInstance().logError("Goods -1: " + goods, false);
                 Good good = storage.peekGood();
+                Logger.getInstance().logError("Destroying storage with ID: " + storage.getID() + " and removing goods from it.", false);
+                Logger.getInstance().logError("Goods 0: " + goods, false);
                 while (good != null) {
+                    Logger.getInstance().logError("Goods 1: " + goods, false);
                     goods.remove(good);
+                    Logger.getInstance().logError("Goods 2: " + goods, false);
                     storage.removeGood(good);
                     good = storage.peekGood();
                 }
@@ -896,7 +907,6 @@ public class SpaceShip {
             default:
                 break;
         }
-        lastPlacedComponent = null;
         numberOfComponents--;
         lostComponents.add(destroyedComponent);
     }
@@ -913,7 +923,7 @@ public class SpaceShip {
                 if (components[i][j] != null && !visited[i][j]) {
                     ArrayList<Pair<Integer, Integer>> disconnectedComponent = new ArrayList<>();
                     Queue<Pair<Integer, Integer>> queue = new LinkedList<>();
-                    queue.add(new Pair<Integer, Integer>(i, j));
+                    queue.add(new Pair<>(i, j));
                     visited[i][j] = true;
 
                     while (!queue.isEmpty()) {
@@ -925,7 +935,7 @@ public class SpaceShip {
                         Component currentComponent = components[currentRow][currentColumn];
 
                         for (int face = 0; face < 4; face++) {
-                            int newRow = currentRow + (face == 0 ? 1 : face == 2 ? -1 : 0);
+                            int newRow = currentRow + (face == 0 ? -1 : face == 2 ? 1 : 0);
                             int newColumn = currentColumn + (face == 1 ? -1 : face == 3 ? 1 : 0);
 
                             if (newRow >= 0 && newRow < 12 && newColumn >= 0 && newColumn < 12 && components[newRow][newColumn] != null && !visited[newRow][newColumn]) {
@@ -935,7 +945,7 @@ public class SpaceShip {
                                         currentComponent.getConnection(face) == adjacentComponent.getConnection((face + 2) % 4)) &&
                                         currentComponent.getConnection(face) != ConnectorType.EMPTY) {
                                     visited[newRow][newColumn] = true;
-                                    queue.add(new Pair<Integer, Integer>(newRow, newColumn));
+                                    queue.add(new Pair<>(newRow, newColumn));
                                 }
                             }
                         }
@@ -944,7 +954,7 @@ public class SpaceShip {
                 }
             }
         }
-        // TODO: check witch group of disconnected components are still valid
+        // TODO: check which group of disconnected components are still valid
         return disconnectedComponents;
     }
 }

@@ -5,11 +5,11 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import it.polimi.ingsw.view.tui.screens.ValidationTuiScreen;
 import org.javatuples.Pair;
 
-import java.util.function.Supplier;
+import java.awt.event.PaintEvent;
 
 public class RowAndColValidationTuiScreen extends ValidationTuiScreen {
     private final TuiScreenView oldScreen;
-    private Pair<Integer, Integer> rowAndCol;
+    private Pair<Integer, Integer> correctRowAndCol;
     public RowAndColValidationTuiScreen(TuiScreenView oldScreen) {
         super();
 
@@ -18,15 +18,15 @@ public class RowAndColValidationTuiScreen extends ValidationTuiScreen {
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        rowAndCol = parser.getRowAndCol("Type coordinates to destroy a component (row col):", totalLines, isStillCurrentScreen);
-
+    public void readCommand(Parser parser) throws Exception {
+        Pair<Integer, Integer> rowAndCol = parser.getRowAndCol("Type coordinates to destroy a component (row col): ", totalLines);
+        correctRowAndCol = new Pair<>(rowAndCol.getValue0() - 1, rowAndCol.getValue1() - 1);
     }
 
     @Override
     public TuiScreenView setNewScreen() {
-        destroyTiles.add(rowAndCol);
-        spaceShipView.removeComponent(rowAndCol.getValue0(), rowAndCol.getValue1());
+        destroyTiles.add(correctRowAndCol);
+        spaceShipView.removeComponent(correctRowAndCol.getValue0(), correctRowAndCol.getValue1());
         return oldScreen;
     }
 }

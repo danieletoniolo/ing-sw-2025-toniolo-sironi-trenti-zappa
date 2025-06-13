@@ -3,7 +3,7 @@ package it.polimi.ingsw.view.tui.screens;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.lobby.clientToServer.JoinLobby;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.view.Client;
+import it.polimi.ingsw.Client;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.lobby.LobbyView;
@@ -12,11 +12,10 @@ import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.menuScreens.ChooseNumberPlayersTuiScreen;
 
 import java.util.ArrayList;
-import java.util.function.Supplier;
 
 public class MenuTuiScreen implements TuiScreenView {
     protected final ArrayList<String> options = new ArrayList<>();
-    protected int totalLines = 5;
+    protected int totalLines = 6;
     protected int selected;
     protected String message;
 
@@ -32,12 +31,12 @@ public class MenuTuiScreen implements TuiScreenView {
         }
         options.add("Create lobby");
         options.add("Reload lobbies");
-        options.add("Exit");
+        options.add("Close program");
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) throws Exception {
+        selected = parser.getCommand(options, totalLines);
     }
 
     @Override
@@ -72,11 +71,11 @@ public class MenuTuiScreen implements TuiScreenView {
         }
 
         if (selected == options.size() - 1) {
-            return new LogInTuiScreen();
+            return new ClosingProgram();
         }
 
         StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
-                .request(new JoinLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getLobbiesView().get(selected - 1).getLobbyName()));
+                .request(new JoinLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getLobbiesView().get(selected).getLobbyName()));
         if (status.get().equals("POTA")) {
             setMessage(((Pota) status).errorMessage());
             return this;
@@ -93,5 +92,10 @@ public class MenuTuiScreen implements TuiScreenView {
     @Override
     public TuiScreens getType() {
         return TuiScreens.Menu;
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
     }
 }

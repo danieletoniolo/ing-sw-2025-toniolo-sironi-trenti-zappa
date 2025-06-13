@@ -6,7 +6,6 @@ import it.polimi.ingsw.view.tui.input.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class PlayerTuiScreen implements TuiScreenView {
     private final ArrayList<String> options = new ArrayList<>(List.of("Back"));
@@ -29,8 +28,8 @@ public class PlayerTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) throws Exception {
+        parser.getCommand(options, totalLines);
     }
 
     @Override
@@ -76,5 +75,10 @@ public class PlayerTuiScreen implements TuiScreenView {
     @Override
     public TuiScreens getType() {
         return TuiScreens.Player;
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
     }
 }

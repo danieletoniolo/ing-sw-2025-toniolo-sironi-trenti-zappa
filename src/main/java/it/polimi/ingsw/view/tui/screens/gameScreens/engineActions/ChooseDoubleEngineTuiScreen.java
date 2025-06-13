@@ -43,7 +43,7 @@ public class ChooseDoubleEngineTuiScreen extends ManagerEnginesTuiScreen{
 
         if (selected == num) {
             destroyStatic();
-            oldScreen.setMessage(null);
+            setMessage(null);
             return oldScreen;
         }
 
@@ -62,8 +62,7 @@ public class ChooseDoubleEngineTuiScreen extends ManagerEnginesTuiScreen{
             line.append("(").append(spaceShipView.getMapDoubleEngines().get(ID).getRow()).append(" ").append(spaceShipView.getMapDoubleEngines().get(ID).getCol()).append(") ");
         }
 
-        TuiScreenView newScreen = new ChooseDoubleEngineTuiScreen(oldScreen);
-        newScreen.setMessage("You are activating " + line);
-        return newScreen;
+        setMessage("You are activating " + line);
+        return new ChooseDoubleEngineTuiScreen(oldScreen);
     }
 }
