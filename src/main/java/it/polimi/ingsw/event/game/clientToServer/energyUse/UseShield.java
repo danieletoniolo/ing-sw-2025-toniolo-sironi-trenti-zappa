@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.clientToServer.energyUse;
 
 import it.polimi.ingsw.event.Requester;
+import it.polimi.ingsw.event.lobby.clientToServer.SetNickname;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
@@ -25,7 +26,9 @@ public record UseShield(
      * @return            a Responder for the UseShield event.
      */
     public static Responder<UseShield> responder(EventTransceiver transceiver, Function<UseShield, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<UseShield> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

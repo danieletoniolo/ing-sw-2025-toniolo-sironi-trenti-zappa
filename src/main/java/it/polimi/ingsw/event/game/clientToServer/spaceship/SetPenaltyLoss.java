@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.clientToServer.spaceship;
 
 import it.polimi.ingsw.event.Requester;
+import it.polimi.ingsw.event.game.clientToServer.goods.SwapGoods;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
@@ -13,7 +14,7 @@ import java.util.function.Function;
 /**
  * This record represents the penalty loss.
  * @param userID      is the user ID. Only the user know his ID, so the event is not faked.
- * @param type        is the type of penalty loss.
+ * @param type        Type of the penalty: 0 = goods, 1 = batteries, 2 = crew members.
  * @param penaltyLoss List of Integers representing the ID of storage, batteries or cabins from
  *                    which we take the penalty to serve.
  *                    We pick one from each ID in the list, in case of goods we pick the most valuable ones.
@@ -30,7 +31,9 @@ public record SetPenaltyLoss(
      * @return            a Responder for the SetPenaltyLoss event.
      */
     public static Responder<SetPenaltyLoss> responder(EventTransceiver transceiver, Function<SetPenaltyLoss, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<SetPenaltyLoss> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

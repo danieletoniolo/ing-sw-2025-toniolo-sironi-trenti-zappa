@@ -1,11 +1,11 @@
 package it.polimi.ingsw.view.miniModel.spaceship;
 
 import it.polimi.ingsw.view.miniModel.components.*;
+import javafx.scene.image.Image;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 
-import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +23,8 @@ public class SpaceShipView implements Structure {
     private ComponentView last;
     private List<List<Pair<Integer, Integer>>> fragments;
 
-    private final int converterRow = 5;
-    private final int converterCol = 4;
+    private final int converterRow = 4;
+    private final int converterCol = 3;
     private float totalPower;
 
     public SpaceShipView(LevelView level) {
@@ -72,7 +72,7 @@ public class SpaceShipView implements Structure {
     }
 
     public ComponentView removeLast() {
-        return removeComponent(last.getRow(), last.getCol());
+        return removeComponent(last.getRow() - 1, last.getCol() - 1);
     }
 
     public ComponentView removeComponent(int row, int col) {
@@ -122,6 +122,18 @@ public class SpaceShipView implements Structure {
         return discardReservedPile;
     }
 
+    public ComponentView getComponent(int row, int col) {
+        return spaceShip[row - converterRow][col - converterCol];
+    }
+
+    public int getRows() {
+        return spaceShip.length;
+    }
+
+    public int getCols() {
+        return spaceShip[0].length;
+    }
+
     public ComponentView[][] getSpaceShip() {
         return spaceShip;
     }
@@ -135,8 +147,15 @@ public class SpaceShipView implements Structure {
     }
 
     @Override
-    public void drawGui() {
-        //TODO: Implement the GUI drawing logic for the spaceship here
+    public Image drawGui() {
+        String path;
+        if(this.level == LevelView.LEARNING){
+            path = "/image/cardboard/ship_I.jpg";
+        } else {
+            path = "/image/cardboard/ship_II.jpg";
+        }
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
     public int getRowsToDraw() {

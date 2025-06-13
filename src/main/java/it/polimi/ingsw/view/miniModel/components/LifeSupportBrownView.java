@@ -1,5 +1,7 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import javafx.scene.image.Image;
+
 public class LifeSupportBrownView extends ComponentView {
     private String brown = "\033[38;5;220m";
     private String reset = "\033[0m";
@@ -8,9 +10,17 @@ public class LifeSupportBrownView extends ComponentView {
         super(ID, connectors, clockWise);
     }
 
+    /**
+     * Draws the component GUI.
+     * This method is called to draw the component GUI.
+     *
+     * @return an Image representing the image of the component
+     */
     @Override
-    public void drawGui(){
-        //TODO: Implement the GUI drawing logic for the LifeSupportBrown component here
+    public Image drawGui() {
+        String path = "/image/tiles/" + this.getID() + ".jpg";
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
     @Override

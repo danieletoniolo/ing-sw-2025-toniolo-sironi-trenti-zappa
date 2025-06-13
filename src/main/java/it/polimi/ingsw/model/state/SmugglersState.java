@@ -136,6 +136,7 @@ public class SmugglersState extends State {
             }
             cannonStrength.put(player, initialStrength);
         }
+        super.entry();
     }
 
     /**
@@ -188,7 +189,7 @@ public class SmugglersState extends State {
                 int flightDays = card.getFlightDays();
                 board.addSteps(p, -flightDays);
 
-                MoveMarker stepsEvent = new MoveMarker(p.getUsername(), flightDays);
+                MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
                 eventCallback.trigger(stepsEvent);
             }
         }

@@ -10,7 +10,7 @@ import java.io.Serializable;
  *
  * @param nickname The username or identifier of the player who is currently playing.
  */
-public record Playing(
+public record CurrentPlayer(
         String nickname
 ) implements Event, Serializable {
 }

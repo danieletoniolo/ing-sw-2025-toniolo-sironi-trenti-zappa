@@ -24,9 +24,9 @@ public class PlayerData implements Serializable {
      * @param color the color of the player
      * @param ship the ship of the player
      */
-    public PlayerData(String username, PlayerColor color, SpaceShip ship) {
+    public PlayerData(String username, String uuid, PlayerColor color, SpaceShip ship) {
         this.username = username;
-        this.uuid = UUID.fromString(username);
+        this.uuid = UUID.fromString(uuid);
         this.color = color;
         this.ship = ship;
         this.coins = 0;

@@ -72,7 +72,7 @@ public class CastEventReceiver<T extends Event> implements EventReceiver<T> {
                 try {
                     listener.handle((T) data);
                 } catch (ClassCastException e) {
-                    // Ignore the exception
+                    // Ignore the exception if the event type does not match the listener's expected type
                 }
             });
             receiver.registerListener(listeners.get(listener));

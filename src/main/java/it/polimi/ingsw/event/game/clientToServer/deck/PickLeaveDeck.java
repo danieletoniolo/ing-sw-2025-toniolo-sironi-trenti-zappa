@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.clientToServer.deck;
 
 import it.polimi.ingsw.event.Requester;
+import it.polimi.ingsw.event.lobby.clientToServer.SetNickname;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
@@ -30,7 +31,9 @@ public record PickLeaveDeck(
      * @return            a Responder for the PickLeaveDeck event.
      */
     public static Responder<PickLeaveDeck> responder(EventTransceiver transceiver, Function<PickLeaveDeck, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<PickLeaveDeck> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

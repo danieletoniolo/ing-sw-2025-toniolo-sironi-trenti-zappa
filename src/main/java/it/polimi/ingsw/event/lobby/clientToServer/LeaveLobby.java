@@ -1,10 +1,10 @@
 package it.polimi.ingsw.event.lobby.clientToServer;
 
 import it.polimi.ingsw.event.Requester;
+import it.polimi.ingsw.event.TransmitterEventWrapper;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
-import it.polimi.ingsw.event.type.StatusEvent;
 
 import java.io.Serializable;
 import java.util.function.Function;
@@ -25,8 +25,10 @@ public record LeaveLobby(
      * @param response    is the function that will be used to create the response event.
      * @return            a Responder for the LeaveLobby event.
      */
-    public static Responder<LeaveLobby> responder(EventTransceiver transceiver, Function<LeaveLobby, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+    public static Responder<LeaveLobby> responder(EventTransceiver transceiver, Function<LeaveLobby, TransmitterEventWrapper> response) {
+        Responder<LeaveLobby> responder =  new Responder<>(transceiver);
+        responder.registerListener(response);
+        return responder;
     }
 
     /**

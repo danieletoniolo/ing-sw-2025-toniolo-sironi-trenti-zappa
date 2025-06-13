@@ -1,25 +1,17 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import javafx.scene.image.Image;
+
 public class CannonView extends ComponentView {
     private float power;
-    private String purple = "\033[35m";
-    private String reset = "\033[0m";
-    private int arrowRotation;
-    private boolean doubleCannon;
+    private final String purple = "\033[35m";
+    private final String reset = "\033[0m";
+    private final boolean doubleCannon;
 
-    public CannonView(int ID, int[] connectors, int clockWise, float power, int arrowRotation) {
+    public CannonView(int ID, int[] connectors, int clockWise, float power) {
         super(ID, connectors, clockWise);
         this.power = power;
-        this.arrowRotation = arrowRotation;
-        if ((arrowRotation == 0 && power == 2) || (arrowRotation != 0 && power == 1)) {
-            this.doubleCannon = true;
-        } else {
-            this.doubleCannon = false;
-        }
-    }
-
-    public void setArrowRotation(int arrowRotation) {
-        this.arrowRotation = arrowRotation;
+        this.doubleCannon = (getClockWise() == 0 && power == 2) || (getClockWise() != 0 && power == 1);
     }
 
     public float getPower() {
@@ -30,9 +22,17 @@ public class CannonView extends ComponentView {
         this.power = power;
     }
 
+    /**
+     * Draws the component GUI.
+     * This method is called to draw the component GUI.
+     *
+     * @return an Image representing the image of the component
+     */
     @Override
-    public void drawGui() {
-        //TODO: Implement the GUI drawing logic for the Cannon component here
+    public Image drawGui() {
+        String path = "/image/tiles/" + this.getID() + ".jpg";
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
     @Override
@@ -47,22 +47,22 @@ public class CannonView extends ComponentView {
     }
 
     private String drawCannon(){
-        return switch (arrowRotation) {
+        return switch (getClockWise()) {
             case 0 -> " " + purple + ArrowUp + reset + " ";
             case 1 -> " " + purple + ArrowRight + reset + " ";
             case 2 -> " " + purple + ArrowDown + reset + " ";
             case 3 -> " " + purple + ArrowLeft + reset + " ";
-            default -> throw new IllegalStateException("Unexpected value: " + arrowRotation);
+            default -> throw new IllegalStateException("Unexpected value: " + getClockWise());
         };
     }
 
     private String drawDoubleCannon(){
-        return switch (arrowRotation) {
+        return switch (getClockWise()) {
             case 0 -> purple + ArrowUp + reset + " " + purple + ArrowUp + reset;
             case 1 -> purple + ArrowRight + reset + " " + purple + ArrowRight + reset;
             case 2 -> purple + ArrowDown + reset + " " + purple + ArrowDown + reset;
             case 3 -> purple + ArrowLeft + reset + " " + purple + ArrowLeft + reset;
-            default -> throw new IllegalStateException("Unexpected value: " + arrowRotation);
+            default -> throw new IllegalStateException("Unexpected value: " + getClockWise());
         };
     }
 
@@ -73,7 +73,7 @@ public class CannonView extends ComponentView {
 
     @Override
     public CannonView clone() {
-        CannonView copy = new CannonView(this.getID(), this.getConnectors(), this.getClockWise(), this.power, this.arrowRotation);
+        CannonView copy = new CannonView(this.getID(), this.getConnectors(), this.getClockWise(), this.power);
         copy.setIsWrong(this.getIsWrong());
         return copy;
     }

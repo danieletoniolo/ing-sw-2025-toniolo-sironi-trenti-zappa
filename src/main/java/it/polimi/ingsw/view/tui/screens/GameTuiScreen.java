@@ -4,7 +4,6 @@ import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
-import it.polimi.ingsw.view.miniModel.cards.CardView;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
@@ -13,7 +12,6 @@ import it.polimi.ingsw.view.tui.input.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public abstract class GameTuiScreen implements TuiScreenView {
     protected ArrayList<String> options = new ArrayList<>();
@@ -39,8 +37,8 @@ public abstract class GameTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) throws Exception {
+        selected = parser.getCommand(options, totalLines);
     }
 
     @Override
@@ -75,7 +73,7 @@ public abstract class GameTuiScreen implements TuiScreenView {
                 line.append(" ".repeat(Math.max(0, boardView.getColsToDraw())));
             }
 
-            line.append("                       ");
+            line.append("              ");
             if (i < DeckView.getRowsToDraw()) {
                 line.append(shuffledDeckView.drawLineTui(i));
             } else {
@@ -135,5 +133,10 @@ public abstract class GameTuiScreen implements TuiScreenView {
     @Override
     public TuiScreens getType() {
         return TuiScreens.Game;
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
     }
 }

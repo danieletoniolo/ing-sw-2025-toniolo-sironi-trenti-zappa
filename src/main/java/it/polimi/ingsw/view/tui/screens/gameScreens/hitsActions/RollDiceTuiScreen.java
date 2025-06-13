@@ -3,14 +3,16 @@ package it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions;
 import it.polimi.ingsw.event.game.clientToServer.dice.RollDice;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.view.Client;
+import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.screens.GameTuiScreen;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
+import it.polimi.ingsw.view.tui.screens.TuiScreens;
 
 import java.util.List;
 
 public class RollDiceTuiScreen extends GameTuiScreen {
+    private TuiScreenView nextScreen;
 
     public RollDiceTuiScreen() {
         super(List.of("Roll dice"));
@@ -26,6 +28,11 @@ public class RollDiceTuiScreen extends GameTuiScreen {
             setMessage(((Pota) status).errorMessage());
         }
 
-        return this;
+        return nextScreen; // Set by notifyCanProtect method in TuiManager
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+        this.nextScreen = nextScreen;
     }
 }

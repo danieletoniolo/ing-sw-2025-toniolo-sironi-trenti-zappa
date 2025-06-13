@@ -1,6 +1,10 @@
 package it.polimi.ingsw.view.miniModel.components;
 
 import it.polimi.ingsw.view.miniModel.Structure;
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 
 public abstract class ComponentView implements Structure {
     public static String Up0 =   "╭─────╮";
@@ -56,15 +60,36 @@ public abstract class ComponentView implements Structure {
         this.ID = ID;
         this.connectors = connectors;
         this.covered = false;
+        this.clockWise = clockWise;
     }
 
+    // GUI methods
     @Override
-    public void drawGui(){}
-
-    public static int getRowsToDraw() {
-        return 3;
+    public Image drawGui(){
+        String path = "/image/tiles/covered.jpg";
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
+    public Image rotateImage(Image inputImage) {
+        int width = (int) inputImage.getWidth();
+        int height = (int) inputImage.getHeight();
+
+        WritableImage outputImage = new WritableImage(height, width);
+        PixelReader reader = inputImage.getPixelReader();
+        PixelWriter writer = outputImage.getPixelWriter();
+
+        // Ruota in senso orario
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                writer.setArgb(height - y - 1, x, reader.getArgb(x, y));
+            }
+        }
+
+        return outputImage;
+    }
+
+    // TUI methods
     @Override
     public String drawLineTui(int line) throws IndexOutOfBoundsException{
         String str = switch (line) {
@@ -75,6 +100,10 @@ public abstract class ComponentView implements Structure {
         };
 
         return isWrong ? red + str + reset : str;
+    }
+
+    public static int getRowsToDraw() {
+        return 3;
     }
 
     protected String drawLeft(int line) {
@@ -107,7 +136,7 @@ public abstract class ComponentView implements Structure {
         this.isWrong = isWrong;
     }
 
-    protected boolean getIsWrong() {
+    public boolean getIsWrong() {
         return isWrong;
     }
 
@@ -138,7 +167,7 @@ public abstract class ComponentView implements Structure {
     public abstract TilesTypeView getType();
 
     public void setRow(int row) {
-        this.row = row;
+        this.row = row + 1;
     }
 
     public int getRow() {
@@ -146,7 +175,7 @@ public abstract class ComponentView implements Structure {
     }
 
     public void setCol(int col) {
-        this.col = col;
+        this.col = col + 1;
     }
 
     public int getCol() {
@@ -157,6 +186,7 @@ public abstract class ComponentView implements Structure {
 
     public void rotate() {
         this.clockWise++;
+        this.clockWise = this.clockWise % this.connectors.length;
     }
 
     public int getClockWise() {

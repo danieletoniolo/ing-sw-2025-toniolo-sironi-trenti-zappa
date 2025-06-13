@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.miniModel.countDown;
 
 import it.polimi.ingsw.view.miniModel.Structure;
+import javafx.scene.image.Image;
 
 public class CountDown implements Structure {
     private int secondsRemaining;
@@ -10,8 +11,8 @@ public class CountDown implements Structure {
     }
 
     @Override
-    public void drawGui() {
-
+    public Image drawGui() {
+        return null;
     }
 
     @Override

@@ -1,5 +1,11 @@
 package it.polimi.ingsw.view.tui.screens;
 
+import it.polimi.ingsw.Client;
+import it.polimi.ingsw.event.game.clientToServer.deck.PickLeaveDeck;
+import it.polimi.ingsw.event.game.serverToClient.status.Pota;
+import it.polimi.ingsw.event.type.StatusEvent;
+import it.polimi.ingsw.view.miniModel.MiniModel;
+import it.polimi.ingsw.view.tui.screens.buildingScreens.MainCommandsTuiScreen;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
@@ -7,17 +13,15 @@ import it.polimi.ingsw.view.tui.input.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class DeckTuiScreen implements TuiScreenView {
-    private final ArrayList<String> options = new ArrayList<>(List.of("Back", "Close Program"));
+    private final ArrayList<String> options = new ArrayList<>(List.of("Back"));
     private final DeckView myDeck;
     int selected;
     int totalLines = DeckView.getRowsToDraw() + 4 + 2;
-    private int row;
     protected String message;
     protected boolean isNewScreen;
-    private int num;
+    private final int num;
 
     public DeckTuiScreen(DeckView deck, int num) {
         this.myDeck = deck;
@@ -26,22 +30,24 @@ public class DeckTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) throws Exception {
+        selected = parser.getCommand(options, totalLines);
     }
 
     @Override
     public TuiScreenView setNewScreen() {
-        if (selected == 0 ) {
-            return new BuildingTuiScreen();
+        StatusEvent status = PickLeaveDeck.requester(Client.transceiver, new Object()).request(new PickLeaveDeck(MiniModel.getInstance().getUserID(), 1, (num - 1)));
+        if (status.get().equals("POTA")) {
+            setMessage(((Pota) status).errorMessage());
+            return this;
         }
-        return new ClosingProgram();
+        return new MainCommandsTuiScreen();
     }
 
     @Override
     public void printTui(Terminal terminal) {
         var writer = terminal.writer();
-        row = 1;
+        int row = 1;
 
         TerminalUtils.printLine(writer, "Deck " + num + ":", row++);
 
@@ -70,5 +76,10 @@ public class DeckTuiScreen implements TuiScreenView {
     @Override
     public TuiScreens getType() {
         return TuiScreens.Deck;
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
     }
 }

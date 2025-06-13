@@ -10,7 +10,7 @@ import java.io.Serializable;
  * It serves to notify relevant components or clients that the game has officially begun.
  *
  * @param startingTime  The time at which the game is set to start, formatted as a string
- * @param timerDuration The duration of the timer for the game, in seconds
+ * @param timerDuration The duration of the timer for the game, in milliseconds
  */
 public record StartingGame(
         String startingTime,

@@ -2,7 +2,9 @@ package it.polimi.ingsw.view.miniModel.lobby;
 
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
+import javafx.scene.image.Image;
 
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,8 +64,9 @@ public class LobbyView implements Structure {
         return maxPlayer;
     }
 
-    public void drawGui() {
+    public Image drawGui() {
         //TODO: Implement the GUI drawing logic for the lobby here
+        return null;
     }
 
     public static int getRowsToDraw() {
@@ -119,9 +122,11 @@ public class LobbyView implements Structure {
 
         if (line == getRowsToDraw() - 2) {
             str.append(Vertical);
-            str.append(String.valueOf(" ").repeat(width/2 - 1));
+            str.append(String.valueOf(" ").repeat((width/2 - 2) % 2 == 0 ? (width/2 - 2) : (width/2 - 1)));
             str.append(numberOfPlayers).append("/").append(maxPlayer);
-            str.append(String.valueOf(" ").repeat(width/2 - 2));
+            while (str.length() < width) {
+                str.append(" ");
+            }
             str.append(Vertical);
             return str.toString();
         }

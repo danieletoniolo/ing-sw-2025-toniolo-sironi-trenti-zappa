@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.miniModel.deck;
 
+import it.polimi.ingsw.utils.Logger;
 import it.polimi.ingsw.view.miniModel.cards.CardView;
 
 import java.util.Collections;
@@ -43,6 +44,14 @@ public class DeckView {
         if (onlyLast) {
             deck.peek().setCovered(false);
         }
+    }
+
+    public void addCard(CardView card) {
+        deck.push(card);
+    }
+
+    public void popCard() {
+        deck.pop();
     }
 
     public Stack<CardView> getDeck() {

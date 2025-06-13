@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.miniModel.cards;
 
 import it.polimi.ingsw.view.miniModel.good.GoodView;
+import javafx.scene.image.Image;
 
 import java.util.List;
 
@@ -16,9 +17,17 @@ public class AbandonedStationView extends CardView {
         this.flightDays = flightDays;
     }
 
+    /**
+     * Draws the card GUI.
+     * This method is called to draw the card GUI.
+     *
+     * @return an Image representing the image of the card
+     */
     @Override
-    public void drawGui(){
-        //TODO: Implement GUI drawing logic
+    public Image drawGui() {
+        String path = "/image/card/" + this.getID() + ".jpg";
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
     @Override

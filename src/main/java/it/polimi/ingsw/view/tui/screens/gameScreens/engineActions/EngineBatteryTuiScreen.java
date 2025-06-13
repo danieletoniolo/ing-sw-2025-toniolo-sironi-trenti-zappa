@@ -3,11 +3,9 @@ package it.polimi.ingsw.view.tui.screens.gameScreens.engineActions;
 import it.polimi.ingsw.event.game.clientToServer.energyUse.UseEngines;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.view.Client;
+import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
-import it.polimi.ingsw.view.miniModel.components.BatteryView;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
-import it.polimi.ingsw.view.tui.screens.gameScreens.cannonsActions.CannonsBatteryTuiScreen;
 
 import java.util.ArrayList;
 
@@ -52,17 +50,17 @@ public class EngineBatteryTuiScreen extends ManagerEnginesTuiScreen{
 
         if (selected == num) {
             destroyStatic();
-            oldScreen.setMessage(null);
+            setMessage(null);
             return oldScreen;
         }
 
         if (selected == num + 1) {
             StatusEvent status = UseEngines.requester(Client.transceiver, new Object()).request(new UseEngines(MiniModel.getInstance().getUserID(), enginesIDs, batteriesIDs));
             if (status.get().equals("POTA")) {
-                oldScreen.setMessage(((Pota) status).errorMessage());
+                setMessage(((Pota) status).errorMessage());
             }
             else {
-                oldScreen.setMessage(null);
+                setMessage(null);
             }
             destroyStatic();
             return oldScreen;
@@ -87,8 +85,7 @@ public class EngineBatteryTuiScreen extends ManagerEnginesTuiScreen{
             line.append("(").append(spaceShipView.getMapBatteries().get(ID).getRow()).append(" ").append(spaceShipView.getMapBatteries().get(ID).getCol()).append(") ");
         }
 
-        TuiScreenView newScreen = new EngineBatteryTuiScreen(oldScreen);
-        newScreen.setMessage("You are activating " + line);
-        return newScreen;
+        setMessage("You are activating " + line);
+        return new EngineBatteryTuiScreen(oldScreen);
     }
 }

@@ -56,6 +56,7 @@ public class OpenSpaceState extends State {
             }
             this.stats.put(player, initialStrength);
         }
+        super.entry();
     }
 
     /**

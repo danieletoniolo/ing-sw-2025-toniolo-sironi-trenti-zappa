@@ -1,6 +1,7 @@
 package it.polimi.ingsw.event.game.clientToServer.goods;
 
 import it.polimi.ingsw.event.Requester;
+import it.polimi.ingsw.event.lobby.clientToServer.SetNickname;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.EventTransceiver;
 import it.polimi.ingsw.event.Responder;
@@ -27,7 +28,9 @@ public record ExchangeGoods(
      * @return            a Responder for the ExchangeGoods event.
      */
     public static Responder<ExchangeGoods> responder(EventTransceiver transceiver, Function<ExchangeGoods, StatusEvent> response) {
-        return new Responder<>(transceiver, response);
+        Responder<ExchangeGoods> responder =  new Responder<>(transceiver);
+        responder.registerListenerStatus(response);
+        return responder;
     }
 
     /**

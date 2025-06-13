@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.miniModel.cards;
 
 import it.polimi.ingsw.view.miniModel.Structure;
+import javafx.scene.image.Image;
 
 public abstract class CardView implements Structure {
     public String Up =       "╭───────────────────╮";
@@ -27,8 +28,19 @@ public abstract class CardView implements Structure {
     }
 
     @Override
-    public void drawGui(){
-        //TODO: Implement GUI drawing logic
+    public Image drawGui() {
+        String path;
+        if(level == 1){
+            path = "/image/card/covered_1.jpg";
+        } else {
+            path = "/image/card/covered_2.jpg";
+        }
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
+    }
+
+    public void setID(int ID) {
+        this.ID = ID;
     }
 
     public static int getRowsToDraw() {

@@ -1,5 +1,7 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import javafx.scene.image.Image;
+
 public class ShieldView extends ComponentView {
     public static String UpShield = "∩";
     public static String DownShield = "∪";
@@ -17,9 +19,18 @@ public class ShieldView extends ComponentView {
     public void setShields(boolean[] shields) {
         this.shields = shields;
     }
+
+    /**
+     * Draws the component GUI.
+     * This method is called to draw the component GUI.
+     *
+     * @return an Image representing the image of the component
+     */
     @Override
-    public void drawGui(){
-        //TODO: Implement the GUI drawing logic for the Shield component here
+    public Image drawGui() {
+        String path = "/image/tiles/" + this.getID() + ".jpg";
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
     @Override
