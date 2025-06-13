@@ -1,6 +1,10 @@
 package it.polimi.ingsw.view.miniModel.components;
 
 import it.polimi.ingsw.view.miniModel.Structure;
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 
 public abstract class ComponentView implements Structure {
     public static String Up0 =   "╭─────╮";
@@ -61,7 +65,29 @@ public abstract class ComponentView implements Structure {
 
     // GUI methods
     @Override
-    public void drawGui(){}
+    public Image drawGui(){
+        String path = "/image/tiles/covered.jpg";
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
+    }
+
+    public Image rotateImage(Image inputImage) {
+        int width = (int) inputImage.getWidth();
+        int height = (int) inputImage.getHeight();
+
+        WritableImage outputImage = new WritableImage(height, width);
+        PixelReader reader = inputImage.getPixelReader();
+        PixelWriter writer = outputImage.getPixelWriter();
+
+        // Ruota in senso orario
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                writer.setArgb(height - y - 1, x, reader.getArgb(x, y));
+            }
+        }
+
+        return outputImage;
+    }
 
     // TUI methods
     @Override

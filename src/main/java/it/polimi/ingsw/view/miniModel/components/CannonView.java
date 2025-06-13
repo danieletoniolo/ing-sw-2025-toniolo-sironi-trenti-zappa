@@ -1,5 +1,7 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import javafx.scene.image.Image;
+
 public class CannonView extends ComponentView {
     private float power;
     private final String purple = "\033[35m";
@@ -20,9 +22,17 @@ public class CannonView extends ComponentView {
         this.power = power;
     }
 
+    /**
+     * Draws the component GUI.
+     * This method is called to draw the component GUI.
+     *
+     * @return an Image representing the image of the component
+     */
     @Override
-    public void drawGui() {
-        //TODO: Implement the GUI drawing logic for the Cannon component here
+    public Image drawGui() {
+        String path = "/image/tiles/" + this.getID() + ".jpg";
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
     @Override

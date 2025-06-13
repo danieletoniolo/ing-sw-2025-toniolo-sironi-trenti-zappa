@@ -1,11 +1,11 @@
 package it.polimi.ingsw.view.miniModel.spaceship;
 
 import it.polimi.ingsw.view.miniModel.components.*;
+import javafx.scene.image.Image;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 
-import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -147,8 +147,15 @@ public class SpaceShipView implements Structure {
     }
 
     @Override
-    public void drawGui() {
-        //TODO: Implement the GUI drawing logic for the spaceship here
+    public Image drawGui() {
+        String path;
+        if(this.level == LevelView.LEARNING){
+            path = "/image/cardboard/ship_I.jpg";
+        } else {
+            path = "/image/cardboard/ship_II.jpg";
+        }
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
     public int getRowsToDraw() {

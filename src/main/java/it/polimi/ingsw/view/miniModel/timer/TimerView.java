@@ -2,6 +2,9 @@ package it.polimi.ingsw.view.miniModel.timer;
 
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
+import javafx.scene.image.Image;
+
+import java.awt.image.BufferedImage;
 
 public class TimerView implements Structure {
     private int minutes;
@@ -36,8 +39,8 @@ public class TimerView implements Structure {
     }
 
     @Override
-    public void drawGui() {
-
+    public Image drawGui() {
+        return null;
     }
 
     @Override

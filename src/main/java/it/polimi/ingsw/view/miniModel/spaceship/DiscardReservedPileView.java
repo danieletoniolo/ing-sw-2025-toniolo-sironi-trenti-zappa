@@ -2,7 +2,9 @@ package it.polimi.ingsw.view.miniModel.spaceship;
 
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
+import javafx.scene.image.Image;
 
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -22,8 +24,8 @@ public class DiscardReservedPileView implements Structure {
     }
 
     @Override
-    public void drawGui() {
-
+    public Image drawGui() {
+        return null;
     }
 
     public static int getRowsToDraw() {
