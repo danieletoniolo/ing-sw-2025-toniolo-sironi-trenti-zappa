@@ -2,11 +2,11 @@ package it.polimi.ingsw.network.tcp;
 
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.event.game.HeartBeat;
-import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.network.Connection;
 import it.polimi.ingsw.network.exceptions.BadHostException;
 import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
 import it.polimi.ingsw.network.exceptions.SocketCreationException;
+import it.polimi.ingsw.utils.Logger;
 
 import java.io.*;
 import java.net.Socket;
@@ -47,7 +47,7 @@ public class TCPConnection implements Connection {
         // TODO: Check if we are handling all the possible exceptions
 
         // Start the heartbeat thread
-        reader();
+        read();
 
         // Start the reader thread
         hearBeat();
@@ -76,18 +76,19 @@ public class TCPConnection implements Connection {
         hearBeat();
 
         // Start the reader thread
-        reader();
+        read();
     }
 
-    private void reader() {
-        Thread reader = new Thread(() -> {
-            while(true) {
+    private void read() {
+        new Thread(() -> {
+            while (true) {
                 synchronized (lock) {
                     if (disconnected) {
                         try {
                             socket.close();
+                            return;
                         } catch (IOException e) {
-                            // TODO: handle exception
+                            Logger.getInstance().logError("Error while closing socket", true);
                         }
                     }
                 }
@@ -110,8 +111,7 @@ public class TCPConnection implements Connection {
                     disconnect();
                 }
             }
-        });
-        reader.start();
+        }).start();
     }
 
     /**
@@ -154,11 +154,11 @@ public class TCPConnection implements Connection {
     }
 
     @Override
-    public Event receive() {
+    public Event receive() throws DisconnectedConnection, InterruptedException {
         synchronized (lock) {
             // If the connection is broken, throw a DisconnectedConnection exception
             if (disconnected) {
-                throw new DisconnectedConnection("already disconnected");
+                throw new DisconnectedConnection("Already disconnected");
             }
 
             // Wait for a message to be received
@@ -166,11 +166,11 @@ public class TCPConnection implements Connection {
                 try {
                     lock.wait();
                 } catch (InterruptedException e) {
-                    throw new DisconnectedConnection("interrupted while waiting for message", e);
+                    throw new InterruptedException("Interrupted while waiting for message");
                 }
                 // If the connection is broken, throw a DisconnectedConnection exception
                 if (disconnected) {
-                    throw new DisconnectedConnection("disconnected while waiting for message");
+                    throw new DisconnectedConnection("Disconnected while waiting for message");
                 }
             }
 

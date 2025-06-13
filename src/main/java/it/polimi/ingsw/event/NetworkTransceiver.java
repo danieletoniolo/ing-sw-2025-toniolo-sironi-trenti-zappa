@@ -1,5 +1,6 @@
 package it.polimi.ingsw.event;
 
+import it.polimi.ingsw.event.internal.ConnectionLost;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.network.Connection;
 import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
@@ -9,7 +10,7 @@ import org.javatuples.Pair;
 import java.util.*;
 
 
-public class NetworkTransceiver implements EventTransceiver{
+public class NetworkTransceiver implements EventTransceiver {
     /**
      * Lock object used to synchronize listeners registration, removal and event handling.
      */
@@ -82,16 +83,6 @@ public class NetworkTransceiver implements EventTransceiver{
             while (true) {
                 synchronized (sendQueue) {
                     while (sendQueue.isEmpty()) {
-                        /*
-                        if (!hasToSend) {
-                               TODO: Understand if we need to break the loop
-                                     We should not need it since since we do not support disconnection
-
-                            return;
-                        }
-                         */
-
-
                         try {
                             sendQueue.wait();
                         } catch (InterruptedException e) {
@@ -121,7 +112,7 @@ public class NetworkTransceiver implements EventTransceiver{
                                 connection.getValue0().send(event.getValue1());
                             }
                         } catch (DisconnectedConnection e) {
-                            // ignore the error
+                            // We can ignore this since the disconnection will be handled by the receiver thread
                         }
                     }
                 }
@@ -165,17 +156,28 @@ public class NetworkTransceiver implements EventTransceiver{
      */
     public void connect(UUID userID, Connection connection) {
         Thread receiveThread = new Thread(() -> {
+            boolean disconnected = false;
             Event event;
             while (true) {
                 try {
                     event = connection.receive();
-                } catch (DisconnectedConnection e) {
-                    // Handle disconnection
+                } catch (InterruptedException e) {
+                    // We reach this point if the connection is being disconnected from the transceiver.
                     return;
+                } catch (DisconnectedConnection e) {
+                    // We reach this point if the connection is lost.
+                    Logger.getInstance().logWarning("Connection with ID: " + userID + " disconnected.", true);
+                    event = new ConnectionLost(userID);
+                    disconnected = true;
                 }
+
                 synchronized (receivedQueue) {
                     receivedQueue.add(event);
                     receivedQueue.notifyAll();
+                }
+
+                if (disconnected) {
+                    return;
                 }
             }
         });
@@ -192,20 +194,19 @@ public class NetworkTransceiver implements EventTransceiver{
      */
     public void disconnect(UUID userID) {
         synchronized (lockConnectionSend) {
+            if (!connections.containsKey(userID)) {
+                Logger.getInstance().logError("Trying to disconnect user with ID: " + userID + " but the connection is not present in the transceiver.", true);
+                return;
+            }
             Thread receiveThread = connections.remove(userID).getValue1();
             if (receiveThread != null) {
                 receiveThread.interrupt();
             }
         }
-
-        synchronized (sendQueue) {
-            // hasToSend = false;
-            sendQueue.notifyAll();
-        }
     }
 
     /**
-     * Broadcasts the given {@link Event} to all the {@link it.polimi.ingsw.network.Connection} present in the transceiver.
+     * Broadcasts the given {@link Event} to all the {@link Connection} present in the transceiver.
      * @param data is the {@link Event} which will be broadcast.
      */
     @Override
@@ -217,9 +218,9 @@ public class NetworkTransceiver implements EventTransceiver{
     }
 
     /**
-     * Sends the given {@link Event} to the specified {@link it.polimi.ingsw.network.Connection}.
+     * Sends the given {@link Event} to the specified {@link Connection}.
      * It is used only for the errors message which do not need to be broadcasted.
-     * @param uuid is the {@link UUID} of the {@link it.polimi.ingsw.network.Connection} to send the event to.
+     * @param uuid is the {@link UUID} of the {@link Connection} to send the event to.
      * @param data is the {@link Event} to send.
      */
     @Override

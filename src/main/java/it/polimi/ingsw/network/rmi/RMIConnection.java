@@ -72,7 +72,7 @@ public class RMIConnection implements Connection {
      * connection queue.
      *
      * @param address is the address of the server's host.
-     * @param port    is the port used by {@link it.polimi.ingsw.network.ConnectionAcceptor the server} for RMI communication.
+     * @param port    is the port used by the {@link it.polimi.ingsw.network.ConnectionAcceptor ConnectionAcceptor} for RMI communication.
      * @throws RemoteException will be thrown in case of network problems, or server communication issues.
      * @throws NotBoundException will be thrown if a failure occurs in the process of connecting to the server.
      * @throws BadPortException will be thrown if a failure occurs in the process of connecting to the server.
@@ -111,7 +111,7 @@ public class RMIConnection implements Connection {
      * Constructor of the class when it is instanced on the server. Initializes the inner lock, the connection object, and the
      * connection queue.
      * @param address is the address of the server's host.
-     * @param port is the port used by {@link it.polimi.ingsw.network.ConnectionAcceptor the server} for RMI communication.
+     * @param port is the port used by the {@link it.polimi.ingsw.network.ConnectionAcceptor ConnectionAcceptor} for RMI communication.
      * @param boundName is the name of the remote queue pair.
      * @throws RemoteException will be thrown in case of network problems, or server communication issues.
      * @throws NotBoundException will be thrown if a failure occurs in the process of connecting to the server.
@@ -144,7 +144,7 @@ public class RMIConnection implements Connection {
                 try {
                     send(new HeartBeat());
                 } catch (DisconnectedConnection e) {
-                    throw new DisconnectedConnection("Connection is closed", e);
+                    timer.cancel();
                 }
             }
         }, 0, TIMEOUT/2);
@@ -162,25 +162,23 @@ public class RMIConnection implements Connection {
         sent = false;
 
         new Thread(() -> {
-            synchronized (lockSendTimeout) {
-                try {
-                    sender.add(message);
+            try {
+                sender.add(message);
 
-                    synchronized (lockSendTimeout) {
-                        sent = true;
-                        lockSendTimeout.notifyAll();
-                    }
-                } catch (RemoteException e) {
-                    throw new DisconnectedConnection("Connection close while sending message", e);
+                synchronized (lockSendTimeout) {
+                    sent = true;
+                    lockSendTimeout.notifyAll();
                 }
+            } catch (RemoteException _) {
+
             }
         }).start();
 
         synchronized (lockSendTimeout) {
             try {
                 lockSendTimeout.wait(TIMEOUT);
-            } catch (InterruptedException e) {
-                throw new DisconnectedConnection("Connection close while sending message", e);
+            } catch (InterruptedException _) {
+
             }
 
             return sent;
@@ -198,17 +196,15 @@ public class RMIConnection implements Connection {
         read = null;
 
         new Thread(() -> {
-            synchronized (lockReadTimeout) {
-                try {
-                    Event message = receiver.poll();
+            try {
+                Event message = receiver.poll();
 
-                    synchronized (lockReadTimeout) {
-                        read = message;
-                        lockReadTimeout.notifyAll();
-                    }
-                } catch (RemoteException e) {
-                    // We can ignore this exception, as the connection will be closed anyway
+                synchronized (lockReadTimeout) {
+                    read = message;
+                    lockReadTimeout.notifyAll();
                 }
+            } catch (RemoteException _) {
+
             }
         }).start();
 
@@ -226,7 +222,7 @@ public class RMIConnection implements Connection {
     /**
      * This method is used to read messages from the other end of the connection.
      * It runs in a separate thread and will keep reading messages until the connection is closed.
-     * If a message is read and it is not a heartbeat, it is added to the pendingMessages queue.
+     * If a message is read, and it is not a heartbeat, it is added to the pendingMessages queue.
      */
     private void read() {
         new Thread(() -> {
@@ -283,7 +279,7 @@ public class RMIConnection implements Connection {
      * @throws DisconnectedConnection will be thrown if the connection is closed.
      */
     @Override
-    public Event receive() throws DisconnectedConnection {
+    public Event receive() throws DisconnectedConnection, InterruptedException {
         synchronized (lock) {
             if (disconnected) {
                 throw new DisconnectedConnection("Connection is closed");
@@ -293,7 +289,7 @@ public class RMIConnection implements Connection {
                 try {
                     lock.wait();
                 } catch (InterruptedException e) {
-                    throw new DisconnectedConnection("Connection close while waiting for message", e);
+                    throw new InterruptedException("Connection close while waiting for message");
                 }
 
                 if(disconnected) {

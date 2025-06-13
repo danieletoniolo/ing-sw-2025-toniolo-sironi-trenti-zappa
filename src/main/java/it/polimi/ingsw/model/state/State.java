@@ -1,29 +1,21 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
-import it.polimi.ingsw.event.game.serverToClient.cards.*;
 import it.polimi.ingsw.event.game.serverToClient.deck.DrawCard;
-import it.polimi.ingsw.event.game.serverToClient.deck.GetDecks;
 import it.polimi.ingsw.event.game.serverToClient.deck.GetShuffledDeck;
-import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedMainCabin;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.PlayerGaveUp;
 import it.polimi.ingsw.event.game.serverToClient.StateChanged;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.game.board.Board;
-import it.polimi.ingsw.model.game.board.Deck;
-import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.model.spaceship.Component;
-import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -119,8 +111,10 @@ public abstract class State implements Serializable {
                     transitionHandler.changeState(new EndState(board, eventCallback, board.getBoardLevel(), transitionHandler));
                 }
             }
-            case FINISHED -> {
+            case REWARD -> {
                 // TODO: Understand if we need to do something here
+            }
+            case FINISHED -> {
             }
             default -> throw new IllegalArgumentException("Invalid next game state: " + nextGameState);
         }

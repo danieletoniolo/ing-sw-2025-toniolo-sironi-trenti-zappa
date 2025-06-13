@@ -15,6 +15,7 @@ import it.polimi.ingsw.event.game.serverToClient.player.*;
 import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
 import it.polimi.ingsw.event.game.serverToClient.timer.*;
+import it.polimi.ingsw.event.internal.ConnectionLost;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
@@ -29,6 +30,7 @@ import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import it.polimi.ingsw.view.miniModel.timer.TimerView;
+import it.polimi.ingsw.view.tui.TerminalUtils;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
@@ -267,6 +269,14 @@ public class EventHandlerClient {
             registerListeners();
         };
         nicknameSetReceiver.registerListener(nicknameSetListener);
+
+        // Internal events
+        CastEventReceiver<ConnectionLost> connectionLostReceiver = new CastEventReceiver<>(this.transceiver);
+        EventListener<ConnectionLost> connectionLostListener = data -> {
+            manager.notifyConnectionLost();
+            System.exit(1);
+        };
+        connectionLostReceiver.registerListener(connectionLostListener);
 
         // Lobby events
         /*

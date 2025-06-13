@@ -17,10 +17,10 @@ import java.util.UUID;
 /**
  * DatabaseController class to manage the game state files and player to map file.
  * <p>
- * This class implements the Singleton pattern to ensure that only one instance of the database it.polimi.ingsw.controller exists.
+ * This class implements the Singleton pattern to ensure that only one instance of the database controller exists.
  * It provides methods to save, load, and delete game states, as well as register players to their respective game controllers.
  * </p>
- * The database it.polimi.ingsw.controller creates a new folder in the user's home directory to store game state files and a
+ * The database controller creates a new folder in the user's home directory to store game state files and a
  * JSON file to map players to their game controllers.
  */
 public class DatabaseController {
@@ -61,7 +61,7 @@ public class DatabaseController {
 
     /**
      * {@link Map} to store the mapping of players to their game controllers.
-     * The key is the player's {@link UUID} and the value is the game it.polimi.ingsw.controller's {@link UUID} which is
+     * The key is the player's {@link UUID} and the value is the game controller's {@link UUID} which is
      * also the game state file name.
      */
     private final Map<UUID, UUID> playerToMap;
@@ -149,7 +149,7 @@ public class DatabaseController {
     }
 
     /**
-     * Serialize the game it.polimi.ingsw.controller to a file and save it in the /saves/games folder.
+     * Serialize the game controller to a file and save it in the /saves/games folder.
      * @param gameController the {@link GameController} to save (it contains the game state).
      * @throws IOException if an I/O error occurs while writing to the file.
      */
@@ -165,8 +165,8 @@ public class DatabaseController {
     }
 
     /**
-     * Load the game it.polimi.ingsw.controller from a file and return it.
-     * @param uuid the {@link UUID} of the game it.polimi.ingsw.controller to load.
+     * Load the game controller from a file and return it.
+     * @param uuid the {@link UUID} of the game controller to load.
      * @return the {@link GameController} loaded from the file.
      * @throws IOException if an I/O error occurs while reading from the file.
      */
@@ -189,7 +189,7 @@ public class DatabaseController {
 
     /**
      * Delete the game state file and remove the entry from the playerToMap.
-     * @param uuid the {@link UUID} of the game it.polimi.ingsw.controller to delete.
+     * @param uuid the {@link UUID} of the game controller to delete.
      * @throws IOException if an I/O error occurs while deleting the file.
      */
     public void deleteGame(UUID uuid) throws IOException {
@@ -209,9 +209,9 @@ public class DatabaseController {
     }
 
     /**
-     * Link a player to the game it.polimi.ingsw.controller of his game it.polimi.ingsw.controller (game state).
-     * @param playerUUID the {@link UUID} of the player to link to the game it.polimi.ingsw.controller.
-     * @param gameControllerUUID the {@link UUID} of the game it.polimi.ingsw.controller to link the player to.
+     * Link a player to the game controller of his game controller (game state).
+     * @param playerUUID the {@link UUID} of the player to link to the game controller.
+     * @param gameControllerUUID the {@link UUID} of the game controller to link the player to.
      * @throws IOException if an I/O error occurs while writing to the file.
      */
     public void registerPlayer(UUID playerUUID, UUID gameControllerUUID) throws IOException {

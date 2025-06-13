@@ -1,6 +1,5 @@
 package it.polimi.ingsw.view.tui;
 
-import it.polimi.ingsw.Client;
 import it.polimi.ingsw.event.game.serverToClient.deck.*;
 import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
@@ -105,6 +104,7 @@ public class TuiManager implements Manager {
         Thread viewThread = new Thread(() -> {
             while (running) {
                 try {
+                    currentScreen.printTui(terminal);
                     if (currentScreen.getType().equals(TuiScreens.Ending)) {
                         try {
                             running = false;
@@ -113,7 +113,6 @@ public class TuiManager implements Manager {
                         }
                         System.exit(0);
                     }
-                    currentScreen.printTui(terminal);
                     printInput = true;
                     synchronized (stateLock){
                         stateLock.notifyAll();
@@ -132,6 +131,16 @@ public class TuiManager implements Manager {
     @Override
     public void notifyUserIDSet() {
 
+    }
+
+    @Override
+    public void notifyConnectionLost() {
+        synchronized (stateLock) {
+            currentScreen = new ConnectionLostScreen();
+            parser.changeScreen();
+            printInput = false;
+            stateLock.notifyAll();
+        }
     }
 
     @Override

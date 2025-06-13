@@ -1,6 +1,7 @@
 package it.polimi.ingsw.network;
 
 import it.polimi.ingsw.event.type.Event;
+import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
 
 public interface Connection {
     /**
@@ -11,9 +12,9 @@ public interface Connection {
 
     /**
      * This method return the event which represent the message received from the other end of the connection.
-     * @return a Event object that has been received from the other end of the connection.
+     * @return an Event object that has been received from the other end of the connection.
      */
-    Event receive();
+    Event receive() throws DisconnectedConnection, InterruptedException;
 
     /**
      * This method will be called when the connection is closed.

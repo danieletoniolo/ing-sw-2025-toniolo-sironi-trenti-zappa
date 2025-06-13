@@ -17,6 +17,8 @@ import it.polimi.ingsw.event.lobby.serverToClient.*;
 public interface Manager {
     void notifyUserIDSet();
 
+    void notifyConnectionLost();
+
     void notifyNicknameSet();
 
     void notifyLobbies();

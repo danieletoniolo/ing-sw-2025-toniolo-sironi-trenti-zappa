@@ -22,6 +22,8 @@ import it.polimi.ingsw.event.game.clientToServer.spaceship.DestroyComponents;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.ManageCrewMember;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.SetPenaltyLoss;
 import it.polimi.ingsw.event.game.clientToServer.timer.FlipTimer;
+import it.polimi.ingsw.event.game.serverToClient.StateChanged;
+import it.polimi.ingsw.event.internal.ConnectionLost;
 import it.polimi.ingsw.event.lobby.serverToClient.ReadyPlayer;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.model.game.board.Board;
@@ -38,6 +40,7 @@ import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.game.serverToClient.status.Tac;
 import it.polimi.ingsw.event.lobby.clientToServer.*;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
+import it.polimi.ingsw.model.state.GameState;
 import it.polimi.ingsw.network.User;
 import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
@@ -59,8 +62,6 @@ public class MatchController {
      * Map of all the lobbies created in the game. The key is the name of the lobby and the value is the LobbyInfo object.
      */
     private final Map<String, LobbyInfo> lobbies;
-    // TODO: decrease numberOfPlayersEntered when a player disconnects from the lobby and launch a LeaveLobby event (if we are in the loobby state)
-    // TODO: if there was only one player in the lobby and the player has been disconnected, than remove the lobby
 
     /**
      * Represents the server's network transceiver responsible for handling communication processes such as sending and receiving data over the network.
@@ -71,33 +72,28 @@ public class MatchController {
      * Map of all the network transceivers created in the game. The key is the LobbyInfo object and the value is the NetworkTransceiver object.
      */
     private final Map<LobbyInfo, NetworkTransceiver> networkTransceivers;
-    // TODO: if there was only one player in the lobby and the player has been disconnected, than remove the association between lobby and network transceiver
 
     /**
      * Map of all the game controllers. The key is the LobbyInfo object and the value is the GameController object.
      */
     private final Map<LobbyInfo, GameController> gameControllers;
-    // TODO: remove the game controller associated with the lobby, if there was only one player in the lobby and the player has been disconnected
 
     /**
      * Map of all the users connected to the server. The key is the UUID of the user and the value is the User object.
      * The User is created only after the user has set the userID. The UUID associated to the user is the same ID that is associated to the connection.
      */
     private final Map<UUID, User> users;
-    // TODO: remove the user from the users map, when disconnecting from the server
 
     /**
      * Map of all the players in the game. The key is the User object and the value is the PlayerData object.
      * The PlayerData is created only after the user has created or joined a lobby.
      */
     private final Map<User, PlayerData> userPlayers;
-    // TODO: remove the playerData associates with the user, when disconnecting from the server
 
     /**
      * Map of all the lobbies associated to the users. The key is the User object and the value is the LobbyInfo object.
      */
     private final Map<User, LobbyInfo> userLobbyInfo;
-    // TODO: remove user from userLobbyInfo, when disconnecting from the server
 
     static private final Integer PLACEHOLDER = -1;
 
@@ -155,6 +151,7 @@ public class MatchController {
         CreateLobby.responder(serverNetworkTransceiver, this::createLobby);
         JoinLobby.responder(serverNetworkTransceiver, this::joinLobby);
         SetNickname.responder(serverNetworkTransceiver, this::setNickname);
+        ConnectionLost.registerHandler(serverNetworkTransceiver, this::disconnectUser);
     }
 
     /**
@@ -192,6 +189,7 @@ public class MatchController {
         Play.responder(networkTransceiver, this::play);
         EndTurn.responder(networkTransceiver, this::endTurn);
         GiveUp.responder(networkTransceiver, this::giveUp);
+        ConnectionLost.registerHandler(networkTransceiver, this::disconnectUser);
     }
 
     /**
@@ -241,6 +239,96 @@ public class MatchController {
 
         Logger.getInstance().logInfo("User " + data.userID() + " set nickname: " + data.nickname(), false);
         return new Tac(data.userID(), SetNickname.class);
+    }
+
+    /**
+     * This method is used to disconnect a user from the server. If the user is in a lobby, it will remove the user from the lobby.
+     * If the user is the founder of the lobby, or the game has already started, it will delete the lobby and notify all the users in the lobby.
+     * If the user is not in a lobby, it will just remove the user from the server.
+     *
+     * @param data a {@link ConnectionLost} object containing the userID of the user that is disconnecting.
+     */
+    private void disconnectUser(ConnectionLost data) {
+        User user = users.get(data.userID());
+        if (user == null) {
+            return;
+        }
+        LobbyInfo lobby = user.getLobby();
+        if (lobby != null) {
+            if (lobby.getFounderNickname().equals(user.getNickname()) || lobby.canGameStart()) {
+                // Delete the lobby of the user
+                gameControllers.remove(lobby);
+                lobbies.remove(lobby.getName());
+
+                // Notify to all the old lobbies user of the lobbies list
+                List<Pair<Integer, Integer>> lobbiesPlayers = new ArrayList<>();
+                List<Integer> lobbiesLevels = new ArrayList<>();
+                for (LobbyInfo lobbyTemp : lobbies.values()) {
+                    lobbiesPlayers.add(new Pair<>(lobbyTemp.getNumberOfPlayersEntered(), lobbyTemp.getTotalPlayers()));
+                    lobbiesLevels.add(lobbyTemp.getLevel().getValue());
+                }
+                Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), lobbiesPlayers, lobbiesLevels);
+
+                // Get the user that are in the lobby
+                List<User> lobbyUsers = new ArrayList<>();
+                for (User tempUser : users.values()) {
+                    if (tempUser.getLobby() != null && tempUser.getLobby().equals(lobby)) {
+                        lobbyUsers.add(tempUser);
+                    }
+                }
+
+                // Removing the network transceiver of the lobby and attaching the users to the network transceiver of the server
+                // Except the user that is disconnecting
+                for (User u : lobbyUsers) {
+                    networkTransceivers.get(lobby).disconnect(u.getUUID());
+                    if (!u.equals(user)) {
+                        serverNetworkTransceiver.connect(u.getUUID(), u.getConnection());
+                        serverNetworkTransceiver.send(u.getUUID(), lobbiesEvent);
+                    }
+                }
+                networkTransceivers.remove(lobby);
+
+                // Removing the user from the User to LobbyInfo and User to PlayerData maps
+                for (User u : lobbyUsers) {
+                    u.setLobby(null);
+                    userLobbyInfo.remove(u);
+                    userPlayers.remove(u);
+                }
+
+                // Notify to all the clients that the lobby has been removed
+                if (lobby.canGameStart()) {
+                    // If the game has started, we notify to all the users that the game has finished
+                    StateChanged event = new StateChanged(GameState.FINISHED.getValue());
+                    for (User u : lobbyUsers) {
+                        serverNetworkTransceiver.send(u.getUUID(), event);
+                    }
+                } else {
+                    // Else we notify to all the users that the lobby has been removed (has if it was the founder that left the lobby)
+                    LobbyRemoved removeLobbyEvent = new LobbyRemoved(lobby.getName());
+                    serverNetworkTransceiver.broadcast(removeLobbyEvent);
+                }
+            } else {
+                // If the user is not the founder and the game has not started, we just remove the user from the lobby
+                GameController gc = gameControllers.get(lobby);
+                gc.manageLobby(userPlayers.get(user), 1);
+                lobby.removePlayer();
+                userPlayers.remove(user);
+                userLobbyInfo.remove(user);
+
+                // Remove the user from the network transceiver of the lobby
+                networkTransceivers.get(lobby).disconnect(user.getUUID());
+
+                // Notifying to all the clients that a user has left the lobby
+                LobbyLeft lobbyLeftEvent = new LobbyLeft(user.getNickname(), lobby.getName());
+                serverNetworkTransceiver.broadcast(lobbyLeftEvent);
+                networkTransceivers.get(lobby).broadcast(lobbyLeftEvent);
+            }
+        } else {
+            serverNetworkTransceiver.disconnect(data.userID());
+        }
+
+        // Remove the user from the UUID to User map
+        users.remove(data.userID());
     }
 
     /**
@@ -353,31 +441,29 @@ public class MatchController {
                 }
                 Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), lobbiesPlayers, lobbiesLevels);
 
+                // Get the user that are in the lobby
+                List<User> lobbyUsers = new ArrayList<>();
+                for (User u : userLobbyInfo.keySet()) {
+                    if (userLobbyInfo.get(u).equals(lobby)) {
+                        lobbyUsers.add(u);
+                    }
+                }
+
                 // Removing the network transceiver of the lobby and attaching the users to the network transceiver of the server
-                for (User tempUser : users.values()) {
-                    if (tempUser.getLobby() != null && tempUser.getLobby().equals(lobby)) {
-                        networkTransceivers.get(lobby).disconnect(tempUser.getUUID());
-                        serverNetworkTransceiver.connect(tempUser.getUUID(), tempUser.getConnection());
-                        serverNetworkTransceiver.send(tempUser.getUUID(), lobbiesEvent);
+                for (User u : users.values()) {
+                    if (u.getLobby() != null) {
+                        networkTransceivers.get(lobby).disconnect(u.getUUID());
+                        serverNetworkTransceiver.connect(u.getUUID(), u.getConnection());
+                        serverNetworkTransceiver.send(u.getUUID(), lobbiesEvent);
                     }
                 }
                 networkTransceivers.remove(lobby);
 
-                // If it is the founder, we need to remove the lobby
-                users.forEach((_, value) -> {
-                    if (value.getLobby() != null && value.getLobby().equals(lobby)) {
-                        value.setLobby(null);
-                        userPlayers.remove(value);
-                    }
-                });
-                List<User> toRemove = new ArrayList<>();
-                for (User u : userLobbyInfo.keySet()) {
-                    if (userLobbyInfo.get(u).equals(lobby)) {
-                        toRemove.add(u);
-                    }
-                }
-                for (User u : toRemove) {
+                // Removing the user from the User to LobbyInfo and User to PlayerData maps
+                for (User u : lobbyUsers) {
+                    u.setLobby(null);
                     userLobbyInfo.remove(u);
+                    userPlayers.remove(u);
                 }
 
                 // Notifying to all the clients that the lobby has been removed
@@ -884,7 +970,7 @@ public class MatchController {
     }
 
     /**
-     * This method is used to handle the event of a user that sets the protect.
+     * This method is used to handle the event of a user that sets the protection.
      * @param data is the event data that contains the information of the event.
      * @return     Return an event Success or Error depending on the result of the operation.
      *             This event is used to notify the client that the operation has been completed or not.
