@@ -58,7 +58,7 @@ public class CrewState extends State {
 
     @Override
     public PlayerData getCurrentPlayer() throws SynchronousStateException {
-        throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state");
+        throw new SynchronousStateException("Cannot invoke getCurrentPlayer in synchronous state CrewState");
     }
 
     @Override
@@ -73,7 +73,6 @@ public class CrewState extends State {
             }
             super.played = true;
         }
-        super.entry();
     }
 
     @Override

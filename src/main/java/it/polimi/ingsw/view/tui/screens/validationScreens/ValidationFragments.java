@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.tui.screens.validationScreens;
 
 import it.polimi.ingsw.Client;
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.ChooseFragment;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
@@ -51,6 +52,12 @@ public class ValidationFragments extends ValidationTuiScreen {
 
         if (selected >= 0 && selected < MiniModel.getInstance().getClientPlayer().getShip().getFragments().size()) {
             StatusEvent status = ChooseFragment.requester(Client.transceiver, new Object()).request(new ChooseFragment(MiniModel.getInstance().getUserID(), selected));
+            if (status.get().equals("POTA")) {
+                setMessage(((Pota) status).errorMessage());
+                return this;
+            }
+            status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+
             if (status.get().equals("POTA")) {
                 setMessage(((Pota) status).errorMessage());
                 return this;
