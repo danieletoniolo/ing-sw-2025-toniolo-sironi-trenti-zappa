@@ -1,6 +1,11 @@
 package it.polimi.ingsw.view.tui.screens;
 
+import it.polimi.ingsw.Client;
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
+import it.polimi.ingsw.event.game.serverToClient.status.Pota;
+import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.miniModel.MiniModel;
+import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
@@ -16,6 +21,7 @@ public class ModifyCrewTuiScreen implements TuiScreenView{
     protected int totalLines;
     protected int selected;
     protected String message;
+    private TuiScreenView nextScreen;
 
     protected static int typeOfOption;
 
@@ -25,16 +31,23 @@ public class ModifyCrewTuiScreen implements TuiScreenView{
     public ModifyCrewTuiScreen() {
         options = new ArrayList<>();
 
-        options.add("Add human");
-        options.add("Add brown alien");
-        options.add("Add purple alien");
-        options.add("Remove crew from cabin");
+        if (MiniModel.getInstance().getBoardView().getLevel() == LevelView.SECOND) {
+            setMessage("Modify your crew members");
+            options.add("Add human");
+            options.add("Add brown alien");
+            options.add("Add purple alien");
+            options.add("Remove crew from cabin");
+        }
+        else {
+            setMessage("Human crew members have boarded your spaceship!");
+        }
+        options.add("Done");
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
             options.add("View " + p.getUsername() + "'s spaceship");
         }
         options.add("Close program");
 
-        totalLines = spaceShipView.getMapCabins().size() + 4;
+        totalLines = spaceShipView.getRowsToDraw() + 5;
     }
 
     @Override
@@ -53,6 +66,16 @@ public class ModifyCrewTuiScreen implements TuiScreenView{
 
         if (selected == options.size() - 1) {
             return new ClosingProgram();
+        }
+
+        if (selected == options.size() - 2 - MiniModel.getInstance().getOtherPlayers().size()) {
+            StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+            if (status.get().equals("POTA")) {
+                setMessage(((Pota) status).errorMessage());
+                return this;
+            }
+
+            return nextScreen;
         }
 
         return new AddCrewTuiScreen(this);
@@ -110,6 +133,6 @@ public class ModifyCrewTuiScreen implements TuiScreenView{
 
     @Override
     public void setNextScreen(TuiScreenView nextScreen) {
-
+        this.nextScreen = nextScreen;
     }
 }

@@ -12,12 +12,10 @@ import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.validationScreens.RowAndColValidationTuiScreen;
-import it.polimi.ingsw.view.tui.screens.validationScreens.WaitingValidationTuiScreen;
 import org.javatuples.Pair;
 import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ValidationTuiScreen implements TuiScreenView {

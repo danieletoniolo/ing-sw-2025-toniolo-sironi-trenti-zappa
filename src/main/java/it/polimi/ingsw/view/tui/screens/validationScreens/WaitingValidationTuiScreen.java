@@ -21,6 +21,11 @@ public class WaitingValidationTuiScreen extends ValidationTuiScreen {
     }
 
     @Override
+    protected String lineBeforeInput() {
+        return "Other players' ship:";
+    }
+
+    @Override
     public TuiScreenView setNewScreen() {
         if ((selected < options.size() - 1) && (selected >= options.size() - 1 - MiniModel.getInstance().getOtherPlayers().size())) {
             int i = selected - (options.size() - MiniModel.getInstance().getOtherPlayers().size() - 1);

@@ -23,13 +23,9 @@ import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewMembers;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.ChoosePositionTuiScreen;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.MainCommandsTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.*;
-import it.polimi.ingsw.view.tui.screens.gameScreens.enemyActions.EnemyRewardsTuiScreen;
-import it.polimi.ingsw.view.tui.screens.gameScreens.enemyActions.EnemyTuiScreen;
-import it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions.CantProtectTuiScreen;
-import it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions.RollDiceTuiScreen;
-import it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions.UseShieldTuiScreen;
-import it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens.LooseCrewTuiScreen;
-import it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens.LooseGoodsTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.enemyActions.*;
+import it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions.*;
+import it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.openSpaceAcitons.OpenSpaceTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.planetsActions.PlanetsTuiScreen;
 import it.polimi.ingsw.view.tui.screens.lobbyScreens.StartingTuiScreen;
@@ -60,7 +56,6 @@ import it.polimi.ingsw.event.game.serverToClient.energyUsed.EnginesUsed;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-
 
 public class TuiManager implements Manager {
     private final Object stateLock = new Object();
@@ -647,11 +642,15 @@ public class TuiManager implements Manager {
                     currentScreen.setNextScreen(new ValidationTuiScreen());
                     currentScreen = new ValidationTuiScreen();
                 }
-                case CREW -> currentScreen = new ModifyCrewTuiScreen();
+                case CREW -> {
+                    currentScreen.setNextScreen(new ModifyCrewTuiScreen());
+                    currentScreen = new ModifyCrewTuiScreen();
+                }
                 case CARDS -> notifyDrawCard();
                 case FINISHED -> currentScreen = new RewardTuiScreen();
             }
             parser.changeScreen();
+            printInput = false;
             stateLock.notifyAll();
         }
     }
