@@ -5,11 +5,11 @@ import javafx.scene.image.Image;
 
 public class StorageView extends ComponentView {
     private GoodView[] goods;
-    private boolean dangerous;
+    private final boolean dangerous;
     private final int capacity;
-    private String red = "\033[31m";
-    private final String lightBlue = "\033[94m";
-    private String reset = "\033[0m";
+    private final String red = "\u001B[31m";
+    private final String lightBlue = "\u001B[96m";
+    private String reset = "\u001B[0m";
 
     public StorageView(int ID, int[] connectors, int clockWise, boolean dangerous, int capacity) {
         super(ID, connectors, clockWise);

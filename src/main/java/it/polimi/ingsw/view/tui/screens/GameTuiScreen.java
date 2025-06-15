@@ -37,7 +37,7 @@ public abstract class GameTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
+    public void readCommand(Parser parser) {
         selected = parser.getCommand(options, totalLines);
     }
 

@@ -52,6 +52,8 @@ public class CardsManager {
         ArrayList<Card> deck4 = new ArrayList<>();
         ArrayList<Card> selectedCards = new ArrayList<>();
 
+        // TODO: Uncomment to shuffle the cards
+        /*
         Random random = new Random();
         int i = 0;
         while (i < 4) {
@@ -69,10 +71,17 @@ public class CardsManager {
                 i++;
             }
         }
+        */
+
+        int[] cardsIDs = {9, 10, 11, 12, 29, 30, 31, 32, 1, 22, 16, 17};
+
+        for (int cardsID : cardsIDs) {
+            selectedCards.add(cards[cardsID]);
+        }
 
         // Distribute the selected cards into 4 decks
         Deck[] decks = new Deck[4];
-        for (i = 0; i < selectedCards.size(); i++) {
+        for (int i = 0; i < selectedCards.size(); i++) {
             switch (i % 4) {
                 case 0 -> deck1.add(selectedCards.get(i));
                 case 1 -> deck2.add(selectedCards.get(i));
@@ -109,7 +118,8 @@ public class CardsManager {
         learningDeck.push(cards[17]);
         learningDeck.push(cards[18]);
 
-        Collections.shuffle(learningDeck);
+        // TODO: Uncomment to shuffle the learning deck
+        // Collections.shuffle(learningDeck);
 
         return learningDeck;
     }
@@ -131,9 +141,12 @@ public class CardsManager {
             shuffledDeck.addAll(cards);
         }
 
+        // TODO: Uncomment to shuffle the decks
+        /*
         do {
             Collections.shuffle(shuffledDeck);
         } while (shuffledDeck.peek().getCardLevel() != 2);
+         */
         // Ensure the first card is a level 2 card
 
         return shuffledDeck;

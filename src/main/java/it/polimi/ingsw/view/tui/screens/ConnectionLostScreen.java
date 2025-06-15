@@ -20,7 +20,7 @@ public class ConnectionLostScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
+    public void readCommand(Parser parser) {
         // No commands to read in this screen
     }
 

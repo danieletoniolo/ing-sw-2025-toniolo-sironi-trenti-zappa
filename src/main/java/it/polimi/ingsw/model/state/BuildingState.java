@@ -111,13 +111,6 @@ public class BuildingState extends State {
                                 if (playersStatus.get(p.getColor()) != PlayerStatus.PLAYED) {
                                     playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
                                 }
-                                // If someone has something in his hand it must be added to the lost components
-                                if (playersHandQueue.get(p.getColor()) != null) {
-                                    p.getSpaceShip().getLostComponents().add(playersHandQueue.get(p.getColor()));
-                                    ComponentDestroyed lostComponentsEvent = new ComponentDestroyed(p.getUsername(), p.getSpaceShip().getLostComponents().stream()
-                                            .map(temp -> new Pair<>(temp.getRow(), temp.getColumn())).toList());
-                                    eventCallback.trigger(lostComponentsEvent);
-                                }
                             }
                             timerRunning = false;
 

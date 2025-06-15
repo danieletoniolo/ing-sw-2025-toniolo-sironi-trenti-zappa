@@ -13,6 +13,8 @@ import it.polimi.ingsw.view.tui.screens.ModifyCrewTuiScreen;
 import it.polimi.ingsw.view.tui.screens.PlayerTuiScreen;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
+import java.util.Map;
+
 public class AddCrewTuiScreen extends ModifyCrewTuiScreen {
     private final TuiScreenView oldScreen;
     private final int value;
@@ -21,9 +23,18 @@ public class AddCrewTuiScreen extends ModifyCrewTuiScreen {
         super();
         options.clear();
 
-        options.addAll(spaceShipView.getMapCabins().values().stream()
-                .map(cabin -> "(" + cabin.getRow() + " " + cabin.getCol() + ")")
-                .toList());
+        if (value == 3) {
+            options.addAll(spaceShipView.getMapCabins().values().stream()
+                    .filter(cabin -> cabin.getCrewNumber() != 0)
+                    .map(cabin -> "(" + cabin.getRow() + " " + cabin.getCol() + ")")
+                    .toList());
+        }
+        else  {
+            options.addAll(spaceShipView.getMapCabins().values().stream()
+                    .filter(cabin -> cabin.getCrewNumber() == 0)
+                    .map(cabin -> "(" + cabin.getRow() + " " + cabin.getCol() + ")")
+                    .toList());
+        }
         options.add("Back");
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
             options.add("View " + p.getUsername() + "'s spaceship");
@@ -50,10 +61,23 @@ public class AddCrewTuiScreen extends ModifyCrewTuiScreen {
             return new ModifyCrewTuiScreen();
         }
 
-        int ID = spaceShipView.getMapCabins().keySet().stream()
-                .skip(selected)
-                .findFirst()
-                .orElse(-1);
+        int ID;
+        if (value == 3) {
+            ID = spaceShipView.getMapCabins().entrySet().stream()
+                    .filter(entry -> entry.getValue().getCrewNumber() != 0)
+                    .skip(selected)
+                    .map(Map.Entry::getKey)
+                    .findFirst()
+                    .orElse(-1);
+        }
+        else {
+            ID = spaceShipView.getMapCabins().entrySet().stream()
+                    .filter(entry -> entry.getValue().getCrewNumber() == 0)
+                    .skip(selected)
+                    .map(Map.Entry::getKey)
+                    .findFirst()
+                    .orElse(-1);
+        }
 
         CabinView cabin = spaceShipView.getMapCabins().get(ID);
 

@@ -12,16 +12,14 @@ import it.polimi.ingsw.view.tui.input.Parser;
 
 public class LogInTuiScreen implements TuiScreenView {
     private String nickname;
-    private final int totalLines = LogInView.getRowsToDraw() + 1 + 2;
+    private final int totalLines = LogInView.getRowsToDraw() + 3;
     protected String message;
-    protected boolean isNewScreen;
 
     public LogInTuiScreen() {
-        isNewScreen = true;
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
+    public void readCommand(Parser parser) {
         nickname = parser.readNickname("Enter your nickname: ", totalLines);
     }
 
@@ -48,11 +46,8 @@ public class LogInTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, message == null ? "" : message, row++);
         TerminalUtils.printLine(writer, "", row);
 
-        if (isNewScreen) {
-            isNewScreen = false;
-            for (int i = totalLines; i < terminal.getSize().getRows(); i++ ) {
-                TerminalUtils.printLine(writer, "", i);
-            }
+        for (int i = totalLines + 1; i < terminal.getSize().getRows(); i++ ) {
+            TerminalUtils.printLine(writer, "", i);
         }
     }
 

@@ -37,10 +37,8 @@ public class Parser {
      * @param options The list of options to display in the menu.
      * @param menuStartRow The row where the menu starts on the terminal.
      * @return The index of the selected option, or -1 if the menu must be closed due to an external event that changed the screen.
-     * @throws InterruptedException If the poll for user input is interrupted. This should only happen if we have an
-     * unexpected shutdown.
      */
-    public int getCommand(ArrayList<String> options, int menuStartRow) throws InterruptedException {
+    public int getCommand(ArrayList<String> options, int menuStartRow) {
         terminal.enterRawMode();
         var reader = terminal.reader();
         var writer = terminal.writer();
@@ -84,7 +82,9 @@ public class Parser {
             int key;
             synchronized (keyQueue) {
                 while (keyQueue.isEmpty()) {
-                    keyQueue.wait();
+                    try {
+                        keyQueue.wait();
+                    } catch (InterruptedException ignored) {}
                 }
                 key = this.keyQueue.poll();
             }
@@ -94,17 +94,7 @@ public class Parser {
                 case (int) 'p' -> {
                     terminal.flush();
                     inputThread.interrupt();
-                    return -2;
-                }
-                case (int) 'o' -> {
-                    terminal.flush();
-                    inputThread.interrupt();
-                    return -3;
-                }
-                case (int) 'l' -> {
-                    terminal.flush();
-                    inputThread.interrupt();
-                    return -4;
+                    return -4; // Special case for cheat mode
                 }
                 case 10, 13 -> {
                     terminal.flush();
@@ -113,7 +103,7 @@ public class Parser {
                 }
                 case -1 -> {
                     inputThread.interrupt();
-                    return -1;
+                    throw new ScreenChanged();
                 }
             }
             renderMenu(writer, options, menuStartRow);
@@ -240,7 +230,7 @@ public class Parser {
             String[] parts = input.trim().split("\\s+");
             return new Pair<>(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
         }
-        return null;
+        throw new ScreenChanged();
     }
 
     /**
@@ -252,9 +242,13 @@ public class Parser {
      * @return The validated nickname string, or null if interrupted or invalid input.
      */
     public String readNickname(String prompt, int menuStartRow) {
-        return getString(prompt, menuStartRow,
+        String input = getString(prompt, menuStartRow,
                 s -> s.matches("^[a-zA-Z0-9]+$"),
                 "Invalid input. Use only letters and numbers, no spaces.");
+        if (input != null) {
+            return input;
+        }
+        throw new ScreenChanged();
     }
 
     /**

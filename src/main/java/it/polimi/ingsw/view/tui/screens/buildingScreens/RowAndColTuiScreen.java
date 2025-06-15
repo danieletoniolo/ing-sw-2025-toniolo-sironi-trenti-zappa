@@ -25,7 +25,7 @@ public class RowAndColTuiScreen extends BuildingTuiScreen {
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
+    public void readCommand(Parser parser) {
         rowAndCol = parser.getRowAndCol("Type coordinates (row col): ", totalLines);
     }
 

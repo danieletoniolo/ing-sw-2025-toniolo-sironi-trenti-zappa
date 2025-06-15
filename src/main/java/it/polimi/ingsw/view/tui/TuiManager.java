@@ -19,6 +19,7 @@ import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.spaceship.*;
 import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewMembers;
+import it.polimi.ingsw.view.tui.input.ScreenChanged;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.ChoosePositionTuiScreen;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.MainCommandsTuiScreen;
 import it.polimi.ingsw.view.tui.screens.gameScreens.*;
@@ -79,11 +80,9 @@ public class TuiManager implements Manager {
                     currentScreen.readCommand(parser);
                     currentScreen = currentScreen.setNewScreen();
                     parser.changeScreen();
-                    synchronized (stateLock) {
-                        stateLock.notifyAll();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (ScreenChanged _) {}
+                synchronized (stateLock) {
+                    stateLock.notifyAll();
                 }
             }
         });
@@ -285,7 +284,7 @@ public class TuiManager implements Manager {
     public void notifyUpdateGoodsExchange(UpdateGoodsExchange data) {
         synchronized (stateLock) {
             currentScreen.setMessage(data.nickname() + " has exchanged goods");
-            currentScreen.notifyAll();
+            stateLock.notifyAll();
         }
     }
 
@@ -625,14 +624,12 @@ public class TuiManager implements Manager {
                             case EPIDEMIC -> new EpidemicTuiScreen();
                             case METEORSSWARM -> new MeteorsSwarmTuiScreen();
                         };
+                        currentScreen.setNextScreen(cardScreen);
+                        currentScreen = cardScreen;
                     }
-                    else{
-                        cardScreen = new NotClientTurnTuiScreen();
-                    }
-                    currentScreen.setNextScreen(cardScreen);
-                    currentScreen = cardScreen;
                 }
-                case FINISHED -> currentScreen = new RewardTuiScreen();
+                case REWARD -> currentScreen = new RewardTuiScreen();
+                case FINISHED -> currentScreen = new MenuTuiScreen();
             }
             parser.changeScreen();
             stateLock.notifyAll();

@@ -32,7 +32,7 @@ public class LobbyTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
+    public void readCommand(Parser parser) {
         selected = parser.getCommand(options, totalLines);
     }
 
@@ -55,9 +55,9 @@ public class LobbyTuiScreen implements TuiScreenView {
                 return new MenuTuiScreen();
             case 3:
                 return new ClosingProgram();
-            default:
-                throw new IllegalStateException("Unexpected value: " + selected);
         }
+
+        return this;
     }
 
     @Override

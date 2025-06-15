@@ -1155,6 +1155,25 @@ public class EventHandlerClient {
             if (data.newState() == GamePhases.CARDS.getValue() && MiniModel.getInstance().getGamePhase().getValue() == data.newState()) {
                 MiniModel.getInstance().getShuffledDeckView().popCard();
             }
+            if (data.newState() != GamePhases.BUILDING.getValue()) {
+                MiniModel.getInstance().getClientPlayer().setHand(null);
+                for (PlayerDataView player : MiniModel.getInstance().getOtherPlayers()) {
+                    player.setHand(null);
+                }
+            }
+            if (data.newState() == GamePhases.CREW.getValue()) {
+                PlayerDataView clientPlayer = MiniModel.getInstance().getClientPlayer();
+
+                for (BatteryView battery : clientPlayer.getShip().getMapBatteries().values()) {
+                    battery.setNumberOfBatteries(battery.getMaximumBatteries());
+                }
+
+                for (PlayerDataView player : MiniModel.getInstance().getOtherPlayers()) {
+                    for (BatteryView battery : player.getShip().getMapBatteries().values()) {
+                        battery.setNumberOfBatteries(battery.getMaximumBatteries());
+                    }
+                }
+            }
             MiniModel.getInstance().setGamePhase(data.newState());
             manager.notifyStateChange();
         };

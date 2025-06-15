@@ -315,56 +315,77 @@ public class Handler {
         Component component;
         String username = player.getUsername();
 
-        switch (shipIndex) {
-            case 0 -> {
-                // If the player had some components, destroy them (except the main cabin)
-                for (int i = 0; i < SpaceShip.getRows(); i++) {
-                    for (int j = 0; j < SpaceShip.getCols(); j++) {
-                        if (ship.getComponent(i, j) != null && i != 6 && j != 6) {
-                            ship.destroyComponent(i, j);
-                        }
-                    }
-                }
+        int[] componentsIDs;
+        int[][] componentsPositions;
+        int[] componentsRotations;
 
-                int[] componentsIDs = {
-                    139, 46, 137, 37, 48, 41, 133, 32
-                };
-
-                int[][] componentsPositions = {
-                    {6, 5}, {6, 4}, {7, 4}, {7, 5}, {7, 6}, {7, 7}, {6, 7}, {6, 8}
-                };
-
-                int[] componentsRotations = {
-                    2, 3, 1, 0, 0, 0, 2, 0
-                };
-
-                for (int i = 0; i < componentsIDs.length; i++) {
-                    component = TilesManager.getTile(componentsIDs[i]);
-                    int[] connectors = new int[4];
-                    for (int j = 0; j < componentsRotations[i]; j++) {
-                        component.rotateClockwise();
-                    }
-                    ship.placeComponent(component, componentsPositions[i][0], componentsPositions[i][1]);
-
-                    for (int j = 0; j < 4; j++) {
-                        connectors[j] = component.getConnection(j).getValue();
-                    }
-
-                    // Add the event based on the component type
-                    events.add(switch (component.getComponentType()) {
-                        case SINGLE_ENGINE, DOUBLE_ENGINE -> new PickedEngineFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, ((Engine) component).getEngineStrength());
-                        case SINGLE_CANNON, DOUBLE_CANNON -> new PickedCannonFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, ((Cannon) component).getCannonStrength());
-                        case CABIN -> new PickedCabinFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors);
-                        case STORAGE -> new PickedStorageFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, ((Storage) component).isDangerous(), ((Storage) component).getGoodsCapacity());
-                        case BROWN_LIFE_SUPPORT, PURPLE_LIFE_SUPPORT -> new PickedLifeSupportFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, component.getComponentType() == ComponentType.BROWN_LIFE_SUPPORT ? 1 : 2);
-                        case BATTERY -> new PickedBatteryFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, ((Battery) component).getEnergyNumber());
-                        case SHIELD -> new PickedShieldFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors);
-                        case CONNECTORS -> new PickedConnectorsFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors);
-                    });
-                    events.add(new PlacedTileToSpaceship(username, componentsPositions[i][0], componentsPositions[i][1]));
+        // If the player had some components, destroy them (except the main cabin)
+        for (int i = 0; i < SpaceShip.getRows(); i++) {
+            for (int j = 0; j < SpaceShip.getCols(); j++) {
+                if (ship.getComponent(i, j) != null && i != 6 && j != 6) {
+                    ship.destroyComponent(i, j);
                 }
             }
+        }
+
+        switch (shipIndex) {
+            case 0 -> {
+                componentsIDs = new int[]{
+                        139, 46, 137, 37, 48, 41, 133, 32, 77, 94, 65, 118, 28, 130, 14, 145, 16, 100
+                };
+
+                componentsPositions = new int[][]{
+                        {6, 5}, {6, 4}, {7, 4}, {7, 5}, {7, 6}, {7, 7}, {6, 7}, {6, 8}, {8, 5}, {8, 4}, {8, 3}, {5, 6}, {5, 5}, {5, 7}, {7, 8}, {7, 9}, {8, 9}, {6, 9}
+                };
+
+                componentsRotations = new int[]{
+                        2, 3, 1, 0, 0, 0, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 1, 1
+                };
+            }
+            case 1 -> {
+                componentsIDs = new int[]{
+                        126, 54, 115, 145, 103, 96, 107, 40, 24, 111, 61, 31, 98, 27, 19, 52, 118, 56, 5, 47, 1, 92, 93, 70, 78, 105
+                };
+
+                componentsPositions = new int[][]{
+                        {5, 6}, {5, 5}, {5, 4}, {5, 7}, {5, 8}, {4, 5}, {4, 7}, {6, 5}, {6, 4}, {6, 3},
+                        {6, 7}, {6, 8}, {6, 9}, {7, 3}, {7, 4}, {7, 5}, {7, 6}, {7, 8}, {7, 9},
+                        {8, 3}, {8, 4}, {8, 5}, {8, 7}, {8, 8}, {8, 9}
+                };
+
+                componentsRotations = new int[]{
+                        0, 0, 3, 0, 1, 0, 3, 0, 1, 0, 1, 0, 0,
+                        0, 1, 2, 2, 2, 0, 0,
+                        0, 0, 0, 0, 0, 2
+                };
+            }
             default -> throw new IllegalArgumentException("Invalid ship index: " + shipIndex);
+        }
+
+        for (int i = 0; i < componentsIDs.length; i++) {
+            component = TilesManager.getTile(componentsIDs[i]);
+            int[] connectors = new int[4];
+            for (int j = 0; j < componentsRotations[i]; j++) {
+                component.rotateClockwise();
+            }
+            ship.placeComponent(component, componentsPositions[i][0], componentsPositions[i][1]);
+
+            for (int j = 0; j < 4; j++) {
+                connectors[j] = component.getConnection(j).getValue();
+            }
+
+            // Add the event based on the component type
+            events.add(switch (component.getComponentType()) {
+                case SINGLE_ENGINE, DOUBLE_ENGINE -> new PickedEngineFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, ((Engine) component).getEngineStrength());
+                case SINGLE_CANNON, DOUBLE_CANNON -> new PickedCannonFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, ((Cannon) component).getCannonStrength());
+                case CABIN -> new PickedCabinFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors);
+                case STORAGE -> new PickedStorageFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, ((Storage) component).isDangerous(), ((Storage) component).getGoodsCapacity());
+                case BROWN_LIFE_SUPPORT, PURPLE_LIFE_SUPPORT -> new PickedLifeSupportFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, component.getComponentType() == ComponentType.BROWN_LIFE_SUPPORT ? 1 : 2);
+                case BATTERY -> new PickedBatteryFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, ((Battery) component).getEnergyNumber());
+                case SHIELD -> new PickedShieldFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors);
+                case CONNECTORS -> new PickedConnectorsFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors);
+            });
+            events.add(new PlacedTileToSpaceship(username, componentsPositions[i][0], componentsPositions[i][1]));
         }
 
         return events;

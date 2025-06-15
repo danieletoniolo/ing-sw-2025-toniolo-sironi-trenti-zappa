@@ -17,7 +17,7 @@ import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
 
-public class ModifyCrewTuiScreen implements TuiScreenView{
+public class ModifyCrewTuiScreen implements TuiScreenView {
     protected ArrayList<String> options;
     protected int totalLines;
     protected int selected;
@@ -50,7 +50,7 @@ public class ModifyCrewTuiScreen implements TuiScreenView{
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
+    public void readCommand(Parser parser) {
         selected = parser.getCommand(options, totalLines);
     }
 

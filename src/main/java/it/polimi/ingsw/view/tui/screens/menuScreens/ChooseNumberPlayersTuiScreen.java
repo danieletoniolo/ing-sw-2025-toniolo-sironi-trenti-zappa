@@ -15,7 +15,7 @@ public class ChooseNumberPlayersTuiScreen extends MenuTuiScreen {
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
+    public void readCommand(Parser parser) {
         selected = parser.getCommand(options, totalLines);
         maxPlayers = selected + 2;
     }

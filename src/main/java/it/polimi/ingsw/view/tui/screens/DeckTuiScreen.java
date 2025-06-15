@@ -20,17 +20,15 @@ public class DeckTuiScreen implements TuiScreenView {
     int selected;
     int totalLines = DeckView.getRowsToDraw() + 4 + 2;
     protected String message;
-    protected boolean isNewScreen;
     private final int num;
 
     public DeckTuiScreen(DeckView deck, int num) {
         this.myDeck = deck;
-        isNewScreen = true;
         this.num = num;
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
+    public void readCommand(Parser parser) {
         selected = parser.getCommand(options, totalLines);
     }
 
@@ -60,11 +58,8 @@ public class DeckTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, "Commands:", row++);
 
-        if (isNewScreen) {
-            isNewScreen = false;
-            for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
-                TerminalUtils.printLine(writer, "", i);
-            }
+        for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
+            TerminalUtils.printLine(writer, "", i);
         }
     }
 

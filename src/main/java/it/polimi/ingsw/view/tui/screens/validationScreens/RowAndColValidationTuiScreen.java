@@ -5,8 +5,6 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import it.polimi.ingsw.view.tui.screens.ValidationTuiScreen;
 import org.javatuples.Pair;
 
-import java.awt.event.PaintEvent;
-
 public class RowAndColValidationTuiScreen extends ValidationTuiScreen {
     private final TuiScreenView oldScreen;
     private Pair<Integer, Integer> correctRowAndCol;
@@ -18,7 +16,7 @@ public class RowAndColValidationTuiScreen extends ValidationTuiScreen {
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
+    public void readCommand(Parser parser) {
         Pair<Integer, Integer> rowAndCol = parser.getRowAndCol("Type coordinates to destroy a component (row col): ", totalLines);
         correctRowAndCol = new Pair<>(rowAndCol.getValue0() - 1, rowAndCol.getValue1() - 1);
     }

@@ -21,7 +21,7 @@ public class StartingTuiScreen extends LobbyTuiScreen {
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
+    public void readCommand(Parser parser) {
         parser.getCommand(new ArrayList<>(), totalLines);
     }
 

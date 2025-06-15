@@ -3,7 +3,7 @@ import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.tui.input.Parser;
 
 public interface TuiScreenView {
-    void readCommand(Parser parser) throws Exception;
+    void readCommand(Parser parser);
 
     /**
      * Set a new Screen -> when the command is only part of the view or the command is sent to the server

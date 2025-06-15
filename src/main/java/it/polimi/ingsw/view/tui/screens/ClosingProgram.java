@@ -15,7 +15,7 @@ public class ClosingProgram implements TuiScreenView{
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
+    public void readCommand(Parser parser) {
 
     }
 

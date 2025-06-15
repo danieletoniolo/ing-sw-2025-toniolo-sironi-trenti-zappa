@@ -47,4 +47,9 @@ public class PlanetsTuiScreen extends GameTuiScreen {
 
         return this;
     }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
+    }
 }

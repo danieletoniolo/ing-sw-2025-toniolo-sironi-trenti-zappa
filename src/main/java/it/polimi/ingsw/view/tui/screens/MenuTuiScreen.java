@@ -35,7 +35,7 @@ public class MenuTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
+    public void readCommand(Parser parser) {
         selected = parser.getCommand(options, totalLines);
     }
 
@@ -74,14 +74,18 @@ public class MenuTuiScreen implements TuiScreenView {
             return new ClosingProgram();
         }
 
-        StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
-                .request(new JoinLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getLobbiesView().get(selected).getLobbyName()));
-        if (status.get().equals("POTA")) {
-            setMessage(((Pota) status).errorMessage());
-            return this;
+        if (selected == 0) {
+            StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
+                    .request(new JoinLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getLobbiesView().get(selected).getLobbyName()));
+            if (status.get().equals("POTA")) {
+                setMessage(((Pota) status).errorMessage());
+                return this;
+            }
+
+            return new LobbyTuiScreen();
         }
 
-        return new LobbyTuiScreen();
+        return this;
     }
 
     @Override

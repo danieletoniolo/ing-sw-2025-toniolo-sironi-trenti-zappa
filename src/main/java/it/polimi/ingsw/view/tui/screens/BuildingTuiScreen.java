@@ -1,10 +1,6 @@
 package it.polimi.ingsw.view.tui.screens;
 
-import it.polimi.ingsw.Client;
-import it.polimi.ingsw.event.game.clientToServer.cheatCode.CheatCode;
-import it.polimi.ingsw.event.game.serverToClient.status.Pota;
-import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.view.tui.screens.buildingScreens.MainCommandsTuiScreen;
+import it.polimi.ingsw.view.tui.screens.buildingScreens.CheatShipScreen;
 import org.javatuples.Pair;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -48,7 +44,7 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser) throws Exception {
+    public void readCommand(Parser parser) {
         selected = parser.getCommand(options, totalLines);
     }
 
@@ -65,13 +61,8 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
             return new ClosingProgram();
         }
 
-        if (selected >= -4 && selected <= -2) {
-            StatusEvent status = CheatCode.requester(Client.transceiver, new Object()).request(new CheatCode(MiniModel.getInstance().getUserID(), 0));
-            if (status.get().equals("POTA")) {
-                setMessage(((Pota) status).errorMessage());
-                return this;
-            }
-            return new MainCommandsTuiScreen();
+        if (selected == -4) {
+            return new CheatShipScreen();
         }
 
         return null;
