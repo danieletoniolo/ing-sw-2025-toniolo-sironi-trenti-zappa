@@ -1,5 +1,10 @@
 package it.polimi.ingsw.view.tui.screens;
 
+import it.polimi.ingsw.Client;
+import it.polimi.ingsw.event.game.clientToServer.cheatCode.CheatCode;
+import it.polimi.ingsw.event.game.serverToClient.status.Pota;
+import it.polimi.ingsw.event.type.StatusEvent;
+import it.polimi.ingsw.view.tui.screens.buildingScreens.MainCommandsTuiScreen;
 import org.javatuples.Pair;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -58,6 +63,15 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
 
         if (selected == options.size() - 1) {
             return new ClosingProgram();
+        }
+
+        if (selected >= -4 && selected <= -2) {
+            StatusEvent status = CheatCode.requester(Client.transceiver, new Object()).request(new CheatCode(MiniModel.getInstance().getUserID(), 0));
+            if (status.get().equals("POTA")) {
+                setMessage(((Pota) status).errorMessage());
+                return this;
+            }
+            return new MainCommandsTuiScreen();
         }
 
         return null;

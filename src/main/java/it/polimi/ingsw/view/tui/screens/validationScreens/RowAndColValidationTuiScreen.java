@@ -26,7 +26,10 @@ public class RowAndColValidationTuiScreen extends ValidationTuiScreen {
     @Override
     public TuiScreenView setNewScreen() {
         destroyTiles.add(correctRowAndCol);
-        spaceShipView.removeComponent(correctRowAndCol.getValue0(), correctRowAndCol.getValue1());
+        try {
+            spaceShipView.removeComponent(correctRowAndCol.getValue0(), correctRowAndCol.getValue1());
+        } catch (Exception _) {
+        }
         return oldScreen;
     }
 }

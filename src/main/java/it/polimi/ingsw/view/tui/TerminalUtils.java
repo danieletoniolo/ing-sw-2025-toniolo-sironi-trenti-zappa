@@ -5,11 +5,15 @@ import org.jline.terminal.Terminal;
 import java.io.PrintWriter;
 
 public class TerminalUtils {
+    private static final Object lock = new Object();
+
     public static void printLine(PrintWriter writer, String output, int row) {
-        writer.printf("\033[%d;0H", row);
-        writer.print("\033[2K");
-        writer.println(output);
-        writer.flush();
+        synchronized (lock) {
+            writer.printf("\033[%d;0H", row);
+            writer.print("\033[2K");
+            writer.println(output);
+            writer.flush();
+        }
     }
 
     public static void restoreRawMode(Terminal terminal) {

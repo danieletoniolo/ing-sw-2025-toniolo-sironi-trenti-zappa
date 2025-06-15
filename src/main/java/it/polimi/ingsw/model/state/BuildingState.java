@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.deck.GetShuffledDeck;
 import it.polimi.ingsw.event.game.serverToClient.deck.PickedLeftDeck;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToBoard;
@@ -11,13 +12,14 @@ import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
 import it.polimi.ingsw.event.game.serverToClient.timer.LastTimerFinished;
 import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
+import it.polimi.ingsw.event.type.Event;
+import it.polimi.ingsw.model.cards.Card;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.*;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
 import java.time.LocalTime;
@@ -28,7 +30,8 @@ public class BuildingState extends State {
     private final Timer timer;
     private boolean timerRunning;
     private int numberOfTimerFlips;
-    private static final long timerDuration = 90000;
+    // TODO: set timer to 90000
+    private static final long timerDuration = 5000;
     private final Map<PlayerColor, Component> playersHandQueue;
 
     public BuildingState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
@@ -42,6 +45,14 @@ public class BuildingState extends State {
     @Override
     public PlayerData getCurrentPlayer() throws SynchronousStateException {
         throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state BuildingState");
+    }
+
+    @Override
+    public void cheatCode(PlayerData player, int shipIndex) throws IllegalArgumentException {
+        List<Event> events =  Handler.cheatShip(player, shipIndex, board.getBoardLevel());
+        for (Event event : events) {
+            eventCallback.trigger(event);
+        }
     }
 
     /**
@@ -359,7 +370,7 @@ public class BuildingState extends State {
      * The entry method in this state is called when the state is entered.
      * <p>
      * In this state we have to remove all the players from the board since they are in a casual order
-     * after the {@link LobbyState} state. To do so we call the {@link Board#clearInGamePlayers()} (PlayerData)}.
+     * after the {@link LobbyState} state. To do so we call the {@link Board#clearInGamePlayers()}.
      * <p>
      * This can be done because we have the list of players in the
      * {@link State#players} attribute set in the {@link State(Board)} constructor.
@@ -387,6 +398,11 @@ public class BuildingState extends State {
 
     @Override
     public void exit() {
+        GetShuffledDeck getShuffledDeckEvent = new GetShuffledDeck(
+                board.getShuffledDeck().stream().map(Card::getID).toList()
+        );
+        eventCallback.trigger(getShuffledDeckEvent);
+
         super.exit();
     }
 }

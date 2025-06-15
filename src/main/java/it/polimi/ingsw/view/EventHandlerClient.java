@@ -18,6 +18,8 @@ import it.polimi.ingsw.event.game.serverToClient.timer.*;
 import it.polimi.ingsw.event.internal.ConnectionLost;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
+import it.polimi.ingsw.utils.Logger;
+import it.polimi.ingsw.view.miniModel.GamePhases;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
@@ -43,6 +45,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class EventHandlerClient {
@@ -105,9 +108,6 @@ public class EventHandlerClient {
 
     private final CastEventReceiver<GetCardStardust> getCardStardustReceiver;
     private final EventListener<GetCardStardust> getCardStardustListener;
-
-    private final CastEventReceiver<DrawCard> drawCardReceiver;
-    private final EventListener<DrawCard> getCardDrawListener;
 
     private final CastEventReceiver<GetDecks> getDecksReceiver;
     private final EventListener<GetDecks> getDecksListener;
@@ -554,15 +554,6 @@ public class EventHandlerClient {
         };
 
         // DECK events
-        /*
-         * Set the next line of the shuffled deck;
-         */
-        drawCardReceiver = new CastEventReceiver<>(this.transceiver);
-        getCardDrawListener = data -> {
-            MiniModel.getInstance().getShuffledDeckView().popCard();
-
-            manager.notifyDrawCard();
-        };
 
         /*
          * Initialize Decks in the MiniModel
@@ -589,6 +580,7 @@ public class EventHandlerClient {
         getShuffledDeckReceiver = new CastEventReceiver<>(this.transceiver);
         getShuffledDeckListener = data -> {
             MiniModel.getInstance().getShuffledDeckView().order(data.shuffledDeck());
+            MiniModel.getInstance().getShuffledDeckView().setOnlyLast((true));
         };
 
         /*
@@ -791,7 +783,6 @@ public class EventHandlerClient {
         pickedLifeSupportFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
         pickedLifeSupportFromBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
-
             ComponentView lifeSupport;
             if (data.type() == 1) {
                 lifeSupport = new LifeSupportBrownView(data.tileID(), data.connectors(), data.clockwiseRotation());
@@ -1079,7 +1070,6 @@ public class EventHandlerClient {
             manager.notifyFragments(data);
         };
 
-
         /*
          * Set wrong tiles
          */
@@ -1162,6 +1152,9 @@ public class EventHandlerClient {
 
         stateChangedReceiver = new CastEventReceiver<>(this.transceiver);
         stateChangedListener = data -> {
+            if (data.newState() == GamePhases.CARDS.getValue() && MiniModel.getInstance().getGamePhase().getValue() == data.newState()) {
+                MiniModel.getInstance().getShuffledDeckView().popCard();
+            }
             MiniModel.getInstance().setGamePhase(data.newState());
             manager.notifyStateChange();
         };
@@ -1198,7 +1191,6 @@ public class EventHandlerClient {
         getCardSlaversReceiver.registerListener(getCardSlaversListener);
         getCardSmugglersReceiver.registerListener(getCardSmugglersListener);
         getCardStardustReceiver.registerListener(getCardStardustListener);
-        drawCardReceiver.registerListener(getCardDrawListener);
         getDecksReceiver.registerListener(getDecksListener);
         getShuffledDeckReceiver.registerListener(getShuffledDeckListener);
         pickedLeftDeckReceiver.registerListener(pickedLeftDeckListener);

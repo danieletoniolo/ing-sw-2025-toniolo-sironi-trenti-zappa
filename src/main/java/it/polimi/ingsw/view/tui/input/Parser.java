@@ -91,6 +91,21 @@ public class Parser {
             switch (key) {
                 case (int) 'w' -> selected = (selected - 1 + options.size()) % options.size();
                 case (int) 's' -> selected = (selected + 1) % options.size();
+                case (int) 'p' -> {
+                    terminal.flush();
+                    inputThread.interrupt();
+                    return -2;
+                }
+                case (int) 'o' -> {
+                    terminal.flush();
+                    inputThread.interrupt();
+                    return -3;
+                }
+                case (int) 'l' -> {
+                    terminal.flush();
+                    inputThread.interrupt();
+                    return -4;
+                }
                 case 10, 13 -> {
                     terminal.flush();
                     inputThread.interrupt();

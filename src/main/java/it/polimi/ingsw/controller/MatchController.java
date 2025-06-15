@@ -1,6 +1,7 @@
 package it.polimi.ingsw.controller;
 
 import it.polimi.ingsw.event.TransmitterEventWrapper;
+import it.polimi.ingsw.event.game.clientToServer.cheatCode.CheatCode;
 import it.polimi.ingsw.event.game.clientToServer.planets.SelectPlanet;
 import it.polimi.ingsw.event.game.clientToServer.deck.PickLeaveDeck;
 import it.polimi.ingsw.event.game.clientToServer.dice.RollDice;
@@ -189,6 +190,7 @@ public class MatchController {
         Play.responder(networkTransceiver, this::play);
         EndTurn.responder(networkTransceiver, this::endTurn);
         GiveUp.responder(networkTransceiver, this::giveUp);
+        CheatCode.responder(networkTransceiver, this::cheatCode);
         ConnectionLost.registerHandler(networkTransceiver, this::disconnectUser);
     }
 
@@ -1156,6 +1158,22 @@ public class MatchController {
             return new Tac(data.userID(), GiveUp.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
             return new Pota(data.userID(), GiveUp.class, e.getMessage());
+        }
+    }
+
+    private StatusEvent cheatCode(CheatCode data) {
+        UUID userID = UUID.fromString(data.userID());
+        PlayerData player = userPlayers.get(users.get(userID));
+        LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+
+        GameController gc = gameControllers.get(lobby);
+        try {
+            if (gc != null) {
+                gc.cheatCode(player, data.shipIndex());
+            }
+            return new Tac(data.userID(), CheatCode.class);
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            return new Pota(data.userID(), CheatCode.class, e.getMessage());
         }
     }
 }

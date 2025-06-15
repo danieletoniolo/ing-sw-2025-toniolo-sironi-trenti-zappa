@@ -3,6 +3,7 @@ package it.polimi.ingsw.model.state;
 import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.cards.*;
 import it.polimi.ingsw.event.game.serverToClient.deck.GetDecks;
+import it.polimi.ingsw.event.game.serverToClient.deck.GetShuffledDeck;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedMainCabin;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.game.board.Board;
@@ -183,7 +184,7 @@ public class LobbyState extends State {
             }
             eventCallback.trigger(new GetDecks(decks));
         }
-
+        
         for (PlayerData player : players) {
             Component mainCabin = player.getSpaceShip().getComponent(6, 6);
             int[] connectors = new int[4];

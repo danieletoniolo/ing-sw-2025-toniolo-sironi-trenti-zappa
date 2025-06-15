@@ -1,8 +1,6 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
-import it.polimi.ingsw.event.game.serverToClient.deck.DrawCard;
-import it.polimi.ingsw.event.game.serverToClient.deck.GetShuffledDeck;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.PlayerGaveUp;
 import it.polimi.ingsw.event.game.serverToClient.StateChanged;
@@ -78,18 +76,14 @@ public abstract class State implements Serializable {
 
         exit();
 
+        StateChanged stateChanged = null;
+
         switch (nextGameState) {
             case LOBBY ->      transitionHandler.changeState(new LobbyState(board, eventCallback, transitionHandler));
             case BUILDING ->   transitionHandler.changeState(new BuildingState(board, eventCallback, transitionHandler));
             case VALIDATION -> transitionHandler.changeState(new ValidationState(board, eventCallback, transitionHandler));
             case CREW ->       transitionHandler.changeState(new CrewState(board, eventCallback, transitionHandler));
             case CARDS -> {
-
-                GetShuffledDeck getShuffledDeckEvent = new GetShuffledDeck(
-                        board.getShuffledDeck().stream().map(Card::getID).toList()
-                );
-                eventCallback.trigger(getShuffledDeckEvent);
-
                 try {
                     Card card = board.drawCard();
                     switch (card.getCardType()) {
@@ -106,9 +100,10 @@ public abstract class State implements Serializable {
                         case EPIDEMIC ->         transitionHandler.changeState(new EpidemicState(board, eventCallback, transitionHandler));
                         default -> throw new IllegalArgumentException("Unknown card type: " + card.getCardType());
                     }
-                    eventCallback.trigger(new DrawCard());
-                } catch (Exception e) {
+                } catch (IllegalArgumentException e) {
+                    // TODO: Handle final states
                     transitionHandler.changeState(new EndState(board, eventCallback, board.getBoardLevel(), transitionHandler));
+                    stateChanged = new StateChanged(GameState.REWARD.getValue());
                 }
             }
             case REWARD -> {
@@ -119,7 +114,9 @@ public abstract class State implements Serializable {
             default -> throw new IllegalArgumentException("Invalid next game state: " + nextGameState);
         }
 
-        StateChanged stateChanged = new StateChanged(nextGameState.getValue());
+        if (stateChanged == null) {
+            stateChanged = new StateChanged(nextGameState.getValue());
+        }
         eventCallback.trigger(stateChanged);
     }
 
@@ -419,13 +416,12 @@ public abstract class State implements Serializable {
     }
 
     /**
-     * Set the player isReady for the start of the game
-     *
-     * @param player   PlayerData of the player who is isReady.
-     * @param isReady  Boolean indicating if the player is isReady or not.
-     * @throws IllegalStateException if the state does not allow setting the player isReady.
+     * Create a default ship for the player.
+     * @param player                 PlayerData of the player who is creating the ship.
+     * @param shipIndex              Index of the ship to create.
+     * @throws IllegalStateException if the state does not allow creating a ship.
      */
-    public void playerReady(PlayerData player, boolean isReady) throws IllegalStateException {
-        throw new IllegalStateException("Cannot set player isReady in this state");
+    public void cheatCode(PlayerData player, int shipIndex) throws IllegalStateException, IllegalArgumentException {
+        throw new IllegalStateException("Cannot use cheat code in this state");
     }
 }

@@ -4,6 +4,7 @@ import it.polimi.ingsw.Client;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.ManageCrewMember;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
+import it.polimi.ingsw.utils.Logger;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.components.CabinView;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
@@ -14,19 +15,23 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 public class AddCrewTuiScreen extends ModifyCrewTuiScreen {
     private final TuiScreenView oldScreen;
+    private final int value;
 
-    public AddCrewTuiScreen(TuiScreenView oldScreen) {
+    public AddCrewTuiScreen(TuiScreenView oldScreen, int value) {
         super();
-
         options.clear();
+
         options.addAll(spaceShipView.getMapCabins().values().stream()
                 .map(cabin -> "(" + cabin.getRow() + " " + cabin.getCol() + ")")
                 .toList());
+        options.add("Back");
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
             options.add("View " + p.getUsername() + "'s spaceship");
         }
+        options.add("Close program");
 
         this.oldScreen = oldScreen;
+        this.value = value;
     }
 
     @Override
@@ -41,6 +46,10 @@ public class AddCrewTuiScreen extends ModifyCrewTuiScreen {
             return new ClosingProgram();
         }
 
+        if (selected == spaceShipView.getMapCabins().size()) {
+            return new ModifyCrewTuiScreen();
+        }
+
         int ID = spaceShipView.getMapCabins().keySet().stream()
                 .skip(selected)
                 .findFirst()
@@ -50,19 +59,20 @@ public class AddCrewTuiScreen extends ModifyCrewTuiScreen {
 
         int mode = 0;
         int type;
-        if (typeOfOption == 3) {
+        if (value == 3) {
             mode = 1;
             type = cabin.hasBrownAlien() ? 1 : cabin.hasPurpleAlien() ? 2 : 0;
         }
         else{
-            type = typeOfOption;
+            type = value;
         }
 
+        Logger.getInstance().logError("type: " + type + ", mode: " + mode + ", ID: " + ID, false);
         StatusEvent status;
         status = ManageCrewMember.requester(Client.transceiver, new Object()).request(new ManageCrewMember(MiniModel.getInstance().getUserID(), mode, type, ID));
         if (status.get().equals("POTA")) {
-            setMessage(((Pota) status).errorMessage());
-            return this;
+            oldScreen.setMessage(((Pota) status).errorMessage());
+            return oldScreen;
         }
         return oldScreen;
     }

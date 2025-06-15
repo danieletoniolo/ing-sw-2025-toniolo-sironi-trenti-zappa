@@ -18,7 +18,7 @@ public class LobbyTuiScreen implements TuiScreenView {
     protected final ArrayList<String> options = new ArrayList<>();
     private final LobbyView currentLobbyView = MiniModel.getInstance().getCurrentLobby();
     private int selected;
-    private final int totalLines = LobbyView.getRowsToDraw() + 4 + 1;
+    protected final int totalLines = LobbyView.getRowsToDraw() + 4 + 1;
     protected String message;
     protected boolean isNewScreen;
 

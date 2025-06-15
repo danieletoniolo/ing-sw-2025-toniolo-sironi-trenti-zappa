@@ -6,7 +6,8 @@ public enum GamePhases {
     VALIDATION(2),
     CREW(3),
     CARDS(4),
-    FINISHED(5);
+    REWARD(5),
+    FINISHED(6);
 
     private final int value;
     GamePhases(int value) {

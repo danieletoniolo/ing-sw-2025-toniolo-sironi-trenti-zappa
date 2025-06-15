@@ -292,4 +292,22 @@ public class GameController implements Serializable, StateTransitionHandler {
             throw new IllegalStateException("Not the current player");
         }
     }
+
+    public void cheatCode(PlayerData player, int shipIndex) {
+        try {
+            PlayerData currentPlayer = state.getCurrentPlayer();
+            if (!currentPlayer.equals(player)) {
+                throw new IllegalStateException("Not the current player");
+            }
+        } catch (SynchronousStateException e) {
+            // Ignore the exception, it is expected in synchronous states
+        }
+
+        try {
+            state.cheatCode(player, shipIndex);
+        } catch (Exception exception) {
+            throw new IllegalStateException(exception.getMessage());
+        }
+
+    }
 }

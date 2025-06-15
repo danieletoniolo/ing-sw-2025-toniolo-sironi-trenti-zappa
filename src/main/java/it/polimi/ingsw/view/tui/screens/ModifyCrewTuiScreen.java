@@ -12,6 +12,7 @@ import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.crewScreens.AddCrewTuiScreen;
+import it.polimi.ingsw.view.tui.screens.crewScreens.WaitingCrew;
 import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
@@ -22,8 +23,6 @@ public class ModifyCrewTuiScreen implements TuiScreenView{
     protected int selected;
     protected String message;
     private TuiScreenView nextScreen;
-
-    protected static int typeOfOption;
 
     protected final SpaceShipView spaceShipView = MiniModel.getInstance().getClientPlayer().getShip();
     protected final PlayerDataView clientPlayer = MiniModel.getInstance().getClientPlayer();
@@ -53,7 +52,6 @@ public class ModifyCrewTuiScreen implements TuiScreenView{
     @Override
     public void readCommand(Parser parser) throws Exception {
         selected = parser.getCommand(options, totalLines);
-        typeOfOption = selected;
     }
 
     @Override
@@ -75,10 +73,13 @@ public class ModifyCrewTuiScreen implements TuiScreenView{
                 return this;
             }
 
+            if (nextScreen == null) {
+                return new WaitingCrew();
+            }
             return nextScreen;
         }
 
-        return new AddCrewTuiScreen(this);
+        return new AddCrewTuiScreen(this, selected);
     }
 
     @Override

@@ -38,11 +38,11 @@ public class ValidationState extends State {
     @Override
     public void setFragmentChoice(PlayerData player, int fragmentChoice) throws IllegalStateException {
         // Check if the fragment choice is valid
-        if (fragmentChoice < 0 || fragmentChoice >= fragmentedComponents.size()) {
+        if (fragmentChoice < 0 || fragmentChoice >= fragmentedComponents.get(player).size()) {
             throw new IllegalArgumentException("Fragment choice is out of bounds");
         }
 
-        for (int i = 0; i < fragmentedComponents.size(); i++) {
+        for (int i = 0; i < fragmentedComponents.get(player).size(); i++) {
             if (i != fragmentChoice) {
                 Event event = Handler.destroyFragment(player, fragmentedComponents.get(player).get(i));
                 eventCallback.trigger(event);

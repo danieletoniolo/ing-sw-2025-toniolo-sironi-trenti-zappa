@@ -50,14 +50,15 @@ public class ValidationFragments extends ValidationTuiScreen {
             return new ClosingProgram();
         }
 
+        StatusEvent status;
         if (selected >= 0 && selected < MiniModel.getInstance().getClientPlayer().getShip().getFragments().size()) {
-            StatusEvent status = ChooseFragment.requester(Client.transceiver, new Object()).request(new ChooseFragment(MiniModel.getInstance().getUserID(), selected));
+            status = ChooseFragment.requester(Client.transceiver, new Object()).request(new ChooseFragment(MiniModel.getInstance().getUserID(), selected));
             if (status.get().equals("POTA")) {
                 setMessage(((Pota) status).errorMessage());
                 return this;
             }
-            status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
 
+            status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
             if (status.get().equals("POTA")) {
                 setMessage(((Pota) status).errorMessage());
                 return this;

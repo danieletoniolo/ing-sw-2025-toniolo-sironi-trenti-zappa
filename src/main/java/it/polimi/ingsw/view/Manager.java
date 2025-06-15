@@ -38,8 +38,6 @@ public interface Manager {
     void notifyCountDown();
 
     // Deck
-    void notifyDrawCard();
-
     void notifyPickedLeftDeck(PickedLeftDeck data);
 
     // Dice
