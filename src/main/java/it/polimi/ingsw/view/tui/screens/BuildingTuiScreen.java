@@ -61,10 +61,6 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
             return new ClosingProgram();
         }
 
-        if (selected == -4) {
-            return new CheatShipScreen();
-        }
-
         return null;
     }
 

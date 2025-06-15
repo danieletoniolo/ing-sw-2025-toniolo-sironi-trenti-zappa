@@ -34,11 +34,15 @@ public class DeckTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
-        StatusEvent status = PickLeaveDeck.requester(Client.transceiver, new Object()).request(new PickLeaveDeck(MiniModel.getInstance().getUserID(), 1, (num - 1)));
-        if (status.get().equals("POTA")) {
-            setMessage(((Pota) status).errorMessage());
-            return this;
+        if (selected == 0) {
+            StatusEvent status = PickLeaveDeck.requester(Client.transceiver, new Object()).request(new PickLeaveDeck(MiniModel.getInstance().getUserID(), 1, (num - 1)));
+            if (status.get().equals("POTA")) {
+                setMessage(((Pota) status).errorMessage());
+                return this;
+            }
         }
+
+
         return new MainCommandsTuiScreen();
     }
 

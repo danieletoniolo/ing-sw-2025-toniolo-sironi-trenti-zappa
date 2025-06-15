@@ -1,12 +1,9 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.exchangeGoods;
 
-import it.polimi.ingsw.view.miniModel.cards.AbandonedStationView;
-import it.polimi.ingsw.view.miniModel.cards.CardView;
-import it.polimi.ingsw.view.miniModel.cards.PlanetsView;
-import it.polimi.ingsw.view.miniModel.cards.SmugglersView;
 import it.polimi.ingsw.view.miniModel.components.StorageView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.tui.screens.GameTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.MenuGoodsTuiScreen;
 import org.javatuples.Triplet;
 
 import java.util.ArrayList;
@@ -17,7 +14,7 @@ public abstract class ManagerExchangeGoodsTuiScreen extends GameTuiScreen {
     protected static List<Integer> goodsToGet;
     protected static List<Integer> goodsToLeave;
     protected static StorageView storage;
-    protected static List<GoodView> copy;
+    protected static List<GoodView> remainCopy;
 
     public ManagerExchangeGoodsTuiScreen(List<String> options) {
         super(options);
@@ -31,37 +28,17 @@ public abstract class ManagerExchangeGoodsTuiScreen extends GameTuiScreen {
         if (goodsToLeave == null) {
             goodsToLeave = new ArrayList<>();
         }
-        if (copy == null) {
-            copy = new ArrayList<>();
-            CardView card = shuffledDeckView.getDeck().peek();
-            switch (card.getCardViewType()) {
-                case PLANETS:
-                    for (GoodView good : ((PlanetsView) card).getPlanet(((PlanetsView) card).getPlanetSelected())) {
-                        copy.add(GoodView.fromValue(good.getValue()));
-                    }
-                    break;
-                case SMUGGLERS:
-                    for (GoodView good : ((SmugglersView) card).getGoods()) {
-                        copy.add(GoodView.fromValue(good.getValue()));
-                    }
-                    break;
-                case ABANDONEDSTATION:
-                    for (GoodView good : ((AbandonedStationView) card).getGoods()) {
-                        copy.add(GoodView.fromValue(good.getValue()));
-                    }
-                    break;
-                default:
-                    break;
-            }
+        if (remainCopy == null) {
+            remainCopy = new ArrayList<>(MenuGoodsTuiScreen.getCopy());
         }
     }
 
-    protected void destroyStatics() {
+    public void destroyStatics() {
         exchanges = null;
         goodsToGet = null;
         goodsToLeave = null;
         storage = null;
-        copy = null;
+        remainCopy = null;
         spaceShipView = clientPlayer.getShip();
     }
 }

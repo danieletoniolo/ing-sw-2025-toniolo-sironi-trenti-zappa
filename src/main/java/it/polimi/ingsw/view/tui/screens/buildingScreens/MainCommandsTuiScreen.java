@@ -7,6 +7,7 @@ import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
+import it.polimi.ingsw.view.miniModel.components.TilesTypeView;
 import it.polimi.ingsw.view.tui.screens.BuildingTuiScreen;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
@@ -33,6 +34,10 @@ public class MainCommandsTuiScreen extends BuildingTuiScreen {
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
+
+        if (selected == -4 && MiniModel.getInstance().getClientPlayer().getHand().getType().equals(TilesTypeView.GENERIC)) {
+            return new CheatShipScreen();
+        }
 
         if (selected == 0) {
             return new PickCommandsTuiScreen();

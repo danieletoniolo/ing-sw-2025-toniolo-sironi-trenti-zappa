@@ -34,7 +34,7 @@ public class DropGoodsTuiScreen extends ManagerExchangeGoodsTuiScreen{
             }
         }
         if (selected == num) {
-            return new PickGoodsFromCardTuiScreen(copy, oldScreen);
+            return new PickGoodsFromCardTuiScreen(remainCopy, oldScreen);
         }
 
         if (selected == num + 1) {

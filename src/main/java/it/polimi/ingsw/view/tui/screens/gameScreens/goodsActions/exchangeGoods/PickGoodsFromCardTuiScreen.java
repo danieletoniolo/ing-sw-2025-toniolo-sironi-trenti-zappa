@@ -10,19 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PickGoodsFromCardTuiScreen extends ManagerExchangeGoodsTuiScreen{
-    private TuiScreenView oldScreen;
-    private List<GoodView> goods;
+    private final TuiScreenView oldScreen;
+    private final List<GoodView> goodsOnCard;
 
-    public PickGoodsFromCardTuiScreen(List<GoodView> goods, TuiScreenView oldScreen) {
+    public PickGoodsFromCardTuiScreen(List<GoodView> goodsOnCard, TuiScreenView oldScreen) {
         super(new ArrayList<>(){{
-            for (GoodView good : goods) {
+            for (GoodView good : goodsOnCard) {
                 add(good.drawTui());
             }
             add("Done");
             add("Cancel");
         }});
 
-        this.goods = goods;
+        this.goodsOnCard = goodsOnCard;
         this.oldScreen = oldScreen;
     }
 
@@ -31,7 +31,7 @@ public class PickGoodsFromCardTuiScreen extends ManagerExchangeGoodsTuiScreen{
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == goods.size()) {
+        if (selected == goodsOnCard.size()) {
             exchanges.add(new Triplet<>(
                     new ArrayList<>(goodsToGet),
                     new ArrayList<>(goodsToLeave),
@@ -41,21 +41,21 @@ public class PickGoodsFromCardTuiScreen extends ManagerExchangeGoodsTuiScreen{
             return new StorageExchangeTuiScreen(oldScreen);
         }
 
-        if (selected == goods.size() + 1) {
+        if (selected == goodsOnCard.size() + 1) {
             destroyStatics();
             return oldScreen;
         }
 
-        goodsToGet.add(goods.get(selected).getValue());
-        storage.addGood(goods.get(selected));
-        goods.remove(selected);
+        goodsToGet.add(goodsOnCard.get(selected).getValue());
+        storage.addGood(goodsOnCard.get(selected));
+        goodsOnCard.remove(selected);
 
         StringBuilder line = new StringBuilder();
         for (Integer good : goodsToGet) {
             line.append(GoodView.fromValue(good).drawTui()).append(" ");
         }
 
-        TuiScreenView newScreen = new PickGoodsFromCardTuiScreen(goods, oldScreen);
+        TuiScreenView newScreen = new PickGoodsFromCardTuiScreen(goodsOnCard, oldScreen);
         newScreen.setMessage("You have selected " + line);
         return newScreen;
     }

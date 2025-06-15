@@ -885,14 +885,9 @@ public class SpaceShip {
                 break;
             case STORAGE:
                 Storage storage = (Storage) destroyedComponent;
-                Logger.getInstance().logError("Goods -1: " + goods, false);
                 Good good = storage.peekGood();
-                Logger.getInstance().logError("Destroying storage with ID: " + storage.getID() + " and removing goods from it.", false);
-                Logger.getInstance().logError("Goods 0: " + goods, false);
                 while (good != null) {
-                    Logger.getInstance().logError("Goods 1: " + goods, false);
                     goods.remove(good);
-                    Logger.getInstance().logError("Goods 2: " + goods, false);
                     storage.removeGood(good);
                     good = storage.peekGood();
                 }

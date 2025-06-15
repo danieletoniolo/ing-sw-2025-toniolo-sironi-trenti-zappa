@@ -11,7 +11,6 @@ public abstract class ManagerSwapGoodTuiScreen extends GameTuiScreen {
     protected static ArrayList<Integer> fromList;
     protected static StorageView withStorage;
     protected static ArrayList<Integer> withList;
-    protected static Integer times;
 
     public ManagerSwapGoodTuiScreen(List<String> options) {
         super(options);
@@ -22,9 +21,6 @@ public abstract class ManagerSwapGoodTuiScreen extends GameTuiScreen {
         if (withList == null) {
             withList = new ArrayList<>();
         }
-        if (times == null) {
-            times = 0;
-        }
     }
 
     protected void destroyStatics() {
@@ -32,7 +28,6 @@ public abstract class ManagerSwapGoodTuiScreen extends GameTuiScreen {
         fromStorage = null;
         withList = null;
         withStorage = null;
-        times = null;
         spaceShipView = clientPlayer.getShip();
     }
 }

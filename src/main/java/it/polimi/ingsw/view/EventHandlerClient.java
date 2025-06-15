@@ -18,7 +18,6 @@ import it.polimi.ingsw.event.game.serverToClient.timer.*;
 import it.polimi.ingsw.event.internal.ConnectionLost;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
-import it.polimi.ingsw.utils.Logger;
 import it.polimi.ingsw.view.miniModel.GamePhases;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.cards.*;
@@ -32,7 +31,6 @@ import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import it.polimi.ingsw.view.miniModel.timer.TimerView;
-import it.polimi.ingsw.view.tui.TerminalUtils;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
@@ -42,10 +40,8 @@ import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import org.javatuples.Triplet;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class EventHandlerClient {
@@ -132,9 +128,6 @@ public class EventHandlerClient {
 
     private final CastEventReceiver<ShieldUsed> shieldUsedReceiver;
     private final EventListener<ShieldUsed> shieldUsedListener;
-
-    private final CastEventReceiver<GoodsSwapped> goodsSwappedReceiver;
-    private final EventListener<GoodsSwapped> goodsSwappedListener;
 
     private final CastEventReceiver<UpdateGoodsExchange> updateGoodsExchangeReceiver;
     private final EventListener<UpdateGoodsExchange> updateGoodsExchangeListener;
@@ -668,38 +661,19 @@ public class EventHandlerClient {
 
         // GOODS events
         /*
-         * Update the status of storages
-         */
-        goodsSwappedReceiver = new CastEventReceiver<>(this.transceiver);
-        goodsSwappedListener = data -> {
-            PlayerDataView player = getPlayerDataView(data.nickname());
-
-            GoodView[] newGoods1 = new GoodView[data.goods2to1().size()];
-            for (int i = 0; i < data.goods2to1().size(); i++) {
-                newGoods1[i] = GoodView.fromValue(data.goods2to1().get(i));
-            }
-            player.getShip().getMapStorages().get(data.storageID1()).changeGoods(newGoods1);
-
-            GoodView[] newGoods2 = new GoodView[data.goods1to2().size()];
-            for (int i = 0; i < data.goods1to2().size(); i++) {
-                newGoods2[i] = GoodView.fromValue(data.goods1to2().get(i));
-            }
-            player.getShip().getMapStorages().get(data.storageID1()).changeGoods(newGoods2);
-
-            manager.notifyGoodsSwapped(data);
-        };
-
-        /*
          * Update status of storages
          */
         updateGoodsExchangeReceiver = new CastEventReceiver<>(this.transceiver);
         updateGoodsExchangeListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
             for (Pair<Integer, List<Integer>> pair : data.exchangeData()) {
-                GoodView[] newGoods = new GoodView[pair.getValue1().size()];
-                for (int i = 0; i < newGoods.length; i++) {
+                int i;
+                int capacity = player.getShip().getMapStorages().get(pair.getValue0()).getCapacity();
+                GoodView[] newGoods = new GoodView[capacity];
+                for (i = 0; i < pair.getValue1().size(); i++) {
                     newGoods[i] = GoodView.fromValue(pair.getValue1().get(i));
                 }
+
                 player.getShip().getMapStorages().get(pair.getValue0()).changeGoods(newGoods);
             }
 
@@ -819,7 +793,7 @@ public class EventHandlerClient {
         pickedStorageFromBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
-            StorageView storage = new StorageView(data.tileID(), data.connectors(), data.clockwiseRotation(), false, data.goodsCapacity());
+            StorageView storage = new StorageView(data.tileID(), data.connectors(), data.clockwiseRotation(), data.dangerous(), data.goodsCapacity());
             player.setHand(storage);
             MiniModel.getInstance().reduceViewableComponents();
 
@@ -1218,7 +1192,6 @@ public class EventHandlerClient {
         cannonsUsedReceiver.registerListener(cannonsUsedListener);
         enginesUsedReceiver.registerListener(enginesUsedListener);
         shieldUsedReceiver.registerListener(shieldUsedListener);
-        goodsSwappedReceiver.registerListener(goodsSwappedListener);
         updateGoodsExchangeReceiver.registerListener(updateGoodsExchangeListener);
         pickedBatteryFromBoardReceiver.registerListener(pickedBatteryFromBoardListener);
         pickedCabinFromBoardReceiver.registerListener(pickedCabinFromBoardListener);

@@ -53,8 +53,6 @@ public interface Manager {
     void notifyShieldUsed(ShieldUsed data);
 
     // Goods
-    void notifyGoodsSwapped(GoodsSwapped data);
-
     void notifyUpdateGoodsExchange(UpdateGoodsExchange data);
 
     // Picked tile

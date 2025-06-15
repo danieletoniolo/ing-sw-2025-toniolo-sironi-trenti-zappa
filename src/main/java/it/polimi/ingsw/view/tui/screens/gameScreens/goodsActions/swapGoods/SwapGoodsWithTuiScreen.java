@@ -18,14 +18,10 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
 
     public SwapGoodsWithTuiScreen(List<GoodView> goods, TuiScreenView oldScreen) {
         super(new ArrayList<>(){{
-            if (times > 0) {
-                for (GoodView good : goods) {
-                    String line;
-                    if (good != null) {
-                        line = " " + good.drawTui() + " ";
-                    } else {
-                        line = "| |";
-                    }
+            for (GoodView good : goods) {
+                String line;
+                if (good != null) {
+                    line = " " + good.drawTui() + " ";
                     add("Swap" + line + "from (" + withStorage.getRow() + "," + withStorage.getCol() + ")");
                 }
             }
@@ -41,7 +37,13 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        int num = times == 0 ? 0 : oldGoods.size();
+        int num = 0;
+        for (GoodView good : oldGoods) {
+            if (good != null) {
+                num++;
+            }
+        }
+
         if (selected == num) {
             StatusEvent status = SwapGoods.requester(Client.transceiver, new Object()).request(
                     new SwapGoods(MiniModel.getInstance().getUserID(), fromStorage.getID(), withStorage.getID(), fromList, withList));
@@ -61,17 +63,20 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
             return oldScreen;
         }
 
-        times--;
         GoodView goodV = null;
         int i = 0;
         for (GoodView good : oldGoods) {
-            if (i == selected) {
-                goodV = good;
-                break;
+            if (good != null) {
+                if (i == selected) {
+                    goodV = good;
+                    break;
+                }
             }
             i++;
         }
-        withList.add(goodV != null ? goodV.getValue() : null);
+        if (goodV != null) {
+            withList.add(goodV.getValue());
+        }
 
         List<GoodView> newGoods = new ArrayList<>();
         for (GoodView good : oldGoods) {

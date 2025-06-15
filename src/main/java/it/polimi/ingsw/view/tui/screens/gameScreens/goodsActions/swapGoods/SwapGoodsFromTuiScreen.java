@@ -51,7 +51,6 @@ public class SwapGoodsFromTuiScreen extends ManagerSwapGoodTuiScreen{
             return newScreen;
         }
 
-        times++;
         GoodView goodV = null;
         int i = 0;
         for (GoodView good : fromStorage.getGoods()) {

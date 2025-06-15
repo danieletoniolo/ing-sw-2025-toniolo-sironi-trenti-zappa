@@ -48,7 +48,7 @@ public class BuildingState extends State {
     }
 
     @Override
-    public void cheatCode(PlayerData player, int shipIndex) throws IllegalArgumentException {
+    public void cheatCode(PlayerData player, int shipIndex) throws IllegalStateException, IllegalArgumentException {
         List<Event> events =  Handler.cheatShip(player, shipIndex, board.getBoardLevel());
         for (Event event : events) {
             eventCallback.trigger(event);
@@ -83,7 +83,6 @@ public class BuildingState extends State {
                     }
                 }, timerDuration);
                 timerFlippedEvent = new TimerFlipped(null, time.toString(), numberOfTimerFlips,3, timerDuration);
-                eventCallback.trigger(timerFlippedEvent);
                 break;
             case 2:
                 // This is the second flip that can be done by anyone after the time has run out
@@ -96,7 +95,6 @@ public class BuildingState extends State {
                     }
                 }, timerDuration);
                 timerFlippedEvent = new TimerFlipped(player.getUsername(), time.toString(), numberOfTimerFlips, 3, timerDuration);
-                eventCallback.trigger(timerFlippedEvent);
                 break;
             case 3:
                 // This is the third flip that can be done only by the player who has finished building
@@ -120,7 +118,6 @@ public class BuildingState extends State {
                         }
                     }, timerDuration);
                     timerFlippedEvent = new TimerFlipped(player.getUsername(),time.toString(), numberOfTimerFlips, 3, timerDuration);
-                    eventCallback.trigger(timerFlippedEvent);
                 } else {
                     throw new IllegalStateException("Cannot flip timer because the player has not finished building");
                 }

@@ -75,7 +75,7 @@ public class Storage extends Component{
         if (good.getColor() == GoodType.RED && !dangerous) {
             throw new IllegalStateException("Cannot add a red good to a non-dangerous storage");
         }
-        if (goods.size() < goodsCapacity) {
+        if (goodsCapacity > 0) {
             goods.add(good);
             goodsValue += good.getValue();
             goodsCapacity -= 1;
@@ -90,6 +90,7 @@ public class Storage extends Component{
      * @throws IllegalStateException if the good is not found in the storage
      */
     public void removeGood(Good good) throws IllegalStateException {
+        // TODO: ".contains" may not be working
         if (goods.contains(good)) {
             goods.remove(good);
             goodsValue -= good.getValue();

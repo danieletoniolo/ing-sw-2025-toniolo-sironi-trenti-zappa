@@ -273,17 +273,9 @@ public class TuiManager implements Manager {
     }
 
     @Override
-    public void notifyGoodsSwapped(GoodsSwapped data) {
-        synchronized (stateLock) {
-            currentScreen.setMessage(data.nickname() + " has swapped goods");
-            stateLock.notifyAll();
-        }
-    }
-
-    @Override
     public void notifyUpdateGoodsExchange(UpdateGoodsExchange data) {
         synchronized (stateLock) {
-            currentScreen.setMessage(data.nickname() + " has exchanged goods");
+            currentScreen.setMessage(data.nickname() + " has modified own goods");
             stateLock.notifyAll();
         }
     }
@@ -427,7 +419,9 @@ public class TuiManager implements Manager {
     public void notifyPlaying(CurrentPlayer data) {
         if (!MiniModel.getInstance().getNickname().equals(data.nickname())) {
             synchronized (stateLock) {
-                currentScreen = new NotClientTurnTuiScreen();
+                TuiScreenView notTurn = new NotClientTurnTuiScreen();
+                currentScreen.setNextScreen(notTurn);
+                currentScreen = notTurn;
                 parser.changeScreen();
                 stateLock.notifyAll();
             }
@@ -595,7 +589,9 @@ public class TuiManager implements Manager {
     public void notifyStateChange() {
         synchronized (stateLock) {
             switch (MiniModel.getInstance().getGamePhase()) {
-                case LOBBY -> currentScreen = new LobbyTuiScreen();
+                case LOBBY -> {
+                    currentScreen = new LobbyTuiScreen();
+                }
                 case BUILDING -> {
                     currentScreen = new MainCommandsTuiScreen();
                 }

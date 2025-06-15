@@ -53,9 +53,6 @@ public class SpaceShipView implements Structure {
     }
 
     public void placeComponent(ComponentView component, int row, int col) {
-        spaceShip[row-converterRow][col-converterCol] = component;
-        spaceShip[row-converterRow][col-converterCol].setCovered(false);
-
         switch (component.getType()) {
             case DOUBLE_CANNON -> mapDoubleCannons.put(component.getID(), (CannonView) component);
             case DOUBLE_ENGINE -> mapDoubleEngines.put(component.getID(), (EngineView) component);
@@ -63,7 +60,11 @@ public class SpaceShipView implements Structure {
             case SHIELD -> mapShield.put(component.getID(), (ShieldView) component);
             case STORAGE -> mapStorages.put(component.getID(), (StorageView) component);
             case BATTERY -> mapBatteries.put(component.getID(), (BatteryView) component);
+            case GENERIC -> removeComponent(row, col);
         }
+
+        spaceShip[row-converterRow][col-converterCol] = component;
+        spaceShip[row-converterRow][col-converterCol].setCovered(false);
 
         spaceShip[row-converterRow][col-converterCol].setRow(row);
         spaceShip[row-converterRow][col-converterCol].setCol(col);

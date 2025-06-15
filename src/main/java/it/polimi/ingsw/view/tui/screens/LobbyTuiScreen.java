@@ -13,14 +13,12 @@ import it.polimi.ingsw.view.tui.input.Parser;
 
 import java.util.ArrayList;
 
-
 public class LobbyTuiScreen implements TuiScreenView {
     protected final ArrayList<String> options = new ArrayList<>();
     private final LobbyView currentLobbyView = MiniModel.getInstance().getCurrentLobby();
     private int selected;
     protected final int totalLines = LobbyView.getRowsToDraw() + 4 + 1;
     protected String message;
-    protected boolean isNewScreen;
 
 
     public LobbyTuiScreen() {
@@ -28,7 +26,6 @@ public class LobbyTuiScreen implements TuiScreenView {
         options.add("Not ready");
         options.add("Leave");
         options.add("Close program");
-        isNewScreen = true;
     }
 
     @Override
@@ -74,11 +71,8 @@ public class LobbyTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, lineBeforeInput(), row);
 
-        if (isNewScreen) {
-            isNewScreen = false;
-            for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
-                TerminalUtils.printLine(writer, "", i);
-            }
+        for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
+            TerminalUtils.printLine(writer, "", i);
         }
     }
 
@@ -98,6 +92,5 @@ public class LobbyTuiScreen implements TuiScreenView {
 
     @Override
     public void setNextScreen(TuiScreenView nextScreen) {
-
     }
 }

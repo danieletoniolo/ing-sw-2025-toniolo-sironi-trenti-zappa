@@ -5,7 +5,6 @@ import it.polimi.ingsw.event.game.serverToClient.energyUsed.BatteriesLoss;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.EnginesUsed;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.ShieldUsed;
-import it.polimi.ingsw.event.game.serverToClient.goods.GoodsSwapped;
 import it.polimi.ingsw.event.game.serverToClient.goods.UpdateGoodsExchange;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceship;
@@ -303,13 +302,20 @@ public class Handler {
             throw new IllegalArgumentException ("The storage " + storageID2 + " does not have enough space to store the goods");
         }
         // Swap the goods
-        ship.exchangeGood(goods1to2, goods2to1, storageID1);
-        ship.exchangeGood(goods2to1, goods1to2, storageID2);
+        ship.exchangeGood(goods2to1, goods1to2, storageID1);
+        ship.exchangeGood(goods1to2, goods2to1, storageID2);
 
-        return new GoodsSwapped(player.getUsername(), storageID1, storageID2, goods1to2.stream().map(Good::getValue).toList(), goods2to1.stream().map(Good::getValue).toList());
+        List<Pair<Integer, List<Integer>>> convertedData = new ArrayList<>(
+                List.of(
+                        new Pair<>(storageID1, storage1.getGoods().stream().map(Good::getValue).toList()),
+                        new Pair<>(storageID2, storage2.getGoods().stream().map(Good::getValue).toList())
+                )
+        );
+
+        return new UpdateGoodsExchange(player.getUsername(), convertedData);
     }
 
-    static List<Event> cheatShip(PlayerData player, int shipIndex, Level level) throws IllegalArgumentException {
+    static List<Event> cheatShip(PlayerData player, int shipIndex, Level level) throws IllegalStateException, IllegalArgumentException {
         List<Event> events = new ArrayList<>();
         SpaceShip ship = player.getSpaceShip();
         Component component;
@@ -322,41 +328,96 @@ public class Handler {
         // If the player had some components, destroy them (except the main cabin)
         for (int i = 0; i < SpaceShip.getRows(); i++) {
             for (int j = 0; j < SpaceShip.getCols(); j++) {
-                if (ship.getComponent(i, j) != null && i != 6 && j != 6) {
+                if (ship.getComponent(i, j) != null && (i != 6 || j != 6)) {
                     ship.destroyComponent(i, j);
+                    events.add(new PlacedTileToSpaceship(username, i, j));
                 }
             }
         }
 
         switch (shipIndex) {
             case 0 -> {
+                if (level == Level.LEARNING) {
+                    throw new IllegalStateException("Cannot use this ship in LEARNING level");
+                }
+
                 componentsIDs = new int[]{
-                        139, 46, 137, 37, 48, 41, 133, 32, 77, 94, 65, 118, 28, 130, 14, 145, 16, 100
+                        139, 46,  137, 37,  48,
+                        41,  133, 32,  77,  94,
+                        65,  118, 28,  130, 14,
+                        145, 16,  100
                 };
 
                 componentsPositions = new int[][]{
-                        {6, 5}, {6, 4}, {7, 4}, {7, 5}, {7, 6}, {7, 7}, {6, 7}, {6, 8}, {8, 5}, {8, 4}, {8, 3}, {5, 6}, {5, 5}, {5, 7}, {7, 8}, {7, 9}, {8, 9}, {6, 9}
+                        {6, 5}, {6, 4}, {7, 4}, {7, 5}, {7, 6},
+                        {7, 7}, {6, 7}, {6, 8}, {8, 5}, {8, 4},
+                        {8, 3}, {5, 6}, {5, 5}, {5, 7}, {7, 8},
+                        {7, 9}, {8, 9}, {6, 9}
                 };
 
                 componentsRotations = new int[]{
-                        2, 3, 1, 0, 0, 0, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0, 1, 1
+                        2, 3, 1, 0, 0,
+                        0, 2, 0, 0, 0,
+                        2, 0, 2, 0, 0,
+                        0, 1, 1
                 };
             }
             case 1 -> {
+                if (level == Level.LEARNING) {
+                    throw new IllegalStateException("Cannot use this ship in LEARNING level");
+                }
+
                 componentsIDs = new int[]{
-                        126, 54, 115, 145, 103, 96, 107, 40, 24, 111, 61, 31, 98, 27, 19, 52, 118, 56, 5, 47, 1, 92, 93, 70, 78, 105
+                        126, 54,  115, 145, 103,
+                        96,  107, 40,  24,  111,
+                        61,  31,  98,  27,  19,
+                        52,  118, 56,  5,   47,
+                        1,   92,  93,  70,  78,
+                        105
                 };
 
                 componentsPositions = new int[][]{
-                        {5, 6}, {5, 5}, {5, 4}, {5, 7}, {5, 8}, {4, 5}, {4, 7}, {6, 5}, {6, 4}, {6, 3},
-                        {6, 7}, {6, 8}, {6, 9}, {7, 3}, {7, 4}, {7, 5}, {7, 6}, {7, 8}, {7, 9},
-                        {8, 3}, {8, 4}, {8, 5}, {8, 7}, {8, 8}, {8, 9}
+                        {5, 6}, {5, 5}, {5, 4}, {5, 7}, {5, 8},
+                        {4, 5}, {4, 7}, {6, 5}, {6, 4}, {6, 3},
+                        {6, 7}, {6, 8}, {6, 9}, {7, 3}, {7, 4},
+                        {7, 5}, {7, 6}, {7, 7}, {7, 8}, {7, 9},
+                        {8, 3}, {8, 4}, {8, 5}, {8, 7}, {8, 8},
+                        {8, 9}
                 };
 
                 componentsRotations = new int[]{
-                        0, 0, 3, 0, 1, 0, 3, 0, 1, 0, 1, 0, 0,
-                        0, 1, 2, 2, 2, 0, 0,
-                        0, 0, 0, 0, 0, 2
+                        0, 0, 3, 0, 1,
+                        0, 3, 0, 1, 0,
+                        1, 0, 0, 0, 1,
+                        2, 2, 2, 0, 0,
+                        0, 0, 0, 0, 0,
+                        2
+                };
+            }
+            case 2 -> {
+                if (level == Level.SECOND) {
+                    throw new IllegalStateException("Cannot use this ship in SECOND level");
+                }
+
+                componentsIDs = new int[]{
+                        61, 125, 101, 96,  37,
+                        62, 146, 10,  117, 18,
+                        19, 30,  29,  90,  86,
+                        41, 81
+                };
+
+                componentsPositions = new int[][]{
+                        {5, 6}, {5, 5}, {5, 7}, {4, 6}, {6, 5},
+                        {6, 4}, {6, 7}, {6, 8}, {7, 4}, {7, 5},
+                        {7, 6}, {7, 7}, {7, 8}, {8, 4}, {8, 5},
+                        {8, 7}, {8, 8}
+                };
+
+                componentsRotations = new int[]{
+                        1, 0, 1, 0, 0,
+                        1, 1, 3, 3, 0,
+                        0, 0, 0, 0, 0,
+                        1, 0
                 };
             }
             default -> throw new IllegalArgumentException("Invalid ship index: " + shipIndex);

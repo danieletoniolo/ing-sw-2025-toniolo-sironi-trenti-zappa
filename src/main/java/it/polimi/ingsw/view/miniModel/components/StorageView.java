@@ -7,9 +7,9 @@ public class StorageView extends ComponentView {
     private GoodView[] goods;
     private final boolean dangerous;
     private final int capacity;
-    private final String red = "\u001B[31m";
-    private final String lightBlue = "\u001B[96m";
-    private String reset = "\u001B[0m";
+    private final String red = "\033[31m";
+    private final String lightBlue = "\033[94m";
+    private final String reset = "\033[0m";
 
     public StorageView(int ID, int[] connectors, int clockWise, boolean dangerous, int capacity) {
         super(ID, connectors, clockWise);
@@ -35,12 +35,13 @@ public class StorageView extends ComponentView {
         for (int i = 0; i < goods.length; i++) {
             if (goods[i] != null && goods[i].equals(good)) {
                 goods[i] = null;
+                break;
             }
         }
     }
 
     public GoodView removeOneGood() {
-        int i = 0;
+        int i;
         for (i = 0; i < goods.length; i++) {
             if (goods[i] != null) {
                 break;
@@ -62,6 +63,10 @@ public class StorageView extends ComponentView {
 
     public boolean isDangerous() {
         return dangerous;
+    }
+
+    public int getCapacity() {
+        return capacity;
     }
 
     /**

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 public class StartingTuiScreen extends LobbyTuiScreen {
 
     public StartingTuiScreen() {
-        isNewScreen = true;
         options.clear();
         message = MiniModel.getInstance().getCountDown().drawLineTui(0);
     }

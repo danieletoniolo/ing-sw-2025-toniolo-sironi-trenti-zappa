@@ -73,7 +73,7 @@ public class CardsManager {
         }
         */
 
-        int[] cardsIDs = {9, 10, 11, 12, 29, 30, 31, 32, 1, 22, 16, 17};
+        int[] cardsIDs = {39, 23, 38, 34, 33, 32, 31, 24, 14, 13, 12, 11};
 
         for (int cardsID : cardsIDs) {
             selectedCards.add(cards[cardsID]);

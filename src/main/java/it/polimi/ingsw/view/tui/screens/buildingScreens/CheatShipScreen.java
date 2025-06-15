@@ -37,7 +37,8 @@ public class CheatShipScreen extends BuildingTuiScreen {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == 2) {
+        int back = MiniModel.getInstance().getBoardView().getLevel().equals(LevelView.LEARNING) ? 0 : 2;
+        if (selected == back) {
             return new MainCommandsTuiScreen();
         }
 

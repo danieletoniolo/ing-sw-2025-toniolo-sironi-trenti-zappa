@@ -7,6 +7,7 @@ import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import it.polimi.ingsw.view.tui.screens.TuiScreens;
+import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.MenuGoodsTuiScreen;
 
 import java.util.ArrayList;
 
@@ -45,6 +46,7 @@ public class StorageExchangeTuiScreen extends ManagerExchangeGoodsTuiScreen{
                 oldScreen.setMessage(((Pota) status).errorMessage());
             }
             else {
+                MenuGoodsTuiScreen.setCardGoods(remainCopy);
                 oldScreen.setMessage(null);
             }
             destroyStatics();
