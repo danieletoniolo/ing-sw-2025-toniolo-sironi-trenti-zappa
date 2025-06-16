@@ -2,7 +2,11 @@ package it.polimi.ingsw.view.miniModel.components.crewmembers;
 
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 
-import java.awt.*;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
@@ -34,55 +38,42 @@ public enum CrewMembers {
         throw new IllegalArgumentException("No GoodView with value " + value);
     }
 
-    public BufferedImage drawGui(BufferedImage image, int x, int y, int size) {
-        //TODO: Portare ad Image
-        Graphics2D g2d = image.createGraphics();
+    public Image drawGui(Image image, int x, int y, int size, int numberOfCrewMembers) {
+        Canvas canvas = new Canvas(image.getWidth(), image.getHeight());
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.drawImage(image, 0, 0);
 
-        // Colore di riempimento in base al tipo
         Color fillColor = switch (this) {
             case HUMAN -> Color.WHITE;
-            case BROWALIEN -> new Color(95, 75, 25);
-            case PURPLEALIEN -> new Color(133, 25, 133);
+            case BROWALIEN -> Color.rgb(95, 75, 25);
+            case PURPLEALIEN -> Color.rgb(133, 25, 133);
         };
 
         Color borderColor = Color.BLACK;
-        g2d.setStroke(new BasicStroke(3));
+        double radius = size / 8;
 
-        int radius = size / 2;
+        gc.setLineWidth(2);
+        gc.setStroke(borderColor);
+        gc.setFill(fillColor);
 
-        if (this == CrewMembers.HUMAN) {
-            int spacing = 5;
-            int offset = radius + (spacing / 2);
+        if (this == CrewMembers.HUMAN && numberOfCrewMembers == 2) {
+            double spacing = 5;
+            double offset = radius + (spacing / 2);
 
-            Ellipse2D.Double leftCircle = new Ellipse2D.Double(
-                    x - offset - radius, y - radius, radius * 2, radius * 2
-            );
+            gc.fillOval(x - offset - radius, y - radius, radius * 2, radius * 2);
+            gc.strokeOval(x - offset - radius, y - radius, radius * 2, radius * 2);
 
-            Ellipse2D.Double rightCircle = new Ellipse2D.Double(
-                    x + offset - radius, y - radius, radius * 2, radius * 2
-            );
-
-            g2d.setColor(fillColor);
-            g2d.fill(leftCircle);
-            g2d.fill(rightCircle);
-
-            g2d.setColor(borderColor);
-            g2d.draw(leftCircle);
-            g2d.draw(rightCircle);
+            gc.fillOval(x + offset - radius, y - radius, radius * 2, radius * 2);
+            gc.strokeOval(x + offset - radius, y - radius, radius * 2, radius * 2);
         } else {
-            Ellipse2D.Double circle = new Ellipse2D.Double(
-                    x - radius, y - radius, radius * 2, radius * 2
-            );
-
-            g2d.setColor(fillColor);
-            g2d.fill(circle);
-
-            g2d.setColor(borderColor);
-            g2d.draw(circle);
+            gc.fillOval(x - radius, y - radius, radius * 2, radius * 2);
+            gc.strokeOval(x - radius, y - radius, radius * 2, radius * 2);
         }
 
-        g2d.dispose();
-        return image;
+        // Scrivi il disegno finale in una nuova WritableImage
+        WritableImage result = new WritableImage((int) image.getWidth(), (int) image.getHeight());
+        canvas.snapshot(null, result);
+        return result;
     }
 
     public String drawTui() {

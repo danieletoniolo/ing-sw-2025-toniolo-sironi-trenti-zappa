@@ -36,7 +36,7 @@ public class SpaceShipGui extends Application {
             if (node instanceof ImageView imageView) {
                 if(imageView.getId().equals("1")) {
                     imageView.setImage(img_s);
-                } else if(imageView.getId().equals("2")) {
+                } else if(imageView.getId().equals("77")) {
                     imageView.setImage(img_center);
                 } else {
                     imageView.setImage(img_c);

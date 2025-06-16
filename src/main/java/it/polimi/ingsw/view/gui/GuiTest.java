@@ -5,12 +5,14 @@ import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.game.board.Deck;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
+import it.polimi.ingsw.view.miniModel.components.CabinView;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
 import it.polimi.ingsw.view.miniModel.components.CabinView;
+import it.polimi.ingsw.view.miniModel.components.StorageView;
 import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewMembers;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
@@ -20,17 +22,64 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class GuiTest extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+        /*
+        //TODO: Esempio storage a 3 posti
+        StorageView s = new StorageView(27, null, 0, false, 3);
+        Image img_s = s.drawGui();
+        Image img = GoodView.BLUE.drawGui(img_s, (int) img_s.getHeight() / 2, (int) img_s.getHeight() / 2, 45, 3, 1);
+        Image img_in = GoodView.RED.drawGui(img, (int) img_s.getHeight() / 2, (int) img_s.getHeight() / 2, 45, 3, 2);
+        Image img_fin = GoodView.YELLOW.drawGui(img_in, (int) img_s.getHeight() / 2, (int) img_s.getHeight() / 2, 45, 3, 3);
+
+        ImageView img1 = new ImageView(img_fin);
+        StackPane stackPane = new StackPane(img1);
+        Scene scene = new Scene(stackPane);
+        stage.setScene(scene);
+        stage.show();
+         */
+
+        /*
+        //TODO: Esempio storage a 2 posti
+        StorageView s = new StorageView(20, null, 0, false, 2);
+        Image img_s = s.drawGui();
+        Image img = GoodView.BLUE.drawGui(img_s, (int) img_s.getHeight() / 2, (int) img_s.getHeight() / 2, 45, 2, 1);
+        Image img_fin = GoodView.RED.drawGui(img, (int) img_s.getHeight() / 2, (int) img_s.getHeight() / 2, 45, 2, 2);
+
+        ImageView img1 = new ImageView(img_fin);
+        StackPane stackPane = new StackPane(img1);
+        Scene scene = new Scene(stackPane);
+        stage.setScene(scene);
+        stage.show();
+        */
+
+
+        /*
+        //TODO: Come usare crew members
+        CabinView c = new CabinView(155, null, 1);
+        Image img_center = c.drawGui();
+        ImageView img = new ImageView(img_center);
+
+        Image img_s = CrewMembers.HUMAN.drawGui(img_center, (int) img_center.getHeight() / 2, (int) img_center.getHeight() / 2, (int) img_center.getHeight(), 1);
+        ImageView img1 = new ImageView(img_s);
+
+        StackPane stackPane = new StackPane(img1);
+        Scene scene = new Scene(stackPane);
+        stage.setScene(scene);
+        stage.show();
+         */
+
+
         Parent root = FXMLLoader.load(GuiTest.class.getResource("/ship_learning.fxml"));
         Scene scene = new Scene(root);
         stage.setTitle("Hello!");
