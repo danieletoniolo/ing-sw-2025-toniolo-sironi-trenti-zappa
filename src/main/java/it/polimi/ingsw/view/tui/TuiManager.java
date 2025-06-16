@@ -426,6 +426,9 @@ public class TuiManager implements Manager {
                 stateLock.notifyAll();
             }
         }
+        else {
+            notifyStateChange();
+        }
     }
 
     @Override

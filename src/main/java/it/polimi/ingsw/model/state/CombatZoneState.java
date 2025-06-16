@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MinPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.player.PlayerLost;
@@ -338,6 +339,15 @@ public class CombatZoneState extends State {
                 }
                 break;
         }
+
+        try {
+            CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
+            eventCallback.trigger(currentPlayerEvent);
+        }
+        catch(Exception e) {
+            // Ignore the exception
+        }
+
         super.nextState(GameState.CARDS);
     }
 }

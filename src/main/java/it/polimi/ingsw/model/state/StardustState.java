@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
@@ -32,6 +33,15 @@ public class StardustState extends State {
     @Override
     public void execute(PlayerData player) {
         super.execute(player);
+
+        try {
+            CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
+            eventCallback.trigger(currentPlayerEvent);
+        }
+        catch(Exception e) {
+            // Ignore the exception
+        }
+
         super.nextState(GameState.CARDS);
     }
 }

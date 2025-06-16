@@ -98,7 +98,6 @@ public class Storage extends Component{
         } else {
             throw new IllegalStateException("Good not found in storage");
         }
-        goods.remove();
     }
 
     /**

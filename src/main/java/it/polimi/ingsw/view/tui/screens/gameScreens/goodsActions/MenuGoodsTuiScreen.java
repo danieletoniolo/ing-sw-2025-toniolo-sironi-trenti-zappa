@@ -78,6 +78,11 @@ public class MenuGoodsTuiScreen extends GameTuiScreen {
         };
     }
 
+    @Override
+    protected String lineBeforeInput() {
+        return "Select an action:";
+    }
+
     public static List<GoodView> getCopy() {
         return cardGoods;
     }

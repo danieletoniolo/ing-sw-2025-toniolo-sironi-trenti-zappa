@@ -2,6 +2,7 @@ package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.planets.PlanetSelected;
+import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.Planets;
 import it.polimi.ingsw.model.game.board.Board;
@@ -45,7 +46,7 @@ public class PlanetsState extends State {
             PlanetSelected planetSelectedEvent = new PlanetSelected(player.getUsername(), planetNumber);
             eventCallback.trigger(planetSelectedEvent);
         } else {
-            throw new IllegalStateException("Planet already selected by" + planetSelected[planetNumber].getUsername());
+            throw new IllegalStateException("Planet already selected by " + planetSelected[planetNumber].getUsername());
         }
     }
 
@@ -97,6 +98,15 @@ public class PlanetsState extends State {
     @Override
     public void execute(PlayerData player) throws NullPointerException {
         super.execute(player);
+
+        try {
+            CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
+            eventCallback.trigger(currentPlayerEvent);
+        }
+        catch(Exception e) {
+            // Ignore the exception
+        }
+
         super.nextState(GameState.CARDS);
     }
 

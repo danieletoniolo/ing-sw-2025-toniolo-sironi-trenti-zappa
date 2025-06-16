@@ -14,7 +14,7 @@ import java.util.List;
 
 public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
     private final TuiScreenView oldScreen;
-    private List<GoodView> oldGoods;
+    private final List<GoodView> oldGoods;
 
     public SwapGoodsWithTuiScreen(List<GoodView> goods, TuiScreenView oldScreen) {
         super(new ArrayList<>(){{
@@ -79,9 +79,9 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
         }
 
         List<GoodView> newGoods = new ArrayList<>();
-        for (GoodView good : oldGoods) {
-            if (!java.util.Objects.equals(goodV, good)) {
-                newGoods.add(good);
+        for (i = 0; i < oldGoods.size(); i++) {
+            if (i != selected) {
+                newGoods.add(oldGoods.get(i));
             }
         }
         withStorage.removeGood(goodV);

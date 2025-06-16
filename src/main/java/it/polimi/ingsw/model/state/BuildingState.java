@@ -7,6 +7,7 @@ import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToBoard;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToReserve;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceship;
+import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;

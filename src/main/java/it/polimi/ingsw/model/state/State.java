@@ -199,7 +199,6 @@ public abstract class State implements Serializable {
     }
 
     /* LobbyState methods */
-
     /**
      * Manage the joining and leaving of the player from the lobyy
      *

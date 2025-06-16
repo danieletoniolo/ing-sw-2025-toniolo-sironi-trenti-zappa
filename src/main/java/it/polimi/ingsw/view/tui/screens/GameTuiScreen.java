@@ -1,5 +1,9 @@
 package it.polimi.ingsw.view.tui.screens;
 
+import it.polimi.ingsw.Client;
+import it.polimi.ingsw.event.game.clientToServer.player.GiveUp;
+import it.polimi.ingsw.event.game.serverToClient.status.Pota;
+import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -30,6 +34,7 @@ public abstract class GameTuiScreen implements TuiScreenView {
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
             options.add("View " + p.getUsername() + "'s spaceship");
         }
+        options.add("Give up");
         options.add("Close program");
 
         totalLines = Math.max(boardView.getRowsToDraw(), DeckView.getRowsToDraw())
@@ -43,10 +48,18 @@ public abstract class GameTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
-        if ((selected < options.size() - 1) && (selected >= options.size() - 1 - MiniModel.getInstance().getOtherPlayers().size())) {
-            int i = selected - (options.size() - MiniModel.getInstance().getOtherPlayers().size() - 1);
+        if ((selected < options.size() - 2) && (selected >= options.size() - 2 - MiniModel.getInstance().getOtherPlayers().size())) {
+            int i = selected - (options.size() - MiniModel.getInstance().getOtherPlayers().size() - 2);
 
             return new PlayerTuiScreen(MiniModel.getInstance().getOtherPlayers().get(i), this);
+        }
+
+        if (selected == options.size() - 2) {
+            StatusEvent status = GiveUp.requester(Client.transceiver, new Object()).request(new GiveUp(MiniModel.getInstance().getUserID()));
+            if (status.get().equals("POTA")) {
+                setMessage(((Pota) status).errorMessage());
+            }
+            return this;
         }
 
         if (selected == options.size() - 1) {

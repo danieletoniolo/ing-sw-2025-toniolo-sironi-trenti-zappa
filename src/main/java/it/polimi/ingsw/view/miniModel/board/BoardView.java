@@ -76,7 +76,12 @@ public class BoardView implements Structure {
 
     public void movePlayer(MarkerView color, int step) {
         initializeBoard();
-        players.put(color, step);
+        int moduleStep = step;
+        while (moduleStep < 0) {
+            moduleStep += stepsForALap;
+        }
+        moduleStep = moduleStep % stepsForALap;
+        players.put(color, moduleStep);
         players.forEach((key, value) -> {
             path[value % stepsForALap] = key.drawTui();
         });

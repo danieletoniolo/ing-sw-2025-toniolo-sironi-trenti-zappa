@@ -29,19 +29,17 @@ public class PlanetsTuiScreen extends GameTuiScreen {
                 status = Play.requester(Client.transceiver, new Object()).request(new Play(MiniModel.getInstance().getUserID()));
                 if (status.get().equals("POTA")) {
                     setMessage(((Pota) status).errorMessage());
+                    return this;
                 }
-                else{
-                    setMessage(null);
-                }
+                setMessage(null);
                 return new SelectPlanetTuiScreen(this);
             case 1:
                 status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
                 if (status.get().equals("POTA")) {
                     setMessage(((Pota) status).errorMessage());
+                    return this;
                 }
-                else {
-                    setMessage(null);
-                }
+                setMessage(null);
                 return new NotClientTurnTuiScreen();
         }
 
