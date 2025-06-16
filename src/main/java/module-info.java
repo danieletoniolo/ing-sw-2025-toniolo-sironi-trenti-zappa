@@ -14,6 +14,9 @@ module demo {
     exports it.polimi.ingsw.view.gui.controllers.components;
     opens it.polimi.ingsw.view.gui.controllers.components to javafx.fxml;
 
+    exports it.polimi.ingsw.view.gui.controllers.cards;
+    opens it.polimi.ingsw.view.gui.controllers.cards to javafx.fxml;
+
     opens it.polimi.ingsw.view.gui to javafx.fxml;
     exports it.polimi.ingsw.view.gui;
 

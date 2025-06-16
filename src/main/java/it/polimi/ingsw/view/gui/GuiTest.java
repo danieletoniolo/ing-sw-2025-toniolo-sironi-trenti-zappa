@@ -30,13 +30,16 @@ import java.util.ArrayList;
 public class GuiTest extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        ViewablePileView pile = new ViewablePileView();
+        /*ViewablePileView pile = new ViewablePileView();
         for (int i = 0; i < 20; i++) {
             ShieldView storageView = new ShieldView(i, new int[]{0, 0, 0, 0}, 0, new boolean[]{true, false, true, false});
             pile.addComponent(storageView);
         }
 
-        Node root = pile.createGuiNode();
+        Node root = pile.createGuiNode();*/
+
+        AbandonedShipView a = new AbandonedShipView(1, false, 1, 2, 3, 4);
+        Node root = a.createGuiNode();
 
         Scene scene = new Scene((Parent) root);
         stage.setTitle("Hello!");
