@@ -1,27 +1,27 @@
 package it.polimi.ingsw.view.miniModel.components.crewmembers;
 
-import it.polimi.ingsw.view.miniModel.good.GoodView;
-
+import it.polimi.ingsw.view.miniModel.MiniModelListener;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
-import java.awt.image.BufferedImage;
 
-public enum CrewMembers {
+import java.util.ArrayList;
+import java.util.List;
+
+public enum CrewView {
     HUMAN(0),
     BROWALIEN(1),
     PURPLEALIEN(2);
 
+    private final List<MiniModelListener> listeners = new ArrayList<>();
     private final int value;
     private final String brown = "\033[38;5;220m";
     private final String purple = "\033[35m";
     private final String reset = "\033[0m";
 
-    CrewMembers(int value) {
+    CrewView(int value) {
         this.value = value;
     }
 
@@ -29,8 +29,24 @@ public enum CrewMembers {
         return value;
     }
 
-    public static CrewMembers fromValue(int value) {
-        for (CrewMembers crew : values()) {
+
+    public void addListener(MiniModelListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(MiniModelListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners() {
+        for (MiniModelListener listener : listeners) {
+            listener.onModelChanged();
+        }
+    }
+
+
+    public static CrewView fromValue(int value) {
+        for (CrewView crew : values()) {
             if (crew.value == value) {
                 return crew;
             }
@@ -56,7 +72,7 @@ public enum CrewMembers {
         gc.setStroke(borderColor);
         gc.setFill(fillColor);
 
-        if (this == CrewMembers.HUMAN && numberOfCrewMembers == 2) {
+        if (this == CrewView.HUMAN && numberOfCrewMembers == 2) {
             double spacing = 5;
             double offset = radius + (spacing / 2);
 
@@ -83,5 +99,4 @@ public enum CrewMembers {
             case PURPLEALIEN -> purple + "&" + reset;
         };
     }
-
 }

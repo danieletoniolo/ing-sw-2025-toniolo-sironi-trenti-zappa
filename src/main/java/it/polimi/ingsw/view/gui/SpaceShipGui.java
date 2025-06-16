@@ -1,12 +1,8 @@
 package it.polimi.ingsw.view.gui;
 
-import it.polimi.ingsw.model.spaceship.Cabin;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.components.CabinView;
-import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.components.GenericComponentView;
-import it.polimi.ingsw.view.miniModel.player.MarkerView;
-import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;

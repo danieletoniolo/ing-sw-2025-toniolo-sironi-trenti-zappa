@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.miniModel.components;
 
 import it.polimi.ingsw.view.miniModel.Structure;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
@@ -61,6 +62,11 @@ public abstract class ComponentView implements Structure {
         this.connectors = connectors;
         this.covered = false;
         this.clockWise = clockWise;
+    }
+
+    public Node createGuiNode() {
+        // This method should be overridden in subclasses to provide specific GUI nodes
+        throw new UnsupportedOperationException("This method should be overridden in subclasses");
     }
 
     // GUI methods

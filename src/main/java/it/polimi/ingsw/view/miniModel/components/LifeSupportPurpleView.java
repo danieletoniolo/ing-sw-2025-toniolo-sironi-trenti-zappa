@@ -1,13 +1,32 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import it.polimi.ingsw.view.miniModel.MiniModelListener;
 import javafx.scene.image.Image;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LifeSupportPurpleView extends ComponentView {
+    private final List<MiniModelListener> listeners = new ArrayList<>();
     private String purple = "\033[35m";
     private String reset = "\033[0m";
 
     public LifeSupportPurpleView(int ID, int[] connectors, int clockWise) {
         super(ID, connectors, clockWise);
+    }
+
+    public void addListener(MiniModelListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(MiniModelListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners() {
+        for (MiniModelListener listener : listeners) {
+            listener.onModelChanged();
+        }
     }
 
     /**

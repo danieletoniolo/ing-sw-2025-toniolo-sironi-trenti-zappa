@@ -1,8 +1,13 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import it.polimi.ingsw.view.miniModel.MiniModelListener;
 import javafx.scene.image.Image;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BatteryView extends ComponentView {
+    private final List<MiniModelListener> listeners = new ArrayList<>();
     private int numberOfBatteries;
     private final int maximumBatteries;
     private final String green = "\033[32m";
@@ -23,6 +28,20 @@ public class BatteryView extends ComponentView {
 
     public int getNumberOfBatteries() {
         return numberOfBatteries;
+    }
+
+    public void addListener(MiniModelListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(MiniModelListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners() {
+        for (MiniModelListener listener : listeners) {
+            listener.onModelChanged();
+        }
     }
 
     /**

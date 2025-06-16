@@ -5,12 +5,6 @@ import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import javafx.scene.image.Image;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
 public class PlayerDataView implements Structure {
     private final String username;
     private final String color;

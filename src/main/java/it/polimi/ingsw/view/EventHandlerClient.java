@@ -25,7 +25,7 @@ import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
 import it.polimi.ingsw.view.miniModel.components.*;
-import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewMembers;
+import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewView;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
@@ -802,13 +802,13 @@ public class EventHandlerClient {
 
         pickedTileReceiver = new CastEventReceiver<>(this.transceiver);
         pickedTileListener = data -> {
-            ComponentView tile = MiniModel.getInstance().getViewableComponents().stream()
+            ComponentView tile = MiniModel.getInstance().getViewablePile().getViewableComponents().stream()
                     .filter(component -> component.getID() == data.tileID())
                     .findFirst()
                     .orElse(null);
 
             if (tile != null) {
-                MiniModel.getInstance().getViewableComponents().remove(tile);
+                MiniModel.getInstance().getViewablePile().removeComponent(tile);
             }
 
             PlayerDataView player = getPlayerDataView(data.nickname());
@@ -859,7 +859,7 @@ public class EventHandlerClient {
         placedTileToBoardListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
-            MiniModel.getInstance().getViewableComponents().add(player.getHand());
+            MiniModel.getInstance().getViewablePile().addComponent(player.getHand());
             player.setHand(new GenericComponentView());
 
             manager.notifyPlacedTileToBoard(data);
@@ -1085,7 +1085,7 @@ public class EventHandlerClient {
             for (Triplet<Integer, Integer, Integer> cabin : data.cabins()) {
                 CabinView c = player.getShip().getMapCabins().get(cabin.getValue0());
                 c.setCrewNumber(cabin.getValue1());
-                c.setCrewType(CrewMembers.fromValue(cabin.getValue2()));
+                c.setCrewType(CrewView.fromValue(cabin.getValue2()));
             }
 
             manager.notifyUpdateCrewMembers(data);

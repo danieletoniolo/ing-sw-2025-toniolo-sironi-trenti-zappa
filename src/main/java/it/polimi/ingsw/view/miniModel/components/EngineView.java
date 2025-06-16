@@ -1,8 +1,13 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import it.polimi.ingsw.view.miniModel.MiniModelListener;
 import javafx.scene.image.Image;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class EngineView extends ComponentView {
+    private final List<MiniModelListener> listeners = new ArrayList<>();
     private String brown = "\033[38;5;220m";
     private String reset = "\033[0m";
     private boolean doubleEngine;
@@ -10,6 +15,24 @@ public class EngineView extends ComponentView {
     public EngineView(int ID, int[] connectors, int clockWise, int power) {
         super(ID, connectors, clockWise);
         this.doubleEngine = power == 2;
+    }
+
+    public boolean isDoubleEngine() {
+        return doubleEngine;
+    }
+
+    public void addListener(MiniModelListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(MiniModelListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners() {
+        for (MiniModelListener listener : listeners) {
+            listener.onModelChanged();
+        }
     }
 
     /**

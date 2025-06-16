@@ -37,9 +37,9 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
         }
         options.add("Close program");
 
-        int componentsSize = (MiniModel.getInstance().getViewableComponents().isEmpty()) ? 1 : (MiniModel.getInstance().getViewableComponents().size() / cols);
+        int componentsSize = (MiniModel.getInstance().getViewablePile().getViewableComponents().isEmpty()) ? 1 : (MiniModel.getInstance().getViewablePile().getViewableComponents().size() / cols);
         totalLines = 1 + componentsSize * ComponentView.getRowsToDraw()
-                + (MiniModel.getInstance().getViewableComponents().size() % cols == 0 ? 0 : ComponentView.getRowsToDraw())
+                + (MiniModel.getInstance().getViewablePile().getViewableComponents().size() % cols == 0 ? 0 : ComponentView.getRowsToDraw())
                 + 1 + clientPlayer.getShip().getRowsToDraw() + 3 + 2;
     }
 
@@ -74,7 +74,7 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
         var writer = terminal.writer();
         row = 1;
 
-        drawTiles(writer, MiniModel.getInstance().getViewableComponents());
+        drawTiles(writer, MiniModel.getInstance().getViewablePile().getViewableComponents());
         TerminalUtils.printLine(writer, "", row++);
 
         int deckCount = 0;
