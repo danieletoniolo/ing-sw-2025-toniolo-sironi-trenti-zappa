@@ -43,11 +43,11 @@ public class StorageExchangeTuiScreen extends ManagerExchangeGoodsTuiScreen{
             StatusEvent status = ExchangeGoods.requester(Client.transceiver, new Object()).request(
                     new ExchangeGoods(MiniModel.getInstance().getUserID(), exchanges));
             if (status.get().equals("POTA")) {
-                oldScreen.setMessage(((Pota) status).errorMessage());
+                setMessage(((Pota) status).errorMessage());
             }
             else {
                 MenuGoodsTuiScreen.setCardGoods(remainCopy);
-                oldScreen.setMessage(null);
+                setMessage(null);
             }
             destroyStatics();
             return oldScreen;
@@ -55,6 +55,7 @@ public class StorageExchangeTuiScreen extends ManagerExchangeGoodsTuiScreen{
         }
 
         if (selected == num + 1) {
+            setMessage(null);
             destroyStatics();
             return oldScreen;
         }

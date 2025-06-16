@@ -48,7 +48,7 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
             StatusEvent status = SwapGoods.requester(Client.transceiver, new Object()).request(
                     new SwapGoods(MiniModel.getInstance().getUserID(), fromStorage.getID(), withStorage.getID(), fromList, withList));
             if (status.get().equals("POTA")) {
-                oldScreen.setMessage(((Pota) status).errorMessage());
+                setMessage(((Pota) status).errorMessage());
             }
             else{
                 setMessage(null);
@@ -96,10 +96,9 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
             line2.append(value != null ? GoodView.fromValue(value).drawTui() : "| |").append(" ");
         }
 
-        TuiScreenView newScreen = new SwapGoodsWithTuiScreen(newGoods, oldScreen);
-        newScreen.setMessage("You are swapping " + line + "from (" + fromStorage.getRow() + " " + fromStorage.getCol() + ") with "
+        setMessage("You are swapping " + line + "from (" + fromStorage.getRow() + " " + fromStorage.getCol() + ") with "
                 + line2 + "in (" + withStorage.getRow() + " " + withStorage.getCol() + ")");
-        return newScreen;
+        return new SwapGoodsWithTuiScreen(newGoods, oldScreen);
     }
 
     @Override
@@ -109,6 +108,9 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
 
     @Override
     protected String lineBeforeInput() {
+        if (withStorage == null) {
+            return "";
+        }
         return "Select goods to swap WITH (" + withStorage.getRow() + " " + withStorage.getCol() + "):";
     }
 }

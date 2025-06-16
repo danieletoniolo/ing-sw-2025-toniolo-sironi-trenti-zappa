@@ -42,6 +42,7 @@ public class PickGoodsFromCardTuiScreen extends ManagerExchangeGoodsTuiScreen{
         }
 
         if (selected == goodsOnCard.size() + 1) {
+            setMessage(null);
             destroyStatics();
             return oldScreen;
         }
@@ -55,9 +56,8 @@ public class PickGoodsFromCardTuiScreen extends ManagerExchangeGoodsTuiScreen{
             line.append(GoodView.fromValue(good).drawTui()).append(" ");
         }
 
-        TuiScreenView newScreen = new PickGoodsFromCardTuiScreen(goodsOnCard, oldScreen);
-        newScreen.setMessage("You have selected " + line);
-        return newScreen;
+        setMessage("You have selected " + line);
+        return new PickGoodsFromCardTuiScreen(goodsOnCard, oldScreen);
     }
 
     @Override

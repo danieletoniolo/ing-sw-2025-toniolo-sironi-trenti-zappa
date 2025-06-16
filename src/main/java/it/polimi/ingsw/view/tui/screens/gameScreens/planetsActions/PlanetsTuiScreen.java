@@ -13,9 +13,11 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.NotClientTurnTuiScreen;
 import java.util.List;
 
 public class PlanetsTuiScreen extends GameTuiScreen {
+    private TuiScreenView nextScreen;
 
     public PlanetsTuiScreen() {
         super(List.of("Accept", "Refuse"));
+        setMessage("You can now play on the planets, choose what to do!");
     }
 
     @Override
@@ -39,8 +41,7 @@ public class PlanetsTuiScreen extends GameTuiScreen {
                     setMessage(((Pota) status).errorMessage());
                     return this;
                 }
-                setMessage(null);
-                return new NotClientTurnTuiScreen();
+                return nextScreen;
         }
 
         return this;
@@ -48,6 +49,6 @@ public class PlanetsTuiScreen extends GameTuiScreen {
 
     @Override
     public void setNextScreen(TuiScreenView nextScreen) {
-
+        this.nextScreen = nextScreen;
     }
 }

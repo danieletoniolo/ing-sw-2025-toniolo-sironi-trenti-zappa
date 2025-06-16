@@ -21,6 +21,7 @@ import java.util.List;
 public class MenuGoodsTuiScreen extends GameTuiScreen {
     private final TuiScreenView oldScreen;
     protected static List<GoodView> cardGoods;
+    private TuiScreenView nextScreen;
 
     public MenuGoodsTuiScreen(TuiScreenView oldScreen) {
         super(List.of("Swap goods", "Exchange goods", "Done"));
@@ -72,7 +73,7 @@ public class MenuGoodsTuiScreen extends GameTuiScreen {
                     yield this;
                 }
                 spaceShipView = clientPlayer.getShip();
-                yield oldScreen;
+                yield nextScreen;
             }
             default -> this;
         };
@@ -89,5 +90,10 @@ public class MenuGoodsTuiScreen extends GameTuiScreen {
     
     public static void setCardGoods(List<GoodView> goods) {
         cardGoods = goods;
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+        this.nextScreen = nextScreen;
     }
 }

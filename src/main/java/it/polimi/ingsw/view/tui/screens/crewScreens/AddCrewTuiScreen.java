@@ -91,7 +91,6 @@ public class AddCrewTuiScreen extends ModifyCrewTuiScreen {
             type = value;
         }
 
-        Logger.getInstance().logError("type: " + type + ", mode: " + mode + ", ID: " + ID, false);
         StatusEvent status;
         status = ManageCrewMember.requester(Client.transceiver, new Object()).request(new ManageCrewMember(MiniModel.getInstance().getUserID(), mode, type, ID));
         if (status.get().equals("POTA")) {

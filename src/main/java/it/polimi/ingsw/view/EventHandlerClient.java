@@ -1129,7 +1129,7 @@ public class EventHandlerClient {
             if (data.newState() == GamePhases.CARDS.getValue() && MiniModel.getInstance().getGamePhase().getValue() == data.newState()) {
                 MiniModel.getInstance().getShuffledDeckView().popCard();
             }
-            if (data.newState() != GamePhases.BUILDING.getValue()) {
+            if (data.newState() == GamePhases.CREW.getValue()) {
                 MiniModel.getInstance().getClientPlayer().setHand(null);
                 for (PlayerDataView player : MiniModel.getInstance().getOtherPlayers()) {
                     player.setHand(null);

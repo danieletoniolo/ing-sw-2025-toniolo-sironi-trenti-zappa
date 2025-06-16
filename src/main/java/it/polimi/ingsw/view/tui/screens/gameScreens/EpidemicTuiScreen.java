@@ -11,10 +11,11 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import java.util.List;
 
 public class EpidemicTuiScreen extends GameTuiScreen {
+    private TuiScreenView nextScreen;
 
     public EpidemicTuiScreen() {
         super(List.of("Go on"));
-        setMessage("A terrible decease is on the ship, be careful!");
+        setMessage("A terrible disease is on the ship, be careful!");
     }
 
     @Override
@@ -28,8 +29,16 @@ public class EpidemicTuiScreen extends GameTuiScreen {
                 setMessage(((Pota) status).errorMessage());
                 return this;
             }
-            return new NotClientTurnTuiScreen();
+            if (nextScreen == null) {
+                return new NotClientTurnTuiScreen();
+            }
+             return nextScreen;
         }
         return this;
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+        this.nextScreen = nextScreen;
     }
 }

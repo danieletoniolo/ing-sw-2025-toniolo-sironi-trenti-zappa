@@ -76,7 +76,7 @@ public abstract class State implements Serializable {
 
         exit();
 
-        StateChanged stateChanged = null;
+        eventCallback.trigger(new StateChanged(nextGameState.getValue()));
 
         switch (nextGameState) {
             case LOBBY ->      transitionHandler.changeState(new LobbyState(board, eventCallback, transitionHandler));
@@ -102,8 +102,6 @@ public abstract class State implements Serializable {
                     }
                 } catch (IllegalArgumentException e) {
                     // TODO: Handle final states
-                    transitionHandler.changeState(new EndState(board, eventCallback, board.getBoardLevel(), transitionHandler));
-                    stateChanged = new StateChanged(GameState.REWARD.getValue());
                 }
             }
             case REWARD -> {
@@ -113,11 +111,6 @@ public abstract class State implements Serializable {
             }
             default -> throw new IllegalArgumentException("Invalid next game state: " + nextGameState);
         }
-
-        if (stateChanged == null) {
-            stateChanged = new StateChanged(nextGameState.getValue());
-        }
-        eventCallback.trigger(stateChanged);
     }
 
     /**
