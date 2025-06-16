@@ -485,14 +485,14 @@ public class SpaceShip {
             if (hasBrownAlien()) {
                 throw new IllegalStateException("The ship already has a brown alien");
             }
-            this.brownAlien = true;
             cabin.addBrownAlien();
+            this.brownAlien = true;
         } else if (purpleAlien) {
             if (hasPurpleAlien()) {
                 throw new IllegalStateException("The ship already has a purple alien");
             }
-            this.purpleAlien = true;
             cabin.addPurpleAlien();
+            this.purpleAlien = true;
         } else {
             cabin.addCrewMember();
         }
