@@ -42,7 +42,7 @@ public class RowAndColTuiScreen extends BuildingTuiScreen {
         }
 
         if (num == 1) {
-            int ID = MiniModel.getInstance().getViewableComponents().stream()
+            int ID = MiniModel.getInstance().getViewablePile().getViewableComponents().stream()
                     .skip(((long) rowAndCol.getValue0() * rowAndCol.getValue1()) - 1)
                     .map(ComponentView::getID)
                     .findFirst()

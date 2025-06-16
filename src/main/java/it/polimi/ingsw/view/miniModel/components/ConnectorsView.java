@@ -1,11 +1,51 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import it.polimi.ingsw.view.gui.controllers.components.ConnectorsController;
+import it.polimi.ingsw.view.gui.controllers.components.StorageController;
+import it.polimi.ingsw.view.miniModel.MiniModelListener;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ConnectorsView extends ComponentView {
+    private final List<MiniModelListener> listeners = new ArrayList<>();
 
     public ConnectorsView(int ID, int[] connectors, int clockWise) {
         super(ID, connectors, clockWise);
+    }
+
+    public void addListener(MiniModelListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(MiniModelListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners() {
+        for (MiniModelListener listener : listeners) {
+            listener.onModelChanged();
+        }
+    }
+
+    public Node createGuiNode() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/connectors.fxml"));
+            Node root = loader.load();
+
+            ConnectorsController controller = loader.getController();
+            controller.setConnectorsModel(this);
+
+            return root;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**

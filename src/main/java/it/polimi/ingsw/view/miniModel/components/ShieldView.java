@@ -1,8 +1,18 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import it.polimi.ingsw.view.gui.controllers.components.ShieldController;
+import it.polimi.ingsw.view.gui.controllers.components.StorageController;
+import it.polimi.ingsw.view.miniModel.MiniModelListener;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ShieldView extends ComponentView {
+    private final List<MiniModelListener> listeners = new ArrayList<>();
     public static String UpShield = "∩";
     public static String DownShield = "∪";
     public static String LeftShield = "(";
@@ -14,6 +24,40 @@ public class ShieldView extends ComponentView {
     public ShieldView(int ID, int[] connectors, int clockWise, boolean[] shields) {
         super(ID, connectors, clockWise);
         this.shields = shields;
+    }
+
+    public boolean[] getShields() {
+        return shields;
+    }
+
+    public void addListener(MiniModelListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(MiniModelListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners() {
+        for (MiniModelListener listener : listeners) {
+            listener.onModelChanged();
+        }
+    }
+
+    public Node createGuiNode() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/shield.fxml"));
+            Node root = loader.load();
+
+            ShieldController controller = loader.getController();
+            controller.setShieldModel(this);
+
+            return root;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void setShields(boolean[] shields) {

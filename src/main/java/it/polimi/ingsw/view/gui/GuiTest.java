@@ -2,37 +2,46 @@ package it.polimi.ingsw.view.gui;
 
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
-import it.polimi.ingsw.model.game.board.Deck;
-import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
+import it.polimi.ingsw.view.gui.controllers.components.LifeSupportPurpleController;
+import it.polimi.ingsw.view.gui.controllers.components.ShieldController;
+import it.polimi.ingsw.view.gui.controllers.components.StorageController;
+import it.polimi.ingsw.view.gui.controllers.components.ViewablePileController;
+import it.polimi.ingsw.view.gui.controllers.ship.SpaceshipController;
+import it.polimi.ingsw.view.gui.screens.BuildingGuiScreen;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
-import it.polimi.ingsw.view.miniModel.components.CabinView;
-import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewMembers;
-import it.polimi.ingsw.view.miniModel.deck.DeckView;
+import it.polimi.ingsw.view.miniModel.components.*;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class GuiTest extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        Parent root = FXMLLoader.load(GuiTest.class.getResource("/ship_learning.fxml"));
-        Scene scene = new Scene(root);
+        /*ViewablePileView pile = new ViewablePileView();
+        for (int i = 0; i < 20; i++) {
+            ShieldView storageView = new ShieldView(i, new int[]{0, 0, 0, 0}, 0, new boolean[]{true, false, true, false});
+            pile.addComponent(storageView);
+        }
+
+        Node root = pile.createGuiNode();*/
+
+        AbandonedShipView a = new AbandonedShipView(1, false, 1, 2, 3, 4);
+        Node root = a.createGuiNode();
+
+        Scene scene = new Scene((Parent) root);
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();

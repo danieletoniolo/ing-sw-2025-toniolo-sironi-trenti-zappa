@@ -1,12 +1,8 @@
 package it.polimi.ingsw.view.gui;
 
-import it.polimi.ingsw.model.spaceship.Cabin;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.components.CabinView;
-import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.components.GenericComponentView;
-import it.polimi.ingsw.view.miniModel.player.MarkerView;
-import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -36,7 +32,7 @@ public class SpaceShipGui extends Application {
             if (node instanceof ImageView imageView) {
                 if(imageView.getId().equals("1")) {
                     imageView.setImage(img_s);
-                } else if(imageView.getId().equals("2")) {
+                } else if(imageView.getId().equals("77")) {
                     imageView.setImage(img_center);
                 } else {
                     imageView.setImage(img_c);

@@ -1,8 +1,8 @@
 package it.polimi.ingsw.view.miniModel;
 
+import it.polimi.ingsw.view.miniModel.components.ViewablePileView;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
-import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.countDown.CountDown;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.lobby.LobbyView;
@@ -22,7 +22,7 @@ public class MiniModel {
     private final DeckView shuffledDeckView = new DeckView();
     private BoardView boardView;
     private final ArrayList<PlayerDataView> otherPlayers = new ArrayList<>();
-    private final ArrayList<ComponentView> viewableComponents = new ArrayList<>();
+    private final ViewablePileView viewablePileView = new ViewablePileView();
     private int numberViewableComponents = 152;
     private PlayerDataView clientPlayer;
     private String nickname;
@@ -99,8 +99,8 @@ public class MiniModel {
         return otherPlayers;
     }
 
-    public synchronized ArrayList<ComponentView> getViewableComponents() {
-        return viewableComponents;
+    public synchronized ViewablePileView getViewablePile() {
+        return viewablePileView;
     }
 
     public synchronized void setClientPlayer(PlayerDataView clientPlayer) {

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="115.0" prefWidth="31.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.components.ShieldController">
+    <children>
+        <ImageView fx:id="shieldImage" fitHeight="148.0" fitWidth="164.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@../image/tiles/150.jpg" />
+            </image>
+        </ImageView>
+    </children>
+</AnchorPane>

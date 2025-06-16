@@ -1,17 +1,47 @@
 package it.polimi.ingsw.view.miniModel.cards;
 
+import it.polimi.ingsw.view.gui.controllers.cards.AbandonedShipController;
+import it.polimi.ingsw.view.gui.controllers.components.BatteryController;
+import it.polimi.ingsw.view.miniModel.MiniModelListener;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AbandonedShipView extends CardView {
     private int crewLoss;
     private int credit;
     private int flightDays;
+    private final List<MiniModelListener> listeners = new ArrayList<>();
 
     public AbandonedShipView(int ID, boolean covered, int level, int crewLoss, int credit, int flightDays) {
         super(ID, covered, level);
         this.crewLoss = crewLoss;
         this.credit = credit;
         this.flightDays = flightDays;
+    }
+
+    public void addListener(MiniModelListener listener) {
+        listeners.add(listener);
+    }
+
+    public Node createGuiNode() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cards/abandonedShip.fxml"));
+            Node root = loader.load();
+
+            AbandonedShipController controller = loader.getController();
+            controller.setAbandonedShipModel(this);
+
+            return root;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**

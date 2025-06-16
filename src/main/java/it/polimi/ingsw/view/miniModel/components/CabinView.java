@@ -1,9 +1,19 @@
 package it.polimi.ingsw.view.miniModel.components;
 
-import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewMembers;
+import it.polimi.ingsw.view.gui.controllers.components.CabinController;
+import it.polimi.ingsw.view.gui.controllers.components.StorageController;
+import it.polimi.ingsw.view.miniModel.MiniModelListener;
+import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewView;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class CabinView extends ComponentView {
+    private final List<MiniModelListener> listeners = new ArrayList<>();
     private final String lightBlue = "\033[94m";
     private final String blue = "\033[34m";
     private final String green = "\033[32m";
@@ -13,7 +23,7 @@ public class CabinView extends ComponentView {
     private final String color;
 
     private int crewNumber;
-    private CrewMembers crew;
+    private CrewView crew;
 
     public CabinView(int ID, int[] connectors, int clockWise) {
         super(ID, connectors, clockWise);
@@ -25,7 +35,7 @@ public class CabinView extends ComponentView {
             case 155 -> this.color = yellow;
             default -> this.color = lightBlue;
         }
-        crew = CrewMembers.HUMAN;
+        crew = CrewView.HUMAN;
     }
 
     public int getCrewNumber() {
@@ -36,20 +46,51 @@ public class CabinView extends ComponentView {
         this.crewNumber = crewNumber;
     }
 
-    public void setCrewType(CrewMembers crew) {
+    public void setCrewType(CrewView crew) {
         this.crew = crew;
     }
 
-    public CrewMembers getCrewType() {
+    public CrewView getCrewType() {
         return crew;
     }
 
     public boolean hasPurpleAlien() {
-        return crew.equals(CrewMembers.PURPLEALIEN);
+        return crew.equals(CrewView.PURPLEALIEN);
     }
 
     public boolean hasBrownAlien() {
-        return crew.equals(CrewMembers.BROWALIEN);
+        return crew.equals(CrewView.BROWALIEN);
+    }
+
+
+    public void addListener(MiniModelListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(MiniModelListener listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners() {
+        for (MiniModelListener listener : listeners) {
+            listener.onModelChanged();
+        }
+    }
+
+    public Node createGuiNode() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/cabin.fxml"));
+            Node root = loader.load();
+
+            CabinController controller = loader.getController();
+            controller.setCabinModel(this);
+
+            return root;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
