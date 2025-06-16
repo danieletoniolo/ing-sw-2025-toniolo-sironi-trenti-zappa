@@ -37,6 +37,10 @@ public class EpidemicState extends State {
     @Override
     public void entry() {
         for (PlayerData p : players) {
+
+            CurrentPlayer currentPlayer = new CurrentPlayer(p.getUsername());
+            eventCallback.trigger(currentPlayer, p.getUUID());
+
             // Create a list to store the IDs, crew numbers and the type of the crew members in each cabin
             ArrayList<Triplet<Integer, Integer, Integer>> cabinsIDs = new ArrayList<>();
 
