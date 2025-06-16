@@ -26,6 +26,11 @@ public class EpidemicState extends State {
         super(board, callback, transitionHandler);
     }
 
+    @Override
+    public PlayerData getCurrentPlayer() throws SynchronousStateException {
+        throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state BuildingState");
+    }
+
     /**
      * Function for eliminating the crew in two adjacent cabins
      */
@@ -80,15 +85,11 @@ public class EpidemicState extends State {
             UpdateCrewMembers crewEvent = new UpdateCrewMembers(p.getUsername(), cabinsIDs);
             eventCallback.trigger(crewEvent);
         }
+    }
 
-        try {
-            CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
-            eventCallback.trigger(currentPlayerEvent);
-        }
-        catch(Exception e) {
-            // Ignore the exception
-        }
-        
+    @Override
+    public void execute(PlayerData player) {
+        super.execute(player);
         super.nextState(GameState.CARDS);
     }
 }
