@@ -1,8 +1,13 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import it.polimi.ingsw.view.gui.controllers.components.BatteryController;
+import it.polimi.ingsw.view.gui.controllers.components.StorageController;
 import it.polimi.ingsw.view.miniModel.MiniModelListener;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +46,22 @@ public class BatteryView extends ComponentView {
     private void notifyListeners() {
         for (MiniModelListener listener : listeners) {
             listener.onModelChanged();
+        }
+    }
+
+    public Node createGuiNode() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/battery.fxml"));
+            Node root = loader.load();
+
+            BatteryController controller = loader.getController();
+            controller.setBatteryModel(this);
+
+            return root;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

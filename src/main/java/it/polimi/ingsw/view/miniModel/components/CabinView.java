@@ -1,9 +1,14 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import it.polimi.ingsw.view.gui.controllers.components.CabinController;
+import it.polimi.ingsw.view.gui.controllers.components.StorageController;
 import it.polimi.ingsw.view.miniModel.MiniModelListener;
 import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewView;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,6 +77,21 @@ public class CabinView extends ComponentView {
         }
     }
 
+    public Node createGuiNode() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/cabin.fxml"));
+            Node root = loader.load();
+
+            CabinController controller = loader.getController();
+            controller.setCabinModel(this);
+
+            return root;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     /**
      * Draws the component GUI.

@@ -3,6 +3,8 @@ package it.polimi.ingsw.view.gui;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.good.Good;
+import it.polimi.ingsw.view.gui.controllers.components.LifeSupportPurpleController;
+import it.polimi.ingsw.view.gui.controllers.components.ShieldController;
 import it.polimi.ingsw.view.gui.controllers.components.StorageController;
 import it.polimi.ingsw.view.gui.controllers.components.ViewablePileController;
 import it.polimi.ingsw.view.gui.controllers.ship.SpaceshipController;
@@ -12,8 +14,7 @@ import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
-import it.polimi.ingsw.view.miniModel.components.StorageView;
-import it.polimi.ingsw.view.miniModel.components.ViewablePileView;
+import it.polimi.ingsw.view.miniModel.components.*;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import javafx.application.Application;
@@ -31,7 +32,7 @@ public class GuiTest extends Application {
     public void start(Stage stage) throws IOException {
         ViewablePileView pile = new ViewablePileView();
         for (int i = 0; i < 20; i++) {
-            StorageView storageView = new StorageView(i, new int[]{0, 0, 0, 0}, 0, false, 10);
+            ShieldView storageView = new ShieldView(i, new int[]{0, 0, 0, 0}, 0, new boolean[]{true, false, true, false});
             pile.addComponent(storageView);
         }
 
