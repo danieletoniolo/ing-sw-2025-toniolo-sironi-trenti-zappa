@@ -67,6 +67,18 @@ public class TilesManager {
     }
 
     /**
+     * Get a tile by its ID
+     * @param tileID the ID of the tile
+     * @return a Component object representing the tile
+     */
+    public static Component getTile(int tileID) {
+        if (tileID < 0 || tileID >= tiles.length) {
+            throw new IndexOutOfBoundsException("Tile ID is out of bounds");
+        }
+        return deepClone(tiles[tileID]);
+    }
+
+    /**
      * Get the main cabin of the same color
      * @param color color of the player
      * @return a Cabin object

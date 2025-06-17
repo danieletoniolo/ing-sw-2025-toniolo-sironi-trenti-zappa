@@ -22,6 +22,10 @@ public class Cabin extends Component {
 
     public Cabin(){
         super();
+        purpleLifeSupport = false;
+        brownLifeSupport = false;
+        purpleAlien = false;
+        brownAlien = false;
     }
 
     /**

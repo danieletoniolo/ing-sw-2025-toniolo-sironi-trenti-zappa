@@ -31,8 +31,11 @@ public class CrewState extends State {
      * @see State#manageCrewMember(PlayerData, int, int, int)
      */
     public void manageCrewMember(PlayerData player, int mode, int crewType, int cabinID) {
-        if (super.played == true) {
+        if (super.played) {
             throw new IllegalStateException("This state has already been played");
+        }
+        if (cabinID >= 152 && cabinID <= 155 && crewType >= 1) {
+            throw new IllegalStateException("Cannot place alien in the main cabin");
         }
         UpdateCrewMembers updateCrewMembers;
         ArrayList<Triplet<Integer, Integer, Integer>> crewMembers = new ArrayList<>();
@@ -54,6 +57,11 @@ public class CrewState extends State {
     }
 
     @Override
+    public PlayerData getCurrentPlayer() throws SynchronousStateException {
+        throw new SynchronousStateException("Cannot invoke getCurrentPlayer in synchronous state CrewState");
+    }
+
+    @Override
     public void entry() {
         if (board.getBoardLevel() == Level.LEARNING) {
             for (PlayerData player : players) {
@@ -65,12 +73,18 @@ public class CrewState extends State {
             }
             super.played = true;
         }
-        super.entry();
     }
 
     @Override
     public void execute(PlayerData player) {
-        // TODO: Should we check if the player has filled all the cabins?
+        // Check if all the cabins have been filled by the player
+        for (Cabin cabin : player.getSpaceShip().getCabins()) {
+            if ((cabin.getCrewNumber() <= 1 && !cabin.hasPurpleAlien() && !cabin.hasBrownAlien()) ||
+                (cabin.getCrewNumber() == 0 && (cabin.hasBrownAlien() || cabin.hasPurpleAlien()))) {
+                throw new IllegalStateException("You have to fill all the cabins with crew members before proceeding");
+            }
+        }
+
         super.execute(player);
         super.nextState(GameState.CARDS);
     }

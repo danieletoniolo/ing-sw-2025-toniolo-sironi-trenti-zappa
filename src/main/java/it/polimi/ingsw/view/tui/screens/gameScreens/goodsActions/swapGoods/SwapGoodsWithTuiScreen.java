@@ -14,18 +14,14 @@ import java.util.List;
 
 public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
     private final TuiScreenView oldScreen;
-    private List<GoodView> oldGoods;
+    private final List<GoodView> oldGoods;
 
     public SwapGoodsWithTuiScreen(List<GoodView> goods, TuiScreenView oldScreen) {
         super(new ArrayList<>(){{
-            if (times > 0) {
-                for (GoodView good : goods) {
-                    String line;
-                    if (good != null) {
-                        line = " " + good.drawTui() + " ";
-                    } else {
-                        line = "| |";
-                    }
+            for (GoodView good : goods) {
+                String line;
+                if (good != null) {
+                    line = " " + good.drawTui() + " ";
                     add("Swap" + line + "from (" + withStorage.getRow() + "," + withStorage.getCol() + ")");
                 }
             }
@@ -41,12 +37,18 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        int num = times == 0 ? 0 : oldGoods.size();
+        int num = 0;
+        for (GoodView good : oldGoods) {
+            if (good != null) {
+                num++;
+            }
+        }
+
         if (selected == num) {
             StatusEvent status = SwapGoods.requester(Client.transceiver, new Object()).request(
                     new SwapGoods(MiniModel.getInstance().getUserID(), fromStorage.getID(), withStorage.getID(), fromList, withList));
             if (status.get().equals("POTA")) {
-                oldScreen.setMessage(((Pota) status).errorMessage());
+                setMessage(((Pota) status).errorMessage());
             }
             else{
                 setMessage(null);
@@ -61,22 +63,25 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
             return oldScreen;
         }
 
-        times--;
         GoodView goodV = null;
         int i = 0;
         for (GoodView good : oldGoods) {
-            if (i == selected) {
-                goodV = good;
-                break;
+            if (good != null) {
+                if (i == selected) {
+                    goodV = good;
+                    break;
+                }
             }
             i++;
         }
-        withList.add(goodV != null ? goodV.getValue() : null);
+        if (goodV != null) {
+            withList.add(goodV.getValue());
+        }
 
         List<GoodView> newGoods = new ArrayList<>();
-        for (GoodView good : oldGoods) {
-            if (!java.util.Objects.equals(goodV, good)) {
-                newGoods.add(good);
+        for (i = 0; i < oldGoods.size(); i++) {
+            if (i != selected) {
+                newGoods.add(oldGoods.get(i));
             }
         }
         withStorage.removeGood(goodV);
@@ -91,10 +96,9 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
             line2.append(value != null ? GoodView.fromValue(value).drawTui() : "| |").append(" ");
         }
 
-        TuiScreenView newScreen = new SwapGoodsWithTuiScreen(newGoods, oldScreen);
-        newScreen.setMessage("You are swapping " + line + "from (" + fromStorage.getRow() + " " + fromStorage.getCol() + ") with "
+        setMessage("You are swapping " + line + "from (" + fromStorage.getRow() + " " + fromStorage.getCol() + ") with "
                 + line2 + "in (" + withStorage.getRow() + " " + withStorage.getCol() + ")");
-        return newScreen;
+        return new SwapGoodsWithTuiScreen(newGoods, oldScreen);
     }
 
     @Override
@@ -104,6 +108,9 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
 
     @Override
     protected String lineBeforeInput() {
+        if (withStorage == null) {
+            return "";
+        }
         return "Select goods to swap WITH (" + withStorage.getRow() + " " + withStorage.getCol() + "):";
     }
 }

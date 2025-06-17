@@ -12,7 +12,6 @@ import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.menuScreens.ChooseNumberPlayersTuiScreen;
 
 import java.util.ArrayList;
-import java.util.function.Supplier;
 
 public class MenuTuiScreen implements TuiScreenView {
     protected final ArrayList<String> options = new ArrayList<>();
@@ -32,12 +31,12 @@ public class MenuTuiScreen implements TuiScreenView {
         }
         options.add("Create lobby");
         options.add("Reload lobbies");
-        options.add("Exit");
+        options.add("Close program");
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) {
+        selected = parser.getCommand(options, totalLines);
     }
 
     @Override
@@ -75,15 +74,18 @@ public class MenuTuiScreen implements TuiScreenView {
             return new ClosingProgram();
         }
 
-        StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
-                .request(new JoinLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getLobbiesView().get(selected).getLobbyName()));
-        if (status.get().equals("POTA")) {
-            setMessage(((Pota) status).errorMessage());
-            return this;
+        if (selected == 0) {
+            StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
+                    .request(new JoinLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getLobbiesView().get(selected).getLobbyName()));
+            if (status.get().equals("POTA")) {
+                setMessage(((Pota) status).errorMessage());
+                return this;
+            }
+
+            return new LobbyTuiScreen();
         }
 
-        return new LobbyTuiScreen();
-
+        return this;
     }
 
     @Override
@@ -94,5 +96,10 @@ public class MenuTuiScreen implements TuiScreenView {
     @Override
     public TuiScreens getType() {
         return TuiScreens.Menu;
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
     }
 }

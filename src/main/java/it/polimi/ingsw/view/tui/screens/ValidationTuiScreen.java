@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.tui.screens;
 
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.DestroyComponents;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
@@ -16,12 +17,12 @@ import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class ValidationTuiScreen implements TuiScreenView {
     protected ArrayList<String> options = new ArrayList<>();
     protected int totalLines;
-    private int selected;
+    protected int selected;
+    private TuiScreenView nextState;
 
     protected static SpaceShipView spaceShipView;
     protected static List<Pair<Integer, Integer>> destroyTiles;
@@ -35,8 +36,8 @@ public class ValidationTuiScreen implements TuiScreenView {
             destroyTiles = new ArrayList<>();
         }
 
-        options.add("Cancel");
         options.add("Destroy a component");
+        options.add("Cancel");
         options.add("Done");
 
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
@@ -47,14 +48,9 @@ public class ValidationTuiScreen implements TuiScreenView {
         totalLines = spaceShipView.getRowsToDraw() + 5;
     }
 
-    private void destroyStatics() {
-        spaceShipView = null;
-        destroyTiles = null;
-    }
-
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        selected = parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) {
+        selected = parser.getCommand(options, totalLines);
     }
 
     @Override
@@ -83,13 +79,23 @@ public class ValidationTuiScreen implements TuiScreenView {
             case 2:
                 StatusEvent status = DestroyComponents.requester(Client.transceiver, new Object()).request(
                         new DestroyComponents(MiniModel.getInstance().getUserID(), destroyTiles));
+                destroyTiles.clear();
                 if (status.get().equals("POTA")) {
                     setMessage(((Pota) status).errorMessage());
+                    spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
+                    return this;
+                }
+                status = EndTurn.requester(Client.transceiver, new Object()).request(
+                        new EndTurn(MiniModel.getInstance().getUserID()));
+                if (status.get().equals("POTA")) {
+                    setMessage(((Pota) status).errorMessage());
+                    spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
                     return this;
                 }
                 setMessage(null);
-                destroyStatics();
-                return this;
+                spaceShipView = MiniModel.getInstance().getClientPlayer().getShip();
+
+                return nextState;
         }
 
         return this;
@@ -129,10 +135,19 @@ public class ValidationTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, message == null ? "" : message, row++);
         TerminalUtils.printLine(writer, "", row++);
-        TerminalUtils.printLine(writer, "Commands: ", row);
+        TerminalUtils.printLine(writer, lineBeforeInput(), row);
 
         for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
             TerminalUtils.printLine(writer, "", i);
         }
+    }
+
+    protected String lineBeforeInput() {
+        return "Commands:";
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+        this.nextState = nextScreen;
     }
 }

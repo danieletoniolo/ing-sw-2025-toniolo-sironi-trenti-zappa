@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.miniModel.cards;
 
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
+import javafx.scene.image.Image;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +42,17 @@ public class PlanetsView extends CardView{
         return planetSelected;
     }
 
+    /**
+     * Draws the card GUI.
+     * This method is called to draw the card GUI.
+     *
+     * @return an Image representing the image of the card
+     */
     @Override
-    public void drawGui() {
-        //TODO
+    public Image drawGui() {
+        String path = "/image/card/" + this.getID() + ".jpg";
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
     @Override
@@ -53,12 +62,13 @@ public class PlanetsView extends CardView{
         StringBuilder line = new StringBuilder(switch(l) {
             case 0 -> Up;
             case 1 -> "│      PLANETS      │";
-            case 2,7 -> Clear;
+            case 2 -> Clear;
             case 3 -> numberOfPlanets >= 1 ? "│ " + drawPlayer(0) + " P1: " + printPlanet(getPlanet(0)) : Clear;
             case 4 -> numberOfPlanets >= 2 ? "│ " + drawPlayer(1) + " P2: " + printPlanet(getPlanet(1)) : Clear;
             case 5 -> numberOfPlanets >= 3 ? "│ " + drawPlayer(2) + " P3: " + printPlanet(getPlanet(2)) : Clear;
             case 6 -> numberOfPlanets >= 4 ? "│ " + drawPlayer(3) + " P4: " + printPlanet(getPlanet(3)) : Clear;
-            case 8 -> numberOfPlanets >= 5 ? "│ " + drawPlayer(4) + " P5: " + printPlanet(getPlanet(4)) : Clear;
+            case 7 -> numberOfPlanets >= 5 ? "│ " + drawPlayer(4) + " P5: " + printPlanet(getPlanet(4)) : Clear;
+            case 8 -> "│   FlightDays: " + getFlightDays();
             case 9 -> Down;
             default -> "";
         });

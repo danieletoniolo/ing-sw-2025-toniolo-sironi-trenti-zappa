@@ -6,14 +6,12 @@ import it.polimi.ingsw.view.tui.input.Parser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class PlayerTuiScreen implements TuiScreenView {
     private final ArrayList<String> options = new ArrayList<>(List.of("Back"));
     private final int totalLines;
     private final TuiScreenView oldScreen;
     protected String message;
-    protected boolean isNewScreen;
 
     private final PlayerDataView playerToView;
 
@@ -21,7 +19,6 @@ public class PlayerTuiScreen implements TuiScreenView {
         this.playerToView = playerToView;
         totalLines = playerToView.getShip().getRowsToDraw() + 3 + 2;
         this.oldScreen = oldScreen;
-        isNewScreen = true;
     }
 
     public PlayerDataView getPlayerToView() {
@@ -29,8 +26,8 @@ public class PlayerTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void readCommand(Parser parser, Supplier<Boolean> isStillCurrentScreen) throws Exception {
-        parser.getCommand(options, totalLines, isStillCurrentScreen);
+    public void readCommand(Parser parser) {
+        parser.getCommand(options, totalLines);
     }
 
     @Override
@@ -60,11 +57,8 @@ public class PlayerTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, "Commands:", row);
 
-        if (isNewScreen) {
-            isNewScreen = false;
-            for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
-                TerminalUtils.printLine(writer, "", i);
-            }
+        for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
+            TerminalUtils.printLine(writer, "", i);
         }
     }
 
@@ -76,5 +70,10 @@ public class PlayerTuiScreen implements TuiScreenView {
     @Override
     public TuiScreens getType() {
         return TuiScreens.Player;
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+
     }
 }

@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.Fragments;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.InvalidComponents;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.game.board.Board;
@@ -8,6 +9,7 @@ import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -16,23 +18,18 @@ import java.util.List;
 import java.util.Map;
 
 public class ValidationState extends State {
-    private ValidationInternalState internalState;
     private final Map<PlayerData, ArrayList<Pair<Integer, Integer>>> invalidComponents;
-    private List<List<Pair<Integer, Integer>>> fragmentedComponents;
-
-    /**
-     * Enum to represent the internal state of the validation state.
-     */
-    private enum ValidationInternalState {
-        DEFAULT,
-        FRAGMENTED_SHIP,
-    }
+    private final Map<PlayerData, List<List<Pair<Integer, Integer>>>> fragmentedComponents;
 
     public ValidationState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.invalidComponents = new HashMap<>();
-        this.fragmentedComponents = null;
-        this.internalState = ValidationInternalState.DEFAULT;
+        this.fragmentedComponents = new HashMap<>();
+    }
+
+    @Override
+    public PlayerData getCurrentPlayer() throws SynchronousStateException {
+        throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state ValidationState");
     }
 
     /**
@@ -40,23 +37,23 @@ public class ValidationState extends State {
      */
     @Override
     public void setFragmentChoice(PlayerData player, int fragmentChoice) throws IllegalStateException {
-        if (internalState != ValidationInternalState.FRAGMENTED_SHIP) {
-            throw new IllegalStateException("No fragment to choose");
-        }
         // Check if the fragment choice is valid
-        if (fragmentChoice < 0 || fragmentChoice >= fragmentedComponents.size()) {
+        if (fragmentChoice < 0 || fragmentChoice >= fragmentedComponents.get(player).size()) {
             throw new IllegalArgumentException("Fragment choice is out of bounds");
         }
-        Event event = Handler.destroyFragment(player, fragmentedComponents.get(fragmentChoice));
-        eventCallback.trigger(event);
+
+        for (int i = 0; i < fragmentedComponents.get(player).size(); i++) {
+            if (i != fragmentChoice) {
+                Event event = Handler.destroyFragment(player, fragmentedComponents.get(player).get(i));
+                eventCallback.trigger(event);
+            }
+        }
+        fragmentedComponents.put(player, null);
     }
 
 
     @Override
     public void setComponentToDestroy(PlayerData player, List<Pair<Integer, Integer>> componentsToDestroy) throws IllegalStateException, IllegalArgumentException {
-        if (internalState != ValidationInternalState.DEFAULT) {
-            throw new IllegalStateException("Cannot destroy componentsToDestroy in this state, you have to choose a fragment");
-        }
         SpaceShip ship = player.getSpaceShip();
         for (Pair<Integer, Integer> component : componentsToDestroy) {
             player.getSpaceShip().getComponent(component.getValue0(), component.getValue1());
@@ -73,11 +70,9 @@ public class ValidationState extends State {
     public void entry() {
         for (PlayerData p : players) {
             ArrayList<Pair<Integer, Integer>> playerInvalidComponents = p.getSpaceShip().getInvalidComponents();
-            if (!playerInvalidComponents.isEmpty()) {
-                invalidComponents.put(p, playerInvalidComponents);
-                // Set the player status to PLAYING to indicate they have invalid components
-                playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
-            }
+            invalidComponents.put(p, playerInvalidComponents);
+            // Set the player status to PLAYING to indicate they have invalid components
+            playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
             InvalidComponents invalidComponentsEvent = new InvalidComponents(p.getUsername(), playerInvalidComponents);
             eventCallback.trigger(invalidComponentsEvent);
         }
@@ -86,37 +81,28 @@ public class ValidationState extends State {
     @Override
     public void execute(PlayerData player) {
         SpaceShip ship = player.getSpaceShip();
-        switch (internalState) {
-            case DEFAULT:
-                // Recalculate the invalid components of the player
-                invalidComponents.replace(player, ship.getInvalidComponents());
-                ArrayList<Pair<Integer, Integer>> playerInvalidComponents = invalidComponents.get(player);
 
-                if (playerInvalidComponents.isEmpty()) {
-                    // Check if the ship is now fragmented
-                    fragmentedComponents = ship.getDisconnectedComponents();
-                    if (fragmentedComponents.size() > 1) {
-                        // Set the internal state to FRAGMENTED_SHIP
-                        internalState = ValidationInternalState.FRAGMENTED_SHIP;
-                    } else {
-                        // Reset the fragment components
-                        fragmentedComponents = null;
-                        // Set the player status to PLAYED
-                        playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
-                    }
-                } else {
-                    InvalidComponents invalidComponentsEvent = new InvalidComponents(player.getUsername(), playerInvalidComponents);
-                    eventCallback.trigger(invalidComponentsEvent);
-                }
-                break;
-            case FRAGMENTED_SHIP:
-                fragmentedComponents = null;
-                internalState = ValidationInternalState.DEFAULT;
-                playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
-                break;
+        // Recalculate the invalid components of the player
+        invalidComponents.put(player, ship.getInvalidComponents());
+        ArrayList<Pair<Integer, Integer>> playerInvalidComponents = invalidComponents.get(player);
+
+        InvalidComponents invalidComponentsEvent = new InvalidComponents(player.getUsername(), playerInvalidComponents);
+        eventCallback.trigger(invalidComponentsEvent);
+
+        if (playerInvalidComponents.isEmpty()) {
+            // Check if the ship is now fragmented
+            fragmentedComponents.put(player, ship.getDisconnectedComponents());
+            if (fragmentedComponents.get(player).size() <= 1) {
+                playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
+            }
+
+            Fragments fragmentsEvent = new Fragments(player.getUsername(), fragmentedComponents.get(player));
+            eventCallback.trigger(fragmentsEvent);
         }
+
         super.nextState(GameState.CREW);
     }
+
     @Override
     public void exit() {
         for (PlayerData p : players) {

@@ -6,7 +6,6 @@ public enum ComponentType {
     SINGLE_CANNON,
     DOUBLE_CANNON,
     CABIN,
-    CENTER_CABIN,
     STORAGE,
     PURPLE_LIFE_SUPPORT,
     BROWN_LIFE_SUPPORT,

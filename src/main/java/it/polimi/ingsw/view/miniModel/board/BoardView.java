@@ -1,16 +1,19 @@
 package it.polimi.ingsw.view.miniModel.board;
 
 import it.polimi.ingsw.view.miniModel.Structure;
+import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
 import it.polimi.ingsw.view.miniModel.timer.TimerView;
+import javafx.scene.image.Image;
+import org.javatuples.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class BoardView implements Structure {
     private String[] path;
-    private Map<MarkerView, Integer> players;
-    private LevelView level;
+    private final Map<MarkerView, Integer> players;
+    private final LevelView level;
     private int stepsForALap;
     public static String ArrowUp = "↑";
     public static String ArrowDown = "↓";
@@ -22,6 +25,10 @@ public class BoardView implements Structure {
     public static String Bow3 = "╰";
     public static String Bow4 = "╯";
     private TimerView timerView;
+    /** The decks are stored in a Pair: The first element is the deck views, and the second element is a boolean array.
+     If boolean[i] == true the deck[i] is not taken by a player, else deck is taken and not viewable in the building screen*/
+    private Pair<DeckView[], Boolean[]> decksView;
+
 
     public BoardView(LevelView level) {
         this.level = level;
@@ -31,20 +38,32 @@ public class BoardView implements Structure {
                 break;
             case SECOND:
                 this.stepsForALap = 24;
-                this.timerView = new TimerView(3);
+                this.timerView = new TimerView();
+                decksView = new Pair<>(new DeckView[3], new Boolean[3]);
                 break;
         }
-        this.players = new HashMap<MarkerView, Integer>();
+        this.players = new HashMap<>();
         initializeBoard();
     }
 
     @Override
-    public void drawGui(){
-        //TODO: Implements board gui
+    public Image drawGui() {
+        String path;
+        if(this.level == LevelView.LEARNING){
+            path = "/image/cardboard/board_I.jpg";
+        } else {
+            path = "/image/cardboard/board_II.jpg";
+        }
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
     public TimerView getTimerView() {
         return timerView;
+    }
+
+    public Pair<DeckView[], Boolean[]> getDecksView() {
+        return decksView;
     }
 
     public int getRowsToDraw() {
@@ -57,7 +76,12 @@ public class BoardView implements Structure {
 
     public void movePlayer(MarkerView color, int step) {
         initializeBoard();
-        players.put(color, step);
+        int moduleStep = step;
+        while (moduleStep < 0) {
+            moduleStep += stepsForALap;
+        }
+        moduleStep = moduleStep % stepsForALap;
+        players.put(color, moduleStep);
         players.forEach((key, value) -> {
             path[value % stepsForALap] = key.drawTui();
         });

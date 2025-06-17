@@ -1,20 +1,61 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import it.polimi.ingsw.view.gui.controllers.components.StorageController;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.image.Image;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class StorageView extends ComponentView {
+    private final List<MiniModelObserver> listeners = new ArrayList<>();
+
     private GoodView[] goods;
-    private boolean dangerous;
+    private final boolean dangerous;
     private final int capacity;
-    private String red = "\033[31m";
+    private final String red = "\033[31m";
     private final String lightBlue = "\033[94m";
-    private String reset = "\033[0m";
+    private final String reset = "\033[0m";
 
     public StorageView(int ID, int[] connectors, int clockWise, boolean dangerous, int capacity) {
         super(ID, connectors, clockWise);
         this.dangerous = dangerous;
         this.goods = new GoodView[capacity];
         this.capacity = capacity;
+    }
+
+    public void addListener(MiniModelObserver listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(MiniModelObserver listener) {
+        listeners.remove(listener);
+    }
+
+    private void notifyListeners() {
+        for (MiniModelObserver listener : listeners) {
+            listener.onModelChanged();
+        }
+    }
+
+    public Node createGuiNode() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/storage.fxml"));
+            Node root = loader.load();
+
+            StorageController controller = loader.getController();
+            controller.setStorageModel(this);
+
+            return root;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -28,17 +69,35 @@ public class StorageView extends ComponentView {
                 break;
             }
         }
+        notifyListeners();
     }
 
     public void removeGood(GoodView good) {
         for (int i = 0; i < goods.length; i++) {
             if (goods[i] != null && goods[i].equals(good)) {
                 goods[i] = null;
+                break;
             }
         }
+        notifyListeners();
+    }
+
+    public GoodView removeOneGood() {
+        int i;
+        for (i = 0; i < goods.length; i++) {
+            if (goods[i] != null) {
+                break;
+            }
+        }
+
+        GoodView good = goods[i];
+        goods[i] = null;
+        notifyListeners();
+        return good;
     }
 
     public void changeGoods(GoodView[] newGoods) {
+        notifyListeners();
         this.goods = newGoods;
     }
 
@@ -50,11 +109,26 @@ public class StorageView extends ComponentView {
         return dangerous;
     }
 
-    @Override
-    public void drawGui() {
-        //TODO: Implement the GUI drawing logic for the Storage component here
+    public int getCapacity() {
+        return capacity;
     }
 
+    // GUI methods
+    /**
+     * Draws the component GUI.
+     * This method is called to draw the component GUI.
+     *
+     * @return an Image representing the image of the component
+     */
+    @Override
+    public Image drawGui() {
+        String path = "/image/tiles/" + this.getID() + ".jpg";
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
+    }
+
+
+    // TUI methods
     @Override
     public String drawLineTui(int line) {
         if (isCovered()) return super.drawLineTui(line);

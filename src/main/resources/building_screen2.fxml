@@ -28,7 +28,7 @@
       </ImageView>
       <ImageView fitHeight="193.0" fitWidth="127.0" layoutX="671.0" layoutY="489.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@image/card/9.jpg" />
+            <Image url="@image/card/011.jpg" />
          </image>
       </ImageView>
       <Text layoutX="715.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Carta 1" />

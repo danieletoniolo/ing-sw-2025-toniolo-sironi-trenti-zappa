@@ -2,6 +2,7 @@ package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.MeteorSwarm;
@@ -41,8 +42,12 @@ public class MeteorSwarmState extends State {
         if (fragments.isEmpty()) {
             throw new IllegalStateException("No fragments to choose from");
         }
-        Event event = Handler.destroyFragment(player, fragments.get(fragmentChoice));
-        eventCallback.trigger(event);
+        for (int i = 0; i < fragments.size(); i++) {
+            if (i != fragmentChoice) {
+                Event event = Handler.destroyFragment(player, fragments.get(i));
+                eventCallback.trigger(event);
+            }
+        }
         fragments.clear();
     }
 
@@ -100,6 +105,15 @@ public class MeteorSwarmState extends State {
                 diceRolled = false;
             }
         }
+
+        try {
+            CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
+            eventCallback.trigger(currentPlayerEvent);
+        }
+        catch(Exception e) {
+            // Ignore the exception
+        }
+
         super.nextState(GameState.CARDS);
     }
 }

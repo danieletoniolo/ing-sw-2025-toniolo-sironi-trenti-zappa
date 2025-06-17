@@ -70,7 +70,7 @@ public class Logger {
      *     <li>false: logs will not be written to a file</li>
      * </ul>
      */
-    private boolean writeToFile = true;
+    private final boolean writeToFile;
 
     /**
      * Sets whether to write logs to the console.
@@ -79,7 +79,7 @@ public class Logger {
      *     <li>false: logs will not be written to the console</li>
      * </ul>
      */
-    private boolean writeToConsole = true;
+    private final boolean writeToConsole;
 
     /**
      * List of messages to log.
@@ -109,7 +109,11 @@ public class Logger {
      * Initializes the log folder, file name and starts the logging thread.
      * @throws IOException if an I/O error occurs
      */
-    private Logger() throws IOException {
+    private Logger(boolean writeToConsole, boolean writeToFile) throws IOException {
+        // Set whether to write logs to console and file
+        this.writeToConsole = writeToConsole;
+        this.writeToFile = writeToFile;
+
         // Initialize the message list
         messageQueue = new LinkedList<>();
 
@@ -143,7 +147,7 @@ public class Logger {
                 // Log the message
                 String logMessage = message.getValue1();
                 LogLevel level = message.getValue0();
-                if (writeToFile) {
+                if (this.writeToFile) {
                     try {
                         // Create the log file if it doesn't exist
                         Path logFile = logsFolder.resolve(logFileName);
@@ -152,7 +156,7 @@ public class Logger {
                         System.err.println("Error writing to log file: " + e.getMessage());
                     }
                 }
-                if (writeToConsole) {
+                if (this.writeToConsole) {
                     logMessage = switch (level) {
                         case INFO -> BLUE + logMessage + RESET;
                         case WARNING -> YELLOW + logMessage + RESET;
@@ -168,6 +172,7 @@ public class Logger {
         logInfo("Starting logger and cleaning up old log files", false);
         logInfo("Current log file: " + logsFolder + logFileName, false);
     }
+
 
     /**
      * Logs a message with the specified log level and time stamp and prints the caller function name if specified.
@@ -263,12 +268,13 @@ public class Logger {
 
     /**
      * Returns the singleton instance of the Logger class.
+     * If the logger is not initialized, it creates a new instance with default settings.
      * @return the singleton instance of Logger
      */
     public static Logger getInstance() {
         if (logger == null) {
             try {
-                logger = new Logger();
+                logger = new Logger(true, true);
             } catch (IOException e) {
                 // Critical error, log it and exit
                 System.err.println("Error initializing logger: " + e.getMessage());
@@ -279,15 +285,21 @@ public class Logger {
     }
 
     /**
-     * Sets whether to write logs to the console and file.
-     * @param writeToConsole true to write logs to the console, false otherwise
-     * @param writeToFile true to write logs to a file, false otherwise
+     * Returns the singleton instance of the Logger class.
+     * If the logger is not initialized, it creates a new instance with the specified settings.
+     * @return the singleton instance of Logger
      */
-    public void setUp(boolean writeToConsole, boolean writeToFile) {
-        synchronized (this) {
-            this.writeToConsole = writeToConsole;
-            this.writeToFile = writeToFile;
+    public static Logger getInstance(boolean writeToConsole, boolean writeToFile) {
+        if (logger == null) {
+            try {
+                logger = new Logger(writeToConsole, writeToFile);
+            } catch (IOException e) {
+                // Critical error, log it and exit
+                System.err.println("Error initializing logger: " + e.getMessage());
+                System.exit(1);
+            }
         }
+        return logger;
     }
 
     /**

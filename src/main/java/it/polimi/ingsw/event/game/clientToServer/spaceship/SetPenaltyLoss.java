@@ -14,7 +14,7 @@ import java.util.function.Function;
 /**
  * This record represents the penalty loss.
  * @param userID      is the user ID. Only the user know his ID, so the event is not faked.
- * @param type        is the type of penalty loss.
+ * @param type        Type of the penalty: 0 = goods, 1 = batteries, 2 = crew members.
  * @param penaltyLoss List of Integers representing the ID of storage, batteries or cabins from
  *                    which we take the penalty to serve.
  *                    We pick one from each ID in the list, in case of goods we pick the most valuable ones.

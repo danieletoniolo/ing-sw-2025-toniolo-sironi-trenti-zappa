@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.Cabin;
@@ -25,13 +26,21 @@ public class EpidemicState extends State {
         super(board, callback, transitionHandler);
     }
 
+    @Override
+    public PlayerData getCurrentPlayer() throws SynchronousStateException {
+        throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state BuildingState");
+    }
+
     /**
      * Function for eliminating the crew in two adjacent cabins
      */
     @Override
     public void entry() {
-
         for (PlayerData p : players) {
+
+            CurrentPlayer currentPlayer = new CurrentPlayer(p.getUsername());
+            eventCallback.trigger(currentPlayer, p.getUUID());
+
             // Create a list to store the IDs, crew numbers and the type of the crew members in each cabin
             ArrayList<Triplet<Integer, Integer, Integer>> cabinsIDs = new ArrayList<>();
 
@@ -48,12 +57,16 @@ public class EpidemicState extends State {
                     check[currentCabin.getRow()][currentCabin.getColumn()] = true;
                     ArrayList<Component> surroundingComponents = p.getSpaceShip().getSurroundingComponents(currentCabin.getRow(), currentCabin.getColumn());
 
+                    boolean removedFromCurrent = false;
                     // Iterate through the surrounding components
                     for(Component surroundingComponent : surroundingComponents) {
 
                         // If the surrounding component is a cabin and has crew members, remove one crew member from the current cabin
                         if(surroundingComponent != null && surroundingComponent.getComponentType() == ComponentType.CABIN && ((Cabin) surroundingComponent).getCrewNumber() > 0) {
-                            currentCabin.removeCrewMember(1);
+                            if (!removedFromCurrent) {
+                                currentCabin.removeCrewMember(1);
+                                removedFromCurrent = true;
+                            }
 
                             // If we have not already processed the surrounding cabin, remove a crew member from it as well and mark it as processed
                             Cabin surroundingCabin = (Cabin) surroundingComponent;
@@ -76,6 +89,11 @@ public class EpidemicState extends State {
             UpdateCrewMembers crewEvent = new UpdateCrewMembers(p.getUsername(), cabinsIDs);
             eventCallback.trigger(crewEvent);
         }
+    }
+
+    @Override
+    public void execute(PlayerData player) {
+        super.execute(player);
         super.nextState(GameState.CARDS);
     }
 }

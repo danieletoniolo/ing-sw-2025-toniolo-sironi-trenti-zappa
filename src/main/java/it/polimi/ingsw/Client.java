@@ -36,22 +36,18 @@ public class Client {
         }
         int row = 1;
 
-        Logger.getInstance().setUp(false, true);
+        Logger.getInstance(false, true);
         transceiver = new NetworkTransceiver();
 
-        TerminalUtils.printLine(terminal.writer(), "  _______      ___       __          ___      ___   ___ ____    ____    .___________..______       __    __    ______  __  ___  _______ .______     \s", row++);
-        TerminalUtils.printLine(terminal.writer(), " /  _____|    /   \\     |  |        /   \\     \\  \\ /  / \\   \\  /   /    |           ||   _  \\     |  |  |  |  /      ||  |/  / |   ____||   _  \\    \s", row++);
-        TerminalUtils.printLine(terminal.writer(), "|  |  __     /  ^  \\    |  |       /  ^  \\     \\  V  /   \\   \\/   /     `---|  |----`|  |_)  |    |  |  |  | |  ,----'|  '  /  |  |__   |  |_)  |   \s", row++);
-        TerminalUtils.printLine(terminal.writer(), "|  | |_ |   /  /_\\  \\   |  |      /  /_\\  \\     >   <     \\_    _/          |  |     |      /     |  |  |  | |  |     |    <   |   __|  |      /    \s", row++);
-        TerminalUtils.printLine(terminal.writer(), "|  |__| |  /  _____  \\  |  `----./  _____  \\   /  .  \\      |  |            |  |     |  |\\  \\----.|  `--'  | |  `----.|  .  \\  |  |____ |  |\\  \\----.", row++);
-        TerminalUtils.printLine(terminal.writer(), " \\______| /__/     \\__\\ |_______/__/     \\__\\ /__/ \\__\\     |__|            |__|     | _| `._____| \\______/   \\______||__|\\__\\ |_______|| _| `._____|", row++);
+        TerminalUtils.printLine(terminal.writer(), "  ___   __   __     __   _  _  _  _    ____  ____  _  _   ___  __ _  ____  ____  ", row++);
+        TerminalUtils.printLine(terminal.writer(), " / __) / _\\ (  )   / _\\ ( \\/ )( \\/ )  (_  _)(  _ \\/ )( \\ / __)(  / )(  __)(  _ \\ ", row++);
+        TerminalUtils.printLine(terminal.writer(), "( (_ \\/    \\/ (_/\\/    \\ )  (  )  /     )(   )   /) \\/ (( (__  )  (  ) _)  )   / ", row++);
+        TerminalUtils.printLine(terminal.writer(), " \\___/\\_/\\_/\\____/\\_/\\_/(_/\\_)(__/     (__) (__\\_)\\____/ \\___)(__\\_)(____)(__\\_) ", row++);
+        TerminalUtils.printLine(terminal.writer(), "", row++);
 
-        for (int i = 0; i < 3; i++) {
-            TerminalUtils.printLine(terminal.writer(), "", row++);
-        }
         String tuiOrGui;
         do {
-            tuiOrGui = parser.readNickname("Choose 'tui' or 'gui': ", row++, () -> true);
+            tuiOrGui = parser.readNickname("Choose 'tui' or 'gui': ", row++);
             if (!tuiOrGui.equals("tui") && !tuiOrGui.equals("gui")) {
                 TerminalUtils.printLine(terminal.writer(), "Invalid input. Please enter 'tui' or 'gui'.", row--);
             }
@@ -59,7 +55,7 @@ public class Client {
 
         String rmiOrSocket;
         do {
-            rmiOrSocket = parser.readNickname("Choose 'rmi' or 'tcp': ", row++, () -> true);
+            rmiOrSocket = parser.readNickname("Choose 'rmi' or 'tcp': ", row++);
             if (!rmiOrSocket.equals("rmi") && !rmiOrSocket.equals("tcp")) {
                 TerminalUtils.printLine(terminal.writer(), "Invalid input. Please enter 'rmi' or 'tcp'.", row--);
             }

@@ -13,6 +13,6 @@ import java.util.List;
  * */
 public record UpdateGoodsExchange (
         String nickname,
-        List<Pair<Integer , List<Integer>>> exchangeData
+        List<Pair<Integer, List<Integer>>> exchangeData
 ) implements Event, Serializable {
 }

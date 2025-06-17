@@ -1,15 +1,20 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.deck.GetShuffledDeck;
 import it.polimi.ingsw.event.game.serverToClient.deck.PickedLeftDeck;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToBoard;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToReserve;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceship;
+import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
+import it.polimi.ingsw.event.game.serverToClient.timer.LastTimerFinished;
 import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
+import it.polimi.ingsw.event.type.Event;
+import it.polimi.ingsw.model.cards.Card;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.player.PlayerColor;
@@ -18,7 +23,7 @@ import it.polimi.ingsw.model.spaceship.*;
 import it.polimi.ingsw.controller.EventCallback;
 import org.javatuples.Pair;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 
@@ -26,15 +31,29 @@ public class BuildingState extends State {
     private final Timer timer;
     private boolean timerRunning;
     private int numberOfTimerFlips;
-    private static final long timerDuration = 90000;
+    // TODO: set timer to 90000
+    private static final long timerDuration = 5000;
     private final Map<PlayerColor, Component> playersHandQueue;
 
     public BuildingState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.timer = new Timer();
-        this.numberOfTimerFlips = 0;
+        this.numberOfTimerFlips = 1;
         this.timerRunning = false;
         this.playersHandQueue = new HashMap<>();
+    }
+
+    @Override
+    public PlayerData getCurrentPlayer() throws SynchronousStateException {
+        throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state BuildingState");
+    }
+
+    @Override
+    public void cheatCode(PlayerData player, int shipIndex) throws IllegalStateException, IllegalArgumentException {
+        List<Event> events =  Handler.cheatShip(player, shipIndex, board.getBoardLevel());
+        for (Event event : events) {
+            eventCallback.trigger(event);
+        }
     }
 
     /**
@@ -42,7 +61,7 @@ public class BuildingState extends State {
      * @see State#flipTimer(PlayerData)
      */
     @Override
-    public void flipTimer(PlayerData player) throws IllegalStateException{
+    public void flipTimer(PlayerData player) throws IllegalStateException {
         if (board.getBoardLevel() == Level.LEARNING) {
             throw new IllegalStateException("Cannot flip timer in learning level");
         }
@@ -51,37 +70,38 @@ public class BuildingState extends State {
             throw new IllegalStateException("Cannot flip timer because is already running");
         }
 
-        TimerFlipped timerFlippedEvent = new TimerFlipped(player.getUsername(), LocalDateTime.now().toString(), 3, timerDuration);
+        TimerFlipped timerFlippedEvent;
+        LocalTime time;
         switch (numberOfTimerFlips) {
-            case 0:
-                // First flip that is done when the building phase starts
-                eventCallback.trigger(timerFlippedEvent);
-                timerRunning = true;
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        timerRunning = false;
-                    }
-                }, timerDuration);
-                break;
             case 1:
-                // This is the second flip that can be done by anyone after the time has run out
-                eventCallback.trigger(timerFlippedEvent);
+                // First flip that is done when the building phase starts
                 timerRunning = true;
+                time = LocalTime.now();
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         timerRunning = false;
                     }
                 }, timerDuration);
+                timerFlippedEvent = new TimerFlipped(null, time.toString(), numberOfTimerFlips,3, timerDuration);
                 break;
             case 2:
+                // This is the second flip that can be done by anyone after the time has run out
+                timerRunning = true;
+                time = LocalTime.now();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        timerRunning = false;
+                    }
+                }, timerDuration);
+                timerFlippedEvent = new TimerFlipped(player.getUsername(), time.toString(), numberOfTimerFlips, 3, timerDuration);
+                break;
+            case 3:
                 // This is the third flip that can be done only by the player who has finished building
-
-                // Check if the player has finished building
                 if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-                    eventCallback.trigger(timerFlippedEvent);
                     timerRunning = true;
+                    time = LocalTime.now();
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
@@ -90,28 +110,23 @@ public class BuildingState extends State {
                                 if (playersStatus.get(p.getColor()) != PlayerStatus.PLAYED) {
                                     playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
                                 }
-                                // If someone has something in his hand it must be added to the lost components
-                                if (playersHandQueue.get(p.getColor()) != null) {
-                                    p.getSpaceShip().getLostComponents().add(playersHandQueue.get(p.getColor()));
-                                    ComponentDestroyed lostComponentsEvent = new ComponentDestroyed(p.getUsername(), p.getSpaceShip().getLostComponents().stream()
-                                            .map(temp -> new Pair<>(temp.getRow(), temp.getColumn())).toList());
-                                    eventCallback.trigger(lostComponentsEvent);
-                                }
                             }
-
-                            // TODO: handle the case when the player has something in is hand
-
                             timerRunning = false;
+
+                            // Trigger to all the users that the last timer has finished
+                            LastTimerFinished lastTimerFinishedEvent = new LastTimerFinished();
+                            eventCallback.trigger(lastTimerFinishedEvent);
                         }
                     }, timerDuration);
+                    timerFlippedEvent = new TimerFlipped(player.getUsername(),time.toString(), numberOfTimerFlips, 3, timerDuration);
                 } else {
                     throw new IllegalStateException("Cannot flip timer because the player has not finished building");
                 }
-
                 break;
             default:
                 throw new IllegalStateException("Cannot flip timer more than twice");
         }
+        eventCallback.trigger(timerFlippedEvent);
         numberOfTimerFlips++;
     }
 
@@ -133,10 +148,11 @@ public class BuildingState extends State {
                 eventCallback.trigger(pickLeaveDeckEvent);
             }
             case 1 -> {
-                // TODO: we miss the method to leave the deck
+                board.leaveDeck(deckIndex, player);
                 eventCallback.trigger(pickLeaveDeckEvent);
             }
         }
+        player.getSpaceShip().cleanLastPlacedComponent();
     }
 
     /**
@@ -145,9 +161,13 @@ public class BuildingState extends State {
      */
     @Override
     public void placeMarker(PlayerData player, int position) throws IllegalStateException {
+        if (super.board.getBoardLevel() == Level.SECOND && (numberOfTimerFlips < 3 || (timerRunning && numberOfTimerFlips != 4))) {
+            throw new IllegalStateException("Cannot place marker before the second timer flip");
+        }
+
         board.setPlayer(player, position);
 
-        MoveMarker moveMarkerEvent = new MoveMarker(player.getUsername(), position);
+        MoveMarker moveMarkerEvent = new MoveMarker(player.getUsername(), player.getStep());
         eventCallback.trigger(moveMarkerEvent);
     }
 
@@ -191,7 +211,7 @@ public class BuildingState extends State {
                             PickedCannonFromBoard pickedCannonFromBoard = new PickedCannonFromBoard(username, componentID, component.getClockwiseRotation(), connectors, ((Cannon) component).getCannonStrength());
                             eventCallback.trigger(pickedCannonFromBoard);
                         }
-                        case CABIN, CENTER_CABIN -> {
+                        case CABIN -> {
                             PickedCabinFromBoard pickedCabinFromBoard = new PickedCabinFromBoard(username, componentID, component.getClockwiseRotation(), connectors);
                             eventCallback.trigger(pickedCabinFromBoard);
                         }
@@ -223,13 +243,14 @@ public class BuildingState extends State {
             }
             case 1 -> {
                 // Get the tile from the reserve
-                component = player.getSpaceShip().unreserveComponent(tileID);
+                component = player.getSpaceShip().peekReservedComponent(tileID);
                 PickedTileFromReserve pickTileEvent = new PickedTileFromReserve(player.getUsername(), tileID, component.getClockwiseRotation());
                 eventCallback.trigger(pickTileEvent);
             }
             case 2 -> {
                 // Get the last placed component
                 component = player.getSpaceShip().getLastPlacedComponent();
+                player.getSpaceShip().destroyComponent(component.getRow(), component.getColumn());
                 PickedTileFromSpaceship pickTileEvent = new PickedTileFromSpaceship(player.getUsername(), component.getClockwiseRotation());
                 eventCallback.trigger(pickTileEvent);
             }
@@ -256,28 +277,47 @@ public class BuildingState extends State {
             throw new IllegalStateException("Player has finished building");
         }
 
+        if (toWhere == 2 && (row < 0 || row >= SpaceShip.getRows() || col < 0 || col >= SpaceShip.getCols())) {
+            throw new IllegalArgumentException("Invalid row or column for placing the tile in the spaceship");
+        }
+
         // Has the player a tile in his hand?
         Component component = playersHandQueue.get(player.getColor());
         if (component == null) {
             throw new IllegalStateException("Player has no tile in his hand");
         }
 
+        SpaceShip ship = player.getSpaceShip();
+
+        Component lastPlacedComponent = ship.getLastPlacedComponent();
+        if (lastPlacedComponent != null && ship.getLastPlacedComponent().getID() == component.getID()) {
+            ship.cleanLastPlacedComponent();
+        }
+
         switch (toWhere) {
             case 0 -> {
                 // Place the tile in the board
+                if (ship.peekReservedComponent(component.getID()) != null) {
+                    throw new IllegalStateException("Cannot put in the pile a reserved component");
+                }
                 board.putTile(component);
                 PlacedTileToBoard placeTileEvent = new PlacedTileToBoard(player.getUsername());
                 eventCallback.trigger(placeTileEvent);
             }
             case 1 -> {
                 // Place the tile in the reserve
-                player.getSpaceShip().reserveComponent(component);
+                if (ship.peekReservedComponent(component.getID()) == null) {
+                    ship.putReserveComponent(component);
+                }
                 PlacedTileToReserve placeTileEvent = new PlacedTileToReserve(player.getUsername());
                 eventCallback.trigger(placeTileEvent);
             }
             case 2 -> {
                 // Place the tile in the spaceship
-                player.getSpaceShip().placeComponent(component, row, col);
+                if (ship.peekReservedComponent(component.getID()) != null) {
+                    ship.removeReserveComponent(component.getID());
+                }
+                ship.placeComponent(component, row, col);
                 PlacedTileToSpaceship placeTileEvent = new PlacedTileToSpaceship(player.getUsername(), row, col);
                 eventCallback.trigger(placeTileEvent);
             }
@@ -321,7 +361,7 @@ public class BuildingState extends State {
      * The entry method in this state is called when the state is entered.
      * <p>
      * In this state we have to remove all the players from the board since they are in a casual order
-     * after the {@link LobbyState} state. To do so we call the {@link Board#clearInGamePlayers()} (PlayerData)}.
+     * after the {@link LobbyState} state. To do so we call the {@link Board#clearInGamePlayers()}.
      * <p>
      * This can be done because we have the list of players in the
      * {@link State#players} attribute set in the {@link State(Board)} constructor.
@@ -329,17 +369,31 @@ public class BuildingState extends State {
      */
     @Override
     public void entry() {
-        board.clearInGamePlayers();
+        super.board.clearInGamePlayers();
+        if (super.board.getBoardLevel() == Level.SECOND) {
+            this.flipTimer(null);
+        }
+        for (PlayerData player : players) {
+            playersStatus.put(player.getColor(), PlayerStatus.PLAYING);
+        }
     }
 
     @Override
     public void execute(PlayerData playerData) {
         super.execute(playerData);
+        if (numberOfTimerFlips == 3 && !timerRunning) {
+            flipTimer(playerData);
+        }
         super.nextState(GameState.VALIDATION);
     }
 
     @Override
     public void exit() {
+        GetShuffledDeck getShuffledDeckEvent = new GetShuffledDeck(
+                board.getShuffledDeck().stream().map(Card::getID).toList()
+        );
+        eventCallback.trigger(getShuffledDeckEvent);
+
         super.exit();
     }
 }

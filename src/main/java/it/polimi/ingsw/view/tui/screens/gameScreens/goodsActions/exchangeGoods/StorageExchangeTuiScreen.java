@@ -7,6 +7,7 @@ import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import it.polimi.ingsw.view.tui.screens.TuiScreens;
+import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.MenuGoodsTuiScreen;
 
 import java.util.ArrayList;
 
@@ -42,10 +43,11 @@ public class StorageExchangeTuiScreen extends ManagerExchangeGoodsTuiScreen{
             StatusEvent status = ExchangeGoods.requester(Client.transceiver, new Object()).request(
                     new ExchangeGoods(MiniModel.getInstance().getUserID(), exchanges));
             if (status.get().equals("POTA")) {
-                oldScreen.setMessage(((Pota) status).errorMessage());
+                setMessage(((Pota) status).errorMessage());
             }
             else {
-                oldScreen.setMessage(null);
+                MenuGoodsTuiScreen.setCardGoods(remainCopy);
+                setMessage(null);
             }
             destroyStatics();
             return oldScreen;
@@ -53,6 +55,7 @@ public class StorageExchangeTuiScreen extends ManagerExchangeGoodsTuiScreen{
         }
 
         if (selected == num + 1) {
+            setMessage(null);
             destroyStatics();
             return oldScreen;
         }

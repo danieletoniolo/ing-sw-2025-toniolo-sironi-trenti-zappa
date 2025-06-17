@@ -2,7 +2,9 @@ package it.polimi.ingsw.view.miniModel.spaceship;
 
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
+import javafx.scene.image.Image;
 
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -15,15 +17,15 @@ public class DiscardReservedPileView implements Structure {
     private String RightReserved2 =  "      │";
     private String DownReserved2 =   "──────╯";
 
-    private ArrayList<ComponentView> reserved;
+    private final ArrayList<ComponentView> reserved;
 
     public DiscardReservedPileView() {
         reserved = new ArrayList<>();
     }
 
     @Override
-    public void drawGui() {
-
+    public Image drawGui() {
+        return null;
     }
 
     public static int getRowsToDraw() {
@@ -68,5 +70,9 @@ public class DiscardReservedPileView implements Structure {
         }
 
         return found ? reserved.remove(i) : null;
+    }
+
+    public ArrayList<ComponentView> getReserved() {
+        return reserved;
     }
 }

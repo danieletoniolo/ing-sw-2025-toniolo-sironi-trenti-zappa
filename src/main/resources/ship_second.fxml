@@ -6,145 +6,33 @@
 
 <AnchorPane prefHeight="744.0" prefWidth="1047.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <ImageView fitHeight="693.0" fitWidth="823.0" layoutX="119.0" layoutY="61.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/cardboard/ship_II.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="368.0" layoutY="88.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="259.0" layoutY="196.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="368.0" layoutY="196.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="259.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="368.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="477.0" layoutY="196.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="586.0" layoutY="196.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="477.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="586.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="150.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="259.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="150.0" layoutY="523.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="259.0" layoutY="523.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="368.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="477.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="368.0" layoutY="523.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="586.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="695.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="586.0" layoutY="523.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="695.0" layoutY="523.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="804.0" layoutY="523.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="695.0" layoutY="196.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="695.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="804.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="804.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="586.0" layoutY="88.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
-      <ImageView fitHeight="108.0" fitWidth="107.0" layoutX="150.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/tiles/152.jpg" />
-         </image>
-      </ImageView>
+      <ImageView fx:id="1" fitHeight="693.0" fitWidth="823.0" layoutX="119.0" layoutY="61.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="56" fitHeight="108.0" fitWidth="107.0" layoutX="368.0" layoutY="88.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="65" fitHeight="108.0" fitWidth="107.0" layoutX="259.0" layoutY="196.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="66" fitHeight="108.0" fitWidth="107.0" layoutX="368.0" layoutY="196.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="75" fitHeight="108.0" fitWidth="107.0" layoutX="259.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="76" fitHeight="108.0" fitWidth="107.0" layoutX="368.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="67" fitHeight="108.0" fitWidth="107.0" layoutX="477.0" layoutY="196.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="68" fitHeight="108.0" fitWidth="107.0" layoutX="586.0" layoutY="196.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="77" fitHeight="108.0" fitWidth="107.0" layoutX="477.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="78" fitHeight="108.0" fitWidth="107.0" layoutX="586.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="84" fitHeight="108.0" fitWidth="107.0" layoutX="150.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="85" fitHeight="108.0" fitWidth="107.0" layoutX="259.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="94" fitHeight="108.0" fitWidth="107.0" layoutX="150.0" layoutY="523.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="95" fitHeight="108.0" fitWidth="107.0" layoutX="259.0" layoutY="523.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="86" fitHeight="108.0" fitWidth="107.0" layoutX="368.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="87" fitHeight="108.0" fitWidth="107.0" layoutX="477.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="96" fitHeight="108.0" fitWidth="107.0" layoutX="368.0" layoutY="523.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="88" fitHeight="108.0" fitWidth="107.0" layoutX="586.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="89" fitHeight="108.0" fitWidth="107.0" layoutX="695.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="98" fitHeight="108.0" fitWidth="107.0" layoutX="586.0" layoutY="523.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="99" fitHeight="108.0" fitWidth="107.0" layoutX="695.0" layoutY="523.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="910" fitHeight="108.0" fitWidth="107.0" layoutX="804.0" layoutY="523.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="69" fitHeight="108.0" fitWidth="107.0" layoutX="695.0" layoutY="196.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="79" fitHeight="108.0" fitWidth="107.0" layoutX="695.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="710" fitHeight="108.0" fitWidth="107.0" layoutX="804.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="810" fitHeight="108.0" fitWidth="107.0" layoutX="804.0" layoutY="414.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="58" fitHeight="108.0" fitWidth="107.0" layoutX="586.0" layoutY="88.0" pickOnBounds="true" preserveRatio="true"/>
+      <ImageView fx:id="74" fitHeight="108.0" fitWidth="107.0" layoutX="150.0" layoutY="305.0" pickOnBounds="true" preserveRatio="true"/>
    </children>
 </AnchorPane>

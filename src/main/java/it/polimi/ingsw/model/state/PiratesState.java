@@ -2,6 +2,7 @@ package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
 import it.polimi.ingsw.event.game.serverToClient.player.UpdateCoins;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
@@ -68,8 +69,12 @@ public class PiratesState extends State {
         if (fragments.isEmpty()) {
             throw new IllegalArgumentException("No fragments available to choose from");
         }
-        Event event = Handler.destroyFragment(player, fragments.get(fragmentChoice));
-        eventCallback.trigger(event);
+        for (int i = 0; i < fragments.size(); i++) {
+            if (i != fragmentChoice) {
+                Event event = Handler.destroyFragment(player, fragments.get(i));
+                eventCallback.trigger(event);
+            }
+        }
         fragments.clear();
     }
 
@@ -213,6 +218,15 @@ public class PiratesState extends State {
                 diceRolled = false;
             }
         }
+
+        try {
+            CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
+            eventCallback.trigger(currentPlayerEvent);
+        }
+        catch(Exception e) {
+            // Ignore the exception
+        }
+
         super.nextState(GameState.CARDS);
     }
 }

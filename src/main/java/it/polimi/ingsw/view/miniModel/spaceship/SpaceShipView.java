@@ -1,11 +1,11 @@
 package it.polimi.ingsw.view.miniModel.spaceship;
 
 import it.polimi.ingsw.view.miniModel.components.*;
+import javafx.scene.image.Image;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 
-import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,9 +53,6 @@ public class SpaceShipView implements Structure {
     }
 
     public void placeComponent(ComponentView component, int row, int col) {
-        spaceShip[row-converterRow][col-converterCol] = component;
-        spaceShip[row-converterRow][col-converterCol].setCovered(false);
-
         switch (component.getType()) {
             case DOUBLE_CANNON -> mapDoubleCannons.put(component.getID(), (CannonView) component);
             case DOUBLE_ENGINE -> mapDoubleEngines.put(component.getID(), (EngineView) component);
@@ -63,7 +60,11 @@ public class SpaceShipView implements Structure {
             case SHIELD -> mapShield.put(component.getID(), (ShieldView) component);
             case STORAGE -> mapStorages.put(component.getID(), (StorageView) component);
             case BATTERY -> mapBatteries.put(component.getID(), (BatteryView) component);
+            case GENERIC -> removeComponent(row, col);
         }
+
+        spaceShip[row-converterRow][col-converterCol] = component;
+        spaceShip[row-converterRow][col-converterCol].setCovered(false);
 
         spaceShip[row-converterRow][col-converterCol].setRow(row);
         spaceShip[row-converterRow][col-converterCol].setCol(col);
@@ -72,7 +73,7 @@ public class SpaceShipView implements Structure {
     }
 
     public ComponentView removeLast() {
-        return removeComponent(last.getRow(), last.getCol());
+        return removeComponent(last.getRow() - 1, last.getCol() - 1);
     }
 
     public ComponentView removeComponent(int row, int col) {
@@ -122,6 +123,18 @@ public class SpaceShipView implements Structure {
         return discardReservedPile;
     }
 
+    public ComponentView getComponent(int row, int col) {
+        return spaceShip[row - converterRow][col - converterCol];
+    }
+
+    public int getRows() {
+        return spaceShip.length;
+    }
+
+    public int getCols() {
+        return spaceShip[0].length;
+    }
+
     public ComponentView[][] getSpaceShip() {
         return spaceShip;
     }
@@ -135,8 +148,15 @@ public class SpaceShipView implements Structure {
     }
 
     @Override
-    public void drawGui() {
-        //TODO: Implement the GUI drawing logic for the spaceship here
+    public Image drawGui() {
+        String path;
+        if(this.level == LevelView.LEARNING){
+            path = "/image/cardboard/ship_I.jpg";
+        } else {
+            path = "/image/cardboard/ship_II.jpg";
+        }
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
     public int getRowsToDraw() {

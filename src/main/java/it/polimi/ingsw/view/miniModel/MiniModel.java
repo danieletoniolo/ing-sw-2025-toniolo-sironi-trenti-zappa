@@ -1,8 +1,8 @@
 package it.polimi.ingsw.view.miniModel;
 
+import it.polimi.ingsw.view.miniModel.components.ViewablePileView;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
-import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.countDown.CountDown;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.lobby.LobbyView;
@@ -19,13 +19,10 @@ public class MiniModel {
     private final LogInView logInView = new LogInView();
     private final ArrayList<LobbyView> lobbiesView = new ArrayList<>();
     private CountDown countDown;
-    /** The decks are stored in a Pair: The first element is the deck views, and the second element is a boolean array.
-    If boolean[i] == true the deck[i] is not taken by a player, else deck is taken and not viewable in the building screen*/
-    private final Pair<DeckView[], Boolean[]> deckViews = new Pair<>(new DeckView[3], new Boolean[3]);
     private final DeckView shuffledDeckView = new DeckView();
     private BoardView boardView;
     private final ArrayList<PlayerDataView> otherPlayers = new ArrayList<>();
-    private final ArrayList<ComponentView> viewableComponents = new ArrayList<>();
+    private final ViewablePileView viewablePileView = new ViewablePileView();
     private int numberViewableComponents = 152;
     private PlayerDataView clientPlayer;
     private String nickname;
@@ -34,12 +31,21 @@ public class MiniModel {
 
     private PlayerDataView currentPlayer;
     private LobbyView currentLobby;
+    private GamePhases phase;
 
     public static MiniModel getInstance() {
         if (instance == null) {
             instance = new MiniModel();
         }
         return instance;
+    }
+
+    public void setGamePhase(int phase) {
+        this.phase = GamePhases.fromValue(phase);
+    }
+
+    public GamePhases getGamePhase() {
+        return phase;
     }
 
     public synchronized void reduceViewableComponents() {
@@ -70,7 +76,7 @@ public class MiniModel {
     }
 
     public synchronized Pair<DeckView[], Boolean[]> getDeckViews() {
-        return deckViews;
+        return boardView.getDecksView();
     }
 
     public synchronized DeckView getShuffledDeckView() {
@@ -93,8 +99,8 @@ public class MiniModel {
         return otherPlayers;
     }
 
-    public synchronized ArrayList<ComponentView> getViewableComponents() {
-        return viewableComponents;
+    public synchronized ViewablePileView getViewablePile() {
+        return viewablePileView;
     }
 
     public synchronized void setClientPlayer(PlayerDataView clientPlayer) {

@@ -8,12 +8,7 @@ import it.polimi.ingsw.view.tui.screens.TuiScreens;
 public class WatchingTuiScreen extends BuildingTuiScreen {
 
     public WatchingTuiScreen() {
-        super();
-
-        options.clear();
-        for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
-            options.add("View " + p.getUsername() + "'s spaceship");
-        }
+        super(null);
     }
 
     @Override

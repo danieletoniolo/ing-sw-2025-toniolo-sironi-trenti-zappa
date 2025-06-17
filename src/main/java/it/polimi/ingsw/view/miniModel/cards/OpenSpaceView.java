@@ -1,13 +1,23 @@
 package it.polimi.ingsw.view.miniModel.cards;
 
+import javafx.scene.image.Image;
+
 public class OpenSpaceView extends CardView {
     public OpenSpaceView(int ID, boolean covered, int level) {
         super(ID, covered, level);
     }
 
+    /**
+     * Draws the card GUI.
+     * This method is called to draw the card GUI.
+     *
+     * @return an Image representing the image of the card
+     */
     @Override
-    public void drawGui() {
-
+    public Image drawGui() {
+        String path = "/image/card/" + this.getID() + ".jpg";
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
     @Override
@@ -17,7 +27,13 @@ public class OpenSpaceView extends CardView {
         return switch(l) {
             case 0 -> Up;
             case 1 -> "│     OPENSPACE     │";
-            case 2,3,4,5,6,7,8 -> Clear;
+            case 2 -> Clear;
+            case 3 -> "│        / \\        │";
+            case 4 -> "│       /   \\       │";
+            case 5 -> "│       │===│       │";
+            case 6 -> "│      /     \\      │";
+            case 7 -> "│      │_____│      │";
+            case 8 -> "│       /|||\\       │";
             case 9 -> Down;
             default -> null;
         };

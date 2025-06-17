@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens;
 
 import it.polimi.ingsw.event.game.clientToServer.spaceship.ManageCrewMember;
+import it.polimi.ingsw.event.game.clientToServer.spaceship.SetPenaltyLoss;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.Client;
@@ -8,20 +9,47 @@ import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.components.CabinView;
 import it.polimi.ingsw.view.tui.screens.GameTuiScreen;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
+import it.polimi.ingsw.view.tui.screens.gameScreens.NotClientTurnTuiScreen;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class LooseCrewTuiScreen extends GameTuiScreen {
+    private static List<Integer> cabinIDs;
+    private static boolean reset;
+    private final TuiScreenView nextScreen;
 
-    public LooseCrewTuiScreen() {
+    public LooseCrewTuiScreen(TuiScreenView nextScreen) {
         super(new ArrayList<>(){{
+            if (!reset) {
+                spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
+            }
+            if (!reset) reset = true;
             addAll(
                     spaceShipView.getMapCabins().values().stream()
                             .filter(cabin -> cabin.getCrewNumber() != 0)
                             .map(cabin -> "(" + cabin.getRow() + " " + cabin.getCol() + ")")
                             .toList()
             );
+            add("Cancel");
+            add("Done");
         }});
+        if (cabinIDs == null) {
+            cabinIDs = new ArrayList<>();
+        }
+        this.nextScreen = nextScreen;
+    }
+
+    private void destroyStatic() {
+        cabinIDs = null;
+        reset = false;
+        setMessage(null);
+    }
+
+    @Override
+    protected String lineBeforeInput() {
+        return "Select a cabin to remove a crew member from";
     }
 
     @Override
@@ -29,20 +57,41 @@ public class LooseCrewTuiScreen extends GameTuiScreen {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        int ID = spaceShipView.getMapCabins().keySet().stream()
-                .skip(selected)
-                .findFirst()
-                .orElse(-1);
+        int num = (int) spaceShipView.getMapCabins().values().stream()
+                .filter(cabin -> cabin.getCrewNumber() != 0)
+                .count();
 
-        CabinView cabin = spaceShipView.getMapCabins().get(ID);
-        int type = cabin.hasBrownAlien() ? 1 : cabin.hasPurpleAlien() ? 2 : 0;
-
-        StatusEvent status = ManageCrewMember.requester(Client.transceiver, new Object())
-                .request(new ManageCrewMember(MiniModel.getInstance().getUserID(), 1, type, ID));
-        if (status.get().equals("POTA")) {
-            setMessage(((Pota) status).errorMessage());
+        if (selected == num) {
+            destroyStatic();
+            return new LooseCrewTuiScreen(nextScreen);
         }
 
-        return this;
+        if (selected == num + 1) {
+            StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object())
+                    .request(new SetPenaltyLoss(MiniModel.getInstance().getUserID(), 2, cabinIDs));
+            destroyStatic();
+            if (status.get().equals("POTA")) {
+                setMessage(((Pota) status).errorMessage());
+                return new LooseCrewTuiScreen(nextScreen);
+            }
+            spaceShipView = clientPlayer.getShip();
+            return nextScreen;
+        }
+
+        spaceShipView.getMapCabins().entrySet().stream()
+                .filter(entry -> entry.getValue().getCrewNumber() != 0)
+                .skip(selected)
+                .findFirst()
+                .ifPresent(entry -> {
+                    cabinIDs.add(entry.getKey());
+                    entry.getValue().setCrewNumber(entry.getValue().getCrewNumber() - 1);
+                });
+
+        StringBuilder line = new StringBuilder();
+        for (Integer integer : cabinIDs) {
+            line.append(spaceShipView.getMapCabins().get(integer).getCrewType().drawTui()).append("(").append(spaceShipView.getMapCabins().get(integer).getRow()).append(" ").append(spaceShipView.getMapCabins().get(integer).getCol()).append(") ");
+        }
+        setMessage("You are loosing a crew member from " + line);
+        return new LooseCrewTuiScreen(nextScreen);
     }
 }

@@ -1,13 +1,14 @@
 package it.polimi.ingsw.view.miniModel.cards;
 
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
+import javafx.scene.image.Image;
 
 import java.util.List;
 
 public class CombatZoneView extends CardView {
-    private int loss;
-    private int flightDays;
-    private List<HitView> hits;
+    private final int loss;
+    private final int flightDays;
+    private final List<HitView> hits;
 
     public CombatZoneView(int ID, boolean covered, int level, int loss, int flightDays, List<HitView> hits) {
         super(ID, covered, level);
@@ -16,9 +17,17 @@ public class CombatZoneView extends CardView {
         this.hits = hits;
     }
 
+    /**
+     * Draws the card GUI.
+     * This method is called to draw the card GUI.
+     *
+     * @return an Image representing the image of the card
+     */
     @Override
-    public void drawGui() {
-
+    public Image drawGui() {
+        String path = "/image/card/" + this.getID() + ".jpg";
+        Image img = new Image(getClass().getResource(path).toExternalForm());
+        return img;
     }
 
     @Override

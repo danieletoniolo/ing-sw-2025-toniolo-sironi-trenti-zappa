@@ -79,6 +79,14 @@ public class LobbyInfo implements Serializable {
     }
 
     /**
+     * Get if a player is ready in the lobby
+     * @return a boolean indicating whether the player is ready
+     */
+    public boolean isPlayerReady(UUID uuid) {
+        return this.playersReady.contains(uuid);
+    }
+
+    /**
      * Set the name of the lobby
      * @param name the name of the lobby
      */

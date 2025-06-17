@@ -5,15 +5,19 @@ import it.polimi.ingsw.event.game.serverToClient.deck.*;
 import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
+import it.polimi.ingsw.event.game.serverToClient.pickedTile.PickedTileFromSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.planets.PlanetSelected;
 import it.polimi.ingsw.event.game.serverToClient.player.*;
 import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
+import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 
 public interface Manager {
     void notifyUserIDSet();
+
+    void notifyConnectionLost();
 
     void notifyNicknameSet();
 
@@ -34,8 +38,6 @@ public interface Manager {
     void notifyCountDown();
 
     // Deck
-    void notifyDrawCard();
-
     void notifyPickedLeftDeck(PickedLeftDeck data);
 
     // Dice
@@ -51,12 +53,14 @@ public interface Manager {
     void notifyShieldUsed(ShieldUsed data);
 
     // Goods
-    void notifyGoodsSwapped(GoodsSwapped data);
-
     void notifyUpdateGoodsExchange(UpdateGoodsExchange data);
 
     // Picked tile
     void notifyPickedTileFromBoard();
+
+    void notifyPickedTileFromSpaceShip(PickedTileFromSpaceship data);
+
+    void notifyPickedHiddenTile(String nickname);
 
     // Placed tile
     void notifyPlacedTileToBoard(PlacedTileToBoard data);
@@ -104,8 +108,12 @@ public interface Manager {
     void notifyUpdateCrewMembers(UpdateCrewMembers data);
 
     // Timer
-    void notifyTimer();
+    void notifyTimer(TimerFlipped data);
+
+    void notifyTimerFinished(TimerFlipped data);
+
+    void notifyLastTimerFlipped();
 
 
-    void notifyStateChange(StateChanged data);
+    void notifyStateChange();
 }

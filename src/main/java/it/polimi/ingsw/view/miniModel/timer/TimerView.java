@@ -2,17 +2,31 @@ package it.polimi.ingsw.view.miniModel.timer;
 
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
+import javafx.scene.image.Image;
+
+import java.awt.image.BufferedImage;
 
 public class TimerView implements Structure {
     private int minutes;
     private int seconds;
     private PlayerDataView playerWhoFlipped;
-    private final int totalFlips;
-    private static int times;
+    private int totalFlips;
+    private int times;
 
-    public TimerView(int totalFlips) {
+    public void setNumberOfFlips(int numberOfFlips) {
+        this.times = numberOfFlips;
+    }
+
+    public void setTotalFlips(int totalFlips) {
         this.totalFlips = totalFlips;
-        times++;
+    }
+
+    public int getNumberOfFlips() {
+        return times;
+    }
+
+    public int getTotalFlips() {
+        return totalFlips;
     }
 
     public void setSecondsRemaining(int secondsRemaining) {
@@ -25,8 +39,8 @@ public class TimerView implements Structure {
     }
 
     @Override
-    public void drawGui() {
-
+    public Image drawGui() {
+        return null;
     }
 
     @Override

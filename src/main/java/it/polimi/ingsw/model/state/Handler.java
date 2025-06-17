@@ -5,20 +5,21 @@ import it.polimi.ingsw.event.game.serverToClient.energyUsed.BatteriesLoss;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.EnginesUsed;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.ShieldUsed;
-import it.polimi.ingsw.event.game.serverToClient.goods.GoodsSwapped;
 import it.polimi.ingsw.event.game.serverToClient.goods.UpdateGoodsExchange;
+import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
+import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.Fragments;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.UpdateCrewMembers;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.hits.Hit;
+import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.good.GoodType;
 import it.polimi.ingsw.model.player.PlayerData;
-import it.polimi.ingsw.model.spaceship.Component;
-import it.polimi.ingsw.model.spaceship.SpaceShip;
-import it.polimi.ingsw.model.spaceship.Storage;
+import it.polimi.ingsw.model.spaceship.*;
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -301,9 +302,153 @@ public class Handler {
             throw new IllegalArgumentException ("The storage " + storageID2 + " does not have enough space to store the goods");
         }
         // Swap the goods
-        ship.exchangeGood(goods1to2, goods2to1, storageID1);
-        ship.exchangeGood(goods2to1, goods1to2, storageID2);
+        ship.exchangeGood(goods2to1, goods1to2, storageID1);
+        ship.exchangeGood(goods1to2, goods2to1, storageID2);
 
-        return new GoodsSwapped(player.getUsername(), storageID1, storageID2, goods1to2.stream().map(Good::getValue).toList(), goods2to1.stream().map(Good::getValue).toList());
+        List<Pair<Integer, List<Integer>>> convertedData = new ArrayList<>(
+                List.of(
+                        new Pair<>(storageID1, storage1.getGoods().stream().map(Good::getValue).toList()),
+                        new Pair<>(storageID2, storage2.getGoods().stream().map(Good::getValue).toList())
+                )
+        );
+
+        return new UpdateGoodsExchange(player.getUsername(), convertedData);
+    }
+
+    static List<Event> cheatShip(PlayerData player, int shipIndex, Level level) throws IllegalStateException, IllegalArgumentException {
+        List<Event> events = new ArrayList<>();
+        SpaceShip ship = player.getSpaceShip();
+        Component component;
+        String username = player.getUsername();
+
+        int[] componentsIDs;
+        int[][] componentsPositions;
+        int[] componentsRotations;
+
+        // If the player had some components, destroy them (except the main cabin)
+        for (int i = 0; i < SpaceShip.getRows(); i++) {
+            for (int j = 0; j < SpaceShip.getCols(); j++) {
+                if (ship.getComponent(i, j) != null && (i != 6 || j != 6)) {
+                    ship.destroyComponent(i, j);
+                    events.add(new PlacedTileToSpaceship(username, i, j));
+                }
+            }
+        }
+
+        switch (shipIndex) {
+            case 0 -> {
+                if (level == Level.LEARNING) {
+                    throw new IllegalStateException("Cannot use this ship in LEARNING level");
+                }
+
+                componentsIDs = new int[]{
+                        139, 46,  137, 37,  48,
+                        41,  133, 32,  77,  94,
+                        65,  118, 28,  130, 14,
+                        145, 16,  100
+                };
+
+                componentsPositions = new int[][]{
+                        {6, 5}, {6, 4}, {7, 4}, {7, 5}, {7, 6},
+                        {7, 7}, {6, 7}, {6, 8}, {8, 5}, {8, 4},
+                        {8, 3}, {5, 6}, {5, 5}, {5, 7}, {7, 8},
+                        {7, 9}, {8, 9}, {6, 9}
+                };
+
+                componentsRotations = new int[]{
+                        2, 3, 1, 0, 0,
+                        0, 2, 0, 0, 0,
+                        2, 0, 2, 0, 0,
+                        0, 1, 1
+                };
+            }
+            case 1 -> {
+                if (level == Level.LEARNING) {
+                    throw new IllegalStateException("Cannot use this ship in LEARNING level");
+                }
+
+                componentsIDs = new int[]{
+                        126, 54,  115, 145, 103,
+                        96,  107, 40,  24,  111,
+                        61,  31,  98,  27,  19,
+                        52,  118, 56,  5,   47,
+                        1,   92,  93,  70,  78,
+                        105
+                };
+
+                componentsPositions = new int[][]{
+                        {5, 6}, {5, 5}, {5, 4}, {5, 7}, {5, 8},
+                        {4, 5}, {4, 7}, {6, 5}, {6, 4}, {6, 3},
+                        {6, 7}, {6, 8}, {6, 9}, {7, 3}, {7, 4},
+                        {7, 5}, {7, 6}, {7, 7}, {7, 8}, {7, 9},
+                        {8, 3}, {8, 4}, {8, 5}, {8, 7}, {8, 8},
+                        {8, 9}
+                };
+
+                componentsRotations = new int[]{
+                        0, 0, 3, 0, 1,
+                        0, 3, 0, 1, 0,
+                        1, 0, 0, 0, 1,
+                        2, 2, 2, 0, 0,
+                        0, 0, 0, 0, 0,
+                        2
+                };
+            }
+            case 2 -> {
+                if (level == Level.SECOND) {
+                    throw new IllegalStateException("Cannot use this ship in SECOND level");
+                }
+
+                componentsIDs = new int[]{
+                        61, 125, 101, 96,  37,
+                        62, 146, 10,  117, 18,
+                        19, 30,  29,  90,  86,
+                        41, 81
+                };
+
+                componentsPositions = new int[][]{
+                        {5, 6}, {5, 5}, {5, 7}, {4, 6}, {6, 5},
+                        {6, 4}, {6, 7}, {6, 8}, {7, 4}, {7, 5},
+                        {7, 6}, {7, 7}, {7, 8}, {8, 4}, {8, 5},
+                        {8, 7}, {8, 8}
+                };
+
+                componentsRotations = new int[]{
+                        1, 0, 1, 0, 0,
+                        1, 1, 3, 3, 0,
+                        0, 0, 0, 0, 0,
+                        1, 0
+                };
+            }
+            default -> throw new IllegalArgumentException("Invalid ship index: " + shipIndex);
+        }
+
+        for (int i = 0; i < componentsIDs.length; i++) {
+            component = TilesManager.getTile(componentsIDs[i]);
+            int[] connectors = new int[4];
+            for (int j = 0; j < componentsRotations[i]; j++) {
+                component.rotateClockwise();
+            }
+            ship.placeComponent(component, componentsPositions[i][0], componentsPositions[i][1]);
+
+            for (int j = 0; j < 4; j++) {
+                connectors[j] = component.getConnection(j).getValue();
+            }
+
+            // Add the event based on the component type
+            events.add(switch (component.getComponentType()) {
+                case SINGLE_ENGINE, DOUBLE_ENGINE -> new PickedEngineFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, ((Engine) component).getEngineStrength());
+                case SINGLE_CANNON, DOUBLE_CANNON -> new PickedCannonFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, ((Cannon) component).getCannonStrength());
+                case CABIN -> new PickedCabinFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors);
+                case STORAGE -> new PickedStorageFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, ((Storage) component).isDangerous(), ((Storage) component).getGoodsCapacity());
+                case BROWN_LIFE_SUPPORT, PURPLE_LIFE_SUPPORT -> new PickedLifeSupportFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, component.getComponentType() == ComponentType.BROWN_LIFE_SUPPORT ? 1 : 2);
+                case BATTERY -> new PickedBatteryFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors, ((Battery) component).getEnergyNumber());
+                case SHIELD -> new PickedShieldFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors);
+                case CONNECTORS -> new PickedConnectorsFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors);
+            });
+            events.add(new PlacedTileToSpaceship(username, componentsPositions[i][0], componentsPositions[i][1]));
+        }
+
+        return events;
     }
 }

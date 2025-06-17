@@ -11,8 +11,20 @@ module demo {
     requires java.naming;
     requires java.desktop;
 
+    exports it.polimi.ingsw.view.gui.controllers.components;
+    opens it.polimi.ingsw.view.gui.controllers.components to javafx.fxml;
+
+    exports it.polimi.ingsw.view.gui.controllers.cards;
+    opens it.polimi.ingsw.view.gui.controllers.cards to javafx.fxml;
+
     opens it.polimi.ingsw.view.gui to javafx.fxml;
     exports it.polimi.ingsw.view.gui;
+
+    opens it.polimi.ingsw.view.gui.controllers.ship to javafx.fxml;
+    exports it.polimi.ingsw.view.gui.controllers.ship;
+
+    exports it.polimi.ingsw.view.gui.screens;
+    opens it.polimi.ingsw.view.gui.screens to javafx.fxml;
 
     opens it.polimi.ingsw.model.cards to com.fasterxml.jackson.databind;
     exports it.polimi.ingsw.model.cards to com.fasterxml.jackson.databind;

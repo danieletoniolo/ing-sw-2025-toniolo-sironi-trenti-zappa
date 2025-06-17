@@ -4,6 +4,8 @@ import it.polimi.ingsw.model.good.Good;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.polimi.ingsw.model.good.GoodType;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.*;
 
 public class Storage extends Component{
@@ -11,18 +13,34 @@ public class Storage extends Component{
     @JsonProperty("goodsCapacity")
     private int goodsCapacity;
     private int goodsValue;
-    private Queue<Good> goods;
+    private final Queue<Good> goods;
+
+    /**
+     * Comparator for sorting goods by value in descending order.
+     * This comparator is used to maintain the priority queue of goods in the storage.
+     * <p>
+     * We use a static inner class to avoid serialization issues with the comparator.
+     */
+    private static class ValueDescendingComparator implements Comparator<Good>, Serializable {
+        // TODO: We might need the serialVersionUID
+        @Override
+        public int compare(Good g1, Good g2) {
+            return Integer.compare(g2.getValue(), g1.getValue());
+        }
+    }
 
     public Storage(int ID, ConnectorType[] connectors, boolean dangerous, int goodsCapacity) {
         super(ID, connectors);
         this.dangerous = dangerous;
         this.goodsCapacity = goodsCapacity;
         this.goodsValue = 0;
-        this.goods = new PriorityQueue<>(Comparator.comparingInt(Good::getValue).reversed());
+        this.goods = new PriorityQueue<>(new ValueDescendingComparator());
     }
 
-    public Storage(){
+    public Storage() {
         super();
+        this.goodsValue = 0;
+        this.goods = new PriorityQueue<>(new ValueDescendingComparator());
     }
     /**
      * Check if the storage is dangerous
@@ -57,7 +75,7 @@ public class Storage extends Component{
         if (good.getColor() == GoodType.RED && !dangerous) {
             throw new IllegalStateException("Cannot add a red good to a non-dangerous storage");
         }
-        if (goods.size() < goodsCapacity) {
+        if (goodsCapacity > 0) {
             goods.add(good);
             goodsValue += good.getValue();
             goodsCapacity -= 1;
@@ -72,6 +90,7 @@ public class Storage extends Component{
      * @throws IllegalStateException if the good is not found in the storage
      */
     public void removeGood(Good good) throws IllegalStateException {
+        // TODO: ".contains" may not be working
         if (goods.contains(good)) {
             goods.remove(good);
             goodsValue -= good.getValue();
@@ -79,7 +98,6 @@ public class Storage extends Component{
         } else {
             throw new IllegalStateException("Good not found in storage");
         }
-        goods.remove();
     }
 
     /**

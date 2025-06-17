@@ -34,11 +34,12 @@ public class DropGoodsTuiScreen extends ManagerExchangeGoodsTuiScreen{
             }
         }
         if (selected == num) {
-            return new PickGoodsFromCardTuiScreen(copy, oldScreen);
+            return new PickGoodsFromCardTuiScreen(remainCopy, oldScreen);
         }
 
         if (selected == num + 1) {
             destroyStatics();
+            setMessage(null);
             return oldScreen;
         }
 
@@ -62,9 +63,8 @@ public class DropGoodsTuiScreen extends ManagerExchangeGoodsTuiScreen{
             line.append(GoodView.fromValue(good).drawTui()).append(" ");
         }
 
-        TuiScreenView newScreen = new DropGoodsTuiScreen(oldScreen);
-        newScreen.setMessage("You are dropping " + line);
-        return newScreen;
+        setMessage("You are dropping " + line);
+        return new DropGoodsTuiScreen(oldScreen);
     }
 
     @Override

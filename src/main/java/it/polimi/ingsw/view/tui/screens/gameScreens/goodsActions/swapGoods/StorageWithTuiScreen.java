@@ -52,10 +52,9 @@ public class StorageWithTuiScreen extends ManagerSwapGoodTuiScreen {
         }
 
         withStorage = spaceShipView.getMapStorages().get(ID);
-        TuiScreenView newScreen = new SwapGoodsFromTuiScreen(oldScreen);
-        newScreen.setMessage("You are swapping goods from (" + fromStorage.getRow() + " " + fromStorage.getCol() +
+        setMessage("You are swapping goods from (" + fromStorage.getRow() + " " + fromStorage.getCol() +
                 ") with goods in (" + withStorage.getRow() + " " + withStorage.getCol() + ")");
-        return newScreen;
+        return new SwapGoodsFromTuiScreen(oldScreen);
     }
 
     @Override
