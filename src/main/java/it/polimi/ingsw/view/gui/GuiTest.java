@@ -7,6 +7,7 @@ import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
+import it.polimi.ingsw.view.miniModel.components.BatteryView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import javafx.application.Application;
 import javafx.scene.Node;
@@ -28,8 +29,11 @@ public class GuiTest extends Application {
 
         Node root = pile.createGuiNode();*/
 
-        AbandonedShipView a = new AbandonedShipView(17, false, 1, 2, 3, 4);
+        //AbandonedShipView a = new AbandonedShipView(17, false, 1, 2, 3, 4);
+        BatteryView a = new BatteryView(1, new int[]{0, 0, 0, 0}, 0, 3);
+        a.setNumberOfBatteries(3);
         Node root = a.createGuiNode();
+
 
         Scene scene = new Scene((Parent) root);
         stage.setTitle("Hello!");

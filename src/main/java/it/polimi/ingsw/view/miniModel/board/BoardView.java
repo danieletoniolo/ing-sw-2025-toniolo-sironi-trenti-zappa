@@ -4,7 +4,6 @@ import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
 import it.polimi.ingsw.view.miniModel.timer.TimerView;
-import javafx.scene.image.Image;
 import org.javatuples.Pair;
 
 import java.util.HashMap;
@@ -44,18 +43,6 @@ public class BoardView implements Structure {
         }
         this.players = new HashMap<>();
         initializeBoard();
-    }
-
-    @Override
-    public Image drawGui() {
-        String path;
-        if(this.level == LevelView.LEARNING){
-            path = "/image/cardboard/board_I.jpg";
-        } else {
-            path = "/image/cardboard/board_II.jpg";
-        }
-        Image img = new Image(getClass().getResource(path).toExternalForm());
-        return img;
     }
 
     public TimerView getTimerView() {

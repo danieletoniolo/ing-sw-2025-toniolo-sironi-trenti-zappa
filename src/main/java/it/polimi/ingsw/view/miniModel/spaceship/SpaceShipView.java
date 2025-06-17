@@ -147,7 +147,6 @@ public class SpaceShipView implements Structure {
         return fragments;
     }
 
-    @Override
     public Image drawGui() {
         String path;
         if(this.level == LevelView.LEARNING){

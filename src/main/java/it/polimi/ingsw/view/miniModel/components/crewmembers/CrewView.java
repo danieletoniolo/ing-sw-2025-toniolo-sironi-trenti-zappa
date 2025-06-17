@@ -40,7 +40,7 @@ public enum CrewView {
 
     private void notifyListeners() {
         for (MiniModelObserver listener : listeners) {
-            listener.onModelChanged();
+            listener.react();
         }
     }
 

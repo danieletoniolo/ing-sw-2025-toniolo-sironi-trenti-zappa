@@ -1,24 +1,14 @@
 package it.polimi.ingsw.view.miniModel.components;
 
-import it.polimi.ingsw.view.gui.controllers.components.CabinController;
-import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewView;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.image.Image;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CabinView extends ComponentView {
-    private final List<MiniModelObserver> listeners = new ArrayList<>();
-    private final String lightBlue = "\033[94m";
-    private final String blue = "\033[34m";
-    private final String green = "\033[32m";
-    private final String yellow = "\033[33m";
-    private final String red = "\033[31m";
-    private final String reset = "\033[0m";
+    private static final String lightBlue = "\033[94m";
+    private static final String blue = "\033[34m";
+    private static final String green = "\033[32m";
+    private static final String yellow = "\033[33m";
+    private static final String red = "\033[31m";
+    private static final String reset = "\033[0m";
     private final String color;
 
     private int crewNumber;
@@ -59,50 +49,6 @@ public class CabinView extends ComponentView {
 
     public boolean hasBrownAlien() {
         return crew.equals(CrewView.BROWALIEN);
-    }
-
-
-    public void addListener(MiniModelObserver listener) {
-        listeners.add(listener);
-    }
-
-    public void removeListener(MiniModelObserver listener) {
-        listeners.remove(listener);
-    }
-
-    private void notifyListeners() {
-        for (MiniModelObserver listener : listeners) {
-            listener.onModelChanged();
-        }
-    }
-
-    public Node createGuiNode() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/cabin.fxml"));
-            Node root = loader.load();
-
-            CabinController controller = loader.getController();
-            controller.setCabinModel(this);
-
-            return root;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * Draws the component GUI.
-     * This method is called to draw the component GUI.
-     *
-     * @return an Image representing the image of the component
-     */
-    @Override
-    public Image drawGui() {
-        String path = "/image/tiles/" + this.getID() + ".jpg";
-        Image img = new Image(getClass().getResource(path).toExternalForm());
-        return img;
     }
 
     @Override

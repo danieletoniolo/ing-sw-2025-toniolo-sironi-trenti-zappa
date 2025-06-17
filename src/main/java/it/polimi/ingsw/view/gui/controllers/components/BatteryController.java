@@ -1,58 +1,50 @@
 package it.polimi.ingsw.view.gui.controllers.components;
 
-import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.BatteryView;
+import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.TransferMode;
+import javafx.scene.layout.HBox;
 
-public class BatteryController implements MiniModelObserver {
-    private BatteryView batteryModel;
+import java.util.Objects;
 
-    @FXML
-    private ImageView batteryImage;
 
-    public void setBatteryModel(BatteryView batteryModel) {
-        this.batteryModel = batteryModel;
-        batteryModel.addListener(this);
+public class BatteryController extends ComponentController {
+    @FXML private HBox batteryPane;
 
-        batteryImage.setOnDragDetected(event -> {
-            Dragboard db = batteryImage.startDragAndDrop(TransferMode.MOVE);
-            ClipboardContent content = new ClipboardContent();
+    private static final Image BATTERY_IMG = new Image(Objects.requireNonNull(BatteryController.class.getResource("/image/misc/energy.png")).toExternalForm());
 
-            // Passa anche l'ID
-            content.putString(String.valueOf(batteryModel.getID()));
-            db.setContent(content);
 
-            // Metti un'immagine drag
-            db.setDragView(batteryImage.snapshot(null, null));
-
-            // IMPORTANTE: salviamo il nodo sorgente
-            db.setDragViewOffsetX(event.getX());
-            db.setDragViewOffsetY(event.getY());
-
-            event.consume();
-        });
-
-        updateView();
-
+    @Override
+    public void setModel(ComponentView componentView){
+        super.componentView = componentView;
+        super.componentView.registerObserver(this);
+        this.react();
     }
 
     @Override
-    public void onModelChanged() {
-        updateView();
+    public void react() {
+        super.react();
+
+        // Update the batteryPane based on the model's state
+        int numberOfBacteries = ((BatteryView) super.componentView).getNumberOfBatteries();
+
+        batteryPane.getChildren().clear();
+        batteryPane.setSpacing(0); // Set spacing between battery icons
+
+        for (int i = 0; numberOfBacteries > i; i++) {
+            ImageView battery = new ImageView(BATTERY_IMG);
+
+            // Fixed dimensions (could be parameterized if needed)
+            battery.setFitWidth(50);
+            battery.setFitHeight(50);
+            batteryPane.getChildren().add(battery);
+        }
+
+        batteryPane.toFront();
+
     }
 
-    private void updateView() {
-        if (batteryModel == null) return;
 
-        // Prendi l'ID dal MiniModel e carica l'immagine
-        int id = batteryModel.getID();
-        String path = "/image/tiles/" + id + ".jpg";
-        Image image = new Image(getClass().getResource(path).toExternalForm());
-        batteryImage.setImage(image);
-    }
 }

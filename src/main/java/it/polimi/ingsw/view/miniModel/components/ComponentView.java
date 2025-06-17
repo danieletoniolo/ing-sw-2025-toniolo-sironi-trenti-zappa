@@ -1,13 +1,22 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
+import it.polimi.ingsw.view.miniModel.MiniModelObservable;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.Structure;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
-public abstract class ComponentView implements Structure {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class ComponentView implements Structure, MiniModelObservable {
     public static String Up0 =   "╭─────╮";
     public static String Up1 =   "╭──|──╮";
     public static String Up2 =   "╭─|─|─╮";
@@ -56,25 +65,52 @@ public abstract class ComponentView implements Structure {
     private final String red = "\033[31m";
     private final String reset = "\033[0m";
     private int clockWise;
+    private final List<MiniModelObserver> observers;
 
     public ComponentView(int ID, int[] connectors, int clockWise) {
         this.ID = ID;
         this.connectors = connectors;
         this.covered = false;
         this.clockWise = clockWise;
+        this.observers = new ArrayList<>();
+    }
+
+    @Override
+    public void registerObserver(MiniModelObserver observer) {
+        synchronized (observers) {
+            observers.add(observer);
+        }
+    }
+
+    @Override
+    public void unregisterObserver(MiniModelObserver observer) {
+        synchronized (observers) {
+            observers.remove(observer);
+        }
+    }
+
+    @Override
+    public void notifyObservers() {
+        synchronized (observers) {
+            for (MiniModelObserver observer : observers) {
+                observer.react();
+            }
+        }
     }
 
     public Node createGuiNode() {
-        // This method should be overridden in subclasses to provide specific GUI nodes
-        throw new UnsupportedOperationException("This method should be overridden in subclasses");
-    }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/components/component.fxml"));
+            Parent root = loader.load();
 
-    // GUI methods
-    @Override
-    public Image drawGui(){
-        String path = "/image/tiles/covered.jpg";
-        Image img = new Image(getClass().getResource(path).toExternalForm());
-        return img;
+            ComponentController controller = loader.getController();
+            controller.setModel(this);
+
+            return root;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public Image rotateImage(Image inputImage) {
@@ -91,7 +127,6 @@ public abstract class ComponentView implements Structure {
                 writer.setArgb(height - y - 1, x, reader.getArgb(x, y));
             }
         }
-
         return outputImage;
     }
 

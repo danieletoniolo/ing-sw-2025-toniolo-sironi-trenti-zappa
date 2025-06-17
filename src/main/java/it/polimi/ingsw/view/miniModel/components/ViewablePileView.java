@@ -37,13 +37,13 @@ public class ViewablePileView {
 
     private void notifyListeners() {
         for (MiniModelObserver listener : listeners) {
-            listener.onModelChanged();
+            listener.react();
         }
     }
 
     public Node createGuiNode() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/viewablepile.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/components/viewablepile.fxml"));
             Node root = loader.load();
 
             ViewablePileController controller = loader.getController();

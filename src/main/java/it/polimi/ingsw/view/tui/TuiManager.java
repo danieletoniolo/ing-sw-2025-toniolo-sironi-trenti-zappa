@@ -12,13 +12,6 @@ import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
 import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
-import it.polimi.ingsw.model.cards.*;
-import it.polimi.ingsw.model.cards.hits.Hit;
-import it.polimi.ingsw.model.game.board.Deck;
-import it.polimi.ingsw.model.game.board.Level;
-import it.polimi.ingsw.model.good.Good;
-import it.polimi.ingsw.model.spaceship.*;
-import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewView;
 import it.polimi.ingsw.view.tui.input.ScreenChanged;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.ChoosePositionTuiScreen;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.MainCommandsTuiScreen;
@@ -32,30 +25,13 @@ import it.polimi.ingsw.view.tui.screens.lobbyScreens.StartingTuiScreen;
 import it.polimi.ingsw.view.tui.screens.validationScreens.ValidationFragments;
 import it.polimi.ingsw.view.tui.screens.validationScreens.WaitingValidationTuiScreen;
 import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
 import it.polimi.ingsw.view.Manager;
 import it.polimi.ingsw.view.miniModel.MiniModel;
-import it.polimi.ingsw.view.miniModel.board.BoardView;
-import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
-import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
-import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
-import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
-import it.polimi.ingsw.view.miniModel.components.*;
-import it.polimi.ingsw.view.miniModel.deck.DeckView;
-import it.polimi.ingsw.view.miniModel.good.GoodView;
-import it.polimi.ingsw.view.miniModel.lobby.LobbyView;
-import it.polimi.ingsw.view.miniModel.player.MarkerView;
-import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
-import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.*;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.EnginesUsed;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
 
 public class TuiManager implements Manager {
     private final Object stateLock = new Object();
@@ -493,7 +469,7 @@ public class TuiManager implements Manager {
     public void notifyComponentDestroyed(ComponentDestroyed data) {
         synchronized (stateLock) {
             if (!MiniModel.getInstance().getNickname().equals(data.nickname())) {
-                currentScreen.setMessage(data.nickname() + " has lost " + data.destroyedComponents().size() + " components");
+                currentScreen.setMessage(data.nickname() + " has lost " + data.destroyedComponents().size() + "fxml/components");
             }
             stateLock.notifyAll();
         }

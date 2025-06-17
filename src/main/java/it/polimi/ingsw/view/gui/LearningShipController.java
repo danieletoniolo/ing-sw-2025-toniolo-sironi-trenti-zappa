@@ -16,9 +16,9 @@ public class LearningShipController {
     Button myButton;
 
     CabinView cabin = new CabinView(155, new int[]{1, 1, 1, 1}, 0);
-    Image image = cabin.drawGui();
+    //Image image = cabin.drawGui();
 
     public void displayImage(ActionEvent event) {
-        myImageView.setImage(image);
+        //myImageView.setImage(image);
     }
 }

@@ -3,7 +3,6 @@ package it.polimi.ingsw.view.miniModel.player;
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
-import javafx.scene.image.Image;
 
 public class PlayerDataView implements Structure {
     private final String username;
@@ -29,12 +28,6 @@ public class PlayerDataView implements Structure {
             case RED -> red;
         };
         this.ship = ship;
-    }
-
-    @Override
-    public Image drawGui() {
-        //TODO: Implements player data gui
-        return null;
     }
 
     public int getRowsToDraw() {

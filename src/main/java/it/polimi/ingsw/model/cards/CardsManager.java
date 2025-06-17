@@ -11,8 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class CardsManager {
-    private static final ClassLoader classLoader = CardsManager.class.getClassLoader();
-    private static final InputStream inputStream = classLoader.getResourceAsStream("json/Cards.json");
+    private static final InputStream inputStream = CardsManager.class.getResourceAsStream("/json/Cards.json");
     private static final String json;
     static {
         if (inputStream == null) {

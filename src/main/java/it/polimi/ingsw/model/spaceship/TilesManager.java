@@ -8,8 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class TilesManager {
-    private static final ClassLoader classLoader = TilesManager.class.getClassLoader();
-    private static final InputStream inputStream = classLoader.getResourceAsStream("json/Tiles.json");
+    private static final InputStream inputStream = TilesManager.class.getResourceAsStream("/json/Tiles.json");
     private static final String json;
     static {
         if (inputStream == null) {

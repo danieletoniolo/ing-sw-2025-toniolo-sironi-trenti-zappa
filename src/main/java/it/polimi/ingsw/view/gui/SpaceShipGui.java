@@ -1,15 +1,5 @@
 package it.polimi.ingsw.view.gui;
 
-import it.polimi.ingsw.view.miniModel.board.LevelView;
-import it.polimi.ingsw.view.miniModel.components.CabinView;
-import it.polimi.ingsw.view.miniModel.components.GenericComponentView;
-import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.application.Application;
 
@@ -18,6 +8,7 @@ import java.io.IOException;
 public class SpaceShipGui extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+        /*
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ship_second.fxml"));
         AnchorPane root = loader.load();
 
@@ -43,7 +34,7 @@ public class SpaceShipGui extends Application {
         stage.setTitle("Ship iniziale");
         stage.setScene(new Scene(root));
         stage.show();
-
+        */
     }
 
     public static void main(String[] args) {

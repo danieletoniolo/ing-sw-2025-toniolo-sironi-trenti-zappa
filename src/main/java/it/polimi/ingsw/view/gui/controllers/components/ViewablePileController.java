@@ -26,7 +26,7 @@ public class ViewablePileController implements MiniModelObserver {
     }
 
     @Override
-    public void onModelChanged() {
+    public void react() {
         updateView();
     }
 

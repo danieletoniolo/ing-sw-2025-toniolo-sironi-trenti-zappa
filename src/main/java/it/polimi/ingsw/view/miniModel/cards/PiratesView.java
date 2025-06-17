@@ -1,15 +1,14 @@
 package it.polimi.ingsw.view.miniModel.cards;
 
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
-import javafx.scene.image.Image;
 
 import java.util.List;
 
 public class PiratesView extends CardView {
-    private int cannonRequires;
-    private int credits;
-    private int flightDays;
-    private List<HitView> hits;
+    private final int cannonRequires;
+    private final int credits;
+    private final int flightDays;
+    private final List<HitView> hits;
 
     public PiratesView(int ID, boolean covered, int level, int cannonRequires, int credits, int flightDays, List<HitView> hits) {
         super(ID, covered, level);
@@ -17,19 +16,6 @@ public class PiratesView extends CardView {
         this.credits = credits;
         this.flightDays = flightDays;
         this.hits = hits;
-    }
-
-    /**
-     * Draws the card GUI.
-     * This method is called to draw the card GUI.
-     *
-     * @return an Image representing the image of the card
-     */
-    @Override
-    public Image drawGui() {
-        String path = "/image/card/" + this.getID() + ".jpg";
-        Image img = new Image(getClass().getResource(path).toExternalForm());
-        return img;
     }
 
     @Override

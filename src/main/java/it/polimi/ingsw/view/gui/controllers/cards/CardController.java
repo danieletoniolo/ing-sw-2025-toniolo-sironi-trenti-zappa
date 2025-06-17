@@ -12,10 +12,18 @@ import javafx.scene.input.TransferMode;
 import java.util.Objects;
 
 public class CardController implements MiniModelObserver {
+    /**
+     * The ImageView that displays the card image.
+     */
+    @FXML
+    private ImageView cardImage;
 
-    @FXML private ImageView cardImage;
+    /**
+     * The CardView model associated with this controller.
+     * It is set via the setModel method after the FXML has been loaded.
+     */
     private CardView cardView;
-
+    
     @FXML
     private void initialize() {
        // Drag & drop setup for the card image
@@ -42,16 +50,12 @@ public class CardController implements MiniModelObserver {
     */
     public void setModel(CardView cardView) {
        this.cardView = cardView;
-       cardView.registerObserver(this);
-
-       String path = "/image/card/" + cardView.getID() + ".jpg";
-       Image img = new Image(
-               Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
-       cardImage.setImage(img);
+       this.cardView.registerObserver(this);
+       this.react();
     }
 
     @Override
-    public void onModelChanged() {
+    public void react() {
         String path;
         // Update the image based on the card model
         if (cardView.isCovered()) {
@@ -63,8 +67,7 @@ public class CardController implements MiniModelObserver {
         } else {
             path = "/image/card/" + cardView.getID() + ".jpg";
         }
-        Image img = new Image(
-                Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
+        Image img = new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
         cardImage.setImage(img);
     }
 }

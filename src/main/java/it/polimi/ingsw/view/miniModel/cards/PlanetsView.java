@@ -2,7 +2,6 @@ package it.polimi.ingsw.view.miniModel.cards;
 
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
-import javafx.scene.image.Image;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,19 +39,6 @@ public class PlanetsView extends CardView{
 
     public int getPlanetSelected() {
         return planetSelected;
-    }
-
-    /**
-     * Draws the card GUI.
-     * This method is called to draw the card GUI.
-     *
-     * @return an Image representing the image of the card
-     */
-    @Override
-    public Image drawGui() {
-        String path = "/image/card/" + this.getID() + ".jpg";
-        Image img = new Image(getClass().getResource(path).toExternalForm());
-        return img;
     }
 
     @Override
