@@ -1,8 +1,7 @@
 package it.polimi.ingsw.view.miniModel.components;
 
 import it.polimi.ingsw.view.gui.controllers.components.CabinController;
-import it.polimi.ingsw.view.gui.controllers.components.StorageController;
-import it.polimi.ingsw.view.miniModel.MiniModelListener;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewView;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -13,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CabinView extends ComponentView {
-    private final List<MiniModelListener> listeners = new ArrayList<>();
+    private final List<MiniModelObserver> listeners = new ArrayList<>();
     private final String lightBlue = "\033[94m";
     private final String blue = "\033[34m";
     private final String green = "\033[32m";
@@ -63,16 +62,16 @@ public class CabinView extends ComponentView {
     }
 
 
-    public void addListener(MiniModelListener listener) {
+    public void addListener(MiniModelObserver listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(MiniModelListener listener) {
+    public void removeListener(MiniModelObserver listener) {
         listeners.remove(listener);
     }
 
     private void notifyListeners() {
-        for (MiniModelListener listener : listeners) {
+        for (MiniModelObserver listener : listeners) {
             listener.onModelChanged();
         }
     }

@@ -3,22 +3,12 @@ package it.polimi.ingsw.view.gui;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.good.Good;
-import it.polimi.ingsw.view.gui.controllers.components.LifeSupportPurpleController;
-import it.polimi.ingsw.view.gui.controllers.components.ShieldController;
-import it.polimi.ingsw.view.gui.controllers.components.StorageController;
-import it.polimi.ingsw.view.gui.controllers.components.ViewablePileController;
-import it.polimi.ingsw.view.gui.controllers.ship.SpaceshipController;
-import it.polimi.ingsw.view.gui.screens.BuildingGuiScreen;
-import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
-import it.polimi.ingsw.view.miniModel.components.*;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
-import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -38,7 +28,7 @@ public class GuiTest extends Application {
 
         Node root = pile.createGuiNode();*/
 
-        AbandonedShipView a = new AbandonedShipView(1, false, 1, 2, 3, 4);
+        AbandonedShipView a = new AbandonedShipView(17, false, 1, 2, 3, 4);
         Node root = a.createGuiNode();
 
         Scene scene = new Scene((Parent) root);

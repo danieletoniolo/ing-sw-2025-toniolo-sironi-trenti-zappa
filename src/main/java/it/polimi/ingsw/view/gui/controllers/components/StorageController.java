@@ -1,6 +1,6 @@
 package it.polimi.ingsw.view.gui.controllers.components;
 
-import it.polimi.ingsw.view.miniModel.MiniModelListener;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.StorageView;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
@@ -9,7 +9,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
-public class StorageController implements MiniModelListener {
+public class StorageController implements MiniModelObserver {
     // Info about the storage in the modelView
     private StorageView storageModel;
 

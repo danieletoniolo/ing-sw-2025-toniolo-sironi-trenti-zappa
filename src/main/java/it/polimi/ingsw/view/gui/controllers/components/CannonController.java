@@ -1,16 +1,15 @@
 package it.polimi.ingsw.view.gui.controllers.components;
 
-import it.polimi.ingsw.view.miniModel.MiniModelListener;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.CannonView;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 
-public class CannonController implements MiniModelListener {
+public class CannonController implements MiniModelObserver {
     private CannonView cannonModel;
 
     @FXML

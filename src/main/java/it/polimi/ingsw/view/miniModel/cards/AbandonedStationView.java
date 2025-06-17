@@ -4,11 +4,12 @@ import it.polimi.ingsw.view.miniModel.good.GoodView;
 import javafx.scene.image.Image;
 
 import java.util.List;
+import java.util.Objects;
 
 public class AbandonedStationView extends CardView {
-    private int crewRequired;
-    private List<GoodView> goods;
-    private int flightDays;
+    private final int crewRequired;
+    private final List<GoodView> goods;
+    private final int flightDays;
 
     public AbandonedStationView(int ID, boolean covered, int level, int crewRequired, int flightDays, List<GoodView> goods) {
         super(ID, covered, level);
@@ -26,8 +27,7 @@ public class AbandonedStationView extends CardView {
     @Override
     public Image drawGui() {
         String path = "/image/card/" + this.getID() + ".jpg";
-        Image img = new Image(getClass().getResource(path).toExternalForm());
-        return img;
+        return new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
     }
 
     @Override
@@ -38,9 +38,9 @@ public class AbandonedStationView extends CardView {
             case 0 -> Up;
             case 1 -> "│ ABANDONEDSTATION  │";
             case 2,5,6,7 -> Clear;
-            case 3 -> "│  CrewRequired: " + getCrewRequired();
+            case 3 -> "│  CrewRequired: " + crewRequired;
             case 4 -> "│  Goods: " + printGoods();
-            case 8 -> "│   FlightDays: " + getFlightDays();
+            case 8 -> "│   FlightDays: " + flightDays;
             case 9 -> Down;
             default -> null;
         });
@@ -52,14 +52,6 @@ public class AbandonedStationView extends CardView {
             line.append("│");
         }
         return line.toString();
-    }
-
-    public int getFlightDays() {
-        return flightDays;
-    }
-
-    public int getCrewRequired() {
-        return crewRequired;
     }
 
     public List<GoodView> getGoods() {

@@ -1,5 +1,5 @@
 package it.polimi.ingsw.view.miniModel;
 
-public interface MiniModelListener {
+public interface MiniModelObserver {
     void onModelChanged();
 }

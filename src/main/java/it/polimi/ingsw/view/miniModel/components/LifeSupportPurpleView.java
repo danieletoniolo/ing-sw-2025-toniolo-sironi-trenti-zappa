@@ -1,8 +1,7 @@
 package it.polimi.ingsw.view.miniModel.components;
 
 import it.polimi.ingsw.view.gui.controllers.components.LifeSupportPurpleController;
-import it.polimi.ingsw.view.gui.controllers.components.StorageController;
-import it.polimi.ingsw.view.miniModel.MiniModelListener;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -12,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LifeSupportPurpleView extends ComponentView {
-    private final List<MiniModelListener> listeners = new ArrayList<>();
+    private final List<MiniModelObserver> listeners = new ArrayList<>();
     private String purple = "\033[35m";
     private String reset = "\033[0m";
 
@@ -20,16 +19,16 @@ public class LifeSupportPurpleView extends ComponentView {
         super(ID, connectors, clockWise);
     }
 
-    public void addListener(MiniModelListener listener) {
+    public void addListener(MiniModelObserver listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(MiniModelListener listener) {
+    public void removeListener(MiniModelObserver listener) {
         listeners.remove(listener);
     }
 
     private void notifyListeners() {
-        for (MiniModelListener listener : listeners) {
+        for (MiniModelObserver listener : listeners) {
             listener.onModelChanged();
         }
     }

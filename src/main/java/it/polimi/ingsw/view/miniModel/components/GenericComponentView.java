@@ -1,8 +1,7 @@
 package it.polimi.ingsw.view.miniModel.components;
 
 import it.polimi.ingsw.view.gui.controllers.components.GenericComponentController;
-import it.polimi.ingsw.view.gui.controllers.components.StorageController;
-import it.polimi.ingsw.view.miniModel.MiniModelListener;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -12,22 +11,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GenericComponentView extends ComponentView {
-    private final List<MiniModelListener> listeners = new ArrayList<>();
+    private final List<MiniModelObserver> listeners = new ArrayList<>();
 
     public GenericComponentView() {
         super(-1, new int[]{0, 0, 0, 0}, 0);
     }
 
-    public void addListener(MiniModelListener listener) {
+    public void addListener(MiniModelObserver listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(MiniModelListener listener) {
+    public void removeListener(MiniModelObserver listener) {
         listeners.remove(listener);
     }
 
     private void notifyListeners() {
-        for (MiniModelListener listener : listeners) {
+        for (MiniModelObserver listener : listeners) {
             listener.onModelChanged();
         }
     }

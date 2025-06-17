@@ -1,22 +1,18 @@
 package it.polimi.ingsw.view.miniModel.components;
 
 import it.polimi.ingsw.view.gui.controllers.components.StorageController;
-import it.polimi.ingsw.view.gui.controllers.ship.SpaceshipController;
-import it.polimi.ingsw.view.miniModel.MiniModelListener;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class StorageView extends ComponentView {
-    private final List<MiniModelListener> listeners = new ArrayList<>();
+    private final List<MiniModelObserver> listeners = new ArrayList<>();
 
     private GoodView[] goods;
     private final boolean dangerous;
@@ -32,16 +28,16 @@ public class StorageView extends ComponentView {
         this.capacity = capacity;
     }
 
-    public void addListener(MiniModelListener listener) {
+    public void addListener(MiniModelObserver listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(MiniModelListener listener) {
+    public void removeListener(MiniModelObserver listener) {
         listeners.remove(listener);
     }
 
     private void notifyListeners() {
-        for (MiniModelListener listener : listeners) {
+        for (MiniModelObserver listener : listeners) {
             listener.onModelChanged();
         }
     }

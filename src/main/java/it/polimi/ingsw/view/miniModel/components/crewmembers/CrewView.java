@@ -1,6 +1,6 @@
 package it.polimi.ingsw.view.miniModel.components.crewmembers;
 
-import it.polimi.ingsw.view.miniModel.MiniModelListener;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -15,7 +15,7 @@ public enum CrewView {
     BROWALIEN(1),
     PURPLEALIEN(2);
 
-    private final List<MiniModelListener> listeners = new ArrayList<>();
+    private final List<MiniModelObserver> listeners = new ArrayList<>();
     private final int value;
     private final String brown = "\033[38;5;220m";
     private final String purple = "\033[35m";
@@ -30,16 +30,16 @@ public enum CrewView {
     }
 
 
-    public void addListener(MiniModelListener listener) {
+    public void addListener(MiniModelObserver listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(MiniModelListener listener) {
+    public void removeListener(MiniModelObserver listener) {
         listeners.remove(listener);
     }
 
     private void notifyListeners() {
-        for (MiniModelListener listener : listeners) {
+        for (MiniModelObserver listener : listeners) {
             listener.onModelChanged();
         }
     }

@@ -1,15 +1,14 @@
 package it.polimi.ingsw.view.gui.controllers.components;
 
-import it.polimi.ingsw.view.miniModel.MiniModelListener;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.components.ViewablePileView;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
 
 
-public class ViewablePileController implements MiniModelListener {
+public class ViewablePileController implements MiniModelObserver {
     private ViewablePileView viewablePileView;
 
     @FXML
