@@ -24,4 +24,10 @@ public class TerminalUtils {
             e.printStackTrace();
         }
     }
+
+    public static void clearLastLines(int startingRow, Terminal terminal) {
+        for (int i = startingRow; i < terminal.getSize().getRows(); i++ ) {
+            TerminalUtils.printLine(terminal.writer(), "", i);
+        }
+    }
 }

@@ -1,6 +1,5 @@
 package it.polimi.ingsw.view.tui.screens;
 
-import it.polimi.ingsw.view.tui.screens.buildingScreens.CheatShipScreen;
 import org.javatuples.Pair;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -17,11 +16,9 @@ import java.util.List;
 
 public abstract class BuildingTuiScreen implements TuiScreenView {
     protected final ArrayList<String> options = new ArrayList<>();
-    protected final int cols = 22;
     protected final PlayerDataView clientPlayer = MiniModel.getInstance().getClientPlayer();
     protected int totalLines;
 
-    private int row;
     protected String message;
 
     protected final Pair<DeckView[], Boolean[]> decksView;
@@ -37,9 +34,7 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
         }
         options.add("Close program");
 
-        int componentsSize = (MiniModel.getInstance().getViewablePile().getViewableComponents().isEmpty()) ? 1 : (MiniModel.getInstance().getViewablePile().getViewableComponents().size() / cols);
-        totalLines = 1 + componentsSize * ComponentView.getRowsToDraw()
-                + (MiniModel.getInstance().getViewablePile().getViewableComponents().size() % cols == 0 ? 0 : ComponentView.getRowsToDraw())
+        totalLines = MiniModel.getInstance().getViewablePile().getRowsToDraw()
                 + 1 + clientPlayer.getShip().getRowsToDraw() + 3 + 2;
     }
 
@@ -72,9 +67,12 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
     @Override
     public void printTui(Terminal terminal) {
         var writer = terminal.writer();
-        row = 1;
+        int row = 1;
 
-        drawTiles(writer, MiniModel.getInstance().getViewablePile().getViewableComponents());
+        ViewablePileView tiles = MiniModel.getInstance().getViewablePile();
+        for (int i = 0; i < tiles.getRowsToDraw(); i++) {
+            TerminalUtils.printLine(writer, tiles.drawLineTui(i), row++);
+        }
         TerminalUtils.printLine(writer, "", row++);
 
         int deckCount = 0;
@@ -82,16 +80,15 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
             StringBuilder line = new StringBuilder();
             line.append(clientPlayer.getShip().drawLineTui(i));
             if (i == 0) {
-                int hiddenTiles = MiniModel.getInstance().getNumberViewableComponents();
-                int fraction = hiddenTiles / 10;
-                line.append("Reserved pile:").append("        ").append("Hidden tiles: ").append(hiddenTiles).append(fraction >= 10 ? "" : fraction > 0 ? " " : "  ");
+                line.append("Reserved pile: ").append(clientPlayer.getShip().getDiscardReservedPile().getReserved().size());
             }
             else if (i <= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1) - 1) {
-                line.append(clientPlayer.getShip().getDiscardReservedPile().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
+                line.append(" ").append(clientPlayer.getShip().getDiscardReservedPile().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
             }
             else if (i == ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 2 + 1) - 1) {
                 line.append("     " + "   Hand: ");
-            } else if (i >= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 2 + 1) && i < ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 3 + 1)) {
+            }
+            else if (i >= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 2 + 1) && i < ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 3 + 1)) {
                 line.append("       ").append(clientPlayer.getHand().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
             }
             else if (i == clientPlayer.getShip().getRowsToDraw() - 1) {
@@ -102,13 +99,17 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
             }
             if (clientPlayer.getShip().getLevel().equals(LevelView.SECOND)) {
                 if (i == 0) {
-                    line.append("         ");
+                    line.append("     ");
+                    int hiddenTiles = MiniModel.getInstance().getNumberViewableComponents();
+                    int fraction = hiddenTiles / 10;
                     line.append(timerView.drawLineTui(0));
+                    line.append(" ".repeat(Math.max(0, decksView.getValue0()[0].getColsToDraw())));
+                    line.append("            ").append("Hidden tiles: ").append(hiddenTiles).append(fraction >= 10 ? "" : fraction > 0 ? " " : "  ");
                 }
                 if (i == 1) {
-                    line.append("       ");
-                    line.append(" ".repeat(Math.max(0, decksView.getValue0()[0].getColsToDraw())));
-                    line.append("    ");
+                    line.append("      ");
+                    //line.append(" ".repeat(Math.max(0, decksView.getValue0()[0].getColsToDraw())));
+                    //line.append("    ");
                     line.append(timerView.drawLineTui(1));
                 }
                 if (i == ((clientPlayer.getShip().getRowsToDraw() - 2) / 5) + 1) {
@@ -136,9 +137,7 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, lineBeforeInput(), row);
 
-        for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
-            TerminalUtils.printLine(writer, "", i);
-        }
+        TerminalUtils.clearLastLines(totalLines + options.size(), terminal);
     }
 
     protected String lineBeforeInput(){
@@ -148,46 +147,6 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
     @Override
     public synchronized void setMessage(String message) {
         this.message = message;
-    }
-
-    private void drawTiles(java.io.PrintWriter writer, ArrayList<ComponentView> tiles) {
-        StringBuilder line = new StringBuilder();
-        line.append("   ");
-        for (int i = 0; i < cols; i++) {
-            line.append("  ").append((i + 1) / 10 == 0 ? " " + (i + 1) : (i + 1)).append("   ");
-        }
-        TerminalUtils.printLine(writer, line.toString(), row++);
-        line.setLength(0);
-        for (int h = 0; h < tiles.size() / cols; h++) {
-            for (int i = 0; i < ComponentView.getRowsToDraw(); i++) {
-                if (i == 1) {
-                    line.append(((h + 1) / 10 == 0 ? ((h + 1) + "  ") : (h + 1) + " "));
-                } else {
-                    line.append("   ");
-                }
-                for (int k = 0; k < cols; k++) {
-                    line.append(tiles.get(h * cols + k).drawLineTui(i));
-                }
-                TerminalUtils.printLine(writer, line.toString(), row++);
-                line.setLength(0);
-            }
-        }
-
-        if (tiles.size() % cols != 0 || tiles.isEmpty()) {
-            line.setLength(0);
-            for (int i = 0; i < ComponentView.getRowsToDraw(); i++) {
-                if (i == 1) {
-                    line.append(((tiles.size() / cols + 1) / 10 == 0 ? ((tiles.size() / cols + 1) + "  ") : ((tiles.size() / cols + 1) + " ")));
-                } else {
-                    line.append("   ");
-                }
-                for (int k = 0; k < tiles.size() % cols; k++) {
-                    line.append(tiles.get((tiles.size() / cols) * cols + k).drawLineTui(i));
-                }
-                TerminalUtils.printLine(writer, line.toString(), row++);
-                line.setLength(0);
-            }
-        }
     }
 
     @Override

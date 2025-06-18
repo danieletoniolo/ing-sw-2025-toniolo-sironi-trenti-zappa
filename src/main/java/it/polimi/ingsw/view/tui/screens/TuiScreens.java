@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.tui.screens;
 
 public enum TuiScreens {
     Building,
+    MainCommands,
     Writing,
     Deck,
     Lobby,

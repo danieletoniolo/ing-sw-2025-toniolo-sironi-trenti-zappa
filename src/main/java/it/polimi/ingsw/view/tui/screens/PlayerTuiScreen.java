@@ -12,6 +12,7 @@ public class PlayerTuiScreen implements TuiScreenView {
     private final int totalLines;
     private final TuiScreenView oldScreen;
     protected String message;
+    private TuiScreenView nextScreen;
 
     private final PlayerDataView playerToView;
 
@@ -32,6 +33,9 @@ public class PlayerTuiScreen implements TuiScreenView {
 
     @Override
     public TuiScreenView setNewScreen() {
+        if (nextScreen != null) {
+            return nextScreen;
+        }
         return oldScreen;
     }
 
@@ -57,9 +61,7 @@ public class PlayerTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, "Commands:", row);
 
-        for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
-            TerminalUtils.printLine(writer, "", i);
-        }
+        TerminalUtils.clearLastLines(totalLines + options.size(), terminal);
     }
 
     @Override
@@ -74,6 +76,6 @@ public class PlayerTuiScreen implements TuiScreenView {
 
     @Override
     public void setNextScreen(TuiScreenView nextScreen) {
-
+        this.nextScreen = nextScreen;
     }
 }

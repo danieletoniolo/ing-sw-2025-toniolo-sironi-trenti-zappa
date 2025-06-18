@@ -9,7 +9,9 @@ import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.components.TilesTypeView;
 import it.polimi.ingsw.view.tui.screens.BuildingTuiScreen;
+import it.polimi.ingsw.view.tui.screens.ChoosePositionTuiScreen;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
+import it.polimi.ingsw.view.tui.screens.TuiScreens;
 
 import java.util.ArrayList;
 
@@ -28,6 +30,11 @@ public class MainCommandsTuiScreen extends BuildingTuiScreen {
             }
             add("Place marker");
         }});
+    }
+
+    @Override
+    public TuiScreens getType() {
+        return TuiScreens.MainCommands;
     }
 
     @Override

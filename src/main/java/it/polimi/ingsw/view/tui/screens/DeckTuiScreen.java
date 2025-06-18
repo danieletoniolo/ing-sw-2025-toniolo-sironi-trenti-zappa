@@ -60,11 +60,9 @@ public class DeckTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, message == null ? "" : message, row++);
         TerminalUtils.printLine(writer, "", row++);
-        TerminalUtils.printLine(writer, "Commands:", row++);
+        TerminalUtils.printLine(writer, "Commands:", row);
 
-        for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
-            TerminalUtils.printLine(writer, "", i);
-        }
+        TerminalUtils.clearLastLines(totalLines + options.size(), terminal);
     }
 
     @Override

@@ -50,9 +50,7 @@ public class MenuTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, lineBeforeInput(), row);
 
-        for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
-            TerminalUtils.printLine(writer, "", i);
-        }
+        TerminalUtils.clearLastLines(totalLines + options.size(), terminal);
     }
 
     protected String lineBeforeInput(){

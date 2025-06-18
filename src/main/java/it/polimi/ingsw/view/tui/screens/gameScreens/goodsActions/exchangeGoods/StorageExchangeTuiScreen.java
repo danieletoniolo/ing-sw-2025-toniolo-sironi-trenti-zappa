@@ -72,6 +72,7 @@ public class StorageExchangeTuiScreen extends ManagerExchangeGoodsTuiScreen{
             }
         }
         storage = spaceShipView.getMapStorages().get(ID);
+        setMessage("You selected the storage at (" + storage.getRow() + "," + storage.getCol() + ")");
         return new DropGoodsTuiScreen(oldScreen);
     }
 

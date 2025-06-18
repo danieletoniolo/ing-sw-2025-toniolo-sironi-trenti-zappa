@@ -1068,6 +1068,7 @@ public class EventHandlerClient {
             timer.setNumberOfFlips(data.numberOfFlips());
             timer.setTotalFlips(data.maxNumberOfFlips());
             new Thread(() -> {
+                boolean firstSecond = true;
                 timer.setFlippedTimer(getPlayerDataView(data.nickname()));
                 LocalTime serverTime = LocalTime.parse(data.startingTime());
                 LocalTime clientTime = LocalTime.now();
@@ -1075,7 +1076,8 @@ public class EventHandlerClient {
                 while (time >= 0) {
                     try {
                         MiniModel.getInstance().getTimerView().setSecondsRemaining(time);
-                        manager.notifyTimer(data);
+                        manager.notifyTimer(data, firstSecond);
+                        if (firstSecond) firstSecond = false;
                         Thread.sleep(1000);
                         time--;
                     } catch (InterruptedException e) {

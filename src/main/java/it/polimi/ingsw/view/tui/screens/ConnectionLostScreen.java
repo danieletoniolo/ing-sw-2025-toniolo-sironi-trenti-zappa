@@ -7,14 +7,13 @@ import org.jline.terminal.Terminal;
 public class ConnectionLostScreen implements TuiScreenView {
     @Override
     public TuiScreenView setNewScreen() {
-        return null; // No new screen to set
+        return this;
     }
 
     @Override
     public void printTui(Terminal terminal) {
-        for (int i = 1; i < terminal.getSize().getRows(); i++ ) {
-            TerminalUtils.printLine(terminal.writer(), "", i);
-        }
+        TerminalUtils.clearLastLines(1, terminal);
+
         TerminalUtils.printLine(terminal.writer(), "Connection with the server lost. Closing program...", 1);
         TerminalUtils.printLine(terminal.writer(), "", 2);
     }

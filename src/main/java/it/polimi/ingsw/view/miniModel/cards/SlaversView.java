@@ -22,7 +22,7 @@ public class SlaversView extends CardView {
             case 0 -> Up;
             case 1 -> "│      SLAVERS      │";
             case 2, 6, 7 -> Clear;
-            case 3 -> "│   StrenghtReq: " + getCannonRequired();
+            case 3 -> "│   StrengthReq: " + getCannonRequired();
             case 4 -> "│   CrewLost: " + getCrewLoss();
             case 5 -> "│   Credit: " + getCredits();
             case 8 -> "│   FlightDays: " + getFlightDays();

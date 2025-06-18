@@ -11,7 +11,7 @@ public class OpenSpaceView extends CardView {
 
         return switch(l) {
             case 0 -> Up;
-            case 1 -> "│     OPENSPACE     │";
+            case 1 -> "│     OPEN SPACE    │";
             case 2 -> Clear;
             case 3 -> "│        / \\        │";
             case 4 -> "│       /   \\       │";

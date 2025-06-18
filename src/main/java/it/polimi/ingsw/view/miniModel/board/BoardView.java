@@ -70,7 +70,7 @@ public class BoardView implements Structure {
 
         players.put(color, step);
         players.forEach((key, value) -> {
-            path[value % stepsForALap] = key.drawTui();
+            path[value] = key.drawTui();
         });
     }
 
@@ -121,7 +121,7 @@ public class BoardView implements Structure {
                 return print.toString();
             }
             if (line == getRowsToDraw() - 1) {
-                int down = stepsForALap - 4;
+                int down = stepsForALap - (level == LevelView.LEARNING ? 4 : 6);
                 print.append("  ").append(Bow3).append(ArrowLeft).append(Dash).append(Dash).append(Dash);
                 for (int i = 0; i < cols; i++) {
                     print.append("[ ").append(path[down]).append(" ]").append(ArrowLeft).append(Dash);
@@ -140,7 +140,6 @@ public class BoardView implements Structure {
             print.append("       ".repeat(Math.max(0, cols)));
             print.append("[ ").append(path[stepsForALap / 4 + line / 2]).append(" ]");
             return print.toString();
-
         }
         print.append("  ").append(ArrowUp).append("  ");
         print.append("       ".repeat(Math.max(0, cols)));

@@ -108,9 +108,6 @@ public class SwapGoodsWithTuiScreen extends ManagerSwapGoodTuiScreen {
 
     @Override
     protected String lineBeforeInput() {
-        if (withStorage == null) {
-            return "Select an action:";
-        }
         return "Select goods to swap WITH (" + withStorage.getRow() + " " + withStorage.getCol() + "):";
     }
 }

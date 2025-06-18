@@ -13,7 +13,8 @@ import java.util.List;
 public enum CrewView {
     HUMAN(0),
     BROWALIEN(1),
-    PURPLEALIEN(2);
+    PURPLEALIEN(2),
+    UNCOLOREDALIEN(3);
 
     private final List<MiniModelObserver> listeners = new ArrayList<>();
     private final int value;
@@ -63,6 +64,7 @@ public enum CrewView {
             case HUMAN -> Color.WHITE;
             case BROWALIEN -> Color.rgb(95, 75, 25);
             case PURPLEALIEN -> Color.rgb(133, 25, 133);
+            case UNCOLOREDALIEN -> Color.rgb(150, 150, 150);
         };
 
         Color borderColor = Color.BLACK;
@@ -97,6 +99,7 @@ public enum CrewView {
             case HUMAN -> "☺";
             case BROWALIEN -> brown + "&" + reset;
             case PURPLEALIEN -> purple + "&" + reset;
+            case UNCOLOREDALIEN -> "&";
         };
     }
 }

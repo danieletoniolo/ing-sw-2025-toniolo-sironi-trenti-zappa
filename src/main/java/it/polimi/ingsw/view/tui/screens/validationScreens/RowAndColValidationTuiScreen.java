@@ -12,6 +12,7 @@ public class RowAndColValidationTuiScreen extends ValidationTuiScreen {
         super();
 
         options.clear();
+        options.add("");
         this.oldScreen = oldScreen;
     }
 
@@ -23,9 +24,9 @@ public class RowAndColValidationTuiScreen extends ValidationTuiScreen {
 
     @Override
     public TuiScreenView setNewScreen() {
-        destroyTiles.add(correctRowAndCol);
         try {
             spaceShipView.removeComponent(correctRowAndCol.getValue0(), correctRowAndCol.getValue1());
+            destroyTiles.add(correctRowAndCol);
         } catch (Exception _) {
         }
         return oldScreen;

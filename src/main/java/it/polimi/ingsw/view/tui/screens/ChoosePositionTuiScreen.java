@@ -1,4 +1,4 @@
-package it.polimi.ingsw.view.tui.screens.buildingScreens;
+package it.polimi.ingsw.view.tui.screens;
 
 import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.clientToServer.player.PlaceMarker;
@@ -9,8 +9,8 @@ import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
-import it.polimi.ingsw.view.tui.screens.TuiScreenView;
-import it.polimi.ingsw.view.tui.screens.TuiScreens;
+import it.polimi.ingsw.view.tui.screens.buildingScreens.MainCommandsTuiScreen;
+import it.polimi.ingsw.view.tui.screens.buildingScreens.WatchingTuiScreen;
 import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
@@ -23,7 +23,6 @@ public class ChoosePositionTuiScreen implements TuiScreenView {
     private final BoardView boardView = MiniModel.getInstance().getBoardView();
     private int selected;
     private String message;
-    private boolean isNewScreen;
 
     public ChoosePositionTuiScreen() {
         options.add("1");
@@ -33,7 +32,6 @@ public class ChoosePositionTuiScreen implements TuiScreenView {
         options.add("Back");
 
         totalLines = MiniModel.getInstance().getBoardView().getRowsToDraw() + 5;
-        isNewScreen = true;
     }
 
     @Override
@@ -83,12 +81,7 @@ public class ChoosePositionTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, "Choose your starting position: ", row);
 
-        if (isNewScreen) {
-            isNewScreen = false;
-            for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
-                TerminalUtils.printLine(writer, "", i);
-            }
-        }
+        TerminalUtils.clearLastLines(totalLines + options.size(), terminal);
     }
 
     @Override

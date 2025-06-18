@@ -21,7 +21,7 @@ public class MeteorSwarmView extends CardView {
 
         StringBuilder line = new StringBuilder(switch(l) {
             case 0 -> Up;
-            case 1 -> "│    METEORSWARM    │";
+            case 1 -> "│   METEOR SWARM    │";
             case 2,8 -> Clear;
             case 3 -> (!hits.isEmpty() ?  ("│   " + (currentHit == 0 ? drawCurrent() : " ") + " Hit1: " + hits.getFirst().drawHitTui()) : Clear);
             case 4 -> (hits.size() >= 2 ? ("│   " + (currentHit == 1 ? drawCurrent() : " ") + " Hit2: " + hits.get(1).drawHitTui()) : Clear);

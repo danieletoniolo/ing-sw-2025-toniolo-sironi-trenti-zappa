@@ -104,7 +104,7 @@ public interface Manager {
     void notifyUpdateCrewMembers(UpdateCrewMembers data);
 
     // Timer
-    void notifyTimer(TimerFlipped data);
+    void notifyTimer(TimerFlipped data, boolean firstSecond);
 
     void notifyTimerFinished(TimerFlipped data);
 

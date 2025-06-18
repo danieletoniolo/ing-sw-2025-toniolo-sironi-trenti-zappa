@@ -46,9 +46,7 @@ public class LogInTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, message == null ? "" : message, row++);
         TerminalUtils.printLine(writer, "", row);
 
-        for (int i = totalLines + 1; i < terminal.getSize().getRows(); i++ ) {
-            TerminalUtils.printLine(writer, "", i);
-        }
+        TerminalUtils.clearLastLines(totalLines + 1, terminal);
     }
 
     @Override

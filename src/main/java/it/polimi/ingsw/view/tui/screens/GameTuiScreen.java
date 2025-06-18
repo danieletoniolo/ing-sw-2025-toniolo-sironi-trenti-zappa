@@ -103,10 +103,10 @@ public abstract class GameTuiScreen implements TuiScreenView {
             line.append(spaceShipView.drawLineTui(i));
 
             if (i == 0) {
-                line.append(" Discard pile: ");
+                line.append(" Discard pile: ").append(clientPlayer.getShip().getDiscardReservedPile().getReserved().size());
             }
             else if (i <= ((spaceShipView.getRowsToDraw() - 2) / 5 + 1) - 1) {
-                line.append(spaceShipView.getDiscardReservedPile().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
+                line.append(" ").append(spaceShipView.getDiscardReservedPile().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
             }
             else if (i > ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + 1) - 1 && i <= ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + clientPlayer.getRowsToDraw())) {
                 line.append("   ").append(clientPlayer.drawLineTui(playerCount));
@@ -128,10 +128,7 @@ public abstract class GameTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
         TerminalUtils.printLine(writer, lineBeforeInput(), row);
 
-        for (int i = totalLines + options.size(); i < terminal.getSize().getRows(); i++ ) {
-            TerminalUtils.printLine(writer, "", i);
-        }
-
+        TerminalUtils.clearLastLines(totalLines + options.size(), terminal);
     }
 
     protected String lineBeforeInput() {
