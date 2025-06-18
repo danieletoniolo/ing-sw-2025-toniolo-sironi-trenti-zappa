@@ -7,6 +7,8 @@ import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 
+import java.util.ArrayList;
+
 
 public class StardustState extends State {
 
@@ -16,22 +18,18 @@ public class StardustState extends State {
      */
     public StardustState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
-    }
-
-    @Override
-    public void entry(){
-        for(PlayerData p : players){
-            int numberExposedConnectors = p.getSpaceShip().getExposedConnectors();
-            board.addSteps(p, -numberExposedConnectors);
-
-            MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
-            eventCallback.trigger(stepsEvent);
-        }
-        super.entry();
+        super.players = new ArrayList<>(super.players.reversed());
     }
 
     @Override
     public void execute(PlayerData player) {
+
+        int numberExposedConnectors = player.getSpaceShip().getExposedConnectors();
+        board.addSteps(player, -numberExposedConnectors);
+
+        MoveMarker stepsEvent = new MoveMarker(player.getUsername(),  player.getModuleStep(board.getStepsForALap()));
+        eventCallback.trigger(stepsEvent);
+
         super.execute(player);
 
         try {

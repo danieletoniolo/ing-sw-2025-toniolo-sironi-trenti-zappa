@@ -44,7 +44,7 @@ public class SelectPlanetTuiScreen extends GameTuiScreen {
             return this;
         }
 
-        return new MenuGoodsTuiScreen(new NotClientTurnTuiScreen());
+        return new MenuGoodsTuiScreen();
     }
 
     @Override

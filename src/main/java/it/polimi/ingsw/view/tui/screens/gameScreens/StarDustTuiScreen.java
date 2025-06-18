@@ -13,7 +13,7 @@ import java.util.List;
 public class StarDustTuiScreen extends GameTuiScreen {
 
     public StarDustTuiScreen() {
-        super(List.of("Go on"));
+        super(List.of("Move marker"));
         setMessage("Sensor report: high-density star dust incoming.");
     }
 

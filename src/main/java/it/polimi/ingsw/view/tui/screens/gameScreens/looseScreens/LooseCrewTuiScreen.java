@@ -18,9 +18,9 @@ import java.util.Map;
 public class LooseCrewTuiScreen extends GameTuiScreen {
     private static List<Integer> cabinIDs;
     private static boolean reset;
-    private final TuiScreenView nextScreen;
+    private TuiScreenView nextScreen;
 
-    public LooseCrewTuiScreen(TuiScreenView nextScreen) {
+    public LooseCrewTuiScreen() {
         super(new ArrayList<>(){{
             if (!reset) {
                 spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
@@ -38,7 +38,6 @@ public class LooseCrewTuiScreen extends GameTuiScreen {
         if (cabinIDs == null) {
             cabinIDs = new ArrayList<>();
         }
-        this.nextScreen = nextScreen;
     }
 
     private void destroyStatic() {
@@ -63,7 +62,7 @@ public class LooseCrewTuiScreen extends GameTuiScreen {
 
         if (selected == num) {
             destroyStatic();
-            return new LooseCrewTuiScreen(nextScreen);
+            return new LooseCrewTuiScreen();
         }
 
         if (selected == num + 1) {
@@ -72,7 +71,7 @@ public class LooseCrewTuiScreen extends GameTuiScreen {
             destroyStatic();
             if (status.get().equals("POTA")) {
                 setMessage(((Pota) status).errorMessage());
-                return new LooseCrewTuiScreen(nextScreen);
+                return new LooseCrewTuiScreen();
             }
             spaceShipView = clientPlayer.getShip();
             return nextScreen;
@@ -92,6 +91,11 @@ public class LooseCrewTuiScreen extends GameTuiScreen {
             line.append(spaceShipView.getMapCabins().get(integer).getCrewType().drawTui()).append("(").append(spaceShipView.getMapCabins().get(integer).getRow()).append(" ").append(spaceShipView.getMapCabins().get(integer).getCol()).append(") ");
         }
         setMessage("You are loosing a crew member from " + line);
-        return new LooseCrewTuiScreen(nextScreen);
+        return new LooseCrewTuiScreen();
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+        this.nextScreen = nextScreen;
     }
 }

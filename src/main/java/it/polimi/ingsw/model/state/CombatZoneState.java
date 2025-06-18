@@ -76,7 +76,7 @@ public class CombatZoneState extends State {
         int flightDays = card.getFlightDays();
         board.addSteps(player, -flightDays);
 
-        MoveMarker stepsEvent = new MoveMarker(player.getUsername(), player.getStep());
+        MoveMarker stepsEvent = new MoveMarker(player.getUsername(),  player.getModuleStep(board.getStepsForALap()));
         eventCallback.trigger(stepsEvent);
     }
 

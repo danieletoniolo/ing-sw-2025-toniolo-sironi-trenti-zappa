@@ -44,13 +44,7 @@ public interface Manager {
     void notifyDiceRolled(DiceRolled data);
 
     // Energy used
-    void notifyBatteriesUsed(BatteriesLoss data);
-
-    void notifyCannonsUsed(CannonsUsed data);
-
-    void notifyEnginesUsed(EnginesUsed data);
-
-    void notifyShieldUsed(ShieldUsed data);
+    void notifyBatteriesLoss(BatteriesLoss data);
 
     // Goods
     void notifyUpdateGoodsExchange(UpdateGoodsExchange data);
@@ -73,6 +67,8 @@ public interface Manager {
     void notifyPlanetSelected(PlanetSelected data);
 
     //Player
+    void notifyCardPlayed(CardPlayed data);
+
     void notifyEnemyDefeat(EnemyDefeat data);
 
     void notifyMinPlayer(MinPlayer data);
@@ -83,7 +79,7 @@ public interface Manager {
 
     void notifyPlayerLost(PlayerLost data);
 
-    void notifyPlaying(CurrentPlayer data);
+    void notifyCurrentPlayer(CurrentPlayer data);
 
     void notifyScore(Score data);
 

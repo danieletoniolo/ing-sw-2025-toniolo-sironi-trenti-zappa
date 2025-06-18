@@ -19,13 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MenuGoodsTuiScreen extends GameTuiScreen {
-    private final TuiScreenView oldScreen;
     protected static List<GoodView> cardGoods;
     private TuiScreenView nextScreen;
 
-    public MenuGoodsTuiScreen(TuiScreenView oldScreen) {
+    public MenuGoodsTuiScreen() {
         super(List.of("Swap goods", "Exchange goods", "Done"));
-        this.oldScreen = oldScreen;
 
         if (cardGoods == null) {
             cardGoods = new ArrayList<>();

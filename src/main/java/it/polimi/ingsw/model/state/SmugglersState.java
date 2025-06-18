@@ -199,7 +199,7 @@ public class SmugglersState extends State {
                 int flightDays = card.getFlightDays();
                 board.addSteps(p, -flightDays);
 
-                MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
+                MoveMarker stepsEvent = new MoveMarker(p.getUsername(),  p.getModuleStep(board.getStepsForALap()));
                 eventCallback.trigger(stepsEvent);
             }
         }

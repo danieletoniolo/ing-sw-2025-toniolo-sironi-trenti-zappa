@@ -45,6 +45,10 @@ public class BoardView implements Structure {
         initializeBoard();
     }
 
+    public int getStepsForALap() {
+        return stepsForALap;
+    }
+
     public TimerView getTimerView() {
         return timerView;
     }
@@ -63,12 +67,8 @@ public class BoardView implements Structure {
 
     public void movePlayer(MarkerView color, int step) {
         initializeBoard();
-        int moduleStep = step;
-        while (moduleStep < 0) {
-            moduleStep += stepsForALap;
-        }
-        moduleStep = moduleStep % stepsForALap;
-        players.put(color, moduleStep);
+
+        players.put(color, step);
         players.forEach((key, value) -> {
             path[value % stepsForALap] = key.drawTui();
         });

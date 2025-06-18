@@ -2,9 +2,6 @@ package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.BatteriesLoss;
-import it.polimi.ingsw.event.game.serverToClient.energyUsed.CannonsUsed;
-import it.polimi.ingsw.event.game.serverToClient.energyUsed.EnginesUsed;
-import it.polimi.ingsw.event.game.serverToClient.energyUsed.ShieldUsed;
 import it.polimi.ingsw.event.game.serverToClient.goods.UpdateGoodsExchange;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceship;
@@ -19,7 +16,6 @@ import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.good.GoodType;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.*;
-import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -40,7 +36,7 @@ public class Handler {
         if (protectionType == 0 || protectionType == -1) {
             if (batteryID != -1 && protectionType != -1) {
                 ship.useEnergy(batteryID);
-                return new ShieldUsed(player.getUsername(), new Pair<>(batteryID, ship.getBattery(batteryID).getEnergyNumber()));
+                return new BatteriesLoss(player.getUsername(), new ArrayList<>(Arrays.asList(new Pair<>(batteryID, ship.getBattery(batteryID).getEnergyNumber()))));
             } else {
                 ship.destroyComponent(component.getRow(), component.getColumn());
 
@@ -103,20 +99,19 @@ public class Handler {
                 for (int engineID : cannonsOrEnginesID) {
                     ship.getEngine(engineID);
                 }
-                event = new EnginesUsed(player.getUsername(), cannonsOrEnginesID, batteriesID.stream().map(t -> new Pair<>(t, ship.getBattery(t).getEnergyNumber())).toList());
             }
             case 1 -> {
                 // Check if the cannons are valid
                 for (int cannonID : cannonsOrEnginesID) {
                     ship.getCannon(cannonID);
                 }
-                event  = new CannonsUsed(player.getUsername(), cannonsOrEnginesID, batteriesID.stream().map(t -> new Pair<>(t, ship.getBattery(t).getEnergyNumber())).toList());
             }
         }
         for (int batteryID : batteriesMap.keySet()) {
             ship.useEnergy(batteryID);
         }
-        return event;
+
+        return new BatteriesLoss(player.getUsername(), batteriesID.stream().map(t -> new Pair<>(t, ship.getBattery(t).getEnergyNumber())).toList());
     }
 
     static Event loseGoods(PlayerData player, List<Integer> storagesID, int requiredGoodLoss) throws IllegalStateException {
@@ -208,7 +203,7 @@ public class Handler {
         }
         // Check if the number of crew members to remove is equal to the number of crew members required to lose
         if (cabinsID.size() > requiredCrewLoss) {
-            throw new IllegalStateException("To many crew members to lose");
+            throw new IllegalStateException("Too many crew members to lose");
         }
         if (cabinsID.size() < requiredCrewLoss && ship.getCrewNumber() > cabinsID.size()) {
             throw new IllegalStateException("We have not set enough crew members to lose");

@@ -17,11 +17,11 @@ public class Board implements Serializable {
     private final Deck[] decks;
     private final Stack<Card> shuffledDeck;
 
-    private ArrayList<Component> viewableTiles;
-    private ArrayList<Component> hiddenTiles;
+    private final ArrayList<Component> viewableTiles;
+    private final ArrayList<Component> hiddenTiles;
 
-    private ArrayList<PlayerData> inGamePlayers;
-    private ArrayList<PlayerData> gaveUpPlayers;
+    private final ArrayList<PlayerData> inGamePlayers;
+    private final ArrayList<PlayerData> gaveUpPlayers;
 
 
     /**
@@ -72,6 +72,14 @@ public class Board implements Serializable {
      */
     public Level getBoardLevel() {
         return this.level;
+    }
+
+    /**
+     * Retrieves the number of hidden tiles on the board.
+     * @return the number of hidden tiles
+     */
+    public int getNumberOfHiddenTiles() {
+        return this.hiddenTiles.size();
     }
 
     /**

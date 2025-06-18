@@ -169,7 +169,7 @@ public class SlaversState extends State {
             if (status == PlayerStatus.PLAYED) {
                 board.addSteps(p, -flightDays);
 
-                MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
+                MoveMarker stepsEvent = new MoveMarker(p.getUsername(),  p.getModuleStep(board.getStepsForALap()));
                 eventCallback.trigger(stepsEvent);
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");

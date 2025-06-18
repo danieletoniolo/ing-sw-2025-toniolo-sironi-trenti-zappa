@@ -7,9 +7,8 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.cannonsActions.ChooseDoubleC
 import java.util.ArrayList;
 
 public class ChooseDoubleEngineTuiScreen extends ManagerEnginesTuiScreen{
-    private final TuiScreenView oldScreen;
 
-    public ChooseDoubleEngineTuiScreen(TuiScreenView oldScreen) {
+    public ChooseDoubleEngineTuiScreen() {
         super(new ArrayList<>(){{
             if (enginesIDs == null) {
                 enginesIDs = new ArrayList<>();
@@ -24,7 +23,6 @@ public class ChooseDoubleEngineTuiScreen extends ManagerEnginesTuiScreen{
             add("Cancel");
             add("Done");
         }});
-        this.oldScreen = oldScreen;
     }
 
     @Override
@@ -44,11 +42,11 @@ public class ChooseDoubleEngineTuiScreen extends ManagerEnginesTuiScreen{
         if (selected == num) {
             destroyStatic();
             setMessage(null);
-            return oldScreen;
+            return new ChooseDoubleEngineTuiScreen();
         }
 
         if (selected == num + 1) {
-            return new EngineBatteryTuiScreen(oldScreen);
+            return new EngineBatteryTuiScreen();
         }
 
         spaceShipView.getMapDoubleEngines().keySet().stream()
@@ -63,6 +61,6 @@ public class ChooseDoubleEngineTuiScreen extends ManagerEnginesTuiScreen{
         }
 
         setMessage("You are activating " + line);
-        return new ChooseDoubleEngineTuiScreen(oldScreen);
+        return new ChooseDoubleEngineTuiScreen();
     }
 }

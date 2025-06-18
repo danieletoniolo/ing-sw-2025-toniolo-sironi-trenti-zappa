@@ -10,8 +10,8 @@ import java.util.List;
 public class OpenSpaceTuiScreen extends GameTuiScreen {
 
     public OpenSpaceTuiScreen() {
-        super(List.of("Active engines"));
-        setMessage("Now's the time! Turn on your engines and go as fast as tou can!");
+        super(List.of("Turn on engines"));
+        setMessage("Now's the time! Turn on your engines and go as fast as you can!");
     }
 
     @Override
@@ -19,7 +19,11 @@ public class OpenSpaceTuiScreen extends GameTuiScreen {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        spaceShipView = clientPlayer.getShip().clone();
-        return new ChooseDoubleEngineTuiScreen(this);
+        if (selected == 0) {
+            spaceShipView = clientPlayer.getShip().clone();
+            return new ChooseDoubleEngineTuiScreen();
+        }
+
+        return this;
     }
 }

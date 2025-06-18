@@ -36,63 +36,62 @@ public class EpidemicState extends State {
      */
     @Override
     public void entry() {
-        for (PlayerData p : players) {
-
-            CurrentPlayer currentPlayer = new CurrentPlayer(p.getUsername());
-            eventCallback.trigger(currentPlayer, p.getUUID());
-
-            // Create a list to store the IDs, crew numbers and the type of the crew members in each cabin
-            ArrayList<Triplet<Integer, Integer, Integer>> cabinsIDs = new ArrayList<>();
-
-            // Initialize a check array to keep track of which cabins have been processed
-            boolean[][] check = new boolean[SpaceShip.getRows()][SpaceShip.getCols()];
-
-
-            // Iterate through the player's spaceship cabins
-            List<Cabin> cabins = p.getSpaceShip().getCabins();
-            for(Cabin currentCabin : cabins) {
-
-                // If the current cabin has not been processed yet search for surrounding components
-                if(!check[currentCabin.getRow()][currentCabin.getColumn()]) {
-                    check[currentCabin.getRow()][currentCabin.getColumn()] = true;
-                    ArrayList<Component> surroundingComponents = p.getSpaceShip().getSurroundingComponents(currentCabin.getRow(), currentCabin.getColumn());
-
-                    boolean removedFromCurrent = false;
-                    // Iterate through the surrounding components
-                    for(Component surroundingComponent : surroundingComponents) {
-
-                        // If the surrounding component is a cabin and has crew members, remove one crew member from the current cabin
-                        if(surroundingComponent != null && surroundingComponent.getComponentType() == ComponentType.CABIN && ((Cabin) surroundingComponent).getCrewNumber() > 0) {
-                            if (!removedFromCurrent) {
-                                currentCabin.removeCrewMember(1);
-                                removedFromCurrent = true;
-                            }
-
-                            // If we have not already processed the surrounding cabin, remove a crew member from it as well and mark it as processed
-                            Cabin surroundingCabin = (Cabin) surroundingComponent;
-                            if(!check[surroundingCabin.getRow()][surroundingCabin.getColumn()]) {
-                                surroundingCabin.removeCrewMember(1);
-                                check[surroundingCabin.getRow()][surroundingCabin.getColumn()] = true;
-
-                                // Add the surrounding cabin's ID, crew numbers and types of the crew members in both cabins to the list of modified cabins
-                                cabinsIDs.add(new Triplet<>(surroundingCabin.getID(), surroundingCabin.getCrewNumber(), surroundingCabin.hasBrownAlien() ? 1 : (surroundingCabin.hasPurpleAlien() ? 2 : 0)));
-                            }
-
-                            // Add the current cabin's ID, crew number and type of crew member to the list of modified cabins
-                            cabinsIDs.add(new Triplet<>(currentCabin.getID(), currentCabin.getCrewNumber(), currentCabin.hasBrownAlien() ? 1 : (currentCabin.hasPurpleAlien() ? 2 : 0)));
-                        }
-                    }
-                }
-            }
-
-            // Trigger the UpdateCrewMembers event with the modified cabins' IDs and crew information
-            UpdateCrewMembers crewEvent = new UpdateCrewMembers(p.getUsername(), cabinsIDs);
-            eventCallback.trigger(crewEvent);
+        for (PlayerData player : super.players) {
+            CurrentPlayer currentPlayer = new CurrentPlayer(player.getUsername());
+            eventCallback.trigger(currentPlayer, player.getUUID());
         }
     }
 
     @Override
     public void execute(PlayerData player) {
+        // Create a list to store the IDs, crew numbers and the type of the crew members in each cabin
+        ArrayList<Triplet<Integer, Integer, Integer>> cabinsIDs = new ArrayList<>();
+
+        // Initialize a check array to keep track of which cabins have been processed
+        boolean[][] check = new boolean[SpaceShip.getRows()][SpaceShip.getCols()];
+
+
+        // Iterate through the player's spaceship cabins
+        List<Cabin> cabins = player.getSpaceShip().getCabins();
+        for(Cabin currentCabin : cabins) {
+
+            // If the current cabin has not been processed yet search for surrounding components
+            if(!check[currentCabin.getRow()][currentCabin.getColumn()]) {
+                check[currentCabin.getRow()][currentCabin.getColumn()] = true;
+                ArrayList<Component> surroundingComponents = player.getSpaceShip().getSurroundingComponents(currentCabin.getRow(), currentCabin.getColumn());
+
+                boolean removedFromCurrent = false;
+                // Iterate through the surrounding components
+                for(Component surroundingComponent : surroundingComponents) {
+
+                    // If the surrounding component is a cabin and has crew members, remove one crew member from the current cabin
+                    if(surroundingComponent != null && surroundingComponent.getComponentType() == ComponentType.CABIN && ((Cabin) surroundingComponent).getCrewNumber() > 0) {
+                        if (!removedFromCurrent) {
+                            currentCabin.removeCrewMember(1);
+                            removedFromCurrent = true;
+                        }
+
+                        // If we have not already processed the surrounding cabin, remove a crew member from it as well and mark it as processed
+                        Cabin surroundingCabin = (Cabin) surroundingComponent;
+                        if(!check[surroundingCabin.getRow()][surroundingCabin.getColumn()]) {
+                            surroundingCabin.removeCrewMember(1);
+                            check[surroundingCabin.getRow()][surroundingCabin.getColumn()] = true;
+
+                            // Add the surrounding cabin's ID, crew numbers and types of the crew members in both cabins to the list of modified cabins
+                            cabinsIDs.add(new Triplet<>(surroundingCabin.getID(), surroundingCabin.getCrewNumber(), surroundingCabin.hasBrownAlien() ? 1 : (surroundingCabin.hasPurpleAlien() ? 2 : 0)));
+                        }
+
+                        // Add the current cabin's ID, crew number and type of crew member to the list of modified cabins
+                        cabinsIDs.add(new Triplet<>(currentCabin.getID(), currentCabin.getCrewNumber(), currentCabin.hasBrownAlien() ? 1 : (currentCabin.hasPurpleAlien() ? 2 : 0)));
+                    }
+                }
+            }
+        }
+
+        // Trigger the UpdateCrewMembers event with the modified cabins' IDs and crew information
+        UpdateCrewMembers crewEvent = new UpdateCrewMembers(player.getUsername(), cabinsIDs);
+        eventCallback.trigger(crewEvent);
+
         super.execute(player);
         super.nextState(GameState.CARDS);
     }

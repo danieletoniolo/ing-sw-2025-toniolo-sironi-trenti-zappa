@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.engineActions;
 
 import it.polimi.ingsw.event.game.clientToServer.energyUse.UseEngines;
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.Client;
@@ -10,13 +11,12 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import java.util.ArrayList;
 
 public class EngineBatteryTuiScreen extends ManagerEnginesTuiScreen{
-    private final TuiScreenView oldScreen;
+    private TuiScreenView nextScreen;
 
-    public EngineBatteryTuiScreen(TuiScreenView oldScreen) {
+    public EngineBatteryTuiScreen() {
         super(new ArrayList<>(){{
-            if (batteriesIDs == null) {
-                batteriesIDs = new ArrayList<>();
-            }
+            if (batteriesIDs == null) batteriesIDs = new ArrayList<>();
+
             if (enginesIDs.size() > batteriesIDs.size()) {
                 spaceShipView.getMapBatteries().forEach(
                         (key, value) -> {
@@ -29,7 +29,6 @@ public class EngineBatteryTuiScreen extends ManagerEnginesTuiScreen{
             add("Cancel");
             add("Done");
         }});
-        this.oldScreen = oldScreen;
     }
 
     @Override
@@ -51,19 +50,24 @@ public class EngineBatteryTuiScreen extends ManagerEnginesTuiScreen{
         if (selected == num) {
             destroyStatic();
             setMessage(null);
-            return oldScreen;
+            return new ChooseDoubleEngineTuiScreen();
         }
 
         if (selected == num + 1) {
-            StatusEvent status = UseEngines.requester(Client.transceiver, new Object()).request(new UseEngines(MiniModel.getInstance().getUserID(), enginesIDs, batteriesIDs));
+            StatusEvent status;
+            status = UseEngines.requester(Client.transceiver, new Object()).request(new UseEngines(MiniModel.getInstance().getUserID(), enginesIDs, batteriesIDs));
             if (status.get().equals("POTA")) {
                 setMessage(((Pota) status).errorMessage());
+                return new ChooseDoubleEngineTuiScreen();
             }
-            else {
-                setMessage(null);
+            status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+            if (status.get().equals("POTA")) {
+                setMessage(((Pota) status).errorMessage());
+                return new ChooseDoubleEngineTuiScreen();
             }
+            setMessage(null);
             destroyStatic();
-            return oldScreen;
+            return nextScreen;
         }
 
         spaceShipView.getMapBatteries().entrySet().stream()
@@ -86,6 +90,11 @@ public class EngineBatteryTuiScreen extends ManagerEnginesTuiScreen{
         }
 
         setMessage("You are activating " + line);
-        return new EngineBatteryTuiScreen(oldScreen);
+        return new EngineBatteryTuiScreen();
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+        this.nextScreen = nextScreen;
     }
 }

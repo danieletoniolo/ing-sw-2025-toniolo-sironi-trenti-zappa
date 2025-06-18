@@ -1,11 +1,19 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens;
 
+import it.polimi.ingsw.Client;
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
+import it.polimi.ingsw.event.game.clientToServer.player.Play;
+import it.polimi.ingsw.event.game.serverToClient.status.Pota;
+import it.polimi.ingsw.event.type.StatusEvent;
+import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.screens.GameTuiScreen;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
+import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.MenuGoodsTuiScreen;
 
 import java.util.List;
 
 public class AbandonedStationTuiScreen extends GameTuiScreen {
+    private TuiScreenView nextScreen;
 
     public AbandonedStationTuiScreen() {
         super(List.of("Accept", "Refuse"));
@@ -16,11 +24,23 @@ public class AbandonedStationTuiScreen extends GameTuiScreen {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
+        StatusEvent status;
         switch (selected) {
             case 0:
-                break;
+                status = Play.requester(Client.transceiver, new Object()).request(new Play(MiniModel.getInstance().getUserID()));
+                if (status.get().equals("POTA")) {
+                    setMessage(((Pota) status).errorMessage());
+                    return this;
+                }
+                setMessage(null);
+                return new MenuGoodsTuiScreen();
             case 1:
-                break;
+                status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+                if (status.get().equals("POTA")) {
+                    setMessage(((Pota) status).errorMessage());
+                    return this;
+                }
+                return nextScreen;
         }
 
         return this;
@@ -28,6 +48,11 @@ public class AbandonedStationTuiScreen extends GameTuiScreen {
 
     @Override
     public String lineBeforeInput() {
-        return "You have reached an abandoned station. Do you want to accept the offer?";
+        return "You have reached an abandoned station, wanna look for some goods?";
+    }
+
+    @Override
+    public void setNextScreen(TuiScreenView nextScreen) {
+        this.nextScreen = nextScreen;
     }
 }

@@ -5,7 +5,6 @@ import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.type.Event;
-import it.polimi.ingsw.model.cards.OpenSpace;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
@@ -15,20 +14,16 @@ import java.util.List;
 import java.util.Map;
 
 public class OpenSpaceState extends State {
-    private final OpenSpace card;
     private final Map<PlayerData, Float> stats;
 
 
     /**
      * Constructor
      * @param board The board associated with the game
-     * @param card card type
      */
-    public OpenSpaceState(Board board, EventCallback callback, OpenSpace card, StateTransitionHandler transitionHandler) {
+    public OpenSpaceState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.stats = new HashMap<>();
-        // TODO: We never use the card in this state, so we can remove it
-        this.card = card;
     }
 
     @Override
@@ -73,7 +68,7 @@ public class OpenSpaceState extends State {
         } else {
             board.addSteps(player, stats.get(player).intValue());
 
-            MoveMarker stepEvent = new MoveMarker(player.getUsername(), player.getStep());
+            MoveMarker stepEvent = new MoveMarker(player.getUsername(),  player.getModuleStep(board.getStepsForALap()));
             eventCallback.trigger(stepEvent);
         }
         super.execute(player);

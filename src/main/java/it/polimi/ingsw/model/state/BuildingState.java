@@ -7,10 +7,8 @@ import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToBoard;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToReserve;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceship;
-import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
 import it.polimi.ingsw.event.game.serverToClient.timer.LastTimerFinished;
 import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.event.type.Event;
@@ -21,7 +19,6 @@ import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.*;
 import it.polimi.ingsw.controller.EventCallback;
-import org.javatuples.Pair;
 
 import java.time.LocalTime;
 import java.util.*;
@@ -167,7 +164,7 @@ public class BuildingState extends State {
 
         board.setPlayer(player, position);
 
-        MoveMarker moveMarkerEvent = new MoveMarker(player.getUsername(), player.getStep());
+        MoveMarker moveMarkerEvent = new MoveMarker(player.getUsername(),  player.getModuleStep(board.getStepsForALap()));
         eventCallback.trigger(moveMarkerEvent);
     }
 
@@ -236,6 +233,9 @@ public class BuildingState extends State {
                             eventCallback.trigger(pickedConnectorsFromBoard);
                         }
                     }
+
+                    NumberHiddenTiles hiddenTiles = new NumberHiddenTiles(board.getNumberOfHiddenTiles());
+                    eventCallback.trigger(hiddenTiles);
                 } else {
                     PickedTile pickedTileEvent = new PickedTile(player.getUsername(), tileID);
                     eventCallback.trigger(pickedTileEvent);

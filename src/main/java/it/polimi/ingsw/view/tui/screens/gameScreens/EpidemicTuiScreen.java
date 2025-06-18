@@ -14,7 +14,7 @@ public class EpidemicTuiScreen extends GameTuiScreen {
     private TuiScreenView nextScreen;
 
     public EpidemicTuiScreen() {
-        super(List.of("Go on"));
+        super(List.of("Cut off infected crew members"));
         setMessage("A terrible disease is on the ship, be careful!");
     }
 

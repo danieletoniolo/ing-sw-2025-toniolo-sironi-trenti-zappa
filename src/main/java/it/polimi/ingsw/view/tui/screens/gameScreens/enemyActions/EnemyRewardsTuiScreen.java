@@ -23,7 +23,7 @@ public class EnemyRewardsTuiScreen extends GameTuiScreen {
         switch (selected) {
             case 0:
                 if (MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getCardViewType().equals(CardViewType.SMUGGLERS)) {
-                    return new MenuGoodsTuiScreen(new NotClientTurnTuiScreen());
+                    return new MenuGoodsTuiScreen();
                 }
 
                 break;

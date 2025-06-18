@@ -72,7 +72,14 @@ public class CardsManager {
         }
         */
 
-        int[] cardsIDs = {39, 23, 38, 34, 33, 32, 31, 24, 14, 13, 12, 11};
+        /*
+            Cards already tested:
+                - Planets
+                - Epidemic
+                - Abandoned Station
+                - Stardust
+         */
+        int[] cardsIDs = {3, 3, 3, 23, 23, 23, 23, 4, 4, 4, 3, 24};
 
         for (int cardsID : cardsIDs) {
             selectedCards.add(cards[cardsID]);
