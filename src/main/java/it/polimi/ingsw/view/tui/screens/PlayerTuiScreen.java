@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.tui.screens;
 
+import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
@@ -44,14 +45,20 @@ public class PlayerTuiScreen implements TuiScreenView {
         var writer = terminal.writer();
         int row = 1;
 
-        int countPlayer = 0;
+        int playerCount = 0;
         for (int i = 0; i < playerToView.getShip().getRowsToDraw(); i++) {
             StringBuilder line = new StringBuilder();
-            if (i >= ((playerToView.getShip().getRowsToDraw() - 2)/5*4 + 1) && i < ((playerToView.getShip().getRowsToDraw() - 2)/5*4 + 1) + playerToView.getRowsToDraw()) {
-                line.append(playerToView.getShip().drawLineTui(i)).append("   ").append(playerToView.drawLineTui(countPlayer));
-                countPlayer++;
-            }else{
-                line.append(playerToView.getShip().drawLineTui(i));
+            line.append(playerToView.getShip().drawLineTui(i));
+
+            if (i <= MiniModel.getInstance().getClientPlayer().getShip().getDiscardReservedPile().getRowsToDraw()) {
+                line.append(playerToView.getShip().getDiscardReservedPile().drawLineTui(i));
+            }
+            else if (i > ((playerToView.getShip().getRowsToDraw() - 2) / 5 * 4 + 1) - 1 && i <= ((playerToView.getShip().getRowsToDraw() - 2) / 5 * 4 + MiniModel.getInstance().getClientPlayer().getRowsToDraw())) {
+                line.append("   ").append(MiniModel.getInstance().getClientPlayer().drawLineTui(playerCount));
+                if (playerCount == 0) {
+                    line.append("    ");
+                }
+                playerCount++;
             }
             TerminalUtils.printLine(writer, line.toString(), row++);
         }

@@ -14,7 +14,7 @@ import java.util.List;
 public class ViewablePileView implements Structure {
     private final List<ComponentView> viewableComponents = new ArrayList<>();
     private final List<MiniModelObserver> listeners = new ArrayList<>();
-    private final int cols = 22;
+    private final int cols = 21;
 
     public void addComponent(ComponentView component) {
         viewableComponents.add(component);

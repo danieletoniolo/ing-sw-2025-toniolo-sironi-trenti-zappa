@@ -1093,6 +1093,14 @@ public class EventHandlerClient {
             if (data.newState() == GamePhases.CARDS.getValue() && MiniModel.getInstance().getGamePhase().getValue() == data.newState()) {
                 MiniModel.getInstance().getShuffledDeckView().popCard();
             }
+
+            if (data.newState() == GamePhases.VALIDATION.getValue()) {
+                PlayerDataView player = MiniModel.getInstance().getClientPlayer();
+                player.getShip().getDiscardReservedPile().setIsDiscarded();
+                for (PlayerDataView otherPlayer : MiniModel.getInstance().getOtherPlayers()) {
+                    otherPlayer.getShip().getDiscardReservedPile().setIsDiscarded();
+                }
+            }
             if (data.newState() == GamePhases.CREW.getValue()) {
                 MiniModel.getInstance().getClientPlayer().setHand(null);
                 for (PlayerDataView player : MiniModel.getInstance().getOtherPlayers()) {

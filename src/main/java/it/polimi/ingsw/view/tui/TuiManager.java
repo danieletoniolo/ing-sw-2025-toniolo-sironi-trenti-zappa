@@ -192,7 +192,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyPickedLeftDeck(PickedLeftDeck data) {
-        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.Watching))  && !MiniModel.getInstance().getClientPlayer().getUsername().equals(data.nickname())) {
+        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainCommands) || currentScreen.getType().equals(TuiScreens.Watching))  && !MiniModel.getInstance().getClientPlayer().getUsername().equals(data.nickname())) {
             synchronized (stateLock) {
                 if (data.usage() == 0) {
                     currentScreen.setMessage(data.nickname() + " has picked deck " + (data.deckIndex() + 1));
@@ -227,7 +227,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyPickedTileFromBoard() {
-        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.Watching))) {
+        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainCommands) || currentScreen.getType().equals(TuiScreens.Watching))) {
             synchronized (stateLock) {
                 stateLock.notifyAll();
             }
@@ -261,7 +261,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyPlacedTileToBoard(PlacedTileToBoard data) {
-        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.Watching))) {
+        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainCommands) || currentScreen.getType().equals(TuiScreens.Watching))) {
             synchronized (stateLock) {
                 if (MiniModel.getInstance().getViewablePile().getViewableComponents().size() % MiniModel.getInstance().getViewablePile().getCols() == 1
                         && !MiniModel.getInstance().getNickname().equals(data.nickname())) {
@@ -276,7 +276,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyPlacedTileToReserve(PlacedTileToReserve data) {
-        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.Watching))) {
+        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainCommands) || currentScreen.getType().equals(TuiScreens.Player))) {
             synchronized (stateLock) {
                 stateLock.notifyAll();
             }
@@ -516,7 +516,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyLastTimerFlipped() {
-        if (currentScreen.getType() == TuiScreens.Building || currentScreen.getType() == TuiScreens.Player || currentScreen.getType() == TuiScreens.Deck) {
+        if (currentScreen.getType() == TuiScreens.Building || currentScreen.getType().equals(TuiScreens.MainCommands) || currentScreen.getType() == TuiScreens.Player || currentScreen.getType() == TuiScreens.Deck) {
             synchronized (stateLock) {
                 currentScreen = new ChoosePositionTuiScreen();
                 parser.changeScreen();
@@ -539,7 +539,7 @@ public class TuiManager implements Manager {
             }
 
         }
-        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.Watching))) {
+        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainCommands) || currentScreen.getType().equals(TuiScreens.Watching))) {
             synchronized (stateLock) {
                 stateLock.notifyAll();
             }

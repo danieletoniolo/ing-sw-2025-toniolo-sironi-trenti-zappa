@@ -102,11 +102,8 @@ public class ModifyCrewTuiScreen implements TuiScreenView {
             StringBuilder line = new StringBuilder();
             line.append(spaceShipView.drawLineTui(i));
 
-            if (i == 0) {
-                line.append(" Discard pile: ");
-            }
-            else if (i <= ((spaceShipView.getRowsToDraw() - 2) / 5 + 1) - 1) {
-                line.append(spaceShipView.getDiscardReservedPile().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
+            if (i <= spaceShipView.getDiscardReservedPile().getRowsToDraw()) {
+                line.append(spaceShipView.getDiscardReservedPile().drawLineTui(i));
             }
             else if (i > ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + 1) - 1 && i <= ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + clientPlayer.getRowsToDraw())) {
                 line.append("   ").append(clientPlayer.drawLineTui(playerCount));

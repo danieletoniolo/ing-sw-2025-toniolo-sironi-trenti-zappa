@@ -76,30 +76,29 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
         TerminalUtils.printLine(writer, "", row++);
 
         int deckCount = 0;
+        int discardCount = 0;
         for (int i = 0; i < clientPlayer.getShip().getRowsToDraw(); i++) {
             StringBuilder line = new StringBuilder();
             line.append(clientPlayer.getShip().drawLineTui(i));
-            if (i == 0) {
-                line.append("Reserved pile: ").append(clientPlayer.getShip().getDiscardReservedPile().getReserved().size());
+            if (i <= clientPlayer.getShip().getDiscardReservedPile().getRowsToDraw()) {
+                line.append(" ").append(clientPlayer.getShip().getDiscardReservedPile().drawLineTui(discardCount));
+                discardCount++;
             }
-            else if (i <= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1) - 1) {
-                line.append(" ").append(clientPlayer.getShip().getDiscardReservedPile().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
+            else if (i == ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 3 + 1) - 1) {
+                line.append("       " + "   Hand: ");
             }
-            else if (i == ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 2 + 1) - 1) {
-                line.append("     " + "   Hand: ");
-            }
-            else if (i >= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 2 + 1) && i < ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 3 + 1)) {
-                line.append("       ").append(clientPlayer.getHand().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
+            else if (i >= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 3 + 1) && i < ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 * 3 + 1) + ComponentView.getRowsToDraw()) {
+                line.append("         ").append(clientPlayer.getHand().drawLineTui((i - 1) % ComponentView.getRowsToDraw()));
             }
             else if (i == clientPlayer.getShip().getRowsToDraw() - 1) {
                 line.append("   ").append(clientPlayer.drawLineTui(0));
             }
-            else if (i >= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1)) {
-                line.append("              ");
+            else {
+                line.append("                ");
             }
             if (clientPlayer.getShip().getLevel().equals(LevelView.SECOND)) {
                 if (i == 0) {
-                    line.append("     ");
+                    line.append("    ");
                     int hiddenTiles = MiniModel.getInstance().getNumberViewableComponents();
                     int fraction = hiddenTiles / 10;
                     line.append(timerView.drawLineTui(0));
@@ -107,19 +106,17 @@ public abstract class BuildingTuiScreen implements TuiScreenView {
                     line.append("            ").append("Hidden tiles: ").append(hiddenTiles).append(fraction >= 10 ? "" : fraction > 0 ? " " : "  ");
                 }
                 if (i == 1) {
-                    line.append("      ");
-                    //line.append(" ".repeat(Math.max(0, decksView.getValue0()[0].getColsToDraw())));
-                    //line.append("    ");
+                    line.append("    ");
                     line.append(timerView.drawLineTui(1));
                 }
-                if (i == ((clientPlayer.getShip().getRowsToDraw() - 2) / 5) + 1) {
-                    line.append("       ");
+                if (i == ((clientPlayer.getShip().getRowsToDraw() - 2) / 5) + 2) {
+                    line.append("    ");
                     for (int j = 0; j < 3; j++) {
                         line.append("        ").append("Deck ").append(j + 1).append(":").append("        ").append("   ");
                     }
                 }
-                if (i >= ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1) + 1 && i < DeckView.getRowsToDraw() + ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1) + 1) {
-                    line.append("    ");
+                if (i > ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1) + 1 && i <= DeckView.getRowsToDraw() + ((clientPlayer.getShip().getRowsToDraw() - 2) / 5 + 1) + 1) {
+                    line.append("  ");
                     for (int j = 0; j < 3; j++) {
                         if (decksView.getValue1()[j]) {
                             line.append("   ").append(decksView.getValue0()[j].drawLineTui(deckCount));
