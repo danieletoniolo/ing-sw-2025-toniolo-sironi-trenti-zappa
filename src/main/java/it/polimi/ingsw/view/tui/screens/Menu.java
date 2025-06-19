@@ -81,7 +81,7 @@ public class Menu implements TuiScreenView {
             return new ClosingProgram();
         }
 
-        if (selected == 0) {
+        if (selected >= 0 && selected < MiniModel.getInstance().getLobbiesView().size()) {
             StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
                     .request(new JoinLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getLobbiesView().get(selected).getLobbyName()));
             if (status.get().equals("POTA")) {

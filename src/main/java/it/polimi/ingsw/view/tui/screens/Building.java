@@ -1,6 +1,5 @@
 package it.polimi.ingsw.view.tui.screens;
 
-import it.polimi.ingsw.view.miniModel.cards.CardView;
 import org.javatuples.Pair;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -13,7 +12,6 @@ import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class Building implements TuiScreenView {
@@ -60,6 +58,10 @@ public abstract class Building implements TuiScreenView {
 
         if (selected == options.size() - 1) {
             return new ClosingProgram();
+        }
+
+        if (getType() != TuiScreens.MainBuilding && selected < 0 || selected >= options.size()) {
+            return this;
         }
 
         return null;

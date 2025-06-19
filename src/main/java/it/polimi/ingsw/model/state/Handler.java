@@ -108,7 +108,9 @@ public class Handler {
             }
         }
         for (int batteryID : batteriesMap.keySet()) {
-            ship.useEnergy(batteryID);
+            for (int i = 0; i < batteriesMap.get(batteryID); i++) {
+                ship.useEnergy(batteryID);
+            }
         }
 
         return new BatteriesLoss(player.getUsername(), batteriesID.stream().map(t -> new Pair<>(t, ship.getBattery(t).getEnergyNumber())).toList());
@@ -179,8 +181,10 @@ public class Handler {
             throw new IllegalStateException("We have set too many batteries to discard");
         }
         // Remove the batteries from the ship
-        for (int batterieID : batteriesID) {
-            ship.useEnergy(batterieID);
+        for (int batteryID : batteriesID) {
+            for (int i = 0; i < batteriesMap.get(batteryID); i++) {
+                ship.useEnergy(batteryID);
+            }
         }
 
         return new BatteriesLoss(

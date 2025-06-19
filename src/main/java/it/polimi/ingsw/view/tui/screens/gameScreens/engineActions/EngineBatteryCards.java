@@ -46,7 +46,7 @@ public class EngineBatteryCards extends ManagerEnginesCards {
         if (enginesIDs.size() == batteriesIDs.size()) num = 0;
 
         if (selected == num) {
-            destroyStatic();
+            destroyStatics();
             setMessage(null);
             return new ChooseDoubleEngineCards();
         }
@@ -64,7 +64,7 @@ public class EngineBatteryCards extends ManagerEnginesCards {
                 return new ChooseDoubleEngineCards();
             }
             setMessage(null);
-            destroyStatic();
+            destroyStatics();
             return nextScreen;
         }
 

@@ -10,7 +10,7 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
-public class CannonsBatteryCards extends MangerCannonsCards {
+public class CannonsBatteryCards extends ManagerCannonsCards {
     private final TuiScreenView oldScreen;
 
     public CannonsBatteryCards(TuiScreenView oldScreen) {
@@ -50,7 +50,7 @@ public class CannonsBatteryCards extends MangerCannonsCards {
         if (cannonsIDs.size() == batteriesIDs.size()) num = 0;
 
         if (selected == num) {
-            destroyStatic();
+            destroyStatics();
             oldScreen.setMessage(null);
             return oldScreen;
         }
@@ -71,7 +71,7 @@ public class CannonsBatteryCards extends MangerCannonsCards {
                 return oldScreen;
             }
 
-            destroyStatic();
+            destroyStatics();
             return nextScreen; // This screen is set by the TuiManager in the notifyEnemyDefeat method
         }
 

@@ -4,6 +4,7 @@ import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.cards.*;
 import it.polimi.ingsw.event.game.serverToClient.deck.GetDecks;
 import it.polimi.ingsw.event.game.serverToClient.deck.GetShuffledDeck;
+import it.polimi.ingsw.event.game.serverToClient.pickedTile.NumberHiddenTiles;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedMainCabin;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.game.board.Board;
@@ -197,6 +198,11 @@ public class LobbyState extends State {
                     connectors);
             eventCallback.trigger(placedMainCabinEvent);
         }
+
+        NumberHiddenTiles numberHiddenTiles = new NumberHiddenTiles(
+                board.getNumberOfHiddenTiles()
+        );
+        eventCallback.trigger(numberHiddenTiles);
 
         LocalTime localTime = LocalTime.now();
         (new Timer()).schedule(new TimerTask() {

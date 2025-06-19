@@ -23,6 +23,7 @@ public class SpaceShipView implements Structure {
     private ComponentView last;
     private List<List<Pair<Integer, Integer>>> fragments;
 
+    // Converter model spaceship to view -> row 6 -> 2 , col 6 -> 2
     private final int converterRow = 4;
     private final int converterCol = 3;
     private float totalPower;

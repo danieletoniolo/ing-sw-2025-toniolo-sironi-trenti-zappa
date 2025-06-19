@@ -102,12 +102,6 @@ public class BuildingState extends State {
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            // Set the status of the player who has not finished building to PLAYED
-                            for (PlayerData p: players) {
-                                if (playersStatus.get(p.getColor()) != PlayerStatus.PLAYED) {
-                                    playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
-                                }
-                            }
                             timerRunning = false;
 
                             // Trigger to all the users that the last timer has finished
@@ -133,6 +127,11 @@ public class BuildingState extends State {
      */
     @Override
     public void useDeck(PlayerData player, int usage,int deckIndex) throws IllegalStateException {
+        // Check if the player has finished building
+        if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
+            throw new IllegalStateException("OtherPlayer has finished building");
+        }
+
         // Check if the player has placed at least one tile
         if (player.getSpaceShip().getNumberOfComponents() < 1) {
             throw new IllegalStateException("OtherPlayer has not placed any tile");

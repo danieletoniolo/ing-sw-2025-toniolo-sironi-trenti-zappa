@@ -17,6 +17,7 @@ public class ChooseLevel extends Menu {
         options.clear();
         options.add("Learning");
         options.add("Second");
+        options.add("Back");
     }
 
     @Override
@@ -37,18 +38,22 @@ public class ChooseLevel extends Menu {
 
     @Override
     public TuiScreenView setNewScreen() {
-        if (level != 1 && level != 2) {
-            return this;
+        if (selected == 0 || selected == 1) {
+            StatusEvent status = CreateLobby.requester(Client.transceiver, new Object()).request(new CreateLobby(MiniModel.getInstance().getUserID(), maxPlayers, level));
+            maxPlayers = 0;
+
+            if (status.get().equals("POTA")) {
+                TuiScreenView newScreen = new Menu();
+                newScreen.setMessage(((Pota) status).errorMessage());
+                return newScreen;
+            }
+            return new Lobby();
         }
 
-        StatusEvent status = CreateLobby.requester(Client.transceiver, new Object()).request(new CreateLobby(MiniModel.getInstance().getUserID(), maxPlayers, level));
-        maxPlayers = 0;
-
-        if (status.get().equals("POTA")) {
-            TuiScreenView newScreen = new Menu();
-            newScreen.setMessage(((Pota) status).errorMessage());
-            return newScreen;
+        if (selected == 2) {
+            return new ChooseNumberPlayers();
         }
-        return new Lobby();
+
+        return this;
     }
 }

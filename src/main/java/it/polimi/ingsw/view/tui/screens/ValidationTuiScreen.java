@@ -64,6 +64,10 @@ public abstract class ValidationTuiScreen implements TuiScreenView {
             return new ClosingProgram();
         }
 
+        if (selected < 0 || selected >= options.size()) {
+            return this;
+        }
+
         return null;
     }
 

@@ -38,7 +38,7 @@ public class ChooseDoubleEngineCards extends ManagerEnginesCards {
                 .count();
 
         if (selected == num) {
-            destroyStatic();
+            destroyStatics();
             setMessage(null);
             return new ChooseDoubleEngineCards();
         }

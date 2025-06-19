@@ -18,7 +18,11 @@ import it.polimi.ingsw.view.tui.screens.ChoosePosition;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.MainBuilding;
 import it.polimi.ingsw.view.tui.screens.crewScreens.MainCrew;
 import it.polimi.ingsw.view.tui.screens.gameScreens.*;
+import it.polimi.ingsw.view.tui.screens.gameScreens.cannonsActions.ManagerCannonsCards;
 import it.polimi.ingsw.view.tui.screens.gameScreens.enemyActions.*;
+import it.polimi.ingsw.view.tui.screens.gameScreens.engineActions.ManagerEnginesCards;
+import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.exchangeGoods.ManagerExchangeGoodsCards;
+import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.swapGoods.ManagerSwapGoodCards;
 import it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.openSpaceAcitons.OpenSpaceCards;
@@ -134,21 +138,28 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyLobbyJoined(LobbyJoined data) {
-        synchronized (stateLock) {
-            currentScreen.setMessage(data.nickname() + " has joined the lobby");
-            stateLock.notifyAll();
+        if (currentScreen.getType() == TuiScreens.Menu) {
+            synchronized (stateLock) {
+                currentScreen = new Menu();
+                currentScreen.setMessage(data.nickname() + " has joined the lobby");
+                parser.changeScreen();
+            }
+        }
+        else if (currentScreen.getType() == TuiScreens.Lobby) {
+            synchronized (stateLock) {
+                stateLock.notifyAll();
+            }
         }
     }
 
     @Override
     public void notifyLobbyLeft(LobbyLeft data) {
-        synchronized (stateLock) {
-            if (!data.nickname().equals(MiniModel.getInstance().getNickname())) {
-                if (MiniModel.getInstance().getCurrentLobby().getLobbyName().equals(data.lobbyID())) {
-                    currentScreen.setMessage(data.nickname() + " has left the lobby");
-                }
+        if (!data.nickname().equals(MiniModel.getInstance().getNickname()) && MiniModel.getInstance().getCurrentLobby() == null) {
+            synchronized (stateLock) {
+                currentScreen = new Menu();
+                currentScreen.setMessage(data.nickname() + " has left the lobby");
+                parser.changeScreen();
             }
-            stateLock.notifyAll();
         }
     }
 
@@ -385,7 +396,7 @@ public class TuiManager implements Manager {
     @Override
     public void notifyCurrentPlayer(CurrentPlayer data) {
         synchronized (stateLock) {
-            if (!MiniModel.getInstance().getNickname().equals(data.nickname())) {
+            if (!MiniModel.getInstance().getNickname().equals(data.nickname())) { // Check if the current player is not the client
                 TuiScreenView notTurn = new NotClientTurnCards();
                 currentScreen.setNextScreen(notTurn);
                 currentScreen = notTurn;
@@ -608,6 +619,11 @@ public class TuiManager implements Manager {
                 case FINISHED -> {
                     currentScreen = new Menu();
                     currentScreen.setMessage("A player disconnected, you are back to the lobbies menu");
+
+                    ManagerExchangeGoodsCards.destroyStatics();
+                    ManagerSwapGoodCards.destroyStatics();
+                    ManagerCannonsCards.destroyStatics();
+                    ManagerEnginesCards.destroyStatics();
                 }
             }
 

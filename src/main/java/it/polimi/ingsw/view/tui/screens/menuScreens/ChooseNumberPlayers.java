@@ -12,6 +12,7 @@ public class ChooseNumberPlayers extends Menu {
         options.add("2 players");
         options.add("3 players");
         options.add("4 players");
+        options.add("Back");
     }
 
     @Override
@@ -22,7 +23,15 @@ public class ChooseNumberPlayers extends Menu {
 
     @Override
     public TuiScreenView setNewScreen() {
-        return new ChooseLevel();
+        if (selected >= 0 && selected <= 2) {
+            return new ChooseLevel();
+        }
+
+        if (selected == 3) {
+            return new Menu();
+        }
+
+        return this;
     }
 
     @Override

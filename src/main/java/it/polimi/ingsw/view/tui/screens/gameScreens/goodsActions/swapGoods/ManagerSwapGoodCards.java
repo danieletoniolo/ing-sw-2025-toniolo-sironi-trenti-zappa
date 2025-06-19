@@ -1,6 +1,8 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.swapGoods;
 
+import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.components.StorageView;
+import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.tui.screens.CardsGame;
 
 import java.util.ArrayList;
@@ -23,11 +25,12 @@ public abstract class ManagerSwapGoodCards extends CardsGame {
         }
     }
 
-    protected void destroyStatics() {
+    public static void destroyStatics() {
         fromList = null;
         fromStorage = null;
         withList = null;
         withStorage = null;
-        spaceShipView = clientPlayer.getShip();
+        PlayerDataView player = MiniModel.getInstance().getClientPlayer();
+        spaceShipView = player == null ? null : player.getShip();
     }
 }

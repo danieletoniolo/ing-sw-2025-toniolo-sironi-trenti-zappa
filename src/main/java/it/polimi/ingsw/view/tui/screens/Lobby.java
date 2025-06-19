@@ -43,10 +43,10 @@ public class Lobby implements TuiScreenView {
         switch (selected) {
             case 0, 1:
                 status = PlayerReady.requester(Client.transceiver, new Object()).request(new PlayerReady(MiniModel.getInstance().getUserID(), selected == 0));
+                setMessage(null);
                 if (status.get().equals("POTA")) {
                     setMessage(((Pota) status).errorMessage());
                 }
-                setMessage(null);
                 if (nextScreen != null) {
                     return nextScreen;
                 }

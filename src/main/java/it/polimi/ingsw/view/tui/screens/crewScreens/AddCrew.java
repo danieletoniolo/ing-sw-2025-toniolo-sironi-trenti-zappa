@@ -42,7 +42,7 @@ public class AddCrew extends ModifyCrew {
         if (possibleScreen != null) return possibleScreen;
 
         if (selected == spaceShipView.getMapCabins().size()) {
-            return new MainBuilding();
+            return new MainCrew();
         }
 
         if (selected < 0 || selected >= spaceShipView.getMapCabins().size()) {

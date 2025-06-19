@@ -28,7 +28,7 @@ public class StarDustCards extends CardsGame {
                 setMessage(((Pota) status).errorMessage());
                 return this;
             }
-            return new NotClientTurnCards();
+            return nextScreen;
         }
         return this;
     }

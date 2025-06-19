@@ -18,6 +18,7 @@ import it.polimi.ingsw.event.game.serverToClient.timer.*;
 import it.polimi.ingsw.event.internal.ConnectionLost;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.event.receiver.CastEventReceiver;
+import it.polimi.ingsw.utils.Logger;
 import it.polimi.ingsw.view.miniModel.GamePhases;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.cards.*;
@@ -357,6 +358,9 @@ public class EventHandlerClient {
                     .findFirst()
                     .ifPresent(lobby -> MiniModel.getInstance().getLobbiesView().remove(lobby));
 
+            MiniModel.getInstance().getOtherPlayers().clear();
+            MiniModel.getInstance().setClientPlayer(null);
+            MiniModel.getInstance().setBoardView(null);
             MiniModel.getInstance().setCurrentLobby(null);
             manager.notifyLobbyRemoved(data);
         };
@@ -1075,11 +1079,13 @@ public class EventHandlerClient {
                 int time = (int) ((data.timerDuration() / 1000) - Math.max(0, Duration.between(serverTime, clientTime).toSeconds()));
                 while (time >= 0) {
                     try {
-                        MiniModel.getInstance().getTimerView().setSecondsRemaining(time);
-                        manager.notifyTimer(data, firstSecond);
-                        if (firstSecond) firstSecond = false;
-                        Thread.sleep(1000);
-                        time--;
+                        if (MiniModel.getInstance().getGamePhase() == GamePhases.BUILDING) {
+                            MiniModel.getInstance().getTimerView().setSecondsRemaining(time);
+                            manager.notifyTimer(data, firstSecond);
+                            if (firstSecond) firstSecond = false;
+                            Thread.sleep(1000);
+                            time--;
+                        }
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                     }

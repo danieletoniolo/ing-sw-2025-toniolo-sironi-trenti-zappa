@@ -1,7 +1,10 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.exchangeGoods;
 
+import it.polimi.ingsw.view.Manager;
+import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.components.StorageView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
+import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.tui.screens.CardsGame;
 import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.MenuGoodsCards;
 import org.javatuples.Triplet;
@@ -33,12 +36,13 @@ public abstract class ManagerExchangeGoodsCards extends CardsGame {
         }
     }
 
-    public void destroyStatics() {
+    public static void destroyStatics() {
         exchanges = null;
         goodsToGet = null;
         goodsToLeave = null;
         storage = null;
         remainCopy = null;
-        spaceShipView = clientPlayer.getShip();
+        PlayerDataView player = MiniModel.getInstance().getClientPlayer();
+        spaceShipView = player == null ? null : player.getShip();
     }
 }

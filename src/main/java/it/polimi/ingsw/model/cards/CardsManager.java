@@ -78,6 +78,7 @@ public class CardsManager {
                 - Epidemic
                 - Abandoned Station
                 - Stardust
+                - OpenSpace
          */
         int[] cardsIDs = {3, 3, 3, 23, 23, 23, 23, 4, 4, 4, 3, 11};
 

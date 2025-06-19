@@ -4,7 +4,7 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
-public class ChooseDoubleCannonsCards extends MangerCannonsCards {
+public class ChooseDoubleCannonsCards extends ManagerCannonsCards {
     private final TuiScreenView oldScreen;
 
     public ChooseDoubleCannonsCards(TuiScreenView oldScreen) {
@@ -40,7 +40,7 @@ public class ChooseDoubleCannonsCards extends MangerCannonsCards {
                 .count();
 
         if (selected == num) {
-            destroyStatic();
+            destroyStatics();
             oldScreen.setMessage(null);
             return oldScreen;
         }
