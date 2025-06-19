@@ -28,21 +28,22 @@ public class BatteryController extends ComponentController {
         super.react();
 
         // Update the batteryPane based on the model's state
-        int numberOfBacteries = ((BatteryView) super.componentView).getNumberOfBatteries();
+        int numberOfBatteries = ((BatteryView) super.componentView).getNumberOfBatteries();
 
         batteryPane.getChildren().clear();
         batteryPane.setSpacing(0); // Set spacing between battery icons
 
-        for (int i = 0; numberOfBacteries > i; i++) {
+        for (int i = 0; numberOfBatteries > i; i++) {
             ImageView battery = new ImageView(BATTERY_IMG);
 
-            // Fixed dimensions (could be parameterized if needed)
-            battery.setFitWidth(50);
-            battery.setFitHeight(50);
+            battery.setPreserveRatio(true);
+            battery.fitWidthProperty().bind(componentImage.fitWidthProperty().divide(5));
+
+
             batteryPane.getChildren().add(battery);
         }
 
-        batteryPane.toFront();
+        batteryPane.setRotate(super.componentView.getClockWise() * 90);
 
     }
 

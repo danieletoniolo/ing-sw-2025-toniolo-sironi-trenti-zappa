@@ -98,7 +98,7 @@ public abstract class ComponentView implements Structure, MiniModelObservable {
         }
     }
 
-    public Node createGuiNode() {
+    public Node getNode() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/components/component.fxml"));
             Parent root = loader.load();
