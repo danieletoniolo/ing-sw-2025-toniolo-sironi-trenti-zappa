@@ -8,11 +8,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.StackPane;
 
 import java.util.Objects;
-import java.util.function.Consumer;
 
 public class ComponentController implements MiniModelObserver {
+    /**
+     * The StackPane that serves as the parent container for the component image.
+     */
+    @FXML protected StackPane parent;
 
     /**
      * The ImageView that displays the component image.
@@ -27,6 +31,14 @@ public class ComponentController implements MiniModelObserver {
 
     @FXML
     private void initialize() {
+        // Ensure the parent StackPane can resize properly
+        parent.setMinSize(0, 0);
+        parent.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+        // Bind the ImageView to the parent StackPane's size
+        componentImage.fitWidthProperty().bind(parent.widthProperty());
+        componentImage.fitHeightProperty().bind(parent.heightProperty());
+
         // Initialize the component image view if needed
         componentImage.setOnDragDetected(event -> {
             Dragboard db = componentImage.startDragAndDrop(TransferMode.MOVE);

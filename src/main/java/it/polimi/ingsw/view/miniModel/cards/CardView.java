@@ -48,6 +48,8 @@ public abstract class CardView implements Structure, MiniModelObservable {
     private boolean covered;
     private final int level;
 
+    private double width;
+
     // TODO: We may need just one observer for a card.
     /**
      * This list contains the observers that are registered to this CardView.
@@ -92,7 +94,16 @@ public abstract class CardView implements Structure, MiniModelObservable {
         return level;
     }
 
-    public Node createGuiNode() {
+    public double getWidth() {
+        return width;
+    }
+
+    public void setWidth(double width) {
+        this.width = width;
+        notifyObservers();
+    }
+
+    public Node getNode() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/cards/card.fxml"));
             Parent root = loader.load();

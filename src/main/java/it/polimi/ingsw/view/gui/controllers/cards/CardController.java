@@ -69,5 +69,6 @@ public class CardController implements MiniModelObserver {
         }
         Image img = new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
         cardImage.setImage(img);
+        cardImage.setFitWidth(cardView.getWidth());
     }
 }

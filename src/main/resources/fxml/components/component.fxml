@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-
-<AnchorPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="it.polimi.ingsw.view.gui.controllers.components.ComponentController">
+<?import javafx.scene.layout.StackPane?>
+<StackPane fx:id="parent"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="it.polimi.ingsw.view.gui.controllers.components.ComponentController">
     <ImageView fx:id="componentImage"
-               fitWidth="150"
-               fitHeight="150"
                pickOnBounds="true"
                preserveRatio="true"
     />
-</AnchorPane>
+</StackPane>

@@ -24,6 +24,7 @@ public class BatteryView extends ComponentView {
 
     public void setNumberOfBatteries(int numberOfBatteries) {
         this.numberOfBatteries = numberOfBatteries;
+        notifyObservers();
     }
 
     public int getNumberOfBatteries() {
@@ -31,7 +32,7 @@ public class BatteryView extends ComponentView {
     }
 
     @Override
-    public Node createGuiNode() {
+    public Node getNode() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/components/battery.fxml"));
             Parent root = loader.load();

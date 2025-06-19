@@ -1,16 +1,23 @@
 package it.polimi.ingsw.view.miniModel.spaceship;
 
+import it.polimi.ingsw.view.gui.controllers.ship.LearningShipController;
+import it.polimi.ingsw.view.miniModel.MiniModelObservable;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.*;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.image.Image;
 import org.javatuples.Pair;
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SpaceShipView implements Structure {
+public class SpaceShipView implements Structure, MiniModelObservable {
     private final LevelView level;
     private ComponentView[][] spaceShip;
     private final DiscardReservedPileView discardReservedPile;
@@ -27,6 +34,11 @@ public class SpaceShipView implements Structure {
     private final int converterRow = 4;
     private final int converterCol = 3;
     private float totalPower;
+
+    private final List<MiniModelObserver> observers;
+
+    public static final int MAX_ROWS = 5;
+    public static final int MAX_COLS = 7;
 
     public SpaceShipView(LevelView level) {
         this.level = level;
@@ -50,7 +62,46 @@ public class SpaceShipView implements Structure {
                 };
                 break;
         }
-        discardReservedPile = new DiscardReservedPileView();
+        this.discardReservedPile = new DiscardReservedPileView();
+        this.observers = new ArrayList<>();
+    }
+
+    public Node getNode() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ship/learningShip.fxml"));
+            Parent root = loader.load();
+
+            LearningShipController controller = loader.getController();
+            controller.setModel(this);
+
+            return root;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public void registerObserver(MiniModelObserver observer) {
+        synchronized (observers) {
+            observers.add(observer);
+        }
+    }
+
+    @Override
+    public void unregisterObserver(MiniModelObserver observer) {
+        synchronized (observers) {
+            observers.remove(observer);
+        }
+    }
+
+    @Override
+    public void notifyObservers() {
+        synchronized (observers) {
+            for (MiniModelObserver observer : observers) {
+                observer.react();
+            }
+        }
     }
 
     public void placeComponent(ComponentView component, int row, int col) {
