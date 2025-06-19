@@ -66,7 +66,7 @@ public interface Manager {
     // Planets
     void notifyPlanetSelected(PlanetSelected data);
 
-    //Player
+    //OtherPlayer
     void notifyCardPlayed(CardPlayed data);
 
     void notifyEnemyDefeat(EnemyDefeat data);

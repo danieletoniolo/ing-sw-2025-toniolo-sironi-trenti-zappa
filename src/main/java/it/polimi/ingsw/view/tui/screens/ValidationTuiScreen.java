@@ -1,34 +1,29 @@
 package it.polimi.ingsw.view.tui.screens;
 
-import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
-import it.polimi.ingsw.event.game.clientToServer.spaceship.DestroyComponents;
-import it.polimi.ingsw.event.game.serverToClient.status.Pota;
-import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
-import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
-import it.polimi.ingsw.view.tui.screens.validationScreens.RowAndColValidationTuiScreen;
 import org.javatuples.Pair;
 import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ValidationTuiScreen implements TuiScreenView {
+public abstract class ValidationTuiScreen implements TuiScreenView {
     protected ArrayList<String> options = new ArrayList<>();
+    private boolean isNewScreen;
+
     protected int totalLines;
     protected int selected;
-    private TuiScreenView nextState;
+    protected TuiScreenView nextState;
 
     protected static SpaceShipView spaceShipView;
     protected static List<Pair<Integer, Integer>> destroyTiles;
     private String message;
 
-    public ValidationTuiScreen() {
+    public ValidationTuiScreen(List<String> otherOptions) {
         if (spaceShipView == null) {
             spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
         }
@@ -36,16 +31,15 @@ public class ValidationTuiScreen implements TuiScreenView {
             destroyTiles = new ArrayList<>();
         }
 
-        options.add("Destroy a component");
-        options.add("Cancel");
-        options.add("Done");
+        if (otherOptions != null && !otherOptions.isEmpty()) options.addAll(otherOptions);
 
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
-            options.add("View " + p.getUsername() + "'s spaceship");
+            options.add("View " + p.drawLineTui(0) + "'s spaceship");
         }
         options.add("Close program");
 
         totalLines = spaceShipView.getRowsToDraw() + 5;
+        this.isNewScreen = true;
     }
 
     @Override
@@ -62,43 +56,15 @@ public class ValidationTuiScreen implements TuiScreenView {
     public TuiScreenView setNewScreen() {
         if ((selected < options.size() - 1) && (selected >= options.size() - 1 - MiniModel.getInstance().getOtherPlayers().size())) {
             int i = selected - (options.size() - MiniModel.getInstance().getOtherPlayers().size() - 1);
-            return new PlayerTuiScreen(MiniModel.getInstance().getOtherPlayers().get(i), this);
+
+            return new OtherPlayer(MiniModel.getInstance().getOtherPlayers().get(i), this);
         }
 
         if (selected == options.size() - 1) {
             return new ClosingProgram();
         }
 
-        switch (selected) {
-            case 0:
-                return new RowAndColValidationTuiScreen(this);
-            case 1:
-                spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
-                destroyTiles.clear();
-                return this;
-            case 2:
-                StatusEvent status = DestroyComponents.requester(Client.transceiver, new Object()).request(
-                        new DestroyComponents(MiniModel.getInstance().getUserID(), destroyTiles));
-                destroyTiles.clear();
-                if (status.get().equals("POTA")) {
-                    setMessage(((Pota) status).errorMessage());
-                    spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
-                    return this;
-                }
-                status = EndTurn.requester(Client.transceiver, new Object()).request(
-                        new EndTurn(MiniModel.getInstance().getUserID()));
-                if (status.get().equals("POTA")) {
-                    setMessage(((Pota) status).errorMessage());
-                    spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
-                    return this;
-                }
-                setMessage(null);
-                spaceShipView = MiniModel.getInstance().getClientPlayer().getShip();
-
-                return nextState;
-        }
-
-        return this;
+        return null;
     }
 
     @Override
@@ -108,8 +74,7 @@ public class ValidationTuiScreen implements TuiScreenView {
 
     @Override
     public void printTui(Terminal terminal) {
-        var writer = terminal.writer();
-        int row = 1;
+        List<String> newLines = new ArrayList<>();
 
         int playerCount = 0;
         for (int i = 0; i < spaceShipView.getRowsToDraw(); i++) {
@@ -126,15 +91,20 @@ public class ValidationTuiScreen implements TuiScreenView {
                 }
                 playerCount++;
             }
-            TerminalUtils.printLine(writer, line.toString(), row++);
+            newLines.add(line.toString());
         }
 
-        TerminalUtils.printLine(writer, "", row++);
-        TerminalUtils.printLine(writer, message == null ? "" : message, row++);
-        TerminalUtils.printLine(writer, "", row++);
-        TerminalUtils.printLine(writer, lineBeforeInput(), row);
+        newLines.add("");
+        newLines.add(message == null ? "" : message);
+        newLines.add("");
+        newLines.add(lineBeforeInput());
 
-        TerminalUtils.clearLastLines(totalLines + options.size(), terminal);
+        TerminalUtils.printScreen(newLines, totalLines + options.size());
+
+        if (isNewScreen) {
+            isNewScreen = false;
+            TerminalUtils.clearLastLines(totalLines + options.size());
+        }
     }
 
     protected String lineBeforeInput() {

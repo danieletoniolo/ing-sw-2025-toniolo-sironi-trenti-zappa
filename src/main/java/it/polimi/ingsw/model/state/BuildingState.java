@@ -135,7 +135,7 @@ public class BuildingState extends State {
     public void useDeck(PlayerData player, int usage,int deckIndex) throws IllegalStateException {
         // Check if the player has placed at least one tile
         if (player.getSpaceShip().getNumberOfComponents() < 1) {
-            throw new IllegalStateException("Player has not placed any tile");
+            throw new IllegalStateException("OtherPlayer has not placed any tile");
         }
 
         PickedLeftDeck pickLeaveDeckEvent = new PickedLeftDeck(player.getUsername(), usage, deckIndex);
@@ -176,12 +176,12 @@ public class BuildingState extends State {
     public void pickTile(PlayerData player, int fromWhere, int tileID) {
         // Check if the player has finished building
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("Player has finished building");
+            throw new IllegalStateException("OtherPlayer has finished building");
         }
 
         // Check if the player has a tile in his hand
         if (playersHandQueue.get(player.getColor()) != null) {
-            throw new IllegalStateException("Player already has a tile in his hand");
+            throw new IllegalStateException("OtherPlayer already has a tile in his hand");
         }
 
         Component component;
@@ -274,7 +274,7 @@ public class BuildingState extends State {
     public void placeTile(PlayerData player, int toWhere, int row, int col) {
         // Check if the player has finished building
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("Player has finished building");
+            throw new IllegalStateException("OtherPlayer has finished building");
         }
 
         if (toWhere == 2 && (row < 0 || row >= SpaceShip.getRows() || col < 0 || col >= SpaceShip.getCols())) {
@@ -284,7 +284,7 @@ public class BuildingState extends State {
         // Has the player a tile in his hand?
         Component component = playersHandQueue.get(player.getColor());
         if (component == null) {
-            throw new IllegalStateException("Player has no tile in his hand");
+            throw new IllegalStateException("OtherPlayer has no tile in his hand");
         }
 
         SpaceShip ship = player.getSpaceShip();
@@ -336,13 +336,13 @@ public class BuildingState extends State {
     public void rotateTile(PlayerData player) {
         // Check if the player has finished building
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("Player has finished building");
+            throw new IllegalStateException("OtherPlayer has finished building");
         }
 
         // Has the player a tile in his hand?
         Component component = playersHandQueue.get(player.getColor());
         if (component == null) {
-            throw new IllegalStateException("Player has no tile in his hand");
+            throw new IllegalStateException("OtherPlayer has no tile in his hand");
         }
 
         // Rotate the tile in the board

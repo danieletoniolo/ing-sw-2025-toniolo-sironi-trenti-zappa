@@ -10,6 +10,7 @@ module GalaxyTrucker {
     requires com.fasterxml.jackson.datatype.jsr310;
     requires java.naming;
     requires java.desktop;
+    requires jdk.xml.dom;
 
     exports it.polimi.ingsw.model.spaceship;
     opens it.polimi.ingsw.model.spaceship to com.fasterxml.jackson.databind;

@@ -288,7 +288,7 @@ public class CombatZoneState extends State {
                 break;
             case GOODS_PENALTY:
                 if (currentPenaltyLoss > 0 && player.getSpaceShip().getGoodsValue() > 0) {
-                    throw new IllegalStateException("Player has not set the goods to lose");
+                    throw new IllegalStateException("OtherPlayer has not set the goods to lose");
                 }
                 if (currentPenaltyLoss > 0) {
                     internalState = CombatZoneInternalState.BATTERIES_PENALTY;
@@ -299,7 +299,7 @@ public class CombatZoneState extends State {
                 break;
             case BATTERIES_PENALTY:
                 if (currentPenaltyLoss > 0 && player.getSpaceShip().getEnergyNumber() > 0) {
-                    throw new IllegalStateException("Player has not set the batteries to lose");
+                    throw new IllegalStateException("OtherPlayer has not set the batteries to lose");
                 }
                 internalState = CombatZoneInternalState.CREW;
                 playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.PLAYING);

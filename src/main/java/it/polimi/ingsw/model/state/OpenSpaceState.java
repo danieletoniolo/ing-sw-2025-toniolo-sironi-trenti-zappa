@@ -58,7 +58,7 @@ public class OpenSpaceState extends State {
     /**
      * Execute: Add position to player
      * @param player PlayerData of the player to play
-     * @throws IllegalStateException Player has not set if adds strength
+     * @throws IllegalStateException OtherPlayer has not set if adds strength
      */
     @Override
     public void execute(PlayerData player) throws IllegalStateException {

@@ -41,7 +41,6 @@ public class Parser {
     public int getCommand(ArrayList<String> options, int menuStartRow) {
         terminal.enterRawMode();
         var reader = terminal.reader();
-        var writer = terminal.writer();
         selected = 0;
 
         synchronized (keyQueue) {
@@ -76,7 +75,7 @@ public class Parser {
         });
         this.inputThread.start();
 
-        renderMenu(writer, options, menuStartRow);
+        renderMenu(options, menuStartRow);
 
         while (true) {
             int key;
@@ -106,7 +105,7 @@ public class Parser {
                     throw new ScreenChanged();
                 }
             }
-            renderMenu(writer, options, menuStartRow);
+            renderMenu(options, menuStartRow);
         }
     }
 
@@ -142,7 +141,7 @@ public class Parser {
         var writer = terminal.writer();
         var reader = terminal.reader();
 
-        TerminalUtils.restoreRawMode(terminal);
+        TerminalUtils.restoreRawMode();
 
         synchronized (stringsQueue) {
             stringsQueue.clear();
@@ -151,7 +150,7 @@ public class Parser {
         inputThread = new Thread(() -> {
             try {
                 while (true) {
-                    TerminalUtils.printLine(writer, prompt, menuStartRow);
+                    TerminalUtils.printLine(prompt, menuStartRow);
 
                     StringBuilder sb = new StringBuilder();
                     while (true) {
@@ -159,25 +158,25 @@ public class Parser {
                         if (ch == 10 || ch == 13) { // Enter key pressed
                             String entered = sb.toString().trim();
                             if (validator.test(entered)) {
-                                TerminalUtils.printLine(writer, "", menuStartRow + 1);
-                                TerminalUtils.restoreRawMode(terminal);
+                                TerminalUtils.printLine("", menuStartRow + 1);
+                                TerminalUtils.restoreRawMode();
                                 synchronized (stringsQueue) {
                                     stringsQueue.add(entered);
                                     stringsQueue.notifyAll();
                                 }
                             } else {
-                                TerminalUtils.printLine(writer, errorMessage, menuStartRow + 1);
+                                TerminalUtils.printLine(errorMessage, menuStartRow + 1);
                                 break;
                             }
 
                         } else if (ch == 127 || ch == 8) { // Handle backspace
                             if (!sb.isEmpty()) {
                                 sb.deleteCharAt(sb.length() - 1);
-                                TerminalUtils.printLine(writer, prompt + sb, menuStartRow);
+                                TerminalUtils.printLine(prompt + sb, menuStartRow);
                             }
                         } else if (ch >= 32 && ch < 127) { // Printable characters
                             sb.append((char) ch);
-                            TerminalUtils.printLine(writer, prompt + sb, menuStartRow);
+                            TerminalUtils.printLine(prompt + sb, menuStartRow);
                         }
                     }
                 }
@@ -199,7 +198,7 @@ public class Parser {
             }
             input = stringsQueue.poll();
         }
-        TerminalUtils.restoreRawMode(terminal);
+        TerminalUtils.restoreRawMode();
         inputThread.interrupt();
         return input;
     }
@@ -255,16 +254,14 @@ public class Parser {
      * Prints the menu options to the terminal at the specified starting row, with the specified options
      * and highlights the selected option.
      *
-     * @param writer The PrintWriter to write the menu to the terminal.
      * @param options The list of options to display in the menu.
      * @param menuStartRow The row where the menu starts on the terminal.
      */
-    private void renderMenu(PrintWriter writer, ArrayList<String> options, int menuStartRow) {
+    private void renderMenu(ArrayList<String> options, int menuStartRow) {
         for (int i = 0; i < options.size(); i++) {
             int row = menuStartRow + i;
             String prefix = (i == selected) ? "> " : "  ";
-            TerminalUtils.printLine(writer, prefix + options.get(i), row);
+            TerminalUtils.printLine(prefix + options.get(i), row);
         }
-        writer.flush();
     }
 }

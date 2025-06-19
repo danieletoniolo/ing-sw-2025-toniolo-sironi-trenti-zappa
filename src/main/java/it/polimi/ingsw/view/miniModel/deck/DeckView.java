@@ -24,13 +24,9 @@ public class DeckView {
 
     public void setCovered(boolean covered) {
         this.covered = covered;
-        if (covered) {
-            deck.peek().setCovered(true);
-        }
-        else {
-            for (CardView card : deck) {
-                card.setCovered(false);
-            }
+
+        for (CardView card : deck) {
+            card.setCovered(covered);
         }
     }
 

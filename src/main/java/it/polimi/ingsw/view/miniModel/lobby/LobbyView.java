@@ -7,15 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LobbyView implements Structure {
-    private String Dash = "─";
-    private String Bow1 = "╭";
-    private String Bow2 = "╮";
-    private String Bow3 = "╰";
-    private String Bow4 = "╯";
-    private String Vertical = "│";
-
-    private Map<String, Boolean> players;
+    private final Map<String, Boolean> players;
     private final String lobbyName;
+    private final String nameLevel;
     private final int maxPlayer;
     private final LevelView level;
     private int numberOfPlayers;
@@ -23,6 +17,7 @@ public class LobbyView implements Structure {
     public LobbyView(String lobbyName, int numberOfPlayers, int maxPlayer, LevelView level) {
         players = new HashMap<>();
         this.lobbyName = lobbyName;
+        this.nameLevel = lobbyName + " - " + level.toString();
         this.maxPlayer = maxPlayer;
         this.numberOfPlayers = numberOfPlayers;
         this.level = level;
@@ -67,33 +62,40 @@ public class LobbyView implements Structure {
     }
 
     public String drawLineTui(int line) {
+        String Dash = "─";
+        String Bow1 = "╭";
+        String Bow2 = "╮";
+        String Bow3 = "╰";
+        String Bow4 = "╯";
+        String Vertical = "│";
+
         StringBuilder str = new StringBuilder();
         String distance = "   ";
-        int width = 2 + Math.max(distance.length() + lobbyName.length() + distance.length(), players.keySet().stream().mapToInt(String::length).max().orElse(0) + (" - Not Ready ").length());
+        int width = 2 + Math.max(distance.length() + nameLevel.length() + distance.length(), players.keySet().stream().mapToInt(String::length).max().orElse(0) + (" - Not Ready ").length());
 
         if (line == 0) {
             str.append(Bow1);
-            str.append(String.valueOf(Dash).repeat(Math.max(0, width - 1)));
+            str.append((Dash).repeat(Math.max(0, width - 1)));
             str.append(Bow2);
             return str.toString();
         }
 
         if (line == getRowsToDraw() - 1){
             str.append(Bow3);
-            str.append(String.valueOf(Dash).repeat(Math.max(0, width - 1)));
+            str.append((Dash).repeat(Math.max(0, width - 1)));
             str.append(Bow4);
             return str.toString();
         }
 
         if (line == 1){
-            if (lobbyName.length() == width) {
-                str.append(Vertical).append(distance).append(lobbyName).append(distance).append(Vertical);
+            if (nameLevel.length() == width) {
+                str.append(Vertical).append(distance).append(nameLevel).append(distance).append(Vertical);
                 return str.toString();
             }
 
-            int tmp = (width - lobbyName.length()) / 2 - 1;
+            int tmp = (width - nameLevel.length()) / 2 - 1;
             str.append(Vertical).append(" ".repeat(tmp));
-            str.append(lobbyName);
+            str.append(nameLevel);
             while (str.length() <= width - 1) {
                 str.append(" ");
             }
@@ -115,7 +117,7 @@ public class LobbyView implements Structure {
 
         if (line == getRowsToDraw() - 2) {
             str.append(Vertical);
-            str.append(String.valueOf(" ").repeat((width/2 - 2) % 2 == 0 ? (width/2 - 2) : (width/2 - 1)));
+            str.append((" ").repeat((width/2 - 2) % 2 == 0 ? (width/2 - 2) : (width/2 - 1)));
             str.append(numberOfPlayers).append("/").append(maxPlayer);
             while (str.length() < width) {
                 str.append(" ");
@@ -125,7 +127,7 @@ public class LobbyView implements Structure {
         }
 
         str.append(Vertical);
-        str.append(String.valueOf(" ").repeat(width - 1));
+        str.append((" ").repeat(width - 1));
         str.append(Vertical);
         return str.toString();
     }

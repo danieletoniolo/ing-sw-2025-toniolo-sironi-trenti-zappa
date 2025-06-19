@@ -14,17 +14,19 @@ import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.view.miniModel.GamePhases;
 import it.polimi.ingsw.view.tui.input.ScreenChanged;
-import it.polimi.ingsw.view.tui.screens.ChoosePositionTuiScreen;
-import it.polimi.ingsw.view.tui.screens.buildingScreens.MainCommandsTuiScreen;
+import it.polimi.ingsw.view.tui.screens.ChoosePosition;
+import it.polimi.ingsw.view.tui.screens.buildingScreens.MainBuilding;
+import it.polimi.ingsw.view.tui.screens.crewScreens.MainCrew;
 import it.polimi.ingsw.view.tui.screens.gameScreens.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.enemyActions.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens.*;
-import it.polimi.ingsw.view.tui.screens.gameScreens.openSpaceAcitons.OpenSpaceTuiScreen;
-import it.polimi.ingsw.view.tui.screens.gameScreens.planetsActions.PlanetsTuiScreen;
-import it.polimi.ingsw.view.tui.screens.lobbyScreens.StartingTuiScreen;
-import it.polimi.ingsw.view.tui.screens.validationScreens.ValidationFragments;
-import it.polimi.ingsw.view.tui.screens.validationScreens.WaitingValidationTuiScreen;
+import it.polimi.ingsw.view.tui.screens.gameScreens.openSpaceAcitons.OpenSpaceCards;
+import it.polimi.ingsw.view.tui.screens.gameScreens.planetsActions.PlanetsCards;
+import it.polimi.ingsw.view.tui.screens.lobbyScreens.Starting;
+import it.polimi.ingsw.view.tui.screens.validation.MainValidation;
+import it.polimi.ingsw.view.tui.screens.validation.ValidationFragments;
+import it.polimi.ingsw.view.tui.screens.validation.WaitingValidation;
 import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.Manager;
 import it.polimi.ingsw.view.miniModel.MiniModel;
@@ -45,7 +47,7 @@ public class TuiManager implements Manager {
         this.terminal = terminal;
         this.parser = parser;
 
-        currentScreen = new LogInTuiScreen();
+        currentScreen = new LogIn();
         this.running = true;
     }
 
@@ -99,7 +101,7 @@ public class TuiManager implements Manager {
     @Override
     public void notifyConnectionLost() {
         synchronized (stateLock) {
-            currentScreen = new ConnectionLostScreen();
+            currentScreen = new ConnectionLost();
             parser.changeScreen();
         }
     }
@@ -113,7 +115,7 @@ public class TuiManager implements Manager {
     public void notifyLobbies() {
         if (currentScreen.getType().equals(TuiScreens.Menu)) {
             synchronized (stateLock) {
-                currentScreen = new MenuTuiScreen();
+                currentScreen = new Menu();
                 parser.changeScreen();
             }
         }
@@ -123,7 +125,7 @@ public class TuiManager implements Manager {
     public void notifyCreatedLobby(LobbyCreated data) {
         if (!data.nickname().equals(MiniModel.getInstance().getNickname())) {
             synchronized (stateLock) {
-                currentScreen = new MenuTuiScreen();
+                currentScreen = new Menu();
                 currentScreen.setMessage(data.nickname() + " has created a new lobby: ");
                 parser.changeScreen();
             }
@@ -154,7 +156,7 @@ public class TuiManager implements Manager {
     public void notifyLobbyRemoved(LobbyRemoved data) {
         if (MiniModel.getInstance().getCurrentLobby() == null) {
             synchronized (stateLock) {
-                currentScreen = new MenuTuiScreen();
+                currentScreen = new Menu();
                 parser.changeScreen();
             }
         }
@@ -182,17 +184,24 @@ public class TuiManager implements Manager {
      */
     @Override
     public void notifyCountDown() {
-        if (currentScreen.getType().equals(TuiScreens.Lobby)) {
+        if (currentScreen.getType() == TuiScreens.Lobby ) {
             synchronized (stateLock) {
-                currentScreen = new StartingTuiScreen();
+                TuiScreenView starting = new Starting();
+                currentScreen.setNextScreen(starting);
+                currentScreen = starting;
                 parser.changeScreen();
+            }
+        }
+        else if (currentScreen.getType() == TuiScreens.StartingLobby) {
+            synchronized (stateLock) {
+                stateLock.notifyAll();
             }
         }
     }
 
     @Override
     public void notifyPickedLeftDeck(PickedLeftDeck data) {
-        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainCommands) || currentScreen.getType().equals(TuiScreens.Watching))  && !MiniModel.getInstance().getClientPlayer().getUsername().equals(data.nickname())) {
+        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainBuilding) || currentScreen.getType().equals(TuiScreens.WatchingBuilding))  && !MiniModel.getInstance().getClientPlayer().getUsername().equals(data.nickname())) {
             synchronized (stateLock) {
                 if (data.usage() == 0) {
                     currentScreen.setMessage(data.nickname() + " has picked deck " + (data.deckIndex() + 1));
@@ -227,7 +236,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyPickedTileFromBoard() {
-        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainCommands) || currentScreen.getType().equals(TuiScreens.Watching))) {
+        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainBuilding) || currentScreen.getType().equals(TuiScreens.WatchingBuilding))) {
             synchronized (stateLock) {
                 stateLock.notifyAll();
             }
@@ -242,7 +251,7 @@ public class TuiManager implements Manager {
             }
         }
         else {
-            if (currentScreen.getType().equals(TuiScreens.Player) && ((PlayerTuiScreen) currentScreen).getPlayerToView().getUsername().equals(data.nickname())) {
+            if (currentScreen.getType().equals(TuiScreens.OtherPlayer) && ((OtherPlayer) currentScreen).getPlayerToView().getUsername().equals(data.nickname())) {
                 synchronized (stateLock) {
                     stateLock.notifyAll();
                 }
@@ -261,11 +270,11 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyPlacedTileToBoard(PlacedTileToBoard data) {
-        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainCommands) || currentScreen.getType().equals(TuiScreens.Watching))) {
+        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainBuilding) || currentScreen.getType().equals(TuiScreens.WatchingBuilding))) {
             synchronized (stateLock) {
                 if (MiniModel.getInstance().getViewablePile().getViewableComponents().size() % MiniModel.getInstance().getViewablePile().getCols() == 1
                         && !MiniModel.getInstance().getNickname().equals(data.nickname())) {
-                    currentScreen = new MainCommandsTuiScreen();
+                    currentScreen = new MainBuilding();
                     parser.changeScreen();
                 } else {
                     stateLock.notifyAll();
@@ -276,7 +285,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyPlacedTileToReserve(PlacedTileToReserve data) {
-        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainCommands) || currentScreen.getType().equals(TuiScreens.Player))) {
+        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainBuilding) || currentScreen.getType().equals(TuiScreens.OtherPlayer))) {
             synchronized (stateLock) {
                 stateLock.notifyAll();
             }
@@ -291,7 +300,7 @@ public class TuiManager implements Manager {
             }
         }
         else {
-            if (currentScreen.getType().equals(TuiScreens.Player) && ((PlayerTuiScreen) currentScreen).getPlayerToView().getUsername().equals(data.nickname())) {
+            if (currentScreen.getType().equals(TuiScreens.OtherPlayer) && ((OtherPlayer) currentScreen).getPlayerToView().getUsername().equals(data.nickname())) {
                 synchronized (stateLock) {
                     stateLock.notifyAll();
                 }
@@ -312,21 +321,21 @@ public class TuiManager implements Manager {
         synchronized (stateLock) {
             if (data.enemyDefeat() == null) { // Draw
                 if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
-                    currentScreen.setNextScreen(new NotClientTurnTuiScreen());
+                    currentScreen.setNextScreen(new NotClientTurnCards());
                 }
                 currentScreen.setMessage("It's a tie! Enemies lose interest... and seek a new target.");
-            } else if (data.enemyDefeat()) { // Player win
+            } else if (data.enemyDefeat()) { // OtherPlayer win
                 if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
-                    currentScreen.setNextScreen(new EnemyRewardsTuiScreen());
+                    currentScreen.setNextScreen(new EnemyRewardsCards());
                 }
                 currentScreen.setMessage(data.nickname() + " has defeated enemies! Everyone is safe");
-            } else { // Player loose
+            } else { // OtherPlayer loose
                 if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
                     TuiScreenView nextScreen = switch (MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getCardViewType()) {
-                        case SLAVERS -> new LooseCrewTuiScreen();
-                        case SMUGGLERS -> new LooseGoodsTuiScreen(new NotClientTurnTuiScreen());
-                        case PIRATES -> new RollDiceTuiScreen();
-                        default -> new NotClientTurnTuiScreen();
+                        case SLAVERS -> new LooseCrewCards();
+                        case SMUGGLERS -> new LooseGoodsCards(new NotClientTurnCards());
+                        case PIRATES -> new RollDiceCards();
+                        default -> new NotClientTurnCards();
                     };
                     currentScreen.setNextScreen(nextScreen);
                 }
@@ -377,7 +386,7 @@ public class TuiManager implements Manager {
     public void notifyCurrentPlayer(CurrentPlayer data) {
         synchronized (stateLock) {
             if (!MiniModel.getInstance().getNickname().equals(data.nickname())) {
-                TuiScreenView notTurn = new NotClientTurnTuiScreen();
+                TuiScreenView notTurn = new NotClientTurnCards();
                 currentScreen.setNextScreen(notTurn);
                 currentScreen = notTurn;
             } else {
@@ -395,7 +404,7 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyUpdateCoins(UpdateCoins data) {
-        if (currentScreen.getType().equals(TuiScreens.Player)) {
+        if (currentScreen.getType().equals(TuiScreens.OtherPlayer)) {
             synchronized (stateLock) {
                 currentScreen.setMessage(data.nickname() + " has updated coins");
                 stateLock.notifyAll();
@@ -436,10 +445,10 @@ public class TuiManager implements Manager {
         if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
             synchronized (stateLock) {
                 if (data.canProtect().getValue1() == -1) {
-                    currentScreen.setNextScreen(new CantProtectTuiScreen());
+                    currentScreen.setNextScreen(new CantProtectCards());
                 }
                 else {
-                    currentScreen.setNextScreen(new UseShieldTuiScreen());
+                    currentScreen.setNextScreen(new UseShieldCards());
                 }
                 stateLock.notifyAll();
             }
@@ -480,10 +489,10 @@ public class TuiManager implements Manager {
             synchronized (stateLock) {
                 if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
                     if (data.invalidComponents().isEmpty()) {
-                        currentScreen.setNextScreen(new WaitingValidationTuiScreen());
+                        currentScreen.setNextScreen(new WaitingValidation());
                     }
                     else {
-                        currentScreen.setNextScreen(new ValidationTuiScreen());
+                        currentScreen.setNextScreen(new MainValidation());
                     }
                 }
                 stateLock.notifyAll();
@@ -495,7 +504,7 @@ public class TuiManager implements Manager {
     public void notifyNextHit(NextHit data) {
         synchronized (stateLock) {
             if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
-                currentScreen = new RollDiceTuiScreen();
+                currentScreen = new RollDiceCards();
                 parser.changeScreen();
                 currentScreen.setMessage("New hit is coming! Good luck");
             }
@@ -516,9 +525,9 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyLastTimerFlipped() {
-        if (currentScreen.getType() == TuiScreens.Building || currentScreen.getType().equals(TuiScreens.MainCommands) || currentScreen.getType() == TuiScreens.Player || currentScreen.getType() == TuiScreens.Deck) {
+        if (currentScreen.getType() == TuiScreens.Building || currentScreen.getType().equals(TuiScreens.MainBuilding) || currentScreen.getType() == TuiScreens.OtherPlayer || currentScreen.getType() == TuiScreens.Deck) {
             synchronized (stateLock) {
-                currentScreen = new ChoosePositionTuiScreen();
+                currentScreen = new ChoosePosition();
                 parser.changeScreen();
             }
         }
@@ -533,13 +542,13 @@ public class TuiManager implements Manager {
                     stateLock.notifyAll();
                 }
                 else {
-                    currentScreen = new MainCommandsTuiScreen();
+                    currentScreen = new MainBuilding();
                     parser.changeScreen();
                 }
             }
 
         }
-        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainCommands) || currentScreen.getType().equals(TuiScreens.Watching))) {
+        if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainBuilding) || currentScreen.getType().equals(TuiScreens.WatchingBuilding))) {
             synchronized (stateLock) {
                 stateLock.notifyAll();
             }
@@ -550,11 +559,11 @@ public class TuiManager implements Manager {
     public void notifyTimerFinished(TimerFlipped data) {
         if (data.numberOfFlips() == data.maxNumberOfFlips() - 1) {
             synchronized (stateLock) {
-                if (currentScreen.getType() == TuiScreens.MainCommands) {
-                    currentScreen = new MainCommandsTuiScreen();
+                if (currentScreen.getType() == TuiScreens.MainBuilding) {
+                    currentScreen = new MainBuilding();
                 }
-                if (currentScreen.getType() == TuiScreens.Player) {
-                    currentScreen.setNextScreen(new MainCommandsTuiScreen());
+                if (currentScreen.getType() == TuiScreens.OtherPlayer) {
+                    currentScreen.setNextScreen(new MainBuilding());
                 }
                 parser.changeScreen();
             }
@@ -566,38 +575,38 @@ public class TuiManager implements Manager {
         synchronized (stateLock) {
             switch (MiniModel.getInstance().getGamePhase()) {
                 case LOBBY -> {
-                    currentScreen = new LobbyTuiScreen();
+                    currentScreen = new Lobby();
                 }
                 case BUILDING -> {
-                    currentScreen = new MainCommandsTuiScreen();
+                    currentScreen = new MainBuilding();
                 }
                 case VALIDATION -> {
-                    TuiScreenView validation = new ValidationTuiScreen();
+                    TuiScreenView validation = new MainValidation();
                     currentScreen.setNextScreen(validation);
                     currentScreen = validation;
                 }
                 case CREW -> {
-                    TuiScreenView crew = new ModifyCrewTuiScreen();
+                    TuiScreenView crew = new MainCrew();
                     currentScreen.setNextScreen(crew);
                     currentScreen = crew;
                 }
                 case CARDS -> {
                     CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
                     cardScreen = switch (card.getCardViewType()) {
-                        case ABANDONEDSTATION -> new AbandonedStationTuiScreen();
-                        case ABANDONEDSHIP -> new AbandonedShipTuiScreen();
-                        case SMUGGLERS, PIRATES, SLAVERS -> new EnemyTuiScreen();
-                        case PLANETS -> new PlanetsTuiScreen();
-                        case COMBATZONE -> new CombatZoneTuiScreen();
-                        case OPENSPACE -> new OpenSpaceTuiScreen();
-                        case STARDUST -> new StarDustTuiScreen();
-                        case EPIDEMIC -> new EpidemicTuiScreen();
-                        case METEORSSWARM -> new MeteorsSwarmTuiScreen();
+                        case ABANDONEDSTATION -> new AbandonedStationCards();
+                        case ABANDONEDSHIP -> new AbandonedShipCards();
+                        case SMUGGLERS, PIRATES, SLAVERS -> new EnemyCards();
+                        case PLANETS -> new PlanetsCards();
+                        case COMBATZONE -> new CombatZoneCards();
+                        case OPENSPACE -> new OpenSpaceCards();
+                        case STARDUST -> new StarDustCards();
+                        case EPIDEMIC -> new EpidemicCards();
+                        case METEORSSWARM -> new MeteorsSwarmCards();
                     };
                 }
                 case REWARD -> currentScreen = new RewardTuiScreen();
                 case FINISHED -> {
-                    currentScreen = new MenuTuiScreen();
+                    currentScreen = new Menu();
                     currentScreen.setMessage("A player disconnected, you are back to the lobbies menu");
                 }
             }
