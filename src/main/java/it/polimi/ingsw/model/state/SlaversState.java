@@ -2,6 +2,7 @@ package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.player.*;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.Slavers;
@@ -17,15 +18,18 @@ import java.util.Map;
 public class SlaversState extends State {
     private SlaversInternalState internalState;
     private final Slavers card;
-    private final Map<PlayerData, Float> stats;
-    private Boolean slaversDefeat;
+    private final Map<PlayerData, Float> cannonStrength;
+    private boolean hasPlayerForceGiveUp;
+    private Boolean slaversDefeat = false;
 
     /**
      * Enum to represent the internal state of the slavers state.
      */
     private enum SlaversInternalState {
         ENEMY_DEFEAT,
-        PENALTY
+        REWARD,
+        PENALTY,
+        GIVE_UP
     }
 
     /**
@@ -37,7 +41,8 @@ public class SlaversState extends State {
         super(board, callback, transitionHandler);
         this.internalState = SlaversInternalState.ENEMY_DEFEAT;
         this.card = card;
-        this.stats = new HashMap<>();
+        this.cannonStrength = new HashMap<>();
+        this.hasPlayerForceGiveUp = false;
         this.slaversDefeat = false;
     }
 
@@ -55,7 +60,7 @@ public class SlaversState extends State {
                     throw new IllegalStateException("Use cannon not allowed in this state");
                 }
                 Event event = Handler.useExtraStrength(player, type, IDs, batteriesID);
-                this.stats.merge(player, player.getSpaceShip().getCannonsStrength(IDs), Float::sum);
+                this.cannonStrength.merge(player, player.getSpaceShip().getCannonsStrength(IDs), Float::sum);
                 eventCallback.trigger(event);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
@@ -91,7 +96,7 @@ public class SlaversState extends State {
             if (ship.hasPurpleAlien()) {
                 initialStrength += SpaceShip.getAlienStrength();
             }
-            stats.put(player, initialStrength);
+            cannonStrength.put(player, initialStrength);
         }
         super.entry();
     }
@@ -104,57 +109,75 @@ public class SlaversState extends State {
     @Override
     public void execute(PlayerData player) throws IllegalStateException {
         SpaceShip spaceShip = player.getSpaceShip();
+        boolean sendCurrentPlayer = false;
 
         switch (internalState) {
             case ENEMY_DEFEAT:
-                int cardValue = card.getCannonStrengthRequired();
-                if (stats.get(player) > cardValue) {
+                int cannonStrengthRequired = card.getCannonStrengthRequired();
+
+                if (cannonStrength.get(player) > cannonStrengthRequired) {
                     slaversDefeat = true;
-                } else if (stats.get(player) < cardValue) {
+                    internalState = SlaversInternalState.REWARD;
+                } else if (cannonStrength.get(player) < cannonStrengthRequired) {
                     slaversDefeat = false;
+
+                    if (spaceShip.getHumanCrewNumber() <= card.getCrewLost()) {
+                        this.hasPlayerForceGiveUp = true;
+                    } else {
+                        internalState = SlaversInternalState.PENALTY;
+                    }
                 } else {
                     slaversDefeat = null;
+                    sendCurrentPlayer = true;
+                    playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
                 }
 
-                EnemyDefeat enemyEvent = new EnemyDefeat(player.getUsername(), Boolean.TRUE.equals(slaversDefeat));
+                EnemyDefeat enemyEvent = new EnemyDefeat(player.getUsername(), slaversDefeat);
                 eventCallback.trigger(enemyEvent);
-            case PENALTY:
-                if (slaversDefeat != null && slaversDefeat) {
-                    if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
-                        player.addCoins(card.getCredit());
 
-                        UpdateCoins coinsEvent = new UpdateCoins(player.getUsername(), player.getCoins());
-                        eventCallback.trigger(coinsEvent);
-                    }
-                    super.execute(player);
-                } else if (slaversDefeat != null) {
-                    /*
-                       TODO:
-                        I think we need to check if the player has enough crew members before going to the penalty
-                        So that if the player has not enough crew members we send the lose event without making the player
-                        send an unnecessary loseCrew
-                     */
-
-                    if (spaceShip.getCrewNumber() <= card.getCrewLost()) {
-                        PlayerLost lostEvent = new PlayerLost();
-                        eventCallback.trigger(lostEvent, player.getUUID());
-                    } else {
-                        // TODO: Due to the change of crewLoss to List<Integer> we need to change the event
-                        //AddLoseCrew crewEvent = new AddLoseCrew(player.getUsername(), false, crewLoss);
-                        //eventCallback.trigger(crewEvent);
-                    }
-                    playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
+                if (hasPlayerForceGiveUp) {
+                    ForcingGiveUp lostEvent = new ForcingGiveUp("You have not enough crew members to serve the penalty, you have to give up");
+                    eventCallback.trigger(lostEvent, player.getUUID());
+                    internalState = SlaversInternalState.GIVE_UP;
                 }
+                break;
+            case REWARD:
+                if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
+                    player.addCoins(card.getCredit());
+
+                    UpdateCoins coinsEvent = new UpdateCoins(player.getUsername(), player.getCoins());
+                    eventCallback.trigger(coinsEvent);
+
+                    board.addSteps(player, -card.getFlightDays());
+                    MoveMarker stepsEvent = new MoveMarker(player.getUsername(),  player.getModuleStep(board.getStepsForALap()));
+                    eventCallback.trigger(stepsEvent);
+                }
+
+                for (PlayerData p: players) {
+                    super.execute(p);
+                }
+                break;
+            case PENALTY:
+                super.execute(player);
                 internalState = SlaversInternalState.ENEMY_DEFEAT;
+                sendCurrentPlayer = true;
+                break;
+            case GIVE_UP:
+                // Reset the forcing of the give up
+                this.hasPlayerForceGiveUp = false;
+                playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
+                internalState = SlaversInternalState.ENEMY_DEFEAT;
+                sendCurrentPlayer = true;
                 break;
         }
 
-        try {
-            CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
-            eventCallback.trigger(currentPlayerEvent);
-        }
-        catch(Exception e) {
-            // Ignore the exception
+        if (sendCurrentPlayer) {
+            try {
+                CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
+                eventCallback.trigger(currentPlayerEvent);
+            } catch (Exception e) {
+                // Ignore the exception
+            }
         }
 
         super.nextState(GameState.CARDS);
@@ -162,19 +185,6 @@ public class SlaversState extends State {
 
     @Override
     public void exit() throws IllegalStateException{
-        int flightDays = card.getFlightDays();
-        PlayerStatus status;
-        for (PlayerData p : players) {
-            status = playersStatus.get(p.getColor());
-            if (status == PlayerStatus.PLAYED) {
-                board.addSteps(p, -flightDays);
-
-                MoveMarker stepsEvent = new MoveMarker(p.getUsername(),  p.getModuleStep(board.getStepsForALap()));
-                eventCallback.trigger(stepsEvent);
-            } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
-                throw new IllegalStateException("Not all players have played");
-            }
-        }
         super.exit();
     }
 }

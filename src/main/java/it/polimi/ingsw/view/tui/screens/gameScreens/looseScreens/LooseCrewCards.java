@@ -1,10 +1,12 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens;
 
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.SetPenaltyLoss;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
+import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.tui.screens.CardsGame;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
@@ -38,6 +40,9 @@ public class LooseCrewCards extends CardsGame {
     public static void destroyStatics() {
         cabinIDs = null;
         reset = false;
+        PlayerDataView player = MiniModel.getInstance().getClientPlayer();
+        spaceShipView = player == null ? null : player.getShip();
+
     }
 
     @Override
@@ -60,15 +65,21 @@ public class LooseCrewCards extends CardsGame {
         }
 
         if (selected == num + 1) {
+            StatusEvent status;
             // Send the loosing cabin IDs to the server
-            StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object())
+            status = SetPenaltyLoss.requester(Client.transceiver, new Object())
                     .request(new SetPenaltyLoss(MiniModel.getInstance().getUserID(), 2, cabinIDs));
             destroyStatics();
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
                 return new LooseCrewCards();
             }
-            spaceShipView = clientPlayer.getShip();
+            // Request to end the turn after loosing crew members
+            status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
+                setMessage(((Pota) status).errorMessage());
+                return new LooseCrewCards();
+            }
             return nextScreen;
         }
 

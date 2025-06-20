@@ -35,8 +35,8 @@ public class PiratesState extends State {
      * Enum to represent the internal state of the pirates state.
      */
     private enum PiratesInternalState {
-        DEFAULT,
-        MIDDLE,
+        ENEMY_DEFEAT,
+        REWARD,
         PENALTY
     }
 
@@ -50,7 +50,7 @@ public class PiratesState extends State {
         this.card = card;
         this.stats = new HashMap<>();
         this.piratesDefeat = false;
-        this.internalState = PiratesInternalState.DEFAULT;
+        this.internalState = PiratesInternalState.ENEMY_DEFEAT;
         this.playersDefeated = new ArrayList<>();
         this.fragments = new ArrayList<>();
         this.protectionResult = new Pair<>(null, -1);
@@ -71,8 +71,10 @@ public class PiratesState extends State {
         }
         for (int i = 0; i < fragments.size(); i++) {
             if (i != fragmentChoice) {
-                Event event = Handler.destroyFragment(player, fragments.get(i));
-                eventCallback.trigger(event);
+                List<Event> events = Handler.destroyFragment(player, fragments.get(i));
+                for (Event e : events) {
+                    eventCallback.trigger(e);
+                }
             }
         }
         fragments.clear();
@@ -125,7 +127,7 @@ public class PiratesState extends State {
         switch (type) {
             case 0 -> throw new IllegalStateException("Cannot use double engine in this state");
             case 1 -> {
-                if (internalState == PiratesInternalState.DEFAULT) {
+                if (internalState == PiratesInternalState.ENEMY_DEFEAT) {
                     throw new IllegalStateException("Cannot use double cannons in this state");
                 }
                 Event event = Handler.useExtraStrength(player, type, IDs, batteriesID);
@@ -161,62 +163,50 @@ public class PiratesState extends State {
         int cardValue = card.getCannonStrengthRequired();
 
         switch (internalState) {
-            case DEFAULT:
+            case ENEMY_DEFEAT:
                 if (stats.get(player) > cardValue) {
                     piratesDefeat = true;
+                    internalState = PiratesInternalState.REWARD;
                 } else if (stats.get(player) < cardValue) {
                     piratesDefeat = false;
+                    this.playersDefeated.add(player);
                 } else {
                     piratesDefeat = null;
                 }
 
                 EnemyDefeat enemyDefeat = new EnemyDefeat(player.getUsername(), piratesDefeat);
                 eventCallback.trigger(enemyDefeat);
-
-                internalState = PiratesInternalState.MIDDLE;
                 break;
-            case MIDDLE:
-                if (piratesDefeat == null) {
-                    break;
-                }
-                if (piratesDefeat) {
-                    if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
-                        player.addCoins(card.getCredit());
-                        board.addSteps(player, -card.getFlightDays());
+            case REWARD:
+                if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
+                    player.addCoins(card.getCredit());
+                    board.addSteps(player, -card.getFlightDays());
 
-                        UpdateCoins updateCoinsEvent = new UpdateCoins(player.getUsername(), player.getCoins());
-                        eventCallback.trigger(updateCoinsEvent);
-                    }
-                } else {
-                    this.playersDefeated.add(player);
+                    UpdateCoins updateCoinsEvent = new UpdateCoins(player.getUsername(), player.getCoins());
+                    eventCallback.trigger(updateCoinsEvent);
                 }
+                super.execute(player);
+                for (PlayerData p: playersDefeated) {
+                    playersStatus.put(p.getColor(), PlayerStatus.WAITING);
+                }
+
+                internalState = PiratesInternalState.PENALTY;
                 break;
             case PENALTY:
                 if (!playersDefeated.contains(player)) {
-                    throw new IllegalStateException("OtherPlayer was not defeated");
+                    throw new IllegalStateException("Other player was not defeated");
+                }
+
+                hitIndex++;
+                NextHit nextHitEvent = new NextHit(player.getUsername());
+                eventCallback.trigger(nextHitEvent);
+                if (hitIndex < card.getFires().size()) {
+                    playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
+                    playersDefeated.remove(player);
+                    hitIndex = 0;
+                    diceRolled = false;
                 }
                 break;
-        }
-
-        if (piratesDefeat != null && piratesDefeat && internalState == PiratesInternalState.MIDDLE) {
-            for (PlayerData p : players) {
-                playersStatus.put(p.getColor(), PlayerStatus.PLAYED);
-            }
-        } else {
-            super.execute(player);
-        }
-
-        if (players.indexOf(player) == players.size() - 1 && (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED || playersStatus.get(player.getColor()) == PlayerStatus.SKIPPED)) {
-            internalState = PiratesInternalState.PENALTY;
-            hitIndex++;
-            NextHit nextHitEvent = new NextHit(player.getUsername());
-            eventCallback.trigger(nextHitEvent);
-            if (hitIndex < card.getFires().size()) {
-                for (PlayerData p : players) {
-                    playersStatus.put(p.getColor(), PlayerStatus.WAITING);
-                }
-                diceRolled = false;
-            }
         }
 
         try {

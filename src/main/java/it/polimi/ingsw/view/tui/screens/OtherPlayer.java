@@ -54,7 +54,7 @@ public class OtherPlayer implements TuiScreenView {
             if (i <= playerToView.getShip().getDiscardReservedPile().getRowsToDraw()) {
                 line.append(playerToView.getShip().getDiscardReservedPile().drawLineTui(i));
             }
-            else if (i > ((playerToView.getShip().getRowsToDraw() - 2) / 5 * 4 + 1) - 1 && i <= ((playerToView.getShip().getRowsToDraw() - 2) / 5 * 4 + playerToView.getRowsToDraw())) {
+            else if (i > ((playerToView.getShip().getRowsToDraw() - 2) / 5 * 3 + 1) - 1 && i <= ((playerToView.getShip().getRowsToDraw() - 2) / 5 * 3 + playerToView.getRowsToDraw())) {
                 line.append("   ").append(playerToView.drawLineTui(playerCount));
                 if (playerCount == 0) {
                     line.append("    ");

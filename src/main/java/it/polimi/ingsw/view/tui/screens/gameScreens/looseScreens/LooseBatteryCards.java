@@ -1,10 +1,12 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens;
 
 import it.polimi.ingsw.Client;
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.SetPenaltyLoss;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.miniModel.MiniModel;
+import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.tui.screens.CardsGame;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
@@ -14,9 +16,8 @@ import java.util.List;
 public class LooseBatteryCards extends CardsGame {
     private static boolean reset;
     private static List<Integer> batteryIDs;
-    private final TuiScreenView nextScreen;
 
-    public LooseBatteryCards(TuiScreenView nextScreen) {
+    public LooseBatteryCards() {
         super(new ArrayList<>(){{
             if (!reset) {
                 spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
@@ -31,7 +32,6 @@ public class LooseBatteryCards extends CardsGame {
         if (batteryIDs == null) {
             batteryIDs = new ArrayList<>();
         }
-        this.nextScreen = nextScreen;
     }
 
     @Override
@@ -42,6 +42,8 @@ public class LooseBatteryCards extends CardsGame {
     public static void destroyStatics() {
         batteryIDs = null;
         reset = false;
+        PlayerDataView player = MiniModel.getInstance().getClientPlayer();
+        spaceShipView = player == null ? null : player.getShip();
     }
 
     @Override
@@ -54,20 +56,25 @@ public class LooseBatteryCards extends CardsGame {
                 .count();
 
         if (selected == num) {
-
             destroyStatics();
-            return new LooseBatteryCards(nextScreen);
+            return new LooseBatteryCards();
         }
 
         if (selected == num + 1) {
+            StatusEvent status;
             // Send the loosing batteryIDs to the server
-            StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object()).request(new SetPenaltyLoss(MiniModel.getInstance().getUserID(), 1, batteryIDs));
+            status = SetPenaltyLoss.requester(Client.transceiver, new Object()).request(new SetPenaltyLoss(MiniModel.getInstance().getUserID(), 1, batteryIDs));
             destroyStatics();
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
-                return new LooseBatteryCards(nextScreen);
+                return new LooseBatteryCards();
             }
-            spaceShipView = clientPlayer.getShip();
+            // After selected loosing batteries end the turn
+            status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
+                setMessage(((Pota) status).errorMessage());
+                return new LooseBatteryCards();
+            }
             return nextScreen;
         }
 
@@ -85,6 +92,6 @@ public class LooseBatteryCards extends CardsGame {
             line.append("(").append(spaceShipView.getMapBatteries().get(integer).getRow()).append(" ").append(spaceShipView.getMapBatteries().get(integer).getCol()).append(") ");
         }
         setMessage("You are loosing batteries from " + line);
-        return new LooseBatteryCards(nextScreen);
+        return new LooseBatteryCards();
     }
 }

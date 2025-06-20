@@ -31,9 +31,7 @@ public class ChoosePosition implements TuiScreenView {
         options.add("2");
         options.add("3");
         options.add("4");
-        if (MiniModel.getInstance().getTimerView().getNumberOfFlips() != MiniModel.getInstance().getTimerView().getTotalFlips()) {
-            options.add("Back");
-        }
+        options.add("Back");
 
         totalLines = MiniModel.getInstance().getBoardView().getRowsToDraw() + 5;
 

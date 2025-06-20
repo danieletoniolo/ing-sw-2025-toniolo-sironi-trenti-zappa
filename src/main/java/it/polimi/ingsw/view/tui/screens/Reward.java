@@ -32,7 +32,7 @@ public class Reward implements TuiScreenView {
 
         this.isNewScreen = true;
 
-        totalLines = 3;
+        totalLines = 6;
     }
 
     @Override

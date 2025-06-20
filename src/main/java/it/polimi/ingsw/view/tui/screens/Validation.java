@@ -87,7 +87,7 @@ public abstract class Validation implements TuiScreenView {
             if (i <= spaceShipView.getDiscardReservedPile().getRowsToDraw()) {
                 line.append(MiniModel.getInstance().getClientPlayer().getShip().getDiscardReservedPile().drawLineTui(i));
             }
-            else if (i > ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + 1) - 1 && i <= ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + MiniModel.getInstance().getClientPlayer().getRowsToDraw())) {
+            else if (i > ((spaceShipView.getRowsToDraw() - 2) / 5 * 3 + 1) - 1 && i <= ((spaceShipView.getRowsToDraw() - 2) / 5 * 3 + MiniModel.getInstance().getClientPlayer().getRowsToDraw())) {
                 line.append("   ").append(MiniModel.getInstance().getClientPlayer().drawLineTui(playerCount));
                 if (playerCount == 0) {
                     line.append("    ");

@@ -9,6 +9,10 @@ public class PlayerDataView implements Structure {
     private final String color;
     private final MarkerView markerView;
     private int coins;
+    private float cannonsStrength;
+    private float maxPotentialCannonsStrength;
+    private int enginesStrength;
+    private int maxPotentialEnginesStrength;
     private final SpaceShipView ship;
     private ComponentView hand;
     private final String blue =   "\033[34m";
@@ -30,7 +34,7 @@ public class PlayerDataView implements Structure {
     }
 
     public int getRowsToDraw() {
-        return 2;
+        return 4;
     }
 
     @Override
@@ -38,6 +42,8 @@ public class PlayerDataView implements Structure {
         return switch (line) {
             case 0 -> color + username + reset;
             case 1 -> "Coins: " + coins;
+            case 2 -> "Cannons strength: " + cannonsStrength + " (max potential: " + maxPotentialCannonsStrength + ")";
+            case 3 -> "Engines strength: " + enginesStrength + " (max potential: " + maxPotentialEnginesStrength + ")";
             default -> throw new IllegalStateException("Unexpected value: " + line);
         };
     }
@@ -68,5 +74,21 @@ public class PlayerDataView implements Structure {
 
     public MarkerView getMarkerView() {
         return markerView;
+    }
+
+    public void setCannonsStrength(float cannonsStrength) {
+        this.cannonsStrength = cannonsStrength;
+    }
+
+    public void setMaxPotentialCannonsStrength(float maxPotentialCannonsStrength) {
+        this.maxPotentialCannonsStrength = maxPotentialCannonsStrength;
+    }
+
+    public void setEnginesStrength(int enginesStrength) {
+        this.enginesStrength = enginesStrength;
+    }
+
+    public void setMaxPotentialEnginesStrength(int maxPotentialEnginesStrength) {
+        this.maxPotentialEnginesStrength = maxPotentialEnginesStrength;
     }
 }

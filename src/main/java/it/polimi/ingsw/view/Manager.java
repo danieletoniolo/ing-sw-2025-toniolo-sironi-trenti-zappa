@@ -1,9 +1,10 @@
 package it.polimi.ingsw.view;
 
-import it.polimi.ingsw.event.game.serverToClient.StateChanged;
 import it.polimi.ingsw.event.game.serverToClient.deck.*;
 import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBatteriesPenalty;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.PickedTileFromSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
@@ -46,6 +47,11 @@ public interface Manager {
     // Energy used
     void notifyBatteriesLoss(BatteriesLoss data);
 
+    // Forcing internal state
+    void notifyForcingBatteriesPenalty(ForcingBatteriesPenalty data);
+
+    void notifyForceGiveUp(ForcingGiveUp data);
+
     // Goods
     void notifyUpdateGoodsExchange(UpdateGoodsExchange data);
 
@@ -66,7 +72,7 @@ public interface Manager {
     // Planets
     void notifyPlanetSelected(PlanetSelected data);
 
-    //OtherPlayer
+    // Player
     void notifyCardPlayed(CardPlayed data);
 
     void notifyEnemyDefeat(EnemyDefeat data);
@@ -76,8 +82,6 @@ public interface Manager {
     void notifyMoveMarker(MoveMarker data);
 
     void notifyPlayerGaveUp(PlayerGaveUp data);
-
-    void notifyPlayerLost(PlayerLost data);
 
     void notifyCurrentPlayer(CurrentPlayer data);
 
@@ -100,6 +104,10 @@ public interface Manager {
     void notifyInvalidComponents(InvalidComponents data);
 
     void notifyNextHit(NextHit data);
+
+    void notifySetCannonStrength(SetCannonStrength data);
+
+    void notifySetEngineStrength(SetEngineStrength data);
 
     void notifyUpdateCrewMembers(UpdateCrewMembers data);
 

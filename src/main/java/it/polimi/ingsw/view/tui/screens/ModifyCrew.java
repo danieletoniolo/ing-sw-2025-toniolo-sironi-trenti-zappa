@@ -79,7 +79,7 @@ public abstract class ModifyCrew implements TuiScreenView {
             if (i <= spaceShipView.getDiscardReservedPile().getRowsToDraw()) {
                 line.append(spaceShipView.getDiscardReservedPile().drawLineTui(i));
             }
-            else if (i > ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + 1) - 1 && i <= ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + clientPlayer.getRowsToDraw())) {
+            else if (i > ((spaceShipView.getRowsToDraw() - 2) / 5 * 3 + 1) - 1 && i <= ((spaceShipView.getRowsToDraw() - 2) / 5 * 3 + clientPlayer.getRowsToDraw())) {
                 line.append("   ").append(clientPlayer.drawLineTui(playerCount));
                 if (playerCount == 0) {
                     line.append("    ");

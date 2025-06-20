@@ -1,14 +1,14 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.Fragments;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.InvalidComponents;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
+import it.polimi.ingsw.model.spaceship.Component;
+import it.polimi.ingsw.model.spaceship.ComponentType;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -43,8 +43,10 @@ public class ValidationState extends State {
 
         for (int i = 0; i < fragmentedComponents.get(player).size(); i++) {
             if (i != fragmentChoice) {
-                Event event = Handler.destroyFragment(player, fragmentedComponents.get(player).get(i));
-                eventCallback.trigger(event);
+                List<Event> events = Handler.destroyFragment(player, fragmentedComponents.get(player).get(i));
+                for (Event e : events) {
+                    eventCallback.trigger(e);
+                }
             }
         }
         fragmentedComponents.put(player, null);
@@ -54,15 +56,32 @@ public class ValidationState extends State {
     @Override
     public void setComponentToDestroy(PlayerData player, List<Pair<Integer, Integer>> componentsToDestroy) throws IllegalStateException, IllegalArgumentException {
         SpaceShip ship = player.getSpaceShip();
+        boolean isCannon = false, isEngine = false;
+
         for (Pair<Integer, Integer> component : componentsToDestroy) {
-            player.getSpaceShip().getComponent(component.getValue0(), component.getValue1());
+            Component tempComponent = player.getSpaceShip().getComponent(component.getValue0(), component.getValue1());
+
+            if (tempComponent.getComponentType() == ComponentType.SINGLE_CANNON || tempComponent.getComponentType() == ComponentType.DOUBLE_CANNON) {
+                isCannon = true;
+            } else if (tempComponent.getComponentType() == ComponentType.SINGLE_ENGINE || tempComponent.getComponentType() == ComponentType.DOUBLE_ENGINE) {
+                isEngine = true;
+            }
         }
         // Destroy the components given by the player
         for (Pair<Integer, Integer> component : componentsToDestroy) {
             ship.destroyComponent(component.getValue0(), component.getValue1());
         }
+
         Event event = new ComponentDestroyed(player.getUsername(), componentsToDestroy);
         eventCallback.trigger(event);
+
+        if (isEngine) {
+            SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), ship.getSingleEnginesStrength(), ship.getSingleEnginesStrength() + ship.getDoubleEnginesStrength());
+            eventCallback.trigger(engineStrength);
+        } else if (isCannon) {
+            SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), ship.getSingleCannonsStrength(), ship.getSingleCannonsStrength() + ship.getDoubleCannonsStrength());
+            eventCallback.trigger(cannonStrength);
+        }
     }
 
     @Override

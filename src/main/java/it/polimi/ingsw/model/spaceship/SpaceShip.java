@@ -362,6 +362,14 @@ public class SpaceShip {
     }
 
     /**
+     * Get the number of human crew members in the ship
+     * @return the number of human crew members in the ship
+     */
+    public int getHumanCrewNumber() {
+        return crewNumber - (brownAlien ? 1 : 0) - (purpleAlien ? 1 : 0);
+    }
+
+    /**
      * Get if there is a purple alien in the ship
      * @return true if there is a purple alien in the ship, false otherwise
      */
@@ -809,6 +817,9 @@ public class SpaceShip {
      * @return last placed component
      */
     public Component getLastPlacedComponent() {
+        if (lastPlacedComponent == null) {
+            throw new IllegalStateException("The last placed component is fixed");
+        }
         return lastPlacedComponent;
     }
 

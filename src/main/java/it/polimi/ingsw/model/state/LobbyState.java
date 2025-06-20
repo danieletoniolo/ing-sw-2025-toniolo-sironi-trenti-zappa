@@ -6,6 +6,8 @@ import it.polimi.ingsw.event.game.serverToClient.deck.GetDecks;
 import it.polimi.ingsw.event.game.serverToClient.deck.GetShuffledDeck;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.NumberHiddenTiles;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedMainCabin;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.SetCannonStrength;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.SetEngineStrength;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Deck;
@@ -14,6 +16,7 @@ import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.MatchController;
 import it.polimi.ingsw.model.spaceship.Component;
+import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 

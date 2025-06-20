@@ -79,8 +79,11 @@ public class CardsManager {
                 - Abandoned Station
                 - Stardust
                 - OpenSpace
+                - Slavers
+                - Smugglers
          */
-        int[] cardsIDs = {3, 3, 3, 23, 23, 23, 23, 4, 4, 4, 3, 11};
+        //                12  9  6  3  11   8  5  2  10   7  4  1
+        int[] cardsIDs = {21, 3, 8, 1, 23, 16, 2, 21, 4, 10, 0, 1};
 
         for (int cardsID : cardsIDs) {
             selectedCards.add(cards[cardsID]);

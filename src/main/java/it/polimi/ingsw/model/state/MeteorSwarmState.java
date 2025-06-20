@@ -44,8 +44,10 @@ public class MeteorSwarmState extends State {
         }
         for (int i = 0; i < fragments.size(); i++) {
             if (i != fragmentChoice) {
-                Event event = Handler.destroyFragment(player, fragments.get(i));
-                eventCallback.trigger(event);
+                List<Event> events = Handler.destroyFragment(player, fragments.get(i));
+                for (Event e : events) {
+                    eventCallback.trigger(e);
+                }
             }
         }
         fragments.clear();

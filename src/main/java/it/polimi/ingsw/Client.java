@@ -63,7 +63,7 @@ public class Client {
         } while (!rmiOrSocket.equals("rmi") && !rmiOrSocket.equals("tcp"));
 
         if (tuiOrGui.equals("tui")) {
-            TuiManager tui = new TuiManager(terminal, parser);
+            TuiManager tui = new TuiManager(parser);
 
             if (rmiOrSocket.equals("rmi")) {
                 EventHandlerClient manager = new EventHandlerClient(transceiver, tui);

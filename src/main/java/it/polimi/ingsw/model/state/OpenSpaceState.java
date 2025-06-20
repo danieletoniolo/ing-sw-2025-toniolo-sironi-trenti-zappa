@@ -4,6 +4,7 @@ import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
@@ -62,25 +63,26 @@ public class OpenSpaceState extends State {
      */
     @Override
     public void execute(PlayerData player) throws IllegalStateException {
-        if (stats.get(player) == 0) {
-            player.setGaveUp(true);
-            this.players = super.board.getInGamePlayers();
+        if (stats.get(player) == 0 && board.getInGamePlayers().contains(player)) {
+            ForcingGiveUp forcingGiveUpEvent = new ForcingGiveUp("You have no engines, you have to give up");
+            eventCallback.trigger(forcingGiveUpEvent, player.getUUID());
         } else {
             board.addSteps(player, stats.get(player).intValue());
 
             MoveMarker stepEvent = new MoveMarker(player.getUsername(),  player.getModuleStep(board.getStepsForALap()));
             eventCallback.trigger(stepEvent);
-        }
-        super.execute(player);
 
-        try {
-            CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
-            eventCallback.trigger(currentPlayerEvent);
-        }
-        catch(Exception e) {
-            // Ignore the exception
-        }
+            super.execute(player);
 
-        super.nextState(GameState.CARDS);
+            try {
+                CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
+                eventCallback.trigger(currentPlayerEvent);
+            }
+            catch(Exception e) {
+                // Ignore the exception
+            }
+
+            super.nextState(GameState.CARDS);
+        }
     }
 }

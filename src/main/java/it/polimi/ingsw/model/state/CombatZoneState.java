@@ -4,7 +4,7 @@ import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MinPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
-import it.polimi.ingsw.event.game.serverToClient.player.PlayerLost;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.CombatZone;
@@ -94,8 +94,10 @@ public class CombatZoneState extends State {
         }
         for (int i = 0; i < fragments.size(); i++) {
             if (i != fragmentChoice) {
-                Event event = Handler.destroyFragment(player, fragments.get(i));
-                eventCallback.trigger(event);
+                List<Event> events = Handler.destroyFragment(player, fragments.get(i));
+                for (Event e : events) {
+                    eventCallback.trigger(e);
+                }
             }
         }
         fragments.clear();
@@ -147,7 +149,7 @@ public class CombatZoneState extends State {
                 if (internalState != CombatZoneInternalState.GOODS_PENALTY) {
                     throw new IllegalStateException("There is no penalty to serve.");
                 }
-                Event event = Handler.loseGoods(player, penaltyLoss,currentPenaltyLoss);
+                Event event = Handler.loseGoods(player, penaltyLoss, currentPenaltyLoss);
                 eventCallback.trigger(event);
                 currentPenaltyLoss -= penaltyLoss.size();
             }
@@ -299,14 +301,14 @@ public class CombatZoneState extends State {
                 break;
             case BATTERIES_PENALTY:
                 if (currentPenaltyLoss > 0 && player.getSpaceShip().getEnergyNumber() > 0) {
-                    throw new IllegalStateException("OtherPlayer has not set the batteries to lose");
+                    throw new IllegalStateException("Other player has not set the batteries to lose");
                 }
                 internalState = CombatZoneInternalState.CREW;
                 playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.PLAYING);
                 break;
             case CREW_PENALTY:
                 if (currentPenaltyLoss > 0) {
-                    Event event = new PlayerLost();
+                    Event event = new ForcingGiveUp("You have lost all your crew members, you have to give up");
                     eventCallback.trigger(event, player.getUUID());
                 } else {
                     internalState = CombatZoneInternalState.CANNONS;
