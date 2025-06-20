@@ -37,8 +37,9 @@ public class SelectPlanetCards extends CardsGame {
             return oldScreen;
         }
 
+        // Send the request to select the planet
         StatusEvent status = SelectPlanet.requester(Client.transceiver, new Object()).request(new SelectPlanet(MiniModel.getInstance().getUserID(), selected));
-        if (status.get().equals("POTA")) {
+        if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
             return this;
         }

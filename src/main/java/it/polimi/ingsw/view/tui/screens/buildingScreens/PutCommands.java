@@ -33,8 +33,9 @@ public class PutCommands extends Building {
         }
 
         if (selected == 1) {
+            // Send the request to place the tile on the board
             status = PlaceTileToBoard.requester(Client.transceiver, new Object()).request(new PlaceTileToBoard(MiniModel.getInstance().getUserID()));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 TuiScreenView newScreen = new MainBuilding();
                 newScreen.setMessage(((Pota) status).errorMessage());
                 return newScreen;
@@ -42,8 +43,9 @@ public class PutCommands extends Building {
         }
 
         if (selected == 2) {
+            // Place the tile into the reserved pile
             status = PlaceTileToReserve.requester(Client.transceiver, new Object()).request(new PlaceTileToReserve(MiniModel.getInstance().getUserID()));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 TuiScreenView newScreen = new MainBuilding();
                 newScreen.setMessage(((Pota) status).errorMessage());
                 return newScreen;

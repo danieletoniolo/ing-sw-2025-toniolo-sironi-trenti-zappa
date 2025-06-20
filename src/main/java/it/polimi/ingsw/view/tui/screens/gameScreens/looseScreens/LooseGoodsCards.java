@@ -43,11 +43,10 @@ public class LooseGoodsCards extends CardsGame {
         return "Choose a storage unit to discard the most expensive goods.";
     }
 
-    private void destroyStatic() {
+    public static void destroyStatics() {
         storageIDs = null;
         looseGoods = null;
         reset = false;
-        setMessage(null);
     }
 
     @Override
@@ -60,14 +59,15 @@ public class LooseGoodsCards extends CardsGame {
                 .count();
 
         if (selected == num) {
-            destroyStatic();
+            destroyStatics();
             return new LooseGoodsCards(nextScreen);
         }
 
         if (selected == num + 1) {
+            // Send the loosing goods to the server
             StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object()).request(new SetPenaltyLoss(MiniModel.getInstance().getUserID(), 0, storageIDs));
-            destroyStatic();
-            if (status.get().equals("POTA")) {
+            destroyStatics();
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
                 return new LooseGoodsCards(nextScreen);
             }

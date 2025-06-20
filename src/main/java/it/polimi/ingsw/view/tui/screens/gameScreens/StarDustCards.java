@@ -23,8 +23,9 @@ public class StarDustCards extends CardsGame {
         if (possibleScreen != null) return possibleScreen;
 
         if (selected == 0) {
+            // Request to end the turn
             StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
                 return this;
             }

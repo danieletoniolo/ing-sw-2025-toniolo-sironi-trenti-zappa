@@ -31,9 +31,10 @@ public class DeckCommands extends Building {
             return new MainBuilding();
         }
 
+        // Check if the selected deck is valid
         StatusEvent status = PickLeaveDeck.requester(Client.transceiver, new Object())
                 .request(new PickLeaveDeck(MiniModel.getInstance().getUserID(), 0, selected));
-        if (status.get().equals("POTA")) {
+        if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
             return this;
         }

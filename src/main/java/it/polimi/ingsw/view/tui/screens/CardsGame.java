@@ -5,7 +5,6 @@ import it.polimi.ingsw.event.game.clientToServer.player.GiveUp;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
-import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
@@ -58,8 +57,9 @@ public abstract class CardsGame implements TuiScreenView {
         }
 
         if (selected == options.size() - 2) {
+            // Send a request to give up
             StatusEvent status = GiveUp.requester(Client.transceiver, new Object()).request(new GiveUp(MiniModel.getInstance().getUserID()));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
             }
             return this;
@@ -77,7 +77,7 @@ public abstract class CardsGame implements TuiScreenView {
     }
 
     @Override
-    public void printTui(Terminal terminal) {
+    public void printTui() {
         List<String> newLines = new ArrayList<>();
 
         if (spaceShipView == null) {

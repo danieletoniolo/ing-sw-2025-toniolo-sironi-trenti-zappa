@@ -6,7 +6,6 @@ import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.MainBuilding;
-import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
@@ -16,7 +15,6 @@ import java.util.List;
 
 public class Deck implements TuiScreenView {
     private final ArrayList<String> options = new ArrayList<>(List.of("Back"));
-    private List<String> lastPrintedLines = new ArrayList<>();
     private boolean isNewScreen;
 
     private final DeckView myDeck;
@@ -39,19 +37,21 @@ public class Deck implements TuiScreenView {
     @Override
     public TuiScreenView setNewScreen() {
         if (selected == 0) {
+            // Leave the selected deck
             StatusEvent status = PickLeaveDeck.requester(Client.transceiver, new Object()).request(new PickLeaveDeck(MiniModel.getInstance().getUserID(), 1, (num - 1)));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
                 return this;
             }
+
+            return new MainBuilding();
         }
 
-
-        return new MainBuilding();
+        return this;
     }
 
     @Override
-    public void printTui(Terminal terminal) {
+    public void printTui() {
         List<String> newLines = new ArrayList<>();
 
         newLines.add("Deck " + num + ":");

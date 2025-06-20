@@ -1,7 +1,6 @@
 package it.polimi.ingsw.view.tui.screens;
 
 import it.polimi.ingsw.view.tui.input.Parser;
-import org.jline.terminal.Terminal;
 
 public class ClosingProgram implements TuiScreenView{
     @Override
@@ -10,7 +9,7 @@ public class ClosingProgram implements TuiScreenView{
     }
 
     @Override
-    public void printTui(Terminal terminal) {
+    public void printTui() {
 
     }
 

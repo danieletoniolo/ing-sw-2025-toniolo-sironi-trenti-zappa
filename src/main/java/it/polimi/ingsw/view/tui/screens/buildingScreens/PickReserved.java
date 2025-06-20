@@ -39,8 +39,9 @@ public class PickReserved extends Building {
                 .orElse(-1);
 
         if (ID != -1) {
+            // Send the request to pick a tile from the reserve
             StatusEvent status = PickTileFromReserve.requester(Client.transceiver, new Object()).request(new PickTileFromReserve(MiniModel.getInstance().getUserID(), ID));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 TuiScreenView newScreen = new MainBuilding();
                 newScreen.setMessage(((Pota) status).errorMessage());
                 return newScreen;

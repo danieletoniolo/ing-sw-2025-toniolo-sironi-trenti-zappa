@@ -39,10 +39,9 @@ public class LooseBatteryCards extends CardsGame {
         return "Select a battery where to drop energy from:";
     }
 
-    private void destroyStatic() {
+    public static void destroyStatics() {
         batteryIDs = null;
         reset = false;
-        setMessage(null);
     }
 
     @Override
@@ -55,14 +54,16 @@ public class LooseBatteryCards extends CardsGame {
                 .count();
 
         if (selected == num) {
-            destroyStatic();
+
+            destroyStatics();
             return new LooseBatteryCards(nextScreen);
         }
 
         if (selected == num + 1) {
+            // Send the loosing batteryIDs to the server
             StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object()).request(new SetPenaltyLoss(MiniModel.getInstance().getUserID(), 1, batteryIDs));
-            destroyStatic();
-            if (status.get().equals("POTA")) {
+            destroyStatics();
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
                 return new LooseBatteryCards(nextScreen);
             }

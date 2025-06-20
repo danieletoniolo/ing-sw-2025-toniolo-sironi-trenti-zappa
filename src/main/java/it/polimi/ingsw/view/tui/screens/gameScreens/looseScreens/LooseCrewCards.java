@@ -35,10 +35,9 @@ public class LooseCrewCards extends CardsGame {
         }
     }
 
-    private void destroyStatic() {
+    public static void destroyStatics() {
         cabinIDs = null;
         reset = false;
-        setMessage(null);
     }
 
     @Override
@@ -56,15 +55,16 @@ public class LooseCrewCards extends CardsGame {
                 .count();
 
         if (selected == num) {
-            destroyStatic();
+            destroyStatics();
             return new LooseCrewCards();
         }
 
         if (selected == num + 1) {
+            // Send the loosing cabin IDs to the server
             StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object())
                     .request(new SetPenaltyLoss(MiniModel.getInstance().getUserID(), 2, cabinIDs));
-            destroyStatic();
-            if (status.get().equals("POTA")) {
+            destroyStatics();
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
                 return new LooseCrewCards();
             }

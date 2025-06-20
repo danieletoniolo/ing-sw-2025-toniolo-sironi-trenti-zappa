@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.enemyActions;
 
+import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.cards.CardViewType;
 import it.polimi.ingsw.view.tui.screens.CardsGame;
@@ -19,11 +20,13 @@ public class EnemyRewardsCards extends CardsGame {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
+        StatusEvent status;
         switch (selected) {
             case 0:
                 if (MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getCardViewType().equals(CardViewType.SMUGGLERS)) {
                     return new MenuGoodsCards();
                 }
+
 
                 break;
             case 1:

@@ -31,9 +31,10 @@ public class RowAndCol extends Building {
     @Override
     public TuiScreenView setNewScreen() {
         if (num == 0) {
+            // Request to place the tile on the spaceship
             StatusEvent status = PlaceTileToSpaceship.requester(Client.transceiver, new Object())
                     .request(new PlaceTileToSpaceship(MiniModel.getInstance().getUserID(), rowAndCol.getValue0() - 1, rowAndCol.getValue1() - 1));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 TuiScreenView newScreen = new MainBuilding();
                 newScreen.setMessage(((Pota) status).errorMessage());
                 return newScreen;
@@ -48,9 +49,10 @@ public class RowAndCol extends Building {
                     .orElse(-1);
 
             if (ID != -1) {
+                // Send the request to pick the tile from the board
                 StatusEvent status = PickTileFromBoard.requester(Client.transceiver, new Object())
                         .request(new PickTileFromBoard(MiniModel.getInstance().getUserID(), ID));
-                if (status.get().equals("POTA")) {
+                if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                     TuiScreenView newScreen = new MainBuilding();
                     newScreen.setMessage(((Pota) status).errorMessage());
                     return newScreen;

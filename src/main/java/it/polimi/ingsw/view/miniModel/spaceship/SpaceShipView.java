@@ -1,6 +1,5 @@
 package it.polimi.ingsw.view.miniModel.spaceship;
 
-import it.polimi.ingsw.view.gui.controllers.ship.LearningShipController;
 import it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController;
 import it.polimi.ingsw.view.miniModel.MiniModelObservable;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;

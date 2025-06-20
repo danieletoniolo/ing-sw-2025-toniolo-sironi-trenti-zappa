@@ -148,4 +148,8 @@ public class MiniModel {
     public synchronized Pair<Integer, Integer> getDice() {
         return dice;
     }
+
+    public synchronized String getErrorCode() {
+        return "POTA";
+    }
 }

@@ -64,8 +64,9 @@ public class MenuGoodsCards extends CardsGame {
                 yield new StorageExchangeCards(this);
             }
             case 2 -> {
+                // Player has finished to modify own goods, send EndTurn event
                 StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
-                if (status.get().equals("POTA")) {
+                if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                     setMessage(((Pota) status).errorMessage());
                     yield this;
                 }

@@ -10,9 +10,7 @@ public class StorageFromCards extends ManagerSwapGoodCards {
     public StorageFromCards(TuiScreenView oldScreen) {
         super(new ArrayList<>(){{
             spaceShipView.getMapStorages().forEach(
-                    (key, value) -> {
-                        add("Swap from the storage " + "(" + value.getRow() + "," + value.getCol() + ")");
-                    });
+                    (_, value) -> add("Swap from the storage " + "(" + value.getRow() + "," + value.getCol() + ")"));
             add("Back");
         }});
         this.oldScreen = oldScreen;

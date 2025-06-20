@@ -1,5 +1,4 @@
 package it.polimi.ingsw.view.tui.screens;
-import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.tui.input.Parser;
 
 public interface TuiScreenView {
@@ -11,7 +10,7 @@ public interface TuiScreenView {
      */
     TuiScreenView setNewScreen();
 
-    void printTui(Terminal terminal);
+    void printTui();
 
     void setMessage(String message);
 

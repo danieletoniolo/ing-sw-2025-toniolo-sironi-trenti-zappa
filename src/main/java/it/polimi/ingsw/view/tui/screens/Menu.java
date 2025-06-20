@@ -4,7 +4,6 @@ import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.lobby.clientToServer.JoinLobby;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.Client;
-import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.lobby.LobbyView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
@@ -43,25 +42,6 @@ public class Menu implements TuiScreenView {
         selected = parser.getCommand(options, totalLines);
     }
 
-    @Override
-    public void printTui(Terminal terminal) {
-        List<String> newLines = new ArrayList<>();
-
-        newLines.add("Welcome " + MiniModel.getInstance().getNickname());
-
-        newLines.add("");
-        newLines.add(message == null ? "" : message);
-        newLines.add("");
-        newLines.add(lineBeforeInput());
-
-        TerminalUtils.printScreen(newLines, totalLines + options.size());
-
-        if (isNewScreen) {
-            isNewScreen = false;
-            TerminalUtils.clearLastLines(totalLines + options.size());
-        }
-    }
-
     protected String lineBeforeInput(){
         return "Available lobbies:";
     }
@@ -82,9 +62,10 @@ public class Menu implements TuiScreenView {
         }
 
         if (selected >= 0 && selected < MiniModel.getInstance().getLobbiesView().size()) {
+            // Join the selected lobby
             StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
                     .request(new JoinLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getLobbiesView().get(selected).getLobbyName()));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
                 return this;
             }
@@ -93,6 +74,25 @@ public class Menu implements TuiScreenView {
         }
 
         return this;
+    }
+
+    @Override
+    public void printTui() {
+        List<String> newLines = new ArrayList<>();
+
+        newLines.add("Welcome " + MiniModel.getInstance().getNickname());
+
+        newLines.add("");
+        newLines.add(message == null ? "" : message);
+        newLines.add("");
+        newLines.add(lineBeforeInput());
+
+        TerminalUtils.printScreen(newLines, totalLines + options.size());
+
+        if (isNewScreen) {
+            isNewScreen = false;
+            TerminalUtils.clearLastLines(totalLines + options.size());
+        }
     }
 
     @Override

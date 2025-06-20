@@ -7,7 +7,6 @@ import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.lobby.LobbyView;
-import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
 
@@ -42,18 +41,18 @@ public class Lobby implements TuiScreenView {
         StatusEvent status;
         switch (selected) {
             case 0, 1:
+                // Request to set player status (ready/not ready)
                 status = PlayerReady.requester(Client.transceiver, new Object()).request(new PlayerReady(MiniModel.getInstance().getUserID(), selected == 0));
                 setMessage(null);
-                if (status.get().equals("POTA")) {
+                if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                     setMessage(((Pota) status).errorMessage());
                 }
-                if (nextScreen != null) {
-                    return nextScreen;
-                }
-                return this;
+
+                return nextScreen != null ? nextScreen : this;
             case 2:
+                // Request to leave the lobby
                 status = LeaveLobby.requester(Client.transceiver, new Object()).request(new LeaveLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getCurrentLobby().getLobbyName()));
-                if (status.get().equals("POTA")) {
+                if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                     setMessage(((Pota) status).errorMessage());
                     return this;
                 }
@@ -66,7 +65,7 @@ public class Lobby implements TuiScreenView {
     }
 
     @Override
-    public void printTui(Terminal terminal) {
+    public void printTui() {
         List<String> newLines = new ArrayList<>();
 
         for (int i = 0; i < LobbyView.getRowsToDraw(); i++) {

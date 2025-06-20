@@ -74,7 +74,7 @@ public class TuiManager implements Manager {
             while (running) {
                 try {
                     synchronized (stateLock) {
-                        currentScreen.printTui(terminal);
+                        currentScreen.printTui();
                     }
                     if (currentScreen.getType().equals(TuiScreens.Ending)) {
                         try {
@@ -231,17 +231,21 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyBatteriesLoss(BatteriesLoss data) {
-        synchronized (stateLock) {
-            currentScreen.setMessage(data.nickname() + " has lost " + data.batteriesIDs().size() + " batteries!");
-            stateLock.notifyAll();
+        if (!data.batteriesIDs().isEmpty()) {
+            synchronized (stateLock) {
+                currentScreen.setMessage(data.nickname() + " has lost " + data.batteriesIDs().size() + " batteries!");
+                stateLock.notifyAll();
+            }
         }
     }
 
     @Override
     public void notifyUpdateGoodsExchange(UpdateGoodsExchange data) {
-        synchronized (stateLock) {
-            currentScreen.setMessage(data.nickname() + " has modified own goods");
-            stateLock.notifyAll();
+        if (!data.exchangeData().isEmpty()) {
+            synchronized (stateLock) {
+                currentScreen.setMessage(data.nickname() + " has modified own goods");
+                stateLock.notifyAll();
+            }
         }
     }
 
@@ -615,7 +619,11 @@ public class TuiManager implements Manager {
                         case METEORSSWARM -> new MeteorsSwarmCards();
                     };
                 }
-                case REWARD -> currentScreen = new RewardTuiScreen();
+                case REWARD ->{
+                    TuiScreenView reward = new Reward();
+                    currentScreen.setNextScreen(reward);
+                    currentScreen = reward;
+                }
                 case FINISHED -> {
                     currentScreen = new Menu();
                     currentScreen.setMessage("A player disconnected, you are back to the lobbies menu");
@@ -624,6 +632,10 @@ public class TuiManager implements Manager {
                     ManagerSwapGoodCards.destroyStatics();
                     ManagerCannonsCards.destroyStatics();
                     ManagerEnginesCards.destroyStatics();
+                    LooseCrewCards.destroyStatics();
+                    LooseGoodsCards.destroyStatics();
+                    LooseBatteryCards.destroyStatics();
+                    Validation.destroyStatics();
                 }
             }
 
