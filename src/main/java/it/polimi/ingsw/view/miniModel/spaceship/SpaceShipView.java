@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.miniModel.spaceship;
 
 import it.polimi.ingsw.view.gui.controllers.ship.LearningShipController;
+import it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController;
 import it.polimi.ingsw.view.miniModel.MiniModelObservable;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.*;
@@ -30,15 +31,12 @@ public class SpaceShipView implements Structure, MiniModelObservable {
     private ComponentView last;
     private List<List<Pair<Integer, Integer>>> fragments;
 
-    // Converter model spaceship to view -> row 6 -> 2 , col 6 -> 2
-    private final int converterRow = 4;
-    private final int converterCol = 3;
+    // Converter model spaceship to view -> row 6 -> 2, col 6 -> 2
+    public final static int ROW_OFFSET = 4;
+    public final static int COL_OFFSET = 3;
     private float totalPower;
 
     private final List<MiniModelObserver> observers;
-
-    public static final int MAX_ROWS = 5;
-    public static final int MAX_COLS = 7;
 
     public SpaceShipView(LevelView level) {
         this.level = level;
@@ -68,10 +66,16 @@ public class SpaceShipView implements Structure, MiniModelObservable {
 
     public Node getNode() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ship/learningShip.fxml"));
+            String path;
+            if (level == LevelView.SECOND) {
+                path = "/fxml/ship/secondShip.fxml";
+            } else {
+                path = "/fxml/ship/learningShip.fxml";
+            }
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
             Parent root = loader.load();
 
-            LearningShipController controller = loader.getController();
+            SpaceShipController controller = loader.getController();
             controller.setModel(this);
 
             return root;
@@ -115,11 +119,11 @@ public class SpaceShipView implements Structure, MiniModelObservable {
             case GENERIC -> removeComponent(row, col);
         }
 
-        spaceShip[row-converterRow][col-converterCol] = component;
-        spaceShip[row-converterRow][col-converterCol].setCovered(false);
+        spaceShip[row- ROW_OFFSET][col- COL_OFFSET] = component;
+        spaceShip[row- ROW_OFFSET][col- COL_OFFSET].setCovered(false);
 
-        spaceShip[row-converterRow][col-converterCol].setRow(row);
-        spaceShip[row-converterRow][col-converterCol].setCol(col);
+        spaceShip[row- ROW_OFFSET][col- COL_OFFSET].setRow(row);
+        spaceShip[row- ROW_OFFSET][col- COL_OFFSET].setCol(col);
 
         last = component;
     }
@@ -129,7 +133,7 @@ public class SpaceShipView implements Structure, MiniModelObservable {
     }
 
     public ComponentView removeComponent(int row, int col) {
-        ComponentView component = spaceShip[row-converterRow][col-converterCol];
+        ComponentView component = spaceShip[row- ROW_OFFSET][col- COL_OFFSET];
         switch (component.getType()) {
             case DOUBLE_CANNON -> mapDoubleCannons.remove(component.getID());
             case DOUBLE_ENGINE -> mapDoubleEngines.remove(component.getID());
@@ -139,7 +143,7 @@ public class SpaceShipView implements Structure, MiniModelObservable {
             case BATTERY -> mapBatteries.remove(component.getID());
         }
 
-        spaceShip[row-converterRow][col-converterCol] = new GenericComponentView();
+        spaceShip[row- ROW_OFFSET][col- COL_OFFSET] = new GenericComponentView();
         return component;
     }
 
@@ -176,7 +180,7 @@ public class SpaceShipView implements Structure, MiniModelObservable {
     }
 
     public ComponentView getComponent(int row, int col) {
-        return spaceShip[row - converterRow][col - converterCol];
+        return spaceShip[row - ROW_OFFSET][col - COL_OFFSET];
     }
 
     public int getRows() {
@@ -250,7 +254,7 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         for (int i = 0; i < this.spaceShip.length; i++) {
             for (int j = 0; j < this.spaceShip[i].length; j++) {
                 if (this.spaceShip[i][j] != null) {
-                    copy.placeComponent(this.spaceShip[i][j].clone(), i + this.converterRow, j + this.converterCol);
+                    copy.placeComponent(this.spaceShip[i][j].clone(), i + this.ROW_OFFSET, j + this.COL_OFFSET);
                 }
             }
         }

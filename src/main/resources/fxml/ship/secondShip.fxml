@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Group?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+
+
+<StackPane fx:id="parent" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController">
+   <Group fx:id="shipGroup">
+      <ImageView fx:id="backgroundImage" fitHeight="679.0" fitWidth="937.0" preserveRatio="true">
+         <Image url="@../../image/cardboard/ship_II.jpg"/>
+      </ImageView>
+      <GridPane fx:id="shipGrid" layoutX="34.0" layoutY="28.0" pickOnBounds="false" prefHeight="620.0" prefWidth="868.0">
+         <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
+            <RowConstraints vgrow="ALWAYS"/>
+         </rowConstraints>
+      </GridPane>
+      <GridPane fx:id="reserveLostGrid" hgap="10" layoutX="670.0" layoutY="21.0" prefHeight="124.0" prefWidth="248.0">
+         <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints vgrow="ALWAYS"/>
+         </rowConstraints>
+      </GridPane>
+   </Group>
+</StackPane>

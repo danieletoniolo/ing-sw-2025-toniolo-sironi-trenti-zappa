@@ -8,16 +8,13 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 
-
-<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="it.polimi.ingsw.view.gui.controllers.ship.LearningShipController"
-           fx:id="parent">
+<StackPane fx:id="parent" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController">
     <Group fx:id="shipGroup">
         <ImageView fx:id="backgroundImage" fitHeight="679" fitWidth="937" preserveRatio="true">
-            <Image url="@../../image/cardboard/ship_I.jpg"/>
+            <Image url="@../../image/cardboard/ship_I.jpg" />
         </ImageView>
-        <GridPane fx:id="shipGrid" layoutX="159.0" layoutY="30.0" pickOnBounds="false"
-                  prefHeight="620.0" prefWidth="620.0" hgap="10" vgap="10">
+        <GridPane fx:id="shipGrid" layoutX="159.0" layoutY="29.0" pickOnBounds="false" prefHeight="620.0" prefWidth="620.0">
             <columnConstraints>
                 <ColumnConstraints hgrow="ALWAYS"/>
                 <ColumnConstraints hgrow="ALWAYS"/>
@@ -33,14 +30,13 @@
                 <RowConstraints vgrow="ALWAYS"/>
             </rowConstraints>
         </GridPane>
-        <GridPane fx:id="reserveLostGrid" layoutX="671.0" layoutY="20.0"
-                  prefHeight="121.0" prefWidth="248.0" hgap="10">
+        <GridPane fx:id="reserveLostGrid" layoutX="671.0" layoutY="20.0" prefHeight="124.0" prefWidth="248.0">
             <columnConstraints>
-                <ColumnConstraints hgrow="ALWAYS"/>
-                <ColumnConstraints hgrow="ALWAYS"/>
+                <ColumnConstraints hgrow="ALWAYS" />
+                <ColumnConstraints hgrow="ALWAYS" />
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints vgrow="ALWAYS"/>
+                <RowConstraints vgrow="ALWAYS" />
             </rowConstraints>
         </GridPane>
     </Group>
