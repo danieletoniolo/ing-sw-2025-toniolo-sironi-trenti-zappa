@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.player;
 
 import it.polimi.ingsw.model.spaceship.SpaceShip;
+import it.polimi.ingsw.view.miniModel.MiniModel;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -72,6 +73,20 @@ public class PlayerData implements Serializable {
      */
     public int getStep() {
         return this.step;
+    }
+
+    /**
+     * Get the position of the player in the module
+     * @param stepsForALap the number of steps for a lap in the module
+     * @return the position of the player in the module
+     */
+    public int getModuleStep(int stepsForALap) {
+        int moduleStep = step;
+        while (moduleStep < 0) {
+            moduleStep += stepsForALap;
+        }
+        moduleStep = moduleStep % stepsForALap;
+        return moduleStep;
     }
 
     /**

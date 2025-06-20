@@ -7,10 +7,8 @@ import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToBoard;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToReserve;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceship;
-import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
 import it.polimi.ingsw.event.game.serverToClient.timer.LastTimerFinished;
 import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.event.type.Event;
@@ -21,7 +19,6 @@ import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.*;
 import it.polimi.ingsw.controller.EventCallback;
-import org.javatuples.Pair;
 
 import java.time.LocalTime;
 import java.util.*;
@@ -105,12 +102,6 @@ public class BuildingState extends State {
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            // Set the status of the player who has not finished building to PLAYED
-                            for (PlayerData p: players) {
-                                if (playersStatus.get(p.getColor()) != PlayerStatus.PLAYED) {
-                                    playersStatus.replace(p.getColor(), PlayerStatus.PLAYED);
-                                }
-                            }
                             timerRunning = false;
 
                             // Trigger to all the users that the last timer has finished
@@ -136,9 +127,14 @@ public class BuildingState extends State {
      */
     @Override
     public void useDeck(PlayerData player, int usage,int deckIndex) throws IllegalStateException {
+        // Check if the player has finished building
+        if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
+            throw new IllegalStateException("OtherPlayer has finished building");
+        }
+
         // Check if the player has placed at least one tile
         if (player.getSpaceShip().getNumberOfComponents() < 1) {
-            throw new IllegalStateException("Player has not placed any tile");
+            throw new IllegalStateException("OtherPlayer has not placed any tile");
         }
 
         PickedLeftDeck pickLeaveDeckEvent = new PickedLeftDeck(player.getUsername(), usage, deckIndex);
@@ -167,7 +163,7 @@ public class BuildingState extends State {
 
         board.setPlayer(player, position);
 
-        MoveMarker moveMarkerEvent = new MoveMarker(player.getUsername(), player.getStep());
+        MoveMarker moveMarkerEvent = new MoveMarker(player.getUsername(),  player.getModuleStep(board.getStepsForALap()));
         eventCallback.trigger(moveMarkerEvent);
     }
 
@@ -179,12 +175,12 @@ public class BuildingState extends State {
     public void pickTile(PlayerData player, int fromWhere, int tileID) {
         // Check if the player has finished building
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("Player has finished building");
+            throw new IllegalStateException("OtherPlayer has finished building");
         }
 
         // Check if the player has a tile in his hand
         if (playersHandQueue.get(player.getColor()) != null) {
-            throw new IllegalStateException("Player already has a tile in his hand");
+            throw new IllegalStateException("OtherPlayer already has a tile in his hand");
         }
 
         Component component;
@@ -236,6 +232,9 @@ public class BuildingState extends State {
                             eventCallback.trigger(pickedConnectorsFromBoard);
                         }
                     }
+
+                    NumberHiddenTiles hiddenTiles = new NumberHiddenTiles(board.getNumberOfHiddenTiles());
+                    eventCallback.trigger(hiddenTiles);
                 } else {
                     PickedTile pickedTileEvent = new PickedTile(player.getUsername(), tileID);
                     eventCallback.trigger(pickedTileEvent);
@@ -274,7 +273,7 @@ public class BuildingState extends State {
     public void placeTile(PlayerData player, int toWhere, int row, int col) {
         // Check if the player has finished building
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("Player has finished building");
+            throw new IllegalStateException("OtherPlayer has finished building");
         }
 
         if (toWhere == 2 && (row < 0 || row >= SpaceShip.getRows() || col < 0 || col >= SpaceShip.getCols())) {
@@ -284,7 +283,7 @@ public class BuildingState extends State {
         // Has the player a tile in his hand?
         Component component = playersHandQueue.get(player.getColor());
         if (component == null) {
-            throw new IllegalStateException("Player has no tile in his hand");
+            throw new IllegalStateException("OtherPlayer has no tile in his hand");
         }
 
         SpaceShip ship = player.getSpaceShip();
@@ -336,13 +335,13 @@ public class BuildingState extends State {
     public void rotateTile(PlayerData player) {
         // Check if the player has finished building
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("Player has finished building");
+            throw new IllegalStateException("OtherPlayer has finished building");
         }
 
         // Has the player a tile in his hand?
         Component component = playersHandQueue.get(player.getColor());
         if (component == null) {
-            throw new IllegalStateException("Player has no tile in his hand");
+            throw new IllegalStateException("OtherPlayer has no tile in his hand");
         }
 
         // Rotate the tile in the board

@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.player.CardPlayed;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.AbandonedStation;
@@ -26,9 +27,11 @@ public class AbandonedStationState extends State {
     public void play(PlayerData player) {
         if (player.getSpaceShip().getCrewNumber() >= card.getCrewRequired()) {
             super.play(player);
+            CardPlayed cardPlayedEvent = new CardPlayed(player.getUsername());
+            eventCallback.trigger(cardPlayedEvent);
         }
         else {
-            throw new IllegalStateException("Player " + player.getUsername() + " does not have enough crew to play");
+            throw new IllegalStateException("OtherPlayer " + player.getUsername() + " does not have enough crew to play");
         }
     }
 
@@ -43,12 +46,12 @@ public class AbandonedStationState extends State {
     public void setGoodsToExchange(PlayerData player, List<Triplet<List<Good>, List<Good>, Integer>> exchangeData) {
         // Check that the player has selected to play
         if (playersStatus.get(player.getColor()) != PlayerStatus.PLAYING) {
-            throw new IllegalStateException("Player " + player.getUsername() + " has not selected to play");
+            throw new IllegalStateException("OtherPlayer " + player.getUsername() + " has not selected to play");
         }
 
         // Has the player selected to play?
         if (playersStatus.get(player.getColor()) != PlayerStatus.PLAYING) {
-            throw new IllegalStateException("Player " + player.getUsername() + " has not selected to play");
+            throw new IllegalStateException("OtherPlayer " + player.getUsername() + " has not selected to play");
         }
 
         Event exchangeEvent = Handler.exchangeGoods(player, exchangeData, card.getGoods());
@@ -65,7 +68,7 @@ public class AbandonedStationState extends State {
     public void swapGoods(PlayerData player, int storageID1, int storageID2, List<Good> goods1to2, List<Good> goods2to1) throws IllegalStateException {
         // Check that the player has selected to play
         if (playersStatus.get(player.getColor()) != State.PlayerStatus.PLAYING) {
-            throw new IllegalStateException("Player " + player.getUsername() + " has not selected to play");
+            throw new IllegalStateException("OtherPlayer " + player.getUsername() + " has not selected to play");
         }
 
         Event goodsSwappedEvent = Handler.swapGoods(player, storageID1, storageID2, goods1to2, goods2to1);
@@ -89,12 +92,13 @@ public class AbandonedStationState extends State {
             playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
         }
 
-        try {
-            CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
-            eventCallback.trigger(currentPlayerEvent);
-        }
-        catch(Exception e) {
-            // Ignore the exception
+        if (!played) {
+            try {
+                CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
+                eventCallback.trigger(currentPlayerEvent);
+            } catch (Exception e) {
+                // Ignore the exception
+            }
         }
 
         super.nextState(GameState.CARDS);
@@ -108,7 +112,7 @@ public class AbandonedStationState extends State {
                 int flightDays = card.getFlightDays();
                 board.addSteps(player, -flightDays);
 
-                MoveMarker stepEvent = new MoveMarker(player.getUsername(), player.getStep());
+                MoveMarker stepEvent = new MoveMarker(player.getUsername(),  player.getModuleStep(board.getStepsForALap()));
                 eventCallback.trigger(stepEvent);
 
                 break;

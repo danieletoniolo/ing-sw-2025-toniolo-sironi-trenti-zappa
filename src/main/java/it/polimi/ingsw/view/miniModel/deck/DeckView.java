@@ -1,22 +1,67 @@
 package it.polimi.ingsw.view.miniModel.deck;
 
-import it.polimi.ingsw.utils.Logger;
+import it.polimi.ingsw.view.gui.controllers.deck.DeckController;
+import it.polimi.ingsw.view.miniModel.MiniModelObservable;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.cards.CardView;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
-public class DeckView {
+public class DeckView implements MiniModelObservable {
     private final Stack<CardView> deck;
     private boolean covered;
     private boolean onlyLast;
+    private final List<MiniModelObserver> observers;
 
     public DeckView() {
-        deck = new Stack<>();
+        this.deck = new Stack<>();
+        this.observers = new ArrayList<>();
     }
+
+    @Override
+    public void registerObserver(MiniModelObserver observer) {
+        synchronized (observers) {
+            observers.add(observer);
+        }
+    }
+
+    @Override
+    public void unregisterObserver(MiniModelObserver observer) {
+        synchronized (observers) {
+            observers.remove(observer);
+        }
+    }
+
+    @Override
+    public void notifyObservers() {
+        synchronized (observers) {
+            for (MiniModelObserver observer : observers) {
+                observer.react();
+            }
+        }
+    }
+
+    public Node getNode() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/cards/deck.fxml"));
+            Node root = loader.load();
+
+            DeckController controller = loader.getController();
+            controller.setModel(this);
+
+            return root;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     public boolean isCovered() {
         return covered;
@@ -24,13 +69,9 @@ public class DeckView {
 
     public void setCovered(boolean covered) {
         this.covered = covered;
-        if (covered) {
-            deck.peek().setCovered(true);
-        }
-        else {
-            for (CardView card : deck) {
-                card.setCovered(false);
-            }
+
+        for (CardView card : deck) {
+            card.setCovered(covered);
         }
     }
 
@@ -68,10 +109,6 @@ public class DeckView {
             }
             Collections.swap(deck, j, i);
         }
-    }
-
-    public void drawDeckGui(){
-        //TODO: Implement the GUI drawing logic
     }
 
     public static int getRowsToDraw() {

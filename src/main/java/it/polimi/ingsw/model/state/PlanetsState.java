@@ -119,12 +119,12 @@ public class PlanetsState extends State {
     public void exit() throws IllegalStateException{
         int flightDays = card.getFlightDays();
         PlayerStatus status;
-        for (PlayerData p : players) {
+        for (PlayerData p : players.reversed()) {
             status = playersStatus.get(p.getColor());
             if (status == PlayerStatus.PLAYED) {
                 board.addSteps(p, -flightDays);
 
-                MoveMarker stepsEvent = new MoveMarker(p.getUsername(), p.getStep());
+                MoveMarker stepsEvent = new MoveMarker(p.getUsername(),  p.getModuleStep(board.getStepsForALap()));
                 eventCallback.trigger(stepsEvent);
             } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
                 throw new IllegalStateException("Not all players have played");

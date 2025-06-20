@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.player.CardPlayed;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.AbandonedShip;
@@ -23,6 +24,18 @@ public class AbandonedShipState extends State {
     public AbandonedShipState(Board board, EventCallback callback, AbandonedShip card, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.card = card;
+    }
+
+    @Override
+    public void play(PlayerData player) {
+        if (player.getSpaceShip().getCrewNumber() >= card.getCrewRequired()) {
+            super.play(player);
+            CardPlayed cardPlayedEvent = new CardPlayed(player.getUsername());
+            eventCallback.trigger(cardPlayedEvent);
+        }
+        else {
+            throw new IllegalStateException("OtherPlayer " + player.getUsername() + " does not have enough crew to play");
+        }
     }
 
     /**
@@ -59,7 +72,7 @@ public class AbandonedShipState extends State {
     @Override
     public void execute(PlayerData player) throws NullPointerException, IllegalStateException {
         if (player == null) {
-            throw new NullPointerException("Player is null");
+            throw new NullPointerException("OtherPlayer is null");
         }
         if (super.played) {
             throw new IllegalStateException("State already played");
@@ -75,12 +88,13 @@ public class AbandonedShipState extends State {
         }
         super.execute(player);
 
-        try {
-            CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
-            eventCallback.trigger(currentPlayerEvent);
-        }
-        catch(Exception e) {
-            // Ignore the exception
+        if (!played) {
+            try {
+                CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
+                eventCallback.trigger(currentPlayerEvent);
+            } catch (Exception e) {
+                // Ignore the exception
+            }
         }
 
         super.nextState(GameState.CARDS);
@@ -94,7 +108,7 @@ public class AbandonedShipState extends State {
                 int flightDays = card.getFlightDays();
                 board.addSteps(player, -flightDays);
 
-                MoveMarker stepEvent = new MoveMarker(player.getUsername(), player.getStep());
+                MoveMarker stepEvent = new MoveMarker(player.getUsername(), player.getModuleStep(board.getStepsForALap()));
                 eventCallback.trigger(stepEvent);
 
                 break;

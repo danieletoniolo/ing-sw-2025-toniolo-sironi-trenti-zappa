@@ -6,7 +6,7 @@ import org.jline.terminal.Terminal;
 public class ClosingProgram implements TuiScreenView{
     @Override
     public TuiScreenView setNewScreen() {
-        return null;
+        return this;
     }
 
     @Override

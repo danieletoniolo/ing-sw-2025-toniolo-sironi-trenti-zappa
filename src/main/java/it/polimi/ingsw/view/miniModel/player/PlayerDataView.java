@@ -3,13 +3,11 @@ package it.polimi.ingsw.view.miniModel.player;
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
-import javafx.scene.image.Image;
 
 public class PlayerDataView implements Structure {
     private final String username;
     private final String color;
     private final MarkerView markerView;
-    private int step;
     private int coins;
     private final SpaceShipView ship;
     private ComponentView hand;
@@ -31,36 +29,21 @@ public class PlayerDataView implements Structure {
         this.ship = ship;
     }
 
-    @Override
-    public Image drawGui() {
-        //TODO: Implements player data gui
-        return null;
-    }
-
     public int getRowsToDraw() {
-        return 3;
+        return 2;
     }
 
     @Override
     public String drawLineTui(int line) {
         return switch (line) {
             case 0 -> color + username + reset;
-            case 1 -> "Step: " + step;
-            case 2 -> "Coins: " + coins;
+            case 1 -> "Coins: " + coins;
             default -> throw new IllegalStateException("Unexpected value: " + line);
         };
     }
 
     public String getUsername() {
         return username;
-    }
-
-    public void setStep(int step) {
-        this.step = step;
-    }
-
-    public int getStep() {
-        return step;
     }
 
     public void setCoins(int coins) {

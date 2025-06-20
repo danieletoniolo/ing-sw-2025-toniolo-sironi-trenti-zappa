@@ -1,4 +1,4 @@
-module demo {
+module GalaxyTrucker {
     requires javafx.controls;
     requires javafx.fxml;
     requires javatuples;
@@ -10,12 +10,19 @@ module demo {
     requires com.fasterxml.jackson.datatype.jsr310;
     requires java.naming;
     requires java.desktop;
+    requires jdk.xml.dom;
+
+    exports it.polimi.ingsw.model.spaceship;
+    opens it.polimi.ingsw.model.spaceship to com.fasterxml.jackson.databind;
 
     exports it.polimi.ingsw.view.gui.controllers.components;
     opens it.polimi.ingsw.view.gui.controllers.components to javafx.fxml;
 
     exports it.polimi.ingsw.view.gui.controllers.cards;
     opens it.polimi.ingsw.view.gui.controllers.cards to javafx.fxml;
+
+    exports it.polimi.ingsw.view.gui.controllers.deck;
+    opens it.polimi.ingsw.view.gui.controllers.deck to javafx.fxml;
 
     opens it.polimi.ingsw.view.gui to javafx.fxml;
     exports it.polimi.ingsw.view.gui;

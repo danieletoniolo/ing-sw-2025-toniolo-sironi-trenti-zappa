@@ -2,52 +2,51 @@ package it.polimi.ingsw.view.miniModel.spaceship;
 
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
-import javafx.scene.image.Image;
 
-import java.awt.image.BufferedImage;
-import java.io.Serializable;
 import java.util.ArrayList;
 
 public class DiscardReservedPileView implements Structure {
-    private String UpReserved1 =     "╭──────";
-    private String LeftReserved2 =   "│      ";
-    private String DownReserved1 =   "╰──────";
-
-    private String UpReserved2 =     "──────╮";
-    private String RightReserved2 =  "      │";
-    private String DownReserved2 =   "──────╯";
-
     private final ArrayList<ComponentView> reserved;
+    private boolean isDiscard;
 
     public DiscardReservedPileView() {
         reserved = new ArrayList<>();
+        isDiscard = false;
     }
 
-    @Override
-    public Image drawGui() {
-        return null;
+    public void setIsDiscarded(){
+        isDiscard = true;
     }
 
-    public static int getRowsToDraw() {
-        return ComponentView.getRowsToDraw();
+    public int getRowsToDraw() {
+        return ComponentView.getRowsToDraw() + 2;
     }
 
     @Override
     public String drawLineTui(int line) {
         StringBuilder str = new StringBuilder();
+        String Up =   "╭──────────────╮";
+        String Side = "│";
+        String down = "╰──────────────╯";
+        String Clear = "       ";
 
         switch (line) {
             case 0:
-                str.append(reserved.isEmpty() ? UpReserved1 : reserved.getFirst().drawLineTui(line));
-                str.append(reserved.isEmpty() || reserved.size() == 1 ? UpReserved2 : reserved.getLast().drawLineTui(line));
+                String name = isDiscard ? "Discard pile: " : "Reserved pile: ";
+                str.append(name).append(getReserved().size());
                 break;
             case 1:
-                str.append(reserved.isEmpty() ? LeftReserved2 : reserved.getFirst().drawLineTui(line));
-                str.append(reserved.isEmpty() || reserved.size() == 1 ? RightReserved2 : reserved.getLast().drawLineTui(line));
+                str.append(Up);
                 break;
-            case 2:
-                str.append(reserved.isEmpty() ? DownReserved1 : reserved.getFirst().drawLineTui(line));
-                str.append(reserved.isEmpty() || reserved.size() == 1 ? DownReserved2 : reserved.getLast().drawLineTui(line));
+            case 2, 3, 4:
+                line -= 2; // Adjust line for reserved components
+                str.append(Side);
+                str.append(reserved.isEmpty() ? Clear : reserved.getFirst().drawLineTui(line));
+                str.append(reserved.isEmpty() || reserved.size() == 1 ? Clear : reserved.getLast().drawLineTui(line));
+                str.append(Side);
+                break;
+            case 5:
+                str.append(down);
                 break;
         }
 

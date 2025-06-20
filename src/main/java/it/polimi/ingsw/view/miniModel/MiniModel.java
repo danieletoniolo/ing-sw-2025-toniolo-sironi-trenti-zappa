@@ -23,11 +23,11 @@ public class MiniModel {
     private BoardView boardView;
     private final ArrayList<PlayerDataView> otherPlayers = new ArrayList<>();
     private final ViewablePileView viewablePileView = new ViewablePileView();
-    private int numberViewableComponents = 152;
+    private int numberHiddenComponents;
     private PlayerDataView clientPlayer;
+    private Pair<Integer, Integer> dice;
     private String nickname;
     private String userID;
-    private Pair<Integer, Integer> dice;
 
     private PlayerDataView currentPlayer;
     private LobbyView currentLobby;
@@ -48,15 +48,12 @@ public class MiniModel {
         return phase;
     }
 
-    public synchronized void reduceViewableComponents() {
-        numberViewableComponents--;
-        if (numberViewableComponents < 0) {
-            numberViewableComponents = 0;
-        }
+    public synchronized int getNumberViewableComponents() {
+        return numberHiddenComponents;
     }
 
-    public synchronized int getNumberViewableComponents() {
-        return numberViewableComponents;
+    public synchronized void setNumberHiddenComponents(int numberHiddenComponents) {
+        this.numberHiddenComponents = numberHiddenComponents;
     }
 
     public synchronized LogInView getLogInView() {

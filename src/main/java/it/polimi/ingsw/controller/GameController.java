@@ -7,7 +7,6 @@ import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.state.LobbyState;
 import it.polimi.ingsw.model.state.State;
 import it.polimi.ingsw.model.state.SynchronousStateException;
-import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -223,7 +222,6 @@ public class GameController implements Serializable, StateTransitionHandler {
         if (player.getUUID().equals(uuid)) {
             try {
                 state.useExtraStrength(player, type, IDs, batteriesID);
-                state.execute(player);
             } catch (IllegalStateException e) {
                 throw new IllegalStateException(e.getMessage());
             } catch (IllegalArgumentException e) {

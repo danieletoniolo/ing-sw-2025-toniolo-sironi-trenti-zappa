@@ -1,36 +1,40 @@
 package it.polimi.ingsw.view.miniModel.cards;
 
-import javafx.scene.image.Image;
+import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewView;
 
 public class EpidemicView extends CardView {
+    private static final String red = "\033[31m";
+    private static final String reset = "\033[0m";
+
     public EpidemicView(int ID, boolean covered, int level) {
         super(ID, covered, level);
-    }
-
-    /**
-     * Draws the card GUI.
-     * This method is called to draw the card GUI.
-     *
-     * @return an Image representing the image of the card
-     */
-    @Override
-    public Image drawGui() {
-        String path = "/image/card/" + this.getID() + ".jpg";
-        Image img = new Image(getClass().getResource(path).toExternalForm());
-        return img;
     }
 
     @Override
     public String drawLineTui(int l){
         if(isCovered()) return super.drawLineTui(l);
 
-        return switch(l) {
+        StringBuilder line = new StringBuilder(switch(l) {
             case 0 -> Up;
             case 1 -> "│     EPIDEMIC      │";
-            case 2,3,4,5,6,7,8 -> Clear;
+            case 2 -> Clear;
+            case 3 -> "│      ╭─────╮      │";
+            case 4 -> "│      │(" + CrewView.HUMAN.drawTui() + " " + red +  CrewView.HUMAN.drawTui() + reset + ")│";
+            case 5 -> "│      ╰─|||─╯      │";
+            case 6 -> "│      ╭─|||─╮      │";
+            case 7 -> "│      │( " + red + CrewView.UNCOLOREDALIEN.drawTui() + reset + " )│";
+            case 8 -> "│      ╰─────╯      │";
             case 9 -> Down;
-            default -> null;
-        };
+            default -> "";
+        });
+
+        while (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() < getColsToDraw() - 1) {
+            line.append(" ");
+        }
+        if (line.toString().replaceAll("\033\\[[0-9;]*m", "").length() == getColsToDraw() - 1) {
+            line.append("│");
+        }
+        return line.toString();
     }
 
     @Override

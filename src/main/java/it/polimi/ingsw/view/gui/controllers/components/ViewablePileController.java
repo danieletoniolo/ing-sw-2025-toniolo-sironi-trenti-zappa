@@ -26,14 +26,14 @@ public class ViewablePileController implements MiniModelObserver {
     }
 
     @Override
-    public void onModelChanged() {
+    public void react() {
         updateView();
     }
 
     public void updateView() {
         componentPile.getChildren().clear();
         for (ComponentView component : viewablePileView.getViewableComponents()) {
-            componentPile.getChildren().add(component.createGuiNode());
+            componentPile.getChildren().add(component.getNode());
         }
     }
 }

@@ -9,7 +9,6 @@ import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
-import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;

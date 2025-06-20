@@ -7,7 +7,6 @@ import it.polimi.ingsw.view.miniModel.Structure;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.image.Image;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,6 +48,8 @@ public abstract class CardView implements Structure, MiniModelObservable {
     private boolean covered;
     private final int level;
 
+    private double width;
+
     // TODO: We may need just one observer for a card.
     /**
      * This list contains the observers that are registered to this CardView.
@@ -84,7 +85,7 @@ public abstract class CardView implements Structure, MiniModelObservable {
     public void notifyObservers() {
         synchronized (listeners) {
             for (MiniModelObserver observer : listeners) {
-                observer.onModelChanged();
+                observer.react();
             }
         }
     }
@@ -93,9 +94,18 @@ public abstract class CardView implements Structure, MiniModelObservable {
         return level;
     }
 
-    public Node createGuiNode() {
+    public double getWidth() {
+        return width;
+    }
+
+    public void setWidth(double width) {
+        this.width = width;
+        notifyObservers();
+    }
+
+    public Node getNode() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cards/card.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/cards/card.fxml"));
             Parent root = loader.load();
 
             CardController controller = loader.getController();
@@ -107,18 +117,6 @@ public abstract class CardView implements Structure, MiniModelObservable {
             e.printStackTrace();
             return null;
         }
-    }
-
-    @Override
-    public Image drawGui() {
-        String path;
-        if(level == 1){
-            path = "/image/card/covered_1.jpg";
-        } else {
-            path = "/image/card/covered_2.jpg";
-        }
-        Image img = new Image(getClass().getResource(path).toExternalForm());
-        return img;
     }
 
     public static int getRowsToDraw() {

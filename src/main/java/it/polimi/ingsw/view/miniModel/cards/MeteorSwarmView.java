@@ -1,7 +1,6 @@
 package it.polimi.ingsw.view.miniModel.cards;
 
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
-import javafx.scene.image.Image;
 
 import java.util.List;
 
@@ -15,19 +14,6 @@ public class MeteorSwarmView extends CardView {
         this.currentHit = 0;
     }
 
-    /**
-     * Draws the card GUI.
-     * This method is called to draw the card GUI.
-     *
-     * @return an Image representing the image of the card
-     */
-    @Override
-    public Image drawGui() {
-        String path = "/image/card/" + this.getID() + ".jpg";
-        Image img = new Image(getClass().getResource(path).toExternalForm());
-        return img;
-    }
-
     @Override
     public String drawLineTui(int l){
         if(isCovered()) return super.drawLineTui(l);
@@ -35,7 +21,7 @@ public class MeteorSwarmView extends CardView {
 
         StringBuilder line = new StringBuilder(switch(l) {
             case 0 -> Up;
-            case 1 -> "│    METEORSWARM    │";
+            case 1 -> "│   METEOR SWARM    │";
             case 2,8 -> Clear;
             case 3 -> (!hits.isEmpty() ?  ("│   " + (currentHit == 0 ? drawCurrent() : " ") + " Hit1: " + hits.getFirst().drawHitTui()) : Clear);
             case 4 -> (hits.size() >= 2 ? ("│   " + (currentHit == 1 ? drawCurrent() : " ") + " Hit2: " + hits.get(1).drawHitTui()) : Clear);

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="it.polimi.ingsw.view.gui.controllers.components.BatteryController">
+
+   <!-- TODO: Remove size to change with auto-resizing -->
+    <ImageView fx:id="componentImage"
+               pickOnBounds="true"
+               preserveRatio="true"
+    />
+
+    <HBox fx:id="batteryPane"
+          mouseTransparent="true"
+          pickOnBounds="false"
+          alignment="CENTER"
+          StackPane.alignment="CENTER"
+    />
+</StackPane>
+

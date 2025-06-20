@@ -1,21 +1,17 @@
 package it.polimi.ingsw.view.miniModel.components;
 
 import it.polimi.ingsw.view.gui.controllers.components.BatteryController;
-import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.image.Image;
+import javafx.scene.Parent;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class BatteryView extends ComponentView {
-    private final List<MiniModelObserver> listeners = new ArrayList<>();
     private int numberOfBatteries;
     private final int maximumBatteries;
-    private final String green = "\033[32m";
-    private final String reset = "\033[0m";
+    private static final String green = "\033[32m";
+    private static final String reset = "\033[0m";
 
     public BatteryView(int ID, int[] connectors, int clockWise, int maximumBatteries) {
         super(ID, connectors, clockWise);
@@ -28,53 +24,28 @@ public class BatteryView extends ComponentView {
 
     public void setNumberOfBatteries(int numberOfBatteries) {
         this.numberOfBatteries = numberOfBatteries;
+        notifyObservers();
     }
 
     public int getNumberOfBatteries() {
         return numberOfBatteries;
     }
 
-    public void addListener(MiniModelObserver listener) {
-        listeners.add(listener);
-    }
-
-    public void removeListener(MiniModelObserver listener) {
-        listeners.remove(listener);
-    }
-
-    private void notifyListeners() {
-        for (MiniModelObserver listener : listeners) {
-            listener.onModelChanged();
-        }
-    }
-
-    public Node createGuiNode() {
+    @Override
+    public Node getNode() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/components/battery.fxml"));
-            Node root = loader.load();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/components/battery.fxml"));
+            Parent root = loader.load();
 
             BatteryController controller = loader.getController();
-            controller.setBatteryModel(this);
+            controller.setModel(this);
 
             return root;
-
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
-    }
 
-    /**
-     * Draws the component GUI.
-     * This method is called to draw the component GUI.
-     *
-     * @return an Image representing the image of the component
-     */
-    @Override
-    public Image drawGui() {
-        String path = "/image/tiles/" + this.getID() + ".jpg";
-        Image img = new Image(getClass().getResource(path).toExternalForm());
-        return img;
     }
 
     @Override

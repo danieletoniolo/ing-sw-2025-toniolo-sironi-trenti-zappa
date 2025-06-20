@@ -4,7 +4,6 @@ import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
 import it.polimi.ingsw.view.miniModel.timer.TimerView;
-import javafx.scene.image.Image;
 import org.javatuples.Pair;
 
 import java.util.HashMap;
@@ -46,16 +45,8 @@ public class BoardView implements Structure {
         initializeBoard();
     }
 
-    @Override
-    public Image drawGui() {
-        String path;
-        if(this.level == LevelView.LEARNING){
-            path = "/image/cardboard/board_I.jpg";
-        } else {
-            path = "/image/cardboard/board_II.jpg";
-        }
-        Image img = new Image(getClass().getResource(path).toExternalForm());
-        return img;
+    public int getStepsForALap() {
+        return stepsForALap;
     }
 
     public TimerView getTimerView() {
@@ -76,14 +67,10 @@ public class BoardView implements Structure {
 
     public void movePlayer(MarkerView color, int step) {
         initializeBoard();
-        int moduleStep = step;
-        while (moduleStep < 0) {
-            moduleStep += stepsForALap;
-        }
-        moduleStep = moduleStep % stepsForALap;
-        players.put(color, moduleStep);
+
+        players.put(color, step);
         players.forEach((key, value) -> {
-            path[value % stepsForALap] = key.drawTui();
+            path[value] = key.drawTui();
         });
     }
 
@@ -134,7 +121,7 @@ public class BoardView implements Structure {
                 return print.toString();
             }
             if (line == getRowsToDraw() - 1) {
-                int down = stepsForALap - 4;
+                int down = stepsForALap - (level == LevelView.LEARNING ? 4 : 6);
                 print.append("  ").append(Bow3).append(ArrowLeft).append(Dash).append(Dash).append(Dash);
                 for (int i = 0; i < cols; i++) {
                     print.append("[ ").append(path[down]).append(" ]").append(ArrowLeft).append(Dash);
@@ -153,7 +140,6 @@ public class BoardView implements Structure {
             print.append("       ".repeat(Math.max(0, cols)));
             print.append("[ ").append(path[stepsForALap / 4 + line / 2]).append(" ]");
             return print.toString();
-
         }
         print.append("  ").append(ArrowUp).append("  ");
         print.append("       ".repeat(Math.max(0, cols)));

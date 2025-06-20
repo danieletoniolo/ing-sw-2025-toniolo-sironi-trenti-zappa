@@ -3,11 +3,16 @@ package it.polimi.ingsw.view.gui;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.good.Good;
+import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
+import it.polimi.ingsw.view.miniModel.components.BatteryView;
+import it.polimi.ingsw.view.miniModel.components.StorageView;
+import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
+import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -26,10 +31,33 @@ public class GuiTest extends Application {
             pile.addComponent(storageView);
         }
 
-        Node root = pile.createGuiNode();*/
-
+        Node root = pile.getNode();*/
+        /*
         AbandonedShipView a = new AbandonedShipView(17, false, 1, 2, 3, 4);
-        Node root = a.createGuiNode();
+        a.setWidth(200);
+        a.setCovered(true);
+        SlaversView b = new SlaversView(18, false, 1, 5, 6, 7, 8);
+        b.setWidth(200);
+        b.setCovered(true);
+        SmugglersView c = new SmugglersView(19, false, 1, 9, 10, 11, new ArrayList<>());
+        c.setWidth(200);
+        c.setCovered(true);
+        DeckView d = new DeckView();
+        d.addCard(a);
+        d.addCard(b);
+        d.addCard(c);
+        d.setCovered(true);
+        Node root = d.getNode();
+         */
+
+        SpaceShipView s = new SpaceShipView(LevelView.LEARNING);
+        s.placeComponent(new StorageView(17, new int[]{0, 0, 0, 0}, 0, false, 2), 6, 6);
+        s.placeComponent(new StorageView(17, new int[]{0, 0, 0, 0}, 0, false, 2), 5, 6);
+        s.placeComponent(new StorageView(17, new int[]{0, 0, 0, 0}, 0, false, 2), 6, 5);
+        s.placeComponent(new StorageView(17, new int[]{0, 0, 0, 0}, 0, false, 2), 5, 5);
+        Node root = s.getNode();
+
+
 
         Scene scene = new Scene((Parent) root);
         stage.setTitle("Hello!");

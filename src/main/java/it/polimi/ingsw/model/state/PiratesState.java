@@ -193,7 +193,7 @@ public class PiratesState extends State {
                 break;
             case PENALTY:
                 if (!playersDefeated.contains(player)) {
-                    throw new IllegalStateException("Player was not defeated");
+                    throw new IllegalStateException("OtherPlayer was not defeated");
                 }
                 break;
         }

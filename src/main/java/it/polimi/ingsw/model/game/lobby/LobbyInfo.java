@@ -141,7 +141,7 @@ public class LobbyInfo implements Serializable {
         if (!this.playersReady.isEmpty()) {
             this.playersReady.remove(playerId);
         } else {
-            throw new IllegalStateException("Game has already started, cannot remove player from ready list");
+            throw new IllegalStateException("The game is already started or you are already not ready");
         }
     }
 

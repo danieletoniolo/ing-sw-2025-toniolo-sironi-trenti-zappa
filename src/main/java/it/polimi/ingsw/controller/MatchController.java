@@ -448,17 +448,12 @@ public class MatchController {
                 for (User u : userLobbyInfo.keySet()) {
                     if (userLobbyInfo.get(u).equals(lobby)) {
                         lobbyUsers.add(u);
-                    }
-                }
-
-                // Removing the network transceiver of the lobby and attaching the users to the network transceiver of the server
-                for (User u : users.values()) {
-                    if (u.getLobby() != null) {
                         networkTransceivers.get(lobby).disconnect(u.getUUID());
                         serverNetworkTransceiver.connect(u.getUUID(), u.getConnection());
                         serverNetworkTransceiver.send(u.getUUID(), lobbiesEvent);
                     }
                 }
+
                 networkTransceivers.remove(lobby);
 
                 // Removing the user from the User to LobbyInfo and User to PlayerData maps
@@ -1161,6 +1156,11 @@ public class MatchController {
         }
     }
 
+    /**
+     * Handles the event of a user entering a cheat code in the game.
+     * @param data The CheatCode event data containing the user ID and ship index.
+     * @return     An Event object indicating the result of the operation.
+     */
     private StatusEvent cheatCode(CheatCode data) {
         UUID userID = UUID.fromString(data.userID());
         PlayerData player = userPlayers.get(users.get(userID));

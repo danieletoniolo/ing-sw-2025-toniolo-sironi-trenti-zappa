@@ -11,8 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class CardsManager {
-    private static final ClassLoader classLoader = CardsManager.class.getClassLoader();
-    private static final InputStream inputStream = classLoader.getResourceAsStream("json/Cards.json");
+    private static final InputStream inputStream = CardsManager.class.getResourceAsStream("/json/Cards.json");
     private static final String json;
     static {
         if (inputStream == null) {
@@ -73,7 +72,15 @@ public class CardsManager {
         }
         */
 
-        int[] cardsIDs = {39, 23, 38, 34, 33, 32, 31, 24, 14, 13, 12, 11};
+        /*
+            Cards already tested:
+                - Planets
+                - Epidemic
+                - Abandoned Station
+                - Stardust
+                - OpenSpace
+         */
+        int[] cardsIDs = {3, 3, 3, 23, 23, 23, 23, 4, 4, 4, 3, 11};
 
         for (int cardsID : cardsIDs) {
             selectedCards.add(cards[cardsID]);

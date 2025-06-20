@@ -10,6 +10,7 @@ import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.controller.EventCallback;
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -68,9 +69,11 @@ public abstract class State implements Serializable {
      * @param nextGameState represents the next game state
      */
     protected void nextState(GameState nextGameState) {
-        for (PlayerData player : players) {
-            if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING || playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {
-                return;
+        if (!played) {
+            for (PlayerData player : players) {
+                if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING || playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {
+                    return;
+                }
             }
         }
 
@@ -93,10 +96,13 @@ public abstract class State implements Serializable {
                         case SMUGGLERS ->        transitionHandler.changeState(new SmugglersState(board, eventCallback, (Smugglers) card, transitionHandler));
                         case SLAVERS ->          transitionHandler.changeState(new SlaversState(board, eventCallback, (Slavers) card, transitionHandler));
                         case PIRATES ->          transitionHandler.changeState(new PiratesState(board, eventCallback, (Pirates) card, transitionHandler));
-                        case OPENSPACE ->        transitionHandler.changeState(new OpenSpaceState(board, eventCallback, (OpenSpace) card, transitionHandler));
+                        case OPENSPACE ->        transitionHandler.changeState(new OpenSpaceState(board, eventCallback, transitionHandler));
                         case METEORSWARM ->      transitionHandler.changeState(new MeteorSwarmState(board, eventCallback, (MeteorSwarm) card, transitionHandler));
                         case COMBATZONE ->       transitionHandler.changeState(new CombatZoneState(board, eventCallback, (CombatZone) card, transitionHandler));
-                        case STARDUST ->         transitionHandler.changeState(new StardustState(board, eventCallback, transitionHandler));
+                        case STARDUST ->         {
+
+                            transitionHandler.changeState(new StardustState(board, eventCallback, transitionHandler));
+                        }
                         case EPIDEMIC ->         transitionHandler.changeState(new EpidemicState(board, eventCallback, transitionHandler));
                         default -> throw new IllegalArgumentException("Unknown card type: " + card.getCardType());
                     }
