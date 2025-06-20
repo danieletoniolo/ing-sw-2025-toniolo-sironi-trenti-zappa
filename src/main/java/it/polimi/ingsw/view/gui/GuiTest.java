@@ -50,7 +50,7 @@ public class GuiTest extends Application {
         Node root = d.getNode();
          */
 
-        SpaceShipView s = new SpaceShipView(LevelView.LEARNING);
+        SpaceShipView s = new SpaceShipView(LevelView.SECOND);
         s.placeComponent(new StorageView(17, new int[]{0, 0, 0, 0}, 0, false, 2), 6, 6);
         s.placeComponent(new StorageView(17, new int[]{0, 0, 0, 0}, 0, false, 2), 5, 6);
         s.placeComponent(new StorageView(17, new int[]{0, 0, 0, 0}, 0, false, 2), 6, 5);
