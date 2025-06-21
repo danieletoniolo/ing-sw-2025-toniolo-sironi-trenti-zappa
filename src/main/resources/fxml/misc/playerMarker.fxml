@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.StackPane?>
+<StackPane fx:id="parent" prefHeight="50.0" prefWidth="50.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="it.polimi.ingsw.view.gui.controllers.misc.PlayerMarkerController">
+    <ImageView fx:id="markerImage" fitHeight="50.0" fitWidth="50.0" preserveRatio="true">
+        <effect>
+            <DropShadow blurType="ONE_PASS_BOX"/>
+        </effect>
+    </ImageView>
+</StackPane>

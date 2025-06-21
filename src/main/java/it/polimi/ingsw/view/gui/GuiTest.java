@@ -3,16 +3,15 @@ package it.polimi.ingsw.view.gui;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.good.Good;
+import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
-import it.polimi.ingsw.view.miniModel.components.BatteryView;
-import it.polimi.ingsw.view.miniModel.components.StorageView;
-import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
-import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
+import it.polimi.ingsw.view.miniModel.player.MarkerView;
+import it.polimi.ingsw.view.miniModel.timer.TimerView;
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -50,12 +49,16 @@ public class GuiTest extends Application {
         Node root = d.getNode();
          */
 
-        SpaceShipView s = new SpaceShipView(LevelView.SECOND);
-        s.placeComponent(new StorageView(17, new int[]{0, 0, 0, 0}, 0, false, 2), 6, 6);
-        s.placeComponent(new StorageView(17, new int[]{0, 0, 0, 0}, 0, false, 2), 5, 6);
-        s.placeComponent(new StorageView(17, new int[]{0, 0, 0, 0}, 0, false, 2), 6, 5);
-        s.placeComponent(new StorageView(17, new int[]{0, 0, 0, 0}, 0, false, 2), 5, 5);
-        Node root = s.getNode();
+        //BoardView b = new BoardView(LevelView.LEARNING, 2);
+        //b.movePlayer(MarkerView.BLUE, 0);
+        //Node root = b.getNode();
+
+        BoardView b = new BoardView(LevelView.SECOND, 4);
+        b.movePlayer(MarkerView.BLUE, 5);
+        b.movePlayer(MarkerView.RED, 10);
+        b.movePlayer(MarkerView.GREEN, 15);
+        b.movePlayer(MarkerView.YELLOW, 20);
+        Node root = b.getNode();
 
 
 

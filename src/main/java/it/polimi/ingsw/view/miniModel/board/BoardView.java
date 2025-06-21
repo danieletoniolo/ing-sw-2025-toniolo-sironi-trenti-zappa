@@ -1,17 +1,26 @@
 package it.polimi.ingsw.view.miniModel.board;
 
+import it.polimi.ingsw.view.gui.controllers.board.BoardController;
+import it.polimi.ingsw.view.miniModel.MiniModelObservable;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
 import it.polimi.ingsw.view.miniModel.timer.TimerView;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import org.javatuples.Pair;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class BoardView implements Structure {
+public class BoardView implements Structure, MiniModelObservable {
     private String[] path;
     private final Map<MarkerView, Integer> players;
+    private int numberOfPlayers;
     private final LevelView level;
     private int stepsForALap;
     public static String ArrowUp = "↑";
@@ -25,11 +34,12 @@ public class BoardView implements Structure {
     public static String Bow4 = "╯";
     private TimerView timerView;
     /** The decks are stored in a Pair: The first element is the deck views, and the second element is a boolean array.
-     If boolean[i] == true the deck[i] is not taken by a player, else deck is taken and not viewable in the building screen*/
+     If boolean[i] == true, the deck[i] is not taken by a player, else the deck is taken and not viewable on the building screen*/
     private Pair<DeckView[], Boolean[]> decksView;
+    private final List<MiniModelObserver> observers;
 
 
-    public BoardView(LevelView level) {
+    public BoardView(LevelView level, int numberOfPlayers) {
         this.level = level;
         switch (level) {
             case LEARNING:
@@ -42,7 +52,54 @@ public class BoardView implements Structure {
                 break;
         }
         this.players = new HashMap<>();
+        this.observers = new ArrayList<>();
+        this.numberOfPlayers = numberOfPlayers;
         initializeBoard();
+    }
+
+    @Override
+    public void registerObserver(MiniModelObserver observer) {
+        synchronized (observers) {
+            observers.add(observer);
+        }
+    }
+
+    @Override
+    public void unregisterObserver(MiniModelObserver observer) {
+        synchronized (observers) {
+            observers.remove(observer);
+        }
+    }
+
+    @Override
+    public void notifyObservers() {
+        synchronized (observers) {
+            for (MiniModelObserver observer : observers) {
+                observer.react();
+            }
+        }
+    }
+
+    /**
+     * Returns the Node representing the board view.
+     * This method loads the FXML file for the board and sets the controller with this model.
+     *
+     * @return Node representing the board view, or null if an error occurs during loading.
+     */
+    public Node getNode() {
+        try {
+            String path = level == LevelView.LEARNING ? "/fxml/board/learningBoard.fxml" : "/fxml/board/secondBoard.fxml";
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
+            Parent root = loader.load();
+
+            BoardController controller = loader.getController();
+            controller.setModel(this);
+
+            return root;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public int getStepsForALap() {
@@ -55,6 +112,12 @@ public class BoardView implements Structure {
 
     public Pair<DeckView[], Boolean[]> getDecksView() {
         return decksView;
+    }
+
+    public List<Pair<MarkerView, Integer>> getPlayerPositions() {
+        return players.entrySet().stream()
+                .map(entry -> new Pair<>(entry.getKey(), entry.getValue()))
+                .toList();
     }
 
     public int getRowsToDraw() {
@@ -72,10 +135,11 @@ public class BoardView implements Structure {
         players.forEach((key, value) -> {
             path[value] = key.drawTui();
         });
+        notifyObservers();
     }
 
-    public void removePlayer(MarkerView color) {
-        players.remove(color);
+    public int getNumberOfPlayers() {
+        return numberOfPlayers;
     }
 
     private void initializeBoard() {

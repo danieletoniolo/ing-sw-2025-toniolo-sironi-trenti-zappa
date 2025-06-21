@@ -303,7 +303,7 @@ public class EventHandlerClient {
             MiniModel.getInstance().getLobbiesView().add(lobby);
             if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
                 MiniModel.getInstance().setCurrentLobby(lobby);
-                MiniModel.getInstance().setBoardView(new BoardView(LevelView.fromValue(data.level())));
+                MiniModel.getInstance().setBoardView(new BoardView(LevelView.fromValue(data.level()), data.maxPlayers()));
             }
             lobby.addPlayer(data.nickname());
 
@@ -323,7 +323,7 @@ public class EventHandlerClient {
             if (lobbyView != null) {
                 if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
                     MiniModel.getInstance().setCurrentLobby(lobbyView);
-                    MiniModel.getInstance().setBoardView(new BoardView(lobbyView.getLevel()));
+                    MiniModel.getInstance().setBoardView(new BoardView(lobbyView.getLevel(), lobbyView.getMaxPlayer()));
                 }
                 lobbyView.addPlayer(data.nickname());
             }

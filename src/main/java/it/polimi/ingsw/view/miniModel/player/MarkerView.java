@@ -1,6 +1,12 @@
 package it.polimi.ingsw.view.miniModel.player;
 
 import it.polimi.ingsw.model.player.PlayerColor;
+import it.polimi.ingsw.view.gui.controllers.misc.PlayerMarkerController;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+
+import java.io.IOException;
 
 public enum MarkerView {
     RED(3), YELLOW(2), GREEN(1), BLUE(0);
@@ -15,6 +21,21 @@ public enum MarkerView {
 
     MarkerView(int value) {
         this.value = value;
+    }
+
+    public Node getNode() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/misc/playerMarker.fxml"));
+            Parent root = loader.load();
+
+            PlayerMarkerController controller = loader.getController();
+            controller.setModel(this);
+
+            return root;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public int getValue() {
