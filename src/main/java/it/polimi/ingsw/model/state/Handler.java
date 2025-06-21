@@ -13,7 +13,7 @@ import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.good.GoodType;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.*;
-import it.polimi.ingsw.utils.Logger;
+import it.polimi.ingsw.model.state.utils.MutablePair;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -26,10 +26,10 @@ import java.util.*;
  */
 public class Handler {
 
-    static Event protectFromHit(PlayerData player, Pair<Component, Integer> protectionResult, int batteryID) {
+    static Event protectFromHit(PlayerData player, MutablePair<Component, Integer> protectionResult, int batteryID) {
         SpaceShip ship = player.getSpaceShip();
-        Component component = protectionResult.getValue0();
-        int protectionType = protectionResult.getValue1();
+        Component component = protectionResult.getFirst();
+        int protectionType = protectionResult.getSecond();
 
         if (protectionType == 0 || protectionType == -1) {
             if (batteryID != -1 && protectionType != -1) {
@@ -88,15 +88,15 @@ public class Handler {
         return events;
     }
 
-    static Pair<Event, Event> rollDice(PlayerData player, Hit hit, Pair<Component, Integer> protectionResult) {
+    static Pair<Event, Event> rollDice(PlayerData player, Hit hit, MutablePair<Component, Integer> protectionResult) {
         int firstDice = (int) (Math.random() * 6) + 1;
         int secondDice = (int) (Math.random() * 6) + 1;
         SpaceShip ship = player.getSpaceShip();
-        Pair<Component, Integer> result = ship.canProtect(firstDice + secondDice, hit);
-        protectionResult.setAt0(result.getValue0());
-        protectionResult.setAt1(result.getValue1());
+        Pair<Component, Integer> result = ship.canProtect(firstDice + secondDice - 1, hit);
+        protectionResult.setFirst(result.getValue0());
+        protectionResult.setSecond(result.getValue1());
 
-        return new Pair<>(new CanProtect(player.getUsername(), new Pair<>(result.getValue0().getID(), result.getValue1())), new DiceRolled(player.getUsername(), firstDice, secondDice));
+        return new Pair<>(new CanProtect(player.getUsername(), new Pair<>(result.getValue0() == null ? null : result.getValue0().getID(), result.getValue1())), new DiceRolled(player.getUsername(), firstDice, secondDice));
     }
 
     static Event useExtraStrength(PlayerData player, int type, List<Integer> cannonsOrEnginesID, List<Integer> batteriesID) throws IllegalStateException {

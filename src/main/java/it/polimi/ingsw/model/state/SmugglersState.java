@@ -31,7 +31,7 @@ public class SmugglersState extends State {
     /**
      * Enum to represent the internal state of the smugglers state.
      */
-    private enum SmugglerInternalState {
+    enum SmugglerInternalState {
         ENEMY_DEFEAT,
         GOODS_REWARD,
         GOODS_PENALTY,

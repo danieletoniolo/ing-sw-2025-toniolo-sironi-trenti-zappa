@@ -81,6 +81,7 @@ public class CardsManager {
                 - OpenSpace
                 - Slavers
                 - Smugglers
+                -
          */
         //                12  9  6  3  11   8  5  2  10   7  4  1
         int[] cardsIDs = {21, 3, 8, 1, 23, 16, 2, 21, 4, 10, 0, 1};

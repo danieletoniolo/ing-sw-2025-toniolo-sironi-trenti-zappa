@@ -8,6 +8,7 @@ import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.UpdateCrewMembers;
 import it.polimi.ingsw.model.spaceship.Cabin;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
+import it.polimi.ingsw.model.state.exception.SynchronousStateException;
 import org.javatuples.Triplet;
 
 import java.util.ArrayList;

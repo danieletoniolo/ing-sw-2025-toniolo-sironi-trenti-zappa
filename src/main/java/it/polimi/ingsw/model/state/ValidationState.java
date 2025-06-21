@@ -9,6 +9,7 @@ import it.polimi.ingsw.model.spaceship.Component;
 import it.polimi.ingsw.model.spaceship.ComponentType;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
+import it.polimi.ingsw.model.state.exception.SynchronousStateException;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;

@@ -23,7 +23,7 @@ public class RewardState extends State {
     /**
      * Enum to represent the internal state of the end state.
      */
-    private enum EndInternalState {
+    enum EndInternalState {
         FINISH_ORDER,
         BEST_LOOKING_SHIP,
         SALE_OF_GOODS,

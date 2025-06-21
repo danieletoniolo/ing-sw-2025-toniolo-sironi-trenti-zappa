@@ -13,6 +13,7 @@ import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.Component;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
+import it.polimi.ingsw.model.state.utils.MutablePair;
 import org.javatuples.Pair;
 
 import java.util.*;
@@ -27,7 +28,7 @@ public class CombatZoneState extends State {
     private PlayerData minPlayerCrew;
     private PlayerData playerBeingHit;
     private final List<List<Pair<Integer, Integer>>> fragments;
-    private final Pair<Component, Integer> protectionResult;
+    private final MutablePair<Component, Integer> protectionResult;
     private int hitIndex;
 
     private int currentPenaltyLoss;
@@ -35,7 +36,7 @@ public class CombatZoneState extends State {
     /**
      * Enum to represent the internal state of the combat zone state.
      */
-    private enum CombatZoneInternalState {
+    enum CombatZoneInternalState {
         CREW,
         ENGINES,
         CANNONS,
@@ -63,7 +64,7 @@ public class CombatZoneState extends State {
         this.minPlayerCrew = null;
         this.currentPenaltyLoss = card.getLost();
         this.fragments = new ArrayList<>();
-        this.protectionResult = new Pair<>(null, -1);
+        this.protectionResult = new MutablePair<>(null, -1);
         this.hitIndex = 0;
         this.enginesStats = new HashMap<>();
         this.cannonsStats = new HashMap<>();
@@ -254,8 +255,9 @@ public class CombatZoneState extends State {
             for (PlayerData player : players) {
                 playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
             }
+        } else {
+            super.entry();
         }
-        super.entry();
     }
 
     /**

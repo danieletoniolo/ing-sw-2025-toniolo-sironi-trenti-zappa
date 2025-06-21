@@ -9,6 +9,7 @@ import it.polimi.ingsw.model.cards.MeteorSwarm;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.Component;
+import it.polimi.ingsw.model.state.utils.MutablePair;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.List;
 
 public class MeteorSwarmState extends State {
     private final MeteorSwarm card;
-    private final Pair<Component, Integer> protectionResult;
+    private final MutablePair<Component, Integer> protectionResult;
     private final List<List<Pair<Integer, Integer>>> fragments;
     private boolean diceRolled = false;
     private int hitIndex;
@@ -29,7 +30,7 @@ public class MeteorSwarmState extends State {
     public MeteorSwarmState(Board board, EventCallback callback, MeteorSwarm card, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.card = card;
-        this.protectionResult = new Pair<>(null, -1);
+        this.protectionResult = new MutablePair<>(null, -1);
         this.fragments = new ArrayList<>();
         this.hitIndex = 0;
     }

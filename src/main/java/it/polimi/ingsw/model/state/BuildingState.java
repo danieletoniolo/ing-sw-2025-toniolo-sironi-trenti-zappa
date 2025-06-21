@@ -21,6 +21,7 @@ import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.*;
 import it.polimi.ingsw.controller.EventCallback;
+import it.polimi.ingsw.model.state.exception.SynchronousStateException;
 
 import java.time.LocalTime;
 import java.util.*;

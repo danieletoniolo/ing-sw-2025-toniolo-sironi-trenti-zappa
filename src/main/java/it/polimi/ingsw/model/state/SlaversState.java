@@ -25,7 +25,7 @@ public class SlaversState extends State {
     /**
      * Enum to represent the internal state of the slavers state.
      */
-    private enum SlaversInternalState {
+    enum SlaversInternalState {
         ENEMY_DEFEAT,
         REWARD,
         PENALTY,
