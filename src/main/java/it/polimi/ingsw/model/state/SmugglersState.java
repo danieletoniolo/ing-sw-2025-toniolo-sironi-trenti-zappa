@@ -2,9 +2,11 @@ package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBatteriesPenalty;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
+import it.polimi.ingsw.event.game.serverToClient.player.UpdateCoins;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.Smugglers;
 import it.polimi.ingsw.model.game.board.Board;
@@ -24,12 +26,13 @@ public class SmugglersState extends State {
 
     private final Map<PlayerData, Float> cannonStrength;
     private int currentPenaltyLoss;
+    private Boolean smugglersDefeat;
 
     /**
      * Enum to represent the internal state of the smugglers state.
      */
-    private enum SmugglerInternalState {
-        DEFAULT,
+    enum SmugglerInternalState {
+        ENEMY_DEFEAT,
         GOODS_REWARD,
         GOODS_PENALTY,
         BATTERIES_PENALTY
@@ -39,8 +42,9 @@ public class SmugglersState extends State {
         super(board, callback, transitionHandler);
         this.card = card;
         this.cannonStrength = new HashMap<>();
-        this.internalState = SmugglerInternalState.DEFAULT;
+        this.internalState = SmugglerInternalState.ENEMY_DEFEAT;
         this.currentPenaltyLoss = card.getGoodsLoss();
+        this.smugglersDefeat = false;
     }
 
     /**
@@ -145,47 +149,61 @@ public class SmugglersState extends State {
      */
     @Override
     public void execute(PlayerData player) throws NullPointerException, IllegalStateException {
-        if (player == null) {
-            throw new NullPointerException("player is null");
-        }
-        switch (internalState) {
-            case DEFAULT:
-                // Check if the player has enough cannon strength to beat the card
-                if (cannonStrength.get(player) > card.getCannonStrengthRequired()) {
-                    internalState = SmugglerInternalState.GOODS_REWARD;
+        boolean sendCurrentPlayer = false;
 
-                    EnemyDefeat enemyDefeat = new EnemyDefeat(player.getUsername(), true);
-                    eventCallback.trigger(enemyDefeat);
-                } else if (cannonStrength.get(player) == card.getCannonStrengthRequired()) {
-                    // Set the player as played
-                    playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
-                } else {
+        switch (internalState) {
+            case ENEMY_DEFEAT:
+                int cannonStrengthRequired = card.getCannonStrengthRequired();
+
+                if (cannonStrength.get(player) > cannonStrengthRequired) {
+                    smugglersDefeat = true;
+                    internalState = SmugglerInternalState.GOODS_REWARD;
+                } else if (cannonStrength.get(player) < cannonStrengthRequired) {
+                    smugglersDefeat = false;
                     this.internalState = SmugglerInternalState.GOODS_PENALTY;
+                } else {
+                    smugglersDefeat = null;
+                    sendCurrentPlayer = true;
+                    playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
                 }
+
+                EnemyDefeat enemyDefeat = new EnemyDefeat(player.getUsername(), smugglersDefeat);
+                eventCallback.trigger(enemyDefeat);
                 break;
             case GOODS_REWARD:
-                playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
-                super.played = true;
+                if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
+                    board.addSteps(player, -card.getFlightDays());
+                    MoveMarker stepsEvent = new MoveMarker(player.getUsername(),  player.getModuleStep(board.getStepsForALap()));
+                    eventCallback.trigger(stepsEvent);
+                }
+
+                for (PlayerData p: players) {
+                    super.execute(p);
+                }
                 break;
             case GOODS_PENALTY:
                 if (currentPenaltyLoss > 0) {
                     internalState = SmugglerInternalState.BATTERIES_PENALTY;
+
+                    ForcingBatteriesPenalty forcingBatteriesPenalty = new ForcingBatteriesPenalty(player.getUsername());
+                    eventCallback.trigger(forcingBatteriesPenalty);
+                    break;
                 }
-                break;
+                currentPenaltyLoss = card.getGoodsLoss();
             case BATTERIES_PENALTY:
-                playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
-                this.internalState = SmugglerInternalState.DEFAULT;
+                super.execute(player);
+                internalState = SmugglerInternalState.ENEMY_DEFEAT;
+                sendCurrentPlayer = true;
                 break;
-            default:
-                throw new IllegalStateException("Unknown internal state" + internalState);
         }
 
-        try {
-            CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
-            eventCallback.trigger(currentPlayerEvent);
-        }
-        catch(Exception e) {
-            // Ignore the exception
+        if (sendCurrentPlayer) {
+            try {
+                CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
+                eventCallback.trigger(currentPlayerEvent);
+            } catch (Exception e) {
+                // Ignore the exception
+            }
         }
 
         super.nextState(GameState.CARDS);
@@ -194,14 +212,5 @@ public class SmugglersState extends State {
     @Override
     public void exit() throws IllegalStateException {
         super.exit();
-        for (PlayerData p : players) {
-            if (playersStatus.get(p.getColor()) == PlayerStatus.PLAYED) {
-                int flightDays = card.getFlightDays();
-                board.addSteps(p, -flightDays);
-
-                MoveMarker stepsEvent = new MoveMarker(p.getUsername(),  p.getModuleStep(board.getStepsForALap()));
-                eventCallback.trigger(stepsEvent);
-            }
-        }
     }
 }

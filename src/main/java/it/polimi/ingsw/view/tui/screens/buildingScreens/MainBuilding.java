@@ -56,9 +56,10 @@ public class MainBuilding extends Building {
 
         StatusEvent status;
         if (selected == 2) {
+            // Rotate the tile
             status = RotateTile.requester(Client.transceiver, new Object())
                     .request(new RotateTile(MiniModel.getInstance().getUserID(), clientPlayer.getHand().getID()));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
             }
             return this;
@@ -70,8 +71,9 @@ public class MainBuilding extends Building {
             }
             if (MiniModel.getInstance().getTimerView().getNumberOfFlips() < MiniModel.getInstance().getTimerView().getTotalFlips() - 1) {
                 if (selected == 4) {
+                    // Flip the timer
                     status = FlipTimer.requester(Client.transceiver, new Object()).request(new FlipTimer(MiniModel.getInstance().getUserID()));
-                    if (status.get().equals("POTA")) {
+                    if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                         setMessage(((Pota) status).errorMessage());
                     }
                     return this;

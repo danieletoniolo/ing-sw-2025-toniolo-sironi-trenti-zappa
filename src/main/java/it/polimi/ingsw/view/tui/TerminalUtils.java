@@ -12,6 +12,7 @@ public class TerminalUtils {
     private static int lastWidth = -1;
     private static int lastHeight = -1;
     private static List<String> lastPrintedLines = new ArrayList<>();
+    private static int lastPrintedAfterOptions;
 
     public static void setTerminal(Terminal terminal) {
         TerminalUtils.terminal = terminal;
@@ -52,7 +53,7 @@ public class TerminalUtils {
         boolean resized = (width != lastWidth) || (height != lastHeight);
         if (resized) {
             for (int row = 0; row < newLines.size(); row++) {
-                TerminalUtils.printLine(newLines.get(row), row + 1);
+                TerminalUtils.printLine(newLines.get(row), row + 1); // Rows are 1-indexed in terminal
             }
             TerminalUtils.clearLastLines(afterOptions);
             lastWidth = width;
@@ -63,14 +64,15 @@ public class TerminalUtils {
                 String newLine = newLines.get(row);
                 String oldLine = (row < lastPrintedLines.size()) ? lastPrintedLines.get(row) : null;
                 if (!newLine.equals(oldLine)) {
-                    TerminalUtils.printLine(newLine, row + 1);
+                    TerminalUtils.printLine(newLine, row + 1); // Rows are 1-indexed in terminal
                 }
             }
-            for (int row = newLines.size() + afterOptions; row < lastPrintedLines.size(); row++) {
-                TerminalUtils.printLine("", row + 1);
+            for (int row = afterOptions; row < lastPrintedAfterOptions; row++) {
+                TerminalUtils.printLine("", row);
             }
         }
 
         lastPrintedLines = new ArrayList<>(newLines);
+        lastPrintedAfterOptions = afterOptions;
     }
 }

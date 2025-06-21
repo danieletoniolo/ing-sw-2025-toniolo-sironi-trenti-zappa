@@ -26,16 +26,17 @@ public class AbandonedStationCards extends CardsGame {
         StatusEvent status;
         switch (selected) {
             case 0:
+                // Accept the card and play it
                 status = Play.requester(Client.transceiver, new Object()).request(new Play(MiniModel.getInstance().getUserID()));
-                if (status.get().equals("POTA")) {
+                if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                     setMessage(((Pota) status).errorMessage());
                     return this;
                 }
-                setMessage(null);
                 return new MenuGoodsCards();
             case 1:
+                // Refuse the card and end the turn
                 status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
-                if (status.get().equals("POTA")) {
+                if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                     setMessage(((Pota) status).errorMessage());
                     return this;
                 }

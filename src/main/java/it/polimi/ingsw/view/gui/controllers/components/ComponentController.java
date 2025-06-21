@@ -3,6 +3,7 @@ package it.polimi.ingsw.view.gui.controllers.components;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -10,9 +11,11 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 
+import java.net.URL;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
-public class ComponentController implements MiniModelObserver {
+public class ComponentController implements MiniModelObserver, Initializable {
     /**
      * The StackPane that serves as the parent container for the component image.
      */
@@ -29,8 +32,8 @@ public class ComponentController implements MiniModelObserver {
      */
     protected ComponentView componentView;
 
-    @FXML
-    private void initialize() {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         // Ensure the parent StackPane can resize properly
         parent.setMinSize(0, 0);
         parent.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);

@@ -8,7 +8,6 @@ import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.screens.CardsGame;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
-import it.polimi.ingsw.view.tui.screens.gameScreens.NotClientTurnCards;
 import it.polimi.ingsw.view.tui.screens.gameScreens.cannonsActions.ChooseDoubleCannonsCards;
 
 import java.util.List;
@@ -16,7 +15,14 @@ import java.util.List;
 public class EnemyCards extends CardsGame {
 
     public EnemyCards() {
-        super(List.of("Active cannons", "Surrender"));
+        super(List.of("Active cannons", "Do not engage cannon systems"));
+        String info = switch (MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getCardViewType()) {
+            case SMUGGLERS -> "Smuggler convoy inbound - prepare for contact!";
+            case PIRATES -> "Warning: Hostile ships detected – Space pirates approaching!";
+            case SLAVERS -> "Alert! Slaver raiders incoming!";
+            default -> "Error";
+        };
+        setMessage(info);
     }
 
     @Override
@@ -27,21 +33,16 @@ public class EnemyCards extends CardsGame {
         StatusEvent status;
         switch (selected) {
             case 0:
-                status = Play.requester(Client.transceiver, new Object()).request(new Play(MiniModel.getInstance().getUserID()));
-                if (status.get().equals("POTA")) {
-                    setMessage(((Pota) status).errorMessage());
-                    return this;
-                }
                 spaceShipView = clientPlayer.getShip().clone();
                 return new ChooseDoubleCannonsCards(this);
             case 1:
+                // Surrender and end the turn
                 status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
-                if (status.get().equals("POTA")) {
+                if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                     setMessage(((Pota) status).errorMessage());
                     return this;
                 }
-                setMessage(null);
-                return new NotClientTurnCards();
+                return nextScreen;
         }
 
         return this;

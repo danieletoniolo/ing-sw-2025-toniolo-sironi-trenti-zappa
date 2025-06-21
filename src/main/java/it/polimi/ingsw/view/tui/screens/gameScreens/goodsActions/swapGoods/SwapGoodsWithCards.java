@@ -44,9 +44,10 @@ public class SwapGoodsWithCards extends ManagerSwapGoodCards {
         }
 
         if (selected == num) {
+            // Send request to swap goods
             StatusEvent status = SwapGoods.requester(Client.transceiver, new Object()).request(
                     new SwapGoods(MiniModel.getInstance().getUserID(), fromStorage.getID(), withStorage.getID(), fromList, withList));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
             }
             else{

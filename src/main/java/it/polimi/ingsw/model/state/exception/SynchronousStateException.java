@@ -1,4 +1,4 @@
-package it.polimi.ingsw.model.state;
+package it.polimi.ingsw.model.state.exception;
 
 public class SynchronousStateException extends RuntimeException {
     /**

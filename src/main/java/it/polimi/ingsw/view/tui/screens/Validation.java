@@ -6,12 +6,11 @@ import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
 import org.javatuples.Pair;
-import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ValidationTuiScreen implements TuiScreenView {
+public abstract class Validation implements TuiScreenView {
     protected ArrayList<String> options = new ArrayList<>();
     private boolean isNewScreen;
 
@@ -23,7 +22,7 @@ public abstract class ValidationTuiScreen implements TuiScreenView {
     protected static List<Pair<Integer, Integer>> destroyTiles;
     private String message;
 
-    public ValidationTuiScreen(List<String> otherOptions) {
+    public Validation(List<String> otherOptions) {
         if (spaceShipView == null) {
             spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
         }
@@ -77,7 +76,7 @@ public abstract class ValidationTuiScreen implements TuiScreenView {
     }
 
     @Override
-    public void printTui(Terminal terminal) {
+    public void printTui() {
         List<String> newLines = new ArrayList<>();
 
         int playerCount = 0;
@@ -88,7 +87,7 @@ public abstract class ValidationTuiScreen implements TuiScreenView {
             if (i <= spaceShipView.getDiscardReservedPile().getRowsToDraw()) {
                 line.append(MiniModel.getInstance().getClientPlayer().getShip().getDiscardReservedPile().drawLineTui(i));
             }
-            else if (i > ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + 1) - 1 && i <= ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + MiniModel.getInstance().getClientPlayer().getRowsToDraw())) {
+            else if (i > ((spaceShipView.getRowsToDraw() - 2) / 5 * 3 + 1) - 1 && i <= ((spaceShipView.getRowsToDraw() - 2) / 5 * 3 + MiniModel.getInstance().getClientPlayer().getRowsToDraw())) {
                 line.append("   ").append(MiniModel.getInstance().getClientPlayer().drawLineTui(playerCount));
                 if (playerCount == 0) {
                     line.append("    ");
@@ -118,5 +117,11 @@ public abstract class ValidationTuiScreen implements TuiScreenView {
     @Override
     public void setNextScreen(TuiScreenView nextScreen) {
         this.nextState = nextScreen;
+    }
+
+    public static void destroyStatics() {
+        destroyTiles = null;
+        PlayerDataView player = MiniModel.getInstance().getClientPlayer();
+        spaceShipView = player == null ? null : player.getShip();
     }
 }

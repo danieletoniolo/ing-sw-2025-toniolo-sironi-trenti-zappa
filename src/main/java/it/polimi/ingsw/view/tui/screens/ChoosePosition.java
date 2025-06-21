@@ -11,7 +11,6 @@ import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.MainBuilding;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.WatchingBuilding;
-import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,13 +49,16 @@ public class ChoosePosition implements TuiScreenView {
             return new MainBuilding();
         }
 
+        // Validate the selected position
         StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object()).request(new PlaceMarker(MiniModel.getInstance().getUserID(), selected));
-        if (status.get().equals("POTA")) {
+        if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
             return this;
         }
+
+        // If the position is valid, end the turn
         status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
-        if (status.get().equals("POTA")) {
+        if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
             return this;
         }
@@ -73,7 +75,7 @@ public class ChoosePosition implements TuiScreenView {
     }
 
     @Override
-    public void printTui(Terminal terminal) {
+    public void printTui() {
         List<String> newLines = new ArrayList<>();
 
         for (int i = 0; i < boardView.getRowsToDraw(); i++) {

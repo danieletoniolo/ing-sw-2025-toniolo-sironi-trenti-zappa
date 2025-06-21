@@ -1,4 +1,4 @@
-package it.polimi.ingsw.event.game.serverToClient.player;
+package it.polimi.ingsw.event.game.serverToClient.forcingInternalState;
 
 import it.polimi.ingsw.event.type.Event;
 import java.io.Serializable;
@@ -8,6 +8,7 @@ import java.io.Serializable;
  * It is sent ONLY to the player that has lost, so it is not broadcast to all the players.
  * For this reason, it does not contain any information about the player who lost.
  */
-public record PlayerLost(
+public record ForcingGiveUp(
+        String message
 ) implements Event, Serializable {
 }

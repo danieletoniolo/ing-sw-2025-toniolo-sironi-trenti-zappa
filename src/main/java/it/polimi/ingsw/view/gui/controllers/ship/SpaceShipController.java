@@ -6,6 +6,7 @@ import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Group;
@@ -13,9 +14,11 @@ import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.ResourceBundle;
 
-public class LearningShipController implements MiniModelObserver {
+public class SpaceShipController implements MiniModelObserver, Initializable {
 
     /**
      * The StackPane that serves as the parent container for the ship area.
@@ -56,7 +59,6 @@ public class LearningShipController implements MiniModelObserver {
     private static int GRID_COLS;
     private static int GRID_ROWS;
 
-
     // Original dimensions of the background image
     private static double ORIGINAL_IMAGE_WIDTH;
     private static double ORIGINAL_IMAGE_HEIGHT;
@@ -93,8 +95,8 @@ public class LearningShipController implements MiniModelObserver {
      * Utility methods such as `setDefaultValue()` and `setupShipGridConstraints()` are invoked to
      * aid in initializing specific detailed aspects of the components.
      */
-    @FXML
-    private void initialize() {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         // Set the default value from the FXML
         setDefaultValue();
 
@@ -148,9 +150,11 @@ public class LearningShipController implements MiniModelObserver {
         );
 
         // Binding for the scale of the gap in the ship grid
-        shipGrid.hgapProperty().bind(scaleFactorBinding.multiply(10.0));
-        shipGrid.vgapProperty().bind(scaleFactorBinding.multiply(10.0));
-        reserveLostGrid.hgapProperty().bind(scaleFactorBinding.multiply(10.0));
+        // TODO: If you want to scale the gaps, uncomment the following lines
+        //       To do so, you must add the gaps in the FXML file
+        //shipGrid.hgapProperty().bind(scaleFactorBinding.multiply(10.0));
+        //shipGrid.vgapProperty().bind(scaleFactorBinding.multiply(10.0));
+        //reserveLostGrid.hgapProperty().bind(scaleFactorBinding.multiply(10.0));
 
 
         // Binding for the scale of the reserve grid
@@ -216,7 +220,7 @@ public class LearningShipController implements MiniModelObserver {
             cc.setHgrow(Priority.ALWAYS);
             shipGrid.getColumnConstraints().add(cc);
         }
-        
+
         for (int r = 0; r < GRID_ROWS; r++) {
             RowConstraints rc = new RowConstraints();
             rc.setPercentHeight(percH);
@@ -226,9 +230,9 @@ public class LearningShipController implements MiniModelObserver {
     }
 
     /**
-     * Sets the default values for various properties related to the ship grid, 
-     * background image, and reserve grid. The method captures the initial dimensions 
-     * and positions of UI elements to ensure consistent behavior and layout during 
+     * Sets the default values for various properties related to the ship grid,
+     * background image, and reserve grid. The method captures the initial dimensions
+     * and positions of UI elements to ensure consistent behavior and layout during
      * resizing or scaling operations. Specifically, it:
      * <ul>
      *   <li>Records the column and row counts of the ship grid.</li>
@@ -237,8 +241,8 @@ public class LearningShipController implements MiniModelObserver {
      *   <li>Records the initial layout and preferred dimensions of the reserve grid.</li>
      * </ul>
      * <p>
-     * This method is intended to act as a baseline setup to maintain responsive 
-     * UI behavior by referencing these default values when recalculating dimensions 
+     * This method is intended to act as a baseline setup to maintain responsive
+     * UI behavior by referencing these default values when recalculating dimensions
      * or positions of the elements.
      */
     private void setDefaultValue() {
@@ -291,9 +295,12 @@ public class LearningShipController implements MiniModelObserver {
     public void react() {
         shipGrid.getChildren().clear();
 
+        int rowOffset = SpaceShipView.ROW_OFFSET;
+        int colOffset = SpaceShipView.COL_OFFSET;
+
         for (int i = 0; i < GRID_COLS; i++) {
             for (int j = 0; j < GRID_ROWS; j++) {
-                ComponentView component = spaceShipModel.getComponent(j+4, i+4);
+                ComponentView component = spaceShipModel.getComponent(j+rowOffset, i+colOffset);
                 if (component != null) {
                     Node node = component.getNode();
 

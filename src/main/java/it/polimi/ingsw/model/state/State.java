@@ -30,7 +30,6 @@ public abstract class State implements Serializable {
     protected Board board;
     protected Boolean played;
 
-
     /**
      * Enum to represent the status of the player in the state.
      */
@@ -79,6 +78,10 @@ public abstract class State implements Serializable {
 
         exit();
 
+        if (board.getInGamePlayers().isEmpty()) {
+            nextGameState = GameState.REWARD;
+        }
+
         eventCallback.trigger(new StateChanged(nextGameState.getValue()));
 
         switch (nextGameState) {
@@ -99,19 +102,16 @@ public abstract class State implements Serializable {
                         case OPENSPACE ->        transitionHandler.changeState(new OpenSpaceState(board, eventCallback, transitionHandler));
                         case METEORSWARM ->      transitionHandler.changeState(new MeteorSwarmState(board, eventCallback, (MeteorSwarm) card, transitionHandler));
                         case COMBATZONE ->       transitionHandler.changeState(new CombatZoneState(board, eventCallback, (CombatZone) card, transitionHandler));
-                        case STARDUST ->         {
-
-                            transitionHandler.changeState(new StardustState(board, eventCallback, transitionHandler));
-                        }
+                        case STARDUST ->         transitionHandler.changeState(new StardustState(board, eventCallback, transitionHandler));
                         case EPIDEMIC ->         transitionHandler.changeState(new EpidemicState(board, eventCallback, transitionHandler));
                         default -> throw new IllegalArgumentException("Unknown card type: " + card.getCardType());
                     }
-                } catch (IllegalArgumentException e) {
-                    // TODO: Handle final states
+                } catch (IllegalStateException e) {
+                    transitionHandler.changeState(new RewardState(board, eventCallback, transitionHandler));
                 }
             }
             case REWARD -> {
-                // TODO: Understand if we need to do something here
+                transitionHandler.changeState(new RewardState(board, eventCallback, transitionHandler));
             }
             case FINISHED -> {
             }
@@ -149,7 +149,7 @@ public abstract class State implements Serializable {
 
     public void giveUp(PlayerData player) throws NullPointerException {
         player.setGaveUp(true);
-        this.players = new ArrayList<>(this.board.getInGamePlayers());
+        this.board.removeInGamePlayer(player);
 
         PlayerGaveUp playerGaveUpEvent = new PlayerGaveUp(player.getUsername());
         eventCallback.trigger(playerGaveUpEvent);

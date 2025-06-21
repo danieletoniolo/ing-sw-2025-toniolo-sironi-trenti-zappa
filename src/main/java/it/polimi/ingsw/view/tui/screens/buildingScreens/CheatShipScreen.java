@@ -16,7 +16,7 @@ public class CheatShipScreen extends Building {
     public CheatShipScreen() {
         super(new ArrayList<>(){{
             if (MiniModel.getInstance().getBoardView().getLevel().equals(LevelView.LEARNING)) {
-
+                add("Big flight");
             }
             else{
                 add("Cabins");
@@ -36,13 +36,13 @@ public class CheatShipScreen extends Building {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        int back = MiniModel.getInstance().getBoardView().getLevel().equals(LevelView.LEARNING) ? 0 : 2;
-        if (selected == back) {
+        if (selected == options.size()) {
             return new MainBuilding();
         }
 
+        // Request the cheat code for the selected option
         StatusEvent status = CheatCode.requester(Client.transceiver, new Object()).request(new CheatCode(MiniModel.getInstance().getUserID(), selected));
-        if (status.get().equals("POTA")) {
+        if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
             return this;
         }

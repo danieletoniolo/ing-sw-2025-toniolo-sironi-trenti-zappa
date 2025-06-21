@@ -9,6 +9,8 @@ import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToReserve;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.SetCannonStrength;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.SetEngineStrength;
 import it.polimi.ingsw.event.game.serverToClient.timer.LastTimerFinished;
 import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.event.type.Event;
@@ -19,6 +21,7 @@ import it.polimi.ingsw.model.player.PlayerColor;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.*;
 import it.polimi.ingsw.controller.EventCallback;
+import it.polimi.ingsw.model.state.exception.SynchronousStateException;
 
 import java.time.LocalTime;
 import java.util.*;
@@ -28,6 +31,7 @@ public class BuildingState extends State {
     private final Timer timer;
     private boolean timerRunning;
     private int numberOfTimerFlips;
+    private boolean lastTimerFinished;
     // TODO: set timer to 90000
     private static final long timerDuration = 5000;
     private final Map<PlayerColor, Component> playersHandQueue;
@@ -38,6 +42,7 @@ public class BuildingState extends State {
         this.numberOfTimerFlips = 1;
         this.timerRunning = false;
         this.playersHandQueue = new HashMap<>();
+        this.lastTimerFinished = false;
     }
 
     @Override
@@ -47,6 +52,10 @@ public class BuildingState extends State {
 
     @Override
     public void cheatCode(PlayerData player, int shipIndex) throws IllegalStateException, IllegalArgumentException {
+        if (lastTimerFinished) {
+            throw new IllegalStateException("Cannot use cheat code after the last timer has finished");
+        }
+
         List<Event> events =  Handler.cheatShip(player, shipIndex, board.getBoardLevel());
         for (Event event : events) {
             eventCallback.trigger(event);
@@ -65,6 +74,10 @@ public class BuildingState extends State {
 
         if (timerRunning) {
             throw new IllegalStateException("Cannot flip timer because is already running");
+        }
+
+        if (lastTimerFinished) {
+            throw new IllegalStateException("Cannot flip timer after the last timer has finished");
         }
 
         TimerFlipped timerFlippedEvent;
@@ -103,6 +116,7 @@ public class BuildingState extends State {
                         @Override
                         public void run() {
                             timerRunning = false;
+                            lastTimerFinished = true;
 
                             // Trigger to all the users that the last timer has finished
                             LastTimerFinished lastTimerFinishedEvent = new LastTimerFinished();
@@ -129,12 +143,16 @@ public class BuildingState extends State {
     public void useDeck(PlayerData player, int usage,int deckIndex) throws IllegalStateException {
         // Check if the player has finished building
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("OtherPlayer has finished building");
+            throw new IllegalStateException("Other player has finished building");
         }
 
         // Check if the player has placed at least one tile
         if (player.getSpaceShip().getNumberOfComponents() < 1) {
-            throw new IllegalStateException("OtherPlayer has not placed any tile");
+            throw new IllegalStateException("Other player has not placed any tile");
+        }
+
+        if (lastTimerFinished) {
+            throw new IllegalStateException("Cannot use deck after the last timer has finished");
         }
 
         PickedLeftDeck pickLeaveDeckEvent = new PickedLeftDeck(player.getUsername(), usage, deckIndex);
@@ -175,17 +193,22 @@ public class BuildingState extends State {
     public void pickTile(PlayerData player, int fromWhere, int tileID) {
         // Check if the player has finished building
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("OtherPlayer has finished building");
+            throw new IllegalStateException("Other player has finished building");
         }
 
         // Check if the player has a tile in his hand
         if (playersHandQueue.get(player.getColor()) != null) {
-            throw new IllegalStateException("OtherPlayer already has a tile in his hand");
+            throw new IllegalStateException("Other player already has a tile in his hand");
+        }
+
+        if (lastTimerFinished) {
+            throw new IllegalStateException("Cannot pick tile after the last timer has finished");
         }
 
         Component component;
         switch (fromWhere) {
             case 0 -> {
+
                 // Get the tile from the board
                 component = board.popTile(tileID);
 
@@ -247,14 +270,25 @@ public class BuildingState extends State {
                 eventCallback.trigger(pickTileEvent);
             }
             case 2 -> {
+                SpaceShip spaceShip = player.getSpaceShip();
+
                 // Get the last placed component
-                component = player.getSpaceShip().getLastPlacedComponent();
-                player.getSpaceShip().destroyComponent(component.getRow(), component.getColumn());
+                component = spaceShip.getLastPlacedComponent();
+                spaceShip.destroyComponent(component.getRow(), component.getColumn());
                 PickedTileFromSpaceship pickTileEvent = new PickedTileFromSpaceship(player.getUsername(), component.getClockwiseRotation());
                 eventCallback.trigger(pickTileEvent);
+
+                if (component.getComponentType() == ComponentType.SINGLE_ENGINE || component.getComponentType() == ComponentType.DOUBLE_ENGINE) {
+                    SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), spaceShip.getSingleEnginesStrength(), spaceShip.getSingleEnginesStrength() + spaceShip.getDoubleEnginesStrength());
+                    eventCallback.trigger(engineStrength);
+                } else if (component.getComponentType() == ComponentType.SINGLE_CANNON || component.getComponentType() == ComponentType.DOUBLE_CANNON) {
+                    SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), spaceShip.getSingleCannonsStrength(), spaceShip.getSingleCannonsStrength() + spaceShip.getDoubleCannonsStrength());
+                    eventCallback.trigger(cannonStrength);
+                }
             }
             default -> throw new IllegalStateException("Invalid fromWhere value");
         }
+        player.getSpaceShip().cleanLastPlacedComponent();
 
         // Check if the component is null or if the ID of the component is not the same as the tileID
         if (tileID != -1 && component.getID() != tileID) {
@@ -273,30 +307,29 @@ public class BuildingState extends State {
     public void placeTile(PlayerData player, int toWhere, int row, int col) {
         // Check if the player has finished building
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("OtherPlayer has finished building");
+            throw new IllegalStateException("Other player has finished building");
         }
 
         if (toWhere == 2 && (row < 0 || row >= SpaceShip.getRows() || col < 0 || col >= SpaceShip.getCols())) {
             throw new IllegalArgumentException("Invalid row or column for placing the tile in the spaceship");
         }
 
+        if (lastTimerFinished) {
+            throw new IllegalStateException("Cannot place tile after the last timer has finished");
+        }
+
         // Has the player a tile in his hand?
         Component component = playersHandQueue.get(player.getColor());
         if (component == null) {
-            throw new IllegalStateException("OtherPlayer has no tile in his hand");
+            throw new IllegalStateException("Other player has no tile in his hand");
         }
 
-        SpaceShip ship = player.getSpaceShip();
-
-        Component lastPlacedComponent = ship.getLastPlacedComponent();
-        if (lastPlacedComponent != null && ship.getLastPlacedComponent().getID() == component.getID()) {
-            ship.cleanLastPlacedComponent();
-        }
+        SpaceShip spaceShip = player.getSpaceShip();
 
         switch (toWhere) {
             case 0 -> {
                 // Place the tile in the board
-                if (ship.peekReservedComponent(component.getID()) != null) {
+                if (spaceShip.peekReservedComponent(component.getID()) != null) {
                     throw new IllegalStateException("Cannot put in the pile a reserved component");
                 }
                 board.putTile(component);
@@ -305,20 +338,28 @@ public class BuildingState extends State {
             }
             case 1 -> {
                 // Place the tile in the reserve
-                if (ship.peekReservedComponent(component.getID()) == null) {
-                    ship.putReserveComponent(component);
+                if (spaceShip.peekReservedComponent(component.getID()) == null) {
+                    spaceShip.putReserveComponent(component);
                 }
                 PlacedTileToReserve placeTileEvent = new PlacedTileToReserve(player.getUsername());
                 eventCallback.trigger(placeTileEvent);
             }
             case 2 -> {
                 // Place the tile in the spaceship
-                if (ship.peekReservedComponent(component.getID()) != null) {
-                    ship.removeReserveComponent(component.getID());
+                if (spaceShip.peekReservedComponent(component.getID()) != null) {
+                    spaceShip.removeReserveComponent(component.getID());
                 }
-                ship.placeComponent(component, row, col);
+                spaceShip.placeComponent(component, row, col);
                 PlacedTileToSpaceship placeTileEvent = new PlacedTileToSpaceship(player.getUsername(), row, col);
                 eventCallback.trigger(placeTileEvent);
+
+                if (component.getComponentType() == ComponentType.SINGLE_ENGINE || component.getComponentType() == ComponentType.DOUBLE_ENGINE) {
+                    SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), spaceShip.getSingleEnginesStrength(), spaceShip.getSingleEnginesStrength() + spaceShip.getDoubleEnginesStrength());
+                    eventCallback.trigger(engineStrength);
+                } else if (component.getComponentType() == ComponentType.SINGLE_CANNON || component.getComponentType() == ComponentType.DOUBLE_CANNON) {
+                    SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), spaceShip.getSingleCannonsStrength(), spaceShip.getSingleCannonsStrength() + spaceShip.getDoubleCannonsStrength());
+                    eventCallback.trigger(cannonStrength);
+                }
             }
             default -> throw new IllegalStateException("Invalid toWhere value");
         }
@@ -335,13 +376,17 @@ public class BuildingState extends State {
     public void rotateTile(PlayerData player) {
         // Check if the player has finished building
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYED) {
-            throw new IllegalStateException("OtherPlayer has finished building");
+            throw new IllegalStateException("Other player has finished building");
+        }
+
+        if (lastTimerFinished) {
+            throw new IllegalStateException("Cannot rotate tile after the last timer has finished");
         }
 
         // Has the player a tile in his hand?
         Component component = playersHandQueue.get(player.getColor());
         if (component == null) {
-            throw new IllegalStateException("OtherPlayer has no tile in his hand");
+            throw new IllegalStateException("Other player has no tile in his hand");
         }
 
         // Rotate the tile in the board

@@ -8,7 +8,6 @@ import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.components.CabinView;
 import it.polimi.ingsw.view.tui.screens.ModifyCrew;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
-import it.polimi.ingsw.view.tui.screens.buildingScreens.MainBuilding;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -50,7 +49,7 @@ public class AddCrew extends ModifyCrew {
         }
 
         int ID;
-        if (value == 3) {
+        if (value == 3) { // If value is 3, we want to remove crew members on an ID cabin
             ID = spaceShipView.getMapCabins().entrySet().stream()
                     .filter(entry -> entry.getValue().getCrewNumber() != 0)
                     .skip(selected)
@@ -80,8 +79,9 @@ public class AddCrew extends ModifyCrew {
         }
 
         StatusEvent status;
+        // Send event to the server to add or remove a crew member
         status = ManageCrewMember.requester(Client.transceiver, new Object()).request(new ManageCrewMember(MiniModel.getInstance().getUserID(), mode, type, ID));
-        if (status.get().equals("POTA")) {
+        if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
         }
         return new MainCrew();

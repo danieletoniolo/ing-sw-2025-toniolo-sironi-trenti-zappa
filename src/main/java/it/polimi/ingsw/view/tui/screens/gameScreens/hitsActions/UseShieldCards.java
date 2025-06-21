@@ -35,8 +35,9 @@ public class UseShieldCards extends CardsGame {
                 .findFirst()
                 .orElse(-1);
 
+        // Player uses the shield battery
         StatusEvent status = UseShield.requester(Client.transceiver, new Object()).request(new UseShield(MiniModel.getInstance().getUserID(), ID));
-        if (status.get().equals("POTA")) {
+        if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
         }
         return this;

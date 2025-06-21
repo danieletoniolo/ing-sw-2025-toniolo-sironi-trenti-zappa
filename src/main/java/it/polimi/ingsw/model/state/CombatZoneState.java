@@ -4,7 +4,7 @@ import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MinPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
-import it.polimi.ingsw.event.game.serverToClient.player.PlayerLost;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.CombatZone;
@@ -13,6 +13,7 @@ import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.Component;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
+import it.polimi.ingsw.model.state.utils.MutablePair;
 import org.javatuples.Pair;
 
 import java.util.*;
@@ -27,7 +28,7 @@ public class CombatZoneState extends State {
     private PlayerData minPlayerCrew;
     private PlayerData playerBeingHit;
     private final List<List<Pair<Integer, Integer>>> fragments;
-    private final Pair<Component, Integer> protectionResult;
+    private final MutablePair<Component, Integer> protectionResult;
     private int hitIndex;
 
     private int currentPenaltyLoss;
@@ -35,7 +36,7 @@ public class CombatZoneState extends State {
     /**
      * Enum to represent the internal state of the combat zone state.
      */
-    private enum CombatZoneInternalState {
+    enum CombatZoneInternalState {
         CREW,
         ENGINES,
         CANNONS,
@@ -63,7 +64,7 @@ public class CombatZoneState extends State {
         this.minPlayerCrew = null;
         this.currentPenaltyLoss = card.getLost();
         this.fragments = new ArrayList<>();
-        this.protectionResult = new Pair<>(null, -1);
+        this.protectionResult = new MutablePair<>(null, -1);
         this.hitIndex = 0;
         this.enginesStats = new HashMap<>();
         this.cannonsStats = new HashMap<>();
@@ -94,8 +95,10 @@ public class CombatZoneState extends State {
         }
         for (int i = 0; i < fragments.size(); i++) {
             if (i != fragmentChoice) {
-                Event event = Handler.destroyFragment(player, fragments.get(i));
-                eventCallback.trigger(event);
+                List<Event> events = Handler.destroyFragment(player, fragments.get(i));
+                for (Event e : events) {
+                    eventCallback.trigger(e);
+                }
             }
         }
         fragments.clear();
@@ -147,7 +150,7 @@ public class CombatZoneState extends State {
                 if (internalState != CombatZoneInternalState.GOODS_PENALTY) {
                     throw new IllegalStateException("There is no penalty to serve.");
                 }
-                Event event = Handler.loseGoods(player, penaltyLoss,currentPenaltyLoss);
+                Event event = Handler.loseGoods(player, penaltyLoss, currentPenaltyLoss);
                 eventCallback.trigger(event);
                 currentPenaltyLoss -= penaltyLoss.size();
             }
@@ -252,8 +255,9 @@ public class CombatZoneState extends State {
             for (PlayerData player : players) {
                 playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
             }
+        } else {
+            super.entry();
         }
-        super.entry();
     }
 
     /**
@@ -288,7 +292,7 @@ public class CombatZoneState extends State {
                 break;
             case GOODS_PENALTY:
                 if (currentPenaltyLoss > 0 && player.getSpaceShip().getGoodsValue() > 0) {
-                    throw new IllegalStateException("OtherPlayer has not set the goods to lose");
+                    throw new IllegalStateException("Player has not set the goods to lose");
                 }
                 if (currentPenaltyLoss > 0) {
                     internalState = CombatZoneInternalState.BATTERIES_PENALTY;
@@ -299,14 +303,14 @@ public class CombatZoneState extends State {
                 break;
             case BATTERIES_PENALTY:
                 if (currentPenaltyLoss > 0 && player.getSpaceShip().getEnergyNumber() > 0) {
-                    throw new IllegalStateException("OtherPlayer has not set the batteries to lose");
+                    throw new IllegalStateException("Other player has not set the batteries to lose");
                 }
                 internalState = CombatZoneInternalState.CREW;
                 playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.PLAYING);
                 break;
             case CREW_PENALTY:
                 if (currentPenaltyLoss > 0) {
-                    Event event = new PlayerLost();
+                    Event event = new ForcingGiveUp("You have lost all your crew members, you have to give up");
                     eventCallback.trigger(event, player.getUUID());
                 } else {
                     internalState = CombatZoneInternalState.CANNONS;

@@ -1,7 +1,6 @@
 package it.polimi.ingsw.view.tui.screens;
 
 import org.javatuples.Pair;
-import org.jline.terminal.Terminal;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.components.*;
@@ -73,7 +72,7 @@ public abstract class Building implements TuiScreenView {
     }
 
     @Override
-    public void printTui(Terminal terminal) {
+    public void printTui() {
         List<String> newLines = new ArrayList<>();
 
         ViewablePileView tiles = MiniModel.getInstance().getViewablePile();

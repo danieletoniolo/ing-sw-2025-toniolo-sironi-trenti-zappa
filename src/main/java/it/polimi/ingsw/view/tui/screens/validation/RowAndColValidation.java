@@ -2,12 +2,12 @@ package it.polimi.ingsw.view.tui.screens.validation;
 
 import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
-import it.polimi.ingsw.view.tui.screens.ValidationTuiScreen;
+import it.polimi.ingsw.view.tui.screens.Validation;
 import org.javatuples.Pair;
 
 import java.util.List;
 
-public class RowAndColValidation extends ValidationTuiScreen {
+public class RowAndColValidation extends Validation {
     private final TuiScreenView oldScreen;
     private Pair<Integer, Integer> correctRowAndCol;
     public RowAndColValidation(TuiScreenView oldScreen) {

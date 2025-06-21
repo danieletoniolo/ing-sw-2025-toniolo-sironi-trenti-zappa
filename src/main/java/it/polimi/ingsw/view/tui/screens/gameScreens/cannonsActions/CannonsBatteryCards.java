@@ -20,7 +20,7 @@ public class CannonsBatteryCards extends ManagerCannonsCards {
             }
             if (cannonsIDs.size() > batteriesIDs.size()) {
                 spaceShipView.getMapBatteries().forEach(
-                        (key, value) -> {
+                        (_, value) -> {
                             if (value.getNumberOfBatteries() != 0) {
                                 add("Use battery " + "(" + value.getRow() + " " + value.getCol() + ")");
                             }
@@ -57,22 +57,21 @@ public class CannonsBatteryCards extends ManagerCannonsCards {
 
         if (selected == num + 1) {
             StatusEvent status;
+            // Send the request to use cannons and batteries
             status = UseCannons.requester(Client.transceiver, new Object()).request(new UseCannons(MiniModel.getInstance().getUserID(), cannonsIDs, batteriesIDs));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
                 return oldScreen;
             }
-            else {
-                setMessage(null);
-            }
+            // Send the request to end the turn
             status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
                 return oldScreen;
             }
 
             destroyStatics();
-            return nextScreen; // This screen is set by the TuiManager in the notifyEnemyDefeat method
+            return nextScreen;
         }
 
         spaceShipView.getMapBatteries().entrySet().stream()

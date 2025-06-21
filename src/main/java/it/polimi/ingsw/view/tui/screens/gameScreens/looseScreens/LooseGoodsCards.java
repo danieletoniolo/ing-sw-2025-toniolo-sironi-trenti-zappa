@@ -1,11 +1,13 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens;
 
 import it.polimi.ingsw.Client;
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.SetPenaltyLoss;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
+import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.tui.screens.CardsGame;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
@@ -15,9 +17,8 @@ public class LooseGoodsCards extends CardsGame {
     private static List<Integer> storageIDs;
     private static List<Integer> looseGoods;
     private static boolean reset;
-    private final TuiScreenView nextScreen;
 
-    public LooseGoodsCards(TuiScreenView nextScreen) {
+    public LooseGoodsCards() {
         super(new ArrayList<>(){{
             if (!reset) {
                 spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
@@ -35,7 +36,6 @@ public class LooseGoodsCards extends CardsGame {
         if (looseGoods == null) {
             looseGoods = new ArrayList<>();
         }
-        this.nextScreen = nextScreen;
     }
 
     @Override
@@ -43,11 +43,12 @@ public class LooseGoodsCards extends CardsGame {
         return "Choose a storage unit to discard the most expensive goods.";
     }
 
-    private void destroyStatic() {
+    public static void destroyStatics() {
         storageIDs = null;
         looseGoods = null;
         reset = false;
-        setMessage(null);
+        PlayerDataView player = MiniModel.getInstance().getClientPlayer();
+        spaceShipView = player == null ? null : player.getShip();
     }
 
     @Override
@@ -60,18 +61,26 @@ public class LooseGoodsCards extends CardsGame {
                 .count();
 
         if (selected == num) {
-            destroyStatic();
-            return new LooseGoodsCards(nextScreen);
+            destroyStatics();
+            return new LooseGoodsCards();
         }
 
         if (selected == num + 1) {
-            StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object()).request(new SetPenaltyLoss(MiniModel.getInstance().getUserID(), 0, storageIDs));
-            destroyStatic();
-            if (status.get().equals("POTA")) {
+            StatusEvent status;
+            // Send the loosing goods to the server
+            status = SetPenaltyLoss.requester(Client.transceiver, new Object()).request(new SetPenaltyLoss(MiniModel.getInstance().getUserID(), 0, storageIDs));
+            destroyStatics();
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
-                return new LooseGoodsCards(nextScreen);
+                return new LooseGoodsCards();
             }
-            spaceShipView = clientPlayer.getShip();
+            // End the turn after discarding goods
+            status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
+                setMessage(((Pota) status).errorMessage());
+                return new LooseGoodsCards();
+            }
+
             return nextScreen;
         }
 
@@ -90,6 +99,6 @@ public class LooseGoodsCards extends CardsGame {
         }
 
         setMessage("You are dropping " + line);
-        return new LooseGoodsCards(nextScreen);
+        return new LooseGoodsCards();
     }
 }

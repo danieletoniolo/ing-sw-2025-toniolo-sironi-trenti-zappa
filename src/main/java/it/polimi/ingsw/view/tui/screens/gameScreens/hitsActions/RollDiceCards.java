@@ -21,8 +21,9 @@ public class RollDiceCards extends CardsGame {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
+        // Player roll the dice
         StatusEvent status = RollDice.requester(Client.transceiver, new Object()).request(new RollDice(MiniModel.getInstance().getUserID()));
-        if (status.get().equals("POTA")) {
+        if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
         }
 

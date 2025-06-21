@@ -6,7 +6,7 @@ import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.state.LobbyState;
 import it.polimi.ingsw.model.state.State;
-import it.polimi.ingsw.model.state.SynchronousStateException;
+import it.polimi.ingsw.model.state.exception.SynchronousStateException;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 

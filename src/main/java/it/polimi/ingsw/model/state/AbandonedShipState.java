@@ -34,7 +34,7 @@ public class AbandonedShipState extends State {
             eventCallback.trigger(cardPlayedEvent);
         }
         else {
-            throw new IllegalStateException("OtherPlayer " + player.getUsername() + " does not have enough crew to play");
+            throw new IllegalStateException("Player " + player.getUsername() + " does not have enough crew to play");
         }
     }
 
@@ -72,7 +72,7 @@ public class AbandonedShipState extends State {
     @Override
     public void execute(PlayerData player) throws NullPointerException, IllegalStateException {
         if (player == null) {
-            throw new NullPointerException("OtherPlayer is null");
+            throw new NullPointerException("Player is null");
         }
         if (super.played) {
             throw new IllegalStateException("State already played");

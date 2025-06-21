@@ -2,7 +2,6 @@ package it.polimi.ingsw.view.tui.screens;
 
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
-import org.jline.terminal.Terminal;
 
 public class ConnectionLost implements TuiScreenView {
     @Override
@@ -11,7 +10,7 @@ public class ConnectionLost implements TuiScreenView {
     }
 
     @Override
-    public void printTui(Terminal terminal) {
+    public void printTui() {
         TerminalUtils.clearLastLines(1);
 
         TerminalUtils.printLine("Connection with the server lost. Closing program...", 1);

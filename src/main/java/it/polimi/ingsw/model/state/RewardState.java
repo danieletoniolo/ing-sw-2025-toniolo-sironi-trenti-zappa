@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class EndState extends State {
+public class RewardState extends State {
     private final Map<PlayerData, Integer> scores;
     private final Level level;
     private EndInternalState internalState;
@@ -23,19 +23,22 @@ public class EndState extends State {
     /**
      * Enum to represent the internal state of the end state.
      */
-    private enum EndInternalState {
+    enum EndInternalState {
         FINISH_ORDER,
         BEST_LOOKING_SHIP,
         SALE_OF_GOODS,
         LOSSES
     }
 
-    EndState (Board board, EventCallback callback, Level level, StateTransitionHandler transitionHandler) {
+    RewardState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         // Super constructor to initialize the board and players
         // Note: the super constructor will get only the players that have not given up
         super(board, callback, transitionHandler);
         // Add the player that has given up to the players list
         players.addAll(board.getGaveUpPlayers());
+        for (PlayerData player : players) {
+            this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
+        }
         // Set the player status to waiting for the players that have given up
         for (PlayerData player : players) {
             if (player != null && player.hasGivenUp()) {
@@ -43,7 +46,7 @@ public class EndState extends State {
             }
         }
         this.scores = new HashMap<>();
-        this.level = level;
+        this.level = board.getBoardLevel();
         this.internalState = EndInternalState.FINISH_ORDER;
     }
 

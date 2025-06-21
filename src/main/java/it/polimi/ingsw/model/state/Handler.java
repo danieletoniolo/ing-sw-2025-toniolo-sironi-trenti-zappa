@@ -5,10 +5,7 @@ import it.polimi.ingsw.event.game.serverToClient.energyUsed.BatteriesLoss;
 import it.polimi.ingsw.event.game.serverToClient.goods.UpdateGoodsExchange;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceship;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.ComponentDestroyed;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.Fragments;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.UpdateCrewMembers;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.game.board.Level;
@@ -16,6 +13,7 @@ import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.good.GoodType;
 import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.*;
+import it.polimi.ingsw.model.state.utils.MutablePair;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
@@ -28,10 +26,10 @@ import java.util.*;
  */
 public class Handler {
 
-    static Event protectFromHit(PlayerData player, Pair<Component, Integer> protectionResult, int batteryID) {
+    static Event protectFromHit(PlayerData player, MutablePair<Component, Integer> protectionResult, int batteryID) {
         SpaceShip ship = player.getSpaceShip();
-        Component component = protectionResult.getValue0();
-        int protectionType = protectionResult.getValue1();
+        Component component = protectionResult.getFirst();
+        int protectionType = protectionResult.getSecond();
 
         if (protectionType == 0 || protectionType == -1) {
             if (batteryID != -1 && protectionType != -1) {
@@ -59,23 +57,46 @@ public class Handler {
         }
     }
 
-    static Event destroyFragment(PlayerData player, List<Pair<Integer, Integer>> fragments) {
+    static List<Event> destroyFragment(PlayerData player, List<Pair<Integer, Integer>> fragments) {
         SpaceShip ship = player.getSpaceShip();
+        List<Event> events = new ArrayList<>();
+        boolean isEngine = false, isCannon = false;
+
         for (Pair<Integer, Integer> fragment : fragments) {
             ship.destroyComponent(fragment.getValue0(), fragment.getValue1());
+
+            if (ship.getComponent(fragment.getValue0(), fragment.getValue1()).getComponentType() == ComponentType.SINGLE_ENGINE ||
+                ship.getComponent(fragment.getValue0(), fragment.getValue1()).getComponentType() == ComponentType.DOUBLE_ENGINE) {
+                isEngine = true;
+            } else if (ship.getComponent(fragment.getValue0(), fragment.getValue1()).getComponentType() == ComponentType.SINGLE_CANNON ||
+                    ship.getComponent(fragment.getValue0(), fragment.getValue1()).getComponentType() == ComponentType.DOUBLE_CANNON) {
+                isCannon = true;
+            }
         }
-        return new ComponentDestroyed(player.getUsername(), fragments);
+
+        ComponentDestroyed componentDestroyed = new ComponentDestroyed(player.getUsername(), fragments);
+        events.add(componentDestroyed);
+
+        if (isEngine) {
+            SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), ship.getSingleEnginesStrength(), ship.getSingleEnginesStrength() + ship.getDoubleEnginesStrength());
+            events.add(engineStrength);
+        } else if (isCannon) {
+            SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), ship.getSingleCannonsStrength(), ship.getSingleCannonsStrength() + ship.getDoubleCannonsStrength());
+            events.add(cannonStrength);
+        }
+
+        return events;
     }
 
-    static Pair<Event, Event> rollDice(PlayerData player, Hit hit, Pair<Component, Integer> protectionResult) {
+    static Pair<Event, Event> rollDice(PlayerData player, Hit hit, MutablePair<Component, Integer> protectionResult) {
         int firstDice = (int) (Math.random() * 6) + 1;
         int secondDice = (int) (Math.random() * 6) + 1;
         SpaceShip ship = player.getSpaceShip();
-        Pair<Component, Integer> result = ship.canProtect(firstDice + secondDice, hit);
-        protectionResult.setAt0(result.getValue0());
-        protectionResult.setAt1(result.getValue1());
+        Pair<Component, Integer> result = ship.canProtect(firstDice + secondDice - 1, hit);
+        protectionResult.setFirst(result.getValue0());
+        protectionResult.setSecond(result.getValue1());
 
-        return new Pair<>(new CanProtect(player.getUsername(), new Pair<>(result.getValue0().getID(), result.getValue1())), new DiceRolled(player.getUsername(), firstDice, secondDice));
+        return new Pair<>(new CanProtect(player.getUsername(), new Pair<>(result.getValue0() == null ? null : result.getValue0().getID(), result.getValue1())), new DiceRolled(player.getUsername(), firstDice, secondDice));
     }
 
     static Event useExtraStrength(PlayerData player, int type, List<Integer> cannonsOrEnginesID, List<Integer> batteriesID) throws IllegalStateException {
@@ -134,7 +155,7 @@ public class Handler {
         }
         PriorityQueue<Good> mostValuableGoods = new PriorityQueue<>(player.getSpaceShip().getGoods());
 
-        if (goodsToDiscardQueue.size() < requiredGoodLoss && mostValuableGoods.size() < requiredGoodLoss) {
+        if (goodsToDiscardQueue.size() < requiredGoodLoss && mostValuableGoods.size() < requiredGoodLoss && player.getSpaceShip().getGoods().size() >= requiredGoodLoss) {
             throw new IllegalStateException("We have not set enough goods to discard");
         }
         if (goodsToDiscardQueue.size() > requiredGoodLoss) {
@@ -175,6 +196,10 @@ public class Handler {
                 throw new IllegalStateException("Not enough energy in battery " + batteryID);
             }
         }
+
+        if (batteriesID.size() < requiredBatteryLoss && player.getSpaceShip().getEnergyNumber() >= requiredBatteryLoss) {
+            throw new IllegalStateException("We have not set enough energy to discard");
+        }
         // Check if the number of batteries to remove is equal to the number of batteries required to lose
         // The number of batteries to lose is the number of goods to discard minus the number of goods already discarded
         if (batteriesID.size() > requiredBatteryLoss) {
@@ -212,13 +237,17 @@ public class Handler {
         if (cabinsID.size() < requiredCrewLoss && ship.getCrewNumber() > cabinsID.size()) {
             throw new IllegalStateException("We have not set enough crew members to lose");
         }
+
         // Remove the crew members from the cabins
         for (int cabinID : cabinCrewMap.keySet()) {
             ship.removeCrewMember(cabinID, cabinCrewMap.get(cabinID));
         }
         // Convert the cabin crew map to a format expected by the event
-        List<Triplet<Integer, Integer, Integer>> cabins = cabinCrewMap.entrySet().stream()
-                .map(entry -> new Triplet<>(entry.getKey(), entry.getValue(), ship.getCabin(entry.getKey()).hasBrownAlien() ? 1 : ship.getCabin(entry.getKey()).hasPurpleAlien() ? 2 : 0)).toList();
+        List<Triplet<Integer, Integer, Integer>> cabins = cabinCrewMap.keySet().stream()
+                .map(cabinID -> {
+                    Cabin cabin = ship.getCabin(cabinID);
+                    return new Triplet<>(cabinID, cabin.getCrewNumber(), cabin.hasBrownAlien() ? 1 : cabin.hasPurpleAlien() ? 2 : 0);
+                }).toList();
 
         // Trigger the event to update the crew members
         return new UpdateCrewMembers(player.getUsername(), cabins);
@@ -386,7 +415,7 @@ public class Handler {
 
                 componentsRotations = new int[]{
                         0, 0, 3, 0, 1,
-                        0, 3, 0, 1, 0,
+                        0, 3, 0, 1, 3,
                         1, 0, 0, 0, 1,
                         2, 2, 2, 0, 0,
                         0, 0, 0, 0, 0,

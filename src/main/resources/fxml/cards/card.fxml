@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="it.polimi.ingsw.view.gui.controllers.cards.CardController">
+<StackPane fx:id="parent" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="it.polimi.ingsw.view.gui.controllers.cards.CardController">
 
     <ImageView fx:id="cardImage"
                fitWidth="331.0"
@@ -12,4 +12,4 @@
                pickOnBounds="true"
                preserveRatio="true"
     />
-</AnchorPane>
+</StackPane>

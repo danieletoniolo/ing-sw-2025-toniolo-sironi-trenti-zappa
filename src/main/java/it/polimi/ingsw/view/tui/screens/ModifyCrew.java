@@ -5,7 +5,6 @@ import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
-import org.jline.terminal.Terminal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +68,7 @@ public abstract class ModifyCrew implements TuiScreenView {
     }
 
     @Override
-    public void printTui(Terminal terminal) {
+    public void printTui() {
         List<String> newLines = new ArrayList<>();
 
         int playerCount = 0;
@@ -80,7 +79,7 @@ public abstract class ModifyCrew implements TuiScreenView {
             if (i <= spaceShipView.getDiscardReservedPile().getRowsToDraw()) {
                 line.append(spaceShipView.getDiscardReservedPile().drawLineTui(i));
             }
-            else if (i > ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + 1) - 1 && i <= ((spaceShipView.getRowsToDraw() - 2) / 5 * 4 + clientPlayer.getRowsToDraw())) {
+            else if (i > ((spaceShipView.getRowsToDraw() - 2) / 5 * 3 + 1) - 1 && i <= ((spaceShipView.getRowsToDraw() - 2) / 5 * 3 + clientPlayer.getRowsToDraw())) {
                 line.append("   ").append(clientPlayer.drawLineTui(playerCount));
                 if (playerCount == 0) {
                     line.append("    ");

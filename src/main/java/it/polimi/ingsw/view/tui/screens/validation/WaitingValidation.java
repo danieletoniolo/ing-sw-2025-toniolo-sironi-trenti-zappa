@@ -4,9 +4,9 @@ import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.screens.ClosingProgram;
 import it.polimi.ingsw.view.tui.screens.OtherPlayer;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
-import it.polimi.ingsw.view.tui.screens.ValidationTuiScreen;
+import it.polimi.ingsw.view.tui.screens.Validation;
 
-public class WaitingValidation extends ValidationTuiScreen {
+public class WaitingValidation extends Validation {
 
     public WaitingValidation() {
         super(null);

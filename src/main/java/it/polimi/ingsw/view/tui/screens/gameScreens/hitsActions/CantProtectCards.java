@@ -24,8 +24,9 @@ public class CantProtectCards extends CardsGame {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
+        // Player is ready for the next hit, so we end the turn
         StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
-        if (status.get().equals("POTA")) {
+        if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
             return this;
         }

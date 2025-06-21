@@ -1,6 +1,5 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.exchangeGoods;
 
-import it.polimi.ingsw.view.Manager;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.components.StorageView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;

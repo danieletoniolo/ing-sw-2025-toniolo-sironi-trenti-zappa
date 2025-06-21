@@ -17,7 +17,7 @@ public class EngineBatteryCards extends ManagerEnginesCards {
 
             if (enginesIDs.size() > batteriesIDs.size()) {
                 spaceShipView.getMapBatteries().forEach(
-                        (key, value) -> {
+                        (_, value) -> {
                             if (value.getNumberOfBatteries() != 0) {
                                 add("Use battery " + "(" + value.getRow() + " " + value.getCol() + ")");
                             }
@@ -53,17 +53,20 @@ public class EngineBatteryCards extends ManagerEnginesCards {
 
         if (selected == num + 1) {
             StatusEvent status;
+            // Send the request to use engines and batteries
             status = UseEngines.requester(Client.transceiver, new Object()).request(new UseEngines(MiniModel.getInstance().getUserID(), enginesIDs, batteriesIDs));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
+                destroyStatics();
                 return new ChooseDoubleEngineCards();
             }
+            // Send the request to end the turn
             status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
+                destroyStatics();
                 return new ChooseDoubleEngineCards();
             }
-            setMessage(null);
             destroyStatics();
             return nextScreen;
         }

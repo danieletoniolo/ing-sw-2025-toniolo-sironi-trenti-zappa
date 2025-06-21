@@ -30,8 +30,9 @@ public class PickCommands extends Building {
 
         StatusEvent status;
         if (selected == 0) {
+            // Pick an hidden component from the board
             status = PickTileFromBoard.requester(Client.transceiver, new Object()).request(new PickTileFromBoard(MiniModel.getInstance().getUserID(), -1));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
                 return this;
             }
@@ -42,8 +43,9 @@ public class PickCommands extends Building {
         }
 
         if (selected == 2) {
+            // Pick the last component put on the spaceship
             status = PickTileFromSpaceship.requester(Client.transceiver, new Object()).request(new PickTileFromSpaceship(MiniModel.getInstance().getUserID()));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
                 return this;
             }

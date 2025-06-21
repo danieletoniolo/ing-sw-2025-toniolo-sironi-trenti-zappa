@@ -7,13 +7,13 @@ import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
-import it.polimi.ingsw.view.tui.screens.ValidationTuiScreen;
+import it.polimi.ingsw.view.tui.screens.Validation;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ValidationFragments extends ValidationTuiScreen {
+public class ValidationFragments extends Validation {
 
     public ValidationFragments() {
         super(new ArrayList<>(){{
@@ -38,14 +38,16 @@ public class ValidationFragments extends ValidationTuiScreen {
 
         StatusEvent status;
         if (selected >= 0 && selected < MiniModel.getInstance().getClientPlayer().getShip().getFragments().size()) {
+            // Send the choose fragment request to the server
             status = ChooseFragment.requester(Client.transceiver, new Object()).request(new ChooseFragment(MiniModel.getInstance().getUserID(), selected));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
                 return this;
             }
 
+            // End the turn after choosing fragments
             status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
                 return this;
             }

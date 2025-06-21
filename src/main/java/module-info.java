@@ -24,6 +24,12 @@ module GalaxyTrucker {
     exports it.polimi.ingsw.view.gui.controllers.deck;
     opens it.polimi.ingsw.view.gui.controllers.deck to javafx.fxml;
 
+    exports it.polimi.ingsw.view.gui.controllers.board;
+    opens it.polimi.ingsw.view.gui.controllers.board to javafx.fxml;
+
+    exports it.polimi.ingsw.view.gui.controllers.misc;
+    opens it.polimi.ingsw.view.gui.controllers.misc to javafx.fxml;
+
     opens it.polimi.ingsw.view.gui to javafx.fxml;
     exports it.polimi.ingsw.view.gui;
 

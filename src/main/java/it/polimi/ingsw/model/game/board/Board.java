@@ -101,7 +101,7 @@ public class Board implements Serializable {
             throw new IllegalStateException("There is no deck in the learning level");
         }
         if (player == null) {
-            throw new NullPointerException("OtherPlayer is null");
+            throw new NullPointerException("Player is null");
         }
         if (index < 0 || index >= this.decks.length) {
             throw new IndexOutOfBoundsException("Index is out of bounds");
@@ -128,7 +128,7 @@ public class Board implements Serializable {
             throw new IllegalStateException("There is no deck in the learning level");
         }
         if (player == null) {
-            throw new NullPointerException("OtherPlayer is null");
+            throw new NullPointerException("Player is null");
         }
         if (index < 0 || index >= this.decks.length) {
             throw new IndexOutOfBoundsException("Index is out of bounds");
@@ -211,7 +211,7 @@ public class Board implements Serializable {
      */
     public void setPlayer(PlayerData player, int position) throws NullPointerException, IndexOutOfBoundsException, IllegalStateException{
         if (player == null) {
-            throw new NullPointerException("OtherPlayer is null");
+            throw new NullPointerException("Player is null");
         }
         if (position < 0 || position >= 4) {
             throw new IndexOutOfBoundsException("The position is not acceptable");
@@ -279,7 +279,7 @@ public class Board implements Serializable {
      */
     public void addSteps(PlayerData player, int steps) throws NullPointerException {
         if (player == null) {
-            throw new NullPointerException("OtherPlayer is null");
+            throw new NullPointerException("Player is null");
         }
 
         int i = 0;

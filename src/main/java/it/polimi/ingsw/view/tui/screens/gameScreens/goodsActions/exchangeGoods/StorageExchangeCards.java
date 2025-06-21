@@ -39,9 +39,10 @@ public class StorageExchangeCards extends ManagerExchangeGoodsCards {
             }
         }
         if (selected == num) {
+            // Send the request to exchange goods
             StatusEvent status = ExchangeGoods.requester(Client.transceiver, new Object()).request(
                     new ExchangeGoods(MiniModel.getInstance().getUserID(), exchanges));
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
             }
             else {

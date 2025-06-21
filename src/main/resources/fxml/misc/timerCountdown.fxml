@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Arc?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<StackPane fx:id="parent" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="it.polimi.ingsw.view.gui.controllers.misc.TimerCountdownController"
+           prefWidth="300.0" prefHeight="300.0">
+    <Group fx:id="timerGroup" StackPane.alignment="CENTER">
+        <Circle id="circleBg" centerX="150" centerY="150" fill="#d8e0f1"
+                radius="140.0" stroke="#442282" strokeWidth="10" />
+        <Arc fx:id="arcProgress" centerX="150" centerY="150" fill="#442282"
+             radiusX="140.0" radiusY="140.0" startAngle="90" stroke="#442282" strokeWidth="10" type="ROUND" />
+        <Circle id="circleFill" centerX="150" centerY="150" fill="#d8e0f1" layoutY="1.0" radius="90.0" />
+        <Label fx:id="labelTimer" alignment="CENTER" graphicTextGap="0.0" layoutX="75.0" layoutY="76.0"
+               prefHeight="150.0" prefWidth="150.0" style="-fx-font-size: 96; -fx-text-fill: #442282; -fx-font-weight: bold;"
+               text="00" textAlignment="CENTER" textFill="#442282" textOverrun="CENTER_ELLIPSIS">
+            <font>
+                <Font name="System Bold" size="96.0" />
+            </font>
+        </Label>
+    </Group>
+</StackPane>

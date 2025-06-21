@@ -39,10 +39,10 @@ public class ChooseLevel extends Menu {
     @Override
     public TuiScreenView setNewScreen() {
         if (selected == 0 || selected == 1) {
+            // Create a lobby with the selected level and max players
             StatusEvent status = CreateLobby.requester(Client.transceiver, new Object()).request(new CreateLobby(MiniModel.getInstance().getUserID(), maxPlayers, level));
             maxPlayers = 0;
-
-            if (status.get().equals("POTA")) {
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 TuiScreenView newScreen = new Menu();
                 newScreen.setMessage(((Pota) status).errorMessage());
                 return newScreen;
