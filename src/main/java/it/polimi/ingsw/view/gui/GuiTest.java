@@ -8,6 +8,7 @@ import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
 import it.polimi.ingsw.view.miniModel.components.BatteryView;
+import it.polimi.ingsw.view.miniModel.components.ViewablePileView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import javafx.application.Application;
 import javafx.scene.Node;
@@ -51,8 +52,13 @@ public class GuiTest extends Application {
         //Node root = b.getNode();
 
         BatteryView b = new BatteryView(1, new int[]{0, 0, 0, 0}, 0, 3 );
-        b.setNumberOfBatteries(3);
-        Node root = b.getNode();
+        ViewablePileView viewablePileView = new ViewablePileView();
+        viewablePileView.addComponent(b);
+        viewablePileView.addComponent(b);
+        viewablePileView.addComponent(b);
+        viewablePileView.addComponent(b);
+        viewablePileView.addComponent(b);
+        Node root = viewablePileView.getNode();
 
         Scene scene = new Scene((Parent) root);
         stage.setTitle("Hello!");
