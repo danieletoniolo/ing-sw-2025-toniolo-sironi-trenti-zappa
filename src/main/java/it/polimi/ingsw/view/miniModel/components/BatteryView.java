@@ -41,6 +41,7 @@ public class BatteryView extends ComponentView {
             controller.setModel(this);
 
             return root;
+
         } catch (IOException e) {
             e.printStackTrace();
             return null;

@@ -7,6 +7,7 @@ import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
@@ -15,26 +16,74 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
 
-public class TimerCountdownController implements MiniModelObserver {
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class TimerCountdownController implements MiniModelObserver, Initializable {
+    /**
+     * The StackPane that serves as the parent container for the timer.
+     */
     @FXML private StackPane parent;
+
+    /**
+     * The Group that contains the timer elements, including the arc and label.
+     */
     @FXML private Group timerGroup;
+
+    /**
+     * The Arc that represents the progress of the timer.
+     * It is used to visually indicate the remaining time.
+     */
     @FXML private Arc arcProgress;
+
+    /**
+     * The Label that displays the remaining time in seconds.
+     * It is updated every second during the countdown.
+     */
     @FXML private Label labelTimer;
 
+    /**
+     * The Timeline that manages the countdown.
+     * It updates the UI every second until the timer reaches zero.
+     */
     private Timeline timeline;
+
+    /**
+     * The total number of seconds for the countdown.
+     * It is set when the timer starts and used to calculate the remaining time.
+     */
     private int totalSeconds;
+
+    /**
+     * The remaining seconds in the countdown.
+     * It is decremented every second until it reaches zero.
+     */
     private int remainingSeconds;
 
+    /**
+     * The TimerView model associated with this controller.
+     * It is set via the setModel method after the FXML has been loaded.
+     */
     private TimerView timerView;
 
+
+    /**
+     * The original width of the timer group.
+     * This is used to calculate the scale factor when resizing.
+     */
     private static double ORIGINAL_WIDTH;
+
+    /**
+     * The original height of the timer group.
+     * This is used to calculate the scale factor when resizing.
+     */
     private static double ORIGINAL_HEIGHT;
 
     /**
      * Initializes the controller by binding the scale and position of the timer group
      */
-    @FXML
-    public void initialize() {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         // Load the default values for the original width and height
         this.setDefaultValues();
 

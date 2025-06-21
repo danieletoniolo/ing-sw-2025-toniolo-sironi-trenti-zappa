@@ -3,20 +3,22 @@ package it.polimi.ingsw.view.gui.controllers.board;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
-import it.polimi.ingsw.view.miniModel.timer.TimerView;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import org.javatuples.Pair;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
-public class BoardController implements MiniModelObserver {
+public class BoardController implements MiniModelObserver, Initializable {
 
     /**
      * The parent StackPane that contains the board group.
@@ -56,8 +58,8 @@ public class BoardController implements MiniModelObserver {
     private double ORIGINAL_IMAGE_WIDTH;
     private double ORIGINAL_IMAGE_HEIGHT;
 
-    @FXML
-    private void initialize() {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         setDefaultValues();
 
         boardGroup.scaleXProperty().unbind();

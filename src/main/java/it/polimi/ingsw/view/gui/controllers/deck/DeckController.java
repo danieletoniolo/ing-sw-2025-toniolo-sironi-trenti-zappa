@@ -4,15 +4,17 @@ import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.cards.CardView;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
+import java.util.ResourceBundle;
 
-public class DeckController implements MiniModelObserver {
+public class DeckController implements MiniModelObserver, Initializable {
     /**
      * The StackPane that serves as the parent container for the deck.
      */
@@ -39,8 +41,8 @@ public class DeckController implements MiniModelObserver {
      * Initializes the controller after the FXML has been loaded.
      * Sets up the layout and bindings for the deck and card panes.
      */
-    @FXML
-    private void initialize() {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         parent.setMinSize(0, 0);
         parent.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 

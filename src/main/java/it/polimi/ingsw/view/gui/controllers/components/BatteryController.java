@@ -3,18 +3,33 @@ package it.polimi.ingsw.view.gui.controllers.components;
 import it.polimi.ingsw.view.miniModel.components.BatteryView;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
+import java.net.URL;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 
-public class BatteryController extends ComponentController {
+public class BatteryController extends ComponentController implements Initializable {
     @FXML private HBox batteryPane;
 
     private static final Image BATTERY_IMG = new Image(Objects.requireNonNull(BatteryController.class.getResource("/image/misc/energy.png")).toExternalForm());
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        super.initialize(location, resources);
+
+        // Ensure the batteryPane can resize properly
+        batteryPane.setMinSize(0, 0);
+        batteryPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+        // Bind the batteryPane to the componentImage's width
+        batteryPane.prefWidthProperty().bind(componentImage.fitWidthProperty());
+        batteryPane.prefHeightProperty().bind(componentImage.fitHeightProperty());
+    }
 
     @Override
     public void setModel(ComponentView componentView){

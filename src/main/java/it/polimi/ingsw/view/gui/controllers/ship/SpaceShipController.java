@@ -6,6 +6,7 @@ import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Group;
@@ -13,9 +14,11 @@ import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.ResourceBundle;
 
-public class SpaceShipController implements MiniModelObserver {
+public class SpaceShipController implements MiniModelObserver, Initializable {
 
     /**
      * The StackPane that serves as the parent container for the ship area.
@@ -92,8 +95,8 @@ public class SpaceShipController implements MiniModelObserver {
      * Utility methods such as `setDefaultValue()` and `setupShipGridConstraints()` are invoked to
      * aid in initializing specific detailed aspects of the components.
      */
-    @FXML
-    private void initialize() {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         // Set the default value from the FXML
         setDefaultValue();
 

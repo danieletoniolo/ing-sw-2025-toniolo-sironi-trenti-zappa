@@ -3,6 +3,7 @@ package it.polimi.ingsw.view.gui.controllers.cards;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.cards.CardView;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -11,9 +12,11 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 
 import java.awt.*;
+import java.net.URL;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
-public class CardController implements MiniModelObserver {
+public class CardController implements MiniModelObserver, Initializable {
     /**
      * The StackPane that serves as the parent container for the card image.
      */
@@ -36,8 +39,8 @@ public class CardController implements MiniModelObserver {
      */
     private CardView cardView;
     
-    @FXML
-    private void initialize() {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
         parent.setMinSize(0, 0);
         parent.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 

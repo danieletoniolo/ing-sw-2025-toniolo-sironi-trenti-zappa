@@ -3,16 +3,12 @@ package it.polimi.ingsw.view.gui;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.good.Good;
-import it.polimi.ingsw.view.miniModel.board.BoardView;
-import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
-import it.polimi.ingsw.view.miniModel.deck.DeckView;
+import it.polimi.ingsw.view.miniModel.components.BatteryView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
-import it.polimi.ingsw.view.miniModel.player.MarkerView;
-import it.polimi.ingsw.view.miniModel.timer.TimerView;
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -54,21 +50,9 @@ public class GuiTest extends Application {
         //b.movePlayer(MarkerView.BLUE, 0);
         //Node root = b.getNode();
 
-        BoardView b = new BoardView(LevelView.SECOND, 4);
-        b.movePlayer(MarkerView.BLUE, 5);
-        b.movePlayer(MarkerView.RED, 10);
-        b.movePlayer(MarkerView.GREEN, 15);
-        b.movePlayer(MarkerView.YELLOW, 20);
-        Node r = b.getNode();
-
-
-        DeckView d = new DeckView();
-        d.addCard(new PiratesView(1, false, 1, 5, 6, 7, new ArrayList<>()));
-        d.addCard(new PlanetsView(2, false, 1, 3, new ArrayList<>()));
-        d.addCard(new SlaversView(3, false, 1, 4, 5, 6, 7));
-        d.setOnlyLast(true);
-
-        Node root = d.getNode();
+        BatteryView b = new BatteryView(1, new int[]{0, 0, 0, 0}, 0, 3 );
+        b.setNumberOfBatteries(3);
+        Node root = b.getNode();
 
         Scene scene = new Scene((Parent) root);
         stage.setTitle("Hello!");
