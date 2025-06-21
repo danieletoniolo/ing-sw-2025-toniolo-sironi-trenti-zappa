@@ -9,6 +9,7 @@ import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
+import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
 import it.polimi.ingsw.view.miniModel.timer.TimerView;
@@ -58,9 +59,16 @@ public class GuiTest extends Application {
         b.movePlayer(MarkerView.RED, 10);
         b.movePlayer(MarkerView.GREEN, 15);
         b.movePlayer(MarkerView.YELLOW, 20);
-        Node root = b.getNode();
+        Node r = b.getNode();
 
 
+        DeckView d = new DeckView();
+        d.addCard(new PiratesView(1, false, 1, 5, 6, 7, new ArrayList<>()));
+        d.addCard(new PlanetsView(2, false, 1, 3, new ArrayList<>()));
+        d.addCard(new SlaversView(3, false, 1, 4, 5, 6, 7));
+        d.setOnlyLast(true);
+
+        Node root = d.getNode();
 
         Scene scene = new Scene((Parent) root);
         stage.setTitle("Hello!");

@@ -8,15 +8,27 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.StackPane;
 
+import java.awt.*;
 import java.util.Objects;
 
 public class CardController implements MiniModelObserver {
+    /**
+     * The StackPane that serves as the parent container for the card image.
+     */
+    @FXML private StackPane parent;
+
     /**
      * The ImageView that displays the card image.
      */
     @FXML
     private ImageView cardImage;
+
+    /**
+     * The Rectangle used to clip the card image.
+     */
+    @FXML private Rectangle clipRect;
 
     /**
      * The CardView model associated with this controller.
@@ -26,6 +38,12 @@ public class CardController implements MiniModelObserver {
     
     @FXML
     private void initialize() {
+        parent.setMinSize(0, 0);
+        parent.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+        cardImage.fitWidthProperty().bind(parent.widthProperty());
+        cardImage.fitHeightProperty().bind(parent.heightProperty());
+
        // Drag & drop setup for the card image
        cardImage.setOnDragDetected(event -> {
            Dragboard db = cardImage.startDragAndDrop(TransferMode.MOVE);
@@ -42,7 +60,7 @@ public class CardController implements MiniModelObserver {
     }
 
    /**
-    * Sets the model for this controller and loads the corresponding card image.
+    * Sets the {@link CardView} model for this controller and registers it as an observer.
     *
     * @param   cardView the CardView model to set
     * @apiNote This method should be called after the FXML has been loaded
@@ -54,6 +72,10 @@ public class CardController implements MiniModelObserver {
        this.react();
     }
 
+    /**
+     * Reacts to changes in the CardView model.
+     * This method updates the card image based on the current state of the card.
+     */
     @Override
     public void react() {
         String path;
@@ -69,6 +91,5 @@ public class CardController implements MiniModelObserver {
         }
         Image img = new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
         cardImage.setImage(img);
-        cardImage.setFitWidth(cardView.getWidth());
     }
 }

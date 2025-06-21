@@ -73,6 +73,7 @@ public class DeckView implements MiniModelObservable {
         for (CardView card : deck) {
             card.setCovered(covered);
         }
+        notifyObservers();
     }
 
     public boolean isOnlyLast() {
@@ -85,10 +86,12 @@ public class DeckView implements MiniModelObservable {
         if (onlyLast) {
             deck.peek().setCovered(false);
         }
+        notifyObservers();
     }
 
     public void addCard(CardView card) {
         deck.push(card);
+        notifyObservers();
     }
 
     public void popCard() {
@@ -109,6 +112,7 @@ public class DeckView implements MiniModelObservable {
             }
             Collections.swap(deck, j, i);
         }
+        notifyObservers();
     }
 
     public static int getRowsToDraw() {
