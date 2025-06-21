@@ -31,7 +31,7 @@ public class AbandonedStationState extends State {
             eventCallback.trigger(cardPlayedEvent);
         }
         else {
-            throw new IllegalStateException("OtherPlayer " + player.getUsername() + " does not have enough crew to play");
+            throw new IllegalStateException("Player " + player.getUsername() + " does not have enough crew to play");
         }
     }
 
@@ -46,12 +46,12 @@ public class AbandonedStationState extends State {
     public void setGoodsToExchange(PlayerData player, List<Triplet<List<Good>, List<Good>, Integer>> exchangeData) {
         // Check that the player has selected to play
         if (playersStatus.get(player.getColor()) != PlayerStatus.PLAYING) {
-            throw new IllegalStateException("OtherPlayer " + player.getUsername() + " has not selected to play");
+            throw new IllegalStateException("Player " + player.getUsername() + " has not selected to play");
         }
 
         // Has the player selected to play?
         if (playersStatus.get(player.getColor()) != PlayerStatus.PLAYING) {
-            throw new IllegalStateException("OtherPlayer " + player.getUsername() + " has not selected to play");
+            throw new IllegalStateException("Player " + player.getUsername() + " has not selected to play");
         }
 
         Event exchangeEvent = Handler.exchangeGoods(player, exchangeData, card.getGoods());
@@ -68,7 +68,7 @@ public class AbandonedStationState extends State {
     public void swapGoods(PlayerData player, int storageID1, int storageID2, List<Good> goods1to2, List<Good> goods2to1) throws IllegalStateException {
         // Check that the player has selected to play
         if (playersStatus.get(player.getColor()) != State.PlayerStatus.PLAYING) {
-            throw new IllegalStateException("OtherPlayer " + player.getUsername() + " has not selected to play");
+            throw new IllegalStateException("Player " + player.getUsername() + " has not selected to play");
         }
 
         Event goodsSwappedEvent = Handler.swapGoods(player, storageID1, storageID2, goods1to2, goods2to1);

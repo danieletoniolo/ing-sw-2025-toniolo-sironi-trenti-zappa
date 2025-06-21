@@ -243,12 +243,13 @@ public class TuiManager implements Manager {
         if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
             synchronized (stateLock) {
                 currentScreen.setNextScreen(new LooseBatteryCards());
+                currentScreen.setMessage("You have no more goods, you must discard batteries");
                 stateLock.notifyAll();
             }
         }
         else {
             synchronized (stateLock) {
-                currentScreen.setMessage(data.nickname() + " has no more goods, they must discard batteries");
+                currentScreen.setMessage(data.nickname() + " has no more goods, batteries must be discarded");
                 stateLock.notifyAll();
             }
         }
