@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.gui.controllers.board;
 
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
+import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
@@ -40,13 +41,19 @@ public class BoardController implements MiniModelObserver, Initializable {
      * This list is initialized in the initialize method and sorted based on their IDs.
      * Used to manage the placement of player markers on the board.
      */
-    private List<Node> steps;
+    private List<Node> stepsNodes;
 
     /**
      * A list of Node objects representing timer steps.
      * This is used to display the timer steps on the board.
      */
-    private List<Node> timerSteps;
+    private List<Node> timerNodes;
+
+    /**
+     * A list of Node objects representing the decks on the board.
+     * This is used to display the decks in their respective positions.
+     */
+    private List<Node> decksNodes;
 
     /**
      * The BoardView model that this controller observes.
@@ -55,12 +62,12 @@ public class BoardController implements MiniModelObserver, Initializable {
     private BoardView boardView;
 
     // Original dimensions of the background image.
-    private double ORIGINAL_IMAGE_WIDTH;
-    private double ORIGINAL_IMAGE_HEIGHT;
+    private double ORIGINAL_WIDTH;
+    private double ORIGINAL_HEIGHT;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        setDefaultValues();
+        this.setDefaultValues();
 
         boardGroup.scaleXProperty().unbind();
         boardGroup.scaleYProperty().unbind();
@@ -74,8 +81,8 @@ public class BoardController implements MiniModelObserver, Initializable {
 
             if (parentWidth <= 0 || parentHeight <= 0) return 1.0;
 
-            double scaleX = parentWidth / ORIGINAL_IMAGE_WIDTH;
-            double scaleY = parentHeight / ORIGINAL_IMAGE_HEIGHT;
+            double scaleX = parentWidth / ORIGINAL_WIDTH;
+            double scaleY = parentHeight / ORIGINAL_HEIGHT;
 
             return Math.min(scaleX, scaleY);
         }, parent.widthProperty(), parent.heightProperty());
@@ -86,12 +93,12 @@ public class BoardController implements MiniModelObserver, Initializable {
 
         // Center the board group in the parent StackPane
         DoubleBinding centerXBinding = Bindings.createDoubleBinding(() -> {
-            double scaledWidth = scaleFactorBinding.get() * ORIGINAL_IMAGE_WIDTH;
+            double scaledWidth = scaleFactorBinding.get() * ORIGINAL_WIDTH;
             return (parent.getWidth() - scaledWidth) / 2.0;
         }, parent.widthProperty(), scaleFactorBinding);
 
         DoubleBinding centerYBinding = Bindings.createDoubleBinding(() -> {
-            double scaledHeight = scaleFactorBinding.get() * ORIGINAL_IMAGE_HEIGHT;
+            double scaledHeight = scaleFactorBinding.get() * ORIGINAL_HEIGHT;
             return (parent.getHeight() - scaledHeight) / 2.0;
         }, parent.heightProperty(), scaleFactorBinding);
 
@@ -100,17 +107,26 @@ public class BoardController implements MiniModelObserver, Initializable {
         boardGroup.translateYProperty().bind(centerYBinding);
 
         // Save the steps in a list and sort them based on their IDs
-        steps = new ArrayList<>(boardGroup.getChildren().filtered(node -> node instanceof StackPane && Integer.parseInt(node.getId()) >= 0));
-        steps.sort((a, b) -> {
+        stepsNodes = new ArrayList<>(boardGroup.getChildren().filtered(node -> node instanceof StackPane && Integer.parseInt(node.getId()) >= 0));
+        stepsNodes.sort((a, b) -> {
             if (a != null && b != null) {
                 return Integer.compare(Integer.parseInt(a.getId()), Integer.parseInt(b.getId()));
             }
             return 0; // Default case if not both are StackPane
         });
 
-        // The last three children are timer steps, so we filter them out
-        timerSteps = new ArrayList<>(boardGroup.getChildren().filtered(node -> node instanceof StackPane && Integer.parseInt(node.getId()) < 0));
-        timerSteps.sort((a, b) -> {
+        // Save the timer nodes in a list and sort them based on their IDs (ids: -1, -2, -3)
+        timerNodes = new ArrayList<>(boardGroup.getChildren().filtered(node -> node instanceof StackPane && Integer.parseInt(node.getId()) < 0 && Integer.parseInt(node.getId()) > -4));
+        timerNodes.sort((a, b) -> {
+            if (a != null && b != null) {
+                return Integer.compare(Integer.parseInt(b.getId()), Integer.parseInt(a.getId()));
+            }
+            return 0; // Default case if not both are StackPane
+        });
+
+        // Save the deck nodes in a list and sort them based on their IDs (ids: -4, -5, -6, -7)
+        decksNodes = new ArrayList<>(boardGroup.getChildren().filtered(node -> node instanceof StackPane && Integer.parseInt(node.getId()) < -3 && Integer.parseInt(node.getId()) > -8));
+        decksNodes.sort((a, b) -> {
             if (a != null && b != null) {
                 return Integer.compare(Integer.parseInt(b.getId()), Integer.parseInt(a.getId()));
             }
@@ -119,8 +135,8 @@ public class BoardController implements MiniModelObserver, Initializable {
     }
 
     private void setDefaultValues() {
-        ORIGINAL_IMAGE_WIDTH = backgroundImage.getFitWidth();
-        ORIGINAL_IMAGE_HEIGHT = backgroundImage.getFitHeight();
+        ORIGINAL_WIDTH = boardGroup.getLayoutBounds().getWidth();
+        ORIGINAL_HEIGHT = boardGroup.getLayoutBounds().getHeight();
     }
 
     public void setModel(BoardView boardView) {
@@ -132,7 +148,7 @@ public class BoardController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         // Clear the current steps from the board group
-        for (Node step : steps) {
+        for (Node step : stepsNodes) {
             StackPane stepNode = (StackPane) step;
             stepNode.getChildren().clear();
         }
@@ -140,11 +156,11 @@ public class BoardController implements MiniModelObserver, Initializable {
         // Reinitialize the steps based on the board view
         List<Pair< MarkerView, Integer>> playerPositions = boardView.getPlayerPositions();
         int numPlayers = boardView.getNumberOfPlayers();
-        int numberOfSteps = steps.size();
+        int numberOfSteps = stepsNodes.size();
 
         // Reset the marker in the waiting area
         for (int i = 0; i < numPlayers; i++) {
-            StackPane stepNode = (StackPane) steps.get(numberOfSteps-i-1);
+            StackPane stepNode = (StackPane) stepsNodes.get(numberOfSteps-i-1);
             stepNode.getChildren().add(MarkerView.fromValue(i).getNode());
         }
 
@@ -153,26 +169,40 @@ public class BoardController implements MiniModelObserver, Initializable {
             MarkerView marker = playerPosition.getValue0();
             int step = playerPosition.getValue1();
 
-            StackPane stepNode = (StackPane) steps.get(step);
+            StackPane stepNode = (StackPane) stepsNodes.get(step);
             stepNode.getChildren().add(marker.getNode());
 
-            ((StackPane) steps.get(numberOfSteps - marker.getValue() - 1)).getChildren().clear();
+            ((StackPane) stepsNodes.get(numberOfSteps - marker.getValue() - 1)).getChildren().clear();
         }
 
         // Update the timer if it exists
-        if (boardView.getTimerView() != null) {
-            for (Node timerStep : timerSteps) {
+        if (boardView.getTimerView() != null && !timerNodes.isEmpty()) {
+            for (Node timerStep : timerNodes) {
                 ((StackPane) timerStep).getChildren().clear();
             }
 
             int numberOfFlip = boardView.getTimerView().getNumberOfFlips();
             StackPane stackPane;
             if (numberOfFlip > 0) {
-                stackPane = (StackPane) timerSteps.get(numberOfFlip - 1);
+                stackPane = (StackPane) timerNodes.get(numberOfFlip - 1);
             } else {
-                stackPane = (StackPane) timerSteps.getFirst();
+                stackPane = (StackPane) timerNodes.getFirst();
             }
             stackPane.getChildren().add(boardView.getTimerView().getNode());
+        }
+
+        if (!decksNodes.isEmpty()) {
+            // Update the decks if they exist
+            DeckView[] decks = boardView.getDecksView().getValue0();
+            int i = 0;
+            for (DeckView deck : decks) {
+                if (deck != null) {
+                    StackPane deckNode = (StackPane) decksNodes.get(i);
+                    deckNode.getChildren().clear();
+                    deckNode.getChildren().add(deck.getNode());
+                    i++;
+                }
+            }
         }
     }
 }

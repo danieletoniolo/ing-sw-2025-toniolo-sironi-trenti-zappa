@@ -3,13 +3,17 @@ package it.polimi.ingsw.view.gui;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.good.Good;
+import it.polimi.ingsw.view.miniModel.board.BoardView;
+import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
 import it.polimi.ingsw.view.miniModel.components.BatteryView;
 import it.polimi.ingsw.view.miniModel.components.ViewablePileView;
+import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
+import it.polimi.ingsw.view.miniModel.player.MarkerView;
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -47,18 +51,9 @@ public class GuiTest extends Application {
         Node root = d.getNode();
          */
 
-        //BoardView b = new BoardView(LevelView.LEARNING, 2);
-        //b.movePlayer(MarkerView.BLUE, 0);
-        //Node root = b.getNode();
-
-        BatteryView b = new BatteryView(1, new int[]{0, 0, 0, 0}, 0, 3 );
-        ViewablePileView viewablePileView = new ViewablePileView();
-        viewablePileView.addComponent(b);
-        viewablePileView.addComponent(b);
-        viewablePileView.addComponent(b);
-        viewablePileView.addComponent(b);
-        viewablePileView.addComponent(b);
-        Node root = viewablePileView.getNode();
+        BoardView b = new BoardView(LevelView.SECOND, 2);
+        b.movePlayer(MarkerView.BLUE, 0);
+        Node root = b.getNode();
 
         Scene scene = new Scene((Parent) root);
         stage.setTitle("Hello!");
