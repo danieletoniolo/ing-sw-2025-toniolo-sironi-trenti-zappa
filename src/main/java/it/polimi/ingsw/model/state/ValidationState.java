@@ -110,13 +110,14 @@ public class ValidationState extends State {
 
         if (playerInvalidComponents.isEmpty()) {
             // Check if the ship is now fragmented
-            fragmentedComponents.put(player, ship.getDisconnectedComponents());
+            List<List<Pair<Integer, Integer>>> fragments = new ArrayList<>();
+            Event event = Handler.checkForFragments(player, fragments);
+            fragmentedComponents.put(player, fragments);
             if (fragmentedComponents.get(player).size() <= 1) {
                 playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
             }
 
-            Fragments fragmentsEvent = new Fragments(player.getUsername(), fragmentedComponents.get(player));
-            eventCallback.trigger(fragmentsEvent);
+            eventCallback.trigger(event);
         }
 
         super.nextState(GameState.CREW);

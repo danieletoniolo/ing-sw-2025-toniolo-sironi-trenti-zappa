@@ -9,6 +9,8 @@ public class PiratesView extends CardView {
     private final int credits;
     private final int flightDays;
     private final List<HitView> hits;
+    private int currentHit;
+
 
     public PiratesView(int ID, boolean covered, int level, int cannonRequires, int credits, int flightDays, List<HitView> hits) {
         super(ID, covered, level);
@@ -16,6 +18,7 @@ public class PiratesView extends CardView {
         this.credits = credits;
         this.flightDays = flightDays;
         this.hits = hits;
+        this.currentHit = -1;
     }
 
     @Override
@@ -27,9 +30,9 @@ public class PiratesView extends CardView {
             case 1 -> "│      PIRATES      │";
             case 2 -> Clear;
             case 3 -> "│  StrengthReq: " + getCannonRequires();
-            case 4 -> "│  Hit1: " + hits.get(0).drawHitTui();
-            case 5 -> "│  Hit2: " + hits.get(1).drawHitTui();
-            case 6 -> "│  Hit3: " + hits.get(2).drawHitTui();
+            case 4 -> "│  " + (currentHit == 0 ? drawCurrent() : " ") + "Hit1: " + hits.get(0).drawHitTui();
+            case 5 -> "│  " + (currentHit == 0 ? drawCurrent() : " ") + "Hit2: " + hits.get(1).drawHitTui();
+            case 6 -> "│  " + (currentHit == 0 ? drawCurrent() : " ") + "Hit3: " + hits.get(2).drawHitTui();
             case 7 -> "│  Credit: " + getCredits();
             case 8 -> "│   FlightDays: " + getFlightDays();
             case 9 -> Down;
@@ -43,6 +46,14 @@ public class PiratesView extends CardView {
             line.append("│");
         }
         return line.toString();
+    }
+
+    private String drawCurrent(){
+        return "◉";
+    }
+
+    public void nextHit() {
+        this.currentHit++;
     }
 
     public int getCannonRequires() {

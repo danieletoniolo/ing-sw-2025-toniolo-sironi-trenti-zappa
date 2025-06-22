@@ -39,6 +39,8 @@ import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.*;
 
+import java.util.Objects;
+
 
 public class TuiManager implements Manager {
     private final Object stateLock = new Object();
@@ -46,6 +48,7 @@ public class TuiManager implements Manager {
     private final Parser parser;
     private TuiScreenView cardScreen;
     private volatile boolean running;
+    private String rollDice;
 
     public TuiManager(Parser parser) {
         this.parser = parser;
@@ -224,7 +227,8 @@ public class TuiManager implements Manager {
     @Override
     public void notifyDiceRolled(DiceRolled data) {
         synchronized (stateLock) {
-            currentScreen.setMessage(data.nickname() + " rolled the dice: " + data.diceValue1() + " " + data.diceValue2());
+            rollDice = data.nickname() + " rolled the dice: " + data.diceValue1() + " " + data.diceValue2() + " -> " + (data.diceValue1() + data.diceValue2());
+            currentScreen.setMessage(rollDice);
         }
     }
 
@@ -256,11 +260,21 @@ public class TuiManager implements Manager {
     }
 
     @Override
-    public void notifyForceGiveUp(ForcingGiveUp data) {
+    public void notifyForcingGiveUp(ForcingGiveUp data) {
         synchronized (stateLock) {
-            currentScreen.setNextScreen(new ForceGiveUp());
-            currentScreen.setMessage(data.message());
-            stateLock.notifyAll();
+            if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
+                TuiScreenView forceGiveUp = new ForceGiveUp();
+                currentScreen.setNextScreen(forceGiveUp);
+                currentScreen = forceGiveUp;
+                currentScreen.setMessage(data.message());
+            }
+            else {
+                TuiScreenView notTurn = new NotClientTurnCards();
+                currentScreen.setNextScreen(notTurn);
+                currentScreen = notTurn;
+                currentScreen.setMessage(data.nickname() + " is forced to give up");
+            }
+            parser.changeScreen();
         }
     }
 
@@ -371,15 +385,25 @@ public class TuiManager implements Manager {
                 currentScreen.setMessage(data.nickname() + " has defeated enemies! Everyone is safe");
             } else { // Player loose
                 if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
-                    TuiScreenView nextScreen = switch (MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getCardViewType()) {
-                        case SLAVERS -> new LooseCrewCards();
-                        case SMUGGLERS -> new LooseGoodsCards();
-                        case PIRATES -> new RollDiceCards();
-                        default -> new NotClientTurnCards();
-                    };
+                    TuiScreenView nextScreen = null;
+
+                    CardViewType cardViewType = MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getCardViewType();
+                    if (Objects.requireNonNull(cardViewType) == CardViewType.SLAVERS) {
+                        nextScreen = new LooseCrewCards();
+                    } else if (cardViewType == CardViewType.SMUGGLERS) {
+                        nextScreen = new LooseGoodsCards();
+                    } else if (cardViewType == CardViewType.PIRATES) {
+                        nextScreen = new NotClientTurnCards();
+                        nextScreen.setMessage("You have lost the fight against pirates, prepare your defenses! At the end of the turn you will have to avoid their fires!");
+                    } else {
+                        nextScreen = new NotClientTurnCards();
+                    }
+
                     currentScreen.setNextScreen(nextScreen);
                 }
-                currentScreen.setMessage(data.nickname() + " has lost! Enemies are seeking a new target");
+                else {
+                    currentScreen.setMessage(data.nickname() + " has lost! Enemies are seeking a new target");
+                }
             }
             parser.changeScreen();
         }
@@ -482,7 +506,17 @@ public class TuiManager implements Manager {
                 else {
                     currentScreen.setNextScreen(new UseShieldCards());
                 }
+                currentScreen.setMessage(rollDice);
                 stateLock.notifyAll();
+            }
+        }
+        else {
+            synchronized (stateLock) {
+                TuiScreenView notTurn = new NotClientTurnCards();
+                currentScreen.setNextScreen(notTurn);
+                currentScreen = notTurn;
+                currentScreen.setMessage(data.nickname() + " is deciding ");
+                parser.changeScreen();
             }
         }
     }
@@ -505,7 +539,12 @@ public class TuiManager implements Manager {
             synchronized (stateLock) {
                 if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
                     if (data.fragments().size() > 1) {
-                        currentScreen.setNextScreen(new ValidationFragments());
+                        if (MiniModel.getInstance().getGamePhase() == GamePhases.VALIDATION) {
+                            currentScreen.setNextScreen(new ValidationFragments());
+                        }
+                        if (MiniModel.getInstance().getGamePhase() == GamePhases.CARDS) {
+                            currentScreen.setNextScreen(new ChooseFragmentsCards());
+                        }
                     }
                 } else {
                     if (data.fragments().size() > 1) {
@@ -538,14 +577,18 @@ public class TuiManager implements Manager {
     public void notifyNextHit(NextHit data) {
         synchronized (stateLock) {
             if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
-                currentScreen = new RollDiceCards();
-                parser.changeScreen();
+                TuiScreenView rollDice = new RollDiceCards();
+                currentScreen.setNextScreen(rollDice);
+                currentScreen = rollDice;
                 currentScreen.setMessage("New hit is coming! Good luck");
             }
             else {
+                TuiScreenView notTurn = new NotClientTurnCards();
+                currentScreen.setNextScreen(notTurn);
+                currentScreen = notTurn;
                 currentScreen.setMessage("New hit is going to hit " + data.nickname());
-                stateLock.notifyAll();
             }
+            parser.changeScreen();
         }
     }
 

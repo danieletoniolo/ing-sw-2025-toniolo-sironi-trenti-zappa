@@ -50,7 +50,7 @@ public interface Manager {
     // Forcing internal state
     void notifyForcingBatteriesPenalty(ForcingBatteriesPenalty data);
 
-    void notifyForceGiveUp(ForcingGiveUp data);
+    void notifyForcingGiveUp(ForcingGiveUp data);
 
     // Goods
     void notifyUpdateGoodsExchange(UpdateGoodsExchange data);

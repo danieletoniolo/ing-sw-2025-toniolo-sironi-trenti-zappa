@@ -1,11 +1,9 @@
 package it.polimi.ingsw.model.spaceship;
 
-import it.polimi.ingsw.model.cards.hits.Direction;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerColor;
-import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
 import java.io.Serializable;
@@ -140,98 +138,6 @@ public class SpaceShip {
         components[pos][pos].setColumn(pos);
         cabins.put(components[pos][pos].getID(), (Cabin) components[pos][pos]);
         numberOfComponents = 1;
-    }
-
-    /**
-     * Find the component in the ship that is being hit from the given direction
-     * @param dice direction of the hit (Number picked by dice roll)
-     * @param direction direction of the hit (North, West, South, East)
-     * @return The component that is being hit from the given direction
-     */
-    private Component findHitComponent(int dice, Direction direction) {
-        switch (direction) {
-            case NORTH:
-                for (int i = 0; i < rows; i++) {
-                    if (components[i][dice] != null) return components[i][dice];
-                }
-                break;
-            case WEST:
-                for (int i = 0; i < cols; i++) {
-                    if (components[dice][i] != null) return components[dice][i];
-                }
-                break;
-            case SOUTH:
-                for (int i = rows - 1; i >= 0; i--) {
-                    if (components[i][dice] != null) return components[i][dice];
-                }
-                break;
-            case EAST:
-                for (int i = cols - 1; i >= 0; i--) {
-                    if (components[dice][i] != null) return components[dice][i];
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("The direction of the hit is not valid");
-        }
-        return null;
-    }
-
-    /**
-     * Check if the ship can shield from a hit
-     * @param direction direction of the hit (North, West, South, East)
-     * @return true if the ship can shield from the hit, false otherwise
-     */
-    private boolean canShield(int direction) {
-        for (Component[] row : components) {
-            for (Component comp : row) {
-                if (comp != null && comp.getComponentType() == ComponentType.SHIELD) {
-                    Shield shield = (Shield) comp;
-                    if (shield.canShield(direction)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Check if the ship can protect from a large meteor
-     * @param dice direction of the hit (Number picked by dice roll)
-     * @param direction direction of the hit (North, West, South, East)
-     * @return true if the ship can protect from the large meteor, false otherwise
-     */
-    private boolean canProtectFromLargeMeteor(int dice, int direction) {
-        if (level == Level.SECOND && direction % 2 != 0) {
-            for (int j = 0; j < 12; j++) {
-                if (isCannonProtecting(dice - 1, j, direction) || isCannonProtecting(dice + 1, j, direction)) {
-                    return true;
-                }
-            }
-        }
-        for (int j = 0; j < 12; j++) {
-            if (isCannonProtecting(direction % 2 == 0 ? j : dice, direction % 2 == 0 ? dice : j, direction)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Check if the cannon is protecting from the given direction
-     * @param row row of the cannon
-     * @param col column of the cannon
-     * @param direction direction of the hit (North, West, South, East)
-     * @return true if the cannon is protecting from the given direction, false otherwise
-     */
-    private boolean isCannonProtecting(int row, int col, int direction) {
-        Component comp = components[row][col];
-        if (comp != null) {
-            if (comp.getComponentType() == ComponentType.SINGLE_CANNON && comp.getClockwiseRotation() == direction) {
-                return true;
-            } else return comp.getComponentType() == ComponentType.DOUBLE_CANNON && comp.getClockwiseRotation() == direction;
-        }
-        return false;
     }
 
     /**
@@ -536,32 +442,89 @@ public class SpaceShip {
      * @throws IllegalArgumentException if the direction or the type of the hit is not valid
      */
     public Pair<Component, Integer> canProtect(int dice, Hit hit) throws IllegalArgumentException {
-        Component component = findHitComponent(dice, hit.getDirection());
+        Component component = null;
+        switch (hit.getDirection()) {
+            case NORTH:
+                for (int i = 0; i < rows && component == null; i++) {
+                    component = components[i][dice];
+                }
+                break;
+            case WEST:
+                for (int i = 0; i < cols && component == null; i++) {
+                    component = components[dice][i];
+                }
+                break;
+            case SOUTH:
+                for (int i = rows-1; i >= 0 && component == null; i--) {
+                    component = components[i][dice];
+                }
+                break;
+            case EAST:
+                for (int i = cols-1; i >= 0 && component == null; i--) {
+                    component = components[dice][i];
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("The direction of the hit is not valid");
+        }
         if (component == null) {
             return new Pair<>(null, 1);
         }
 
         switch (hit.getType()) {
             case SMALLMETEOR:
-                if (component.getConnection(hit.getDirection().getValue()) == ConnectorType.EMPTY) {
+                // Check if the component has a smooth side (EMPTY) where the hit is coming from
+                int direction = hit.getDirection().getValue();
+                if (component.getConnection((direction + 2) % 4) == ConnectorType.EMPTY) {
                     return new Pair<>(null, 1);
                 }
             case LIGHTFIRE:
-                if (canShield(hit.getDirection().getValue())) {
-                    return new Pair<>(component, 0);
+                for (int i = 0; i < 12; i++) {
+                    for (int j = 0; j < 12; j++) {
+                        if (components[i][j] != null && components[i][j].getComponentType() == ComponentType.SHIELD) {
+                            Shield shield = (Shield) components[i][j];
+                            if (shield.canShield(hit.getDirection().getValue())) {
+                                return new Pair<>(component, 0);
+                            }
+                        }
+                    }
                 }
-                break;
+                return new Pair<>(component, -1);
             case LARGEMETEOR:
-                if (canProtectFromLargeMeteor(dice, hit.getDirection().getValue())) {
-                    return new Pair<>(null, 1);
+                int targetRotation = 4 - hit.getDirection().getValue();
+                if (level == Level.SECOND && hit.getDirection().getValue() % 2 != 0) {
+                    for (int j = 0; j < 12; j++) {
+                        Component componentAbove = components[dice - 1][j];
+                        Component componentBelow = components[dice + 1][j];
+
+                        if (componentAbove.getComponentType() == ComponentType.SINGLE_CANNON && componentAbove.getClockwiseRotation() == targetRotation) {
+                            return new Pair<>(null, 1);
+                        } else if (componentAbove.getComponentType() == ComponentType.DOUBLE_CANNON && componentAbove.getClockwiseRotation() == targetRotation) {
+                            return new Pair<>(componentAbove, 0);
+                        }
+
+                        if (componentBelow.getComponentType() == ComponentType.SINGLE_CANNON && componentBelow.getClockwiseRotation() == targetRotation) {
+                            return new Pair<>(null, 1);
+                        } else if (componentBelow.getComponentType() == ComponentType.DOUBLE_CANNON && componentBelow.getClockwiseRotation() == targetRotation) {
+                            return new Pair<>(componentBelow, 0);
+                        }
+                    }
                 }
-                break;
+                for (int j = 0; j < 12; j++) {
+                    Component centerComponent = components[dice][j];
+
+                    if (centerComponent.getComponentType() == ComponentType.SINGLE_CANNON && centerComponent.getClockwiseRotation() == targetRotation) {
+                        return new Pair<>(null, 1);
+                    } else if (centerComponent.getComponentType() == ComponentType.DOUBLE_CANNON && centerComponent.getClockwiseRotation() == targetRotation) {
+                        return new Pair<>(centerComponent, 0);
+                    }
+                }
+                return new Pair<>(component, -1);
             case HEAVYFIRE:
-                break;
+                return new Pair<>(component, -1);
             default:
                 throw new IllegalArgumentException("The type of the hit is not valid");
         }
-        return new Pair<>(component, -1);
     }
 
     /**

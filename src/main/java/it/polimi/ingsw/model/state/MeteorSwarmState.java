@@ -82,10 +82,13 @@ public class MeteorSwarmState extends State {
         if (diceRolled) {
             throw new IllegalStateException("Dice already rolled for this hit");
         }
+        // TODO: roll dice
+        /*
         Pair<Event, Event> event = Handler.rollDice(player, card.getMeteors().get(hitIndex), protectionResult);
         eventCallback.trigger(event.getValue0());
         eventCallback.trigger(event.getValue1());
         diceRolled = true;
+        */
     }
 
     /**

@@ -125,6 +125,9 @@ public class EventHandlerClient {
     private final CastEventReceiver<ForcingBatteriesPenalty> forcingBatteriesPenaltyReceiver;
     private final EventListener<ForcingBatteriesPenalty> forcingBatteriesPenaltyListener;
 
+    private final CastEventReceiver<ForcingGiveUp> forcingGiveUpReceiver;
+    private final EventListener<ForcingGiveUp> forcingGiveUpListener;
+
     private final CastEventReceiver<UpdateGoodsExchange> updateGoodsExchangeReceiver;
     private final EventListener<UpdateGoodsExchange> updateGoodsExchangeListener;
 
@@ -190,9 +193,6 @@ public class EventHandlerClient {
 
     private final CastEventReceiver<PlayerGaveUp> playerGaveUpReceiver;
     private final EventListener<PlayerGaveUp> playerGaveUpListener;
-
-    private final CastEventReceiver<ForcingGiveUp> forcingGiveUpReceiver;
-    private final EventListener<ForcingGiveUp> forcingGiveUpListener;
 
     private final CastEventReceiver<CardPlayed> cardPlayedReceiver;
     private final EventListener<CardPlayed> cardPlayedListener;
@@ -637,7 +637,12 @@ public class EventHandlerClient {
         forcingBatteriesPenaltyListener = manager::notifyForcingBatteriesPenalty;
 
         forcingGiveUpReceiver = new CastEventReceiver<>(this.transceiver);
-        forcingGiveUpListener = manager::notifyForceGiveUp;
+        forcingGiveUpListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+
+            MiniModel.getInstance().setCurrentPlayer(player);
+            manager.notifyForcingGiveUp(data);
+        };
 
         // GOODS events
         /*
@@ -981,12 +986,16 @@ public class EventHandlerClient {
         bestLookingShipsReceiver = new CastEventReceiver<>(this.transceiver);
         bestLookingShipsListener = manager::notifyBestLookingShips;
 
-
         /*
          *
          */
         canProtectReceiver = new CastEventReceiver<>(this.transceiver);
-        canProtectListener = manager::notifyCanProtect;
+        canProtectListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+
+            MiniModel.getInstance().setCurrentPlayer(player);
+            manager.notifyCanProtect(data);
+        };
 
 
         /*
@@ -1005,7 +1014,6 @@ public class EventHandlerClient {
 
             manager.notifyComponentDestroyed(data);
         };
-
 
         /*
          * Set the fragments of the ship
@@ -1047,9 +1055,17 @@ public class EventHandlerClient {
          */
         nextHitReceiver = new CastEventReceiver<>(this.transceiver);
         nextHitListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+
+            MiniModel.getInstance().setCurrentPlayer(player);
             if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
-                MeteorSwarmView card = (MeteorSwarmView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
-                card.nextHit();
+                CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
+                if (card.getCardViewType() == CardViewType.METEORSSWARM) {
+                    ((MeteorSwarmView) card).nextHit();
+                }
+                if (card.getCardViewType() == CardViewType.PIRATES) {
+                    ((PiratesView) card).nextHit();
+                }
             }
             manager.notifyNextHit(data);
         };

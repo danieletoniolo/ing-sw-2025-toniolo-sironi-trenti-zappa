@@ -31,6 +31,6 @@ public class CantProtectCards extends CardsGame {
             return this;
         }
 
-        return new RollDiceCards();
+        return nextScreen;
     }
 }

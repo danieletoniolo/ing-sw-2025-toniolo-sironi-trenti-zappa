@@ -134,9 +134,12 @@ public class CombatZoneState extends State {
                 (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
             throw new IllegalStateException("Dice not allowed in this state");
         }
+        // TODO: roll dice
+        /*
         Pair<Event, Event> event = Handler.rollDice(player, card.getFires().get(hitIndex), protectionResult);
         eventCallback.trigger(event.getValue0());
         eventCallback.trigger(event.getValue1());
+        */
     }
 
     /**
@@ -310,7 +313,7 @@ public class CombatZoneState extends State {
                 break;
             case CREW_PENALTY:
                 if (currentPenaltyLoss > 0) {
-                    Event event = new ForcingGiveUp("You have lost all your crew members, you have to give up");
+                    Event event = new ForcingGiveUp(player.getUsername(), "You have lost all your crew members, you have to give up");
                     eventCallback.trigger(event, player.getUUID());
                 } else {
                     internalState = CombatZoneInternalState.CANNONS;

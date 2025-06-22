@@ -83,8 +83,8 @@ public class CardsManager {
                 - Smugglers
                 -
          */
-        //                12  9  6  3  11   8  5  2  10   7  4  1
-        int[] cardsIDs = {21, 3, 8, 1, 23, 16, 2, 21, 4, 10, 0, 1};
+        //                12  9  6   3  11   8   5  2  10  7  4  1
+        int[] cardsIDs = {21, 3, 2, 22, 23, 16, 16, 22, 4, 10, 8, 2};
 
         for (int cardsID : cardsIDs) {
             selectedCards.add(cards[cardsID]);

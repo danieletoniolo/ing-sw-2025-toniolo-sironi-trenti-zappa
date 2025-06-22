@@ -50,11 +50,7 @@ public class Handler {
     static Event checkForFragments(PlayerData player, List<List<Pair<Integer, Integer>>> fragments) {
         SpaceShip ship = player.getSpaceShip();
         fragments.addAll(ship.getDisconnectedComponents());
-        if (fragments.size() > 1) {
-            return new Fragments(player.getUsername(), fragments);
-        } else {
-            return null;
-        }
+        return new Fragments(player.getUsername(), fragments);
     }
 
     static List<Event> destroyFragment(PlayerData player, List<Pair<Integer, Integer>> fragments) {
@@ -63,8 +59,6 @@ public class Handler {
         boolean isEngine = false, isCannon = false;
 
         for (Pair<Integer, Integer> fragment : fragments) {
-            ship.destroyComponent(fragment.getValue0(), fragment.getValue1());
-
             if (ship.getComponent(fragment.getValue0(), fragment.getValue1()).getComponentType() == ComponentType.SINGLE_ENGINE ||
                 ship.getComponent(fragment.getValue0(), fragment.getValue1()).getComponentType() == ComponentType.DOUBLE_ENGINE) {
                 isEngine = true;
@@ -72,6 +66,8 @@ public class Handler {
                     ship.getComponent(fragment.getValue0(), fragment.getValue1()).getComponentType() == ComponentType.DOUBLE_CANNON) {
                 isCannon = true;
             }
+
+            ship.destroyComponent(fragment.getValue0(), fragment.getValue1());
         }
 
         ComponentDestroyed componentDestroyed = new ComponentDestroyed(player.getUsername(), fragments);
@@ -88,15 +84,13 @@ public class Handler {
         return events;
     }
 
-    static Pair<Event, Event> rollDice(PlayerData player, Hit hit, MutablePair<Component, Integer> protectionResult) {
+    static Event rollDice(PlayerData player, MutablePair<Integer, Integer> dice) {
         int firstDice = (int) (Math.random() * 6) + 1;
         int secondDice = (int) (Math.random() * 6) + 1;
-        SpaceShip ship = player.getSpaceShip();
-        Pair<Component, Integer> result = ship.canProtect(firstDice + secondDice - 1, hit);
-        protectionResult.setFirst(result.getValue0());
-        protectionResult.setSecond(result.getValue1());
+        dice.setFirst(firstDice);
+        dice.setSecond(secondDice);
 
-        return new Pair<>(new CanProtect(player.getUsername(), new Pair<>(result.getValue0() == null ? null : result.getValue0().getID(), result.getValue1())), new DiceRolled(player.getUsername(), firstDice, secondDice));
+        return new DiceRolled(player.getUsername(), firstDice, secondDice);
     }
 
     static Event useExtraStrength(PlayerData player, int type, List<Integer> cannonsOrEnginesID, List<Integer> batteriesID) throws IllegalStateException {
