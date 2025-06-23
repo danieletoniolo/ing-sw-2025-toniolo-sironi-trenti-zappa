@@ -16,11 +16,9 @@ import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 
 public interface Manager {
-    void notifyUserIDSet();
+    void notifyNicknameSet(NicknameSet data);
 
     void notifyConnectionLost();
-
-    void notifyNicknameSet();
 
     void notifyLobbies();
 
@@ -33,8 +31,6 @@ public interface Manager {
     void notifyLobbyRemoved(LobbyRemoved data);
 
     void notifyReadyPlayer();
-
-    void notifyStartingGame(StartingGame data);
 
     void notifyCountDown();
 
@@ -117,7 +113,6 @@ public interface Manager {
     void notifyTimerFinished(TimerFlipped data);
 
     void notifyLastTimerFlipped();
-
 
     void notifyStateChange();
 }

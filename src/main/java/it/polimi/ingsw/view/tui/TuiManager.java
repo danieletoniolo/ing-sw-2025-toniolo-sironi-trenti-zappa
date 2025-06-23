@@ -100,7 +100,7 @@ public class TuiManager implements Manager {
     }
 
     @Override
-    public void notifyUserIDSet() {
+    public void notifyNicknameSet(NicknameSet data) {
 
     }
 
@@ -110,11 +110,6 @@ public class TuiManager implements Manager {
             currentScreen = new ConnectionLost();
             parser.changeScreen();
         }
-    }
-
-    @Override
-    public void notifyNicknameSet() {
-
     }
 
     @Override
@@ -143,12 +138,12 @@ public class TuiManager implements Manager {
         if (currentScreen.getType() == TuiScreens.Menu) {
             synchronized (stateLock) {
                 currentScreen = new Menu();
-                currentScreen.setMessage(data.nickname() + " has joined the lobby");
                 parser.changeScreen();
             }
         }
         else if (currentScreen.getType() == TuiScreens.Lobby) {
             synchronized (stateLock) {
+                currentScreen.setMessage(data.nickname() + " has joined the lobby");
                 stateLock.notifyAll();
             }
         }
@@ -157,10 +152,20 @@ public class TuiManager implements Manager {
     @Override
     public void notifyLobbyLeft(LobbyLeft data) {
         if (!data.nickname().equals(MiniModel.getInstance().getNickname()) && MiniModel.getInstance().getCurrentLobby() == null) {
-            synchronized (stateLock) {
-                currentScreen = new Menu();
-                currentScreen.setMessage(data.nickname() + " has left the lobby");
-                parser.changeScreen();
+            if (currentScreen.getType() == TuiScreens.Menu) {
+                synchronized (stateLock) {
+                    currentScreen = new Menu();
+                    parser.changeScreen();
+                }
+            }
+
+        }
+        else {
+            if (currentScreen.getType() == TuiScreens.Lobby) {
+                synchronized (stateLock) {
+                    currentScreen.setMessage(data.nickname() + " has left the lobby");
+                    stateLock.notifyAll();
+                }
             }
         }
     }
@@ -182,14 +187,6 @@ public class TuiManager implements Manager {
                 stateLock.notifyAll();
             }
         }
-    }
-
-    /**
-     * Change the screen: from lobby screen to building screen
-     */
-    @Override
-    public void notifyStartingGame(StartingGame data) {
-
     }
 
     /**

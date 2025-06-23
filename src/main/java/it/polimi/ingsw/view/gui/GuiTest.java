@@ -3,18 +3,19 @@ package it.polimi.ingsw.view.gui;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.good.Good;
-import it.polimi.ingsw.view.miniModel.board.BoardView;
+import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
+import it.polimi.ingsw.view.gui.screens.MenuController;
+import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
-import it.polimi.ingsw.view.miniModel.components.BatteryView;
-import it.polimi.ingsw.view.miniModel.components.ViewablePileView;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
-import it.polimi.ingsw.view.miniModel.player.MarkerView;
+import it.polimi.ingsw.view.miniModel.lobby.LobbyView;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -33,7 +34,7 @@ public class GuiTest extends Application {
         }
 
         Node root = pile.getNode();*/
-        /*
+
         AbandonedShipView a = new AbandonedShipView(17, false, 1, 2, 3, 4);
         a.setWidth(200);
         a.setCovered(true);
@@ -49,11 +50,6 @@ public class GuiTest extends Application {
         d.addCard(c);
         d.setCovered(true);
         Node root = d.getNode();
-         */
-
-        BoardView b = new BoardView(LevelView.SECOND, 2);
-        b.movePlayer(MarkerView.BLUE, 0);
-        Node root = b.getNode();
 
         Scene scene = new Scene((Parent) root);
         stage.setTitle("Hello!");

@@ -7,10 +7,13 @@ import it.polimi.ingsw.network.rmi.RMIConnection;
 import it.polimi.ingsw.network.tcp.TCPConnection;
 import it.polimi.ingsw.utils.Logger;
 import it.polimi.ingsw.view.EventHandlerClient;
+import it.polimi.ingsw.view.Manager;
+import it.polimi.ingsw.view.gui.GuiManager;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.TuiManager;
 import it.polimi.ingsw.view.tui.input.Parser;
+import javafx.application.Application;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
@@ -62,63 +65,45 @@ public class Client {
             }
         } while (!rmiOrSocket.equals("rmi") && !rmiOrSocket.equals("tcp"));
 
+        Manager ui;
         if (tuiOrGui.equals("tui")) {
-            TuiManager tui = new TuiManager(parser);
-
-            if (rmiOrSocket.equals("rmi")) {
-                EventHandlerClient manager = new EventHandlerClient(transceiver, tui);
-
-                /*System.out.print("Enter IP: ");
-                String address = sc.nextLine();*/
-                //String address = "140.238.173.150";
-                String address = "127.0.0.1";
-                //String address = "192.168.67.224";
-                //String address = "129.152.14.114";
-                Connection connection = new RMIConnection(address, 2551);
-                transceiver.connect(UUID.randomUUID(), connection);
-
-                MiniModel mm = MiniModel.getInstance();
-                synchronized (mm) {
-                    while (MiniModel.getInstance().getUserID() == null) {
-                        try {
-                            mm.wait();
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                }
-            } else {
-                EventHandlerClient manager = new EventHandlerClient(transceiver, tui);
-
-                /*System.out.print("Enter IP: ");
-                String address = sc.nextLine();*/
-                //String address = "140.238.173.150";
-                String address = "127.0.0.1";
-                //String address = "192.168.67.224";
-                //String address = "129.152.14.114";
-                Connection connection = new TCPConnection(address, 2550);
-                transceiver.connect(UUID.randomUUID(), connection);
-
-                MiniModel mm = MiniModel.getInstance();
-                synchronized (mm) {
-                    while (MiniModel.getInstance().getUserID() == null) {
-                        try {
-                            mm.wait();
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                }
-            }
-            tui.startTui();
+            ui = new TuiManager(parser);
         }
         else {
-            if (rmiOrSocket.equals("rmi")) {
-                //TODO: far partire rmi e gui
+            ui = new GuiManager();
+        }
+
+        new EventHandlerClient(transceiver, ui);
+        if (rmiOrSocket.equals("rmi")) {
+            /*System.out.print("Enter IP: ");
+            String address = sc.nextLine();*/
+            String address = "127.0.0.1";
+            Connection connection = new RMIConnection(address, 2551);
+            transceiver.connect(UUID.randomUUID(), connection);
+        } else {
+            /*System.out.print("Enter IP: ");
+            String address = sc.nextLine();*/
+            String address = "127.0.0.1";
+            Connection connection = new TCPConnection(address, 2550);
+            transceiver.connect(UUID.randomUUID(), connection);
+        }
+
+        MiniModel mm = MiniModel.getInstance();
+        synchronized (mm) {
+            while (MiniModel.getInstance().getUserID() == null) {
+                try {
+                    mm.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
-            else {
-                //TODO: far partire socket e gui
-            }
+        }
+
+        if (tuiOrGui.equals("tui")) {
+            ((TuiManager) ui).startTui();
+        }
+        else {
+            Application.launch(GuiManager.class, args);
         }
     }
 }

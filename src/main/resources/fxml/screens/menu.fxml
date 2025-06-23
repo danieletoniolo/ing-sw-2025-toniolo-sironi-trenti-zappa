@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<StackPane fx:id="parent" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.screens.MenuController">
+   <padding>
+      <Insets bottom="50.0" left="100.0" right="100.0" top="50.0" />
+   </padding>
+   <HBox alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" spacing="50.0" style="-fx-background-color: transparent;" StackPane.alignment="CENTER_LEFT">
+      <ImageView fx:id="titleImage" fitHeight="378.0" fitWidth="650.0" preserveRatio="true">
+         <Image url="@../../image/misc/title.png" />
+      </ImageView>
+      <VBox alignment="TOP_RIGHT" prefHeight="780.0" prefWidth="750.0" spacing="20.0" style="-fx-background-color: transparent;">
+         <Label fx:id="lobbyNameLabel" alignment="TOP_RIGHT" contentDisplay="CENTER" graphicTextGap="5.0" prefHeight="89.0" prefWidth="680.0" text="Available lobbies" textAlignment="CENTER" textFill="#f2ff00">
+            <font>
+               <Font name="System Bold" size="72.0" />
+            </font>
+            <effect>
+               <DropShadow />
+            </effect>
+         </Label>
+         <Button alignment="CENTER_RIGHT" mnemonicParsing="false" prefHeight="26.0" prefWidth="83.0" style="-fx-background-color: white; -fx-border-color: yellow; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10;" text="New lobby" textAlignment="CENTER">
+            <effect>
+               <DropShadow />
+            </effect>
+         </Button>
+         <ScrollPane fx:id="lobbyBoxScrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent;                      -fx-control-inner-background: transparent; -fx-background-radius: 10; -fx-viewport-border: transparent; -fx-background: transparent;">
+            <VBox fx:id="lobbyBoxVBox" alignment="TOP_CENTER" prefHeight="660.0" prefWidth="680.0" spacing="10.0" style="-fx-background-color: transparent;" />
+         </ScrollPane>
+         <padding>
+            <Insets left="40.0" right="20.0" />
+         </padding>
+         <HBox.margin>
+            <Insets bottom="20.0" />
+         </HBox.margin>
+      </VBox>
+   </HBox>
+</StackPane>

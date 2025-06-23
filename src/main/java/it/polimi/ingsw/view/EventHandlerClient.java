@@ -265,8 +265,7 @@ public class EventHandlerClient {
         CastEventReceiver<NicknameSet> nicknameSetReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<NicknameSet> nicknameSetListener = data -> {
             MiniModel.getInstance().setNickname(data.nickname());
-
-            manager.notifyNicknameSet();
+            manager.notifyNicknameSet(data);
             registerListeners();
         };
         nicknameSetReceiver.registerListener(nicknameSetListener);
@@ -421,7 +420,6 @@ public class EventHandlerClient {
                     }
                 }
                 MiniModel.getInstance().setCountDown(null);
-                manager.notifyStartingGame(data);
             }).start();
         };
 

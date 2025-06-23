@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<StackPane fx:id="messageRoot" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="80.0" prefWidth="900.0"
+           xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="it.polimi.ingsw.view.gui.controllers.misc.MessageController">
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+   <HBox fx:id="messageBox" alignment="CENTER_LEFT" minHeight="80.0" prefHeight="80.0" prefWidth="642.0" spacing="20.0" style="-fx-background-color: lightblue; -fx-background-radius: 15;">
+      <opaqueInsets>
+         <Insets />
+      </opaqueInsets>
+      <padding>
+         <Insets left="20.0" right="20.0" />
+      </padding>
+      <ImageView fitHeight="50.0" fitWidth="50.0">
+         <Image url="@../../image/misc/info.png"/>
+      </ImageView>
+      <Label fx:id="messageText" prefHeight="23.0" prefWidth="700.0" text="Content of the message" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Label>
+      <Button fx:id="closeButton" mnemonicParsing="false" style="-fx-border-color: white; -fx-border-radius: 10; -fx-border-width: 2; -fx-background-color: transparent;" text="Chiudi" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="13.0" />
+         </font>
+      </Button>
+   </HBox>
+</StackPane>
