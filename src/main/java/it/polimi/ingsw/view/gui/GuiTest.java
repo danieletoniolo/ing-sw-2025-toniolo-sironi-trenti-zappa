@@ -34,7 +34,7 @@ public class GuiTest extends Application {
         }
 
         Node root = pile.getNode();*/
-
+        /*
         AbandonedShipView a = new AbandonedShipView(17, false, 1, 2, 3, 4);
         a.setWidth(200);
         a.setCovered(true);
@@ -50,8 +50,25 @@ public class GuiTest extends Application {
         d.addCard(c);
         d.setCovered(true);
         Node root = d.getNode();
+         */
 
-        Scene scene = new Scene((Parent) root);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/menu.fxml"));
+        Parent root = loader.load();
+        LobbyView lobbyView = new LobbyView("Test Lobby", 2, 4, LevelView.LEARNING);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MenuController lc = loader.getController();
+        lc.react();
+
+        Scene scene = new Scene(root);
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();
