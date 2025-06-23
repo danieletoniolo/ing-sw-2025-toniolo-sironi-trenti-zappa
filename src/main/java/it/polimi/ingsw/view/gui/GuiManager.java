@@ -33,7 +33,7 @@ import java.io.IOException;
 public class GuiManager extends Application implements Manager {
     private static Scene scene;
     private static Parent root;
-    MiniModelObserver controller;
+    static MiniModelObserver controller;
     private final MiniModel mm = MiniModel.getInstance();
 
     private enum GuiScene {

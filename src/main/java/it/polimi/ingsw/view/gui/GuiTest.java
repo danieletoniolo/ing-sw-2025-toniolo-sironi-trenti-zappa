@@ -69,6 +69,8 @@ public class GuiTest extends Application {
         lc.react();
 
         Scene scene = new Scene(root);
+
+        lc.react();
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();
