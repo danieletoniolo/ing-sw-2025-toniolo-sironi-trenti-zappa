@@ -5,9 +5,8 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import java.util.ArrayList;
 
 public class ChooseDoubleCannonsCards extends ManagerCannonsCards {
-    private final TuiScreenView oldScreen;
 
-    public ChooseDoubleCannonsCards(TuiScreenView oldScreen) {
+    public ChooseDoubleCannonsCards() {
         super(new ArrayList<>(){{
             if (cannonsIDs == null) {
                 cannonsIDs = new ArrayList<>();
@@ -22,7 +21,6 @@ public class ChooseDoubleCannonsCards extends ManagerCannonsCards {
             add("Cancel");
             add("Done");
         }});
-        this.oldScreen = oldScreen;
     }
 
     @Override
@@ -41,12 +39,12 @@ public class ChooseDoubleCannonsCards extends ManagerCannonsCards {
 
         if (selected == num) {
             destroyStatics();
-            oldScreen.setMessage(null);
-            return oldScreen;
+            setMessage(null);
+            return new ChooseDoubleCannonsCards();
         }
 
         if (selected == num + 1) {
-            return new CannonsBatteryCards(oldScreen);
+            return new CannonsBatteryCards();
         }
 
         spaceShipView.getMapDoubleCannons().keySet().stream()
@@ -60,7 +58,7 @@ public class ChooseDoubleCannonsCards extends ManagerCannonsCards {
             line.append("(").append(spaceShipView.getMapDoubleCannons().get(ID).getRow()).append(" ").append(spaceShipView.getMapDoubleCannons().get(ID).getCol()).append(") ");
         }
 
-        TuiScreenView newScreen = new ChooseDoubleCannonsCards(oldScreen);
+        TuiScreenView newScreen = new ChooseDoubleCannonsCards();
         newScreen.setMessage("You are activating " + line);
         return newScreen;
     }

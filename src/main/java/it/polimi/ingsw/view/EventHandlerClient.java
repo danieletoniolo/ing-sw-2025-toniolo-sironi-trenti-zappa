@@ -9,6 +9,7 @@ import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBatteriesPenalty;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
@@ -127,6 +128,9 @@ public class EventHandlerClient {
 
     private final CastEventReceiver<ForcingGiveUp> forcingGiveUpReceiver;
     private final EventListener<ForcingGiveUp> forcingGiveUpListener;
+
+    private final CastEventReceiver<ForcingPenalty> forcingPenaltyReceiver;
+    private final EventListener<ForcingPenalty> forcingPenaltyListener;
 
     private final CastEventReceiver<UpdateGoodsExchange> updateGoodsExchangeReceiver;
     private final EventListener<UpdateGoodsExchange> updateGoodsExchangeListener;
@@ -634,12 +638,23 @@ public class EventHandlerClient {
         forcingBatteriesPenaltyReceiver = new CastEventReceiver<>(this.transceiver);
         forcingBatteriesPenaltyListener = manager::notifyForcingBatteriesPenalty;
 
+        /*
+         * Force the player to do giveUp
+         */
         forcingGiveUpReceiver = new CastEventReceiver<>(this.transceiver);
         forcingGiveUpListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             MiniModel.getInstance().setCurrentPlayer(player);
             manager.notifyForcingGiveUp(data);
+        };
+
+        forcingPenaltyReceiver = new CastEventReceiver<>(this.transceiver);
+        forcingPenaltyListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+
+             MiniModel.getInstance().setCurrentPlayer(player);
+             manager.notifyForcingPenalty(data);
         };
 
         // GOODS events
@@ -1236,6 +1251,7 @@ public class EventHandlerClient {
 
         forcingBatteriesPenaltyReceiver.registerListener(forcingBatteriesPenaltyListener);
         forcingGiveUpReceiver.registerListener(forcingGiveUpListener);
+        forcingPenaltyReceiver.registerListener(forcingPenaltyListener);
 
         updateGoodsExchangeReceiver.registerListener(updateGoodsExchangeListener);
 

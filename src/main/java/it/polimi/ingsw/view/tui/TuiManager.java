@@ -4,6 +4,7 @@ import it.polimi.ingsw.event.game.serverToClient.deck.*;
 import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBatteriesPenalty;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.PickedTileFromSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
@@ -274,6 +275,35 @@ public class TuiManager implements Manager {
                 currentScreen.setMessage(data.nickname() + " is forced to give up");
             }
             parser.changeScreen();
+        }
+    }
+
+    @Override
+    public void notifyForcingPenalty(ForcingPenalty data) {
+        if (mm.getNickname().equals(data.nickname())) {
+            synchronized (stateLock) {
+                switch (data.penaltyType()) {
+                    case 0:
+                        TuiScreenView crew = new LooseCrewCards();
+                        currentScreen.setNextScreen(crew);
+                        currentScreen = crew;
+                        currentScreen.setMessage("You have to leave crew members");
+                        break;
+                    case 1:
+                        TuiScreenView goods = new LooseGoodsCards();
+                        currentScreen.setNextScreen(goods);
+                        currentScreen = goods;
+                        currentScreen.setMessage("You have to discard goods");
+                        break;
+                    case 2:
+                        TuiScreenView batteries = new LooseBatteryCards();
+                        currentScreen.setNextScreen(batteries);
+                        currentScreen = batteries;
+                        currentScreen.setMessage("You have no more goods, you must discard batteries");
+                        break;
+                }
+                parser.changeScreen();
+            }
         }
     }
 

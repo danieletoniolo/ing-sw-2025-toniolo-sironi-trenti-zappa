@@ -5,6 +5,7 @@ import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.BatteriesLoss;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBatteriesPenalty;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
 import it.polimi.ingsw.event.game.serverToClient.goods.UpdateGoodsExchange;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.PickedTileFromSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToBoard;
@@ -163,6 +164,11 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyForcingGiveUp(ForcingGiveUp data) {
+
+    }
+
+    @Override
+    public void notifyForcingPenalty(ForcingPenalty data) {
 
     }
 

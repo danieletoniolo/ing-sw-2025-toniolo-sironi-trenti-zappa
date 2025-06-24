@@ -34,7 +34,7 @@ public class EnemyCards extends CardsGame {
         switch (selected) {
             case 0:
                 spaceShipView = clientPlayer.getShip().clone();
-                return new ChooseDoubleCannonsCards(this);
+                return new ChooseDoubleCannonsCards();
             case 1:
                 // Surrender and end the turn
                 status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
