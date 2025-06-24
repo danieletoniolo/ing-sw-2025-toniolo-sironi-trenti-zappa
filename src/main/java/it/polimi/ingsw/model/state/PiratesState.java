@@ -8,7 +8,7 @@ import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.player.UpdateCoins;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.HitComing;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.Pirates;
 import it.polimi.ingsw.model.game.board.Board;
@@ -18,10 +18,7 @@ import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.model.state.utils.MutablePair;
 import org.javatuples.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class PiratesState extends State {
@@ -35,7 +32,7 @@ public class PiratesState extends State {
     private final MutablePair<Integer, Integer> dice;
     private int hitIndex;
     private PlayerData currentPlayerCanProtect;
-    private final List<PlayerData> playersGivenUp;
+    private final ArrayList<PlayerData> playersGivenUp;
 
     /**
      * Enum to represent the internal state of the pirates state.
@@ -195,8 +192,8 @@ public class PiratesState extends State {
                     }
                     internalState = PiratesInternalState.CAN_PROTECT;
 
-                    NextHit nextHitEvent = new NextHit(getCurrentPlayer().getUsername());
-                    eventCallback.trigger(nextHitEvent);
+                    HitComing hitComingEvent = new HitComing(getCurrentPlayer().getUsername());
+                    eventCallback.trigger(hitComingEvent);
                     currentPlayerCanProtect = getCurrentPlayer();
                 }
                 break;
@@ -222,8 +219,8 @@ public class PiratesState extends State {
                     }
                     internalState = PiratesInternalState.CAN_PROTECT;
 
-                    NextHit nextHitEvent = new NextHit(getCurrentPlayer().getUsername());
-                    eventCallback.trigger(nextHitEvent);
+                    HitComing hitComingEvent = new HitComing(getCurrentPlayer().getUsername());
+                    eventCallback.trigger(hitComingEvent);
                     currentPlayerCanProtect = getCurrentPlayer();
                 }
                 break;
@@ -233,7 +230,7 @@ public class PiratesState extends State {
                 }
                 fragments.clear();
                 // TODO: TO TEST THE GIVE UP
-                if (spaceShip.getHumanCrewNumber() == 0) {
+                if (spaceShip.getHumanCrewNumber() == 0 && !playersGivenUp.contains(player)) {
                     this.playersGivenUp.add(player);
                 }
 
@@ -261,8 +258,8 @@ public class PiratesState extends State {
                         }
                         currentPlayerCanProtect = getCurrentPlayer();
 
-                        NextHit nextHitEvent = new NextHit(currentPlayerCanProtect.getUsername());
-                        eventCallback.trigger(nextHitEvent);
+                        HitComing hitComingEvent = new HitComing(currentPlayerCanProtect.getUsername());
+                        eventCallback.trigger(hitComingEvent);
 
                         internalState = PiratesInternalState.CAN_PROTECT;
                     }
@@ -279,13 +276,6 @@ public class PiratesState extends State {
                 break;
             case GIVE_UP:
                 super.execute(player);
-
-                try {
-                    ForcingGiveUp forcingGiveUpEvent = new ForcingGiveUp(getCurrentPlayer().getUsername(), "You are forced to give up, you have no human crew left");
-                    eventCallback.trigger(forcingGiveUpEvent);
-                } catch (IllegalStateException e) {
-                    sendCurrentPlayer = true;
-                }
                 break;
         }
 

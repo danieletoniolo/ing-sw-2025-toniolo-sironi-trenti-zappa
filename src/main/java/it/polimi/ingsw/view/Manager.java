@@ -99,7 +99,7 @@ public interface Manager {
 
     void notifyInvalidComponents(InvalidComponents data);
 
-    void notifyNextHit(NextHit data);
+    void notifyHitComing(HitComing data);
 
     void notifySetCannonStrength(SetCannonStrength data);
 

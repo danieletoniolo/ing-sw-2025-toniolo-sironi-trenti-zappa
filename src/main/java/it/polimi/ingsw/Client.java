@@ -74,17 +74,18 @@ public class Client {
         }
 
         new EventHandlerClient(transceiver, ui);
-        if (rmiOrSocket.equals("rmi")) {
-            /*System.out.print("Enter IP: ");
+
+        /*System.out.print("Enter IP: ");
             String address = sc.nextLine();*/
-            String address = "192.168.242.111";
+        String address = "127.0.0.1";
+        //String address = "192.168.242.111";
+        // 140.238.173.150
+        // 129.152.14.114
+
+        if (rmiOrSocket.equals("rmi")) {
             Connection connection = new RMIConnection(address, 2551);
             transceiver.connect(UUID.randomUUID(), connection);
         } else {
-            /*System.out.print("Enter IP: ");
-            String address = sc.nextLine();*/
-            // String address = "127.0.0.1";
-            String address = "192.168.242.111";
             Connection connection = new TCPConnection(address, 2550);
             transceiver.connect(UUID.randomUUID(), connection);
         }

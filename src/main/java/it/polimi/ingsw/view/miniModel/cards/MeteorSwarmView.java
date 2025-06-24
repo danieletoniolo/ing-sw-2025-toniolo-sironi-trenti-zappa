@@ -11,7 +11,7 @@ public class MeteorSwarmView extends CardView {
     public MeteorSwarmView(int ID, boolean covered, int level, List<HitView> hits) {
         super(ID, covered, level);
         this.hits = hits;
-        this.currentHit = -1;
+        this.currentHit = 0;
     }
 
     @Override

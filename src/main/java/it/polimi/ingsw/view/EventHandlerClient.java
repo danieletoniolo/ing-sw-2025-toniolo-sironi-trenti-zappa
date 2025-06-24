@@ -224,8 +224,8 @@ public class EventHandlerClient {
     private final CastEventReceiver<InvalidComponents> invalidComponentsReceiver;
     private final EventListener<InvalidComponents> invalidComponentsListener;
 
-    private final CastEventReceiver<NextHit> nextHitReceiver;
-    private final EventListener<NextHit> nextHitListener;
+    private final CastEventReceiver<HitComing> hitComingReceiver;
+    private final EventListener<HitComing> hitComingListener;
 
     private final CastEventReceiver<SetCannonStrength> setCannonStrengthReceiver;
     private final EventListener<SetCannonStrength> setCannonStrengthListener;
@@ -1051,20 +1051,18 @@ public class EventHandlerClient {
         /*
          * Set the next hit
          */
-        nextHitReceiver = new CastEventReceiver<>(this.transceiver);
-        nextHitListener = data -> {
+        hitComingReceiver = new CastEventReceiver<>(this.transceiver);
+        hitComingListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             MiniModel.getInstance().setCurrentPlayer(player);
-            if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
-                CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
-                if (card.getCardViewType() == CardViewType.METEORSSWARM) {
-                    ((MeteorSwarmView) card).nextHit();
-                } else if (card.getCardViewType() == CardViewType.PIRATES) {
-                    ((PiratesView) card).nextHit();
-                }
+            CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
+            if (card.getCardViewType() == CardViewType.METEORSSWARM) {
+                ((MeteorSwarmView) card).nextHit();
+            } else if (card.getCardViewType() == CardViewType.PIRATES) {
+                ((PiratesView) card).nextHit();
             }
-            manager.notifyNextHit(data);
+            manager.notifyHitComing(data);
         };
 
         /*
@@ -1278,7 +1276,7 @@ public class EventHandlerClient {
         componentDestroyedReceiver.registerListener(componentDestroyedListener);
         fragmentsReceiver.registerListener(fragmentsListener);
         invalidComponentsReceiver.registerListener(invalidComponentsListener);
-        nextHitReceiver.registerListener(nextHitListener);
+        hitComingReceiver.registerListener(hitComingListener);
         setCannonStrengthReceiver.registerListener(setCannonStrengthListener);
         setEngineStrengthReceiver.registerListener(setEngineStrengthListener);
         updateCrewMembersReceiver.registerListener(updateCrewMembersListener);

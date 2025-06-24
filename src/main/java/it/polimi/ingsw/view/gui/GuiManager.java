@@ -277,7 +277,7 @@ public class GuiManager extends Application implements Manager {
     }
 
     @Override
-    public void notifyNextHit(NextHit data) {
+    public void notifyHitComing(HitComing data) {
 
     }
 

@@ -6,5 +6,6 @@ public class CombatZoneCards extends CardsGame {
 
     public CombatZoneCards() {
         super(null);
+        setMessage("Welcome to the Com");
     }
 }

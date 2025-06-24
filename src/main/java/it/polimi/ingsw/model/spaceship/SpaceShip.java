@@ -471,11 +471,11 @@ public class SpaceShip {
             return new Pair<>(null, 1);
         }
 
+        int direction = hit.getDirection().getValue();
         switch (hit.getType()) {
             case SMALLMETEOR:
                 // Check if the component has a smooth side (EMPTY) where the hit is coming from
-                int direction = hit.getDirection().getValue();
-                if (component.getConnection((direction + 2) % 4) == ConnectorType.EMPTY) {
+                if (component.getConnection(direction) == ConnectorType.EMPTY) {
                     return new Pair<>(null, 1);
                 }
             case LIGHTFIRE:
@@ -491,34 +491,42 @@ public class SpaceShip {
                 }
                 return new Pair<>(component, -1);
             case LARGEMETEOR:
-                int targetRotation = 4 - hit.getDirection().getValue();
-                if (level == Level.SECOND && hit.getDirection().getValue() % 2 != 0) {
-                    for (int j = 0; j < 12; j++) {
-                        Component componentAbove = components[dice - 1][j];
-                        Component componentBelow = components[dice + 1][j];
+                int targetRotation = direction % 2 == 0 ? direction : (direction + 2) % 4;
+                if (direction != 0 && level == Level.SECOND) {
+                    for (int k = 0; k < 12; k++) {
+                        Component componentAbove = direction % 2 != 0 ? components[dice - 1][k] : components[k][dice - 1];
+                        Component componentBelow = direction % 2 != 0 ? components[dice + 1][k] : components[k][dice + 1];
 
-                        if (componentAbove.getComponentType() == ComponentType.SINGLE_CANNON && componentAbove.getClockwiseRotation() == targetRotation) {
-                            return new Pair<>(null, 1);
-                        } else if (componentAbove.getComponentType() == ComponentType.DOUBLE_CANNON && componentAbove.getClockwiseRotation() == targetRotation) {
-                            return new Pair<>(componentAbove, 0);
+                        if (componentAbove != null) {
+                            if (componentAbove.getComponentType() == ComponentType.SINGLE_CANNON && componentAbove.getClockwiseRotation() == targetRotation) {
+                                return new Pair<>(null, 1);
+                            } else if (componentAbove.getComponentType() == ComponentType.DOUBLE_CANNON && componentAbove.getClockwiseRotation() == targetRotation) {
+                                return new Pair<>(componentAbove, 0);
+                            }
                         }
 
-                        if (componentBelow.getComponentType() == ComponentType.SINGLE_CANNON && componentBelow.getClockwiseRotation() == targetRotation) {
-                            return new Pair<>(null, 1);
-                        } else if (componentBelow.getComponentType() == ComponentType.DOUBLE_CANNON && componentBelow.getClockwiseRotation() == targetRotation) {
-                            return new Pair<>(componentBelow, 0);
+                        if (componentBelow != null) {
+                            if (componentBelow.getComponentType() == ComponentType.SINGLE_CANNON && componentBelow.getClockwiseRotation() == targetRotation) {
+                                return new Pair<>(null, 1);
+                            } else if (componentBelow.getComponentType() == ComponentType.DOUBLE_CANNON && componentBelow.getClockwiseRotation() == targetRotation) {
+                                return new Pair<>(componentBelow, 0);
+                            }
                         }
                     }
                 }
-                for (int j = 0; j < 12; j++) {
-                    Component centerComponent = components[dice][j];
 
-                    if (centerComponent.getComponentType() == ComponentType.SINGLE_CANNON && centerComponent.getClockwiseRotation() == targetRotation) {
-                        return new Pair<>(null, 1);
-                    } else if (centerComponent.getComponentType() == ComponentType.DOUBLE_CANNON && centerComponent.getClockwiseRotation() == targetRotation) {
-                        return new Pair<>(centerComponent, 0);
+                for (int k = 0; k < 12; k++) {
+                    Component centerComponent = direction % 2 != 0 ? components[dice][k] : components[k][dice];
+
+                    if (centerComponent != null) {
+                        if (centerComponent.getComponentType() == ComponentType.SINGLE_CANNON && centerComponent.getClockwiseRotation() == targetRotation) {
+                            return new Pair<>(null, 1);
+                        } else if (centerComponent.getComponentType() == ComponentType.DOUBLE_CANNON && centerComponent.getClockwiseRotation() == targetRotation) {
+                            return new Pair<>(centerComponent, 0);
+                        }
                     }
                 }
+
                 return new Pair<>(component, -1);
             case HEAVYFIRE:
                 return new Pair<>(component, -1);

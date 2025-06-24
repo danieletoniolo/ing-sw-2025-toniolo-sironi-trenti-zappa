@@ -3,8 +3,9 @@ package it.polimi.ingsw.model.state;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
+import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.HitComing;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.MeteorSwarm;
 import it.polimi.ingsw.model.game.board.Board;
@@ -13,12 +14,10 @@ import it.polimi.ingsw.model.spaceship.Component;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.model.state.exception.SynchronousStateException;
 import it.polimi.ingsw.model.state.utils.MutablePair;
+import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MeteorSwarmState extends State {
     private final MeteorSwarm card;
@@ -26,7 +25,7 @@ public class MeteorSwarmState extends State {
     private final Map<PlayerData, MutablePair<Component, Integer>> protectionResult;
     private final Map<PlayerData, List<List<Pair<Integer, Integer>>>> fragments;
     private final MutablePair<Integer, Integer> dice;
-    private final List<PlayerData> playersGivenUp;
+    private final ArrayList<PlayerData> playersGivenUp;
     private boolean diceRolled = false;
     private int meteorsIndex;
 
@@ -77,7 +76,7 @@ public class MeteorSwarmState extends State {
         if (fragments.isEmpty()) {
             throw new IllegalStateException("No fragments to choose from");
         }
-        for (int i = 0; i < fragments.size(); i++) {
+        for (int i = 0; i < fragments.get(player).size(); i++) {
             if (i != fragmentChoice) {
                 List<Event> events = Handler.destroyFragment(player, fragments.get(player).get(i));
                 for (Event e : events) {
@@ -85,7 +84,7 @@ public class MeteorSwarmState extends State {
                 }
             }
         }
-        fragments.clear();
+        fragments.get(player).clear();
     }
 
     /**
@@ -120,6 +119,12 @@ public class MeteorSwarmState extends State {
         diceRolled = true;
     }
 
+    @Override
+    public void entry() {
+        CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.players.getFirst().getUsername());
+        eventCallback.trigger(currentPlayerEvent);
+    }
+
     /**
      * Execute: Check if player can protect, destroy components if necessary, choose which components to keep if necessary
      * @param player PlayerData of the player to play
@@ -147,12 +152,12 @@ public class MeteorSwarmState extends State {
                 internalStates.put(player, MeteorSwarmInternalState.PENALTY);
                 break;
             case PENALTY:
-                if (fragments.size() > 1) {
+                if (fragments.get(player).size() > 1) {
                     break;
                 }
-                fragments.clear();
+                fragments.get(player).clear();
                 // TODO: TO TEST THE GIVE UP
-                if (spaceShip.getHumanCrewNumber() == 0) {
+                if (spaceShip.getHumanCrewNumber() == 0 && !playersGivenUp.contains(player)) {
                     this.playersGivenUp.add(player);
                 }
 
@@ -160,42 +165,44 @@ public class MeteorSwarmState extends State {
 
                 boolean allPlayersPlayed = true;
                 for (PlayerData p : players) {
-                    if (playersStatus.get(p.getColor()) == PlayerStatus.PLAYING || playersStatus.get(p.getColor()) == PlayerStatus.SKIPPED) {
+                    if (playersStatus.get(p.getColor()) == PlayerStatus.PLAYING || playersStatus.get(p.getColor()) == PlayerStatus.WAITING) {
                         allPlayersPlayed = false;
+                        Logger.getInstance().logError("Player " + p.getUsername() + " has not played yet", true);
                         break;
                     }
                 }
 
+                Logger.getInstance().logError("allPlayersPlayed: " + allPlayersPlayed + " meteorsIndex: " + meteorsIndex, true);
                 if (allPlayersPlayed) {
                     meteorsIndex++;
                     diceRolled = false;
                     if (meteorsIndex >= card.getMeteors().size()) {
+                        Logger.getInstance().logError("No meteorsIndex: " + meteorsIndex, true);
                         if (!playersGivenUp.isEmpty()) {
+                            Logger.getInstance().logError("playersGivenUp: " + playersGivenUp, true);
                             for (PlayerData p : playersGivenUp) {
                                 internalStates.put(p, MeteorSwarmInternalState.GIVE_UP);
 
                                 ForcingGiveUp forcingGiveUpEvent = new ForcingGiveUp(p.getUsername(), "You are forced to give up, you have no human crew left");
-                                eventCallback.trigger(forcingGiveUpEvent);
+                                eventCallback.trigger(forcingGiveUpEvent, p.getUUID());
 
                                 playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
                             }
                         }
                     } else {
+                        Logger.getInstance().logError("HitComing: " + meteorsIndex, true);
                         internalStates.put(players.getFirst(), MeteorSwarmInternalState.ROLL_DICE);
                         for (PlayerData p : players) {
                             playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
                         }
 
-                        NextHit nextHitEvent = new NextHit(players.getFirst().getUsername());
-                        eventCallback.trigger(nextHitEvent);
+                        HitComing hitComingEvent = new HitComing(players.getFirst().getUsername());
+                        eventCallback.trigger(hitComingEvent);
                     }
                 }
                 break;
             case GIVE_UP:
                 super.execute(player);
-
-                ForcingGiveUp forcingGiveUpEvent = new ForcingGiveUp(player.getUsername(), "You are forced to give up, you have no human crew left");
-                eventCallback.trigger(forcingGiveUpEvent);
                 break;
         }
 

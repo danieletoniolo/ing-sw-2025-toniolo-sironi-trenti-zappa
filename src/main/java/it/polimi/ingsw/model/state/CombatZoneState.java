@@ -5,7 +5,7 @@ import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MinPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.HitComing;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.CombatZone;
 import it.polimi.ingsw.model.game.board.Board;
@@ -324,8 +324,8 @@ public class CombatZoneState extends State {
                 break;
             case HIT_PENALTY:
                 hitIndex++;
-                NextHit nextHitEvent = new NextHit(player.getUsername());
-                eventCallback.trigger(nextHitEvent);
+                HitComing hitComingEvent = new HitComing(player.getUsername());
+                eventCallback.trigger(hitComingEvent);
                 if (hitIndex >= card.getFires().size()) {
                     playersStatus.replace(playerBeingHit.getColor(), PlayerStatus.PLAYED);
                 }

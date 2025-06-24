@@ -10,6 +10,7 @@ import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.screens.CardsGame;
 import it.polimi.ingsw.view.tui.screens.Lobby;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
+import it.polimi.ingsw.view.tui.screens.gameScreens.NotClientTurnCards;
 
 import java.util.ArrayList;
 
@@ -53,7 +54,6 @@ public class UseShieldCards extends CardsGame {
             return this;
         }
 
-        Logger.getInstance().logError("NextScreen useShield: " + nextScreen, true);
-        return nextScreen;
+        return nextScreen == null ? new NotClientTurnCards() : nextScreen;
     }
 }

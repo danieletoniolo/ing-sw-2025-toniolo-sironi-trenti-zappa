@@ -954,11 +954,12 @@ public class MatchController {
     private StatusEvent rollDice(RollDice data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+        PlayerData player = userPlayers.get(users.get(userID));
 
         GameController gc = gameControllers.get(lobby);
         try {
             if (gc != null) {
-                gc.rollDice(userID);
+                gc.rollDice(player);
             }
             return new Tac(data.userID(), RollDice.class);
         } catch (IllegalStateException | IllegalArgumentException e) {
