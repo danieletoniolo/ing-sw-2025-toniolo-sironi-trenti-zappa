@@ -43,7 +43,6 @@ public class Handler {
                 return new ComponentDestroyed(player.getUsername(), destroyedComponents);
             }
         }
-        // TODO: If we do not need to protect, we should notify via event or throw an exception
         return null;
     }
 

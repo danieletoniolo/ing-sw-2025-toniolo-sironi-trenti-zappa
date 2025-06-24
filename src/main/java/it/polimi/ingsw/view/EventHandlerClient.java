@@ -1060,8 +1060,7 @@ public class EventHandlerClient {
                 CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
                 if (card.getCardViewType() == CardViewType.METEORSSWARM) {
                     ((MeteorSwarmView) card).nextHit();
-                }
-                if (card.getCardViewType() == CardViewType.PIRATES) {
+                } else if (card.getCardViewType() == CardViewType.PIRATES) {
                     ((PiratesView) card).nextHit();
                 }
             }

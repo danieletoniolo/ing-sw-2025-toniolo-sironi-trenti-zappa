@@ -5,8 +5,10 @@ import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.Client;
+import it.polimi.ingsw.utils.Logger;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.tui.screens.CardsGame;
+import it.polimi.ingsw.view.tui.screens.Lobby;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ public class UseShieldCards extends CardsGame {
             spaceShipView.getMapBatteries().values().stream()
                     .filter(battery -> battery.getNumberOfBatteries() != 0)
                     .forEach(battery -> add("Use battery " + "(" + battery.getRow() + " " + battery.getCol() + ")"));
+            add("Not activate the shield");
         }});
     }
 
@@ -50,6 +53,7 @@ public class UseShieldCards extends CardsGame {
             return this;
         }
 
+        Logger.getInstance().logError("NextScreen useShield: " + nextScreen, true);
         return nextScreen;
     }
 }

@@ -57,7 +57,11 @@ public class ChooseFragmentsCards extends CardsGame {
                 setMessage(((Pota) status).errorMessage());
                 return this;
             }
-            return new NotClientTurnCards();
+
+            if (nextScreen == null) {
+                return new NotClientTurnCards();
+            }
+            return nextScreen;
         }
 
         return this;

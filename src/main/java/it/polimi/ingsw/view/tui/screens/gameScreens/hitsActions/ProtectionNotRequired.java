@@ -11,13 +11,13 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
-public class CantProtectCards extends CardsGame {
+public class ProtectionNotRequired extends CardsGame {
 
-    public CantProtectCards() {
+    public ProtectionNotRequired() {
         super(new ArrayList<>() {{
             add("Next hit");
         }});
-        setMessage("Yuo can't protect from the hit");
+        setMessage("You don't need to protect from the hit");
     }
 
     @Override
@@ -25,14 +25,8 @@ public class CantProtectCards extends CardsGame {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        StatusEvent status = UseShield.requester(Client.transceiver, new Object()).request(new UseShield(MiniModel.getInstance().getUserID(), -1));
-        if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-            setMessage(((Pota) status).errorMessage());
-            return this;
-        }
-
         // Player is ready for the next hit, so we end the turn
-        status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+        StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
         if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
             return this;

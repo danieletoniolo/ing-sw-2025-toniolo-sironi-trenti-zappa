@@ -975,11 +975,12 @@ public class MatchController {
     private StatusEvent setProtect(UseShield data) {
         UUID userID = UUID.fromString(data.userID());
         LobbyInfo lobby = userLobbyInfo.get(users.get(userID));
+        PlayerData player = userPlayers.get(users.get(userID));
 
         GameController gc = gameControllers.get(lobby);
         try {
             if (gc != null) {
-                gc.setProtect(userID, data.batteryID());
+                gc.setProtect(player, data.batteryID());
             }
             return new Tac(data.userID(), UseShield.class);
         } catch (IllegalStateException | IllegalArgumentException e) {

@@ -56,6 +56,11 @@ public class AbandonedShipState extends State {
         }
     }
 
+    @Override
+    public void entry() {
+        super.entry();
+    }
+
     /**
      * Execute:
      * <ul>

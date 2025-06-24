@@ -438,7 +438,8 @@ public class TuiManager implements Manager {
     @Override
     public void notifyCurrentPlayer(CurrentPlayer data) {
         synchronized (stateLock) {
-            if (!MiniModel.getInstance().getNickname().equals(data.nickname())) { // Check if the current player is not the client
+            // Check if the current player is not the client
+            if (!MiniModel.getInstance().getNickname().equals(data.nickname())) {
                 TuiScreenView notTurn = new NotClientTurnCards();
                 currentScreen.setNextScreen(notTurn);
                 currentScreen = notTurn;
@@ -497,14 +498,24 @@ public class TuiManager implements Manager {
     public void notifyCanProtect(CanProtect data) {
         if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
             synchronized (stateLock) {
-                if (data.canProtect().getValue1() == -1) {
-                    currentScreen.setNextScreen(new CantProtectCards());
+                CardsGame nextScreen = null;
+                switch (data.canProtect().getValue1()) {
+                    case -1 -> {
+                        nextScreen = new CantProtectCards();
+                        currentScreen.setNextScreen(nextScreen);
+                    }
+                    case 0 -> {
+                        nextScreen = new UseShieldCards();
+                        currentScreen.setNextScreen(new UseShieldCards());
+                    }
+                    case 1 -> {
+                        nextScreen = new ProtectionNotRequired();
+                        currentScreen.setNextScreen(new ProtectionNotRequired());
+                    }
                 }
-                else {
-                    currentScreen.setNextScreen(new UseShieldCards());
-                }
+                currentScreen = nextScreen;
                 currentScreen.setMessage(rollDice);
-                stateLock.notifyAll();
+                parser.changeScreen();
             }
         }
         else {
@@ -532,23 +543,23 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyFragments(Fragments data) {
-        if (currentScreen.getType().equals(TuiScreens.Validation)) {
-            synchronized (stateLock) {
-                if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
-                    if (data.fragments().size() > 1) {
-                        if (MiniModel.getInstance().getGamePhase() == GamePhases.VALIDATION) {
-                            currentScreen.setNextScreen(new ValidationFragments());
-                        }
-                        if (MiniModel.getInstance().getGamePhase() == GamePhases.CARDS) {
-                            currentScreen.setNextScreen(new ChooseFragmentsCards());
-                        }
-                    }
-                } else {
-                    if (data.fragments().size() > 1) {
-                        currentScreen.setMessage(data.nickname() + " has fragmented components");
+        synchronized (stateLock) {
+            if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
+                if (data.fragments().size() > 1) {
+                    if (MiniModel.getInstance().getGamePhase() == GamePhases.VALIDATION) {
+                        currentScreen.setNextScreen(new ValidationFragments());
+                        stateLock.notifyAll();
+                    } else if (MiniModel.getInstance().getGamePhase() == GamePhases.CARDS) {
+                        CardsGame nextScreen = new ChooseFragmentsCards();
+                        currentScreen.setNextScreen(nextScreen);
+                        parser.changeScreen();
                     }
                 }
-                stateLock.notifyAll();
+            } else {
+                if (data.fragments().size() > 1) {
+                    currentScreen.setMessage(data.nickname() + " has fragmented components");
+                    stateLock.notifyAll();
+                }
             }
         }
     }

@@ -34,7 +34,6 @@ public class PiratesState extends State {
     private MutablePair<Component, Integer> protectionResult;
     private final MutablePair<Integer, Integer> dice;
     private int hitIndex;
-    private boolean hasPlayerForceGiveUp;
     private PlayerData currentPlayerCanProtect;
     private final List<PlayerData> playersGivenUp;
 
@@ -64,7 +63,6 @@ public class PiratesState extends State {
         this.fragments = new ArrayList<>();
         this.protectionResult = new MutablePair<>(null, -1);
         this.hitIndex = 0;
-        this.hasPlayerForceGiveUp = false;
         this.dice = new MutablePair<>(-1, -1);
         this.currentPlayerCanProtect = null;
         this.playersGivenUp = new ArrayList<>();
@@ -75,9 +73,6 @@ public class PiratesState extends State {
      */
     @Override
     public void setFragmentChoice(PlayerData player, int fragmentChoice) throws IllegalStateException {
-        if (this.hasPlayerForceGiveUp) {
-            throw new IllegalStateException("You are forced to give up, you cannot set fragment choice");
-        }
         if (internalState != PiratesInternalState.PENALTY) {
             throw new IllegalStateException("Fragment choice not allowed in this state");
         }
@@ -100,10 +95,7 @@ public class PiratesState extends State {
      */
     @Override
     public void setProtect(PlayerData player, int batteryID) throws IllegalStateException, IllegalArgumentException {
-        if (this.hasPlayerForceGiveUp) {
-            throw new IllegalStateException("You are forced to give up, you cannot set protect");
-        }
-        if (internalState != PiratesInternalState.PENALTY) {
+        if (internalState != PiratesInternalState.PENALTY && internalState != PiratesInternalState.CAN_PROTECT) {
             throw new IllegalStateException("setProtect not allowed in this state");
         }
         Event event = Handler.protectFromHit(player, protectionResult, batteryID);
@@ -112,9 +104,6 @@ public class PiratesState extends State {
         }
         event = Handler.checkForFragments(player, fragments);
         eventCallback.trigger(event);
-        if (fragments.size() <= 1) {
-            fragments.clear();
-        }
     }
 
     /**
@@ -122,9 +111,6 @@ public class PiratesState extends State {
      */
     @Override
     public void rollDice(PlayerData player) throws IllegalStateException {
-        if (this.hasPlayerForceGiveUp) {
-            throw new IllegalStateException("You are forced to give up, you cannot roll the dice");
-        }
         if (internalState != PiratesInternalState.CAN_PROTECT) {
             throw new IllegalStateException("setDice not allowed in this state");
         }
@@ -139,10 +125,6 @@ public class PiratesState extends State {
      */
     @Override
     public void useExtraStrength(PlayerData player, int type, List<Integer> IDs, List<Integer> batteriesID) throws IllegalStateException, IllegalArgumentException {
-        if (this.hasPlayerForceGiveUp) {
-            throw new IllegalStateException("You are forced to give up, you cannot use extra strength");
-        }
-
         switch (type) {
             case 0 -> throw new IllegalStateException("Cannot use double engine in this state");
             case 1 -> {
@@ -185,7 +167,7 @@ public class PiratesState extends State {
         switch (internalState) {
             case ENEMY_DEFEAT:
                 int cannonStrengthRequired = card.getCannonStrengthRequired();
-                
+
                 if (cannonsStrength.get(player) > cannonStrengthRequired) {
                     piratesDefeat = true;
                     internalState = PiratesInternalState.REWARD;
@@ -198,7 +180,9 @@ public class PiratesState extends State {
                     super.execute(player);
                 } else {
                     piratesDefeat = null;
-                    sendCurrentPlayer = true;
+                    if (players.indexOf(player) != players.size() - 1) {
+                        sendCurrentPlayer = true;
+                    }
                     super.execute(player);
                 }
 
@@ -227,7 +211,10 @@ public class PiratesState extends State {
                     MoveMarker stepsEvent = new MoveMarker(player.getUsername(),  player.getModuleStep(board.getStepsForALap()));
                     eventCallback.trigger(stepsEvent);
                 }
-                super.execute(player);
+
+                for (PlayerData p: players) {
+                    super.execute(p);
+                }
 
                 if (!playersDefeated.isEmpty()) {
                     for (PlayerData p: playersDefeated) {
@@ -241,16 +228,22 @@ public class PiratesState extends State {
                 }
                 break;
             case PENALTY:
+                if (fragments.size() > 1) {
+                    break;
+                }
+                fragments.clear();
+                // TODO: TO TEST THE GIVE UP
                 if (spaceShip.getHumanCrewNumber() == 0) {
                     this.playersGivenUp.add(player);
                 }
+
                 super.execute(player);
 
                 try {
                     currentPlayerCanProtect = getCurrentPlayer();
                 } catch (IllegalStateException e) {
                     hitIndex++;
-                    if (hitIndex == card.getFires().size()) {
+                    if (hitIndex >= card.getFires().size()) {
                         if (!playersGivenUp.isEmpty()) {
                             internalState = PiratesInternalState.GIVE_UP;
                             ForcingGiveUp forcingGiveUpEvent = new ForcingGiveUp(playersGivenUp.getFirst().getUsername(), "You are forced to give up, you have no human crew left");
@@ -259,18 +252,18 @@ public class PiratesState extends State {
                             for (PlayerData p : playersGivenUp) {
                                 playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
                             }
-                            this.hasPlayerForceGiveUp = true;
                         } else {
                             sendCurrentPlayer = true;
                         }
                     } else {
-                        NextHit nextHitEvent = new NextHit(player.getUsername());
-                        eventCallback.trigger(nextHitEvent);
-
                         for (PlayerData p : playersDefeated) {
                             playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
                         }
                         currentPlayerCanProtect = getCurrentPlayer();
+
+                        NextHit nextHitEvent = new NextHit(currentPlayerCanProtect.getUsername());
+                        eventCallback.trigger(nextHitEvent);
+
                         internalState = PiratesInternalState.CAN_PROTECT;
                     }
                     break;
@@ -278,7 +271,8 @@ public class PiratesState extends State {
             case CAN_PROTECT:
                 int diceValue = dice.getFirst() + dice.getSecond() - 1;
                 protectionResult = new MutablePair<>(currentPlayerCanProtect.getSpaceShip().canProtect(diceValue, card.getFires().get(hitIndex)));
-                CanProtect canProtectEvent = new CanProtect(currentPlayerCanProtect.getUsername(), new Pair<>(protectionResult.getFirst().getID(), protectionResult.getSecond()));
+                Component component = protectionResult.getFirst();
+                CanProtect canProtectEvent = new CanProtect(currentPlayerCanProtect.getUsername(), new Pair<>(component != null ? component.getID() : null, protectionResult.getSecond()));
                 eventCallback.trigger(canProtectEvent);
 
                 internalState = PiratesInternalState.PENALTY;

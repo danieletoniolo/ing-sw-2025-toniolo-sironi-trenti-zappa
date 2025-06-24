@@ -802,7 +802,7 @@ public class SpaceShip {
     public void destroyComponent(int row, int column) throws IllegalArgumentException {
         Component destroyedComponent = components[row][column];
         if (destroyedComponent == null) {
-            throw new IllegalArgumentException("The component at the given row and column is null");
+            throw new IllegalArgumentException("The component at [" + row + "; " + column + "]" + " is null");
         }
         components[row][column] = null;
 
