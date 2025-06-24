@@ -3,12 +3,12 @@ package it.polimi.ingsw.model.state;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.player.UpdateCoins;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.HitComing;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.Pirates;
 import it.polimi.ingsw.model.game.board.Board;
@@ -192,8 +192,8 @@ public class PiratesState extends State {
                     }
                     internalState = PiratesInternalState.CAN_PROTECT;
 
-                    HitComing hitComingEvent = new HitComing(getCurrentPlayer().getUsername());
-                    eventCallback.trigger(hitComingEvent);
+                    ForcingPenalty forcingPenalty = new ForcingPenalty(getCurrentPlayer().getUsername(), PenaltyType.HIT_PENALTY.getValue());
+                    eventCallback.trigger(forcingPenalty);
                     currentPlayerCanProtect = getCurrentPlayer();
                 }
                 break;
@@ -219,8 +219,8 @@ public class PiratesState extends State {
                     }
                     internalState = PiratesInternalState.CAN_PROTECT;
 
-                    HitComing hitComingEvent = new HitComing(getCurrentPlayer().getUsername());
-                    eventCallback.trigger(hitComingEvent);
+                    ForcingPenalty forcingPenalty = new ForcingPenalty(getCurrentPlayer().getUsername(), PenaltyType.HIT_PENALTY.getValue());
+                    eventCallback.trigger(forcingPenalty);
                     currentPlayerCanProtect = getCurrentPlayer();
                 }
                 break;
@@ -258,8 +258,8 @@ public class PiratesState extends State {
                         }
                         currentPlayerCanProtect = getCurrentPlayer();
 
-                        HitComing hitComingEvent = new HitComing(currentPlayerCanProtect.getUsername());
-                        eventCallback.trigger(hitComingEvent);
+                        ForcingPenalty forcingPenalty = new ForcingPenalty(currentPlayerCanProtect.getUsername(), PenaltyType.HIT_PENALTY.getValue());
+                        eventCallback.trigger(forcingPenalty);
 
                         internalState = PiratesInternalState.CAN_PROTECT;
                     }
@@ -276,6 +276,13 @@ public class PiratesState extends State {
                 break;
             case GIVE_UP:
                 super.execute(player);
+
+                try {
+                    ForcingGiveUp forcingGiveUpEvent = new ForcingGiveUp(getCurrentPlayer().getUsername(), "You are forced to give up, you have no human crew left");
+                    eventCallback.trigger(forcingGiveUpEvent);
+                } catch (IllegalStateException e) {
+                    // Ignore the exception, it means there are no more players left to give up
+                }
                 break;
         }
 

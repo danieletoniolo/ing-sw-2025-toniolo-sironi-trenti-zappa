@@ -7,7 +7,6 @@ import it.polimi.ingsw.event.game.serverToClient.cards.*;
 import it.polimi.ingsw.event.game.serverToClient.deck.*;
 import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
-import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBatteriesPenalty;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
@@ -123,9 +122,6 @@ public class EventHandlerClient {
     private final CastEventReceiver<BatteriesLoss> batteriesLossReceiver;
     private final EventListener<BatteriesLoss> getBatteriesLossListener;
 
-    private final CastEventReceiver<ForcingBatteriesPenalty> forcingBatteriesPenaltyReceiver;
-    private final EventListener<ForcingBatteriesPenalty> forcingBatteriesPenaltyListener;
-
     private final CastEventReceiver<ForcingGiveUp> forcingGiveUpReceiver;
     private final EventListener<ForcingGiveUp> forcingGiveUpListener;
 
@@ -201,6 +197,9 @@ public class EventHandlerClient {
     private final CastEventReceiver<CardPlayed> cardPlayedReceiver;
     private final EventListener<CardPlayed> cardPlayedListener;
 
+    private final CastEventReceiver<CombatZonePhase> combatZonePhaseReceiver;
+    private final EventListener<CombatZonePhase> combatZonePhaseListener;
+
     private final CastEventReceiver<CurrentPlayer> currentPlayerReceiver;
     private final EventListener<CurrentPlayer> currentPlayerListener;
 
@@ -227,9 +226,6 @@ public class EventHandlerClient {
 
     private final CastEventReceiver<InvalidComponents> invalidComponentsReceiver;
     private final EventListener<InvalidComponents> invalidComponentsListener;
-
-    private final CastEventReceiver<HitComing> hitComingReceiver;
-    private final EventListener<HitComing> hitComingListener;
 
     private final CastEventReceiver<SetCannonStrength> setCannonStrengthReceiver;
     private final EventListener<SetCannonStrength> setCannonStrengthListener;
@@ -634,10 +630,6 @@ public class EventHandlerClient {
             manager.notifyBatteriesLoss(data);
         };
 
-        // FORCING INTERNAL STATE events
-        forcingBatteriesPenaltyReceiver = new CastEventReceiver<>(this.transceiver);
-        forcingBatteriesPenaltyListener = manager::notifyForcingBatteriesPenalty;
-
         /*
          * Force the player to do giveUp
          */
@@ -653,7 +645,16 @@ public class EventHandlerClient {
         forcingPenaltyListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
-             MiniModel.getInstance().setCurrentPlayer(player);
+            MiniModel.getInstance().setCurrentPlayer(player);
+            if (data.penaltyType() == 3) {
+                CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
+                if (card.getCardViewType() == CardViewType.METEORSSWARM) {
+                    ((MeteorSwarmView) card).nextHit();
+                } else if (card.getCardViewType() == CardViewType.PIRATES) {
+                    ((PiratesView) card).nextHit();
+                }
+            }
+
              manager.notifyForcingPenalty(data);
         };
 
@@ -940,6 +941,14 @@ public class EventHandlerClient {
         cardPlayedReceiver = new CastEventReceiver<>(this.transceiver);
         cardPlayedListener = manager::notifyCardPlayed;
 
+        combatZonePhaseReceiver = new CastEventReceiver<>(this.transceiver);
+        combatZonePhaseListener = data -> {
+            CombatZoneView card = (CombatZoneView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
+            card.setCont(data.phaseNumber());
+
+            manager.notifyCombatZonePhase(data);
+        };
+
         /*
          * Notify who is the player who is playing
          */
@@ -1061,23 +1070,6 @@ public class EventHandlerClient {
             }
 
             manager.notifyInvalidComponents(data);
-        };
-
-        /*
-         * Set the next hit
-         */
-        hitComingReceiver = new CastEventReceiver<>(this.transceiver);
-        hitComingListener = data -> {
-            PlayerDataView player = getPlayerDataView(data.nickname());
-
-            MiniModel.getInstance().setCurrentPlayer(player);
-            CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
-            if (card.getCardViewType() == CardViewType.METEORSSWARM) {
-                ((MeteorSwarmView) card).nextHit();
-            } else if (card.getCardViewType() == CardViewType.PIRATES) {
-                ((PiratesView) card).nextHit();
-            }
-            manager.notifyHitComing(data);
         };
 
         /*
@@ -1249,7 +1241,6 @@ public class EventHandlerClient {
 
         batteriesLossReceiver.registerListener(getBatteriesLossListener);
 
-        forcingBatteriesPenaltyReceiver.registerListener(forcingBatteriesPenaltyListener);
         forcingGiveUpReceiver.registerListener(forcingGiveUpListener);
         forcingPenaltyReceiver.registerListener(forcingPenaltyListener);
 
@@ -1281,6 +1272,7 @@ public class EventHandlerClient {
         moveMarkerReceiver.registerListener(moveMarkerListener);
         playerGaveUpReceiver.registerListener(playerGaveUpListener);
         cardPlayedReceiver.registerListener(cardPlayedListener);
+        combatZonePhaseReceiver.registerListener(combatZonePhaseListener);
         currentPlayerReceiver.registerListener(currentPlayerListener);
         scoreReceiver.registerListener(scoreListener);
         updateCoinsReceiver.registerListener(updateCoinsListener);
@@ -1292,7 +1284,6 @@ public class EventHandlerClient {
         componentDestroyedReceiver.registerListener(componentDestroyedListener);
         fragmentsReceiver.registerListener(fragmentsListener);
         invalidComponentsReceiver.registerListener(invalidComponentsListener);
-        hitComingReceiver.registerListener(hitComingListener);
         setCannonStrengthReceiver.registerListener(setCannonStrengthListener);
         setEngineStrengthReceiver.registerListener(setEngineStrengthListener);
         updateCrewMembersReceiver.registerListener(updateCrewMembersListener);

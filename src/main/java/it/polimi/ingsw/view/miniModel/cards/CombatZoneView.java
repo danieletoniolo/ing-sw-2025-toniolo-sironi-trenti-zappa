@@ -8,18 +8,19 @@ public class CombatZoneView extends CardView {
     private final int loss;
     private final int flightDays;
     private final List<HitView> hits;
+    private int cont;
 
     public CombatZoneView(int ID, boolean covered, int level, int loss, int flightDays, List<HitView> hits) {
         super(ID, covered, level);
         this.loss = loss;
         this.flightDays = flightDays;
         this.hits = hits;
+        this.cont = 0;
     }
 
     @Override
     public String drawLineTui(int l) {
         if(isCovered()) return super.drawLineTui(l);
-
 
         StringBuilder line = new StringBuilder(switch (l) {
             case 0 -> Up;
@@ -42,6 +43,14 @@ public class CombatZoneView extends CardView {
             line.append("│");
         }
         return line.toString();
+    }
+
+    public void setCont(int cont) {
+        this.cont = cont;
+    }
+
+    public int getCont() {
+        return cont;
     }
 
     public int getLoss() {

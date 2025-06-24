@@ -3,9 +3,9 @@ package it.polimi.ingsw.model.state;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.HitComing;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.MeteorSwarm;
 import it.polimi.ingsw.model.game.board.Board;
@@ -138,7 +138,6 @@ public class MeteorSwarmState extends State {
         }
 
         SpaceShip spaceShip = player.getSpaceShip();
-
         switch (internalStates.get(player)) {
             case ROLL_DICE:
                 int diceValue = dice.getFirst() + dice.getSecond() - 1;
@@ -167,19 +166,15 @@ public class MeteorSwarmState extends State {
                 for (PlayerData p : players) {
                     if (playersStatus.get(p.getColor()) == PlayerStatus.PLAYING || playersStatus.get(p.getColor()) == PlayerStatus.WAITING) {
                         allPlayersPlayed = false;
-                        Logger.getInstance().logError("Player " + p.getUsername() + " has not played yet", true);
                         break;
                     }
                 }
 
-                Logger.getInstance().logError("allPlayersPlayed: " + allPlayersPlayed + " meteorsIndex: " + meteorsIndex, true);
                 if (allPlayersPlayed) {
                     meteorsIndex++;
                     diceRolled = false;
                     if (meteorsIndex >= card.getMeteors().size()) {
-                        Logger.getInstance().logError("No meteorsIndex: " + meteorsIndex, true);
                         if (!playersGivenUp.isEmpty()) {
-                            Logger.getInstance().logError("playersGivenUp: " + playersGivenUp, true);
                             for (PlayerData p : playersGivenUp) {
                                 internalStates.put(p, MeteorSwarmInternalState.GIVE_UP);
 
@@ -196,8 +191,8 @@ public class MeteorSwarmState extends State {
                             playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
                         }
 
-                        HitComing hitComingEvent = new HitComing(players.getFirst().getUsername());
-                        eventCallback.trigger(hitComingEvent);
+                        ForcingPenalty forcingPenalty = new ForcingPenalty(players.getFirst().getUsername(), PenaltyType.HIT_PENALTY.getValue());
+                        eventCallback.trigger(forcingPenalty);
                     }
                 }
                 break;

@@ -3,7 +3,6 @@ package it.polimi.ingsw.view.tui;
 import it.polimi.ingsw.event.game.serverToClient.deck.*;
 import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
-import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBatteriesPenalty;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.PickedTileFromSpaceship;
@@ -243,23 +242,6 @@ public class TuiManager implements Manager {
     }
 
     @Override
-    public void notifyForcingBatteriesPenalty(ForcingBatteriesPenalty data) {
-        if (mm.getNickname().equals(data.nickname())) {
-            synchronized (stateLock) {
-                currentScreen.setNextScreen(new LooseBatteryCards());
-                currentScreen.setMessage("You have no more goods, you must discard batteries");
-                stateLock.notifyAll();
-            }
-        }
-        else {
-            synchronized (stateLock) {
-                currentScreen.setMessage(data.nickname() + " has no more goods, batteries must be discarded");
-                stateLock.notifyAll();
-            }
-        }
-    }
-
-    @Override
     public void notifyForcingGiveUp(ForcingGiveUp data) {
         synchronized (stateLock) {
             if (mm.getNickname().equals(data.nickname())) {
@@ -301,7 +283,22 @@ public class TuiManager implements Manager {
                         currentScreen = batteries;
                         currentScreen.setMessage("You have no more goods, you must discard batteries");
                         break;
+                    case 3:
+                        TuiScreenView rollDice = new RollDiceCards();
+                        currentScreen.setNextScreen(rollDice);
+                        currentScreen = rollDice;
+                        currentScreen.setMessage("New hit is coming! Good luck");
+                        break;
+
                 }
+                parser.changeScreen();
+            }
+        } else {
+            synchronized (stateLock) {
+                TuiScreenView notTurn = new NotClientTurnCards();
+                currentScreen.setNextScreen(notTurn);
+                currentScreen = notTurn;
+                currentScreen.setMessage("Waiting for " + data.nickname() + " to manage the penalty");
                 parser.changeScreen();
             }
         }
@@ -468,6 +465,11 @@ public class TuiManager implements Manager {
     }
 
     @Override
+    public void notifyCombatZonePhase(CombatZonePhase data) {
+        cardScreen = new CombatZoneCards();
+    }
+
+    @Override
     public void notifyCurrentPlayer(CurrentPlayer data) {
         synchronized (stateLock) {
             // Check if the current player is not the client
@@ -604,25 +606,6 @@ public class TuiManager implements Manager {
                 }
                 stateLock.notifyAll();
             }
-        }
-    }
-
-    @Override
-    public void notifyHitComing(HitComing data) {
-        synchronized (stateLock) {
-            if (mm.getNickname().equals(data.nickname())) {
-                TuiScreenView rollDice = new RollDiceCards();
-                currentScreen.setNextScreen(rollDice);
-                currentScreen = rollDice;
-                currentScreen.setMessage("New hit is coming! Good luck");
-            }
-            else {
-                TuiScreenView notTurn = new NotClientTurnCards();
-                currentScreen.setNextScreen(notTurn);
-                currentScreen = notTurn;
-                currentScreen.setMessage("A new hit is coming, " + data.nickname() + " is rolling the dice for everyone");
-            }
-            parser.changeScreen();
         }
     }
 
@@ -764,7 +747,6 @@ public class TuiManager implements Manager {
                     LooseGoodsCards.destroyStatics();
                     LooseBatteryCards.destroyStatics();
                     Validation.destroyStatics();
-                    CombatZoneCards.resetCont();
                 }
             }
 

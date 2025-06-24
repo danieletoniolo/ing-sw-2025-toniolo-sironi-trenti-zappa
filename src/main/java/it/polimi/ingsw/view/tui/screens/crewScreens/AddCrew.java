@@ -40,7 +40,11 @@ public class AddCrew extends ModifyCrew {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == spaceShipView.getMapCabins().size()) {
+        int num = (int) MiniModel.getInstance().getClientPlayer().getShip().getMapCabins().values().stream()
+                    .filter(cabin -> (value == 3) == (cabin.getCrewNumber() != 0))
+                    .count();
+
+        if (selected == num) {
             return new MainCrew();
         }
 

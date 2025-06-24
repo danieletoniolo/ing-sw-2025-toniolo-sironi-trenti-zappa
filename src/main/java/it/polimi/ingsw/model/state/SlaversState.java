@@ -156,7 +156,7 @@ public class SlaversState extends State {
                 break;
             case PENALTY:
                 if (spaceShip.getHumanCrewNumber() == 0) {
-                    ForcingGiveUp lostEvent = new ForcingGiveUp(player.getUsername(), "You have not enough crew members to serve the penalty, you have to give up");
+                    ForcingGiveUp lostEvent = new ForcingGiveUp(player.getUsername(), "You are forced to give up, you have no human crew left");
                     eventCallback.trigger(lostEvent, player.getUUID());
                     internalState = SlaversInternalState.GIVE_UP;
                     this.hasPlayerForceGiveUp = true;

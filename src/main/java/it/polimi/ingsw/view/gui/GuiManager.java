@@ -3,7 +3,6 @@ package it.polimi.ingsw.view.gui;
 import it.polimi.ingsw.event.game.serverToClient.deck.PickedLeftDeck;
 import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.BatteriesLoss;
-import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBatteriesPenalty;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
 import it.polimi.ingsw.event.game.serverToClient.goods.UpdateGoodsExchange;
@@ -158,11 +157,6 @@ public class GuiManager extends Application implements Manager {
     }
 
     @Override
-    public void notifyForcingBatteriesPenalty(ForcingBatteriesPenalty data) {
-
-    }
-
-    @Override
     public void notifyForcingGiveUp(ForcingGiveUp data) {
 
     }
@@ -214,6 +208,11 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyCardPlayed(CardPlayed data) {
+
+    }
+
+    @Override
+    public void notifyCombatZonePhase(CombatZonePhase data) {
 
     }
 
@@ -279,11 +278,6 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyInvalidComponents(InvalidComponents data) {
-
-    }
-
-    @Override
-    public void notifyHitComing(HitComing data) {
 
     }
 
