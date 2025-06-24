@@ -15,7 +15,7 @@ public class ProtectionNotRequired extends CardsGame {
 
     public ProtectionNotRequired() {
         super(new ArrayList<>() {{
-            add("Next hit");
+            add("Ready for the impact");
         }});
         setMessage("You don't need to protect from the hit");
     }

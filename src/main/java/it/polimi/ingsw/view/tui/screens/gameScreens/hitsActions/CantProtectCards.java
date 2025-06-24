@@ -15,7 +15,7 @@ public class CantProtectCards extends CardsGame {
 
     public CantProtectCards() {
         super(new ArrayList<>() {{
-            add("Next hit");
+            add("Ready for the impact");
         }});
         setMessage("Yuo can't protect from the hit");
     }

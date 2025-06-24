@@ -594,7 +594,7 @@ public class TuiManager implements Manager {
                 TuiScreenView notTurn = new NotClientTurnCards();
                 currentScreen.setNextScreen(notTurn);
                 currentScreen = notTurn;
-                currentScreen.setMessage("New hit is going to hit " + data.nickname());
+                currentScreen.setMessage("A new hit is coming, " + data.nickname() + " is rolling the dice for everyone");
             }
             parser.changeScreen();
         }
