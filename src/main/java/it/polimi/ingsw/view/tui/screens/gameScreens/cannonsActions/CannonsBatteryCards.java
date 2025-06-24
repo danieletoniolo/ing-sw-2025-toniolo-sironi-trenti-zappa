@@ -11,9 +11,8 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import java.util.ArrayList;
 
 public class CannonsBatteryCards extends ManagerCannonsCards {
-    private final TuiScreenView oldScreen;
 
-    public CannonsBatteryCards(TuiScreenView oldScreen) {
+    public CannonsBatteryCards() {
         super(new ArrayList<>(){{
             if (batteriesIDs == null) {
                 batteriesIDs = new ArrayList<>();
@@ -30,7 +29,6 @@ public class CannonsBatteryCards extends ManagerCannonsCards {
             add("Cancel");
             add("Done");
         }});
-        this.oldScreen = oldScreen;
     }
 
     @Override
@@ -51,8 +49,8 @@ public class CannonsBatteryCards extends ManagerCannonsCards {
 
         if (selected == num) {
             destroyStatics();
-            oldScreen.setMessage(null);
-            return oldScreen;
+            setMessage(null);
+            return new ChooseDoubleCannonsCards();
         }
 
         if (selected == num + 1) {
@@ -61,13 +59,13 @@ public class CannonsBatteryCards extends ManagerCannonsCards {
             status = UseCannons.requester(Client.transceiver, new Object()).request(new UseCannons(MiniModel.getInstance().getUserID(), cannonsIDs, batteriesIDs));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
-                return oldScreen;
+                return new ChooseDoubleCannonsCards();
             }
             // Send the request to end the turn
             status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
-                return oldScreen;
+                return new ChooseDoubleCannonsCards();
             }
 
             destroyStatics();
@@ -93,7 +91,7 @@ public class CannonsBatteryCards extends ManagerCannonsCards {
             line.append("(").append(spaceShipView.getMapBatteries().get(ID).getRow()).append(" ").append(spaceShipView.getMapBatteries().get(ID).getCol()).append(") ");
         }
 
-        TuiScreenView newScreen = new CannonsBatteryCards(oldScreen);
+        TuiScreenView newScreen = new CannonsBatteryCards();
         newScreen.setMessage("You are activating " + line);
         return newScreen;
     }

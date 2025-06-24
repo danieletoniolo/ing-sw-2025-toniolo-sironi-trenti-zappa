@@ -53,6 +53,10 @@ public class SlaversState extends State {
      */
     @Override
     public void useExtraStrength(PlayerData player, int type, List<Integer> IDs, List<Integer> batteriesID) throws IllegalStateException, IllegalArgumentException {
+        if (this.hasPlayerForceGiveUp) {
+            throw new IllegalStateException("You are forced to give up, you cannot use extra strength");
+        }
+
         switch (type) {
             case 0 -> throw new IllegalStateException("Cannot use double engines in this state");
             case 1 -> {
@@ -74,6 +78,10 @@ public class SlaversState extends State {
      */
     @Override
     public void setPenaltyLoss(PlayerData player, int type, List<Integer> cabinsID) throws IllegalStateException {
+        if (this.hasPlayerForceGiveUp) {
+            throw new IllegalStateException("You are forced to give up, you cannot set crew to remove");
+        }
+
         switch (type) {
             case 0 -> throw new IllegalStateException("No goods to remove in this state");
             case 1 -> throw new IllegalStateException("No batteries to remove in this state");
@@ -120,12 +128,7 @@ public class SlaversState extends State {
                     internalState = SlaversInternalState.REWARD;
                 } else if (cannonStrength.get(player) < cannonStrengthRequired) {
                     slaversDefeat = false;
-
-                    if (spaceShip.getHumanCrewNumber() <= card.getCrewLost()) {
-                        this.hasPlayerForceGiveUp = true;
-                    } else {
-                        internalState = SlaversInternalState.PENALTY;
-                    }
+                    internalState = SlaversInternalState.PENALTY;
                 } else {
                     slaversDefeat = null;
                     sendCurrentPlayer = true;
@@ -134,12 +137,6 @@ public class SlaversState extends State {
 
                 EnemyDefeat enemyEvent = new EnemyDefeat(player.getUsername(), slaversDefeat);
                 eventCallback.trigger(enemyEvent);
-
-                if (hasPlayerForceGiveUp) {
-                    ForcingGiveUp lostEvent = new ForcingGiveUp("You have not enough crew members to serve the penalty, you have to give up");
-                    eventCallback.trigger(lostEvent, player.getUUID());
-                    internalState = SlaversInternalState.GIVE_UP;
-                }
                 break;
             case REWARD:
                 if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
@@ -158,14 +155,20 @@ public class SlaversState extends State {
                 }
                 break;
             case PENALTY:
-                super.execute(player);
-                internalState = SlaversInternalState.ENEMY_DEFEAT;
-                sendCurrentPlayer = true;
+                if (spaceShip.getHumanCrewNumber() == 0) {
+                    ForcingGiveUp lostEvent = new ForcingGiveUp(player.getUsername(), "You have not enough crew members to serve the penalty, you have to give up");
+                    eventCallback.trigger(lostEvent, player.getUUID());
+                    internalState = SlaversInternalState.GIVE_UP;
+                    this.hasPlayerForceGiveUp = true;
+                } else {
+                    super.execute(player);
+                    sendCurrentPlayer = true;
+                    internalState = SlaversInternalState.ENEMY_DEFEAT;
+                }
                 break;
             case GIVE_UP:
-                // Reset the forcing of the give up
                 this.hasPlayerForceGiveUp = false;
-                playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
+                super.execute(player);
                 internalState = SlaversInternalState.ENEMY_DEFEAT;
                 sendCurrentPlayer = true;
                 break;

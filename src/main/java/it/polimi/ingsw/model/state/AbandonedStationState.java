@@ -86,11 +86,9 @@ public class AbandonedStationState extends State {
             throw new NullPointerException("player is null");
         }
         if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
-            playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
             super.played = true;
-        } else {
-            playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
         }
+        super.execute(player);
 
         if (!played) {
             try {

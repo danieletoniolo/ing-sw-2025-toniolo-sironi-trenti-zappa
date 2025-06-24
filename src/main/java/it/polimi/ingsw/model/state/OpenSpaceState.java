@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class OpenSpaceState extends State {
     private final Map<PlayerData, Float> stats;
-
+    private boolean hasPlayerForceGiveUp;
 
     /**
      * Constructor
@@ -25,10 +25,15 @@ public class OpenSpaceState extends State {
     public OpenSpaceState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.stats = new HashMap<>();
+        this.hasPlayerForceGiveUp = false;
     }
 
     @Override
     public void useExtraStrength(PlayerData player, int type, List<Integer> IDs, List<Integer> batteriesID) throws IllegalStateException {
+        if (this.hasPlayerForceGiveUp) {
+            throw new IllegalStateException("You are forced to give up, you cannot use extra strength");
+        }
+
         switch (type) {
             case 0 -> {
                 Event event = Handler.useExtraStrength(player, type, IDs, batteriesID);
@@ -63,14 +68,19 @@ public class OpenSpaceState extends State {
      */
     @Override
     public void execute(PlayerData player) throws IllegalStateException {
-        if (stats.get(player) == 0 && board.getInGamePlayers().contains(player)) {
-            ForcingGiveUp forcingGiveUpEvent = new ForcingGiveUp("You have no engines, you have to give up");
+        if (stats.get(player) == 0 && !this.hasPlayerForceGiveUp) {
+            ForcingGiveUp forcingGiveUpEvent = new ForcingGiveUp(player.getUsername(), "You have no engines, you have to give up");
             eventCallback.trigger(forcingGiveUpEvent, player.getUUID());
+            this.hasPlayerForceGiveUp = true;
         } else {
-            board.addSteps(player, stats.get(player).intValue());
+            if (!this.hasPlayerForceGiveUp){
+                board.addSteps(player, stats.get(player).intValue());
 
-            MoveMarker stepEvent = new MoveMarker(player.getUsername(),  player.getModuleStep(board.getStepsForALap()));
-            eventCallback.trigger(stepEvent);
+                MoveMarker stepEvent = new MoveMarker(player.getUsername(), player.getModuleStep(board.getStepsForALap()));
+                eventCallback.trigger(stepEvent);
+            }
+
+            this.hasPlayerForceGiveUp = false;
 
             super.execute(player);
 

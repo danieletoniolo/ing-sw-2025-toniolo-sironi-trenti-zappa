@@ -2,11 +2,13 @@ package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.player.UpdateCoins;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.HitComing;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.Pirates;
 import it.polimi.ingsw.model.game.board.Board;
@@ -16,10 +18,7 @@ import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.model.state.utils.MutablePair;
 import org.javatuples.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class PiratesState extends State {
@@ -29,9 +28,11 @@ public class PiratesState extends State {
     private Boolean piratesDefeat;
     private final ArrayList<PlayerData> playersDefeated;
     private final List<List<Pair<Integer, Integer>>> fragments;
-    private final MutablePair<Component, Integer> protectionResult;
+    private MutablePair<Component, Integer> protectionResult;
+    private final MutablePair<Integer, Integer> dice;
     private int hitIndex;
-    private boolean diceRolled;
+    private PlayerData currentPlayerCanProtect;
+    private final ArrayList<PlayerData> playersGivenUp;
 
     /**
      * Enum to represent the internal state of the pirates state.
@@ -39,7 +40,9 @@ public class PiratesState extends State {
     enum PiratesInternalState {
         ENEMY_DEFEAT,
         REWARD,
-        PENALTY
+        CAN_PROTECT,
+        PENALTY,
+        GIVE_UP
     }
 
     /**
@@ -57,7 +60,9 @@ public class PiratesState extends State {
         this.fragments = new ArrayList<>();
         this.protectionResult = new MutablePair<>(null, -1);
         this.hitIndex = 0;
-        this.diceRolled = false;
+        this.dice = new MutablePair<>(-1, -1);
+        this.currentPlayerCanProtect = null;
+        this.playersGivenUp = new ArrayList<>();
     }
 
     /**
@@ -87,7 +92,7 @@ public class PiratesState extends State {
      */
     @Override
     public void setProtect(PlayerData player, int batteryID) throws IllegalStateException, IllegalArgumentException {
-        if (internalState != PiratesInternalState.PENALTY || !diceRolled) {
+        if (internalState != PiratesInternalState.PENALTY && internalState != PiratesInternalState.CAN_PROTECT) {
             throw new IllegalStateException("setProtect not allowed in this state");
         }
         Event event = Handler.protectFromHit(player, protectionResult, batteryID);
@@ -95,11 +100,7 @@ public class PiratesState extends State {
             eventCallback.trigger(event);
         }
         event = Handler.checkForFragments(player, fragments);
-        if (event != null) {
-            eventCallback.trigger(event);
-        } else {
-            fragments.clear();
-        }
+        eventCallback.trigger(event);
     }
 
     /**
@@ -107,16 +108,11 @@ public class PiratesState extends State {
      */
     @Override
     public void rollDice(PlayerData player) throws IllegalStateException {
-        if (internalState != PiratesInternalState.PENALTY) {
+        if (internalState != PiratesInternalState.CAN_PROTECT) {
             throw new IllegalStateException("setDice not allowed in this state");
         }
-        if (diceRolled) {
-            throw new IllegalStateException("Dice already rolled in this state");
-        }
-        Pair<Event, Event> event = Handler.rollDice(player, card.getFires().get(hitIndex), protectionResult);
-        eventCallback.trigger(event.getValue0());
-        eventCallback.trigger(event.getValue1());
-        diceRolled = true;
+        Event event = Handler.rollDice(player, dice);
+        eventCallback.trigger(event);
     }
 
     /**
@@ -129,7 +125,7 @@ public class PiratesState extends State {
         switch (type) {
             case 0 -> throw new IllegalStateException("Cannot use double engine in this state");
             case 1 -> {
-                if (internalState == PiratesInternalState.ENEMY_DEFEAT) {
+                if (internalState != PiratesInternalState.ENEMY_DEFEAT) {
                     throw new IllegalStateException("Cannot use double cannons in this state");
                 }
                 Event event = Handler.useExtraStrength(player, type, IDs, batteriesID);
@@ -162,27 +158,44 @@ public class PiratesState extends State {
      */
     @Override
     public void execute(PlayerData player) throws IllegalStateException {
+        SpaceShip spaceShip = player.getSpaceShip();
         boolean sendCurrentPlayer = false;
 
         switch (internalState) {
             case ENEMY_DEFEAT:
                 int cannonStrengthRequired = card.getCannonStrengthRequired();
-                
+
                 if (cannonsStrength.get(player) > cannonStrengthRequired) {
                     piratesDefeat = true;
                     internalState = PiratesInternalState.REWARD;
                 } else if (cannonsStrength.get(player) < cannonStrengthRequired) {
                     piratesDefeat = false;
-                    internalState = PiratesInternalState.PENALTY;
                     this.playersDefeated.add(player);
+                    if (players.indexOf(player) != players.size() - 1) {
+                        sendCurrentPlayer = true;
+                    }
+                    super.execute(player);
                 } else {
                     piratesDefeat = null;
-                    sendCurrentPlayer = true;
-                    playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
+                    if (players.indexOf(player) != players.size() - 1) {
+                        sendCurrentPlayer = true;
+                    }
+                    super.execute(player);
                 }
 
                 EnemyDefeat enemyDefeat = new EnemyDefeat(player.getUsername(), piratesDefeat);
                 eventCallback.trigger(enemyDefeat);
+
+                if (players.indexOf(player) == players.size() - 1 && (piratesDefeat == null || !piratesDefeat)) {
+                    for (PlayerData p : playersDefeated) {
+                        playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
+                    }
+                    internalState = PiratesInternalState.CAN_PROTECT;
+
+                    HitComing hitComingEvent = new HitComing(getCurrentPlayer().getUsername());
+                    eventCallback.trigger(hitComingEvent);
+                    currentPlayerCanProtect = getCurrentPlayer();
+                }
                 break;
             case REWARD:
                 if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING) {
@@ -195,27 +208,74 @@ public class PiratesState extends State {
                     MoveMarker stepsEvent = new MoveMarker(player.getUsername(),  player.getModuleStep(board.getStepsForALap()));
                     eventCallback.trigger(stepsEvent);
                 }
-                super.execute(player);
-                for (PlayerData p: playersDefeated) {
-                    playersStatus.put(p.getColor(), PlayerStatus.WAITING);
+
+                for (PlayerData p: players) {
+                    super.execute(p);
                 }
 
                 if (!playersDefeated.isEmpty()) {
-                    internalState = PiratesInternalState.PENALTY;
+                    for (PlayerData p: playersDefeated) {
+                        playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
+                    }
+                    internalState = PiratesInternalState.CAN_PROTECT;
+
+                    HitComing hitComingEvent = new HitComing(getCurrentPlayer().getUsername());
+                    eventCallback.trigger(hitComingEvent);
+                    currentPlayerCanProtect = getCurrentPlayer();
                 }
                 break;
             case PENALTY:
-                hitIndex++;
-                if (hitIndex > card.getFires().size()) {
-                    NextHit nextHitEvent = new NextHit(player.getUsername());
-                    eventCallback.trigger(nextHitEvent);
-                } else {
-                    playersDefeated.remove(player);
-                    hitIndex = 0;
-                    diceRolled = false;
-                    sendCurrentPlayer = true;
-                    super.execute(player);
+                if (fragments.size() > 1) {
+                    break;
                 }
+                fragments.clear();
+                // TODO: TO TEST THE GIVE UP
+                if (spaceShip.getHumanCrewNumber() == 0 && !playersGivenUp.contains(player)) {
+                    this.playersGivenUp.add(player);
+                }
+
+                super.execute(player);
+
+                try {
+                    currentPlayerCanProtect = getCurrentPlayer();
+                } catch (IllegalStateException e) {
+                    hitIndex++;
+                    if (hitIndex >= card.getFires().size()) {
+                        if (!playersGivenUp.isEmpty()) {
+                            internalState = PiratesInternalState.GIVE_UP;
+                            ForcingGiveUp forcingGiveUpEvent = new ForcingGiveUp(playersGivenUp.getFirst().getUsername(), "You are forced to give up, you have no human crew left");
+                            eventCallback.trigger(forcingGiveUpEvent);
+
+                            for (PlayerData p : playersGivenUp) {
+                                playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
+                            }
+                        } else {
+                            sendCurrentPlayer = true;
+                        }
+                    } else {
+                        for (PlayerData p : playersDefeated) {
+                            playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
+                        }
+                        currentPlayerCanProtect = getCurrentPlayer();
+
+                        HitComing hitComingEvent = new HitComing(currentPlayerCanProtect.getUsername());
+                        eventCallback.trigger(hitComingEvent);
+
+                        internalState = PiratesInternalState.CAN_PROTECT;
+                    }
+                    break;
+                }
+            case CAN_PROTECT:
+                int diceValue = dice.getFirst() + dice.getSecond() - 1;
+                protectionResult = new MutablePair<>(currentPlayerCanProtect.getSpaceShip().canProtect(diceValue, card.getFires().get(hitIndex)));
+                Component component = protectionResult.getFirst();
+                CanProtect canProtectEvent = new CanProtect(currentPlayerCanProtect.getUsername(), new Pair<>(component != null ? component.getID() : null, protectionResult.getSecond()));
+                eventCallback.trigger(canProtectEvent);
+
+                internalState = PiratesInternalState.PENALTY;
+                break;
+            case GIVE_UP:
+                super.execute(player);
                 break;
         }
 

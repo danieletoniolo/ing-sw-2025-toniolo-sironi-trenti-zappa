@@ -6,7 +6,6 @@ import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBat
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
-import it.polimi.ingsw.event.game.serverToClient.player.UpdateCoins;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.Smugglers;
 import it.polimi.ingsw.model.game.board.Board;

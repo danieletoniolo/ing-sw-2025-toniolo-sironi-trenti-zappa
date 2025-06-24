@@ -81,10 +81,10 @@ public class CardsManager {
                 - OpenSpace
                 - Slavers
                 - Smugglers
-                -
+                - Pirates
          */
-        //                12  9  6  3  11   8  5  2  10   7  4  1
-        int[] cardsIDs = {21, 3, 8, 1, 23, 16, 2, 21, 4, 10, 0, 1};
+        //                12  9  6   3  11   8   5  2  10  7  4   1
+        int[] cardsIDs = {21, 3, 2, 28, 23, 16, 30, 9, 4, 10, 29, 8};
 
         for (int cardsID : cardsIDs) {
             selectedCards.add(cards[cardsID]);

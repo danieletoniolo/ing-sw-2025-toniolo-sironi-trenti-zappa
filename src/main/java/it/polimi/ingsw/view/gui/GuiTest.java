@@ -3,13 +3,19 @@ package it.polimi.ingsw.view.gui;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.good.Good;
+import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
+import it.polimi.ingsw.view.gui.screens.MenuController;
+import it.polimi.ingsw.view.miniModel.MiniModel;
+import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
-import it.polimi.ingsw.view.miniModel.components.BatteryView;
+import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
+import it.polimi.ingsw.view.miniModel.lobby.LobbyView;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -46,15 +52,25 @@ public class GuiTest extends Application {
         Node root = d.getNode();
          */
 
-        //BoardView b = new BoardView(LevelView.LEARNING, 2);
-        //b.movePlayer(MarkerView.BLUE, 0);
-        //Node root = b.getNode();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/menu.fxml"));
+        Parent root = loader.load();
+        LobbyView lobbyView = new LobbyView("Test Lobby", 2, 4, LevelView.LEARNING);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MiniModel.getInstance().getLobbiesView().add(lobbyView);
+        MenuController lc = loader.getController();
+        lc.react();
 
-        BatteryView b = new BatteryView(1, new int[]{0, 0, 0, 0}, 0, 3 );
-        b.setNumberOfBatteries(3);
-        Node root = b.getNode();
+        Scene scene = new Scene(root);
 
-        Scene scene = new Scene((Parent) root);
+        lc.react();
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();

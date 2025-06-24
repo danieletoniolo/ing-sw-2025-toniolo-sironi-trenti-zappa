@@ -1,18 +1,27 @@
 package it.polimi.ingsw.view.miniModel.lobby;
 
+import it.polimi.ingsw.view.gui.controllers.misc.LobbyBoxController;
+import it.polimi.ingsw.view.miniModel.MiniModelObservable;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class LobbyView implements Structure {
+public class LobbyView implements Structure, MiniModelObservable {
     private final Map<String, Boolean> players;
     private final String lobbyName;
     private final String nameLevel;
     private final int maxPlayer;
     private final LevelView level;
     private int numberOfPlayers;
+    private final List<MiniModelObserver> observers;
 
     public LobbyView(String lobbyName, int numberOfPlayers, int maxPlayer, LevelView level) {
         players = new HashMap<>();
@@ -21,6 +30,45 @@ public class LobbyView implements Structure {
         this.maxPlayer = maxPlayer;
         this.numberOfPlayers = numberOfPlayers;
         this.level = level;
+        this.observers = new ArrayList<>();
+    }
+
+    @Override
+    public void registerObserver(MiniModelObserver observer) {
+        synchronized (observers) {
+            observers.add(observer);
+        }
+    }
+
+    @Override
+    public void unregisterObserver(MiniModelObserver observer) {
+        synchronized (observers) {
+            observers.remove(observer);
+        }
+    }
+
+    @Override
+    public void notifyObservers() {
+        synchronized (observers) {
+            for (MiniModelObserver observer : observers) {
+                observer.react();
+            }
+        }
+    }
+
+    public Node getNode() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/misc/lobbyBox.fxml"));
+            Node root = loader.load();
+
+            LobbyBoxController controller = loader.getController();
+            controller.setModel(this);
+
+            return root;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public LevelView getLevel() {
@@ -30,11 +78,13 @@ public class LobbyView implements Structure {
     public void addPlayer(String playerName) {
         players.put(playerName, false);
         numberOfPlayers++;
+        notifyObservers();
     }
 
     public void removePlayer(String playerName) {
         players.remove(playerName);
         numberOfPlayers--;
+        notifyObservers();
     }
 
     public int getNumberOfPlayers() {

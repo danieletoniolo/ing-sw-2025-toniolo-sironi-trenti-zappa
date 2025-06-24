@@ -239,12 +239,20 @@ public class GameController implements Serializable, StateTransitionHandler {
         }
     }
 
-    public void rollDice(UUID uuid) {
-        PlayerData player = state.getCurrentPlayer();
-        if (player.getUUID().equals(uuid)) {
+    public void rollDice(PlayerData player) {
+        try {
+            PlayerData currentPlayer = state.getCurrentPlayer();
+            if (!currentPlayer.equals(player)) {
+                throw new IllegalStateException("Not the current player");
+            }
+        } catch (SynchronousStateException e) {
+            // Ignore the exception, it is expected in synchronous states
+        }
+
+        try {
             state.rollDice(player);
-        } else {
-            throw new IllegalStateException("Not the current player");
+        } catch (Exception exception) {
+            throw new IllegalStateException(exception.getMessage());
         }
     }
 
@@ -282,12 +290,20 @@ public class GameController implements Serializable, StateTransitionHandler {
         }
     }
 
-    public void setProtect(UUID uuid, int batteryID) {
-        PlayerData player = state.getCurrentPlayer();
-        if (player.getUUID().equals(uuid)) {
+    public void setProtect(PlayerData player, int batteryID) {
+        try {
+            PlayerData currentPlayer = state.getCurrentPlayer();
+            if (!currentPlayer.equals(player)) {
+                throw new IllegalStateException("Not the current player");
+            }
+        } catch (SynchronousStateException e) {
+            // Ignore the exception, it is expected in synchronous states
+        }
+
+        try {
             state.setProtect(player, batteryID);
-        } else {
-            throw new IllegalStateException("Not the current player");
+        } catch (Exception exception) {
+            throw new IllegalStateException(exception.getMessage());
         }
     }
 

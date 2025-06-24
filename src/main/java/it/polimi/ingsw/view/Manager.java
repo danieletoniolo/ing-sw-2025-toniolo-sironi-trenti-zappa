@@ -5,6 +5,7 @@ import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBatteriesPenalty;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.PickedTileFromSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
@@ -16,11 +17,9 @@ import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 
 public interface Manager {
-    void notifyUserIDSet();
+    void notifyNicknameSet(NicknameSet data);
 
     void notifyConnectionLost();
-
-    void notifyNicknameSet();
 
     void notifyLobbies();
 
@@ -33,8 +32,6 @@ public interface Manager {
     void notifyLobbyRemoved(LobbyRemoved data);
 
     void notifyReadyPlayer();
-
-    void notifyStartingGame(StartingGame data);
 
     void notifyCountDown();
 
@@ -50,7 +47,9 @@ public interface Manager {
     // Forcing internal state
     void notifyForcingBatteriesPenalty(ForcingBatteriesPenalty data);
 
-    void notifyForceGiveUp(ForcingGiveUp data);
+    void notifyForcingGiveUp(ForcingGiveUp data);
+
+    void notifyForcingPenalty(ForcingPenalty data);
 
     // Goods
     void notifyUpdateGoodsExchange(UpdateGoodsExchange data);
@@ -103,7 +102,7 @@ public interface Manager {
 
     void notifyInvalidComponents(InvalidComponents data);
 
-    void notifyNextHit(NextHit data);
+    void notifyHitComing(HitComing data);
 
     void notifySetCannonStrength(SetCannonStrength data);
 
@@ -117,7 +116,6 @@ public interface Manager {
     void notifyTimerFinished(TimerFlipped data);
 
     void notifyLastTimerFlipped();
-
 
     void notifyStateChange();
 }

@@ -74,7 +74,7 @@ public class AddCrew extends ModifyCrew {
             mode = 1;
             type = cabin.hasBrownAlien() ? 1 : cabin.hasPurpleAlien() ? 2 : 0;
         }
-        else{
+        else {
             type = value;
         }
 
@@ -84,6 +84,7 @@ public class AddCrew extends ModifyCrew {
         if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
         }
+
         return new MainCrew();
     }
 }

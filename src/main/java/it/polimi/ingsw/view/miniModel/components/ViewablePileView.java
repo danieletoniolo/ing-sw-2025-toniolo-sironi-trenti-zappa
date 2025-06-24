@@ -1,63 +1,77 @@
 package it.polimi.ingsw.view.miniModel.components;
 
-import it.polimi.ingsw.view.gui.controllers.components.ViewablePileController;
+import it.polimi.ingsw.view.gui.controllers.misc.ViewablePileController;
+import it.polimi.ingsw.view.miniModel.MiniModelObservable;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.Structure;
-import it.polimi.ingsw.view.tui.TerminalUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ViewablePileView implements Structure {
-    private final List<ComponentView> viewableComponents = new ArrayList<>();
-    private final List<MiniModelObserver> listeners = new ArrayList<>();
+public class ViewablePileView implements Structure, MiniModelObservable {
+    private final List<ComponentView> viewableComponents;
+    private final List<MiniModelObserver> observers;
     private final int cols = 21;
 
-    public void addComponent(ComponentView component) {
-        viewableComponents.add(component);
-        notifyListeners();
+    public ViewablePileView() {
+        this.viewableComponents = new ArrayList<>();
+        this.observers = new ArrayList<>();
     }
 
-    public void removeComponent(ComponentView component) {
-        viewableComponents.remove(component);
-        notifyListeners();
-    }
-
-    public ArrayList<ComponentView> getViewableComponents() {
-        return new ArrayList<>(viewableComponents);
-    }
-
-    public void addListener(MiniModelObserver listener) {
-        listeners.add(listener);
-    }
-
-    public void removeListener(MiniModelObserver listener) {
-        listeners.remove(listener);
-    }
-
-    private void notifyListeners() {
-        for (MiniModelObserver listener : listeners) {
-            listener.react();
+    @Override
+    public void registerObserver(MiniModelObserver observer) {
+        synchronized (observers) {
+            observers.add(observer);
         }
     }
 
-    public Node createGuiNode() {
+    @Override
+    public void unregisterObserver(MiniModelObserver observer) {
+        synchronized (observers) {
+            observers.remove(observer);
+        }
+    }
+
+    @Override
+    public void notifyObservers() {
+        synchronized (observers) {
+            for (MiniModelObserver observer : observers) {
+                observer.react();
+            }
+        }
+    }
+
+    public Node getNode() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/components/viewablepile.fxml"));
-            Node root = loader.load();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/misc/viewablePile.fxml"));
+            Node node = loader.load();
 
             ViewablePileController controller = loader.getController();
-            controller.setComponentPile(this);
+            controller.setModel(this);
 
-            return root;
-
+            return node;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void addComponent(ComponentView component) {
+        viewableComponents.add(component);
+        notifyObservers();
+    }
+
+    public void removeComponent(ComponentView component) {
+        viewableComponents.remove(component);
+        notifyObservers();
+    }
+
+    public ArrayList<ComponentView> getViewableComponents() {
+        return new ArrayList<>(viewableComponents);
     }
 
     public int getCols() {

@@ -5,7 +5,7 @@ import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MinPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.NextHit;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.HitComing;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.CombatZone;
 import it.polimi.ingsw.model.game.board.Board;
@@ -134,9 +134,12 @@ public class CombatZoneState extends State {
                 (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
             throw new IllegalStateException("Dice not allowed in this state");
         }
+        // TODO: roll dice
+        /*
         Pair<Event, Event> event = Handler.rollDice(player, card.getFires().get(hitIndex), protectionResult);
         eventCallback.trigger(event.getValue0());
         eventCallback.trigger(event.getValue1());
+        */
     }
 
     /**
@@ -197,7 +200,6 @@ public class CombatZoneState extends State {
                 statPlayer = enginesStats.get(player);
                 if (statPlayer < enginesStats.get(minPlayerEngines)) {
                     minPlayerEngines = player;
-                    minPlayerEvent = new MinPlayer(player.getUsername());
                 }
             }
             case 1 -> {
@@ -211,14 +213,9 @@ public class CombatZoneState extends State {
                 statPlayer = cannonsStats.get(player);
                 if (statPlayer < cannonsStats.get(minPlayerCannons)) {
                     minPlayerCannons = player;
-                    minPlayerEvent = new MinPlayer(player.getUsername());
                 }
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
-        }
-
-        if (minPlayerEvent != null) {
-            eventCallback.trigger(minPlayerEvent);
         }
     }
 
@@ -255,6 +252,9 @@ public class CombatZoneState extends State {
             for (PlayerData player : players) {
                 playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
             }
+
+            CurrentPlayer currentPlayer = new CurrentPlayer(minPlayerCrew.getUsername());
+            eventCallback.trigger(currentPlayer);
         } else {
             super.entry();
         }
@@ -274,7 +274,7 @@ public class CombatZoneState extends State {
                 } else {
                     executeSubStateFlightDays(minPlayerCrew);
                     for (PlayerData p : players) {
-                        playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
+                        playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
                     }
                     internalState = CombatZoneInternalState.ENGINES;
                 }
@@ -310,7 +310,7 @@ public class CombatZoneState extends State {
                 break;
             case CREW_PENALTY:
                 if (currentPenaltyLoss > 0) {
-                    Event event = new ForcingGiveUp("You have lost all your crew members, you have to give up");
+                    Event event = new ForcingGiveUp(player.getUsername(), "You have lost all your crew members, you have to give up");
                     eventCallback.trigger(event, player.getUUID());
                 } else {
                     internalState = CombatZoneInternalState.CANNONS;
@@ -321,8 +321,8 @@ public class CombatZoneState extends State {
                 break;
             case HIT_PENALTY:
                 hitIndex++;
-                NextHit nextHitEvent = new NextHit(player.getUsername());
-                eventCallback.trigger(nextHitEvent);
+                HitComing hitComingEvent = new HitComing(player.getUsername());
+                eventCallback.trigger(hitComingEvent);
                 if (hitIndex >= card.getFires().size()) {
                     playersStatus.replace(playerBeingHit.getColor(), PlayerStatus.PLAYED);
                 }

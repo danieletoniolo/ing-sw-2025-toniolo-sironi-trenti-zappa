@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions;
 
 import it.polimi.ingsw.event.game.clientToServer.dice.RollDice;
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.Client;
@@ -25,8 +26,16 @@ public class RollDiceCards extends CardsGame {
         StatusEvent status = RollDice.requester(Client.transceiver, new Object()).request(new RollDice(MiniModel.getInstance().getUserID()));
         if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
+            return this;
         }
 
-        return nextScreen; // Set by notifyCanProtect method in TuiManager
+        // End turn after rolling the dice
+        status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+        if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
+            setMessage(((Pota) status).errorMessage());
+            return this;
+        }
+
+        return nextScreen;
     }
 }

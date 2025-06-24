@@ -18,7 +18,7 @@ public class EnemyCards extends CardsGame {
         super(List.of("Active cannons", "Do not engage cannon systems"));
         String info = switch (MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getCardViewType()) {
             case SMUGGLERS -> "Smuggler convoy inbound - prepare for contact!";
-            case PIRATES -> "Warning: Hostile ships detected – Space pirates approaching!";
+            case PIRATES -> "Hostile ships detected – Space pirates approaching!";
             case SLAVERS -> "Alert! Slaver raiders incoming!";
             default -> "Error";
         };
@@ -34,7 +34,7 @@ public class EnemyCards extends CardsGame {
         switch (selected) {
             case 0:
                 spaceShipView = clientPlayer.getShip().clone();
-                return new ChooseDoubleCannonsCards(this);
+                return new ChooseDoubleCannonsCards();
             case 1:
                 // Surrender and end the turn
                 status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));

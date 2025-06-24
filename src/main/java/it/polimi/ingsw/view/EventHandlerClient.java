@@ -9,6 +9,7 @@ import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBatteriesPenalty;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
@@ -125,6 +126,12 @@ public class EventHandlerClient {
     private final CastEventReceiver<ForcingBatteriesPenalty> forcingBatteriesPenaltyReceiver;
     private final EventListener<ForcingBatteriesPenalty> forcingBatteriesPenaltyListener;
 
+    private final CastEventReceiver<ForcingGiveUp> forcingGiveUpReceiver;
+    private final EventListener<ForcingGiveUp> forcingGiveUpListener;
+
+    private final CastEventReceiver<ForcingPenalty> forcingPenaltyReceiver;
+    private final EventListener<ForcingPenalty> forcingPenaltyListener;
+
     private final CastEventReceiver<UpdateGoodsExchange> updateGoodsExchangeReceiver;
     private final EventListener<UpdateGoodsExchange> updateGoodsExchangeListener;
 
@@ -191,9 +198,6 @@ public class EventHandlerClient {
     private final CastEventReceiver<PlayerGaveUp> playerGaveUpReceiver;
     private final EventListener<PlayerGaveUp> playerGaveUpListener;
 
-    private final CastEventReceiver<ForcingGiveUp> forcingGiveUpReceiver;
-    private final EventListener<ForcingGiveUp> forcingGiveUpListener;
-
     private final CastEventReceiver<CardPlayed> cardPlayedReceiver;
     private final EventListener<CardPlayed> cardPlayedListener;
 
@@ -224,8 +228,8 @@ public class EventHandlerClient {
     private final CastEventReceiver<InvalidComponents> invalidComponentsReceiver;
     private final EventListener<InvalidComponents> invalidComponentsListener;
 
-    private final CastEventReceiver<NextHit> nextHitReceiver;
-    private final EventListener<NextHit> nextHitListener;
+    private final CastEventReceiver<HitComing> hitComingReceiver;
+    private final EventListener<HitComing> hitComingListener;
 
     private final CastEventReceiver<SetCannonStrength> setCannonStrengthReceiver;
     private final EventListener<SetCannonStrength> setCannonStrengthListener;
@@ -265,8 +269,7 @@ public class EventHandlerClient {
         CastEventReceiver<NicknameSet> nicknameSetReceiver = new CastEventReceiver<>(this.transceiver);
         EventListener<NicknameSet> nicknameSetListener = data -> {
             MiniModel.getInstance().setNickname(data.nickname());
-
-            manager.notifyNicknameSet();
+            manager.notifyNicknameSet(data);
             registerListeners();
         };
         nicknameSetReceiver.registerListener(nicknameSetListener);
@@ -421,7 +424,6 @@ public class EventHandlerClient {
                     }
                 }
                 MiniModel.getInstance().setCountDown(null);
-                manager.notifyStartingGame(data);
             }).start();
         };
 
@@ -636,8 +638,24 @@ public class EventHandlerClient {
         forcingBatteriesPenaltyReceiver = new CastEventReceiver<>(this.transceiver);
         forcingBatteriesPenaltyListener = manager::notifyForcingBatteriesPenalty;
 
+        /*
+         * Force the player to do giveUp
+         */
         forcingGiveUpReceiver = new CastEventReceiver<>(this.transceiver);
-        forcingGiveUpListener = manager::notifyForceGiveUp;
+        forcingGiveUpListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+
+            MiniModel.getInstance().setCurrentPlayer(player);
+            manager.notifyForcingGiveUp(data);
+        };
+
+        forcingPenaltyReceiver = new CastEventReceiver<>(this.transceiver);
+        forcingPenaltyListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+
+             MiniModel.getInstance().setCurrentPlayer(player);
+             manager.notifyForcingPenalty(data);
+        };
 
         // GOODS events
         /*
@@ -981,12 +999,16 @@ public class EventHandlerClient {
         bestLookingShipsReceiver = new CastEventReceiver<>(this.transceiver);
         bestLookingShipsListener = manager::notifyBestLookingShips;
 
-
         /*
          *
          */
         canProtectReceiver = new CastEventReceiver<>(this.transceiver);
-        canProtectListener = manager::notifyCanProtect;
+        canProtectListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+
+            MiniModel.getInstance().setCurrentPlayer(player);
+            manager.notifyCanProtect(data);
+        };
 
 
         /*
@@ -1005,7 +1027,6 @@ public class EventHandlerClient {
 
             manager.notifyComponentDestroyed(data);
         };
-
 
         /*
          * Set the fragments of the ship
@@ -1045,13 +1066,18 @@ public class EventHandlerClient {
         /*
          * Set the next hit
          */
-        nextHitReceiver = new CastEventReceiver<>(this.transceiver);
-        nextHitListener = data -> {
-            if (data.nickname().equals(MiniModel.getInstance().getNickname())) {
-                MeteorSwarmView card = (MeteorSwarmView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
-                card.nextHit();
+        hitComingReceiver = new CastEventReceiver<>(this.transceiver);
+        hitComingListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+
+            MiniModel.getInstance().setCurrentPlayer(player);
+            CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
+            if (card.getCardViewType() == CardViewType.METEORSSWARM) {
+                ((MeteorSwarmView) card).nextHit();
+            } else if (card.getCardViewType() == CardViewType.PIRATES) {
+                ((PiratesView) card).nextHit();
             }
-            manager.notifyNextHit(data);
+            manager.notifyHitComing(data);
         };
 
         /*
@@ -1225,6 +1251,7 @@ public class EventHandlerClient {
 
         forcingBatteriesPenaltyReceiver.registerListener(forcingBatteriesPenaltyListener);
         forcingGiveUpReceiver.registerListener(forcingGiveUpListener);
+        forcingPenaltyReceiver.registerListener(forcingPenaltyListener);
 
         updateGoodsExchangeReceiver.registerListener(updateGoodsExchangeListener);
 
@@ -1265,7 +1292,7 @@ public class EventHandlerClient {
         componentDestroyedReceiver.registerListener(componentDestroyedListener);
         fragmentsReceiver.registerListener(fragmentsListener);
         invalidComponentsReceiver.registerListener(invalidComponentsListener);
-        nextHitReceiver.registerListener(nextHitListener);
+        hitComingReceiver.registerListener(hitComingListener);
         setCannonStrengthReceiver.registerListener(setCannonStrengthListener);
         setEngineStrengthReceiver.registerListener(setEngineStrengthListener);
         updateCrewMembersReceiver.registerListener(updateCrewMembersListener);
