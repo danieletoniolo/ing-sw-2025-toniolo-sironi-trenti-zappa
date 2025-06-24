@@ -200,7 +200,6 @@ public class CombatZoneState extends State {
                 statPlayer = enginesStats.get(player);
                 if (statPlayer < enginesStats.get(minPlayerEngines)) {
                     minPlayerEngines = player;
-                    minPlayerEvent = new MinPlayer(player.getUsername());
                 }
             }
             case 1 -> {
@@ -214,14 +213,9 @@ public class CombatZoneState extends State {
                 statPlayer = cannonsStats.get(player);
                 if (statPlayer < cannonsStats.get(minPlayerCannons)) {
                     minPlayerCannons = player;
-                    minPlayerEvent = new MinPlayer(player.getUsername());
                 }
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
-        }
-
-        if (minPlayerEvent != null) {
-            eventCallback.trigger(minPlayerEvent);
         }
     }
 
@@ -258,6 +252,9 @@ public class CombatZoneState extends State {
             for (PlayerData player : players) {
                 playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
             }
+
+            CurrentPlayer currentPlayer = new CurrentPlayer(minPlayerCrew.getUsername());
+            eventCallback.trigger(currentPlayer);
         } else {
             super.entry();
         }
@@ -277,7 +274,7 @@ public class CombatZoneState extends State {
                 } else {
                     executeSubStateFlightDays(minPlayerCrew);
                     for (PlayerData p : players) {
-                        playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
+                        playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
                     }
                     internalState = CombatZoneInternalState.ENGINES;
                 }

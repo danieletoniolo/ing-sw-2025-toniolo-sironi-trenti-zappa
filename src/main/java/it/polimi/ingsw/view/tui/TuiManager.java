@@ -734,6 +734,7 @@ public class TuiManager implements Manager {
                     LooseGoodsCards.destroyStatics();
                     LooseBatteryCards.destroyStatics();
                     Validation.destroyStatics();
+                    CombatZoneCards.resetCont();
                 }
             }
 
