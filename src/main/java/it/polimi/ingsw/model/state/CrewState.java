@@ -72,7 +72,6 @@ public class CrewState extends State {
                     manageCrewMember(player, 0, 0, cabin.getID());
                 }
             }
-            super.played = true;
         }
     }
 
