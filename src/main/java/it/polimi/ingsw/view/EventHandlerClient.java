@@ -962,7 +962,11 @@ public class EventHandlerClient {
 
         scoreReceiver = new CastEventReceiver<>(this.transceiver);
         scoreListener = data -> {
-            //TODO
+            MiniModel.getInstance().setRewardPhase(data.rewardPhase());
+            for (Pair<String, Integer> p : data.playerScores()) {
+                PlayerDataView player = getPlayerDataView(p.getValue0());
+                player.setCoins(p.getValue1());
+            }
             manager.notifyScore(data);
         };
 

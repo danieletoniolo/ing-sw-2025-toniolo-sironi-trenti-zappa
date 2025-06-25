@@ -8,6 +8,7 @@ import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.BestLookingShips;
 import it.polimi.ingsw.event.game.serverToClient.player.Score;
+import it.polimi.ingsw.model.state.exception.SynchronousStateException;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -24,10 +25,20 @@ public class RewardState extends State {
      * Enum to represent the internal state of the end state.
      */
     enum EndInternalState {
-        FINISH_ORDER,
-        BEST_LOOKING_SHIP,
-        SALE_OF_GOODS,
-        LOSSES
+        FINISH_ORDER(0),
+        BEST_LOOKING_SHIP(1),
+        SALE_OF_GOODS(2),
+        LOSSES(3),
+        LEAVE_GAME(4);
+
+        private final int value;
+        EndInternalState(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
     }
 
     RewardState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
@@ -51,11 +62,15 @@ public class RewardState extends State {
     }
 
     @Override
+    public PlayerData getCurrentPlayer() throws SynchronousStateException {
+        throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state RewardState");
+    }
+
+    @Override
     public void entry() {
          for (PlayerData player : players) {
              scores.put(player, player.getCoins());
          }
-         super.entry();
     }
 
     @Override
@@ -63,7 +78,7 @@ public class RewardState extends State {
         ArrayList<Pair<String, Integer>> eventScores = new ArrayList<>();
         Score scoreEvent;
         // We wait for all the player to confirm their end of turn (watching the partial score
-        playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
+        super.execute(player);
 
         // Check if all players have confirmed their end of turn
         if (players.indexOf(player) == players.size() - 1) {
@@ -80,11 +95,16 @@ public class RewardState extends State {
                         }
                     }
 
-                    scoreEvent = new Score(eventScores);
-                    eventCallback.trigger(scoreEvent);
-
                     // Go to the next scoring state
                     internalState = EndInternalState.BEST_LOOKING_SHIP;
+
+                    scoreEvent = new Score(eventScores, internalState.getValue());
+                    eventCallback.trigger(scoreEvent);
+
+                    for (PlayerData p : players) {
+                        // Reset the player status to waiting for the next state
+                        playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
+                    }
                     break;
                 case BEST_LOOKING_SHIP:
                     // Find the player (could be more than one) with the least exposed connectors (best looking ship)
@@ -112,11 +132,16 @@ public class RewardState extends State {
                         eventScores.add(new Pair<>(p.getUsername(), scores.get(p)));
                     }
 
-                    scoreEvent = new Score(eventScores);
-                    eventCallback.trigger(scoreEvent);
-
                     // Go to the next scoring state
                     internalState = EndInternalState.SALE_OF_GOODS;
+
+                    scoreEvent = new Score(eventScores, internalState.getValue());
+                    eventCallback.trigger(scoreEvent);
+
+                    for (PlayerData p : players) {
+                        // Reset the player status to waiting for the next state
+                        playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
+                    }
                     break;
                 case SALE_OF_GOODS:
                     // Calculate the new score based on the sale of goods
@@ -132,9 +157,15 @@ public class RewardState extends State {
                         eventScores.add(new Pair<>(p.getUsername(), scores.get(p)));
                     }
 
-                    scoreEvent = new Score(eventScores);
-                    eventCallback.trigger(scoreEvent);
                     internalState = EndInternalState.LOSSES;
+
+                    scoreEvent = new Score(eventScores, internalState.getValue());
+                    eventCallback.trigger(scoreEvent);
+
+                    for (PlayerData p : players) {
+                        // Reset the player status to waiting for the next state
+                        playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
+                    }
                     break;
                 case LOSSES:
                     // Calculate the new score based on the component losses
@@ -146,9 +177,17 @@ public class RewardState extends State {
                         eventScores.add(new Pair<>(p.getUsername(), scores.get(p)));
                     }
 
-                    scoreEvent = new Score(eventScores);
+                    internalState = EndInternalState.LEAVE_GAME;
+
+                    scoreEvent = new Score(eventScores, internalState.getValue());
                     eventCallback.trigger(scoreEvent);
 
+                    for (PlayerData p : players) {
+                        // Reset the player status to waiting for the next state
+                        playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
+                    }
+                    break;
+                case LEAVE_GAME:
                     break;
                 default:
                     throw new IllegalStateException("Unknown EndInternalState: " + internalState);

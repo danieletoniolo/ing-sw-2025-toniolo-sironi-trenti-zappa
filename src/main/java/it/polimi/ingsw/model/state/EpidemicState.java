@@ -29,7 +29,7 @@ public class EpidemicState extends State {
 
     @Override
     public PlayerData getCurrentPlayer() throws SynchronousStateException {
-        throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state BuildingState");
+        throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state EpidemicState");
     }
 
     /**

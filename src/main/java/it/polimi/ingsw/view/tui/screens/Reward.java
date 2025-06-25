@@ -5,6 +5,7 @@ import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.miniModel.MiniModel;
+import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
@@ -13,17 +14,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Reward implements TuiScreenView {
-    private final ArrayList<String> options;
+    private final ArrayList<String> options = new ArrayList<>();
     private final int totalLines;
-    private int selected;
+    protected int selected;
     private String message;
     private boolean isNewScreen;
     private TuiScreenView nextScreen;
 
-    public Reward() {
-        options = new ArrayList<>();
+    private final BoardView boardView = MiniModel.getInstance().getBoardView();
+    private final List<PlayerDataView> sortedPlayers;
 
-        options.add("Claim rewards");
+    public Reward() {
+        String command = switch (MiniModel.getInstance().getRewardPhase()) {
+            case 0 -> "Claim coins for finish position";
+            case 1 -> "Claim coins for best looking ship";
+            case 2 -> "Sell goods for coins";
+            case 3 -> "Loose coins for losses";
+            case 4 -> "Leave the game";
+            default -> throw new IllegalStateException("Unexpected value: " + MiniModel.getInstance().getRewardPhase());
+        };
+
+        options.add(command);
+
         options.add("View your spaceship");
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
             options.add("View " + p.drawLineTui(0) + "'s spaceship");
@@ -33,6 +45,31 @@ public class Reward implements TuiScreenView {
         this.isNewScreen = true;
 
         totalLines = 6;
+        sortedPlayers = new ArrayList<>();
+
+        sortedPlayers.add(MiniModel.getInstance().getClientPlayer());
+        sortedPlayers.addAll(MiniModel.getInstance().getOtherPlayers());
+        sortedPlayers.sort((p1, p2) -> Integer.compare(p2.getCoins(), p1.getCoins()));
+
+        if (MiniModel.getInstance().getRewardPhase() == 0) {
+            setMessage("Game is over! Let's discover who is the winner.");
+        }
+        else {
+            StringBuilder mess = new StringBuilder();
+            int cont = 0;
+            for (PlayerDataView p : sortedPlayers) {
+                if (p.getCoins() > 0) {
+                    if (cont == 0) {
+                        mess.append(p.drawLineTui(0));
+                        cont++;
+                    }
+                    else {
+                        mess.append(", ").append(p.drawLineTui(0));
+                    }
+                }
+            }
+            mess.append(" ").append(cont == 0 ? "is" : "are").append(" winnig");
+        }
     }
 
     @Override
@@ -57,6 +94,7 @@ public class Reward implements TuiScreenView {
         }
 
         if (selected == 0) {
+            // Send a request to change the reward phase
             StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
@@ -87,8 +125,15 @@ public class Reward implements TuiScreenView {
     public void printTui() {
         List<String> newLines = new ArrayList<>();
 
-        newLines.add("Game is over!");
-        newLines.add("You can now view the rewards of the game.");
+        for (int i = 0; i < boardView.getRowsToDraw(); i++) {
+            newLines.add(boardView.drawLineTui(i));
+        }
+
+        newLines.add("");
+
+        for (PlayerDataView p : sortedPlayers) {
+            newLines.add(p.drawLineTui(0) + ": " + p.getCoins() + " coins");
+        }
 
         newLines.add("");
         newLines.add(message == null ? "" : message);

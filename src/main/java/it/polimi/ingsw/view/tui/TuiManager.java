@@ -487,7 +487,12 @@ public class TuiManager implements Manager {
 
     @Override
     public void notifyScore(Score data) {
-
+        synchronized (stateLock) {
+            TuiScreenView reward = new Reward();
+            currentScreen.setNextScreen(reward);
+            currentScreen = reward;
+            parser.changeScreen();
+        }
     }
 
     @Override
