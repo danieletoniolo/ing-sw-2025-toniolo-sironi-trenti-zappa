@@ -75,10 +75,12 @@ public class Client {
 
         new EventHandlerClient(transceiver, ui);
 
-        /*System.out.print("Enter IP: ");
-            String address = sc.nextLine();*/
-        String address = "127.0.0.1";
-        //String address = "192.168.242.111";
+        String address = parser.readNickname("IP Address: ", row++);
+        /*
+        System.out.print("Enter IP: ");
+        String address = sc.nextLine();
+        */
+        //String address = "127.0.0.1";
         // 140.238.173.150
         // 129.152.14.114
 

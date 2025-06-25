@@ -41,7 +41,7 @@ public class MeteorsSwarmCards extends CardsGame {
                 return this;
             }
 
-            return nextScreen;
+            return nextScreen == null ? new NotClientTurnCards() : nextScreen;
         }
 
         return this;

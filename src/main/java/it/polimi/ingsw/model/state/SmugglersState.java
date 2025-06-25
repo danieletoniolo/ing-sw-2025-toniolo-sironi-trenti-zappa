@@ -2,7 +2,7 @@ package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.controller.StateTransitionHandler;
-import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBatteriesPenalty;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.EnemyDefeat;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
@@ -136,7 +136,7 @@ public class SmugglersState extends State {
             SpaceShip ship = player.getSpaceShip();
             float initialStrength = ship.getSingleCannonsStrength();
             if (ship.hasPurpleAlien()) {
-                initialStrength += SpaceShip.getAlienStrength();
+                initialStrength += ship.getAlienStrength(false);
             }
             cannonStrength.put(player, initialStrength);
         }
@@ -184,7 +184,7 @@ public class SmugglersState extends State {
                 if (currentPenaltyLoss > 0) {
                     internalState = SmugglerInternalState.BATTERIES_PENALTY;
 
-                    ForcingBatteriesPenalty forcingBatteriesPenalty = new ForcingBatteriesPenalty(player.getUsername());
+                    ForcingPenalty forcingBatteriesPenalty = new ForcingPenalty(player.getUsername(), PenaltyType.BATTERIES_PENALTY.getValue());
                     eventCallback.trigger(forcingBatteriesPenalty);
                     break;
                 }

@@ -3,7 +3,6 @@ package it.polimi.ingsw.view.gui;
 import it.polimi.ingsw.event.game.serverToClient.deck.PickedLeftDeck;
 import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.BatteriesLoss;
-import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBatteriesPenalty;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
 import it.polimi.ingsw.event.game.serverToClient.goods.UpdateGoodsExchange;
@@ -94,6 +93,18 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyCreatedLobby(LobbyCreated data) {
         if (mm.getNickname().equals(data.nickname())) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/lobby.fxml"));
+                root = loader.load();
+
+                controller = loader.getController();
+                controller.react();
+
+                scene.setRoot(root);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
             this.setLobbyScene();
         }
         else {
@@ -105,6 +116,18 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyLobbyJoined(LobbyJoined data) {
         if (mm.getNickname().equals(data.nickname())) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/lobby.fxml"));
+                root = loader.load();
+
+                controller = loader.getController();
+                controller.react();
+
+                scene.setRoot(root);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
             this.setLobbyScene();
         }
         else {
@@ -139,7 +162,7 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyCountDown() {
-
+        controller.react();
     }
 
     @Override
@@ -154,11 +177,6 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyBatteriesLoss(BatteriesLoss data) {
-
-    }
-
-    @Override
-    public void notifyForcingBatteriesPenalty(ForcingBatteriesPenalty data) {
 
     }
 
@@ -214,6 +232,11 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyCardPlayed(CardPlayed data) {
+
+    }
+
+    @Override
+    public void notifyCombatZonePhase(CombatZonePhase data) {
 
     }
 
@@ -279,11 +302,6 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyInvalidComponents(InvalidComponents data) {
-
-    }
-
-    @Override
-    public void notifyHitComing(HitComing data) {
 
     }
 

@@ -51,8 +51,6 @@ public class CardsManager {
         ArrayList<Card> deck4 = new ArrayList<>();
         ArrayList<Card> selectedCards = new ArrayList<>();
 
-        // TODO: Uncomment to shuffle the cards
-        /*
         Random random = new Random();
         int i = 0;
         while (i < 4) {
@@ -70,29 +68,10 @@ public class CardsManager {
                 i++;
             }
         }
-        */
-
-        /*
-            Cards already tested:
-                - Planets
-                - Epidemic
-                - Abandoned Station
-                - Stardust
-                - OpenSpace
-                - Slavers
-                - Smugglers
-                - Pirates
-         */
-        //                12  9  6   3  11   8   5  2  10  7  4   1
-        int[] cardsIDs = {21, 3, 2, 28, 23, 16, 30, 9, 4, 10, 29, 8};
-
-        for (int cardsID : cardsIDs) {
-            selectedCards.add(cards[cardsID]);
-        }
 
         // Distribute the selected cards into 4 decks
         Deck[] decks = new Deck[4];
-        for (int i = 0; i < selectedCards.size(); i++) {
+        for (i = 0; i < selectedCards.size(); i++) {
             switch (i % 4) {
                 case 0 -> deck1.add(selectedCards.get(i));
                 case 1 -> deck2.add(selectedCards.get(i));

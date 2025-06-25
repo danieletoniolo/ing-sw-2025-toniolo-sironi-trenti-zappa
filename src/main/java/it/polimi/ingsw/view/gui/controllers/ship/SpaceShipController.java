@@ -3,6 +3,7 @@ package it.polimi.ingsw.view.gui.controllers.ship;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
@@ -293,36 +294,38 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
      */
     @Override
     public void react() {
-        shipGrid.getChildren().clear();
+        Platform.runLater(() -> {
+            shipGrid.getChildren().clear();
 
-        int rowOffset = SpaceShipView.ROW_OFFSET;
-        int colOffset = SpaceShipView.COL_OFFSET;
+            int rowOffset = SpaceShipView.ROW_OFFSET;
+            int colOffset = SpaceShipView.COL_OFFSET;
 
-        for (int i = 0; i < GRID_COLS; i++) {
-            for (int j = 0; j < GRID_ROWS; j++) {
-                ComponentView component = spaceShipModel.getComponent(j+rowOffset, i+colOffset);
-                if (component != null) {
-                    Node node = component.getNode();
+            for (int i = 0; i < GRID_COLS; i++) {
+                for (int j = 0; j < GRID_ROWS; j++) {
+                    ComponentView component = spaceShipModel.getComponent(j + rowOffset, i + colOffset);
+                    if (component != null) {
+                        Node node = component.getNode();
 
-                    GridPane.setHgrow(node, Priority.ALWAYS);
-                    GridPane.setVgrow(node, Priority.ALWAYS);
-                    GridPane.setFillWidth(node, true);
-                    GridPane.setFillHeight(node, true);
-                    GridPane.setHalignment(node, HPos.CENTER);
-                    GridPane.setValignment(node, VPos.CENTER);
+                        GridPane.setHgrow(node, Priority.ALWAYS);
+                        GridPane.setVgrow(node, Priority.ALWAYS);
+                        GridPane.setFillWidth(node, true);
+                        GridPane.setFillHeight(node, true);
+                        GridPane.setHalignment(node, HPos.CENTER);
+                        GridPane.setValignment(node, VPos.CENTER);
 
-                    shipGrid.add(node, i, j);
+                        shipGrid.add(node, i, j);
+                    }
                 }
             }
-        }
 
-        ArrayList<ComponentView> reservedDiscardedList = spaceShipModel.getDiscardReservedPile().getReserved();
-        int size = reservedDiscardedList.size();
-        if (size > 0 && reservedDiscardedList.get(size-1) != null) {
-            reserveLostGrid.add(reservedDiscardedList.get(size-1).getNode(), 0, 0);
-        }
-        if (size > 1 && reservedDiscardedList.get(size-2) != null) {
-            reserveLostGrid.add(reservedDiscardedList.get(size-2).getNode(), 1, 0);
-        }
+            ArrayList<ComponentView> reservedDiscardedList = spaceShipModel.getDiscardReservedPile().getReserved();
+            int size = reservedDiscardedList.size();
+            if (size > 0 && reservedDiscardedList.get(size - 1) != null) {
+                reserveLostGrid.add(reservedDiscardedList.get(size - 1).getNode(), 0, 0);
+            }
+            if (size > 1 && reservedDiscardedList.get(size - 2) != null) {
+                reserveLostGrid.add(reservedDiscardedList.get(size - 2).getNode(), 1, 0);
+            }
+        });
     }
 }

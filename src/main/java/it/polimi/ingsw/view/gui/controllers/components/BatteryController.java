@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.gui.controllers.components;
 
 import it.polimi.ingsw.view.miniModel.components.BatteryView;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.image.Image;
@@ -42,23 +43,25 @@ public class BatteryController extends ComponentController implements Initializa
     public void react() {
         super.react();
 
-        // Update the batteryPane based on the model's state
-        int numberOfBatteries = ((BatteryView) super.componentView).getNumberOfBatteries();
+        Platform.runLater(() -> {
+            // Update the batteryPane based on the model's state
+            int numberOfBatteries = ((BatteryView) super.componentView).getNumberOfBatteries();
 
-        batteryPane.getChildren().clear();
-        batteryPane.setSpacing(0); // Set spacing between battery icons
+            batteryPane.getChildren().clear();
+            batteryPane.setSpacing(0); // Set spacing between battery icons
 
-        for (int i = 0; numberOfBatteries > i; i++) {
-            ImageView battery = new ImageView(BATTERY_IMG);
+            for (int i = 0; numberOfBatteries > i; i++) {
+                ImageView battery = new ImageView(BATTERY_IMG);
 
-            battery.setPreserveRatio(true);
-            battery.fitWidthProperty().bind(componentImage.fitWidthProperty().divide(5));
+                battery.setPreserveRatio(true);
+                battery.fitWidthProperty().bind(componentImage.fitWidthProperty().divide(5));
 
 
-            batteryPane.getChildren().add(battery);
-        }
+                batteryPane.getChildren().add(battery);
+            }
 
-        batteryPane.setRotate(super.componentView.getClockWise() * 90);
+            batteryPane.setRotate(super.componentView.getClockWise() * 90);
+        });
 
     }
 

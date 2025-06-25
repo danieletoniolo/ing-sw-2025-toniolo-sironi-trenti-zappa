@@ -464,7 +464,7 @@ public class MenuController implements MiniModelObserver, Initializable {
             }
         }
 
-        // Update the buttons in the buttons box
+        // Update the buttons in the button box
         HBox buttonsBox = (HBox) newLobbyOptionsVBox.getChildren().getLast();
         buttonsBox.setSpacing(spacing);
 

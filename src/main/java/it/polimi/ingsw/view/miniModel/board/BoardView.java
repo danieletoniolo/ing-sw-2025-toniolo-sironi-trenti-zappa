@@ -86,7 +86,7 @@ public class BoardView implements Structure, MiniModelObservable {
      *
      * @return Node representing the board view, or null if an error occurs during loading.
      */
-    public Node getNode() {
+    public Pair<Node, BoardController> getNode() {
         try {
             String path = level == LevelView.LEARNING ? "/fxml/board/learningBoard.fxml" : "/fxml/board/secondBoard.fxml";
             FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
@@ -95,7 +95,7 @@ public class BoardView implements Structure, MiniModelObservable {
             BoardController controller = loader.getController();
             controller.setModel(this);
 
-            return root;
+            return new Pair<>(root, controller);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

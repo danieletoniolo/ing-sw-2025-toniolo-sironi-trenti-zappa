@@ -295,8 +295,12 @@ public class SpaceShip {
      * Get how much the aliens add to the stats
      * @return return how much the aliens add to the stats
      */
-    public static float getAlienStrength() {
-        return alienStrength;
+    public float getAlienStrength(boolean forEngine) {
+        if (forEngine) {
+            return brownAlien && !engines.isEmpty() ? alienStrength : 0;
+        } else {
+            return purpleAlien && !cannons.isEmpty() ? alienStrength : 0;
+        }
     }
 
     /**

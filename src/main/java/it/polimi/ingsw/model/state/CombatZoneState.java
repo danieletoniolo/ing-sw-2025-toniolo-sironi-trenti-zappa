@@ -1,11 +1,12 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
+import it.polimi.ingsw.event.game.serverToClient.player.CombatZonePhase;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
-import it.polimi.ingsw.event.game.serverToClient.player.MinPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
-import it.polimi.ingsw.event.game.serverToClient.spaceship.HitComing;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.CanProtect;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.model.cards.CombatZone;
 import it.polimi.ingsw.model.game.board.Board;
@@ -26,12 +27,13 @@ public class CombatZoneState extends State {
     private PlayerData minPlayerEngines;
     private PlayerData minPlayerCannons;
     private PlayerData minPlayerCrew;
-    private PlayerData playerBeingHit;
     private final List<List<Pair<Integer, Integer>>> fragments;
-    private final MutablePair<Component, Integer> protectionResult;
+    private MutablePair<Component, Integer> protectionResult;
+    private final ArrayList<PlayerData> playersGivenUp;
+    private final MutablePair<Integer, Integer> dice;
     private int hitIndex;
-
     private int currentPenaltyLoss;
+    private boolean hasPlayerForceGiveUpForCrewPenalty;
 
     /**
      * Enum to represent the internal state of the combat zone state.
@@ -43,7 +45,9 @@ public class CombatZoneState extends State {
         CREW_PENALTY,
         GOODS_PENALTY,
         BATTERIES_PENALTY,
-        HIT_PENALTY
+        HIT_PENALTY,
+        CAN_PROTECT,
+        GIVE_UP
     }
 
     /**
@@ -66,8 +70,11 @@ public class CombatZoneState extends State {
         this.fragments = new ArrayList<>();
         this.protectionResult = new MutablePair<>(null, -1);
         this.hitIndex = 0;
+        this.dice = new MutablePair<>(-1, -1);
         this.enginesStats = new HashMap<>();
         this.cannonsStats = new HashMap<>();
+        this.playersGivenUp = new ArrayList<>();
+        this.hasPlayerForceGiveUpForCrewPenalty = false;
     }
 
     /**
@@ -81,13 +88,17 @@ public class CombatZoneState extends State {
         eventCallback.trigger(stepsEvent);
     }
 
+    private void sendCombatZonePhase (int phase) {
+        CombatZonePhase combatZonePhase = new CombatZonePhase(phase);
+        eventCallback.trigger(combatZonePhase);
+    }
+
     /**
      * Implementation of the {@link State#setFragmentChoice(PlayerData, int)} to set the fragment choice.
      */
     @Override
     public void setFragmentChoice(PlayerData player, int fragmentChoice) throws IllegalStateException {
-        if ((internalState != CombatZoneInternalState.CANNONS && card.getCardLevel() != 2) ||
-                (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
+        if (internalState != CombatZoneInternalState.HIT_PENALTY) {
             throw new IllegalStateException("Fragment choice not allowed in this state");
         }
         if (fragments.isEmpty()) {
@@ -109,8 +120,7 @@ public class CombatZoneState extends State {
      */
     @Override
     public void setProtect(PlayerData player, int batteryID) throws IllegalStateException, IllegalArgumentException {
-        if ((internalState != CombatZoneInternalState.CANNONS && card.getCardLevel() != 2) ||
-                (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
+        if (internalState != CombatZoneInternalState.HIT_PENALTY) {
             throw new IllegalStateException("Battery ID not allowed in this state");
         }
         Event event = Handler.protectFromHit(player, protectionResult, batteryID);
@@ -118,28 +128,19 @@ public class CombatZoneState extends State {
             eventCallback.trigger(event);
         }
         event = Handler.checkForFragments(player, fragments);
-        if (event != null) {
-            eventCallback.trigger(event);
-        } else {
-            fragments.clear();
-        }
+        eventCallback.trigger(event);
     }
 
     /**
      * Implementation of the {@link State#rollDice(PlayerData)} to roll the dice and set the value in the fight handler.
      */
     @Override
-    public void rollDice(PlayerData player) throws IllegalStateException{
-        if ((internalState != CombatZoneInternalState.CANNONS && card.getCardLevel() != 2) ||
-                (internalState != CombatZoneInternalState.CREW && card.getCardLevel() == 2)) {
-            throw new IllegalStateException("Dice not allowed in this state");
+    public void rollDice(PlayerData player) throws IllegalStateException {
+        if (internalState != CombatZoneInternalState.CAN_PROTECT) {
+            throw new IllegalStateException("setDice not allowed in this state");
         }
-        // TODO: roll dice
-        /*
-        Pair<Event, Event> event = Handler.rollDice(player, card.getFires().get(hitIndex), protectionResult);
-        eventCallback.trigger(event.getValue0());
-        eventCallback.trigger(event.getValue1());
-        */
+        Event event = Handler.rollDice(player, dice);
+        eventCallback.trigger(event);
     }
 
     /**
@@ -164,7 +165,6 @@ public class CombatZoneState extends State {
                 Event event = Handler.loseBatteries(player, penaltyLoss, currentPenaltyLoss);
                 eventCallback.trigger(event);
                 currentPenaltyLoss = card.getLost();
-                playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.WAITING);
             }
             case 2 -> {
                 if (internalState != CombatZoneInternalState.CREW_PENALTY) {
@@ -186,7 +186,6 @@ public class CombatZoneState extends State {
     @Override
     public void useExtraStrength(PlayerData player, int type, List<Integer> IDs, List<Integer> batteriesID) throws IllegalStateException, IllegalArgumentException {
         Float statPlayer;
-        MinPlayer minPlayerEvent = null;
 
         switch (type) {
             case 0 -> {
@@ -224,6 +223,7 @@ public class CombatZoneState extends State {
      */
     @Override
     public void entry() {
+        sendCombatZonePhase(0);
         SpaceShip ship;
         for (PlayerData player : super.players) {
             ship = player.getSpaceShip();
@@ -233,7 +233,7 @@ public class CombatZoneState extends State {
 
             enginesStats.merge(player, (float) ship.getSingleEnginesStrength(), Float::sum);
             if (ship.hasBrownAlien()) {
-                enginesStats.merge(player, SpaceShip.getAlienStrength(), Float::sum);
+                enginesStats.merge(player, ship.getAlienStrength(true), Float::sum);
             }
             if (minPlayerEngines == null || minPlayerEngines.getSpaceShip().getSingleEnginesStrength() > ship.getSingleEnginesStrength()) {
                 minPlayerEngines = player;
@@ -241,20 +241,20 @@ public class CombatZoneState extends State {
 
             cannonsStats.merge(player, ship.getSingleCannonsStrength(), Float::sum);
             if (ship.hasPurpleAlien()) {
-                cannonsStats.merge(player, SpaceShip.getAlienStrength(), Float::sum);
+                cannonsStats.merge(player, ship.getAlienStrength(false), Float::sum);
             }
             if (minPlayerCannons == null || minPlayerCannons.getSpaceShip().getSingleCannonsStrength() > ship.getSingleCannonsStrength()) {
                 minPlayerCannons = player;
             }
         }
         if (card.getCardLevel() == 1) {
-            playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.PLAYING);
             for (PlayerData player : players) {
                 playersStatus.replace(player.getColor(), PlayerStatus.PLAYED);
             }
+            playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.PLAYING);
 
-            CurrentPlayer currentPlayer = new CurrentPlayer(minPlayerCrew.getUsername());
-            eventCallback.trigger(currentPlayer);
+            CurrentPlayer currentPlayerEvent = new CurrentPlayer(minPlayerCrew.getUsername());
+            eventCallback.trigger(currentPlayerEvent);
         } else {
             super.entry();
         }
@@ -266,17 +266,25 @@ public class CombatZoneState extends State {
      */
     @Override
     public void execute(PlayerData player) {
+        boolean sendCurrentPlayer = false;
+        SpaceShip spaceShip = player.getSpaceShip();
+
         switch (internalState) {
             case CREW:
                 if (card.getCardLevel() == 2) {
-                    internalState = CombatZoneInternalState.HIT_PENALTY;
-                    playerBeingHit = minPlayerCannons;
+                    internalState = CombatZoneInternalState.CAN_PROTECT;
+
+                    ForcingPenalty forcingPenalty = new ForcingPenalty(minPlayerCrew.getUsername(), PenaltyType.HIT_PENALTY.getValue());
+                    eventCallback.trigger(forcingPenalty);
                 } else {
                     executeSubStateFlightDays(minPlayerCrew);
                     for (PlayerData p : players) {
-                        playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
+                        playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
                     }
                     internalState = CombatZoneInternalState.ENGINES;
+
+                    sendCombatZonePhase(1);
+                    sendCurrentPlayer = true;
                 }
                 break;
             case ENGINES:
@@ -285,47 +293,19 @@ public class CombatZoneState extends State {
                     playersStatus.replace(minPlayerEngines.getColor(), PlayerStatus.PLAYING);
                     if (card.getCardLevel() == 2) {
                         internalState = CombatZoneInternalState.GOODS_PENALTY;
+
+                        ForcingPenalty forcingPenalty = new ForcingPenalty(minPlayerEngines.getUsername(), PenaltyType.GOODS_PENALTY.getValue());
+                        eventCallback.trigger(forcingPenalty);
                     } else {
                         internalState = CombatZoneInternalState.CREW_PENALTY;
+
+                        ForcingPenalty forcingPenalty = new ForcingPenalty(minPlayerEngines.getUsername(), PenaltyType.CREW_PENALTY.getValue());
+                        eventCallback.trigger(forcingPenalty);
                     }
-                }
-                break;
-            case GOODS_PENALTY:
-                if (currentPenaltyLoss > 0 && player.getSpaceShip().getGoodsValue() > 0) {
-                    throw new IllegalStateException("Player has not set the goods to lose");
-                }
-                if (currentPenaltyLoss > 0) {
-                    internalState = CombatZoneInternalState.BATTERIES_PENALTY;
                 } else {
-                    internalState = CombatZoneInternalState.CREW;
-                    playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.PLAYING);
+                    sendCurrentPlayer = true;
                 }
                 break;
-            case BATTERIES_PENALTY:
-                if (currentPenaltyLoss > 0 && player.getSpaceShip().getEnergyNumber() > 0) {
-                    throw new IllegalStateException("Other player has not set the batteries to lose");
-                }
-                internalState = CombatZoneInternalState.CREW;
-                playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.PLAYING);
-                break;
-            case CREW_PENALTY:
-                if (currentPenaltyLoss > 0) {
-                    Event event = new ForcingGiveUp(player.getUsername(), "You have lost all your crew members, you have to give up");
-                    eventCallback.trigger(event, player.getUUID());
-                } else {
-                    internalState = CombatZoneInternalState.CANNONS;
-                    for (PlayerData p : players) {
-                        playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
-                    }
-                }
-                break;
-            case HIT_PENALTY:
-                hitIndex++;
-                HitComing hitComingEvent = new HitComing(player.getUsername());
-                eventCallback.trigger(hitComingEvent);
-                if (hitIndex >= card.getFires().size()) {
-                    playersStatus.replace(playerBeingHit.getColor(), PlayerStatus.PLAYED);
-                }
             case CANNONS:
                 super.execute(player);
                 if (players.indexOf(player) == players.size() - 1) {
@@ -335,21 +315,130 @@ public class CombatZoneState extends State {
                             playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
                         }
                         internalState = CombatZoneInternalState.ENGINES;
+
+                        sendCombatZonePhase(1);
+                        sendCurrentPlayer = true;
                     } else {
-                        playerBeingHit = minPlayerCannons;
                         playersStatus.replace(minPlayerCannons.getColor(), PlayerStatus.PLAYING);
-                        internalState = CombatZoneInternalState.HIT_PENALTY;
+                        internalState = CombatZoneInternalState.CAN_PROTECT;
+
+                        ForcingPenalty forcingPenalty = new ForcingPenalty(minPlayerCannons.getUsername(), PenaltyType.HIT_PENALTY.getValue());
+                        eventCallback.trigger(forcingPenalty);
                     }
+                } else {
+                    sendCurrentPlayer = true;
+                }
+                break;
+            case CAN_PROTECT:
+                int diceValue = dice.getFirst() + dice.getSecond() - 1;
+                protectionResult = new MutablePair<>(player.getSpaceShip().canProtect(diceValue, card.getFires().get(hitIndex)));
+                Component component = protectionResult.getFirst();
+                CanProtect canProtectEvent = new CanProtect(player.getUsername(), new Pair<>(component != null ? component.getID() : null, protectionResult.getSecond()));
+                eventCallback.trigger(canProtectEvent);
+
+                internalState = CombatZoneInternalState.HIT_PENALTY;
+                break;
+            case GOODS_PENALTY:
+                if (currentPenaltyLoss > 0) {
+                    internalState = CombatZoneInternalState.BATTERIES_PENALTY;
+
+                    ForcingPenalty forcingPenalty = new ForcingPenalty(minPlayerEngines.getUsername(), PenaltyType.BATTERIES_PENALTY.getValue());
+                    eventCallback.trigger(forcingPenalty);
+                } else {
+                    internalState = CombatZoneInternalState.CREW;
+
+                    sendCombatZonePhase(2);
+                    super.execute(player);
+                    sendCurrentPlayer = true;
+
+                    playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.PLAYING);
+                }
+                break;
+            case BATTERIES_PENALTY:
+                internalState = CombatZoneInternalState.CREW;
+
+                sendCombatZonePhase(2);
+                super.execute(player);
+                sendCurrentPlayer = true;
+
+                playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.PLAYING);
+                break;
+            case CREW_PENALTY:
+                if (spaceShip.getHumanCrewNumber() == 0) {
+                    ForcingGiveUp lostEvent = new ForcingGiveUp(player.getUsername(), "You are forced to give up, you have no human crew left");
+                    eventCallback.trigger(lostEvent, player.getUUID());
+                    internalState = CombatZoneInternalState.GIVE_UP;
+                    this.hasPlayerForceGiveUpForCrewPenalty = true;
+                } else {
+                    internalState = CombatZoneInternalState.CANNONS;
+                    for (PlayerData p : players) {
+                        playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
+                    }
+
+                    sendCombatZonePhase(2);
+                    sendCurrentPlayer = true;
+                }
+                break;
+            case HIT_PENALTY:
+                if (fragments.size() > 1) {
+                    break;
+                }
+                fragments.clear();
+
+                if (spaceShip.getHumanCrewNumber() == 0 && !playersGivenUp.contains(player)) {
+                    this.playersGivenUp.add(player);
+                }
+
+                hitIndex++;
+                if (hitIndex >= card.getFires().size()) {
+                    if (!playersGivenUp.isEmpty()) {
+                        internalState = CombatZoneInternalState.GIVE_UP;
+                        ForcingGiveUp forcingGiveUpEvent = new ForcingGiveUp(playersGivenUp.getFirst().getUsername(), "You are forced to give up, you have no human crew left");
+                        eventCallback.trigger(forcingGiveUpEvent);
+
+                        for (PlayerData p : playersGivenUp) {
+                            playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
+                        }
+                    } else {
+                        super.execute(player);
+                    }
+                } else {
+                    ForcingPenalty forcingPenalty = new ForcingPenalty(player.getUsername(), PenaltyType.HIT_PENALTY.getValue());
+                    eventCallback.trigger(forcingPenalty);
+
+                    internalState = CombatZoneInternalState.CAN_PROTECT;
+                }
+                break;
+            case GIVE_UP:
+                super.execute(player);
+
+                if (!hasPlayerForceGiveUpForCrewPenalty) {
+                    try {
+                        ForcingGiveUp forcingGiveUpEvent = new ForcingGiveUp(getCurrentPlayer().getUsername(), "You are forced to give up, you have no human crew left");
+                        eventCallback.trigger(forcingGiveUpEvent);
+                    } catch (IllegalStateException e) {
+                        // Ignore the exception, it means there are no more players left to give up
+                    }
+                } else {
+                    this.hasPlayerForceGiveUpForCrewPenalty = false;
+                    internalState = CombatZoneInternalState.CANNONS;
+                    for (PlayerData p : players) {
+                        playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
+                    }
+
+                    sendCombatZonePhase(2);
+                    sendCurrentPlayer = true;
                 }
                 break;
         }
 
-        try {
-            CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
-            eventCallback.trigger(currentPlayerEvent);
-        }
-        catch(Exception e) {
-            // Ignore the exception
+        if (sendCurrentPlayer) {
+            try {
+                CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.getCurrentPlayer().getUsername());
+                eventCallback.trigger(currentPlayerEvent);
+            } catch (Exception e) {
+                // Ignore the exception
+            }
         }
 
         super.nextState(GameState.CARDS);

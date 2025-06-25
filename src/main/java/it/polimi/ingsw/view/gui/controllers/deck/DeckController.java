@@ -3,6 +3,7 @@ package it.polimi.ingsw.view.gui.controllers.deck;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.cards.CardView;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -92,16 +93,18 @@ public class DeckController implements MiniModelObserver, Initializable {
      */
     @Override
     public void react() {
-        if (deckView.getDeck().isEmpty()) return;
+        Platform.runLater(() -> {
+            if (deckView.getDeck().isEmpty()) return;
 
-        if (deckView.isCovered() || deckView.isOnlyLast()) {
-            int i = 0;
-            for (CardView cv : deckView.getDeck()) {
-                StackPane cardPane = (StackPane) cardPanes.get(i);
-                cardPane.getChildren().clear();
-                cardPane.getChildren().add(cv.getNode());
-                i++;
+            if (deckView.isCovered() || deckView.isOnlyLast()) {
+                int i = 0;
+                for (CardView cv : deckView.getDeck()) {
+                    StackPane cardPane = (StackPane) cardPanes.get(i);
+                    cardPane.getChildren().clear();
+                    cardPane.getChildren().add(cv.getNode());
+                    i++;
+                }
             }
-        }
+        });
     }
 }

@@ -28,6 +28,7 @@ public class MiniModel {
     private Pair<Integer, Integer> dice;
     private String nickname;
     private String userID;
+    private int rewardPhase;
 
     private PlayerDataView currentPlayer;
     private LobbyView currentLobby;
@@ -40,11 +41,19 @@ public class MiniModel {
         return instance;
     }
 
-    public void setGamePhase(int phase) {
+    public synchronized void setRewardPhase(int rewardPhase) {
+        this.rewardPhase = rewardPhase;
+    }
+
+    public synchronized int getRewardPhase() {
+        return rewardPhase;
+    }
+
+    public synchronized void setGamePhase(int phase) {
         this.phase = GamePhases.fromValue(phase);
     }
 
-    public GamePhases getGamePhase() {
+    public synchronized GamePhases getGamePhase() {
         return phase;
     }
 

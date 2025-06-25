@@ -40,7 +40,11 @@ public class AddCrew extends ModifyCrew {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == spaceShipView.getMapCabins().size()) {
+        int num = (int) MiniModel.getInstance().getClientPlayer().getShip().getMapCabins().values().stream()
+                    .filter(cabin -> (value == 3) == (cabin.getCrewNumber() != 0))
+                    .count();
+
+        if (selected == num) {
             return new MainCrew();
         }
 
@@ -83,6 +87,7 @@ public class AddCrew extends ModifyCrew {
         status = ManageCrewMember.requester(Client.transceiver, new Object()).request(new ManageCrewMember(MiniModel.getInstance().getUserID(), mode, type, ID));
         if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
+            return this;
         }
 
         return new MainCrew();

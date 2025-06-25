@@ -3,7 +3,6 @@ package it.polimi.ingsw.view;
 import it.polimi.ingsw.event.game.serverToClient.deck.*;
 import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
-import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingBatteriesPenalty;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
@@ -44,9 +43,6 @@ public interface Manager {
     // Energy used
     void notifyBatteriesLoss(BatteriesLoss data);
 
-    // Forcing internal state
-    void notifyForcingBatteriesPenalty(ForcingBatteriesPenalty data);
-
     void notifyForcingGiveUp(ForcingGiveUp data);
 
     void notifyForcingPenalty(ForcingPenalty data);
@@ -73,6 +69,8 @@ public interface Manager {
 
     // Player
     void notifyCardPlayed(CardPlayed data);
+
+    void notifyCombatZonePhase(CombatZonePhase data);
 
     void notifyEnemyDefeat(EnemyDefeat data);
 
@@ -101,8 +99,6 @@ public interface Manager {
     void notifyFragments(Fragments data);
 
     void notifyInvalidComponents(InvalidComponents data);
-
-    void notifyHitComing(HitComing data);
 
     void notifySetCannonStrength(SetCannonStrength data);
 

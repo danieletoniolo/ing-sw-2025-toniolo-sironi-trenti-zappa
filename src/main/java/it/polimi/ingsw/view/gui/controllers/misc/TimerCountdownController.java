@@ -4,6 +4,7 @@ import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.timer.TimerView;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
@@ -186,7 +187,9 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
 
     @Override
     public void react() {
-        int time = timerView.getSecondsRemaining();
-        this.start(time);
+        Platform.runLater(() -> {
+            int time = timerView.getSecondsRemaining();
+            this.start(time);
+        });
     }
 }

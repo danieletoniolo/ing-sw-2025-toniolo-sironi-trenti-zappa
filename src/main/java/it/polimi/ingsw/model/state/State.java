@@ -101,7 +101,10 @@ public abstract class State implements Serializable {
                         case PIRATES ->          transitionHandler.changeState(new PiratesState(board, eventCallback, (Pirates) card, transitionHandler));
                         case OPENSPACE ->        transitionHandler.changeState(new OpenSpaceState(board, eventCallback, transitionHandler));
                         case METEORSWARM ->      transitionHandler.changeState(new MeteorSwarmState(board, eventCallback, (MeteorSwarm) card, transitionHandler));
-                        case COMBATZONE ->       transitionHandler.changeState(new CombatZoneState(board, eventCallback, (CombatZone) card, transitionHandler));
+                        case COMBATZONE ->       {
+                            // TODO: if it remains only one player, combat zone is not played
+                            transitionHandler.changeState(new CombatZoneState(board, eventCallback, (CombatZone) card, transitionHandler));
+                        }
                         case STARDUST ->         transitionHandler.changeState(new StardustState(board, eventCallback, transitionHandler));
                         case EPIDEMIC ->         transitionHandler.changeState(new EpidemicState(board, eventCallback, transitionHandler));
                         default -> throw new IllegalArgumentException("Unknown card type: " + card.getCardType());
@@ -110,11 +113,7 @@ public abstract class State implements Serializable {
                     transitionHandler.changeState(new RewardState(board, eventCallback, transitionHandler));
                 }
             }
-            case REWARD -> {
-                transitionHandler.changeState(new RewardState(board, eventCallback, transitionHandler));
-            }
-            case FINISHED -> {
-            }
+            case REWARD -> transitionHandler.changeState(new RewardState(board, eventCallback, transitionHandler));
             default -> throw new IllegalArgumentException("Invalid next game state: " + nextGameState);
         }
     }
