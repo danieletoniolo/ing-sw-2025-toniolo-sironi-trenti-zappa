@@ -63,7 +63,6 @@ public class MainValidation extends Validation {
                 // Send the destroy request to the server
                 StatusEvent status = DestroyComponents.requester(Client.transceiver, new Object()).request(
                         new DestroyComponents(MiniModel.getInstance().getUserID(), destroyTiles));
-                destroyTiles.clear();
                 if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                     setMessage(((Pota) status).errorMessage());
                     destroyStatics();
