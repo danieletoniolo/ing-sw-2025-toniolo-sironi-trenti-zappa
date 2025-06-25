@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.gui.controllers.cards;
 
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.cards.CardView;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.image.Image;
@@ -81,18 +82,20 @@ public class CardController implements MiniModelObserver, Initializable {
      */
     @Override
     public void react() {
-        String path;
-        // Update the image based on the card model
-        if (cardView.isCovered()) {
-            path = switch (cardView.getLevel()) {
-                case 1 -> "/image/card/covered_1.jpg";
-                case 2 -> "/image/card/covered_2.jpg";
-                default -> throw new IllegalStateException("Unexpected value: " + cardView.getLevel());
-            };
-        } else {
-            path = "/image/card/" + cardView.getID() + ".jpg";
-        }
-        Image img = new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
-        cardImage.setImage(img);
+        Platform.runLater(() -> {
+            String path;
+            // Update the image based on the card model
+            if (cardView.isCovered()) {
+                path = switch (cardView.getLevel()) {
+                    case 1 -> "/image/card/covered_1.jpg";
+                    case 2 -> "/image/card/covered_2.jpg";
+                    default -> throw new IllegalStateException("Unexpected value: " + cardView.getLevel());
+                };
+            } else {
+                path = "/image/card/" + cardView.getID() + ".jpg";
+            }
+            Image img = new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
+            cardImage.setImage(img);
+        });
     }
 }

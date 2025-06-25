@@ -93,6 +93,18 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyCreatedLobby(LobbyCreated data) {
         if (mm.getNickname().equals(data.nickname())) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/lobby.fxml"));
+                root = loader.load();
+
+                controller = loader.getController();
+                controller.react();
+
+                scene.setRoot(root);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
             this.setLobbyScene();
         }
         else {
@@ -104,6 +116,18 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyLobbyJoined(LobbyJoined data) {
         if (mm.getNickname().equals(data.nickname())) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/lobby.fxml"));
+                root = loader.load();
+
+                controller = loader.getController();
+                controller.react();
+
+                scene.setRoot(root);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
             this.setLobbyScene();
         }
         else {
@@ -138,7 +162,7 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyCountDown() {
-
+        controller.react();
     }
 
     @Override

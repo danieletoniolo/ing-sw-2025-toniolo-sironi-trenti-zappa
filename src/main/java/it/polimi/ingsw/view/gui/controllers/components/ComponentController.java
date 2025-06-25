@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.gui.controllers.components;
 
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.image.Image;
@@ -73,23 +74,25 @@ public class ComponentController implements MiniModelObserver, Initializable {
 
     @Override
     public void react() {
-        if (componentView.getID() == -1) {
-            return;
-        }
+        Platform.runLater(() -> {
+            if (componentView.getID() == -1) {
+                return;
+            }
 
-        String path;
-        // Update the image based on the component model
-        if (componentView.isCovered()) {
-            path = "/image/components/covered.jpg";
-        } else {
-            path = "/image/components/" + componentView.getID() + ".jpg";
-        }
-        Image img = new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
+            String path;
+            // Update the image based on the component model
+            if (componentView.isCovered()) {
+                path = "/image/components/covered.jpg";
+            } else {
+                path = "/image/components/" + componentView.getID() + ".jpg";
+            }
+            Image img = new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
 
-        // Check the rotation of the component
-        componentImage.setRotate(componentView.getClockWise() * 90);
+            // Check the rotation of the component
+            componentImage.setRotate(componentView.getClockWise() * 90);
 
-        // Set the image to the ImageView
-        componentImage.setImage(img);
+            // Set the image to the ImageView
+            componentImage.setImage(img);
+        });
     }
 }

@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.gui.controllers.misc;
 
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.lobby.LobbyView;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.HBox;
@@ -127,10 +128,12 @@ public class LobbyBoxController implements MiniModelObserver, Initializable {
      */
     @Override
     public void react() {
-        if (lobbyView != null) {
-            lobbyName.setText(lobbyView.getLobbyName());
-            lobbyLevel.setText(lobbyView.getLevel().toString());
-            numberOfPlayer.setText(lobbyView.getNumberOfPlayers() + "/" + lobbyView.getMaxPlayer());
-        }
+        Platform.runLater(() -> {
+            if (lobbyView != null) {
+                lobbyName.setText(lobbyView.getLobbyName());
+                lobbyLevel.setText(lobbyView.getLevel().toString());
+                numberOfPlayer.setText(lobbyView.getNumberOfPlayers() + "/" + lobbyView.getMaxPlayer());
+            }
+        });
     }
 }

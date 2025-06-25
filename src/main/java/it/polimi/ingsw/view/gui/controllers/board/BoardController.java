@@ -4,6 +4,7 @@ import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.player.MarkerView;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
@@ -147,62 +148,64 @@ public class BoardController implements MiniModelObserver, Initializable {
 
     @Override
     public void react() {
-        // Clear the current steps from the board group
-        for (Node step : stepsNodes) {
-            StackPane stepNode = (StackPane) step;
-            stepNode.getChildren().clear();
-        }
-
-        // Reinitialize the steps based on the board view
-        List<Pair< MarkerView, Integer>> playerPositions = boardView.getPlayerPositions();
-        int numPlayers = boardView.getNumberOfPlayers();
-        int numberOfSteps = stepsNodes.size();
-
-        // Reset the marker in the waiting area
-        for (int i = 0; i < numPlayers; i++) {
-            StackPane stepNode = (StackPane) stepsNodes.get(numberOfSteps-i-1);
-            stepNode.getChildren().add(MarkerView.fromValue(i).getNode());
-        }
-
-        // Place each player's marker on the corresponding step
-        for (Pair<MarkerView, Integer> playerPosition : playerPositions) {
-            MarkerView marker = playerPosition.getValue0();
-            int step = playerPosition.getValue1();
-
-            StackPane stepNode = (StackPane) stepsNodes.get(step);
-            stepNode.getChildren().add(marker.getNode());
-
-            ((StackPane) stepsNodes.get(numberOfSteps - marker.getValue() - 1)).getChildren().clear();
-        }
-
-        // Update the timer if it exists
-        if (boardView.getTimerView() != null && !timerNodes.isEmpty()) {
-            for (Node timerStep : timerNodes) {
-                ((StackPane) timerStep).getChildren().clear();
+        Platform.runLater(() -> {
+            // Clear the current steps from the board group
+            for (Node step : stepsNodes) {
+                StackPane stepNode = (StackPane) step;
+                stepNode.getChildren().clear();
             }
 
-            int numberOfFlip = boardView.getTimerView().getNumberOfFlips();
-            StackPane stackPane;
-            if (numberOfFlip > 0) {
-                stackPane = (StackPane) timerNodes.get(numberOfFlip - 1);
-            } else {
-                stackPane = (StackPane) timerNodes.getFirst();
-            }
-            stackPane.getChildren().add(boardView.getTimerView().getNode());
-        }
+            // Reinitialize the steps based on the board view
+            List<Pair< MarkerView, Integer>> playerPositions = boardView.getPlayerPositions();
+            int numPlayers = boardView.getNumberOfPlayers();
+            int numberOfSteps = stepsNodes.size();
 
-        if (!decksNodes.isEmpty()) {
-            // Update the decks if they exist
-            DeckView[] decks = boardView.getDecksView().getValue0();
-            int i = 0;
-            for (DeckView deck : decks) {
-                if (deck != null) {
-                    StackPane deckNode = (StackPane) decksNodes.get(i);
-                    deckNode.getChildren().clear();
-                    deckNode.getChildren().add(deck.getNode());
-                    i++;
+            // Reset the marker in the waiting area
+            for (int i = 0; i < numPlayers; i++) {
+                StackPane stepNode = (StackPane) stepsNodes.get(numberOfSteps-i-1);
+                stepNode.getChildren().add(MarkerView.fromValue(i).getNode());
+            }
+
+            // Place each player's marker on the corresponding step
+            for (Pair<MarkerView, Integer> playerPosition : playerPositions) {
+                MarkerView marker = playerPosition.getValue0();
+                int step = playerPosition.getValue1();
+
+                StackPane stepNode = (StackPane) stepsNodes.get(step);
+                stepNode.getChildren().add(marker.getNode());
+
+                ((StackPane) stepsNodes.get(numberOfSteps - marker.getValue() - 1)).getChildren().clear();
+            }
+
+            // Update the timer if it exists
+            if (boardView.getTimerView() != null && !timerNodes.isEmpty()) {
+                for (Node timerStep : timerNodes) {
+                    ((StackPane) timerStep).getChildren().clear();
+                }
+
+                int numberOfFlip = boardView.getTimerView().getNumberOfFlips();
+                StackPane stackPane;
+                if (numberOfFlip > 0) {
+                    stackPane = (StackPane) timerNodes.get(numberOfFlip - 1);
+                } else {
+                    stackPane = (StackPane) timerNodes.getFirst();
+                }
+                stackPane.getChildren().add(boardView.getTimerView().getNode());
+            }
+
+            if (!decksNodes.isEmpty()) {
+                // Update the decks if they exist
+                DeckView[] decks = boardView.getDecksView().getValue0();
+                int i = 0;
+                for (DeckView deck : decks) {
+                    if (deck != null) {
+                        StackPane deckNode = (StackPane) decksNodes.get(i);
+                        deckNode.getChildren().clear();
+                        deckNode.getChildren().add(deck.getNode());
+                        i++;
+                    }
                 }
             }
-        }
+        });
     }
 }

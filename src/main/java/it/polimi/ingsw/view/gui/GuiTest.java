@@ -4,6 +4,7 @@ import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
+import it.polimi.ingsw.view.gui.screens.LobbyController;
 import it.polimi.ingsw.view.gui.screens.MenuController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
@@ -52,25 +53,16 @@ public class GuiTest extends Application {
         Node root = d.getNode();
          */
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/menu.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/lobby.fxml"));
         Parent root = loader.load();
-        LobbyView lobbyView = new LobbyView("Test Lobby", 2, 4, LevelView.LEARNING);
-        MiniModel.getInstance().getLobbiesView().add(lobbyView);
-        MiniModel.getInstance().getLobbiesView().add(lobbyView);
-        MiniModel.getInstance().getLobbiesView().add(lobbyView);
-        MiniModel.getInstance().getLobbiesView().add(lobbyView);
-        MiniModel.getInstance().getLobbiesView().add(lobbyView);
-        MiniModel.getInstance().getLobbiesView().add(lobbyView);
-        MiniModel.getInstance().getLobbiesView().add(lobbyView);
-        MiniModel.getInstance().getLobbiesView().add(lobbyView);
-        MiniModel.getInstance().getLobbiesView().add(lobbyView);
-        MiniModel.getInstance().getLobbiesView().add(lobbyView);
-        MenuController lc = loader.getController();
-        lc.react();
+        LobbyController lobbyController = loader.getController();
+        LobbyView lv = new LobbyView("testLobby", 1, 1, LevelView.LEARNING);
+        MiniModel.getInstance().setCurrentLobby(lv);
+        lv.addPlayer("Player1");
+        lv.setPlayerStatus("Player1", true);
+        lobbyController.react();
 
         Scene scene = new Scene(root);
-
-        lc.react();
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();
