@@ -135,13 +135,12 @@ class OpenSpaceStateTest {
         state.players.get(2).getSpaceShip().addCrewMember(153, true, false);
         state.players.get(3).getSpaceShip().getCabin(155).isValid();
         state.players.get(3).getSpaceShip().addCrewMember(155, true, false);
-        float alienStrength = SpaceShip.getAlienStrength();
 
         assertDoesNotThrow(() -> state.entry());
         state.board.getInGamePlayers().forEach(player ->
                 {
                     try {
-                        assertEquals(alienStrength, ((Map<PlayerData, Float>) statsField.get(state)).get(player));
+                        assertEquals(0.0f, ((Map<PlayerData, Float>) statsField.get(state)).get(player));
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
                     }

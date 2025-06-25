@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class PiratesStateTest {
     Field internalStateField = PiratesState.class.getDeclaredField("internalState");
     Field fragmentsField = PiratesState.class.getDeclaredField("fragments");
-    Field rolledField = PiratesState.class.getDeclaredField("diceRolled");
     Field statsField = PiratesState.class.getDeclaredField("cannonsStrength");
     Field cardField = PiratesState.class.getDeclaredField("card");
     Field piratesDefeatField = PiratesState.class.getDeclaredField("piratesDefeat");
@@ -53,7 +52,6 @@ class PiratesStateTest {
     void setUp() throws JsonProcessingException {
         internalStateField.setAccessible(true);
         fragmentsField.setAccessible(true);
-        rolledField.setAccessible(true);
         statsField.setAccessible(true);
         cardField.setAccessible(true);
         piratesDefeatField.setAccessible(true);
@@ -118,7 +116,7 @@ class PiratesStateTest {
 
     @Test
     void setProtect() throws IllegalAccessException {
-        internalStateField.set(state, PiratesState.PiratesInternalState.PENALTY);
+        internalStateField.set(state, PiratesState.PiratesInternalState.CAN_PROTECT);
         PlayerData player = state.board.getInGamePlayers().getFirst();
         ConnectorType[] c = new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE};
         player.getSpaceShip().placeComponent(new Battery(1, c, 3), 6, 7);
@@ -129,8 +127,9 @@ class PiratesStateTest {
         player.getSpaceShip().placeComponent(new Connectors(2, c), 6, 3);
         ((List<List<Pair<Integer, Integer>>>) fragmentsField.get(state)).add(List.of(Pair.with(6, 7)));
         state.rollDice(player);
+        internalStateField.set(state, PiratesState.PiratesInternalState.PENALTY);
+        state.execute(player);
         assertDoesNotThrow(() -> state.setProtect(player, 1));
-        assertTrue((boolean) rolledField.get(state));
         state.setFragmentChoice(player, 0);
         assertTrue(((List<List<Pair<Integer, Integer>>>) fragmentsField.get(state)).isEmpty());
     }
@@ -143,7 +142,7 @@ class PiratesStateTest {
 
     @Test
     void rollDice_triggersEventsForValidPlayer() throws IllegalAccessException {
-        internalStateField.set(state, PiratesState.PiratesInternalState.PENALTY);
+        internalStateField.set(state, PiratesState.PiratesInternalState.CAN_PROTECT);
         PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Connectors(1, null), 6, 7);
         player.getSpaceShip().placeComponent(new Connectors(1, null), 6, 8);
@@ -153,7 +152,6 @@ class PiratesStateTest {
         player.getSpaceShip().placeComponent(new Connectors(1, null), 6, 3);
 
         assertDoesNotThrow(() -> state.rollDice(player));
-        assertTrue((boolean) rolledField.get(state));
     }
 
     @Test
@@ -167,7 +165,6 @@ class PiratesStateTest {
     void rollDice_whenAlreadyRolled() throws IllegalAccessException {
         internalStateField.set(state, PiratesState.PiratesInternalState.PENALTY);
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        rolledField.set(state, true);
         assertThrows(IllegalStateException.class, () -> state.rollDice(player));
     }
 
@@ -182,7 +179,7 @@ class PiratesStateTest {
 
     @RepeatedTest(3)
     void useExtraStrength_typeOne() throws IllegalAccessException {
-        internalStateField.set(state, PiratesState.PiratesInternalState.ENEMY_DEFEAT);
+        internalStateField.set(state, PiratesState.PiratesInternalState.PENALTY);
         PlayerData player = state.board.getInGamePlayers().getFirst();
         List<Integer> ids = List.of(1, 2);
         List<Integer> batteries = List.of(3, 4);
@@ -191,8 +188,8 @@ class PiratesStateTest {
     }
 
     @RepeatedTest(3)
-    void useExtraStrength_typeOne_inPenaltyState() throws IllegalAccessException {
-        internalStateField.set(state, PiratesState.PiratesInternalState.PENALTY);
+    void useExtraStrength_typeOne_inEnemyDefeat() throws IllegalAccessException {
+        internalStateField.set(state, PiratesState.PiratesInternalState.ENEMY_DEFEAT);
         PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Cannon(2, new ConnectorType[]{ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE, ConnectorType.SINGLE}, 1), 6, 7);
         player.getSpaceShip().placeComponent(new Battery(1, null, 3), 6, 8);
@@ -235,7 +232,7 @@ class PiratesStateTest {
         state.players.get(2).getSpaceShip().addCrewMember(153, false, true);
         state.players.get(3).getSpaceShip().getCabin(155).isValid();
         state.players.get(3).getSpaceShip().addCrewMember(155, false, true);
-        float alienStrength = SpaceShip.getAlienStrength();
+        float alienStrength = state.players.getFirst().getSpaceShip().getAlienStrength(false);
 
         assertDoesNotThrow(() -> state.entry());
         state.board.getInGamePlayers().forEach(player ->
@@ -291,8 +288,10 @@ class PiratesStateTest {
 
     @Test
     void execute_penaltyStateWithDefeatedPlayer() throws IllegalAccessException {
-        internalStateField.set(state, PiratesState.PiratesInternalState.PENALTY);
+        internalStateField.set(state, PiratesState.PiratesInternalState.CAN_PROTECT);
         PlayerData player = state.board.getInGamePlayers().getFirst();
+        state.rollDice(player);
+        internalStateField.set(state, PiratesState.PiratesInternalState.PENALTY);
         ((ArrayList<PlayerData>) playersDefeatedField.get(state)).add(player);
         assertDoesNotThrow(() -> state.execute(player));
     }
@@ -306,8 +305,7 @@ class PiratesStateTest {
         playersDefeated.add(lastPlayer);
         playersDefeatedField.set(state, playersDefeated);
         assertDoesNotThrow(() -> state.execute(lastPlayer));
-        assertEquals(PiratesState.PiratesInternalState.PENALTY, internalStateField.get(state));
-        assertFalse((boolean) rolledField.get(state));
+        assertEquals(PiratesState.PiratesInternalState.CAN_PROTECT, internalStateField.get(state));
     }
 
     @RepeatedTest(5)

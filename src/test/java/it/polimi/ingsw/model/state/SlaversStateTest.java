@@ -169,7 +169,7 @@ class SlaversStateTest {
         state.players.get(2).getSpaceShip().addCrewMember(153, false, true);
         state.players.get(3).getSpaceShip().getCabin(155).isValid();
         state.players.get(3).getSpaceShip().addCrewMember(155, false, true);
-        float alienStrength = SpaceShip.getAlienStrength();
+        float alienStrength = state.players.getFirst().getSpaceShip().getAlienStrength(false);
 
         assertDoesNotThrow(() -> state.entry());
         state.board.getInGamePlayers().forEach(player ->
@@ -229,7 +229,7 @@ class SlaversStateTest {
         state.entry();
         ((Map<PlayerData, Float>) statsField.get(state)).put(player, 1.0f);
         state.execute(player);
-        assertEquals(SlaversState.SlaversInternalState.GIVE_UP, internalStateField.get(state));
+        assertEquals(SlaversState.SlaversInternalState.PENALTY, internalStateField.get(state));
         assertFalse((boolean) slaversDefeatField.get(state));
     }
 

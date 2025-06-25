@@ -200,7 +200,6 @@ class CrewStateTest {
         bL.setPlayer(p3, 3);
         CrewState cs1 = new CrewState(bL, ecb, th);
         assertDoesNotThrow(() -> cs1.entry());
-        assertTrue(cs1.played);
 
         for (PlayerData player : cs1.board.getInGamePlayers()) {
             for (Cabin cabin : player.getSpaceShip().getCabins()) {

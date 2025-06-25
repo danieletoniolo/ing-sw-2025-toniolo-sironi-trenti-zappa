@@ -12,6 +12,7 @@ import it.polimi.ingsw.model.spaceship.ConnectorType;
 import it.polimi.ingsw.model.spaceship.Connectors;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import it.polimi.ingsw.model.state.exception.SynchronousStateException;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
@@ -28,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class MeteorSwarmStateTest {
     Field fragmentsField = MeteorSwarmState.class.getDeclaredField("fragments");
     Field rolledField = MeteorSwarmState.class.getDeclaredField("diceRolled");
-    Field hitIndexField = MeteorSwarmState.class.getDeclaredField("hitIndex");
     MeteorSwarmState state;
     EventCallback ecb = new EventCallback() {;
         @Override
@@ -49,7 +49,6 @@ class MeteorSwarmStateTest {
     void setUp() throws JsonProcessingException {
         fragmentsField.setAccessible(true);
         rolledField.setAccessible(true);
-        hitIndexField.setAccessible(true);
 
         SpaceShip ship0 = new SpaceShip(Level.SECOND, PlayerColor.BLUE);
         SpaceShip ship1 = new SpaceShip(Level.SECOND, PlayerColor.RED);
@@ -75,6 +74,11 @@ class MeteorSwarmStateTest {
     }
 
     @Test
+    void getCurrentPlayer(){
+        assertThrows(SynchronousStateException.class, () -> state.getCurrentPlayer());
+    }
+
+    @Test
     void setFragmentChoice_clearsFragmentsAfterValidChoice() throws IllegalAccessException {
         PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Connectors(1, null), 6, 7);
@@ -84,14 +88,14 @@ class MeteorSwarmStateTest {
 
         List<Pair<Integer, Integer>> fragment1 = new ArrayList<>(List.of(new Pair<>(6, 7), new Pair<>(6, 8)));
         List<Pair<Integer, Integer>> fragment2 = new ArrayList<>(List.of(new Pair<>(6, 5), new Pair<>(6, 4)));
-        ((List<List<Pair<Integer, Integer>>>) fragmentsField.get(state)).addAll(List.of(fragment1, fragment2));
+        ((Map<PlayerData, List<List<Pair<Integer, Integer>>>>) fragmentsField.get(state)).get(player).addAll(List.of(fragment1, fragment2));
         assertDoesNotThrow(() -> state.setFragmentChoice(player, 0));
-        assertTrue(((List<List<Pair<Integer, Integer>>>) fragmentsField.get(state)).isEmpty());
+        assertTrue(((Map<PlayerData, List<List<Pair<Integer, Integer>>>>) fragmentsField.get(state)).get(player).isEmpty());
     }
 
     @Test
     void setFragmentChoice_whenNoFragmentsAvailable() throws IllegalAccessException {
-        ((List<List<Pair<Integer, Integer>>>) fragmentsField.get(state)).clear();
+        ((Map<PlayerData, List<List<Pair<Integer, Integer>>>>) fragmentsField.get(state)).clear();
         PlayerData player = state.board.getInGamePlayers().getFirst();
 
         assertThrows(IllegalStateException.class, () -> state.setFragmentChoice(player, 0));
@@ -107,10 +111,11 @@ class MeteorSwarmStateTest {
         player.getSpaceShip().placeComponent(new Connectors(1, c), 6, 4);
         player.getSpaceShip().placeComponent(new Connectors(1, c), 6, 9);
         player.getSpaceShip().placeComponent(new Connectors(1, c), 6, 3);
-        ((List<List<Pair<Integer, Integer>>>) fragmentsField.get(state)).add(List.of(Pair.with(6, 7)));
+        ((Map<PlayerData, List<List<Pair<Integer, Integer>>>>) fragmentsField.get(state)).get(player).add(List.of(Pair.with(6, 7)));
         state.rollDice(player);
+        state.execute(player);
         assertDoesNotThrow(() -> state.setProtect(player, 1));
-        assertFalse(((List<List<Pair<Integer, Integer>>>) fragmentsField.get(state)).isEmpty());
+        assertFalse(((Map<PlayerData, List<List<Pair<Integer, Integer>>>>) fragmentsField.get(state)).get(player).isEmpty());
     }
 
     @Test
@@ -141,26 +146,27 @@ class MeteorSwarmStateTest {
     }
 
     @Test
-    void execute_withValidPlayer_advancesHitIndexAndResetsDiceRolled() throws IllegalAccessException {
-        PlayerData player = state.board.getInGamePlayers().get(3);
-        int initialHitIndex = (int) hitIndexField.get(state);
-        state.playersStatus.put(player.getColor(), State.PlayerStatus.WAITING);
-
-        assertDoesNotThrow(() -> state.execute(player));
-        int newHitIndex = (int) hitIndexField.get(state);
-        assertEquals(initialHitIndex + 1, newHitIndex);
-        assertFalse((boolean) rolledField.get(state));
+    void entry(){
+        assertDoesNotThrow(() -> state.entry());
     }
 
     @Test
-    void execute_withNotLastPlayer_doesNotAdvanceHitIndex() throws IllegalAccessException {
+    void execute_withValidPlayer() throws IllegalAccessException {
+        PlayerData p = state.board.getInGamePlayers().getFirst();
+        state.rollDice(p);
+        PlayerData player = state.board.getInGamePlayers().get(3);
+        state.playersStatus.put(player.getColor(), State.PlayerStatus.WAITING);
+        assertDoesNotThrow(() -> state.execute(player));
+        assertTrue((boolean) rolledField.get(state));
+    }
+
+    @Test
+    void execute_withNotLastPlayer() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        int initialHitIndex = (int) hitIndexField.get(state);
+        state.rollDice(player);
         state.playersStatus.put(player.getColor(), State.PlayerStatus.WAITING);
 
         assertDoesNotThrow(() -> state.execute(player));
-        int newHitIndex = (int) hitIndexField.get(state);
-        assertEquals(initialHitIndex, newHitIndex);
     }
 
     @Test

@@ -128,6 +128,11 @@ class AbandonedShipStateTest {
     }
 
     @Test
+    void entry(){
+        assertDoesNotThrow(() -> state.entry());
+    }
+
+    @Test
     void execute_withNullPlayer_or_statePlayed() throws IllegalAccessException {
         assertThrows(NullPointerException.class, () -> state.execute(null));
 

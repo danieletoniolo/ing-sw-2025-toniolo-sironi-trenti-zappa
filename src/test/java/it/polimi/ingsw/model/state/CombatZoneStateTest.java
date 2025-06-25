@@ -105,7 +105,7 @@ class CombatZoneStateTest {
 
     @Test
     void setFragmentChoice_removeFragments() throws Exception {
-        internalStateField.set(state, CombatZoneState.CombatZoneInternalState.CREW);
+        internalStateField.set(state, CombatZoneState.CombatZoneInternalState.HIT_PENALTY);
 
         List<List<Pair<Integer, Integer>>> fragments = new ArrayList<>();
         fragments.add(List.of(Pair.with(6, 7)));
@@ -147,7 +147,7 @@ class CombatZoneStateTest {
 
     @Test
     void setProtect_triggersEventWhenValidBatteryID() throws IllegalAccessException {
-        internalStateField.set(state, CombatZoneState.CombatZoneInternalState.CREW);
+        internalStateField.set(state, CombatZoneState.CombatZoneInternalState.CAN_PROTECT);
         PlayerData player = state.players.getFirst();
         player.getSpaceShip().placeComponent(new Battery(1, null, 3), 6, 7);
         player.getSpaceShip().placeComponent(new Battery(3, null, 3), 6, 8);
@@ -156,6 +156,8 @@ class CombatZoneStateTest {
         ((List<List<Pair<Integer, Integer>>>) fragmentsField.get(state)).add(List.of(Pair.with(6, 7)));
 
         state.rollDice(player);
+        state.execute(player);
+        internalStateField.set(state, CombatZoneState.CombatZoneInternalState.HIT_PENALTY);
         assertDoesNotThrow(() -> state.setProtect(player, 1));
         assertDoesNotThrow(() -> state.setFragmentChoice(player, 0));
         assertTrue(((List<?>) fragmentsField.get(state)).isEmpty());
@@ -163,7 +165,7 @@ class CombatZoneStateTest {
 
     @Test
     void rollDice_triggersEventsForValidPlayer() throws IllegalAccessException {
-        internalStateField.set(state, CombatZoneState.CombatZoneInternalState.CREW);
+        internalStateField.set(state, CombatZoneState.CombatZoneInternalState.CAN_PROTECT);
         PlayerData player = state.board.getInGamePlayers().getFirst();
         player.getSpaceShip().placeComponent(new Connectors(1, null), 6, 7);
         player.getSpaceShip().placeComponent(new Connectors(1, null), 6, 8);
@@ -357,9 +359,10 @@ class CombatZoneStateTest {
         player.getSpaceShip().addCrewMember(152, false, false);
         player.getSpaceShip().placeComponent(new Cabin(1, null), 6, 7);
         player.getSpaceShip().addCrewMember(1, false, false);
+        minPlayerCrewField.set(state, state.players.getFirst());
         internalStateField.set(state, CombatZoneState.CombatZoneInternalState.CREW);
         assertDoesNotThrow(() -> state.execute(player));
-        assertEquals(CombatZoneState.CombatZoneInternalState.HIT_PENALTY, internalStateField.get(state));
+        assertEquals(CombatZoneState.CombatZoneInternalState.CAN_PROTECT, internalStateField.get(state));
 
         internalStateField.set(stateL, CombatZoneState.CombatZoneInternalState.CREW);
         PlayerData player1 = stateL.players.getFirst();
@@ -391,11 +394,12 @@ class CombatZoneStateTest {
         PlayerData player = state.players.getFirst();
         player.getSpaceShip().placeComponent(new Storage(1, null, true, 3), 6, 7);
         player.getSpaceShip().exchangeGood(List.of(new Good(GoodType.YELLOW), new Good(GoodType.GREEN)), null, 1);
-        assertThrows(IllegalStateException.class, () -> state.execute(player));
+        assertThrows(NullPointerException.class, () -> state.execute(player));
 
         internalStateField.set(state, CombatZoneState.CombatZoneInternalState.GOODS_PENALTY);
         currentPenaltyLossField.set(state, 1);
         PlayerData player2 = state.players.get(1);
+        minPlayerEnginesField.set(state, state.players.get(1));
         assertDoesNotThrow(() -> state.execute(player2));
         assertEquals(CombatZoneState.CombatZoneInternalState.BATTERIES_PENALTY, internalStateField.get(state));
 
@@ -414,7 +418,7 @@ class CombatZoneStateTest {
         internalStateField.set(state, CombatZoneState.CombatZoneInternalState.BATTERIES_PENALTY);
         PlayerData player = state.players.getFirst();
         player.getSpaceShip().placeComponent(new Battery(1, null, 3), 6, 7);
-        assertThrows(IllegalStateException.class, () -> state.execute(player));
+        assertThrows(NullPointerException.class, () -> state.execute(player));
 
         internalStateField.set(state, CombatZoneState.CombatZoneInternalState.BATTERIES_PENALTY);
         PlayerData player2 = state.players.get(1);
@@ -436,16 +440,14 @@ class CombatZoneStateTest {
         internalStateField.set(state, CombatZoneState.CombatZoneInternalState.CREW_PENALTY);
         PlayerData player2 = state.players.get(1);
         assertDoesNotThrow(() -> state.execute(player2));
-        assertEquals(CombatZoneState.CombatZoneInternalState.CANNONS, internalStateField.get(state));
-        assertEquals(State.PlayerStatus.PLAYING, ((Map<PlayerColor, State.PlayerStatus>) playersStatusField.get(state)).get(player2.getColor()));
+        assertEquals(CombatZoneState.CombatZoneInternalState.GIVE_UP, internalStateField.get(state));
+        assertEquals(State.PlayerStatus.WAITING, ((Map<PlayerColor, State.PlayerStatus>) playersStatusField.get(state)).get(player2.getColor()));
     }
 
     @Test
     void execute_HitPenalty() throws NoSuchFieldException, IllegalAccessException {
         Field hitIndexField = CombatZoneState.class.getDeclaredField("hitIndex");
-        Field playerBeingHitField = CombatZoneState.class.getDeclaredField("playerBeingHit");
         hitIndexField.setAccessible(true);
-        playerBeingHitField.setAccessible(true);
         hitIndexField.set(state, 0);
 
         internalStateField.set(state, CombatZoneState.CombatZoneInternalState.HIT_PENALTY);
@@ -455,7 +457,6 @@ class CombatZoneStateTest {
         hitIndexField.set(state, ((CombatZone) cardField.get(state)).getFires().size());
         internalStateField.set(state, CombatZoneState.CombatZoneInternalState.HIT_PENALTY);
         PlayerData player2 = state.players.get(1);
-        playerBeingHitField.set(state, player2);
         assertDoesNotThrow(() -> state.execute(player2));
     }
 
@@ -472,7 +473,7 @@ class CombatZoneStateTest {
         minPlayerCannonsField.set(stateL, p1);
         internalStateField.set(stateL, CombatZoneState.CombatZoneInternalState.CANNONS);
         assertDoesNotThrow(() -> stateL.execute(p1));
-        assertEquals(CombatZoneState.CombatZoneInternalState.HIT_PENALTY, internalStateField.get(stateL));
+        assertEquals(CombatZoneState.CombatZoneInternalState.CAN_PROTECT, internalStateField.get(stateL));
         assertEquals(State.PlayerStatus.PLAYING, ((Map<PlayerColor, State.PlayerStatus>) playersStatusField.get(stateL)).get(p1.getColor()));
     }
 

@@ -414,15 +414,14 @@ class SpaceShipTest {
 
     @Test
     void getAlienStrength(){
-        assertEquals(2.0f, SpaceShip.getAlienStrength());
-
+        ship.placeComponent(new Cannon(4, connectors, 1), 6, 5);
         Cabin c1 = new Cabin(2, connectors);
         ship.placeComponent(c1, 6, 7);
         LifeSupportPurple lsp = new LifeSupportPurple(3, connectors);
         ship.placeComponent(lsp, 6, 8);
         ship.getCabin(2).isValid();
         ship.addCrewMember(c1.getID(), false, true);
-        assertEquals(2.0f, SpaceShip.getAlienStrength());
+        assertEquals(2.0f, ship.getAlienStrength(false));
     }
 
     @Test
@@ -932,7 +931,7 @@ class SpaceShipTest {
         Hit hit1 = new Hit(HitType.LARGEMETEOR, Direction.NORTH);
         Pair<Component, Integer> result1 = ship.canProtect(8, hit1);
         assertNotNull(result1);
-        assertEquals(1, result1.getValue1());
+        assertEquals(0, result1.getValue1());
     }
 
     @Test

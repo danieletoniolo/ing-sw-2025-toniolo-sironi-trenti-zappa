@@ -14,6 +14,7 @@ import it.polimi.ingsw.model.spaceship.ConnectorType;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.model.spaceship.Storage;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import it.polimi.ingsw.model.state.exception.SynchronousStateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
@@ -68,6 +69,11 @@ class RewardStateTest {
 
         state = new RewardState(board, ecb, th);
         assertNotNull(state);
+    }
+
+    @Test
+    void getCurrentPlayer(){
+        assertThrows(SynchronousStateException.class, () -> state.getCurrentPlayer());
     }
 
     @Test
