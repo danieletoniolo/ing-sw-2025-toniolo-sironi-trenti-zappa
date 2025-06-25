@@ -29,7 +29,7 @@ public class EpidemicCards extends CardsGame {
                 setMessage(((Pota) status).errorMessage());
                 return this;
             }
-            return nextScreen;
+            return nextScreen == null ? new NotClientTurnCards() : nextScreen;
         }
         return this;
     }
