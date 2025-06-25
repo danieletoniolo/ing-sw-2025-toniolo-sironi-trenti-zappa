@@ -47,6 +47,12 @@ public class BoardController implements MiniModelObserver, Initializable {
     private List<Node> stepsNodes;
 
     /**
+     * A list of Node objects representing the markers on the board.
+     * This is used to display player markers at their respective positions.
+     */
+    private List<Node> markersNodes;
+
+    /**
      * A list of Node objects representing timer steps.
      * This is used to display the timer steps on the board.
      */
@@ -110,8 +116,17 @@ public class BoardController implements MiniModelObserver, Initializable {
         boardGroup.translateYProperty().bind(centerYBinding);
 
         // Save the steps in a list and sort them based on their IDs
-        stepsNodes = new ArrayList<>(boardGroup.getChildren().filtered(node -> node instanceof StackPane && Integer.parseInt(node.getId()) >= 0));
+        stepsNodes = new ArrayList<>(boardGroup.getChildren().filtered(node -> node instanceof StackPane && Integer.parseInt(node.getId()) >= 0 && Integer.parseInt(node.getId()) < 18));
         stepsNodes.sort((a, b) -> {
+            if (a != null && b != null) {
+                return Integer.compare(Integer.parseInt(a.getId()), Integer.parseInt(b.getId()));
+            }
+            return 0; // Default case if not both are StackPane
+        });
+
+        // Save the steps in a list and sort them based on their IDs
+        markersNodes = new ArrayList<>(boardGroup.getChildren().filtered(node -> node instanceof StackPane && Integer.parseInt(node.getId()) >= 18));
+        markersNodes.sort((a, b) -> {
             if (a != null && b != null) {
                 return Integer.compare(Integer.parseInt(a.getId()), Integer.parseInt(b.getId()));
             }

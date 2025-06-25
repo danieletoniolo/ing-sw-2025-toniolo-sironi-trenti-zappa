@@ -233,6 +233,7 @@ public abstract class ComponentView implements Structure, MiniModelObservable {
     public void rotate() {
         this.clockWise++;
         this.clockWise = this.clockWise % this.connectors.length;
+        notifyObservers();
     }
 
     public int getClockWise() {

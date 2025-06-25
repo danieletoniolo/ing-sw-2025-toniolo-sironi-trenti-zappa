@@ -4,12 +4,16 @@ import it.polimi.ingsw.Client;
 import it.polimi.ingsw.event.game.clientToServer.deck.PickLeaveDeck;
 import it.polimi.ingsw.event.game.clientToServer.pickTile.PickTileFromBoard;
 import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToBoard;
+import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToSpaceship;
+import it.polimi.ingsw.event.game.clientToServer.rotateTile.RotateTile;
 import it.polimi.ingsw.event.game.clientToServer.timer.FlipTimer;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.gui.controllers.board.BoardController;
+import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
 import it.polimi.ingsw.view.gui.controllers.misc.ViewablePileController;
+import it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
@@ -41,7 +45,12 @@ public class BuildingController implements MiniModelObserver, Initializable {
                     @FXML private Label titleLabel;
                 @FXML private StackPane lowerLeftStackPane;
             @FXML private VBox rightVBox;
-                @FXML private StackPane upperRightStackPane;
+                @FXML private HBox upperRightHBox;
+                    @FXML private StackPane upperRightStackPane;
+                        @FXML private VBox handVBox;
+                            @FXML private StackPane handComponent;
+                            @FXML private Button rotateButton;
+
                 @FXML private StackPane lowerRightStackPane;
 
         @FXML private HBox lowerHBox;
@@ -50,7 +59,6 @@ public class BuildingController implements MiniModelObserver, Initializable {
             @FXML private Button putTileInPileButton;
             
     private final MiniModel mm = MiniModel.getInstance();
-
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -87,6 +95,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
             });
         }
 
+
         hiddenTileButton.setText("Pick a hidden tile from the pile");
         hiddenTileButton.setOnMouseClicked(e -> {
             StatusEvent status = PickTileFromBoard.requester(Client.transceiver, new Object()).request(new PickTileFromBoard(MiniModel.getInstance().getUserID(), -1));
@@ -104,6 +113,26 @@ public class BuildingController implements MiniModelObserver, Initializable {
                 MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
             }
         });
+
+        rotateButton.setText("Rotate component");
+        rotateButton.setOnMouseClicked(e -> {
+            StatusEvent status = RotateTile.requester(Client.transceiver, new Object()).request(new RotateTile(MiniModel.getInstance().getUserID(), mm.getClientPlayer().getHand().getID()));
+            if (status.get().equals(mm.getErrorCode())) {
+                Stage currentStage = (Stage) parent.getScene().getWindow();
+                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+            }
+        });
+
+        Platform.runLater(() -> {
+            upperRightStackPane.getChildren().clear();
+            upperRightStackPane.getChildren().add(mm.getViewablePile().getNode().getValue0());
+
+            lowerLeftStackPane.getChildren().clear();
+            lowerLeftStackPane.getChildren().add(mm.getBoardView().getNode().getValue0());
+
+            lowerRightStackPane.getChildren().clear();
+            lowerRightStackPane.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
+        });
     }
 
     @Override
@@ -113,7 +142,8 @@ public class BuildingController implements MiniModelObserver, Initializable {
 
         for (int i = 0; i < viewablePileCtrl.getComponentControllers().size(); i++) {
             int finalI = i;
-            viewablePileCtrl.getComponentControllers().get(i).getParent().setOnMouseClicked(e -> {
+
+            viewablePileCtrl.getComponentControllers().get(i).getParent().setOnMouseClicked(e-> {
                 int ID = mm.getViewablePile().getViewableComponents().stream()
                         .skip(finalI)
                         .map(ComponentView::getID)
@@ -130,15 +160,23 @@ public class BuildingController implements MiniModelObserver, Initializable {
             });
         }
 
+        Pair<Node, SpaceShipController> spaceShipPair = mm.getClientPlayer().getShip().getNode();
+        SpaceShipController spaceShipController = spaceShipPair.getValue1();
+
+        for (ComponentController component : spaceShipController.getComponentControllers()) {
+            component.getParent().setOnMouseClicked(event -> {
+                StatusEvent status = PlaceTileToSpaceship.requester(Client.transceiver, new Object()).request(new PlaceTileToSpaceship(mm.getUserID(), component.getComponentView().getRow() - 1, component.getComponentView().getCol() - 1));
+                if (status.get().equals(mm.getErrorCode())) {
+                    Stage currentStage = (Stage) parent.getScene().getWindow();
+                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                }
+            });
+        }
+
         Platform.runLater(() -> {
-            lowerLeftStackPane.getChildren().clear();
-            lowerLeftStackPane.getChildren().add(mm.getBoardView().getNode().getValue0());
-
-            lowerRightStackPane.getChildren().clear();
-            lowerRightStackPane.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
-
-            upperRightStackPane.getChildren().clear();
-            upperRightStackPane.getChildren().add(mm.getViewablePile().getNode().getValue0());
+            handComponent.getChildren().clear();
+            handComponent.getChildren().add(mm.getClientPlayer().getHand().getNode().getValue0());
         });
+
     }
 }

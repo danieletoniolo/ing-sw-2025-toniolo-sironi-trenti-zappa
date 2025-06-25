@@ -36,6 +36,7 @@ public class GuiManager extends Application implements Manager {
     private static Parent root;
     private static MiniModelObserver controller;
     private final MiniModel mm = MiniModel.getInstance();
+    private boolean countDownStarted = false;
 
     private enum GuiScene {
         LOGIN,
@@ -140,32 +141,35 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyCountDown() {
-        controller.react();
+        if (!countDownStarted) {
+            countDownStarted = true;
+            controller.react();
+        }
     }
 
     @Override
     public void notifyPickedLeftDeck(PickedLeftDeck data) {
-
+        controller.react();
     }
 
     @Override
     public void notifyDiceRolled(DiceRolled data) {
-
+        controller.react();
     }
 
     @Override
     public void notifyBatteriesLoss(BatteriesLoss data) {
-
+        controller.react();
     }
 
     @Override
     public void notifyForcingGiveUp(ForcingGiveUp data) {
-
+        controller.react();
     }
 
     @Override
     public void notifyForcingPenalty(ForcingPenalty data) {
-
+        controller.react();
     }
 
     @Override
@@ -175,66 +179,77 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyUpdateGoodsExchange(UpdateGoodsExchange data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyPickedTileFromBoard() {
-
+        controller.react();
     }
 
     @Override
     public void notifyPickedTileFromSpaceShip(PickedTileFromSpaceship data) {
-
+        controller.react();
     }
 
     @Override
     public void notifyPickedHiddenTile(String nickname) {
+        controller.react();
 
     }
 
     @Override
     public void notifyPlacedTileToBoard(PlacedTileToBoard data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyPlacedTileToReserve(PlacedTileToReserve data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyPlacedTileToSpaceship(PlacedTileToSpaceship data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyPlanetSelected(PlanetSelected data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyCardPlayed(CardPlayed data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyCombatZonePhase(CombatZonePhase data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyEnemyDefeat(EnemyDefeat data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyMinPlayer(MinPlayer data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyMoveMarker(MoveMarker data) {
+        controller.react();
 
     }
 
@@ -245,81 +260,97 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyPlayerGaveUp(PlayerGaveUp data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyCurrentPlayer(CurrentPlayer data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyScore(Score data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyUpdateCoins(UpdateCoins data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyRotatedTile(RotatedTile data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyBestLookingShips(BestLookingShips data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyCanProtect(CanProtect data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyComponentDestroyed(ComponentDestroyed data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyFragments(Fragments data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyInvalidComponents(InvalidComponents data) {
+        controller.react();
 
     }
 
     @Override
     public void notifySetCannonStrength(SetCannonStrength data) {
+        controller.react();
 
     }
 
     @Override
     public void notifySetEngineStrength(SetEngineStrength data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyUpdateCrewMembers(UpdateCrewMembers data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyTimer(TimerFlipped data, boolean firstSecond) {
+        controller.react();
 
     }
 
     @Override
     public void notifyTimerFinished(TimerFlipped data) {
+        controller.react();
 
     }
 
     @Override
     public void notifyLastTimerFlipped() {
+        controller.react();
 
     }
 
@@ -342,6 +373,7 @@ public class GuiManager extends Application implements Manager {
                 break;
             case FINISHED:
                 this.setMenuScene();
+                countDownStarted = false;
                 break;
         }
     }

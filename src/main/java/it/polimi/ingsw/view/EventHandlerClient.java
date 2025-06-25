@@ -162,8 +162,8 @@ public class EventHandlerClient {
     private final CastEventReceiver<PickedStorageFromBoard> pickedStorageFromBoardReceiver;
     private final EventListener<PickedStorageFromBoard> pickedStorageFromBoardListener;
 
-    private final CastEventReceiver<PickedTileFromBoard> pickedTileReceiver;
-    private final EventListener<PickedTileFromBoard> pickedTileListener;
+    private final CastEventReceiver<PickedTileFromBoard> pickedTileFromBoardReceiver;
+    private final EventListener<PickedTileFromBoard> pickedTileFromBoardListener;
 
     private final CastEventReceiver<PickedTileFromReserve> pickedTileFromReserveReceiver;
     private final EventListener<PickedTileFromReserve> pickedTileFromReserveListener;
@@ -812,8 +812,11 @@ public class EventHandlerClient {
             manager.notifyPickedTileFromBoard();
         };
 
-        pickedTileReceiver = new CastEventReceiver<>(this.transceiver);
-        pickedTileListener = data -> {
+        /*
+         * Picked tile from board
+         */
+        pickedTileFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedTileFromBoardListener = data -> {
             ComponentView tile = MiniModel.getInstance().getViewablePile().getViewableComponents().stream()
                     .filter(component -> component.getID() == data.tileID())
                     .findFirst()
@@ -1286,7 +1289,7 @@ public class EventHandlerClient {
         pickedLifeSupportFromBoardReceiver.registerListener(pickedLifeSupportFromBoardListener);
         pickedShieldFromBoardReceiver.registerListener(pickedShieldFromBoardListener);
         pickedStorageFromBoardReceiver.registerListener(pickedStorageFromBoardListener);
-        pickedTileReceiver.registerListener(pickedTileListener);
+        pickedTileFromBoardReceiver.registerListener(pickedTileFromBoardListener);
         pickedTileFromReserveReceiver.registerListener(pickedTileFromReserveListener);
         pickedTileFromSpaceshipReceiver.registerListener(pickedTileFromSpaceshipListener);
 

@@ -43,20 +43,6 @@ public class ComponentController implements MiniModelObserver, Initializable {
         // Bind the ImageView to the parent StackPane's size
         componentImage.fitWidthProperty().bind(parent.widthProperty());
         componentImage.fitHeightProperty().bind(parent.heightProperty());
-
-        // Initialize the component image view if needed
-        componentImage.setOnDragDetected(event -> {
-            Dragboard db = componentImage.startDragAndDrop(TransferMode.MOVE);
-            ClipboardContent content = new ClipboardContent();
-
-            content.putString(String.valueOf(componentView.getID()));
-            db.setContent(content);
-
-            db.setDragView(componentImage.snapshot(null, null),
-                           event.getX(), event.getY());
-
-            event.consume();
-        });
     }
 
     /**
@@ -99,5 +85,13 @@ public class ComponentController implements MiniModelObserver, Initializable {
 
     public Node getParent() {
         return parent;
+    }
+
+    public ComponentView getComponentView() {
+        return componentView;
+    }
+
+    public ImageView getComponentImage() {
+        return componentImage;
     }
 }

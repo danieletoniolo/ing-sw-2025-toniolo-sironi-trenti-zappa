@@ -34,7 +34,17 @@
                   </VBox>
                   <VBox fx:id="rightVBox" prefHeight="766.0" prefWidth="1191.0">
                      <children>
-                        <StackPane fx:id="upperRightStackPane" prefHeight="356.0" prefWidth="831.0" />
+                        <HBox prefHeight="300.0" prefWidth="801.0">
+                           <children>
+                              <VBox fx:id="handVBox" prefHeight="100.0" prefWidth="372.0">
+                                 <children>
+                                    <StackPane fx:id="handComponent" prefHeight="150.0" prefWidth="200.0" />
+                                    <Button fx:id="rotateButton" mnemonicParsing="false" prefHeight="60.0" prefWidth="175.0" text="Rotate component" />
+                                 </children>
+                              </VBox>
+                              <StackPane fx:id="upperRightStackPane" prefHeight="356.0" prefWidth="831.0" />
+                           </children>
+                        </HBox>
                         <StackPane fx:id="lowerRightStackPane" prefHeight="596.0" prefWidth="831.0" />
                      </children>
                   </VBox>

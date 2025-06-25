@@ -19,7 +19,7 @@ public abstract class Validation implements TuiScreenView {
     protected TuiScreenView nextState;
 
     protected static SpaceShipView spaceShipView;
-    protected static List<Pair<Integer, Integer>> destroyTiles;
+    protected static List<Pair<Integer, Integer>> destroyTiles; // List of coordinates of tiles to be destroyed
     private String message;
 
     public Validation(List<String> otherOptions) {

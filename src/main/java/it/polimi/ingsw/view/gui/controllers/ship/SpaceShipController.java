@@ -1,7 +1,10 @@
 package it.polimi.ingsw.view.gui.controllers.ship;
 
+import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
+import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
+import it.polimi.ingsw.view.miniModel.components.TilesTypeView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -17,6 +20,7 @@ import javafx.scene.layout.*;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class SpaceShipController implements MiniModelObserver, Initializable {
@@ -327,5 +331,17 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
                 reserveLostGrid.add(reservedDiscardedList.get(size - 2).getNode().getValue0(), 1, 0);
             }
         });
+    }
+
+    public List<ComponentController> getComponentControllers() {
+        List<ComponentController> controllers = new ArrayList<>();
+        for (ComponentView[] row : MiniModel.getInstance().getClientPlayer().getShip().getSpaceShip()) {
+            for (ComponentView component : row) {
+                if (component != null) {
+                    controllers.add(component.getNode().getValue1());
+                }
+            }
+        }
+        return controllers;
     }
 }

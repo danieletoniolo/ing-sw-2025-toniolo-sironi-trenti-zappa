@@ -31,7 +31,7 @@ public class SpaceShipView implements Structure, MiniModelObservable {
     private List<List<Pair<Integer, Integer>>> fragments;
     private Pair<Node, SpaceShipController> spaceShipNode;
 
-    // Converter model spaceship to view -> row 6 -> 2, col 6 -> 2
+    // Converter model spaceship to view -> row 6 -> 2, col 6 -> 3
     public final static int ROW_OFFSET = 4;
     public final static int COL_OFFSET = 3;
     private float totalPower;
@@ -206,17 +206,6 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         return fragments;
     }
 
-    public Image drawGui() {
-        String path;
-        if(this.level == LevelView.LEARNING){
-            path = "/image/cardboard/ship_I.jpg";
-        } else {
-            path = "/image/cardboard/ship_II.jpg";
-        }
-        Image img = new Image(getClass().getResource(path).toExternalForm());
-        return img;
-    }
-
     public int getRowsToDraw() {
         return 5 * ComponentView.getRowsToDraw() + 2;
     }
@@ -257,10 +246,14 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         for (int i = 0; i < this.spaceShip.length; i++) {
             for (int j = 0; j < this.spaceShip[i].length; j++) {
                 if (this.spaceShip[i][j] != null) {
-                    copy.placeComponent(this.spaceShip[i][j].clone(), i + this.ROW_OFFSET, j + this.COL_OFFSET);
+                    copy.placeComponent(this.spaceShip[i][j].clone(), i + ROW_OFFSET, j + COL_OFFSET);
                 }
             }
         }
+        for (ComponentView component : this.discardReservedPile.getReserved()) {
+            copy.getDiscardReservedPile().addDiscardReserved(component.clone());
+        }
+        copy.getDiscardReservedPile().setIsDiscarded();
         return copy;
     }
 }
