@@ -48,7 +48,7 @@ public class ValidationState extends State {
     @Override
     public void placeMarker(PlayerData player, int position) throws IllegalStateException {
         if (super.board.getBoardLevel() != Level.LEARNING) {
-            throw new IllegalStateException("Cannot replace marker if you are not in a Learning Game");
+            throw new IllegalStateException("Cannot place marker if you are not in a Learning Game");
         }
 
         board.setPlayer(player, position);
@@ -140,7 +140,7 @@ public class ValidationState extends State {
             InvalidComponents invalidComponentsEvent = new InvalidComponents(p.getUsername(), playerInvalidComponents);
             eventCallback.trigger(invalidComponentsEvent);
 
-            if (!playerInvalidComponents.isEmpty()) {
+            if (!playerInvalidComponents.isEmpty() && board.getBoardLevel() == Level.LEARNING) {
                 playersWithMarkerOnBoard.remove(p);
                 placeMarker(p, -1);
             }
