@@ -144,7 +144,7 @@ public class PiratesState extends State {
         for (PlayerData player : super.players) {
             float initialStrength = player.getSpaceShip().getSingleCannonsStrength();
             if (player.getSpaceShip().hasPurpleAlien()) {
-                initialStrength += SpaceShip.getAlienStrength();
+                initialStrength += player.getSpaceShip().getAlienStrength(false);
             }
             this.cannonsStrength.put(player, initialStrength);
         }

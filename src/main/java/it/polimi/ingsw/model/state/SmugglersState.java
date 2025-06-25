@@ -136,7 +136,7 @@ public class SmugglersState extends State {
             SpaceShip ship = player.getSpaceShip();
             float initialStrength = ship.getSingleCannonsStrength();
             if (ship.hasPurpleAlien()) {
-                initialStrength += SpaceShip.getAlienStrength();
+                initialStrength += ship.getAlienStrength(false);
             }
             cannonStrength.put(player, initialStrength);
         }

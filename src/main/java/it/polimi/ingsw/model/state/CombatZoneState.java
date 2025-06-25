@@ -233,7 +233,7 @@ public class CombatZoneState extends State {
 
             enginesStats.merge(player, (float) ship.getSingleEnginesStrength(), Float::sum);
             if (ship.hasBrownAlien()) {
-                enginesStats.merge(player, SpaceShip.getAlienStrength(), Float::sum);
+                enginesStats.merge(player, ship.getAlienStrength(true), Float::sum);
             }
             if (minPlayerEngines == null || minPlayerEngines.getSpaceShip().getSingleEnginesStrength() > ship.getSingleEnginesStrength()) {
                 minPlayerEngines = player;
@@ -241,7 +241,7 @@ public class CombatZoneState extends State {
 
             cannonsStats.merge(player, ship.getSingleCannonsStrength(), Float::sum);
             if (ship.hasPurpleAlien()) {
-                cannonsStats.merge(player, SpaceShip.getAlienStrength(), Float::sum);
+                cannonsStats.merge(player, ship.getAlienStrength(false), Float::sum);
             }
             if (minPlayerCannons == null || minPlayerCannons.getSpaceShip().getSingleCannonsStrength() > ship.getSingleCannonsStrength()) {
                 minPlayerCannons = player;

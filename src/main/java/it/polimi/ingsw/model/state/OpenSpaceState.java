@@ -54,7 +54,7 @@ public class OpenSpaceState extends State {
             SpaceShip ship = player.getSpaceShip();
             float initialStrength = ship.getSingleEnginesStrength();
             if (player.getSpaceShip().hasBrownAlien()) {
-                initialStrength += SpaceShip.getAlienStrength();
+                initialStrength += ship.getAlienStrength(true);
             }
             this.stats.put(player, initialStrength);
         }
