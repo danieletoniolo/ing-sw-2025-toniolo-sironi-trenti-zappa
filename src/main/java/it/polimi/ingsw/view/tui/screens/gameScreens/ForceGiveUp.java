@@ -41,7 +41,8 @@ public class ForceGiveUp extends CardsGame {
                 return this;
             }
 
-            return nextScreen;
+            return nextScreen == null ? new NotClientTurnCards() : nextScreen;
+
         }
 
         if (selected == options.size() - 1) {

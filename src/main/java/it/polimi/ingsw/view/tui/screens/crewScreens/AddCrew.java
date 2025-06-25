@@ -87,6 +87,7 @@ public class AddCrew extends ModifyCrew {
         status = ManageCrewMember.requester(Client.transceiver, new Object()).request(new ManageCrewMember(MiniModel.getInstance().getUserID(), mode, type, ID));
         if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
+            return this;
         }
 
         return new MainCrew();
