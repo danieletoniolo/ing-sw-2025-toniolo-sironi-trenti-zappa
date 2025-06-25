@@ -47,14 +47,9 @@ public class RewardState extends State {
         super(board, callback, transitionHandler);
         // Add the player that has given up to the players list
         players.addAll(board.getGaveUpPlayers());
-        for (PlayerData player : players) {
-            this.playersStatus.put(player.getColor(), PlayerStatus.WAITING);
-        }
         // Set the player status to waiting for the players that have given up
-        for (PlayerData player : players) {
-            if (player.hasGivenUp()) {
-                playersStatus.put(player.getColor(), PlayerStatus.WAITING);
-            }
+        for (PlayerData player : board.getGaveUpPlayers()) {
+            playersStatus.put(player.getColor(), PlayerStatus.WAITING);
         }
         this.scores = new HashMap<>();
         this.level = board.getBoardLevel();
@@ -68,20 +63,31 @@ public class RewardState extends State {
 
     @Override
     public void entry() {
+        ArrayList<Pair<String, Integer>> eventScores = new ArrayList<>();
          for (PlayerData player : players) {
              scores.put(player, player.getCoins());
+             eventScores.add(new Pair<>(player.getUsername(),scores.get(player)));
          }
+        Score scoreEvent = new Score(eventScores, internalState.getValue());
+        eventCallback.trigger(scoreEvent);
     }
 
     @Override
     public void execute(PlayerData player) {
+        boolean allPlayersConfirmed = true;
         ArrayList<Pair<String, Integer>> eventScores = new ArrayList<>();
         Score scoreEvent;
-        // We wait for all the player to confirm their end of turn (watching the partial score
+        // We wait for all the player to confirm their end of turn (watching the partial score)
         super.execute(player);
 
+        try {
+            allPlayersPlayed();
+        } catch (IllegalStateException e) {
+            allPlayersConfirmed = false;
+        }
+
         // Check if all players have confirmed their end of turn
-        if (players.indexOf(player) == players.size() - 1) {
+        if (allPlayersConfirmed) {
             // Execute the end of turn actions
             switch (internalState) {
                 case FINISH_ORDER:
@@ -199,6 +205,5 @@ public class RewardState extends State {
     @Override
     public void exit() {
         super.exit();
-        // TODO: This is the end of the game, we should do something here
     }
 }

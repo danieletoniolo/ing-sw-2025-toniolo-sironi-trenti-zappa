@@ -1,5 +1,6 @@
 package it.polimi.ingsw.controller;
 
+import it.polimi.ingsw.event.internal.EndGame;
 import it.polimi.ingsw.model.game.lobby.LobbyInfo;
 import it.polimi.ingsw.event.type.Event;
 
@@ -38,6 +39,18 @@ public class ServerEventManager implements EventCallback, Serializable {
     public void trigger(Event event, UUID targetUser) {
         try {
             MatchController.getInstance().getNetworkTransceiver(lobbyInfo).send(targetUser, event);
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot get the it.polimi.ingsw.network transceiver for the lobby of: " + lobbyInfo.getFounderNickname());
+        }
+    }
+
+    /**
+     * This method is called by the states (as a callback) and the gameController to notify to the matchController that the game has ended.
+     */
+    @Override
+    public void triggerEndGame() {
+        try {
+            MatchController.getInstance().getNetworkTransceiver(lobbyInfo).sendInternalEvent(new EndGame(lobbyInfo));
         } catch (Exception e) {
             throw new IllegalStateException("Cannot get the it.polimi.ingsw.network transceiver for the lobby of: " + lobbyInfo.getFounderNickname());
         }

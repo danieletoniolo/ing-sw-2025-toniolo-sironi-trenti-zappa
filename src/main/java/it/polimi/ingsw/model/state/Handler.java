@@ -75,7 +75,8 @@ public class Handler {
         if (isEngine) {
             SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), ship.getSingleEnginesStrength(), ship.getSingleEnginesStrength() + ship.getDoubleEnginesStrength());
             events.add(engineStrength);
-        } else if (isCannon) {
+        }
+        if (isCannon) {
             SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), ship.getSingleCannonsStrength(), ship.getSingleCannonsStrength() + ship.getDoubleCannonsStrength());
             events.add(cannonStrength);
         }
@@ -259,17 +260,17 @@ public class Handler {
             // Check that the goods to get are in the planet selected
             for (Good good : triplet.getValue0()) {
                 if (!goodsReward.contains(good)) {
-                    throw new IllegalArgumentException ("The good " + good + " the player want to get is not available");
+                    throw new IllegalArgumentException ("The good the player want to get is not available");
                 }
                 // Check if there is dangerous goods
                 if (good.getColor() == GoodType.RED && !storage.isDangerous()) {
-                    throw new IllegalArgumentException ("The good " + good + " is dangerous and the storage is not dangerous");
+                    throw new IllegalArgumentException ("The good is dangerous and the storage is not dangerous");
                 }
             }
             // Check that the goods to leave are in the storage
             for (Good good : triplet.getValue1()) {
                 if (!storage.hasGood(good)) {
-                    throw new IllegalArgumentException ("The Good " + good + " the player want to leave is not in storage " + triplet.getValue2());
+                    throw new IllegalArgumentException ("The Good the player want to leave is not in storage " + triplet.getValue2());
                 }
             }
             // Check that we can store the goods in the storage
@@ -305,13 +306,13 @@ public class Handler {
         // Check that the goods to leave are in the storage 1
         for (Good good : goods1to2) {
             if (!storage1.hasGood(good)) {
-                throw new IllegalArgumentException ("The Good " + good + " the player want to leave is not in storage " + storageID1);
+                throw new IllegalArgumentException ("The Good the player want to leave is not in storage " + storageID1);
             }
         }
         // Check that the goods to leave are in the storage 2
         for (Good good : goods2to1) {
             if (!storage2.hasGood(good)) {
-                throw new IllegalArgumentException ("The Good " + good + " the player want to leave is not in storage " + storageID2);
+                throw new IllegalArgumentException ("The Good the player want to leave is not in storage " + storageID2);
             }
         }
         // Check that we can store the goods in the storage 1
@@ -525,6 +526,7 @@ public class Handler {
             }
         }
 
+        boolean isEngine = false, isCannon = false;
         for (int i = 0; i < componentsIDs.length; i++) {
             component = TilesManager.getTile(componentsIDs[i]);
             int[] connectors = new int[4];
@@ -535,6 +537,14 @@ public class Handler {
 
             for (int j = 0; j < 4; j++) {
                 connectors[j] = component.getConnection(j).getValue();
+            }
+
+            if (component.getComponentType() == ComponentType.SINGLE_ENGINE ||
+                    component.getComponentType() == ComponentType.DOUBLE_ENGINE) {
+                isEngine = true;
+            } else if (component.getComponentType() == ComponentType.SINGLE_CANNON ||
+                    component.getComponentType() == ComponentType.DOUBLE_CANNON) {
+                isCannon = true;
             }
 
             // Add the event based on the component type
@@ -549,6 +559,15 @@ public class Handler {
                 case CONNECTORS -> new PickedConnectorsFromBoard(username, componentsIDs[i], component.getClockwiseRotation(), connectors);
             });
             events.add(new PlacedTileToSpaceship(username, componentsPositions[i][0], componentsPositions[i][1]));
+        }
+
+        if (isEngine) {
+            SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), ship.getSingleEnginesStrength(), ship.getSingleEnginesStrength() + ship.getDoubleEnginesStrength());
+            events.add(engineStrength);
+        }
+        if (isCannon) {
+            SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), ship.getSingleCannonsStrength(), ship.getSingleCannonsStrength() + ship.getDoubleCannonsStrength());
+            events.add(cannonStrength);
         }
 
         return events;

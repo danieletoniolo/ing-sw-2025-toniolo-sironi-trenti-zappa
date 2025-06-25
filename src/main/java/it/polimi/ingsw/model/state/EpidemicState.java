@@ -96,4 +96,9 @@ public class EpidemicState extends State {
         super.execute(player);
         super.nextState(GameState.CARDS);
     }
+
+    @Override
+    public void exit() {
+        super.exit();
+    }
 }

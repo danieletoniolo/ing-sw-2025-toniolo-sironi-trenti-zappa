@@ -4,6 +4,7 @@ import it.polimi.ingsw.event.game.serverToClient.deck.*;
 import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPlaceMarker;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.PickedTileFromSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
@@ -23,6 +24,7 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.cannonsActions.ManagerCannonsCards;
 import it.polimi.ingsw.view.tui.screens.gameScreens.enemyActions.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.engineActions.ManagerEnginesCards;
+import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.MenuGoodsCards;
 import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.exchangeGoods.ManagerExchangeGoodsCards;
 import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.swapGoods.ManagerSwapGoodCards;
 import it.polimi.ingsw.view.tui.screens.gameScreens.hitsActions.*;
@@ -30,6 +32,7 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens.*;
 import it.polimi.ingsw.view.tui.screens.gameScreens.openSpaceAcitons.OpenSpaceCards;
 import it.polimi.ingsw.view.tui.screens.gameScreens.planetsActions.PlanetsCards;
 import it.polimi.ingsw.view.tui.screens.lobbyScreens.Starting;
+import it.polimi.ingsw.view.tui.screens.rewardScreens.MainReward;
 import it.polimi.ingsw.view.tui.screens.validation.MainValidation;
 import it.polimi.ingsw.view.tui.screens.validation.ValidationFragments;
 import it.polimi.ingsw.view.tui.screens.validation.WaitingValidation;
@@ -305,6 +308,19 @@ public class TuiManager implements Manager {
     }
 
     @Override
+    public void notifyForcingPlaceMarker(ForcingPlaceMarker data) {
+        if (mm.getNickname().equals(data.nickname())) {
+            synchronized (stateLock) {
+                TuiScreenView placeMarker = new ChoosePosition(false);
+                currentScreen.setNextScreen(placeMarker);
+                currentScreen = placeMarker;
+                currentScreen.setMessage("You have to place a marker on the board");
+                parser.changeScreen();
+            }
+        }
+    }
+
+    @Override
     public void notifyUpdateGoodsExchange(UpdateGoodsExchange data) {
         if (!data.exchangeData().isEmpty()) {
             synchronized (stateLock) {
@@ -449,6 +465,14 @@ public class TuiManager implements Manager {
     }
 
     @Override
+    public void notifyRemoveMarker(RemoveMarker data) {
+        synchronized (stateLock) {
+            currentScreen.setMessage(data.nickname() + " has remove the marker from the board");
+            stateLock.notifyAll();
+        }
+    }
+
+    @Override
     public void notifyPlayerGaveUp(PlayerGaveUp data) {
         synchronized (stateLock) {
             currentScreen.setMessage(data.nickname() + " has given up");
@@ -488,7 +512,7 @@ public class TuiManager implements Manager {
     @Override
     public void notifyScore(Score data) {
         synchronized (stateLock) {
-            TuiScreenView reward = new Reward();
+            TuiScreenView reward = new MainReward();
             currentScreen.setNextScreen(reward);
             currentScreen = reward;
             parser.changeScreen();
@@ -658,7 +682,7 @@ public class TuiManager implements Manager {
     public void notifyLastTimerFlipped() {
         if (currentScreen.getType() == TuiScreens.Building || currentScreen.getType().equals(TuiScreens.MainBuilding) || currentScreen.getType() == TuiScreens.OtherPlayer || currentScreen.getType() == TuiScreens.Deck) {
             synchronized (stateLock) {
-                currentScreen = new ChoosePosition();
+                currentScreen = new ChoosePosition(true);
                 parser.changeScreen();
             }
         }
@@ -736,14 +760,15 @@ public class TuiManager implements Manager {
                     };
                 }
                 case REWARD ->{
-                    TuiScreenView reward = new Reward();
-                    currentScreen.setNextScreen(reward);
-                    currentScreen = reward;
+
                 }
                 case FINISHED -> {
-                    currentScreen = new Menu();
+                    TuiScreenView menu = new Menu();
+                    currentScreen.setNextScreen(menu);
+                    currentScreen = menu;
                     currentScreen.setMessage("A player disconnected, you are back to the lobbies menu");
 
+                    MenuGoodsCards.destroyStatics();
                     ManagerExchangeGoodsCards.destroyStatics();
                     ManagerSwapGoodCards.destroyStatics();
                     ManagerCannonsCards.destroyStatics();
@@ -755,7 +780,7 @@ public class TuiManager implements Manager {
                 }
             }
 
-            if (mm.getGamePhase() != GamePhases.CARDS) {
+            if (mm.getGamePhase() != GamePhases.CARDS && mm.getGamePhase() != GamePhases.REWARD) {
                 parser.changeScreen();
             }
         }

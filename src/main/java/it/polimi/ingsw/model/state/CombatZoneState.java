@@ -223,6 +223,12 @@ public class CombatZoneState extends State {
      */
     @Override
     public void entry() {
+        if (super.players.size() == 1) {
+            super.played = true;
+            super.nextState(GameState.CARDS);
+            return;
+        }
+
         sendCombatZonePhase(0);
         SpaceShip ship;
         for (PlayerData player : super.players) {
@@ -442,5 +448,10 @@ public class CombatZoneState extends State {
         }
 
         super.nextState(GameState.CARDS);
+    }
+
+    @Override
+    public void exit() {
+        super.exit();
     }
 }

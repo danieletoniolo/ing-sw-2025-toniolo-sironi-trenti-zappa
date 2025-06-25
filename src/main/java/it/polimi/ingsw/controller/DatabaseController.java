@@ -61,10 +61,10 @@ public class DatabaseController {
 
     /**
      * {@link Map} to store the mapping of players to their game controllers.
-     * The key is the player's {@link UUID} and the value is the game controller's {@link UUID} which is
+     * The key is the player's nickname and the value is the game controller's {@link UUID} which is
      * also the game state file name.
      */
-    private final Map<UUID, UUID> playerToMap;
+    private final Map<String, UUID> playerToMap;
 
     /**
      * {@link ObjectMapper} to handle JSON serialization and deserialization.
@@ -166,11 +166,17 @@ public class DatabaseController {
 
     /**
      * Load the game controller from a file and return it.
-     * @param uuid the {@link UUID} of the game controller to load.
+     * @param playerNickname the nickname of the player who wants to load the game controller of his game.
      * @return the {@link GameController} loaded from the file.
      * @throws IOException if an I/O error occurs while reading from the file.
+     * @throws IllegalStateException if the player is not found in the player to map.
      */
-    public GameController loadGame(UUID uuid) throws IOException {
+    public GameController loadGame(String playerNickname) throws IOException, IllegalStateException {
+        if (!playerToMap.containsKey(playerNickname)) {
+            throw new IllegalStateException("Player not found: " + playerNickname);
+        }
+        UUID uuid = playerToMap.get(playerNickname);
+
         // Get the path from the instance variable
         Path filePath = gamesFolder.resolve(uuid.toString() + ".dat");
 
@@ -200,7 +206,7 @@ public class DatabaseController {
         Files.delete(filePath);
 
         // Remove the entry from the playerToMap
-        for (Map.Entry<UUID, UUID> entry : playerToMap.entrySet()) {
+        for (Map.Entry<String, UUID> entry : playerToMap.entrySet()) {
             if (entry.getValue().equals(uuid)) {
                 // Remove the entry from the player to map
                 playerToMap.remove(entry.getKey());
@@ -210,13 +216,13 @@ public class DatabaseController {
 
     /**
      * Link a player to the game controller of his game controller (game state).
-     * @param playerUUID the {@link UUID} of the player to link to the game controller.
+     * @param playerNickname the nickname of the player to link to the game controller.
      * @param gameControllerUUID the {@link UUID} of the game controller to link the player to.
      * @throws IOException if an I/O error occurs while writing to the file.
      */
-    public void registerPlayer(UUID playerUUID, UUID gameControllerUUID) throws IOException {
+    public void registerPlayer(String playerNickname, UUID gameControllerUUID) throws IOException {
         // Register the player to the game it.polimi.ingsw.controller
-        playerToMap.put(playerUUID, gameControllerUUID);
+        playerToMap.put(playerNickname, gameControllerUUID);
         // Save the player to map file (JSON)
         mapper.writeValue(playerToMapFile, playerToMap);
     }

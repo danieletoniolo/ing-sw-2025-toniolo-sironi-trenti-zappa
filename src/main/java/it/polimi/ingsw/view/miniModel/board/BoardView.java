@@ -20,7 +20,7 @@ import java.util.Map;
 public class BoardView implements Structure, MiniModelObservable {
     private String[] path;
     private final Map<MarkerView, Integer> players;
-    private int numberOfPlayers;
+    private final int numberOfPlayers;
     private final LevelView level;
     private int stepsForALap;
     public static String ArrowUp = "↑";
@@ -132,6 +132,16 @@ public class BoardView implements Structure, MiniModelObservable {
         initializeBoard();
 
         players.put(color, step);
+        players.forEach((key, value) -> {
+            path[value] = key.drawTui();
+        });
+        notifyObservers();
+    }
+
+    public void removePlayer(MarkerView color) {
+        initializeBoard();
+
+        players.remove(color);
         players.forEach((key, value) -> {
             path[value] = key.drawTui();
         });

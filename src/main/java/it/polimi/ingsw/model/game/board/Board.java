@@ -6,6 +6,7 @@ import it.polimi.ingsw.model.player.PlayerData;
 import it.polimi.ingsw.model.spaceship.Component;
 import it.polimi.ingsw.model.spaceship.TilesManager;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import it.polimi.ingsw.utils.Logger;
 
 import java.io.Serializable;
 import java.util.*;
@@ -209,15 +210,28 @@ public class Board implements Serializable {
      * @throws IndexOutOfBoundsException if the position is out of bounds
      * @throws IllegalStateException if the position is already set by another player
      */
-    public void setPlayer(PlayerData player, int position) throws NullPointerException, IndexOutOfBoundsException, IllegalStateException{
+    public void setPlayer(PlayerData player, int position) throws NullPointerException, IndexOutOfBoundsException, IllegalStateException {
         if (player == null) {
             throw new NullPointerException("Player is null");
         }
-        if (position < 0 || position >= 4) {
+        if (((position < 0 && level == Level.SECOND) || (position < -1 && level == Level.LEARNING)) ||
+                position >= 4) {
             throw new IndexOutOfBoundsException("The position is not acceptable");
         }
-        if (inGamePlayers.get(position) != null) {
+        if (position != -1 && inGamePlayers.get(position) != null) {
             throw new IllegalStateException("There is already a player in this position");
+        }
+        if (level == Level.LEARNING) {
+            int firstFreePosition = 0;
+            for (PlayerData p : inGamePlayers) {
+                if (p != null && p.getPosition() != -1) {
+                    firstFreePosition++;
+                }
+            }
+
+            if (position > firstFreePosition) {
+                throw new IllegalStateException("You have to choose the first free position");
+            }
         }
 
         switch (level) {
@@ -238,7 +252,23 @@ public class Board implements Serializable {
                 }
                 break;
         }
-        inGamePlayers.set(position, player);
+
+        if (position != -1) {
+            inGamePlayers.set(position, player);
+        } else {
+            int positionToReset = player.getPosition();
+            inGamePlayers.set(positionToReset, null);
+            for (int i = 0; i < inGamePlayers.size(); i++) {
+                if (inGamePlayers.get(i) != null && inGamePlayers.get(i).getPosition() > positionToReset) {
+                    int newPosition = i - 1;
+                    PlayerData p = inGamePlayers.get(i);
+
+                    inGamePlayers.set(i, null);
+                    p.setPosition(newPosition);
+                    setPlayer(p, newPosition);
+                }
+            }
+        }
     }
 
     /**
@@ -247,17 +277,10 @@ public class Board implements Serializable {
      */
     public void refreshInGamePlayers() {
         inGamePlayers.removeIf(Objects::isNull);
-        for (int i = 0; i < inGamePlayers.size(); i++) {
-            if (inGamePlayers.get(i).hasGivenUp()) gaveUpPlayers.add(inGamePlayers.remove(i));
-        }
-
-        for (int i = 0; i < inGamePlayers.size(); i++) {
-            for (int j = i + 1; j < inGamePlayers.size(); j++) {
-                if (inGamePlayers.get(i).getStep() < inGamePlayers.get(j).getStep()) {
-                    Collections.swap(inGamePlayers, i, j);
-                }
+        for (PlayerData inGamePlayer : inGamePlayers) {
+            if (inGamePlayer.hasGivenUp()) {
+                gaveUpPlayers.add(inGamePlayer);
             }
-            inGamePlayers.get(i).setPosition(i);
         }
 
         for (PlayerData player : inGamePlayers) {
@@ -268,6 +291,15 @@ public class Board implements Serializable {
 
         for (PlayerData player : gaveUpPlayers) {
             inGamePlayers.remove(player);
+        }
+
+        for (int i = 0; i < inGamePlayers.size(); i++) {
+            for (int j = i + 1; j < inGamePlayers.size(); j++) {
+                if (inGamePlayers.get(i).getStep() < inGamePlayers.get(j).getStep()) {
+                    Collections.swap(inGamePlayers, i, j);
+                }
+            }
+            inGamePlayers.get(i).setPosition(i);
         }
     }
 

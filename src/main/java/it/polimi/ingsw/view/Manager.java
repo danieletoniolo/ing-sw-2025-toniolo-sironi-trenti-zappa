@@ -5,6 +5,7 @@ import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPlaceMarker;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.PickedTileFromSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
@@ -47,6 +48,8 @@ public interface Manager {
 
     void notifyForcingPenalty(ForcingPenalty data);
 
+    void notifyForcingPlaceMarker(ForcingPlaceMarker data);
+
     // Goods
     void notifyUpdateGoodsExchange(UpdateGoodsExchange data);
 
@@ -77,6 +80,8 @@ public interface Manager {
     void notifyMinPlayer(MinPlayer data);
 
     void notifyMoveMarker(MoveMarker data);
+
+    void notifyRemoveMarker(RemoveMarker data);
 
     void notifyPlayerGaveUp(PlayerGaveUp data);
 

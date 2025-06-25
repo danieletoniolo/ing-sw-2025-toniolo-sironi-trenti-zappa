@@ -117,19 +117,19 @@ public class PlanetsState extends State {
      */
     @Override
     public void exit() throws IllegalStateException{
-        int flightDays = card.getFlightDays();
-        PlayerStatus status;
-        for (PlayerData p : players.reversed()) {
-            status = playersStatus.get(p.getColor());
-            if (status == PlayerStatus.PLAYED) {
-                board.addSteps(p, -flightDays);
-
-                MoveMarker stepsEvent = new MoveMarker(p.getUsername(),  p.getModuleStep(board.getStepsForALap()));
-                eventCallback.trigger(stepsEvent);
-            } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
-                throw new IllegalStateException("Not all players have played");
-            }
+        // There are two for loops here, because we need first to control the exception and then move the marker
+        if (!played) {
+            allPlayersPlayed();
         }
-        super.exit();
+
+        int flightDays = card.getFlightDays();
+        for (PlayerData p : players.reversed()) {
+            board.addSteps(p, -flightDays);
+
+            MoveMarker stepsEvent = new MoveMarker(p.getUsername(),  p.getModuleStep(board.getStepsForALap()));
+            eventCallback.trigger(stepsEvent);
+        }
+
+        board.refreshInGamePlayers();
     }
 }

@@ -104,6 +104,11 @@ public class AbandonedStationState extends State {
 
     @Override
     public void exit() throws IllegalStateException{
+        // There are two for loops here, because we need first to control the exception and then move the marker
+        if (!played) {
+            allPlayersPlayed();
+        }
+
         for (PlayerData player : players) {
             PlayerStatus status = playersStatus.get(player.getColor());
             if (status == PlayerStatus.PLAYED) {
@@ -114,10 +119,9 @@ public class AbandonedStationState extends State {
                 eventCallback.trigger(stepEvent);
 
                 break;
-            } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
-                throw new IllegalStateException("Not all players have played");
             }
         }
-        super.played = true;
+
+        board.refreshInGamePlayers();
     }
 }

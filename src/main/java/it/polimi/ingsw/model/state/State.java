@@ -4,6 +4,7 @@ import it.polimi.ingsw.controller.StateTransitionHandler;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.game.serverToClient.player.PlayerGaveUp;
 import it.polimi.ingsw.event.game.serverToClient.StateChanged;
+import it.polimi.ingsw.event.internal.EndGame;
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.good.Good;
@@ -68,21 +69,19 @@ public abstract class State implements Serializable {
      * @param nextGameState represents the next game state
      */
     protected void nextState(GameState nextGameState) {
-        if (!played) {
-            for (PlayerData player : players) {
-                if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING || playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {
-                    return;
-                }
-            }
+        try {
+            exit();
+        } catch (IllegalStateException e) {
+            return;
         }
 
-        exit();
-
-        if (board.getInGamePlayers().isEmpty()) {
+        if (board.getInGamePlayers().isEmpty() && nextGameState != GameState.FINISHED) {
             nextGameState = GameState.REWARD;
         }
 
-        eventCallback.trigger(new StateChanged(nextGameState.getValue()));
+        if (nextGameState != GameState.CARDS) {
+            eventCallback.trigger(new StateChanged(nextGameState.getValue()));
+        }
 
         switch (nextGameState) {
             case LOBBY ->      transitionHandler.changeState(new LobbyState(board, eventCallback, transitionHandler));
@@ -92,6 +91,7 @@ public abstract class State implements Serializable {
             case CARDS -> {
                 try {
                     Card card = board.drawCard();
+                    eventCallback.trigger(new StateChanged(nextGameState.getValue()));
                     switch (card.getCardType()) {
                         case PLANETS ->          transitionHandler.changeState(new PlanetsState(board, eventCallback, (Planets) card, transitionHandler));
                         case ABANDONEDSHIP ->    transitionHandler.changeState(new AbandonedShipState(board, eventCallback, (AbandonedShip) card, transitionHandler));
@@ -101,20 +101,32 @@ public abstract class State implements Serializable {
                         case PIRATES ->          transitionHandler.changeState(new PiratesState(board, eventCallback, (Pirates) card, transitionHandler));
                         case OPENSPACE ->        transitionHandler.changeState(new OpenSpaceState(board, eventCallback, transitionHandler));
                         case METEORSWARM ->      transitionHandler.changeState(new MeteorSwarmState(board, eventCallback, (MeteorSwarm) card, transitionHandler));
-                        case COMBATZONE ->       {
-                            // TODO: if it remains only one player, combat zone is not played
-                            transitionHandler.changeState(new CombatZoneState(board, eventCallback, (CombatZone) card, transitionHandler));
-                        }
+                        case COMBATZONE ->       transitionHandler.changeState(new CombatZoneState(board, eventCallback, (CombatZone) card, transitionHandler));
                         case STARDUST ->         transitionHandler.changeState(new StardustState(board, eventCallback, transitionHandler));
                         case EPIDEMIC ->         transitionHandler.changeState(new EpidemicState(board, eventCallback, transitionHandler));
                         default -> throw new IllegalArgumentException("Unknown card type: " + card.getCardType());
                     }
                 } catch (IllegalStateException e) {
+                    eventCallback.trigger(new StateChanged(GameState.REWARD.getValue()));
                     transitionHandler.changeState(new RewardState(board, eventCallback, transitionHandler));
                 }
             }
-            case REWARD -> transitionHandler.changeState(new RewardState(board, eventCallback, transitionHandler));
+            case REWARD ->   transitionHandler.changeState(new RewardState(board, eventCallback, transitionHandler));
+            case FINISHED -> eventCallback.triggerEndGame();
             default -> throw new IllegalArgumentException("Invalid next game state: " + nextGameState);
+        }
+    }
+
+    /**
+     * Check if all players have played in the state.
+     *
+     * @throws IllegalStateException if not all players have played
+     */
+    protected void allPlayersPlayed() throws IllegalStateException {
+        for (PlayerData player : players) {
+            if (playersStatus.get(player.getColor()) == PlayerStatus.PLAYING || playersStatus.get(player.getColor()) == PlayerStatus.WAITING) {
+                throw new IllegalStateException("Not all players have played");
+            }
         }
     }
 
@@ -148,7 +160,6 @@ public abstract class State implements Serializable {
 
     public void giveUp(PlayerData player) throws NullPointerException {
         player.setGaveUp(true);
-        this.board.removeInGamePlayer(player);
 
         PlayerGaveUp playerGaveUpEvent = new PlayerGaveUp(player.getUsername());
         eventCallback.trigger(playerGaveUpEvent);
@@ -187,12 +198,9 @@ public abstract class State implements Serializable {
      * @throws IllegalStateException if not all players have played
      */
     public void exit() throws IllegalStateException {
-        for (PlayerData p : players) {
-            if (playersStatus.get(p.getColor()) == PlayerStatus.WAITING) {
-                throw new IllegalStateException("Not all players have played");
-            }
+        if (!played) {
+            allPlayersPlayed();
         }
-        this.played = true;
         board.refreshInGamePlayers();
     }
 

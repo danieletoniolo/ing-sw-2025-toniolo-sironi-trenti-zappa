@@ -95,4 +95,9 @@ public class OpenSpaceState extends State {
             super.nextState(GameState.CARDS);
         }
     }
+
+    @Override
+    public void exit() {
+        super.exit();
+    }
 }

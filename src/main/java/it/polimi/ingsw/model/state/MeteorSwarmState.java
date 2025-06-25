@@ -155,7 +155,6 @@ public class MeteorSwarmState extends State {
                     break;
                 }
                 fragments.get(player).clear();
-                // TODO: TO TEST THE GIVE UP
                 if (spaceShip.getHumanCrewNumber() == 0 && !playersGivenUp.contains(player)) {
                     this.playersGivenUp.add(player);
                 }
@@ -163,11 +162,10 @@ public class MeteorSwarmState extends State {
                 super.execute(player);
 
                 boolean allPlayersPlayed = true;
-                for (PlayerData p : players) {
-                    if (playersStatus.get(p.getColor()) == PlayerStatus.PLAYING || playersStatus.get(p.getColor()) == PlayerStatus.WAITING) {
-                        allPlayersPlayed = false;
-                        break;
-                    }
+                try {
+                    allPlayersPlayed();
+                } catch (IllegalStateException e) {
+                    allPlayersPlayed = false;
                 }
 
                 if (allPlayersPlayed) {
@@ -202,5 +200,10 @@ public class MeteorSwarmState extends State {
         }
 
         super.nextState(GameState.CARDS);
+    }
+
+    @Override
+    public void exit() {
+        super.exit();
     }
 }

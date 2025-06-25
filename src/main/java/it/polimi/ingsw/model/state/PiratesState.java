@@ -299,7 +299,7 @@ public class PiratesState extends State {
     }
 
     @Override
-    public void exit() throws IllegalStateException{
+    public void exit() {
         super.exit();
     }
 }

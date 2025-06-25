@@ -16,8 +16,13 @@ public interface EventCallback {
 
     /**
      * This method is called by the states (as a callback) and the gameController to notify to the matchController the player to which it will be sent the event.
-     * @param event        is the it.polimi.ingsw.event to be sent in broadcast
+     * @param event      is the it.polimi.ingsw.event to be sent in broadcast
      * @param targetUser is the userID of the player to which the event will be sent
      */
     void trigger(Event event, UUID targetUser);
+
+    /**
+     * This method is called by the states (as a callback) and the gameController to notify to the matchController that an internal event needs to be sent.
+     */
+    void triggerEndGame();
 }

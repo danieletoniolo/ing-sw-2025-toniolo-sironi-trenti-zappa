@@ -86,7 +86,7 @@ public class MainBuilding extends Building {
         }
 
         if (selected == 3) {
-            return new ChoosePosition();
+            return new ChoosePosition(true);
         }
 
         return this;

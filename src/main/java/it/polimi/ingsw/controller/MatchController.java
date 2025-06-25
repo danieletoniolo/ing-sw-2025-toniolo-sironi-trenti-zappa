@@ -25,6 +25,7 @@ import it.polimi.ingsw.event.game.clientToServer.spaceship.SetPenaltyLoss;
 import it.polimi.ingsw.event.game.clientToServer.timer.FlipTimer;
 import it.polimi.ingsw.event.game.serverToClient.StateChanged;
 import it.polimi.ingsw.event.internal.ConnectionLost;
+import it.polimi.ingsw.event.internal.EndGame;
 import it.polimi.ingsw.event.lobby.serverToClient.ReadyPlayer;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.model.game.board.Board;
@@ -47,6 +48,7 @@ import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
 
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -192,6 +194,7 @@ public class MatchController {
         GiveUp.responder(networkTransceiver, this::giveUp);
         CheatCode.responder(networkTransceiver, this::cheatCode);
         ConnectionLost.registerHandler(networkTransceiver, this::disconnectUser);
+        EndGame.registerHandler(networkTransceiver, this::endGame);
     }
 
     /**
@@ -573,6 +576,51 @@ public class MatchController {
             return new TransmitterEventWrapper(networkTransceiver, new Tac(data.userID(), JoinLobby.class));
         }
         return new TransmitterEventWrapper(serverNetworkTransceiver, new Pota(data.userID(), JoinLobby.class, "Lobby is null"));
+    }
+
+    /**
+     * This method is used to handle the end of the game. It is an internal event that is triggered when the game ends.
+     * @param data is the event data that contains the information of the event.
+     */
+    private void endGame(EndGame data) {
+        LobbyInfo lobby = data.lobby();
+
+        // Delete the lobby of the user
+        gameControllers.remove(lobby);
+        lobbies.remove(lobby.getName());
+
+        // Notify to all the old lobbies user of the lobbies list
+        List<Pair<Integer, Integer>> lobbiesPlayers = new ArrayList<>();
+        List<Integer> lobbiesLevels = new ArrayList<>();
+        for (LobbyInfo lobbyTemp : lobbies.values()) {
+            lobbiesPlayers.add(new Pair<>(lobbyTemp.getNumberOfPlayersEntered(), lobbyTemp.getTotalPlayers()));
+            lobbiesLevels.add(lobbyTemp.getLevel().getValue());
+        }
+        Lobbies lobbiesEvent = new Lobbies(new ArrayList<>(lobbies.keySet()), lobbiesPlayers, lobbiesLevels);
+
+        // Get the user that are in the lobby
+        List<User> lobbyUsers = new ArrayList<>();
+        for (User tempUser : users.values()) {
+            if (tempUser.getLobby() != null && tempUser.getLobby().equals(lobby)) {
+                lobbyUsers.add(tempUser);
+            }
+        }
+
+        // Removing the network transceiver of the lobby and attaching the users to the network transceiver of the server
+        // Except the user that is disconnecting
+        for (User u : lobbyUsers) {
+            networkTransceivers.get(lobby).disconnect(u.getUUID());
+            serverNetworkTransceiver.connect(u.getUUID(), u.getConnection());
+            serverNetworkTransceiver.send(u.getUUID(), lobbiesEvent);
+        }
+        networkTransceivers.remove(lobby);
+
+        // Removing the user from the User to LobbyInfo and User to PlayerData maps
+        for (User u : lobbyUsers) {
+            u.setLobby(null);
+            userLobbyInfo.remove(u);
+            userPlayers.remove(u);
+        }
     }
 
     /**

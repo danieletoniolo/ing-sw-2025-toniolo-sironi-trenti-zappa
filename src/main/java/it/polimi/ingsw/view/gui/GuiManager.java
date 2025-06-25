@@ -5,6 +5,7 @@ import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.BatteriesLoss;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPlaceMarker;
 import it.polimi.ingsw.event.game.serverToClient.goods.UpdateGoodsExchange;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.PickedTileFromSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToBoard;
@@ -168,6 +169,11 @@ public class GuiManager extends Application implements Manager {
     }
 
     @Override
+    public void notifyForcingPlaceMarker(ForcingPlaceMarker data) {
+
+    }
+
+    @Override
     public void notifyUpdateGoodsExchange(UpdateGoodsExchange data) {
 
     }
@@ -229,6 +235,11 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyMoveMarker(MoveMarker data) {
+
+    }
+
+    @Override
+    public void notifyRemoveMarker(RemoveMarker data) {
 
     }
 

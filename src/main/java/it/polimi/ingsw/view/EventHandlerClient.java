@@ -9,6 +9,7 @@ import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPlaceMarker;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
@@ -128,6 +129,9 @@ public class EventHandlerClient {
     private final CastEventReceiver<ForcingPenalty> forcingPenaltyReceiver;
     private final EventListener<ForcingPenalty> forcingPenaltyListener;
 
+    private final CastEventReceiver<ForcingPlaceMarker> forcingPlaceMarkerReceiver;
+    private final EventListener<ForcingPlaceMarker> forcingPlaceMarkerListener;
+
     private final CastEventReceiver<UpdateGoodsExchange> updateGoodsExchangeReceiver;
     private final EventListener<UpdateGoodsExchange> updateGoodsExchangeListener;
 
@@ -158,8 +162,8 @@ public class EventHandlerClient {
     private final CastEventReceiver<PickedStorageFromBoard> pickedStorageFromBoardReceiver;
     private final EventListener<PickedStorageFromBoard> pickedStorageFromBoardListener;
 
-    private final CastEventReceiver<PickedTile> pickedTileReceiver;
-    private final EventListener<PickedTile> pickedTileListener;
+    private final CastEventReceiver<PickedTileFromBoard> pickedTileReceiver;
+    private final EventListener<PickedTileFromBoard> pickedTileListener;
 
     private final CastEventReceiver<PickedTileFromReserve> pickedTileFromReserveReceiver;
     private final EventListener<PickedTileFromReserve> pickedTileFromReserveListener;
@@ -190,6 +194,9 @@ public class EventHandlerClient {
 
     private final CastEventReceiver<MoveMarker> moveMarkerReceiver;
     private final EventListener<MoveMarker> moveMarkerListener;
+
+    private final CastEventReceiver<RemoveMarker> removeMarkerReceiver;
+    private final EventListener<RemoveMarker> removeMarkerListener;
 
     private final CastEventReceiver<PlayerGaveUp> playerGaveUpReceiver;
     private final EventListener<PlayerGaveUp> playerGaveUpListener;
@@ -658,6 +665,12 @@ public class EventHandlerClient {
              manager.notifyForcingPenalty(data);
         };
 
+        forcingPlaceMarkerReceiver = new CastEventReceiver<>(this.transceiver);
+        forcingPlaceMarkerListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+            manager.notifyForcingPlaceMarker(data);
+        };
+
         // GOODS events
         /*
          * Update status of storages
@@ -927,6 +940,18 @@ public class EventHandlerClient {
             MiniModel.getInstance().getBoardView().movePlayer(player.getMarkerView(), data.steps());
 
             manager.notifyMoveMarker(data);
+        };
+
+        /*
+         * Remove the marker of the player from the board
+         */
+        removeMarkerReceiver = new CastEventReceiver<>(this.transceiver);
+        removeMarkerListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+
+            MiniModel.getInstance().getBoardView().removePlayer(player.getMarkerView());
+
+            manager.notifyRemoveMarker(data);
         };
 
         /*
@@ -1247,6 +1272,7 @@ public class EventHandlerClient {
 
         forcingGiveUpReceiver.registerListener(forcingGiveUpListener);
         forcingPenaltyReceiver.registerListener(forcingPenaltyListener);
+        forcingPlaceMarkerReceiver.registerListener(forcingPlaceMarkerListener);
 
         updateGoodsExchangeReceiver.registerListener(updateGoodsExchangeListener);
 
@@ -1274,6 +1300,7 @@ public class EventHandlerClient {
         enemyDefeatReceiver.registerListener(enemyDefeatListener);
         minPlayerReceiver.registerListener(minPlayerListener);
         moveMarkerReceiver.registerListener(moveMarkerListener);
+        removeMarkerReceiver.registerListener(removeMarkerListener);
         playerGaveUpReceiver.registerListener(playerGaveUpListener);
         cardPlayedReceiver.registerListener(cardPlayedListener);
         combatZonePhaseReceiver.registerListener(combatZonePhaseListener);

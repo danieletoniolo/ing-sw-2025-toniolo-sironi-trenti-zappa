@@ -230,4 +230,17 @@ public class NetworkTransceiver implements EventTransceiver {
             sendQueue.notifyAll();
         }
     }
+
+    /**
+     * Sends an internal event to the transceiver.
+     * @param data is the {@link Event} to send.
+     */
+    public void sendInternalEvent(Event data) {
+        new Thread(() -> {
+            synchronized (receivedQueue) {
+                receivedQueue.add(data);
+                receivedQueue.notifyAll();
+            }
+        }).start();
+    }
 }

@@ -1,9 +1,5 @@
 package it.polimi.ingsw.view.tui.screens;
 
-import it.polimi.ingsw.Client;
-import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
-import it.polimi.ingsw.event.game.serverToClient.status.Pota;
-import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
@@ -13,28 +9,19 @@ import it.polimi.ingsw.view.tui.input.Parser;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Reward implements TuiScreenView {
+public abstract class Reward implements TuiScreenView {
     private final ArrayList<String> options = new ArrayList<>();
-    private final int totalLines;
+    protected int totalLines;
     protected int selected;
     private String message;
     private boolean isNewScreen;
-    private TuiScreenView nextScreen;
+    protected TuiScreenView nextScreen;
 
     private final BoardView boardView = MiniModel.getInstance().getBoardView();
-    private final List<PlayerDataView> sortedPlayers;
+    protected final List<PlayerDataView> sortedPlayers;
 
-    public Reward() {
-        String command = switch (MiniModel.getInstance().getRewardPhase()) {
-            case 0 -> "Claim coins for finish position";
-            case 1 -> "Claim coins for best looking ship";
-            case 2 -> "Sell goods for coins";
-            case 3 -> "Loose coins for losses";
-            case 4 -> "Leave the game";
-            default -> throw new IllegalStateException("Unexpected value: " + MiniModel.getInstance().getRewardPhase());
-        };
-
-        options.add(command);
+    public Reward(List<String> otherOptions) {
+        if (otherOptions != null && !otherOptions.isEmpty()) options.addAll(otherOptions);
 
         options.add("View your spaceship");
         for (PlayerDataView p : MiniModel.getInstance().getOtherPlayers()) {
@@ -44,33 +31,13 @@ public class Reward implements TuiScreenView {
 
         this.isNewScreen = true;
 
-        totalLines = boardView.getRowsToDraw() + 1 + MiniModel.getInstance().getOtherPlayers().size() + 4;
-
         sortedPlayers = new ArrayList<>();
 
         sortedPlayers.add(MiniModel.getInstance().getClientPlayer());
         sortedPlayers.addAll(MiniModel.getInstance().getOtherPlayers());
         sortedPlayers.sort((p1, p2) -> Integer.compare(p2.getCoins(), p1.getCoins()));
 
-        if (MiniModel.getInstance().getRewardPhase() == 0) {
-            setMessage("Game is over! Let's discover who is the winner.");
-        }
-        else {
-            StringBuilder mess = new StringBuilder();
-            int cont = 0;
-            for (PlayerDataView p : sortedPlayers) {
-                if (p.getCoins() > 0) {
-                    if (cont == 0) {
-                        mess.append(p.drawLineTui(0));
-                        cont++;
-                    }
-                    else {
-                        mess.append(", ").append(p.drawLineTui(0));
-                    }
-                }
-            }
-            mess.append(" ").append(cont == 0 ? "is" : "are").append(" winnig");
-        }
+        totalLines = boardView.getRowsToDraw() + 1 + sortedPlayers.size() + 5;
     }
 
     @Override
@@ -94,17 +61,7 @@ public class Reward implements TuiScreenView {
             return new ClosingProgram();
         }
 
-        if (selected == 0) {
-            // Send a request to change the reward phase
-            StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
-            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                setMessage(((Pota) status).errorMessage());
-                return this;
-            }
-            return nextScreen;
-        }
-
-        return this;
+        return null;
     }
 
     @Override

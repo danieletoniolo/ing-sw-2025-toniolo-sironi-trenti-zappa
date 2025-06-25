@@ -259,8 +259,8 @@ public class BuildingState extends State {
                     NumberHiddenTiles hiddenTiles = new NumberHiddenTiles(board.getNumberOfHiddenTiles());
                     eventCallback.trigger(hiddenTiles);
                 } else {
-                    PickedTile pickedTileEvent = new PickedTile(player.getUsername(), tileID);
-                    eventCallback.trigger(pickedTileEvent);
+                    PickedTileFromBoard pickedTileFromBoardEvent = new PickedTileFromBoard(player.getUsername(), tileID);
+                    eventCallback.trigger(pickedTileFromBoardEvent);
                 }
             }
             case 1 -> {
@@ -433,11 +433,11 @@ public class BuildingState extends State {
 
     @Override
     public void exit() {
+        super.exit();
+
         GetShuffledDeck getShuffledDeckEvent = new GetShuffledDeck(
                 board.getShuffledDeck().stream().map(Card::getID).toList()
         );
         eventCallback.trigger(getShuffledDeckEvent);
-
-        super.exit();
     }
 }
