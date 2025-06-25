@@ -1,5 +1,7 @@
 package it.polimi.ingsw.view.gui.controllers.board;
 
+import it.polimi.ingsw.view.gui.controllers.deck.DeckController;
+import it.polimi.ingsw.view.gui.controllers.misc.TimerCountdownController;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
@@ -156,7 +158,7 @@ public class BoardController implements MiniModelObserver, Initializable {
             }
 
             // Reinitialize the steps based on the board view
-            List<Pair< MarkerView, Integer>> playerPositions = boardView.getPlayerPositions();
+            List<Pair<MarkerView, Integer>> playerPositions = boardView.getPlayerPositions();
             int numPlayers = boardView.getNumberOfPlayers();
             int numberOfSteps = stepsNodes.size();
 
@@ -190,7 +192,7 @@ public class BoardController implements MiniModelObserver, Initializable {
                 } else {
                     stackPane = (StackPane) timerNodes.getFirst();
                 }
-                stackPane.getChildren().add(boardView.getTimerView().getNode());
+                stackPane.getChildren().add(boardView.getTimerView().getNode().getValue0());
             }
 
             if (!decksNodes.isEmpty()) {
@@ -201,11 +203,35 @@ public class BoardController implements MiniModelObserver, Initializable {
                     if (deck != null) {
                         StackPane deckNode = (StackPane) decksNodes.get(i);
                         deckNode.getChildren().clear();
-                        deckNode.getChildren().add(deck.getNode());
+                        deckNode.getChildren().add(deck.getNode().getValue0());
                         i++;
                     }
                 }
             }
         });
+    }
+
+    /**
+     * Returns a list of DeckController instances for each deck in the board view.
+     * This method retrieves the DeckController from each DeckView in the board's decks.
+     *
+     * @return a List of DeckController instances
+     */
+    public List<DeckController> getDeckControllers() {
+        List<DeckController> deckControllers = new ArrayList<>();
+        for (DeckView deck : boardView.getDecksView().getValue0()) {
+            if (deck != null) {
+                Pair<Node, DeckController> pair = deck.getNode();
+                if (pair != null) {
+                    deckControllers.add(pair.getValue1());
+                }
+            }
+        }
+
+        return deckControllers;
+    }
+
+    public TimerCountdownController getTimerController() {
+        return boardView.getTimerView().getNode().getValue1();
     }
 }

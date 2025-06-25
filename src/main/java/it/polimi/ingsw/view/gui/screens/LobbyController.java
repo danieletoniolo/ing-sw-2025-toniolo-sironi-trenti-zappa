@@ -202,6 +202,8 @@ public class LobbyController implements MiniModelObserver, Initializable {
         });
 
         scheduleDelayedInitialization(resizeListener);
+
+        //TODO: Add leave lobby button
     }
 
     /**

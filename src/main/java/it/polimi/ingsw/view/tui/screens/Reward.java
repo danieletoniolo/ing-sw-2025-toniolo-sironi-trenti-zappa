@@ -44,7 +44,8 @@ public class Reward implements TuiScreenView {
 
         this.isNewScreen = true;
 
-        totalLines = 6;
+        totalLines = boardView.getRowsToDraw() + 1 + MiniModel.getInstance().getOtherPlayers().size() + 4;
+
         sortedPlayers = new ArrayList<>();
 
         sortedPlayers.add(MiniModel.getInstance().getClientPlayer());

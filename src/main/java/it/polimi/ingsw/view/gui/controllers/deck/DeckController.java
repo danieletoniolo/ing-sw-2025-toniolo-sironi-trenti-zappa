@@ -107,4 +107,13 @@ public class DeckController implements MiniModelObserver, Initializable {
             }
         });
     }
+
+    /**
+     * Returns the parent StackPane of this controller.
+     *
+     * @return the parent StackPane
+     */
+    public Node getParent() {
+        return parent;
+    }
 }

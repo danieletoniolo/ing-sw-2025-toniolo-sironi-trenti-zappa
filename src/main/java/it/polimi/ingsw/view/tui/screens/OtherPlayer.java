@@ -80,6 +80,7 @@ public class OtherPlayer implements TuiScreenView {
     @Override
     public synchronized void setMessage(String message) {
         this.message = message;
+        oldScreen.setMessage(message);
     }
 
     @Override

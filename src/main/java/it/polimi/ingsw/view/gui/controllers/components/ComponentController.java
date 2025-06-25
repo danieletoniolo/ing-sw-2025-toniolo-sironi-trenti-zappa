@@ -5,6 +5,7 @@ import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -94,5 +95,9 @@ public class ComponentController implements MiniModelObserver, Initializable {
             // Set the image to the ImageView
             componentImage.setImage(img);
         });
+    }
+
+    public Node getParent() {
+        return parent;
     }
 }

@@ -33,7 +33,7 @@ import java.io.IOException;
 public class GuiManager extends Application implements Manager {
     private static Scene scene;
     private static Parent root;
-    static MiniModelObserver controller;
+    private static MiniModelObserver controller;
     private final MiniModel mm = MiniModel.getInstance();
 
     private enum GuiScene {
@@ -41,6 +41,7 @@ public class GuiManager extends Application implements Manager {
         MENU,
         LOBBY,
         BUILDING,
+        VALIDATION,
         CARDS,
         REWARD
     }
@@ -67,7 +68,7 @@ public class GuiManager extends Application implements Manager {
 
         scene = new Scene(root);
         stage.setTitle("Galaxy Trucker");
-        stage.getIcons().add(new Image(getClass().getResourceAsStream("/image/misc/yellowMarker.png")));
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/image/background/galaxyTruckerIcon.png")));
         stage.setScene(scene);
         stage.show();
         currentScene = GuiScene.LOGIN;
@@ -93,18 +94,6 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyCreatedLobby(LobbyCreated data) {
         if (mm.getNickname().equals(data.nickname())) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/lobby.fxml"));
-                root = loader.load();
-
-                controller = loader.getController();
-                controller.react();
-
-                scene.setRoot(root);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
             this.setLobbyScene();
         }
         else {
@@ -116,18 +105,6 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyLobbyJoined(LobbyJoined data) {
         if (mm.getNickname().equals(data.nickname())) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/lobby.fxml"));
-                root = loader.load();
-
-                controller = loader.getController();
-                controller.react();
-
-                scene.setRoot(root);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
             this.setLobbyScene();
         }
         else {
@@ -342,6 +319,7 @@ public class GuiManager extends Application implements Manager {
 
                 break;
             case BUILDING:
+                this.setBuildingScene();
                 break;
             case VALIDATION:
                 break;
@@ -352,34 +330,56 @@ public class GuiManager extends Application implements Manager {
             case REWARD:
                 break;
             case FINISHED:
+                this.setMenuScene();
                 break;
         }
     }
 
     private void setMenuScene() {
-        Platform.runLater(() -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/menu.fxml"));
-                root = loader.load();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/menu.fxml"));
+            root = loader.load();
 
-                controller = loader.getController();
-                controller.react();
+            controller = loader.getController();
+            controller.react();
 
-                scene.setRoot(root);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
-            //scene.setRoot(root);
-            currentScene = GuiScene.MENU;
-        });
+            scene.setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        currentScene = GuiScene.MENU;
     }
 
     private void setLobbyScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/lobby.fxml"));
+            root = loader.load();
+
+            controller = loader.getController();
+            controller.react();
+
+            scene.setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
         currentScene = GuiScene.LOBBY;
     }
 
     private void setBuildingScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/building.fxml"));
+            root = loader.load();
+
+            controller = loader.getController();
+            controller.react();
+
+            scene.setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
         currentScene = GuiScene.BUILDING;
     }
 

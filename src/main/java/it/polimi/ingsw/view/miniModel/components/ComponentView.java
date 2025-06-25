@@ -11,6 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import org.javatuples.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,6 +67,7 @@ public abstract class ComponentView implements Structure, MiniModelObservable {
     private final String reset = "\033[0m";
     private int clockWise;
     private final List<MiniModelObserver> observers;
+    private Pair<Node, ComponentController> componentPair;
 
     public ComponentView(int ID, int[] connectors, int clockWise) {
         this.ID = ID;
@@ -98,15 +100,18 @@ public abstract class ComponentView implements Structure, MiniModelObservable {
         }
     }
 
-    public Node getNode() {
+    public Pair<Node, ComponentController> getNode() {
         try {
+            if (componentPair != null) return componentPair;
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/components/component.fxml"));
             Parent root = loader.load();
 
             ComponentController controller = loader.getController();
             controller.setModel(this);
 
-            return root;
+            componentPair = new Pair<>(root, controller);
+            return componentPair;
         } catch (IOException e) {
             e.printStackTrace();
             return null;

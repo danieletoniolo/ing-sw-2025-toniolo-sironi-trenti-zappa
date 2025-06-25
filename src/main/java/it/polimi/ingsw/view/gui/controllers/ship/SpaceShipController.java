@@ -304,7 +304,7 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
                 for (int j = 0; j < GRID_ROWS; j++) {
                     ComponentView component = spaceShipModel.getComponent(j + rowOffset, i + colOffset);
                     if (component != null) {
-                        Node node = component.getNode();
+                        Node node = component.getNode().getValue0();
 
                         GridPane.setHgrow(node, Priority.ALWAYS);
                         GridPane.setVgrow(node, Priority.ALWAYS);
@@ -321,10 +321,10 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
             ArrayList<ComponentView> reservedDiscardedList = spaceShipModel.getDiscardReservedPile().getReserved();
             int size = reservedDiscardedList.size();
             if (size > 0 && reservedDiscardedList.get(size - 1) != null) {
-                reserveLostGrid.add(reservedDiscardedList.get(size - 1).getNode(), 0, 0);
+                reserveLostGrid.add(reservedDiscardedList.get(size - 1).getNode().getValue0(), 0, 0);
             }
             if (size > 1 && reservedDiscardedList.get(size - 2) != null) {
-                reserveLostGrid.add(reservedDiscardedList.get(size - 2).getNode(), 1, 0);
+                reserveLostGrid.add(reservedDiscardedList.get(size - 2).getNode().getValue0(), 1, 0);
             }
         });
     }

@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.gui.controllers.misc;
 
+import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.components.ViewablePileView;
@@ -15,6 +16,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -75,11 +77,11 @@ public class ViewablePileController implements MiniModelObserver, Initializable 
                     vBox.setAlignment(Pos.CENTER);
                     vBox.prefHeightProperty().bind(hBox.heightProperty());
                     vBox.maxWidthProperty().bind((hBox.heightProperty().divide(2)).subtract(5));
-                    vBox.getChildren().add(component.getNode());
+                    vBox.getChildren().add(component.getNode().getValue0());
                 } else {
                     // If the current VBox is full, add it to the HBox and create a new one
                     vBox.setSpacing(5);
-                    vBox.getChildren().add(component.getNode());
+                    vBox.getChildren().add(component.getNode().getValue0());
                     hBox.getChildren().add(vBox);
                     vBox = null;
                 }
@@ -90,4 +92,13 @@ public class ViewablePileController implements MiniModelObserver, Initializable 
             }
         });
     }
+
+    public List<ComponentController> getComponentControllers() {
+        List<ComponentController> componentControllers = new ArrayList<>();
+        for (ComponentView tile : viewablePileView.getViewableComponents()) {
+            componentControllers.add(tile.getNode().getValue1());
+        }
+        return componentControllers;
+    }
+
 }

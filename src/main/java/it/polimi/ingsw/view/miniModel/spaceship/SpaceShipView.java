@@ -29,6 +29,7 @@ public class SpaceShipView implements Structure, MiniModelObservable {
     private final Map<Integer, BatteryView> mapBatteries = new LinkedHashMap<>();
     private ComponentView last;
     private List<List<Pair<Integer, Integer>>> fragments;
+    private Pair<Node, SpaceShipController> spaceShipNode;
 
     // Converter model spaceship to view -> row 6 -> 2, col 6 -> 2
     public final static int ROW_OFFSET = 4;
@@ -63,8 +64,10 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         this.observers = new ArrayList<>();
     }
 
-    public Node getNode() {
+    public Pair<Node, SpaceShipController> getNode() {
         try {
+            if (spaceShipNode != null) return spaceShipNode;
+
             String path;
             if (level == LevelView.SECOND) {
                 path = "/fxml/ship/secondShip.fxml";
@@ -77,7 +80,8 @@ public class SpaceShipView implements Structure, MiniModelObservable {
             SpaceShipController controller = loader.getController();
             controller.setModel(this);
 
-            return root;
+            spaceShipNode = new Pair<>(root, controller);
+            return spaceShipNode;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

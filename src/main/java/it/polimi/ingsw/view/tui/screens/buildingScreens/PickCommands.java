@@ -30,7 +30,7 @@ public class PickCommands extends Building {
 
         StatusEvent status;
         if (selected == 0) {
-            // Pick an hidden component from the board
+            // Pick a hidden component from the board
             status = PickTileFromBoard.requester(Client.transceiver, new Object()).request(new PickTileFromBoard(MiniModel.getInstance().getUserID(), -1));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 setMessage(((Pota) status).errorMessage());
