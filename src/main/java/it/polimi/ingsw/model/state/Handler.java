@@ -358,11 +358,11 @@ public class Handler {
 
         if (level == Level.LEARNING) {
             switch (shipIndex) {
-                case 0:
+                case 0 -> {
                     componentsIDs = new int[]{
-                            61, 125, 101, 96,  37,
-                            62, 146, 10,  117, 18,
-                            19, 30,  29,  90,  86,
+                            61, 125, 101, 96, 37,
+                            62, 146, 10, 117, 18,
+                            19, 30, 29, 90, 86,
                             41, 81
                     };
 
@@ -379,9 +379,32 @@ public class Handler {
                             0, 0, 0, 0, 0,
                             1, 0
                     };
-                    break;
-                case 1:
+                }
+                case 1 -> {
+                    componentsIDs = new int[]{
+                            40, 104, 147, 99, 33,
+                            123, 37, 105, 19, 6,
+                            82, 61, 24, 25, 95,
+                            73, 81
+                    };
+
+                    componentsPositions = new int[][]{
+                            {5, 6}, {5, 5}, {5, 7}, {4, 6}, {6, 5},
+                            {6, 4}, {6, 7}, {6, 8}, {7, 4}, {7, 5},
+                            {7, 6}, {7, 7}, {7, 8}, {8, 4}, {8, 5},
+                            {8, 7}, {8, 8}
+                    };
+
+                    componentsRotations = new int[]{
+                            1, 0, 0, 0, 0,
+                            0, 0, 1, 1, 0,
+                            0, 0, 0, 1, 0,
+                            0, 0
+                    };
+                }
+                case 2 -> {
                     throw new IllegalStateException("Ship to be built");
+                }
             }
         } else {
             switch (shipIndex) {
