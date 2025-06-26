@@ -23,12 +23,24 @@ import java.util.List;
 import java.util.Map;
 
 
+/**
+ * Abstract base class representing a state in the game's state machine.
+ * Each state manages player interactions, board state, and transitions to other states.
+ * Implements Serializable to support game state persistence.
+ * @author Daniele Toniolo
+ */
 public abstract class State implements Serializable {
+    /** Event callback handler for triggering game events */
     protected final EventCallback eventCallback;
+    /** Handler for managing state transitions */
     protected final StateTransitionHandler transitionHandler;
+    /** List of players participating in the current game */
     protected ArrayList<PlayerData> players;
+    /** Map tracking the current status of each player in this state */
     protected Map<PlayerColor, PlayerStatus> playersStatus;
+    /** The game board associated with this state */
     protected Board board;
+    /** Flag indicating whether the state has been played/executed */
     protected Boolean played;
 
     /**
@@ -158,6 +170,13 @@ public abstract class State implements Serializable {
         playersStatus.replace(player.getColor(), PlayerStatus.PLAYING);
     }
 
+    /**
+     * Mark a player as having given up the game.
+     * Sets the player's gaveUp flag to true and triggers a PlayerGaveUp event.
+     *
+     * @param player PlayerData of the player who is giving up
+     * @throws NullPointerException if player is null
+     */
     public void giveUp(PlayerData player) throws NullPointerException {
         player.setGaveUp(true);
 

@@ -16,6 +16,12 @@ import org.javatuples.Triplet;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * State class that handles epidemic events in the game.
+ * During an epidemic, crew members are eliminated from adjacent cabins.
+ * This is a synchronous state where all players participate simultaneously.
+ * @author Vittorio Sironi
+ */
 public class EpidemicState extends State {
 
 
@@ -27,6 +33,13 @@ public class EpidemicState extends State {
         super(board, callback, transitionHandler);
     }
 
+    /**
+     * This method is not supported in EpidemicState as it is a synchronous state
+     * where all players participate simultaneously, so there is no concept of a "current player".
+     *
+     * @return Never returns as it always throws an exception
+     * @throws SynchronousStateException Always thrown to indicate this operation is not supported
+     */
     @Override
     public PlayerData getCurrentPlayer() throws SynchronousStateException {
         throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state EpidemicState");
@@ -43,6 +56,15 @@ public class EpidemicState extends State {
         }
     }
 
+    /**
+     * Executes the epidemic event for a specific player.
+     * Eliminates crew members from adjacent cabins by iterating through all cabins
+     * and removing one crew member from both the current cabin and any adjacent
+     * cabins that contain crew members. Tracks processed cabins to avoid duplicate
+     * processing and triggers an UpdateCrewMembers event with the modified cabin data.
+     *
+     * @param player The player data for whom the epidemic event is being executed
+     */
     @Override
     public void execute(PlayerData player) {
         // Create a list to store the IDs, crew numbers and the type of the crew members in each cabin
@@ -101,6 +123,10 @@ public class EpidemicState extends State {
         super.nextState(GameState.CARDS);
     }
 
+    /**
+     * Performs cleanup operations when exiting the epidemic state.
+     * Calls the parent class's exit method to handle standard state cleanup.
+     */
     @Override
     public void exit() {
         super.exit();

@@ -23,6 +23,13 @@ import java.util.List;
  * @author Daniele Toniolo
  */
 public class CrewState extends State {
+    /**
+     * Constructs a new CrewState with the specified board, event callback, and state transition handler.
+     *
+     * @param board the game board
+     * @param callback the event callback for triggering events
+     * @param transitionHandler the handler for state transitions
+     */
     public CrewState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
     }
@@ -68,11 +75,22 @@ public class CrewState extends State {
         }
     }
 
+    /**
+     * This method is not supported in CrewState as it is a synchronous state.
+     *
+     * @return never returns as it always throws an exception
+     * @throws SynchronousStateException always thrown since this is a synchronous state
+     */
     @Override
     public PlayerData getCurrentPlayer() throws SynchronousStateException {
         throw new SynchronousStateException("Cannot invoke getCurrentPlayer in synchronous state CrewState");
     }
 
+    /**
+     * Entry method called when entering the CrewState.
+     * In learning mode, automatically fills all cabins with basic crew members (crewType 0).
+     * This provides a default crew configuration for new players to understand the game mechanics.
+     */
     @Override
     public void entry() {
         if (board.getBoardLevel() == Level.LEARNING) {
@@ -86,6 +104,15 @@ public class CrewState extends State {
         }
     }
 
+    /**
+     * Executes the crew state for the specified player.
+     * Validates that all cabins have been properly filled with crew members before allowing progression.
+     * A cabin is considered properly filled if it has at least 2 crew members OR has at least 1 alien.
+     * After validation, transitions to the CARDS game state.
+     *
+     * @param player the player data for whom to execute the crew state
+     * @throws IllegalStateException if any cabin is not properly filled with crew members
+     */
     @Override
     public void execute(PlayerData player) {
         // Check if all the cabins have been filled by the player
@@ -100,6 +127,10 @@ public class CrewState extends State {
         super.nextState(GameState.CARDS);
     }
 
+    /**
+     * Exit method called when leaving the CrewState.
+     * Performs cleanup operations inherited from the parent State class.
+     */
     @Override
     public void exit() {
         super.exit();

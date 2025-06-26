@@ -27,16 +27,36 @@ import java.time.LocalTime;
 import java.util.*;
 
 
+/**
+ * Represents the building state of the game where players construct their spaceships.
+ * This state manages timer functionality and tracks player progress during the building phase.
+ * @author Daniele Toniolo
+ */
 public class BuildingState extends State {
+    /** Timer used to manage the duration of building phases */
     private final Timer timer;
+    /** Flag indicating whether the timer is currently running */
     private boolean timerRunning;
+    /** Counter tracking the number of times the timer has been flipped */
     private int numberOfTimerFlips;
+    /** Flag indicating whether the final timer has finished */
     private boolean lastTimerFinished;
     // TODO: set timer to 90000
+    /** Duration of each timer phase in milliseconds */
     private static final long timerDuration = 5000;
+    /** Map storing the component currently held by each player */
     private final Map<PlayerColor, Component> playersHandQueue;
+    /** List of players who have placed their marker on the board */
     private final ArrayList<PlayerData> playersWithMarkerOnBoard;
 
+    /**
+     * Constructs a new BuildingState instance.
+     * Initializes the timer, player queues, and sets initial state values.
+     *
+     * @param board the game board instance
+     * @param callback the event callback handler
+     * @param transitionHandler the state transition handler
+     */
     public BuildingState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.timer = new Timer();
@@ -47,11 +67,28 @@ public class BuildingState extends State {
         this.playersWithMarkerOnBoard = new ArrayList<>();
     }
 
+    /**
+     * Returns the current player in the game.
+     * This method is not supported in BuildingState as it is a synchronous state
+     * where all players can act simultaneously.
+     *
+     * @return the current player
+     * @throws SynchronousStateException always thrown since this operation is not valid in synchronous states
+     */
     @Override
     public PlayerData getCurrentPlayer() throws SynchronousStateException {
         throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state BuildingState");
     }
 
+    /**
+     * Executes a cheat code to automatically complete a player's spaceship with a predefined configuration.
+     * This method can only be used before the final timer has finished.
+     *
+     * @param player the player requesting the cheat code
+     * @param shipIndex the index of the predefined ship configuration to use
+     * @throws IllegalStateException if the last timer has finished
+     * @throws IllegalArgumentException if the shipIndex is invalid
+     */
     @Override
     public void cheatCode(PlayerData player, int shipIndex) throws IllegalStateException, IllegalArgumentException {
         if (lastTimerFinished) {
@@ -426,6 +463,13 @@ public class BuildingState extends State {
         }
     }
 
+    /**
+     * Executes the building state logic for a specific player.
+     * This method is called when a player completes their building phase.
+     * It handles the automatic timer flip if conditions are met and transitions to the validation state.
+     *
+     * @param playerData the player who has completed their building phase
+     */
     @Override
     public void execute(PlayerData playerData) {
         super.execute(playerData);
@@ -435,6 +479,11 @@ public class BuildingState extends State {
         super.nextState(GameState.VALIDATION);
     }
 
+    /**
+     * Performs cleanup operations when exiting the building state.
+     * Triggers an event to send the shuffled deck to all clients before transitioning
+     * to the next game state.
+     */
     @Override
     public void exit() {
         super.exit();

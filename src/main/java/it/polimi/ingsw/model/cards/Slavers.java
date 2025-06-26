@@ -1,10 +1,20 @@
 package it.polimi.ingsw.model.cards;
 
+/**
+ * Represents a Slavers card in the game.
+ * This card type requires cannon strength to defeat and costs flight days,
+ * but rewards the player with credits while potentially losing crew members.
+ * @author Lorenzo Trenti
+ */
 public class Slavers extends Card {
+    /** The minimum cannon strength required to defeat this card */
     private int cannonStrengthRequired;
+    /** The number of flight days lost when encountering this card */
     private int flightDays;
 
+    /** The number of crew members lost when encountering this card */
     private int crewLost;
+    /** The number of credits rewarded for defeating this card */
     private int credit;
 
     /**
@@ -24,6 +34,10 @@ public class Slavers extends Card {
         this.credit = credit;
     }
 
+    /**
+     * Default constructor for Slavers card.
+     * Creates a Slavers card with default values.
+     */
     public Slavers(){
         super();
     }

@@ -18,12 +18,23 @@ import java.util.List;
 import java.util.Map;
 
 
+/**
+ * State representing the smugglers encounter in the game.
+ * This state handles the combat phase against smugglers, including cannon strength calculations,
+ * goods rewards/penalties, and battery penalties based on the outcome.
+ * @author Daniele Toniolo
+ */
 public class SmugglersState extends State {
+    /** The smugglers card that defines the encounter parameters */
     private final Smugglers card;
+    /** Current internal state of the smugglers encounter */
     private SmugglerInternalState internalState;
 
+    /** Map storing the accumulated cannon strength for each player */
     private final Map<PlayerData, Float> cannonsStrength;
+    /** Current amount of penalty loss remaining to be served */
     private int currentPenaltyLoss;
+    /** Result of the smugglers encounter: true if defeated, false if not, null if tied */
     private Boolean smugglersDefeat;
 
     /**
@@ -36,6 +47,16 @@ public class SmugglersState extends State {
         BATTERIES_PENALTY
     }
 
+    /**
+     * Constructs a new SmugglersState for handling smugglers encounters.
+     * Initializes the state with the provided board, event callback, smugglers card,
+     * and state transition handler. Sets up initial internal state and penalty values.
+     *
+     * @param board the game board containing player positions and game state
+     * @param callback the event callback for triggering game events
+     * @param card the smugglers card defining encounter parameters (strength required, rewards, penalties)
+     * @param transitionHandler the handler for managing state transitions
+     */
     public SmugglersState(Board board, EventCallback callback, Smugglers card, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.card = card;
@@ -129,6 +150,12 @@ public class SmugglersState extends State {
         }
     }
 
+    /**
+     * Initializes the smugglers state when entering.
+     * Sets up cannon strength tracking for all players by calling the handler
+     * to initialize their cannon strengths in the cannonsStrength map.
+     * Then calls the parent entry method to complete the state initialization.
+     */
     @Override
     public void entry() {
         for (PlayerData player : players) {
@@ -204,6 +231,12 @@ public class SmugglersState extends State {
         super.nextState(GameState.CARDS);
     }
 
+    /**
+     * Performs cleanup when exiting the smugglers state.
+     * Calls the parent exit method to handle standard state transition cleanup.
+     *
+     * @throws IllegalStateException if the state cannot be properly exited
+     */
     @Override
     public void exit() throws IllegalStateException {
         super.exit();

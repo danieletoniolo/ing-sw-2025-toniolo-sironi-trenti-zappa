@@ -2,15 +2,33 @@ package it.polimi.ingsw.model.spaceship;
 
 import java.util.ArrayList;
 
+/**
+ * Represents a cabin component of a spaceship that can house crew members or aliens.
+ * The cabin requires appropriate life support systems to accommodate different types of occupants.
+ * @author Daniele Toniolo
+ */
 public class Cabin extends Component {
+    /** The number of crew members or aliens currently in the cabin */
     private int crewNumber;
 
+    /** Flag indicating if purple life support is available from surrounding components */
     private boolean purpleLifeSupport;
+    /** Flag indicating if brown life support is available from surrounding components */
     private boolean brownLifeSupport;
 
+    /** Flag indicating if a purple alien is present in the cabin */
     private boolean purpleAlien;
+    /** Flag indicating if a brown alien is present in the cabin */
     private boolean brownAlien;
 
+    /**
+     * Creates a new cabin component with the specified ID and connectors.
+     * Initializes all life support flags and alien presence flags to false,
+     * and sets the crew number to 0.
+     *
+     * @param ID the unique identifier for this cabin component
+     * @param connectors the array of connector types that define how this cabin can connect to other components
+     */
     public Cabin(int ID, ConnectorType[] connectors) {
         super(ID, connectors);
         crewNumber = 0;
@@ -20,6 +38,11 @@ public class Cabin extends Component {
         brownAlien = false;
     }
 
+    /**
+     * Creates a new cabin component with default values.
+     * Initializes all life support flags and alien presence flags to false,
+     * and sets the crew number to 0 through the parent constructor.
+     */
     public Cabin(){
         super();
         purpleLifeSupport = false;
@@ -138,6 +161,10 @@ public class Cabin extends Component {
         return super.isValid();
     }
 
+    /**
+     * Returns the component type for this cabin.
+     * @return ComponentType.CABIN indicating this is a cabin component
+     */
     @Override
     public ComponentType getComponentType() {
         return ComponentType.CABIN;

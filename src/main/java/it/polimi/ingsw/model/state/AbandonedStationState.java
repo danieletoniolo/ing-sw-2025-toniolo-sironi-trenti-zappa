@@ -15,14 +15,36 @@ import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import org.javatuples.Triplet;
 
+/**
+ * State implementation for handling Abandoned Station cards.
+ * This state manages the logic for playing Abandoned Station cards, including
+ * crew requirements validation and state transitions.
+ * @author Vittorio Sironi
+ */
 public class AbandonedStationState extends State {
+    /** The Abandoned Station card being played in this state */
     private final AbandonedStation card;
 
+    /**
+     * Constructs a new AbandonedStationState.
+     *
+     * @param board the game board
+     * @param callback the event callback for triggering events
+     * @param card the Abandoned Station card to be played
+     * @param transitionHandler handler for state transitions
+     */
     public AbandonedStationState(Board board, EventCallback callback, AbandonedStation card, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.card = card;
     }
 
+    /**
+     * Allows a player to play the Abandoned Station card if they have sufficient crew.
+     * Validates that the player's spaceship has enough crew members to meet the card's requirements.
+     *
+     * @param player the player attempting to play the card
+     * @throws IllegalStateException if the player doesn't have enough crew to play the card
+     */
     @Override
     public void play(PlayerData player) {
         if (player.getSpaceShip().getCrewNumber() >= card.getCrewRequired()) {
@@ -75,11 +97,24 @@ public class AbandonedStationState extends State {
         eventCallback.trigger(goodsSwappedEvent);
     }
 
+    /**
+     * Entry point method called when transitioning into the AbandonedStationState.
+     * Calls the parent class entry method to perform common initialization tasks.
+     */
     @Override
     public void entry() {
         super.entry();
     }
 
+    /**
+     * Executes the main logic for the AbandonedStationState.
+     * Updates the played status if the player is currently playing, executes parent logic,
+     * and triggers the current player event if no card has been played yet.
+     * Finally transitions to the CARDS state.
+     *
+     * @param player the player data for the current player
+     * @throws NullPointerException if the player parameter is null
+     */
     @Override
     public void execute(PlayerData player) throws NullPointerException {
         if (player == null) {
@@ -102,6 +137,13 @@ public class AbandonedStationState extends State {
         super.nextState(GameState.CARDS);
     }
 
+    /**
+     * Exit method called when leaving the AbandonedStationState.
+     * Handles post-state cleanup including moving the marker backwards by the card's flight days
+     * for players who played the card and refreshing the in-game players list.
+     *
+     * @throws IllegalStateException if not all players have played when required
+     */
     @Override
     public void exit() throws IllegalStateException{
         // There are two for loops here, because we need first to control the exception and then move the marker

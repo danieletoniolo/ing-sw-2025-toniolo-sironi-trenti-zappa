@@ -14,8 +14,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * OpenSpaceState represents the state where players move through open space.
+ * In this state, players use their engine strength to advance on the board.
+ * @author Vittorio Sironi
+ */
 public class OpenSpaceState extends State {
+    /** Map storing the accumulated engine strength for each player in this turn */
     private final Map<PlayerData, Float> stats;
+    /** Flag indicating if a player has been forced to give up due to lack of engines */
     private boolean hasPlayerForceGiveUp;
 
     /**
@@ -28,6 +35,17 @@ public class OpenSpaceState extends State {
         this.hasPlayerForceGiveUp = false;
     }
 
+    /**
+     * Allows a player to use extra strength in the open space state.
+     * Only engine strength (type 0) is allowed in this state.
+     *
+     * @param player The player using extra strength
+     * @param type The type of extra strength (0 for engines, 1 for cannons)
+     * @param IDs List of component IDs to use for extra strength
+     * @param batteriesID List of battery IDs to power the components
+     * @throws IllegalStateException If the player is forced to give up or tries to use cannons
+     * @throws IllegalArgumentException If an invalid type is provided
+     */
     @Override
     public void useExtraStrength(PlayerData player, int type, List<Integer> IDs, List<Integer> batteriesID) throws IllegalStateException {
         if (this.hasPlayerForceGiveUp) {
@@ -96,6 +114,10 @@ public class OpenSpaceState extends State {
         }
     }
 
+    /**
+     * Exit method called when leaving the OpenSpaceState.
+     * Performs cleanup operations before transitioning to the next state.
+     */
     @Override
     public void exit() {
         super.exit();

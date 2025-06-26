@@ -6,9 +6,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a Planets card that contains multiple planets with goods and flight days information.
+ * Each planet is represented as a list of goods that can be found on that planet.
+ * @author Lorenzo Trenti
+ */
 public class Planets extends Card {
+    /** List of planets, where each planet contains a list of goods */
     @JsonProperty("planets")
     private List<List<Good>> planets;
+    /** Number of flight days lost when using this card */
     private int flightDays;
 
     /**
@@ -28,6 +35,10 @@ public class Planets extends Card {
         this.flightDays = flightDays;
     }
 
+    /**
+     * Default constructor for JSON deserialization.
+     * Creates an empty Planets object that will be populated by Jackson.
+     */
     public Planets(){
         super();
     }

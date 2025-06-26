@@ -21,12 +21,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * ValidationState represents a synchronous game state where players' spaceships are validated
+ * for invalid components and fragmentation. This state handles the removal of invalid components
+ * and manages player markers on the board for learning games.
+ * @author Vittorio Sironi
+ */
 public class ValidationState extends State {
+    /** Map storing invalid components for each player */
     private final Map<PlayerData, ArrayList<Pair<Integer, Integer>>> invalidComponents;
+    /** Map storing fragmented component groups for each player */
     private final Map<PlayerData, List<List<Pair<Integer, Integer>>>> fragmentedComponents;
+    /** Map tracking which players need to place a marker on the board */
     private final Map<PlayerData, Boolean> playersNeedToPlaceMarker;
+    /** List of players who currently have a marker on the board */
     private final ArrayList<PlayerData> playersWithMarkerOnBoard;
 
+    /**
+     * Constructs a new ValidationState with the specified game components.
+     * Initializes all internal data structures and sets up player tracking.
+     *
+     * @param board the game board
+     * @param callback the event callback for triggering events
+     * @param transitionHandler the handler for state transitions
+     */
     public ValidationState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.invalidComponents = new HashMap<>();
@@ -39,11 +57,28 @@ public class ValidationState extends State {
         }
     }
 
+    /**
+     * Returns the current player in the game.
+     * This method is not supported in ValidationState as it represents a synchronous state
+     * where all players act simultaneously rather than in turns.
+     *
+     * @return the current player
+     * @throws SynchronousStateException always thrown since this operation is not valid in synchronous states
+     */
     @Override
     public PlayerData getCurrentPlayer() throws SynchronousStateException {
         throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state ValidationState");
     }
 
+    /**
+     * Places a player's marker on the board at the specified position.
+     * This method is only available in Learning Games and handles marker placement
+     * and movement events. If position is -1, the marker is removed from the board.
+     *
+     * @param player the player whose marker is being placed
+     * @param position the board position where to place the marker, or -1 to remove it
+     * @throws IllegalStateException if not in a Learning Game or if player already has a marker on board
+     */
     @Override
     public void placeMarker(PlayerData player, int position) throws IllegalStateException {
         if (super.board.getBoardLevel() != Level.LEARNING) {
@@ -95,6 +130,16 @@ public class ValidationState extends State {
     }
 
 
+    /**
+     * Sets the components to be destroyed for a specific player.
+     * This method handles the destruction of invalid components from a player's spaceship,
+     * updating engine and cannon strengths if affected components are destroyed.
+     *
+     * @param player the player whose components are being destroyed
+     * @param componentsToDestroy list of component coordinates (row, column) to be destroyed
+     * @throws IllegalStateException if the operation cannot be completed due to game state
+     * @throws IllegalArgumentException if the provided components are invalid
+     */
     @Override
     public void setComponentToDestroy(PlayerData player, List<Pair<Integer, Integer>> componentsToDestroy) throws IllegalStateException, IllegalArgumentException {
         if (componentsToDestroy.isEmpty()) {
@@ -131,6 +176,14 @@ public class ValidationState extends State {
         }
     }
 
+    /**
+     * Entry point for the ValidationState. This method is called when the state is first entered.
+     * It initializes the validation process by:
+     * - Identifying invalid components for each player's spaceship
+     * - Setting all players to PLAYING status
+     * - Triggering InvalidComponents events for each player
+     * - For Learning Games: removing players with invalid components from the board
+     */
     @Override
     public void entry() {
         ArrayList<Pair<Integer, Integer>> playerInvalidComponents;
@@ -149,6 +202,16 @@ public class ValidationState extends State {
         }
     }
 
+    /**
+     * Executes the validation logic for a specific player.
+     * This method handles different scenarios based on the player's current state:
+     * - If the player needs to place a marker (Learning Games), forces marker placement
+     * - Otherwise, recalculates invalid components and checks for ship fragmentation
+     * - Manages player status and triggers appropriate events
+     * - Transitions to CREW state when validation is complete
+     *
+     * @param player the player for whom to execute the validation logic
+     */
     @Override
     public void execute(PlayerData player) {
         SpaceShip ship = player.getSpaceShip();
@@ -188,6 +251,13 @@ public class ValidationState extends State {
         super.nextState(GameState.CREW);
     }
 
+    /**
+     * Exit point for the ValidationState. This method is called when leaving the state.
+     * Performs final validation to ensure all players have valid spaceships before transitioning
+     * to the next state. Throws an exception if any player still has invalid components.
+     *
+     * @throws IllegalStateException if any player still has invalid components when exiting the state
+     */
     @Override
     public void exit() {
         for (PlayerData p : players) {

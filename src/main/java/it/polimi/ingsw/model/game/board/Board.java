@@ -11,17 +11,30 @@ import it.polimi.ingsw.utils.Logger;
 import java.io.Serializable;
 import java.util.*;
 
+/**
+ * Represents a game board that manages the game state, including players, cards, and tiles.
+ * The board handles different game levels and maintains the positions of players during gameplay.
+ * @author Vittorio Sironi
+ */
 public class Board implements Serializable {
+    /** The difficulty level of the current game */
     private final Level level;
+    /** The number of steps required to complete one lap around the board */
     private final int stepsForALap;
 
+    /** Array of card decks available on the board (null for LEARNING level) */
     private final Deck[] decks;
+    /** Stack containing all shuffled cards for drawing during the game */
     private final Stack<Card> shuffledDeck;
 
+    /** List of component tiles that are visible and available for players to take */
     private final ArrayList<Component> viewableTiles;
+    /** List of component tiles that are hidden and not yet revealed */
     private final ArrayList<Component> hiddenTiles;
 
+    /** List of players currently participating in the game */
     private final ArrayList<PlayerData> inGamePlayers;
+    /** List of players who have given up or been eliminated from the game */
     private final ArrayList<PlayerData> gaveUpPlayers;
 
 

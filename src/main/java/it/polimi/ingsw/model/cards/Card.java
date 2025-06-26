@@ -6,8 +6,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 
-// 📌 Allows Jackson to understand which subclass to use.
+/**
+ * Configures Jackson JSON serialization to handle polymorphic deserialization.
+ * The type information is stored in a "type" property in the JSON.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+/**
+ * Maps JSON type names to their corresponding Card subclasses.
+ * This allows Jackson to instantiate the correct subclass when deserializing JSON.
+ */
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Slavers.class, name = "Slavers"),
         @JsonSubTypes.Type(value = Smugglers.class, name = "Smugglers"),
@@ -21,9 +28,21 @@ import java.io.Serializable;
         @JsonSubTypes.Type(value = AbandonedStation.class, name = "AbandonedStation"),
         @JsonSubTypes.Type(value = Epidemic.class, name = "Epidemic")
 })
+/**
+ * Abstract base class representing a game card.
+ * All card types extend this class and must implement the getCardType() method.
+ * Implements Serializable to support JSON serialization/deserialization.
+ * @author Lorenzo Trenti
+ */
 public abstract class Card implements Serializable {
+    /**
+     * The level of the card, indicating its tier or difficulty.
+     */
     @JsonProperty
     private int level;
+    /**
+     * The unique identifier for this card instance.
+     */
     @JsonProperty
     private int ID;
     /**
@@ -35,6 +54,11 @@ public abstract class Card implements Serializable {
         this.ID = ID;
     }
 
+    /**
+     * Default constructor for Jackson JSON deserialization.
+     * Creates a Card instance without initializing level or ID fields.
+     * These fields should be set during deserialization process.
+     */
     public Card(){
 
     }

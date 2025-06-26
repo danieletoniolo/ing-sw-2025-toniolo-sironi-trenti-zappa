@@ -19,20 +19,40 @@ import org.javatuples.Pair;
 
 import java.util.*;
 
+/**
+ * Represents a state in the game where players engage in combat within a combat zone.
+ * This state manages the combat phases, player statistics, and internal state transitions
+ * during combat encounters.
+ * @author Vittorio Sironi
+ */
 public class CombatZoneState extends State {
+    /** The current internal state of the combat zone phase */
     private CombatZoneInternalState internalState;
+    /** The combat zone card that defines the rules and parameters for this combat */
     private final CombatZone card;
+    /** Map storing each player's accumulated engine strength statistics */
     private final Map<PlayerData, Float> enginesStats;
+    /** Map storing each player's accumulated cannon strength statistics */
     private final Map<PlayerData, Float> cannonsStats;
+    /** Reference to the player with the minimum engine strength */
     private PlayerData minPlayerEngines;
+    /** Reference to the player with the minimum cannon strength */
     private PlayerData minPlayerCannons;
+    /** Reference to the player with the minimum crew count */
     private PlayerData minPlayerCrew;
+    /** List of fragments generated during combat hits, where each fragment is represented as a list of coordinate pairs */
     private final List<List<Pair<Integer, Integer>>> fragments;
+    /** Result of protection attempt, containing the component that can protect and the required battery index */
     private MutablePair<Component, Integer> protectionResult;
+    /** List of players who have been forced to give up during combat due to lack of human crew */
     private final ArrayList<PlayerData> playersGivenUp;
+    /** Pair of dice values used for protection rolls during combat */
     private final MutablePair<Integer, Integer> dice;
+    /** Current index tracking which hit/fire is being processed from the combat zone card */
     private int hitIndex;
+    /** Current amount of penalty loss that still needs to be applied to the player */
     private int currentPenaltyLoss;
+    /** Flag indicating if a player was forced to give up specifically due to crew penalty */
     private boolean hasPlayerForceGiveUpForCrewPenalty;
 
     /**
@@ -51,9 +71,14 @@ public class CombatZoneState extends State {
     }
 
     /**
-     * Constructor whit players and card
-     * @param board The board associated with the game
-     * @param card CombatZone card associated with the state
+     * Constructs a new CombatZoneState with the specified parameters.
+     * Initializes the internal state based on the combat zone card level and sets up
+     * all necessary data structures for managing combat phases and player statistics.
+     *
+     * @param board The game board containing player positions and game state
+     * @param callback The event callback handler for triggering game events
+     * @param card The combat zone card that defines the rules and parameters for this combat
+     * @param transitionHandler The handler responsible for managing state transitions
      */
     public CombatZoneState(Board board, EventCallback callback, CombatZone card, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
@@ -78,7 +103,12 @@ public class CombatZoneState extends State {
     }
 
     /**
-     * Execute the subState crew
+     * Executes the flight days penalty for a player by moving them backwards on the board.
+     * This method retrieves the flight days penalty from the combat zone card and applies
+     * it as negative steps to the player's position, then triggers a MoveMarker event
+     * to notify clients of the position change.
+     *
+     * @param player The player to apply the flight days penalty to
      */
     private void executeSubStateFlightDays(PlayerData player) {
         int flightDays = card.getFlightDays();
@@ -88,6 +118,11 @@ public class CombatZoneState extends State {
         eventCallback.trigger(stepsEvent);
     }
 
+    /**
+     * Sends a combat zone phase event to notify clients of the current combat phase.
+     *
+     * @param phase The current phase number of the combat zone (0, 1, or 2)
+     */
     private void sendCombatZonePhase (int phase) {
         CombatZonePhase combatZonePhase = new CombatZonePhase(phase);
         eventCallback.trigger(combatZonePhase);
@@ -463,6 +498,11 @@ public class CombatZoneState extends State {
         super.nextState(GameState.CARDS);
     }
 
+    /**
+     * Cleanup and finalization method called when exiting the CombatZoneState.
+     * This method performs any necessary cleanup operations before transitioning
+     * to the next game state, ensuring proper resource management and state consistency.
+     */
     @Override
     public void exit() {
         super.exit();

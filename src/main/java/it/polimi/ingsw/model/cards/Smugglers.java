@@ -4,11 +4,20 @@ import it.polimi.ingsw.model.good.Good;
 
 import java.util.List;
 
+/**
+ * Represents a Smugglers card that extends the base Card class.
+ * This card type involves combat with cannon strength requirements and flight day penalties.
+ * @author Lorenzo Trenti
+ */
 public class Smugglers extends Card {
+    /** The minimum cannon strength required to successfully complete this smugglers encounter */
     private int cannonStrengthRequired;
+    /** The number of flight days lost when engaging with this card */
     private int flightDays;
 
+    /** The list of goods that can be rewarded upon successful completion */
     private List<Good> goodsReward;
+    /** The number of goods lost when failing or engaging with this card */
     private int goodsLoss;
 
     /**
@@ -32,9 +41,14 @@ public class Smugglers extends Card {
         this.goodsLoss = goodsLoss;
     }
 
+    /**
+     * Default constructor for Smugglers card.
+     * Creates an empty Smugglers card with default values.
+     */
     public Smugglers(){
         super();
     }
+
     /**
      * Get the cannon power required to beat the card
      * @return cannon power required

@@ -21,17 +21,43 @@ import org.javatuples.Pair;
 import java.util.*;
 
 
+/**
+ * Represents the state of the game when players encounter pirates.
+ * This state handles the pirate encounter mechanics including combat, rewards, penalties, and protection.
+ * @author Vittorio Sironi
+ */
 public class PiratesState extends State {
+    /** The pirates card that defines the encounter parameters */
     private final Pirates card;
+
+    /** Map storing each player's cannon strength for combat calculations */
     private final Map<PlayerData, Float> cannonsStrength;
+
+    /** Current internal state of the pirate encounter */
     private PiratesInternalState internalState;
+
+    /** Result of the pirate combat: true if pirates defeated, false if players defeated, null if tie */
     private Boolean piratesDefeat;
+
+    /** List of players who were defeated during the pirate encounter */
     private final ArrayList<PlayerData> playersDefeated;
+
+    /** List of fragment choices available to players during penalty phase */
     private final List<List<Pair<Integer, Integer>>> fragments;
+
+    /** Result of protection attempt: component that can protect and protection level */
     private MutablePair<Component, Integer> protectionResult;
+
+    /** Pair storing the two dice values rolled for protection */
     private final MutablePair<Integer, Integer> dice;
+
+    /** Index of the current hit being processed from the pirate fires */
     private int hitIndex;
+
+    /** Player who is currently able to attempt protection */
     private PlayerData currentPlayerCanProtect;
+
+    /** List of players who have given up due to having no human crew */
     private final ArrayList<PlayerData> playersGivenUp;
 
     /**
@@ -235,7 +261,6 @@ public class PiratesState extends State {
                     break;
                 }
                 fragments.clear();
-                // TODO: TO TEST THE GIVE UP
                 if (spaceShip.getHumanCrewNumber() == 0 && !playersGivenUp.contains(player)) {
                     this.playersGivenUp.add(player);
                 }
@@ -305,6 +330,10 @@ public class PiratesState extends State {
         super.nextState(GameState.CARDS);
     }
 
+    /**
+     * Cleanup method called when exiting the pirates state.
+     * Performs any necessary cleanup operations before transitioning to the next state.
+     */
     @Override
     public void exit() {
         super.exit();

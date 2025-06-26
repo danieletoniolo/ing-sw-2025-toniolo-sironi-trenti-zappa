@@ -1,5 +1,10 @@
 package it.polimi.ingsw.model.cards;
 
+/**
+ * Represents an open space card in the game.
+ * Open space cards are special types of cards that provide additional gameplay mechanics.
+ * @author Lorenzo Trenti
+ */
 public class OpenSpace extends Card {
 
     /**
@@ -11,9 +16,13 @@ public class OpenSpace extends Card {
         super(level, ID);
     }
 
+    /**
+     * Default constructor
+     */
     public OpenSpace() {
         super();
     }
+
     /**
      * Get the card type
      * @return card type

@@ -15,8 +15,15 @@ import org.javatuples.Triplet;
 
 import java.util.List;
 
+/**
+ * State that handles planet selection and goods exchange on planets.
+ * Players can select planets to land on and exchange goods with the planet's resources.
+ * @author Daniele Toniolo
+ */
 public class PlanetsState extends State {
+    /** The planet card containing planet data and flight days information */
     private final Planets card;
+    /** Array tracking which player has selected each planet (null if unselected) */
     private final PlayerData[] planetSelected;
 
     /**
@@ -86,6 +93,10 @@ public class PlanetsState extends State {
         eventCallback.trigger(goodsSwappedEvent);
     }
 
+    /**
+     * Entry point for the PlanetsState.
+     * Called when transitioning into this state to perform initialization.
+     */
     @Override
     public void entry() {
         super.entry();

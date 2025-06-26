@@ -7,8 +7,15 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-// 📌 Allows Jackson to understand which subclass to use.
+/**
+ * Jackson configuration for polymorphic deserialization of Component objects.
+ * Uses the "type" property to determine which concrete Component subclass to instantiate.
+ */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+/**
+ * Defines the mapping between type names and their corresponding Component subclasses.
+ * Each subtype represents a different kind of spaceship component that can be serialized/deserialized.
+ */
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Battery.class, name = "Battery"),
         @JsonSubTypes.Type(value = Storage.class, name = "Storage"),
@@ -20,19 +27,54 @@ import java.util.ArrayList;
         @JsonSubTypes.Type(value = LifeSupportPurple.class, name = "LifeSupportPurple"),
         @JsonSubTypes.Type(value = Shield.class, name = "Shield"),
 })
+/**
+ * Abstract base class representing a component that can be placed on a spaceship.
+ * Components have connectors, can be positioned and rotated, and must validate their connections.
+ * @author Daniele Toniolo
+ */
 public abstract class Component implements Serializable {
+    /**
+     * The spaceship this component is attached to. Null if not yet placed.
+     */
     protected SpaceShip ship;
+
+    /**
+     * Unique identifier for this component instance.
+     */
     @JsonProperty
     protected int ID;
 
+    /**
+     * The row position of this component on the spaceship grid.
+     */
     protected int row;
+
+    /**
+     * The column position of this component on the spaceship grid.
+     */
     protected int column;
 
+    /**
+     * Array of connector types for each face of the component.
+     * Index 0: north, 1: west, 2: south, 3: east (before rotation).
+     */
     @JsonProperty
     private ConnectorType[] connectors;
 
+    /**
+     * Current clockwise rotation of the component in 90-degree increments.
+     * 0: 0°, 1: 90°, 2: 180°, 3: 270°
+     */
     private int clockwiseRotation;
 
+    /**
+     * Constructs a new Component with the specified ID and connector configuration.
+     * The component is initially not attached to any ship and has no rotation.
+     *
+     * @param ID the unique identifier for this component
+     * @param connectors array of connector types for each face of the component
+     *                  (index 0: north, 1: west, 2: south, 3: east)
+     */
     public Component(int ID, ConnectorType[] connectors) {
         this.ID = ID;
         this.ship = null;
@@ -40,6 +82,10 @@ public abstract class Component implements Serializable {
         this.clockwiseRotation = 0;
     }
 
+    /**
+     * Default constructor for Component.
+     * Used primarily for JSON deserialization.
+     */
     public Component(){}
 
     /**

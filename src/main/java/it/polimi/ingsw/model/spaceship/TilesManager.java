@@ -7,21 +7,54 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+/**
+ * Manager class for handling spaceship tiles and components.
+ * This class loads tiles from a JSON file and provides methods to access and manipulate them.
+ * @author Lorenzo Trenti
+ */
 public class TilesManager {
+    /** Input stream for reading the tiles JSON file from resources */
     private static final InputStream inputStream = TilesManager.class.getResourceAsStream("/json/Tiles.json");
+
+    /** JSON content as string loaded from the input stream */
     private static final String json;
+
+    /**
+     * Static initializer block that loads the JSON content from the tiles file.
+     * Reads the entire content of the Tiles.json file from resources and stores it as a string.
+     *
+     * @throws IllegalArgumentException if the tiles JSON file is not found in resources
+     */
     static {
         if (inputStream == null) {
             throw new IllegalArgumentException("File not found!");
         }
         json = new Scanner(inputStream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
     }
+
+    /** Object mapper for JSON deserialization */
     static ObjectMapper objectMapper = new ObjectMapper();
 
+    /** Array containing all tiles loaded from JSON (including main cabins) */
     private static final Component[] allTiles;
+
+    /** Array containing regular tiles (excluding main cabins) */
     private static final Component[] tiles;
+
+    /** Array containing the 4 main cabins */
     private static final Cabin[] mainCabins;
 
+    /**
+     * Static initializer block that processes the loaded JSON data.
+     * Deserializes the JSON string into Component objects and separates them into:
+     * - Regular tiles (first n-4 components)
+     * - Main cabins (last 4 components, cast to Cabin type)
+     *
+     * The separation assumes that the JSON file contains regular tiles first,
+     * followed by exactly 4 main cabin components at the end.
+     *
+     * @throws RuntimeException if JSON deserialization fails or casting to Cabin fails
+     */
     static {
         try {
             allTiles = objectMapper.readValue(json, Component[].class);

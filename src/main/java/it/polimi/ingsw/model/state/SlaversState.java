@@ -15,11 +15,21 @@ import java.util.List;
 import java.util.Map;
 
 
+/**
+ * State representing the encounter with slavers, where players must use cannons to defeat them
+ * or face penalties. Extends the base State class to handle slavers-specific game logic.
+ * @author Vittorio Sironi
+ */
 public class SlaversState extends State {
+    /** The current internal state of the slavers encounter */
     private SlaversInternalState internalState;
+    /** The slavers card that defines the encounter parameters */
     private final Slavers card;
+    /** Map storing each player's accumulated cannon strength */
     private final Map<PlayerData, Float> cannonsStrength;
+    /** Flag indicating if a player has been forced to give up */
     private boolean hasPlayerForceGiveUp;
+    /** Result of the slavers encounter: true if defeated, false if not, null if tied */
     private Boolean slaversDefeat = false;
 
     /**
@@ -185,6 +195,11 @@ public class SlaversState extends State {
         super.nextState(GameState.CARDS);
     }
 
+    /**
+     * Cleanup method called when exiting the slavers state.
+     * Performs any necessary cleanup operations before transitioning to the next state.
+     * @throws IllegalStateException if the state cannot be properly exited
+     */
     @Override
     public void exit() throws IllegalStateException{
         super.exit();
