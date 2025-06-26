@@ -129,6 +129,8 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         spaceShip[row- ROW_OFFSET][col- COL_OFFSET].setCol(col);
 
         last = component;
+
+        notifyObservers();
     }
 
     public ComponentView removeLast() {
@@ -147,6 +149,7 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         }
 
         spaceShip[row- ROW_OFFSET][col- COL_OFFSET] = new GenericComponentView(component.getRow() - 1, component.getCol() - 1);
+        notifyObservers();
         return component;
     }
 
