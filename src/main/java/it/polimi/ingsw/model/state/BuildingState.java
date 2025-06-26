@@ -35,6 +35,7 @@ public class BuildingState extends State {
     // TODO: set timer to 90000
     private static final long timerDuration = 5000;
     private final Map<PlayerColor, Component> playersHandQueue;
+    private final ArrayList<PlayerData> playersWithMarkerOnBoard;
 
     public BuildingState(Board board, EventCallback callback, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
@@ -43,6 +44,7 @@ public class BuildingState extends State {
         this.timerRunning = false;
         this.playersHandQueue = new HashMap<>();
         this.lastTimerFinished = false;
+        this.playersWithMarkerOnBoard = new ArrayList<>();
     }
 
     @Override
@@ -178,11 +180,16 @@ public class BuildingState extends State {
         if (super.board.getBoardLevel() == Level.SECOND && (numberOfTimerFlips < 3 || (timerRunning && numberOfTimerFlips != 4))) {
             throw new IllegalStateException("Cannot place marker before the second timer flip");
         }
+        if (playersWithMarkerOnBoard.contains(player)) {
+            throw new IllegalStateException("You are already on the board");
+        }
 
         board.setPlayer(player, position);
 
         MoveMarker moveMarkerEvent = new MoveMarker(player.getUsername(),  player.getModuleStep(board.getStepsForALap()));
         eventCallback.trigger(moveMarkerEvent);
+
+        playersWithMarkerOnBoard.add(player);
     }
 
     /**

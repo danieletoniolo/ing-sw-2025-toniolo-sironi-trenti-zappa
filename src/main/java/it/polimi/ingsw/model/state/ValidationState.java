@@ -49,6 +49,9 @@ public class ValidationState extends State {
         if (super.board.getBoardLevel() != Level.LEARNING) {
             throw new IllegalStateException("Cannot place marker if you are not in a Learning Game");
         }
+        if (playersWithMarkerOnBoard.contains(player)) {
+            throw new IllegalStateException("You are already on the board");
+        }
 
         board.setPlayer(player, position);
 

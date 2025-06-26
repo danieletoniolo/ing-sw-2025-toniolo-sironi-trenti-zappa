@@ -44,7 +44,6 @@ public class TCPConnection implements Connection {
         } catch(IOException e) {
             throw new SocketCreationException("error while creating socket", e);
         }
-        // TODO: Check if we are handling all the possible exceptions
 
         // Start the heartbeat thread
         read();
