@@ -35,9 +35,11 @@ public class UseShieldCards extends CardsGame {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        int ID = spaceShipView.getMapBatteries().keySet().stream()
+        int ID = spaceShipView.getMapBatteries().entrySet().stream()
+                .filter(battery -> battery.getValue().getNumberOfBatteries() != 0)
                 .skip(selected)
                 .findFirst()
+                .map(entry -> entry.getValue().getID())
                 .orElse(-1);
 
         StatusEvent status;
