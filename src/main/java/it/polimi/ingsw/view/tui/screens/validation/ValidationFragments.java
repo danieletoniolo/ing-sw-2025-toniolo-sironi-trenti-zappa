@@ -51,6 +51,7 @@ public class ValidationFragments extends Validation {
                 setMessage(((Pota) status).errorMessage());
                 return this;
             }
+            destroyStatics();
             return new WaitingValidation();
         }
 
