@@ -3,6 +3,11 @@ package it.polimi.ingsw.network;
 import it.polimi.ingsw.event.type.Event;
 import it.polimi.ingsw.network.exceptions.DisconnectedConnection;
 
+/**
+ * Interface that represents a connection between two endpoints for sending and receiving events.
+ * This interface provides methods for bidirectional communication and connection management.
+ * @author Daniele Toniolo
+ */
 public interface Connection {
     /**
      * Sends a message to the other end of the connection.

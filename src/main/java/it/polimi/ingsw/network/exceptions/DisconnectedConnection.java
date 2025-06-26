@@ -1,5 +1,9 @@
 package it.polimi.ingsw.network.exceptions;
 
+/**
+ * Exception thrown when a network connection is disconnected unexpectedly.
+ * This runtime exception indicates that an operation failed due to a lost connection.
+ */
 public class DisconnectedConnection extends RuntimeException {
     /**
      * Constructs a new DisconnectedConnection exception.

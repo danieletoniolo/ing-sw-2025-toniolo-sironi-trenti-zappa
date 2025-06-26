@@ -1,5 +1,9 @@
 package it.polimi.ingsw.network.exceptions;
 
+/**
+ * Exception thrown when an invalid or unreachable host is encountered.
+ * This is a runtime exception that indicates issues with network host resolution or connectivity.
+ */
 public class BadHostException extends RuntimeException {
     /**
      * Constructs a new BadHostException.
