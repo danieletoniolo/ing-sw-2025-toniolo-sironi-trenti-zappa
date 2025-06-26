@@ -353,9 +353,6 @@ public class BuildingState extends State {
             }
             case 2 -> {
                 // Place the tile in the spaceship
-                if (spaceShip.peekReservedComponent(component.getID()) != null) {
-                    spaceShip.removeReserveComponent(component.getID());
-                }
                 spaceShip.placeComponent(component, row, col);
                 PlacedTileToSpaceship placeTileEvent = new PlacedTileToSpaceship(player.getUsername(), row, col);
                 eventCallback.trigger(placeTileEvent);

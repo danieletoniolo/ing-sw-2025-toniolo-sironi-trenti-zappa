@@ -746,6 +746,7 @@ public class SpaceShip {
             numberOfComponents++;
         } else {
             components[row][column].ship = null;
+            components[row][column] = null;
             throw new IllegalStateException("The component at the given row and column are not connected");
         }
     }
