@@ -279,10 +279,10 @@ public class BuildingState extends State {
                 eventCallback.trigger(pickTileEvent);
 
                 if (component.getComponentType() == ComponentType.SINGLE_ENGINE || component.getComponentType() == ComponentType.DOUBLE_ENGINE) {
-                    SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), spaceShip.getSingleEnginesStrength(), spaceShip.getSingleEnginesStrength() + spaceShip.getDoubleEnginesStrength());
+                    SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), spaceShip.getDefaultEnginesStrength(), spaceShip.getMaxEnginesStrength());
                     eventCallback.trigger(engineStrength);
                 } else if (component.getComponentType() == ComponentType.SINGLE_CANNON || component.getComponentType() == ComponentType.DOUBLE_CANNON) {
-                    SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), spaceShip.getSingleCannonsStrength(), spaceShip.getSingleCannonsStrength() + spaceShip.getDoubleCannonsStrength());
+                    SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), spaceShip.getDefaultCannonsStrength(), spaceShip.getMaxCannonsStrength());
                     eventCallback.trigger(cannonStrength);
                 }
             }
@@ -354,10 +354,10 @@ public class BuildingState extends State {
                 eventCallback.trigger(placeTileEvent);
 
                 if (component.getComponentType() == ComponentType.SINGLE_ENGINE || component.getComponentType() == ComponentType.DOUBLE_ENGINE) {
-                    SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), spaceShip.getSingleEnginesStrength(), spaceShip.getSingleEnginesStrength() + spaceShip.getDoubleEnginesStrength());
+                    SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), spaceShip.getDefaultEnginesStrength(), spaceShip.getMaxEnginesStrength());
                     eventCallback.trigger(engineStrength);
                 } else if (component.getComponentType() == ComponentType.SINGLE_CANNON || component.getComponentType() == ComponentType.DOUBLE_CANNON) {
-                    SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), spaceShip.getSingleCannonsStrength(), spaceShip.getSingleCannonsStrength() + spaceShip.getDoubleCannonsStrength());
+                    SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), spaceShip.getDefaultCannonsStrength(), spaceShip.getMaxCannonsStrength());
                     eventCallback.trigger(cannonStrength);
                 }
             }

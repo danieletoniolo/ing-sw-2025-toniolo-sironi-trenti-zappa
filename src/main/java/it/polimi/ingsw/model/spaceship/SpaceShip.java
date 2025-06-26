@@ -34,7 +34,7 @@ public class SpaceShip {
     private int doubleEnginesStrength;
 
     private float singleCannonsStrength;
-    private int doubleCannonsStrength;
+    private float doubleCannonsStrength;
     private int doubleCannonsNumber;
 
     private int energyNumber;
@@ -192,7 +192,7 @@ public class SpaceShip {
      * Get the strength of the double cannons of the ship
      * @return Strength of the double cannons of the ship
      */
-    public int getDoubleCannonsStrength() {
+    public float getDoubleCannonsStrength() {
         return doubleCannonsStrength;
     }
 
@@ -301,6 +301,38 @@ public class SpaceShip {
         } else {
             return purpleAlien && !cannons.isEmpty() ? alienStrength : 0;
         }
+    }
+
+    /**
+     * Get the default strength of cannons of the ship
+     * @return the default strength of cannons of the ship
+     */
+    public float getDefaultCannonsStrength() {
+        return getSingleCannonsStrength() + getAlienStrength(false);
+    }
+
+    /**
+     * Get the default strength of engines of the ship
+     * @return the default strength of engines of the ship
+     */
+    public int getDefaultEnginesStrength() {
+        return getSingleEnginesStrength() + (int) getAlienStrength(true);
+    }
+
+    /**
+     * Get the maximum potential of cannons and engines of the ship
+     * @return the maximum potential of cannons and engines of the ship
+     */
+    public float getMaxCannonsStrength() {
+        return getSingleCannonsStrength() + getDoubleCannonsStrength() + getAlienStrength(false);
+    }
+
+    /**
+     * Get the maximum potential of engines of the ship
+     * @return the maximum potential of engines of the ship
+     */
+    public int getMaxEnginesStrength() {
+        return getSingleEnginesStrength() + getDoubleEnginesStrength() + (int) getAlienStrength(true);
     }
 
     /**

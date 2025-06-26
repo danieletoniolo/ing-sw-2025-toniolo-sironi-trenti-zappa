@@ -1,6 +1,8 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.SetCannonStrength;
+import it.polimi.ingsw.event.game.serverToClient.spaceship.SetEngineStrength;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.player.PlayerData;
@@ -41,19 +43,28 @@ public class CrewState extends State {
         UpdateCrewMembers updateCrewMembers;
         ArrayList<Triplet<Integer, Integer, Integer>> crewMembers = new ArrayList<>();
 
+        SpaceShip spaceShip = player.getSpaceShip();
         switch (mode) {
             case 0 -> { // Add crew member
-                player.getSpaceShip().addCrewMember(cabinID, crewType == 1, crewType == 2);
+                spaceShip.addCrewMember(cabinID, crewType == 1, crewType == 2);
                 crewMembers.add(new Triplet<>(cabinID, player.getSpaceShip().getCabin(cabinID).getCrewNumber(), crewType));
                 updateCrewMembers = new UpdateCrewMembers(player.getUsername(), crewMembers);
                 eventCallback.trigger(updateCrewMembers);
             }
             case 1 -> { // Remove crew member
-                player.getSpaceShip().removeCrewMember(cabinID, crewType == 0 ? 2 : 1);
+                spaceShip.removeCrewMember(cabinID, crewType == 0 ? 2 : 1);
                 crewMembers.add(new Triplet<>(cabinID, player.getSpaceShip().getCabin(cabinID).getCrewNumber(), crewType));
                 updateCrewMembers = new UpdateCrewMembers(player.getUsername(), crewMembers);
                 eventCallback.trigger(updateCrewMembers);
             }
+        }
+
+        if (crewType == 1) {
+            SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), spaceShip.getDefaultEnginesStrength(), spaceShip.getMaxEnginesStrength());
+            eventCallback.trigger(engineStrength);
+        } else if (crewType == 2) {
+            SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), spaceShip.getDefaultCannonsStrength(), spaceShip.getMaxCannonsStrength());
+            eventCallback.trigger(cannonStrength);
         }
     }
 

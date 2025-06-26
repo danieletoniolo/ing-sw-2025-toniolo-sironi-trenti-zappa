@@ -766,7 +766,7 @@ public class TuiManager implements Manager {
                     TuiScreenView menu = new Menu();
                     currentScreen.setNextScreen(menu);
                     currentScreen = menu;
-                    currentScreen.setMessage("A player disconnected, you are back to the lobbies menu");
+                    currentScreen.setMessage("You are back to the lobbies menu, a player disconnected or the game is over");
 
                     MenuGoodsCards.destroyStatics();
                     ManagerExchangeGoodsCards.destroyStatics();

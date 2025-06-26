@@ -14,7 +14,6 @@ import it.polimi.ingsw.model.spaceship.ComponentType;
 import it.polimi.ingsw.model.spaceship.SpaceShip;
 import it.polimi.ingsw.controller.EventCallback;
 import it.polimi.ingsw.model.state.exception.SynchronousStateException;
-import it.polimi.ingsw.utils.Logger;
 import org.javatuples.Pair;
 
 import java.util.ArrayList;
@@ -120,11 +119,11 @@ public class ValidationState extends State {
         eventCallback.trigger(event);
 
         if (isEngine) {
-            SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), ship.getSingleEnginesStrength(), ship.getSingleEnginesStrength() + ship.getDoubleEnginesStrength());
+            SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), ship.getDefaultEnginesStrength(), ship.getMaxEnginesStrength());
             eventCallback.trigger(engineStrength);
         }
         if (isCannon) {
-            SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), ship.getSingleCannonsStrength(), ship.getSingleCannonsStrength() + ship.getDoubleCannonsStrength());
+            SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), ship.getDefaultCannonsStrength(), ship.getMaxCannonsStrength());
             eventCallback.trigger(cannonStrength);
         }
     }

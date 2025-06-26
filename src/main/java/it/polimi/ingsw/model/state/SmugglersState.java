@@ -11,7 +11,6 @@ import it.polimi.ingsw.model.cards.Smugglers;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.player.PlayerData;
-import it.polimi.ingsw.model.spaceship.SpaceShip;
 import org.javatuples.Triplet;
 
 import java.util.HashMap;
@@ -23,7 +22,7 @@ public class SmugglersState extends State {
     private final Smugglers card;
     private SmugglerInternalState internalState;
 
-    private final Map<PlayerData, Float> cannonStrength;
+    private final Map<PlayerData, Float> cannonsStrength;
     private int currentPenaltyLoss;
     private Boolean smugglersDefeat;
 
@@ -40,7 +39,7 @@ public class SmugglersState extends State {
     public SmugglersState(Board board, EventCallback callback, Smugglers card, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.card = card;
-        this.cannonStrength = new HashMap<>();
+        this.cannonsStrength = new HashMap<>();
         this.internalState = SmugglerInternalState.ENEMY_DEFEAT;
         this.currentPenaltyLoss = card.getGoodsLoss();
         this.smugglersDefeat = false;
@@ -60,7 +59,7 @@ public class SmugglersState extends State {
                     throw new IllegalStateException("There is a penalty to serve.");
                 }
                 Event event = Handler.useExtraStrength(player, type, IDs, batteriesID);
-                this.cannonStrength.merge(player, player.getSpaceShip().getCannonsStrength(IDs), Float::sum);
+                this.cannonsStrength.merge(player, player.getSpaceShip().getCannonsStrength(IDs), Float::sum);
                 eventCallback.trigger(event);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
@@ -133,12 +132,7 @@ public class SmugglersState extends State {
     @Override
     public void entry() {
         for (PlayerData player : players) {
-            SpaceShip ship = player.getSpaceShip();
-            float initialStrength = ship.getSingleCannonsStrength();
-            if (ship.hasPurpleAlien()) {
-                initialStrength += ship.getAlienStrength(false);
-            }
-            cannonStrength.put(player, initialStrength);
+            Handler.initializeCannonStrengths(player, cannonsStrength);
         }
         super.entry();
     }
@@ -152,12 +146,12 @@ public class SmugglersState extends State {
 
         switch (internalState) {
             case ENEMY_DEFEAT:
-                int cannonStrengthRequired = card.getCannonStrengthRequired();
+                float cannonStrengthRequired = card.getCannonStrengthRequired();
 
-                if (cannonStrength.get(player) > cannonStrengthRequired) {
+                if (cannonsStrength.get(player) > cannonStrengthRequired) {
                     smugglersDefeat = true;
                     internalState = SmugglerInternalState.GOODS_REWARD;
-                } else if (cannonStrength.get(player) < cannonStrengthRequired) {
+                } else if (cannonsStrength.get(player) < cannonStrengthRequired) {
                     smugglersDefeat = false;
                     this.internalState = SmugglerInternalState.GOODS_PENALTY;
                 } else {
@@ -166,6 +160,7 @@ public class SmugglersState extends State {
                     playersStatus.replace(player.getColor(), PlayerStatus.SKIPPED);
                 }
 
+                Handler.initializeCannonStrengths(player, cannonsStrength);
                 EnemyDefeat enemyDefeat = new EnemyDefeat(player.getUsername(), smugglersDefeat);
                 eventCallback.trigger(enemyDefeat);
                 break;
@@ -193,6 +188,7 @@ public class SmugglersState extends State {
                 super.execute(player);
                 internalState = SmugglerInternalState.ENEMY_DEFEAT;
                 sendCurrentPlayer = true;
+                Handler.initializeCannonStrengths(player, cannonsStrength);
                 break;
         }
 
