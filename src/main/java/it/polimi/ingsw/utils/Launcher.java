@@ -6,6 +6,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Utility class for launching applications and managing data folders across different operating systems.
+ * This class provides static methods to handle platform-specific operations such as:
+ * - Getting the appropriate data folder path for the current OS
+ * - Launching JAR files in terminal windows with the bundled Java runtime
+ *
+ * The class supports Windows, macOS, and Linux operating systems.
+ * @author Daniele Toniolo
+ */
 public class Launcher {
     /**
      * Static string to define the name of the application.

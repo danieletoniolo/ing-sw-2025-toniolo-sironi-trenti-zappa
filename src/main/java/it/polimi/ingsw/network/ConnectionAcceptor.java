@@ -5,6 +5,7 @@ import it.polimi.ingsw.network.rmi.RemoteServer;
 import it.polimi.ingsw.network.rmi.RMIConnection;
 import it.polimi.ingsw.network.rmi.RemoteLinkedList;
 import it.polimi.ingsw.network.tcp.TCPConnection;
+import it.polimi.ingsw.utils.Logger;
 
 import java.net.ServerSocket;
 import java.rmi.AlreadyBoundException;
@@ -19,6 +20,7 @@ import java.util.Queue;
  * This object will keep waiting for {@link Connection} objects to request a pair element.
  * A new {@link Connection} will be created for each request to communicate back. This object
  * also acts as a server, and has a remotely invokable method.
+ * @author Daniele Toniolo
  */
 public class ConnectionAcceptor extends UnicastRemoteObject implements RemoteServer {
     /**
@@ -98,8 +100,7 @@ public class ConnectionAcceptor extends UnicastRemoteObject implements RemoteSer
                     lock.notifyAll();
                 }
             } catch (Exception exception) {
-                // TODO: Replace with a custom exception or custom logging
-                exception.printStackTrace();
+                Logger.getInstance().logWarning(exception.getMessage(), true);
             }
         });
         tcpThread.start();
@@ -109,7 +110,7 @@ public class ConnectionAcceptor extends UnicastRemoteObject implements RemoteSer
                 try {
                     lock.wait();
                 } catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
+                    Logger.getInstance().logError(interruptedException.getMessage(), true);
                 }
             }
             return connectionQueue.poll();
@@ -139,7 +140,7 @@ public class ConnectionAcceptor extends UnicastRemoteObject implements RemoteSer
                 connectionQueue.add(rmiConnection);
                 lock.notifyAll();
             } catch (Exception e) {
-                // TODO: Replace with a custom exception or custom logging
+                Logger.getInstance().logError(e.getMessage(), true);
             }
 
             return boundName;

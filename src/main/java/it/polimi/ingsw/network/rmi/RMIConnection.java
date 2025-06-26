@@ -13,6 +13,18 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.*;
 
+/**
+ * RMIConnection implements the Connection interface using Java RMI (Remote Method Invocation).
+ * This class provides bidirectional communication between client and server through remote queues,
+ * with built-in heartbeat mechanism for connection monitoring and timeout handling.
+ *
+ * <p>The connection maintains two remote queues: one for sending messages and one for receiving.
+ * It supports automatic heartbeat messages to detect connection failures and implements
+ * timeout mechanisms for both send and receive operations.</p>
+ *
+ * <p>Thread-safe implementation with proper synchronization for concurrent access.</p>
+ * @author Vittorio Sironi
+ */
 public class RMIConnection implements Connection {
 
     /**
@@ -73,8 +85,6 @@ public class RMIConnection implements Connection {
      *
      * @param address is the address of the server's host.
      * @param port    is the port used by the {@link it.polimi.ingsw.network.ConnectionAcceptor ConnectionAcceptor} for RMI communication.
-     * @throws RemoteException will be thrown in case of network problems, or server communication issues.
-     * @throws NotBoundException will be thrown if a failure occurs in the process of connecting to the server.
      * @throws BadPortException will be thrown if a failure occurs in the process of connecting to the server.
      */
     public RMIConnection(String address, int port) throws BadPortException {

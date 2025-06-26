@@ -16,6 +16,15 @@ import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * TCPConnection class implements the Connection interface to provide TCP-based network communication.
+ * This class handles both client-side and server-side TCP connections, managing socket operations,
+ * heartbeat mechanisms, and message queuing for reliable network communication.
+ *
+ * The connection supports automatic reconnection detection through heartbeat messages and
+ * provides thread-safe send/receive operations with proper synchronization.
+ * @author Daniele Toniolo
+ */
 public class TCPConnection implements Connection {
     /** The TCP socket used for network communication */
     private final Socket socket;
@@ -173,7 +182,6 @@ public class TCPConnection implements Connection {
             try {
                 out.writeObject(message);
                 out.reset();
-                // TODO: RESET
                 out.flush();
             } catch (IOException e) {
                 // If a IOException is thrown, we consider the connection broken

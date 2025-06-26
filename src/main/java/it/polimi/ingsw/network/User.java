@@ -6,6 +6,7 @@ import java.util.UUID;
 
 /**
  * User is created only when the client insert a valid nickname
+ * @author Vittorio Sironi
  */
 public class User {
     /** Unique identifier for the user */

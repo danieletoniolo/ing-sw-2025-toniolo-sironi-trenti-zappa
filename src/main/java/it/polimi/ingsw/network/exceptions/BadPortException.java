@@ -1,5 +1,10 @@
 package it.polimi.ingsw.network.exceptions;
 
+/**
+ * Exception thrown when an invalid port number is provided.
+ * This exception extends RuntimeException and is typically used
+ * in network-related operations when port validation fails.
+ */
 public class BadPortException extends RuntimeException {
     /**
      * Constructs a new BadPortException.

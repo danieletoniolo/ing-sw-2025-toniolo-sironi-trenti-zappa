@@ -8,6 +8,17 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * A remote implementation of a thread-safe queue for Event objects.
+ * This class extends UnicastRemoteObject to provide RMI capabilities
+ * and implements RemoteQueue to define queue operations that can be
+ * called remotely across the network.
+ *
+ * The implementation uses a LinkedList as the underlying data structure
+ * and provides thread-safe operations through synchronized blocks.
+ * The queue follows FIFO (First In, First Out) ordering.
+ * @author Vittorio Sironi
+ */
 public class RemoteLinkedList extends UnicastRemoteObject implements RemoteQueue {
     /**
      * The internal queue that stores Event objects.

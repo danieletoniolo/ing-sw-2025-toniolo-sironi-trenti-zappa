@@ -24,6 +24,7 @@ import java.util.Queue;
  * <p>
  * To optimize performance, the logger uses a separate thread to print log messages to the file and/or console.
  * This allows the main thread to continue executing without waiting for the logging operation to complete.
+ * @author Daniele Toniolo
  */
 public class Logger {
 
@@ -91,10 +92,29 @@ public class Logger {
      */
     private static final String logFolder = "logs";
 
+    /**
+     * ANSI color code for red text output in console.
+     */
     private static final String RED = "\u001B[31m";
+
+    /**
+     * ANSI color code for yellow text output in console.
+     */
     private static final String YELLOW = "\u001B[33m";
+
+    /**
+     * ANSI color code for blue text output in console.
+     */
     private static final String BLUE = "\u001B[34m";
+
+    /**
+     * ANSI color code for green text output in console.
+     */
     private static final String GREEN = "\u001B[32m";
+
+    /**
+     * ANSI reset code to restore default text color in console.
+     */
     private static final String RESET = "\u001B[0m";
 
     /**
@@ -102,6 +122,11 @@ public class Logger {
      */
     private final String logFileName;
 
+    /**
+     * The background thread that processes log messages from the queue.
+     * This thread runs continuously and waits for messages to be added to the message queue,
+     * then writes them to the file and/or console based on the logger configuration.
+     */
     private final Thread logThread;
 
     /**
@@ -245,6 +270,16 @@ public class Logger {
         return logMessage;
     }
 
+    /**
+     * Cleans up old log files to maintain a maximum of 10 log files (including the current one).
+     * <p>
+     * This method scans the logs folder for .txt files, sorts them by last modified date
+     * (newest first), and deletes all files except the 9 most recent ones. This ensures
+     * that the total number of log files never exceeds 10, preventing unlimited disk usage.
+     * </p>
+     * If an error occurs during the cleanup process, it is logged to stderr and the
+     * application exits with status code 1, as this is considered a critical error.
+     */
     private void cleanUp() {
         // Clean up old log files
         try {
