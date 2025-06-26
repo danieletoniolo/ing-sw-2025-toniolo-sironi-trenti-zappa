@@ -5,45 +5,45 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane fx:id="parent" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.board.BoardController">
-   <Group fx:id="boardGroup">
-      <ImageView fx:id="backgroundImage" fitHeight="639.0" fitWidth="1055.0">
+<StackPane fx:id="parent" prefHeight="1034.0" prefWidth="1055.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.controllers.board.BoardController">
+   <Group fx:id="boardGroup" translateZ="205.0">
+      <ImageView fx:id="backgroundImage" fitHeight="639.0" fitWidth="1055.0" layoutY="205.0">
          <Image url="@../../image/cardboard/board_II.png" />
       </ImageView>
-      <StackPane id="0" layoutX="233.0" layoutY="129.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="1" layoutX="308.0" layoutY="99.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="2" layoutX="387.0" layoutY="80.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="3" layoutX="465.0" layoutY="71.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="4" layoutX="544.0" layoutY="71.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="5" layoutX="623.0" layoutY="79.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="6" layoutX="699.0" layoutY="98.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="7" layoutX="773.0" layoutY="127.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="8" layoutX="839.0" layoutY="178.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="9" layoutX="888.0" layoutY="257.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="10" layoutX="887.0" layoutY="349.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="11" layoutX="832.0" layoutY="413.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="12" layoutX="761.0" layoutY="457.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="13" layoutX="684.0" layoutY="487.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="14" layoutX="605.0" layoutY="506.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="15" layoutX="527.0" layoutY="515.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="16" layoutX="446.0" layoutY="515.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="17" layoutX="369.0" layoutY="506.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="18" layoutX="291.0" layoutY="487.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="19" layoutX="218.0" layoutY="457.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="20" layoutX="152.0" layoutY="406.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="21" layoutX="104.0" layoutY="327.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="22" layoutX="105.0" layoutY="237.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="23" layoutX="160.0" layoutY="173.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="26" layoutX="100.0" layoutY="80.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="27" layoutX="150.0" layoutY="80.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="24" layoutX="100.0" layoutY="120.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="25" layoutX="150.0" layoutY="120.0" prefHeight="50.0" prefWidth="50.0" />
-      <StackPane id="-1" layoutX="796.0" layoutY="41.0" prefHeight="90.0" prefWidth="90.0" />
-      <StackPane id="-2" layoutX="888.0" layoutY="79.0" prefHeight="90.0" prefWidth="90.0" />
-      <StackPane id="-3" layoutX="941.0" layoutY="159.0" prefHeight="90.0" prefWidth="90.0" />
-      <StackPane id="-4" layoutX="90.0" layoutY="510.0" prefHeight="305.0" prefWidth="200.0" rotate="25.0" />
-      <StackPane id="-5" layoutX="429.0" layoutY="575.0" prefHeight="305.0" prefWidth="200.0" />
-      <StackPane id="-6" layoutX="770.0" layoutY="510.0" prefHeight="305.0" prefWidth="200.0" rotate="-25.0" />
-      <StackPane id="-7" layoutX="431.0" layoutY="-205.0" prefHeight="305.0" prefWidth="200.0" rotate="-90.0" />
+      <StackPane id="0" layoutX="233.0" layoutY="334.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="1" layoutX="308.0" layoutY="304.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="2" layoutX="387.0" layoutY="285.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="3" layoutX="465.0" layoutY="276.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="4" layoutX="544.0" layoutY="276.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="5" layoutX="623.0" layoutY="284.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="6" layoutX="699.0" layoutY="303.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="7" layoutX="773.0" layoutY="332.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="8" layoutX="839.0" layoutY="383.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="9" layoutX="888.0" layoutY="462.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="10" layoutX="887.0" layoutY="554.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="11" layoutX="832.0" layoutY="618.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="12" layoutX="761.0" layoutY="662.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="13" layoutX="684.0" layoutY="692.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="14" layoutX="605.0" layoutY="711.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="15" layoutX="527.0" layoutY="720.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="16" layoutX="446.0" layoutY="720.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="17" layoutX="369.0" layoutY="711.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="18" layoutX="291.0" layoutY="692.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="19" layoutX="218.0" layoutY="662.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="20" layoutX="152.0" layoutY="611.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="21" layoutX="104.0" layoutY="532.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="22" layoutX="105.0" layoutY="442.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="23" layoutX="160.0" layoutY="378.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="26" layoutX="100.0" layoutY="285.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="27" layoutX="150.0" layoutY="285.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="24" layoutX="100.0" layoutY="325.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="25" layoutX="150.0" layoutY="325.0" prefHeight="50.0" prefWidth="50.0" />
+      <StackPane id="-1" layoutX="796.0" layoutY="246.0" prefHeight="90.0" prefWidth="90.0" />
+      <StackPane id="-2" layoutX="888.0" layoutY="284.0" prefHeight="90.0" prefWidth="90.0" />
+      <StackPane id="-3" layoutX="941.0" layoutY="364.0" prefHeight="90.0" prefWidth="90.0" />
+      <StackPane id="-4" layoutX="90.0" layoutY="715.0" prefHeight="305.0" prefWidth="200.0" rotate="25.0" />
+      <StackPane id="-5" layoutX="429.0" layoutY="780.0" prefHeight="305.0" prefWidth="200.0" />
+      <StackPane id="-6" layoutX="770.0" layoutY="715.0" prefHeight="305.0" prefWidth="200.0" rotate="-25.0" />
+      <StackPane id="-7" layoutX="431.0" prefHeight="305.0" prefWidth="200.0" rotate="-90.0" />
    </Group>
 </StackPane>
