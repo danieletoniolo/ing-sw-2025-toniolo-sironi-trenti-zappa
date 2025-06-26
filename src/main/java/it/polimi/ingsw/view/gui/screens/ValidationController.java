@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.gui.screens;
 
 import it.polimi.ingsw.Client;
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.DestroyComponents;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
@@ -56,9 +57,23 @@ public class ValidationController implements MiniModelObserver, Initializable {
                 Stage currentStage = (Stage) parent.getScene().getWindow();
                 MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
             }
+            else {
+                for (ComponentController component : mm.getClientPlayer().getShip().getNode().getValue1().getComponentControllers()) {
+                    Node node = component.getParent();
+
+                    node.setDisable(false); // disable clicks on the component
+
+                    node.setOpacity(1.0); // Set opacity to indicate selection
+                }
+
+                status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+                if (status.get().equals(mm.getErrorCode())) {
+                    Stage currentStage = (Stage) parent.getScene().getWindow();
+                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                }
+            }
             componentsToDestroy.clear();
         });
-
     }
 
     @Override

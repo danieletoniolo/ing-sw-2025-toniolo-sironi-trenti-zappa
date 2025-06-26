@@ -44,6 +44,7 @@ public class GuiManager extends Application implements Manager {
         LOBBY,
         BUILDING,
         VALIDATION,
+        CREW,
         CARDS,
         REWARD
     }
@@ -364,8 +365,10 @@ public class GuiManager extends Application implements Manager {
                 this.setBuildingScene();
                 break;
             case VALIDATION:
+                this.setValidationScene();
                 break;
             case CREW:
+                this.setCrewScene();
                 break;
             case CARDS:
                 break;
@@ -428,6 +431,38 @@ public class GuiManager extends Application implements Manager {
 
     private void setCardsGameScene() {
         currentScene = GuiScene.CARDS;
+    }
+
+    private void setValidationScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/validation.fxml"));
+            root = loader.load();
+
+            controller = loader.getController();
+            controller.react();
+
+            scene.setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        currentScene = GuiScene.VALIDATION;
+    }
+
+    private void setCrewScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/crew.fxml"));
+            root = loader.load();
+
+            controller = loader.getController();
+            controller.react();
+
+            scene.setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        currentScene = GuiScene.CREW;
     }
 
     private void setRewardScene() {

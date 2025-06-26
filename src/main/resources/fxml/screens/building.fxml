@@ -34,7 +34,7 @@
                   </VBox>
                   <VBox fx:id="rightVBox" prefHeight="766.0" prefWidth="1191.0">
                      <children>
-                        <HBox prefHeight="300.0" prefWidth="801.0">
+                        <HBox fx:id="upperRightHBox" prefHeight="300.0" prefWidth="801.0">
                            <children>
                               <VBox fx:id="handVBox" prefHeight="100.0" prefWidth="372.0">
                                  <children>
@@ -52,7 +52,7 @@
             </HBox>
             <HBox fx:id="lowerHBox" prefHeight="185.0" prefWidth="1600.0" spacing="10.0">
                <children>
-                  <Button mnemonicParsing="false" prefHeight="88.0" prefWidth="518.0" text="Button" />
+                  <Button fx:id="placeMarkerButton" mnemonicParsing="false" prefHeight="88.0" prefWidth="518.0" text="PlaceMarker" />
                   <Button fx:id="putTileInPileButton" mnemonicParsing="false" prefHeight="88.0" prefWidth="538.0" text="Button" />
                   <Button fx:id="hiddenTileButton" mnemonicParsing="false" prefHeight="88.0" prefWidth="538.0" text="Button" />
                </children>

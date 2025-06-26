@@ -5,6 +5,8 @@ import it.polimi.ingsw.event.game.clientToServer.deck.PickLeaveDeck;
 import it.polimi.ingsw.event.game.clientToServer.pickTile.PickTileFromBoard;
 import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToBoard;
 import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToSpaceship;
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
+import it.polimi.ingsw.event.game.clientToServer.player.PlaceMarker;
 import it.polimi.ingsw.event.game.clientToServer.rotateTile.RotateTile;
 import it.polimi.ingsw.event.game.clientToServer.timer.FlipTimer;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
@@ -19,11 +21,14 @@ import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -50,15 +55,17 @@ public class BuildingController implements MiniModelObserver, Initializable {
                         @FXML private VBox handVBox;
                             @FXML private StackPane handComponent;
                             @FXML private Button rotateButton;
-
                 @FXML private StackPane lowerRightStackPane;
-
         @FXML private HBox lowerHBox;
             @FXML private List<Button> otherPlayersButtons;
+            @FXML private Button placeMarkerButton;
             @FXML private Button hiddenTileButton;
             @FXML private Button putTileInPileButton;
             
     private final MiniModel mm = MiniModel.getInstance();
+    private ImageView currentMarker = null;
+    private BooleanProperty following = new SimpleBooleanProperty(false);
+    int pos = 0;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -95,6 +102,40 @@ public class BuildingController implements MiniModelObserver, Initializable {
             });
         }
 
+        /*for (int i = 0; i < boardController.getStepsNodes().size(); i++) {
+            int finalI = i;
+            Node stepNode = boardController.getStepsNodes().get(i);
+            stepNode.setStyle("-fx-background-color: rgba(255,176,56,0.1);");
+            stepNode.setOnMouseClicked(e -> {
+                StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object())
+                        .request(new PlaceMarker(MiniModel.getInstance().getUserID(), finalI));
+                if (status.get().equals(mm.getErrorCode())) {
+                    Stage currentStage = (Stage) parent.getScene().getWindow();
+                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                }
+            });
+        }*/
+
+        placeMarkerButton.setText("Place marker, pos: " + pos);
+        placeMarkerButton.setOnMouseClicked(e -> {
+            StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object())
+                    .request(new PlaceMarker(MiniModel.getInstance().getUserID(), pos));
+            if (status.get().equals(mm.getErrorCode())) {
+                Stage currentStage = (Stage) parent.getScene().getWindow();
+                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+            }
+            else {
+                status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                if (status.get().equals(mm.getErrorCode())) {
+                    Stage currentStage = (Stage) parent.getScene().getWindow();
+                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                }
+            }
+            pos++;
+            if (pos >= boardController.getStepsNodes().size()) {
+                pos = 0;
+            }
+        });
 
         hiddenTileButton.setText("Pick a hidden tile from the pile");
         hiddenTileButton.setOnMouseClicked(e -> {
