@@ -49,8 +49,10 @@ public class AbandonedShipState extends State {
             case 0 -> throw new IllegalStateException("No goods to remove in this state");
             case 1 -> throw new IllegalStateException("No batteries to remove in this state");
             case 2 -> {
-                Event event = Handler.loseCrew(player, cabinsID, card.getCrewRequired());
-                eventCallback.trigger(event);
+                List<Event> events = Handler.loseCrew(player, cabinsID, card.getCrewRequired());
+                for (Event event : events) {
+                    eventCallback.trigger(event);
+                }
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0, 1 or 2.");
         }

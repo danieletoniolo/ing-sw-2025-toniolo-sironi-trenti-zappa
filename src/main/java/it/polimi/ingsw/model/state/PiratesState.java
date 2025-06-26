@@ -95,11 +95,13 @@ public class PiratesState extends State {
         if (internalState != PiratesInternalState.PENALTY && internalState != PiratesInternalState.CAN_PROTECT) {
             throw new IllegalStateException("setProtect not allowed in this state");
         }
-        Event event = Handler.protectFromHit(player, protectionResult, batteryID);
-        if (event != null) {
-            eventCallback.trigger(event);
+        List<Event> events = Handler.protectFromHit(player, protectionResult, batteryID);
+        if (events != null) {
+            for (Event event : events) {
+                eventCallback.trigger(event);
+            }
         }
-        event = Handler.checkForFragments(player, fragments);
+        Event event = Handler.checkForFragments(player, fragments);
         eventCallback.trigger(event);
     }
 
@@ -142,11 +144,7 @@ public class PiratesState extends State {
     @Override
     public void entry() {
         for (PlayerData player : super.players) {
-            float initialStrength = player.getSpaceShip().getSingleCannonsStrength();
-            if (player.getSpaceShip().hasPurpleAlien()) {
-                initialStrength += player.getSpaceShip().getAlienStrength(false);
-            }
-            this.cannonsStrength.put(player, initialStrength);
+            Handler.initializeCannonStrengths(player, cannonsStrength);
         }
         super.entry();
     }
@@ -163,7 +161,7 @@ public class PiratesState extends State {
 
         switch (internalState) {
             case ENEMY_DEFEAT:
-                int cannonStrengthRequired = card.getCannonStrengthRequired();
+                float cannonStrengthRequired = card.getCannonStrengthRequired();
 
                 if (cannonsStrength.get(player) > cannonStrengthRequired) {
                     piratesDefeat = true;
@@ -183,6 +181,7 @@ public class PiratesState extends State {
                     super.execute(player);
                 }
 
+                Handler.initializeCannonStrengths(player, cannonsStrength);
                 EnemyDefeat enemyDefeat = new EnemyDefeat(player.getUsername(), piratesDefeat);
                 eventCallback.trigger(enemyDefeat);
 
@@ -236,6 +235,7 @@ public class PiratesState extends State {
 
                 super.execute(player);
 
+                Handler.initializeCannonStrengths(player, cannonsStrength);
                 try {
                     currentPlayerCanProtect = getCurrentPlayer();
                 } catch (IllegalStateException e) {

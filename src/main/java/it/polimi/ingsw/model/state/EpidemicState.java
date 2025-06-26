@@ -68,14 +68,18 @@ public class EpidemicState extends State {
                     // If the surrounding component is a cabin and has crew members, remove one crew member from the current cabin
                     if(surroundingComponent != null && surroundingComponent.getComponentType() == ComponentType.CABIN && ((Cabin) surroundingComponent).getCrewNumber() > 0) {
                         if (!removedFromCurrent) {
-                            currentCabin.removeCrewMember(1);
+                            if (currentCabin.getCrewNumber() > 0) {
+                                currentCabin.removeCrewMember(1);
+                            }
                             removedFromCurrent = true;
                         }
 
                         // If we have not already processed the surrounding cabin, remove a crew member from it as well and mark it as processed
                         Cabin surroundingCabin = (Cabin) surroundingComponent;
                         if(!check[surroundingCabin.getRow()][surroundingCabin.getColumn()]) {
-                            surroundingCabin.removeCrewMember(1);
+                            if (surroundingCabin.getCrewNumber() > 0) {
+                                surroundingCabin.removeCrewMember(1);
+                            }
                             check[surroundingCabin.getRow()][surroundingCabin.getColumn()] = true;
 
                             // Add the surrounding cabin's ID, crew numbers and types of the crew members in both cabins to the list of modified cabins

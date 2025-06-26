@@ -123,11 +123,13 @@ public class CombatZoneState extends State {
         if (internalState != CombatZoneInternalState.HIT_PENALTY) {
             throw new IllegalStateException("Battery ID not allowed in this state");
         }
-        Event event = Handler.protectFromHit(player, protectionResult, batteryID);
-        if (event != null) {
-            eventCallback.trigger(event);
+        List<Event> events = Handler.protectFromHit(player, protectionResult, batteryID);
+        if (events != null) {
+            for (Event event : events) {
+                eventCallback.trigger(event);
+            }
         }
-        event = Handler.checkForFragments(player, fragments);
+        Event event = Handler.checkForFragments(player, fragments);
         eventCallback.trigger(event);
     }
 
@@ -170,8 +172,10 @@ public class CombatZoneState extends State {
                 if (internalState != CombatZoneInternalState.CREW_PENALTY) {
                     throw new IllegalStateException("There is no penalty to serve.");
                 }
-                Event event = Handler.loseCrew(player, penaltyLoss, currentPenaltyLoss);
-                eventCallback.trigger(event);
+                List<Event> events = Handler.loseCrew(player, penaltyLoss, currentPenaltyLoss);
+                for (Event event : events) {
+                    eventCallback.trigger(event);
+                }
                 currentPenaltyLoss -= penaltyLoss.size();
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0, 1 or 2.");
@@ -237,18 +241,12 @@ public class CombatZoneState extends State {
                 minPlayerCrew = player;
             }
 
-            enginesStats.merge(player, (float) ship.getSingleEnginesStrength(), Float::sum);
-            if (ship.hasBrownAlien()) {
-                enginesStats.merge(player, ship.getAlienStrength(true), Float::sum);
-            }
+            Handler.initializeEngineStrengths(player, enginesStats);
             if (minPlayerEngines == null || minPlayerEngines.getSpaceShip().getSingleEnginesStrength() > ship.getSingleEnginesStrength()) {
                 minPlayerEngines = player;
             }
 
-            cannonsStats.merge(player, ship.getSingleCannonsStrength(), Float::sum);
-            if (ship.hasPurpleAlien()) {
-                cannonsStats.merge(player, ship.getAlienStrength(false), Float::sum);
-            }
+            Handler.initializeCannonStrengths(player, cannonsStats);
             if (minPlayerCannons == null || minPlayerCannons.getSpaceShip().getSingleCannonsStrength() > ship.getSingleCannonsStrength()) {
                 minPlayerCannons = player;
             }
@@ -322,6 +320,7 @@ public class CombatZoneState extends State {
                         }
                         internalState = CombatZoneInternalState.ENGINES;
 
+                        Handler.initializeCannonStrengths(player, cannonsStats);
                         sendCombatZonePhase(1);
                         sendCurrentPlayer = true;
                     } else {
@@ -357,6 +356,7 @@ public class CombatZoneState extends State {
                     super.execute(player);
                     sendCurrentPlayer = true;
 
+                    Handler.initializeEngineStrengths(player, enginesStats);
                     playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.PLAYING);
                 }
                 break;
@@ -367,6 +367,7 @@ public class CombatZoneState extends State {
                 super.execute(player);
                 sendCurrentPlayer = true;
 
+                Handler.initializeEngineStrengths(player, enginesStats);
                 playersStatus.replace(minPlayerCrew.getColor(), PlayerStatus.PLAYING);
                 break;
             case CREW_PENALTY:
@@ -381,6 +382,7 @@ public class CombatZoneState extends State {
                         playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
                     }
 
+                    Handler.initializeEngineStrengths(player, enginesStats);
                     sendCombatZonePhase(2);
                     sendCurrentPlayer = true;
                 }
@@ -396,6 +398,8 @@ public class CombatZoneState extends State {
                 }
 
                 hitIndex++;
+                Handler.initializeEngineStrengths(player, enginesStats);
+                Handler.initializeCannonStrengths(player, cannonsStats);
                 if (hitIndex >= card.getFires().size()) {
                     if (!playersGivenUp.isEmpty()) {
                         internalState = CombatZoneInternalState.GIVE_UP;
@@ -432,6 +436,8 @@ public class CombatZoneState extends State {
                         playersStatus.replace(p.getColor(), PlayerStatus.PLAYING);
                     }
 
+                    Handler.initializeEngineStrengths(player, enginesStats);
+                    Handler.initializeEngineStrengths(player, cannonsStats);
                     sendCombatZonePhase(2);
                     sendCurrentPlayer = true;
                 }

@@ -95,11 +95,13 @@ public class MeteorSwarmState extends State {
         if (!diceRolled) {
             throw new IllegalStateException("Dice not rolled yet");
         }
-        Event event = Handler.protectFromHit(player, protectionResult.get(player), batteryID);
-        if (event != null) {
-            eventCallback.trigger(event);
+        List<Event> events = Handler.protectFromHit(player, protectionResult.get(player), batteryID);
+        if (events != null) {
+            for (Event event : events ) {
+                eventCallback.trigger(event);
+            }
         }
-        event = Handler.checkForFragments(player, fragments.get(player));
+        Event event = Handler.checkForFragments(player, fragments.get(player));
         eventCallback.trigger(event);
     }
 
@@ -183,7 +185,6 @@ public class MeteorSwarmState extends State {
                             }
                         }
                     } else {
-                        Logger.getInstance().logError("HitComing: " + meteorsIndex, true);
                         internalStates.put(players.getFirst(), MeteorSwarmInternalState.ROLL_DICE);
                         for (PlayerData p : players) {
                             playersStatus.replace(p.getColor(), PlayerStatus.WAITING);

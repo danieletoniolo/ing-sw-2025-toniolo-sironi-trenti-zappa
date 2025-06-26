@@ -7,7 +7,6 @@ import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.PlacedTileToSpaceship;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
 import it.polimi.ingsw.event.type.Event;
-import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.model.good.GoodType;
@@ -26,22 +25,37 @@ import java.util.*;
  */
 public class Handler {
 
-    static Event protectFromHit(PlayerData player, MutablePair<Component, Integer> protectionResult, int batteryID) {
+    static List<Event> protectFromHit(PlayerData player, MutablePair<Component, Integer> protectionResult, int batteryID) {
         SpaceShip ship = player.getSpaceShip();
         Component component = protectionResult.getFirst();
         int protectionType = protectionResult.getSecond();
+        ArrayList<Event> events = new ArrayList<>();
 
         if (protectionType == 0 || protectionType == -1) {
             if (batteryID != -1 && protectionType != -1) {
                 ship.useEnergy(batteryID);
-                return new BatteriesLoss(player.getUsername(), new ArrayList<>(Arrays.asList(new Pair<>(batteryID, ship.getBattery(batteryID).getEnergyNumber()))));
+                events.add(new BatteriesLoss(player.getUsername(), new ArrayList<>(Arrays.asList(new Pair<>(batteryID, ship.getBattery(batteryID).getEnergyNumber())))));
             } else {
                 ship.destroyComponent(component.getRow(), component.getColumn());
 
+                if (component.getComponentType() == ComponentType.SINGLE_ENGINE ||
+                    component.getComponentType() == ComponentType.DOUBLE_ENGINE ||
+                    component.getComponentType() == ComponentType.CABIN) {
+                    SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), ship.getDefaultEnginesStrength(), ship.getMaxEnginesStrength());
+                    events.add(engineStrength);
+                }
+                if (component.getComponentType() == ComponentType.SINGLE_CANNON ||
+                    component.getComponentType() == ComponentType.DOUBLE_CANNON ||
+                    component.getComponentType() == ComponentType.CABIN) {
+                    SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), ship.getDefaultCannonsStrength(), ship.getMaxCannonsStrength());
+                    events.add(cannonStrength);
+                }
+
                 ArrayList<Pair<Integer, Integer>> destroyedComponents = new ArrayList<>();
                 destroyedComponents.add(new Pair<>(component.getRow(), component.getColumn()));
-                return new ComponentDestroyed(player.getUsername(), destroyedComponents);
+                events.add(new ComponentDestroyed(player.getUsername(), destroyedComponents));
             }
+            return events;
         }
         return null;
     }
@@ -58,11 +72,14 @@ public class Handler {
         boolean isEngine = false, isCannon = false;
 
         for (Pair<Integer, Integer> fragment : fragments) {
-            if (ship.getComponent(fragment.getValue0(), fragment.getValue1()).getComponentType() == ComponentType.SINGLE_ENGINE ||
-                ship.getComponent(fragment.getValue0(), fragment.getValue1()).getComponentType() == ComponentType.DOUBLE_ENGINE) {
+            Component component = ship.getComponent(fragment.getValue0(), fragment.getValue1());
+            if (component.getComponentType() == ComponentType.SINGLE_ENGINE ||
+                component.getComponentType() == ComponentType.DOUBLE_ENGINE ||
+                component.getComponentType() == ComponentType.CABIN) {
                 isEngine = true;
-            } else if (ship.getComponent(fragment.getValue0(), fragment.getValue1()).getComponentType() == ComponentType.SINGLE_CANNON ||
-                    ship.getComponent(fragment.getValue0(), fragment.getValue1()).getComponentType() == ComponentType.DOUBLE_CANNON) {
+            } else if (component.getComponentType() == ComponentType.SINGLE_CANNON ||
+                    component.getComponentType() == ComponentType.DOUBLE_CANNON ||
+                    component.getComponentType() == ComponentType.CABIN) {
                 isCannon = true;
             }
 
@@ -73,11 +90,11 @@ public class Handler {
         events.add(componentDestroyed);
 
         if (isEngine) {
-            SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), ship.getSingleEnginesStrength(), ship.getSingleEnginesStrength() + ship.getDoubleEnginesStrength());
+            SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), ship.getDefaultEnginesStrength(), ship.getMaxEnginesStrength());
             events.add(engineStrength);
         }
         if (isCannon) {
-            SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), ship.getSingleCannonsStrength(), ship.getSingleCannonsStrength() + ship.getDoubleCannonsStrength());
+            SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), ship.getDefaultCannonsStrength(), ship.getMaxCannonsStrength());
             events.add(cannonStrength);
         }
 
@@ -212,9 +229,10 @@ public class Handler {
         );
     }
 
-    static Event loseCrew(PlayerData player, List<Integer> cabinsID, int requiredCrewLoss) throws IllegalStateException {
+    static List<Event> loseCrew(PlayerData player, List<Integer> cabinsID, int requiredCrewLoss) throws IllegalStateException {
         // Check if there are the provided number of crew members in the provided cabins
         Map<Integer, Integer> cabinCrewMap = new HashMap<>();
+        ArrayList<Event> events = new ArrayList<>();
         for (int cabinID : cabinsID) {
             cabinCrewMap.merge(cabinID, 1, Integer::sum);
         }
@@ -232,8 +250,14 @@ public class Handler {
             throw new IllegalStateException("We have not set enough crew members to lose");
         }
 
+        boolean isBrownAlien = false, isPurpleAlien = false;
         // Remove the crew members from the cabins
         for (int cabinID : cabinCrewMap.keySet()) {
+            if (ship.getCabin(cabinID).hasBrownAlien()) {
+                isBrownAlien = true;
+            } else if (ship.getCabin(cabinID).hasPurpleAlien()) {
+                isPurpleAlien = true;
+            }
             ship.removeCrewMember(cabinID, cabinCrewMap.get(cabinID));
         }
         // Convert the cabin crew map to a format expected by the event
@@ -243,8 +267,19 @@ public class Handler {
                     return new Triplet<>(cabinID, cabin.getCrewNumber(), cabin.hasBrownAlien() ? 1 : cabin.hasPurpleAlien() ? 2 : 0);
                 }).toList();
 
+        if (isBrownAlien) {
+            // If the player has lost a brown alien, we need to update the engine strength
+            SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), ship.getDefaultEnginesStrength(), ship.getMaxEnginesStrength());
+            events.add(engineStrength);
+        } else if (isPurpleAlien) {
+            // If the player has lost a purple alien, we need to update the cannon strength
+            SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), ship.getDefaultCannonsStrength(), ship.getMaxCannonsStrength());
+            events.add(cannonStrength);
+        }
+
         // Trigger the event to update the crew members
-        return new UpdateCrewMembers(player.getUsername(), cabins);
+        events.add(new UpdateCrewMembers(player.getUsername(), cabins));
+        return events;
     }
 
     static Event exchangeGoods(PlayerData player, List<Triplet<List<Good>, List<Good>, Integer>> exchangeData, List<Good> goodsReward) throws IllegalStateException {
@@ -335,6 +370,22 @@ public class Handler {
         );
 
         return new UpdateGoodsExchange(player.getUsername(), convertedData);
+    }
+
+    static void initializeCannonStrengths(PlayerData player, Map<PlayerData, Float> cannonsStrength) {
+        float initialStrength = player.getSpaceShip().getSingleCannonsStrength();
+        if (player.getSpaceShip().hasPurpleAlien()) {
+            initialStrength += player.getSpaceShip().getAlienStrength(false);
+        }
+        cannonsStrength.put(player, initialStrength);
+    }
+
+    static void initializeEngineStrengths(PlayerData player, Map<PlayerData, Float> enginesStats) {
+        float initialStrength = player.getSpaceShip().getSingleEnginesStrength();
+        if (player.getSpaceShip().hasBrownAlien()) {
+            initialStrength += player.getSpaceShip().getAlienStrength(true);
+        }
+        enginesStats.put(player, initialStrength);
     }
 
     static List<Event> cheatShip(PlayerData player, int shipIndex, Level level) throws IllegalStateException, IllegalArgumentException {
@@ -562,11 +613,11 @@ public class Handler {
         }
 
         if (isEngine) {
-            SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), ship.getSingleEnginesStrength(), ship.getSingleEnginesStrength() + ship.getDoubleEnginesStrength());
+            SetEngineStrength engineStrength = new SetEngineStrength(player.getUsername(), ship.getDefaultEnginesStrength(), ship.getMaxEnginesStrength());
             events.add(engineStrength);
         }
         if (isCannon) {
-            SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), ship.getSingleCannonsStrength(), ship.getSingleCannonsStrength() + ship.getDoubleCannonsStrength());
+            SetCannonStrength cannonStrength = new SetCannonStrength(player.getUsername(), ship.getDefaultCannonsStrength(), ship.getMaxCannonsStrength());
             events.add(cannonStrength);
         }
 

@@ -18,7 +18,7 @@ import java.util.Map;
 public class SlaversState extends State {
     private SlaversInternalState internalState;
     private final Slavers card;
-    private final Map<PlayerData, Float> cannonStrength;
+    private final Map<PlayerData, Float> cannonsStrength;
     private boolean hasPlayerForceGiveUp;
     private Boolean slaversDefeat = false;
 
@@ -41,7 +41,7 @@ public class SlaversState extends State {
         super(board, callback, transitionHandler);
         this.internalState = SlaversInternalState.ENEMY_DEFEAT;
         this.card = card;
-        this.cannonStrength = new HashMap<>();
+        this.cannonsStrength = new HashMap<>();
         this.hasPlayerForceGiveUp = false;
         this.slaversDefeat = false;
     }
@@ -64,7 +64,7 @@ public class SlaversState extends State {
                     throw new IllegalStateException("Use cannon not allowed in this state");
                 }
                 Event event = Handler.useExtraStrength(player, type, IDs, batteriesID);
-                this.cannonStrength.merge(player, player.getSpaceShip().getCannonsStrength(IDs), Float::sum);
+                this.cannonsStrength.merge(player, player.getSpaceShip().getCannonsStrength(IDs), Float::sum);
                 eventCallback.trigger(event);
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0 or 1.");
@@ -86,8 +86,10 @@ public class SlaversState extends State {
             case 0 -> throw new IllegalStateException("No goods to remove in this state");
             case 1 -> throw new IllegalStateException("No batteries to remove in this state");
             case 2 -> {
-                Event event = Handler.loseCrew(player, cabinsID, card.getCrewLost());
-                eventCallback.trigger(event);
+                List<Event> events = Handler.loseCrew(player, cabinsID, card.getCrewLost());
+                for (Event event : events) {
+                    eventCallback.trigger(event);
+                }
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0, 1 or 2.");
         }
@@ -99,12 +101,7 @@ public class SlaversState extends State {
     @Override
     public void entry() {
         for (PlayerData player : super.players) {
-            SpaceShip ship = player.getSpaceShip();
-            float initialStrength = ship.getSingleCannonsStrength();
-            if (ship.hasPurpleAlien()) {
-                initialStrength += ship.getAlienStrength(true);
-            }
-            cannonStrength.put(player, initialStrength);
+            Handler.initializeCannonStrengths(player, cannonsStrength);
         }
         super.entry();
     }
@@ -121,12 +118,12 @@ public class SlaversState extends State {
 
         switch (internalState) {
             case ENEMY_DEFEAT:
-                int cannonStrengthRequired = card.getCannonStrengthRequired();
+                float cannonStrengthRequired = card.getCannonStrengthRequired();
 
-                if (cannonStrength.get(player) > cannonStrengthRequired) {
+                if (cannonsStrength.get(player) > cannonStrengthRequired) {
                     slaversDefeat = true;
                     internalState = SlaversInternalState.REWARD;
-                } else if (cannonStrength.get(player) < cannonStrengthRequired) {
+                } else if (cannonsStrength.get(player) < cannonStrengthRequired) {
                     slaversDefeat = false;
                     internalState = SlaversInternalState.PENALTY;
                 } else {
@@ -135,6 +132,7 @@ public class SlaversState extends State {
                     playersStatus.put(player.getColor(), PlayerStatus.PLAYED);
                 }
 
+                Handler.initializeCannonStrengths(player, cannonsStrength);
                 EnemyDefeat enemyEvent = new EnemyDefeat(player.getUsername(), slaversDefeat);
                 eventCallback.trigger(enemyEvent);
                 break;
@@ -163,6 +161,7 @@ public class SlaversState extends State {
                 } else {
                     super.execute(player);
                     sendCurrentPlayer = true;
+                    Handler.initializeCannonStrengths(player, cannonsStrength);
                     internalState = SlaversInternalState.ENEMY_DEFEAT;
                 }
                 break;
