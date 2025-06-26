@@ -11,6 +11,8 @@ import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
 import it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
+import it.polimi.ingsw.view.miniModel.components.ComponentView;
+import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -45,97 +47,145 @@ public class ValidationController implements MiniModelObserver, Initializable {
 
     @FXML private HBox centerHBox;
 
-    @FXML private Button confirmChoiceButton;
+    @FXML private StackPane board;
 
-    @FXML private StackPane spaceShipStackPane;
+    @FXML private StackPane clientShip;
 
     @FXML private HBox lowerHBox;
 
     private StackPane newValidationOptionsPane;
-
     private VBox newValidationOptionsVBox;
+
+    private StackPane newOtherPlayerPane;
+    private VBox newOtherPlayerVBox;
+
+    private Button destroyComponentsButton;
+    private Button cancelButton;
+    private Button endTurnButton;
 
     private final MiniModel mm = MiniModel.getInstance();
     private final List<Pair<Integer, Integer>> componentsToDestroy = new ArrayList<>();
 
+    private boolean placedMarker;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Initialize lower HBox buttons
+        int totalButtons = 3 + mm.getOtherPlayers().size();
 
+        destroyComponentsButton = new Button("Destroy");
+        cancelButton = new Button("Cancel");
+        endTurnButton = new Button("End Turn");
+
+        destroyComponentsButton.prefHeightProperty().bind(lowerHBox.heightProperty().divide(totalButtons));
+        cancelButton.prefHeightProperty().bind(lowerHBox.heightProperty().divide(totalButtons));
+        endTurnButton.prefHeightProperty().bind(lowerHBox.heightProperty().divide(totalButtons));
+
+        lowerHBox.getChildren().addAll(destroyComponentsButton, cancelButton, endTurnButton);
+
+        for (PlayerDataView player : mm.getOtherPlayers()) {
+            Button otherButtonPlayer = new Button("View " + player.getUsername() + "'s spaceship");
+            otherButtonPlayer.setOnMouseClicked(e -> showOtherPlayer(player));
+            otherButtonPlayer.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+            lowerHBox.getChildren().add(otherButtonPlayer);
+        }
+
+        placedMarker = true;
     }
 
     @Override
     public void react() {
-        confirmChoiceButton.setOnMouseClicked(e -> {
-            StatusEvent status = DestroyComponents.requester(Client.transceiver, new Object()).request(
-                    new DestroyComponents(MiniModel.getInstance().getUserID(), componentsToDestroy));
-            if (status.get().equals(mm.getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
-            }
-            else {
-                Pair<Node, SpaceShipController> spaceShipPair = mm.getClientPlayer().getShip().getNode();
-                SpaceShipController spaceShipController = spaceShipPair.getValue1();
+        Platform.runLater(() -> {
+            resetHandlers();
 
-                for (ComponentController component : spaceShipController.getShipComponentControllers()) {
-                    Node node = component.getParent();
-                    node.setDisable(false); // disable clicks on the component
-                    node.setOpacity(1.0); // Set opacity to indicate selection
-                    node.setEffect(null);
-                }
-
-                for (ComponentController component : spaceShipController.getShipComponentControllers()) {
-                    Node node = component.getParent();
-                    node.setDisable(false); // disable clicks on the component
-                    node.setOpacity(1.0); // Set opacity to indicate selection
-                    node.setEffect(null);
-                }
-
-                status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+            destroyComponentsButton.setOnMouseClicked(e -> {
+                StatusEvent status = DestroyComponents.requester(Client.transceiver, new Object()).request(new DestroyComponents(mm.getUserID(), componentsToDestroy));
                 if (status.get().equals(mm.getErrorCode())) {
                     Stage currentStage = (Stage) parent.getScene().getWindow();
                     MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
                 }
-            }
-            componentsToDestroy.clear();
-        });
+                for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+                    for (ComponentView component : row) {
+                        if (component != null) {
+                            Node node = component.getNode().getValue0();
 
-        Pair<Node, SpaceShipController> spaceShipPair = mm.getClientPlayer().getShip().getNode();
-        SpaceShipController spaceShipController = spaceShipPair.getValue1();
-
-        for (ComponentController component : spaceShipController.getShipComponentControllers()) {
-            Node node = component.getParent();
-
-            if (component.getComponentView().getIsWrong()) {
-                DropShadow redGlow = new DropShadow();
-                redGlow.setColor(Color.RED);
-                redGlow.setRadius(20);
-                redGlow.setSpread(0.6);
-
-                Glow glow = new Glow(0.7);
-                glow.setInput(redGlow);
-
-                node.setEffect(glow);
-            } else {
-                node.setEffect(null);
-            }
-
-            component.getParent().setOnMouseClicked(e -> {
-                node.setDisable(true); // disable clicks on the component
-
-                node.setOpacity(0.5); // Set opacity to indicate selection
-
-                componentsToDestroy.add(new Pair<>(component.getComponentView().getRow() - 1, component.getComponentView().getCol() - 1));
+                            node.setDisable(false);
+                            node.setOpacity(1.0);
+                        }
+                    }
+                }
+                componentsToDestroy.clear();
             });
-        }
 
-        if (mm.getClientPlayer().getShip().getFragments() != null && mm.getClientPlayer().getShip().getFragments().size() > 1) {
-            Platform.runLater(this::showValidationChoice);
-        }
+            cancelButton.setOnMouseClicked(e -> {
+                for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+                    for (ComponentView component : row) {
+                        if (component != null) {
+                            Node node = component.getNode().getValue0();
 
-        Platform.runLater(() -> {
-            spaceShipStackPane.getChildren().clear();
-            spaceShipStackPane.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
+                            node.setDisable(false);
+                            node.setOpacity(1.0);
+                        }
+                    }
+                }
+                componentsToDestroy.clear();
+            });
+
+            endTurnButton.setOnMouseClicked(e -> {
+                if (!placedMarker) {
+                    Stage currentStage = (Stage) parent.getScene().getWindow();
+                    MessageController.showErrorMessage(currentStage, "You need to place the marker");
+                    return;
+                }
+
+                StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                if (status.get().equals(mm.getErrorCode())) {
+                    Stage currentStage = (Stage) parent.getScene().getWindow();
+                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                }
+            });
+
+            for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+                for (ComponentView component : row) {
+                    if (component != null) {
+                        Node node = component.getNode().getValue0();
+
+                        if (component.getIsWrong()) {
+                            DropShadow redGlow = new DropShadow();
+                            redGlow.setColor(Color.RED);
+                            redGlow.setRadius(20);
+                            redGlow.setSpread(0.6);
+
+                            Glow glow = new Glow(0.7);
+                            glow.setInput(redGlow);
+
+                            node.setEffect(glow);
+                        } else {
+                            node.setEffect(null);
+                        }
+
+                        node.setOnMouseClicked(e -> {
+                            node.setDisable(true); // disable clicks on the component
+
+                            node.setOpacity(0.5); // Set opacity to indicate selection
+
+                            componentsToDestroy.add(new Pair<>(component.getRow() - 1, component.getCol() - 1));
+                        });
+                    }
+                }
+            }
+
+            if (mm.getClientPlayer().getShip().getFragments() != null && mm.getClientPlayer().getShip().getFragments().size() > 1) {
+                Platform.runLater(this::showValidationChoice);
+                placedMarker = false;
+                // TODO: riportare la variabile a true quando faccio evento placeMarker
+            }
+
+                board.getChildren().clear();
+                board.getChildren().add(mm.getBoardView().getNode().getValue0());
+
+                clientShip.getChildren().clear();
+                clientShip.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
         });
     }
 
@@ -214,12 +264,12 @@ public class ValidationController implements MiniModelObserver, Initializable {
                 MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
             }
         });
-        confirmButton.setOnAction(_ -> hideValidationLobbyOptions());
+        confirmButton.setOnAction(_ -> hideValidationOptions(newValidationOptionsPane));
 
         // Create cancel button
         Button cancelButton = new Button("Cancel");
         cancelButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
-        cancelButton.setOnAction(_ -> hideValidationLobbyOptions());
+        cancelButton.setOnAction(_ -> hideValidationOptions((newValidationOptionsPane)));
 
         buttonsBox.getChildren().addAll(confirmButton, cancelButton);
 
@@ -250,11 +300,105 @@ public class ValidationController implements MiniModelObserver, Initializable {
         });
     }
 
-    private void hideValidationLobbyOptions() {
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), newValidationOptionsPane);
+    private void showOtherPlayer(PlayerDataView player) {
+        if (newOtherPlayerPane == null) {
+            createOtherPlayerPane(player);
+        }
+
+        Platform.runLater(() -> {
+            newOtherPlayerPane.setVisible(true);
+            newOtherPlayerPane.toFront();
+            parent.layout();
+
+            newOtherPlayerPane.setOpacity(0);
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), newOtherPlayerPane);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            fadeIn.play();
+        });
+    }
+
+    private void createOtherPlayerPane(PlayerDataView player) {
+        newOtherPlayerPane = new StackPane();
+        newOtherPlayerPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6);");
+
+        StackPane.setAlignment(newOtherPlayerPane, Pos.CENTER);
+
+        newOtherPlayerPane.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        newOtherPlayerPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+
+        // Create a VBox to hold the new lobby options
+        newOtherPlayerVBox = new VBox(15);
+        newOtherPlayerVBox.setAlignment(javafx.geometry.Pos.CENTER);
+
+        // Bind the size of the VBox to the main HBox
+        newOtherPlayerVBox.prefWidthProperty().bind(mainVBox.widthProperty().multiply(0.3));
+        newOtherPlayerVBox.prefHeightProperty().bind(mainVBox.heightProperty().multiply(0.5));
+        newOtherPlayerVBox.minWidthProperty().bind(newOtherPlayerVBox.prefWidthProperty());
+        newOtherPlayerVBox.minHeightProperty().bind(newOtherPlayerVBox.prefHeightProperty());
+        newOtherPlayerVBox.maxWidthProperty().bind(newOtherPlayerVBox.prefWidthProperty());
+        newOtherPlayerVBox.maxHeightProperty().bind(newOtherPlayerVBox.prefHeightProperty());
+
+        // Create a title label with a drop shadow effect
+        Label titleLabel = new Label(player.getUsername() + "'s spaceship");
+        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
+        titleLabel.setEffect(new DropShadow());
+
+        // Create StackPane for an other player
+        StackPane otherShip = new StackPane();
+        otherShip.getChildren().clear();
+        otherShip.getChildren().add(player.getShip().getNode().getValue0());
+        otherShip.setMaxWidth(newOtherPlayerVBox.getMaxWidth() * 0.8);
+
+
+        // Create confirm button
+        Button backButton = new Button("Back");
+        backButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
+        backButton.setOnAction(_ -> hideValidationOptions(newOtherPlayerPane));
+
+        // Add all components to the VBox
+        newOtherPlayerVBox.getChildren().addAll(titleLabel,
+                otherShip,
+                backButton);
+
+        newOtherPlayerPane.getChildren().add(newOtherPlayerVBox);
+        StackPane.setAlignment(newOtherPlayerVBox, Pos.CENTER);
+
+        // Add the new lobby options pane to the parent StackPane
+        parent.getChildren().add(newOtherPlayerPane);
+        newOtherPlayerPane.setVisible(false);
+
+        // Force the layout to update and bring the new pane to the front
+        Platform.runLater(() -> {
+            newOtherPlayerPane.toFront();
+            parent.layout();
+        });
+
+        // Update the sizes of the new lobby options controls
+        Platform.runLater(() -> {
+            newOtherPlayerPane.toFront();
+            parent.layout();
+            //updateNewLobbyOptionsSizes();
+        });
+    }
+
+    private void hideValidationOptions(StackPane pane) {
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), pane);
         fadeOut.setFromValue(1);
         fadeOut.setToValue(0);
-        fadeOut.setOnFinished(_ -> newValidationOptionsPane.setVisible(false));
+        fadeOut.setOnFinished(_ -> pane.setVisible(false));
         fadeOut.play();
+    }
+
+    private void resetHandlers() {
+        for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+            for (ComponentView component : row) {
+                if (component != null) {
+                    Node node = component.getNode().getValue0();
+                    node.setOnMouseClicked(null);
+                    node.setEffect(null);
+                }
+            }
+        }
     }
 }

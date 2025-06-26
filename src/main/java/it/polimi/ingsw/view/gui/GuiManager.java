@@ -356,7 +356,7 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyStateChange() {
-        switch (MiniModel.getInstance().getGamePhase()) {
+        switch (mm.getGamePhase()) {
             case LOBBY:
 
                 break;

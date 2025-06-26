@@ -10,7 +10,6 @@ import it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.ComponentTypeView;
-import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
@@ -82,7 +81,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         selectCabinsButton = new Button("Select cabins");
 
         activeCannonsButton = new Button("Active cannons");
-        activeCannonsButton = new Button("Active engines");
+        activeEnginesButton = new Button("Active engines");
         activeShield = new Button("Active shield");
 
         selectBatteriesButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
@@ -192,6 +191,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                     node.setOpacity(0.5);
                     IDs.add(component.getComponentView().getID());
                 });
+
+                Stage currentStage = (Stage) parent.getScene().getWindow();
+                MessageController.showInfoMessage(currentStage, "Battery: " + selectedBatteriesList);
             }
         }
     }
@@ -234,13 +236,6 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
         // Create a VBox to hold the new lobby options
         newOtherPlayerVBox = new VBox(15);
-        newOtherPlayerVBox.setAlignment(javafx.geometry.Pos.CENTER);
-        newOtherPlayerVBox.setStyle("-fx-background-color: rgba(251,197,9, 0.8); " +
-                "-fx-background-radius: 10; " +
-                "-fx-border-color: rgb(251,197,9); " +
-                "-fx-border-width: 3; " +
-                "-fx-border-radius: 10; " +
-                "-fx-padding: 20;");
 
         // Bind the size of the VBox to the main HBox
         newOtherPlayerVBox.prefWidthProperty().bind(mainVBox.widthProperty().multiply(0.3));
@@ -265,7 +260,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         // Create confirm button
         Button backButton = new Button("Back");
         backButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
-        backButton.setOnAction(_ -> hideValidationLobbyOptions());
+        backButton.setOnAction(_ -> hideOtherPlayerOptions());
 
         // Add all components to the VBox
         newOtherPlayerVBox.getChildren().addAll(titleLabel,
@@ -293,7 +288,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
-    private void hideValidationLobbyOptions() {
+    private void hideOtherPlayerOptions() {
         FadeTransition fadeOut = new FadeTransition(Duration.millis(300), newOtherPlayerPane);
         fadeOut.setFromValue(1);
         fadeOut.setToValue(0);
