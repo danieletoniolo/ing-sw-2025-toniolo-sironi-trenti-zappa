@@ -4,6 +4,7 @@ import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
+import it.polimi.ingsw.view.gui.controllers.board.BoardController;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
 import it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController;
 import it.polimi.ingsw.view.gui.screens.LobbyController;
@@ -72,11 +73,31 @@ public class GuiTest extends Application {
         lv.setPlayerStatus("Player1", true);
         lobbyController.react();*/
 
-        SpaceShipView spaceShipView = new SpaceShipView(LevelView.SECOND);
-        Pair<Node, SpaceShipController> pair = spaceShipView.getNode();
-        Parent root = (Parent) pair.getValue0();
+        BoardView boardView = new BoardView(LevelView.SECOND, 2);
 
-        spaceShipView.placeComponent(new ConnectorsView(0, new int[] {0,0,0,0}, 0), 6, 6);
+
+        AbandonedShipView a = new AbandonedShipView(17, false, 1, 2, 3, 4);
+        a.setWidth(200);
+        a.setCovered(true);
+        SlaversView b = new SlaversView(18, false, 1, 5, 6, 7, 8);
+        b.setWidth(200);
+        b.setCovered(true);
+        SmugglersView c = new SmugglersView(19, false, 1, 9, 10, 11, new ArrayList<>());
+        c.setWidth(200);
+        c.setCovered(true);
+        DeckView d = new DeckView();
+        d.addCard(a);
+        d.addCard(b);
+        d.addCard(c);
+        d.setCovered(true);
+
+        boardView.getDecksView().add(new Pair<>(d, true));
+        boardView.getDecksView().add(new Pair<>(d, false));
+        boardView.getDecksView().add(new Pair<>(d, true));
+
+
+        Pair<Node, BoardController> pair = boardView.getNode();
+        Parent root = (Parent) pair.getValue0();
 
 
         Scene scene = new Scene(root);

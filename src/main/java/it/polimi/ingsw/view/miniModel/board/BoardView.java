@@ -37,6 +37,7 @@ public class BoardView implements Structure, MiniModelObservable {
      If boolean[i] == true, the deck[i] is not taken by a player, else the deck is taken and not viewable on the building screen*/
     private Pair<DeckView[], Boolean[]> decksView;
     private final List<MiniModelObserver> observers;
+    private Pair<Node, BoardController> node;
 
 
     public BoardView(LevelView level, int numberOfPlayers) {
@@ -88,6 +89,9 @@ public class BoardView implements Structure, MiniModelObservable {
      */
     public Pair<Node, BoardController> getNode() {
         try {
+            if (node != null) {
+                return node;
+            }
             String path = level == LevelView.LEARNING ? "/fxml/board/learningBoard.fxml" : "/fxml/board/secondBoard.fxml";
             FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
             Parent root = loader.load();
@@ -102,6 +106,12 @@ public class BoardView implements Structure, MiniModelObservable {
         }
     }
 
+    /**
+     * Returns the number of steps required to complete a full lap on the board.
+     * The value depends on the level: 18 steps for LEARNING level, 24 steps for SECOND level.
+     *
+     * @return the number of steps for a complete lap
+     */
     public int getStepsForALap() {
         return stepsForALap;
     }

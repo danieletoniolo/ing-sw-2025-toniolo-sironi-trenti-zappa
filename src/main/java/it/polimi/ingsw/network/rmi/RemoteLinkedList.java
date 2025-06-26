@@ -9,8 +9,18 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class RemoteLinkedList extends UnicastRemoteObject implements RemoteQueue {
+    /**
+     * The internal queue that stores Event objects.
+     * This queue follows FIFO (First In, First Out) ordering and is used
+     * to manage the sequence of events in a thread-safe manner.
+     */
     private final Queue<Event> queue;
 
+    /**
+     * Lock object used to synchronize access to the queue.
+     * Ensures thread-safe operations by coordinating threads
+     * that add or poll messages from the queue.
+     */
     private final Object lock = new Object();
 
     /**

@@ -90,7 +90,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
                 });
             }
 
-            boardController.getTimerController().getParent().setOnMouseClicked(e -> {
+            boardController.getTimerController().getParent().setOnMouseClicked(_ -> {
                 StatusEvent status = FlipTimer.requester(Client.transceiver, new Object()).request(new FlipTimer(mm.getUserID()));
                 if (status.get().equals(mm.getErrorCode())) {
                     Stage currentStage = (Stage) parent.getScene().getWindow();
@@ -104,7 +104,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
             Node stepNode = boardController.getStepsNodes().get(i);
             //stepNode.setStyle("-fx-background-color: rgba(255,176,56,0.1);");
 
-            stepNode.setOnMouseClicked(e -> {
+            stepNode.setOnMouseClicked(_ -> {
                 StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object())
                         .request(new PlaceMarker(MiniModel.getInstance().getUserID(), finalI));
                 if (status.get().equals(mm.getErrorCode())) {
@@ -115,7 +115,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
         }
 
         placeMarkerButton.setText("Place marker, pos: " + pos);
-        placeMarkerButton.setOnMouseClicked(e -> {
+        placeMarkerButton.setOnMouseClicked(_ -> {
             StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object())
                     .request(new PlaceMarker(MiniModel.getInstance().getUserID(), pos));
             if (status.get().equals(mm.getErrorCode())) {
@@ -136,7 +136,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
         });
 
         hiddenTileButton.setText("Pick a hidden tile from the pile");
-        hiddenTileButton.setOnMouseClicked(e -> {
+        hiddenTileButton.setOnMouseClicked(_ -> {
             StatusEvent status = PickTileFromBoard.requester(Client.transceiver, new Object()).request(new PickTileFromBoard(MiniModel.getInstance().getUserID(), -1));
             if (status.get().equals(mm.getErrorCode())) {
                 Stage currentStage = (Stage) parent.getScene().getWindow();
@@ -145,7 +145,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
         });
 
         putTileInPileButton.setText("Put tile in the pile");
-        putTileInPileButton.setOnMouseClicked(e -> {;
+        putTileInPileButton.setOnMouseClicked(_ -> {
             StatusEvent status = PlaceTileToBoard.requester(Client.transceiver, new Object()).request(new PlaceTileToBoard(MiniModel.getInstance().getUserID()));
             if (status.get().equals(mm.getErrorCode())) {
                 Stage currentStage = (Stage) parent.getScene().getWindow();
@@ -154,7 +154,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
         });
 
         rotateButton.setText("Rotate component");
-        rotateButton.setOnMouseClicked(e -> {
+        rotateButton.setOnMouseClicked(_ -> {
             StatusEvent status = RotateTile.requester(Client.transceiver, new Object()).request(new RotateTile(MiniModel.getInstance().getUserID(), mm.getClientPlayer().getHand().getID()));
             if (status.get().equals(mm.getErrorCode())) {
                 Stage currentStage = (Stage) parent.getScene().getWindow();
@@ -169,7 +169,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
         SpaceShipController spaceShipController = spaceShipPair.getValue1();
 
         for (ComponentController component : spaceShipController.getShipComponentControllers()) {
-            component.getParent().setOnMouseClicked(event -> {
+            component.getParent().setOnMouseClicked(_ -> {
                 StatusEvent status = PlaceTileToSpaceship.requester(Client.transceiver, new Object()).request(new PlaceTileToSpaceship(mm.getUserID(), component.getComponentView().getRow() - 1, component.getComponentView().getCol() - 1));
                 if (status.get().equals(mm.getErrorCode())) {
                     Stage currentStage = (Stage) parent.getScene().getWindow();
@@ -179,7 +179,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
         }
 
         for (ComponentController component : spaceShipController.getReservedComponentControllers()) {
-            component.getParent().setOnMouseClicked(event -> {
+            component.getParent().setOnMouseClicked(_ -> {
                 StatusEvent status = PickTileFromReserve.requester(Client.transceiver, new Object()).request(new PickTileFromReserve(mm.getUserID(), component.getComponentView().getID()));
                 if (status.get().equals(mm.getErrorCode())) {
                     Stage currentStage = (Stage) parent.getScene().getWindow();
@@ -188,7 +188,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
             });
         }
 
-        spaceShipController.getReserveLostGrid().setOnMouseClicked(event -> {
+        spaceShipController.getReserveLostGrid().setOnMouseClicked(_ -> {
             StatusEvent status = PlaceTileToReserve.requester(Client.transceiver, new Object()).request(new PlaceTileToReserve(mm.getUserID()));
             if (status.get().equals(mm.getErrorCode())) {
                 Stage currentStage = (Stage) parent.getScene().getWindow();
@@ -202,7 +202,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
         for (int i = 0; i < viewablePileCtrl.getComponentControllers().size(); i++) {
             int finalI = i;
 
-            viewablePileCtrl.getComponentControllers().get(i).getParent().setOnMouseClicked(e-> {
+            viewablePileCtrl.getComponentControllers().get(i).getParent().setOnMouseClicked(_ -> {
                 int ID = mm.getViewablePile().getViewableComponents().stream()
                         .skip(finalI)
                         .map(ComponentView::getID)
