@@ -390,7 +390,7 @@ public abstract class State implements Serializable {
      * @throws IllegalStateException    if the state does not allow setting the protect mode.
      * @throws IllegalArgumentException if the batteryID is invalid.
      */
-    public void setProtect(PlayerData player, int batteryID) throws IllegalStateException, IllegalArgumentException {
+    public void setProtect(PlayerData player, List<Integer> batteryID) throws IllegalStateException, IllegalArgumentException {
         throw new IllegalStateException("Cannot set protect mode in this state");
     }
 

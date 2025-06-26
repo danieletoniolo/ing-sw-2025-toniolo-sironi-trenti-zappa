@@ -116,14 +116,21 @@ public class CombatZoneState extends State {
     }
 
     /**
-     * Implementation of the {@link State#setProtect(PlayerData, int)} to set whether the player wants to protect or not.
+     * Implementation of the {@link State#setProtect(PlayerData, List)} to set whether the player wants to protect or not.
      */
     @Override
-    public void setProtect(PlayerData player, int batteryID) throws IllegalStateException, IllegalArgumentException {
+    public void setProtect(PlayerData player, List<Integer> batteryID) throws IllegalStateException, IllegalArgumentException {
         if (internalState != CombatZoneInternalState.HIT_PENALTY) {
             throw new IllegalStateException("Battery ID not allowed in this state");
         }
-        List<Event> events = Handler.protectFromHit(player, protectionResult, batteryID);
+        if (batteryID.size() != 1) {
+            throw new IllegalArgumentException("Battery ID must be a single value");
+        }
+        if (batteryID.getFirst() != -1 && protectionResult.getSecond() == -1) {
+            throw new IllegalArgumentException("You cannot set a shield if because you cannot protect from the hit");
+        }
+
+        List<Event> events = Handler.protectFromHit(player, protectionResult, batteryID.getFirst());
         if (events != null) {
             for (Event event : events) {
                 eventCallback.trigger(event);
