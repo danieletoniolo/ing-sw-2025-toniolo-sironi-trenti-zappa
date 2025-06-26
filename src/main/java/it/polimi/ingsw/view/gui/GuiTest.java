@@ -5,9 +5,11 @@ import it.polimi.ingsw.model.cards.hits.Hit;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
+import it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController;
 import it.polimi.ingsw.view.gui.screens.LobbyController;
 import it.polimi.ingsw.view.gui.screens.MenuController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
@@ -70,24 +72,12 @@ public class GuiTest extends Application {
         lv.setPlayerStatus("Player1", true);
         lobbyController.react();*/
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/building.fxml"));
-        Parent root = loader.load();
-        DeckView deckView = null;
-        for (int i = 0; i < 9; i++) {
-            CardView connectorsView = new OpenSpaceView(i + 10, false, 1);
+        SpaceShipView spaceShipView = new SpaceShipView(LevelView.SECOND);
+        Pair<Node, SpaceShipController> pair = spaceShipView.getNode();
+        Parent root = (Parent) pair.getValue0();
 
-            if (i % 3 == 0) {
-                deckView = new DeckView();
-            }
-            deckView.addCard(connectorsView);
+        spaceShipView.placeComponent(new ConnectorsView(0, new int[] {0,0,0,0}, 0), 6, 6);
 
-            if (i % 3 == 2) {
-                MiniModel.getInstance().getDeckViews().getValue0()[i/3] = deckView;
-                MiniModel.getInstance().getDeckViews().getValue1()[i/3] = false;
-            }
-        }
-        MiniModel.getInstance().setBoardView(new BoardView(LevelView.SECOND, 2));
-        MiniModel.getInstance().setClientPlayer(new PlayerDataView("lore", MarkerView.RED, new SpaceShipView(LevelView.SECOND)));
 
         Scene scene = new Scene(root);
         stage.setTitle("Hello!");

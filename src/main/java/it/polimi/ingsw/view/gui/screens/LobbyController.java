@@ -2,6 +2,7 @@ package it.polimi.ingsw.view.gui.screens;
 
 import it.polimi.ingsw.Client;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
+import it.polimi.ingsw.event.lobby.clientToServer.LeaveLobby;
 import it.polimi.ingsw.event.lobby.clientToServer.PlayerReady;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
@@ -76,6 +77,18 @@ public class LobbyController implements MiniModelObserver, Initializable {
      * This is used to lay out the individual player boxes in the lobby.
      */
     @FXML private VBox lobbyBoxVBox;
+
+    /**
+     * The HBox that contains the buttons for the lobby.
+     * This is used to manage the layout of the buttons in the lobby screen.
+     */
+    @FXML private HBox buttonsHBox;
+
+    /**
+     * The Button that allows players to leave the lobby.
+     * This is used to exit the current lobby and return to the main menu or previous screen.
+     */
+    @FXML private Button leaveLobbyButton;
 
     /**
      * The Button that allows players to create a new lobby.
@@ -201,6 +214,14 @@ public class LobbyController implements MiniModelObserver, Initializable {
             }
         });
 
+        leaveLobbyButton.setOnAction(_ -> {
+            StatusEvent status = LeaveLobby.requester(Client.transceiver, new Object()).request(new LeaveLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getCurrentLobby().getLobbyName()));
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
+                Stage currentStage = (Stage) parent.getScene().getWindow();
+                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+            }
+        });
+
         scheduleDelayedInitialization(resizeListener);
 
         //TODO: Add leave lobby button
@@ -297,6 +318,23 @@ public class LobbyController implements MiniModelObserver, Initializable {
 
         double buttonHeight = mainHBox.getHeight() * BUTTON_SIZE_RATIO_HEIGHT;
         double buttonWidth = mainHBox.getWidth() * BUTTON_SIZE_RATIO_WIDTH;
+
+        buttonsHBox.setPrefWidth(lobbyBoxScrollPane.getWidth());
+        buttonsHBox.setMaxWidth(lobbyBoxScrollPane.getWidth());
+        buttonsHBox.setMinWidth(lobbyBoxScrollPane.getWidth());
+        buttonsHBox.setSpacing(buttonWidth * 0.1);
+
+        leaveLobbyButton.setPrefSize(buttonWidth, buttonHeight);
+        leaveLobbyButton.setMinSize(buttonWidth, buttonHeight);
+        leaveLobbyButton.setMaxSize(buttonWidth, buttonHeight);
+        leaveLobbyButton.setStyle("-fx-font-size: " + (buttonHeight * 0.4) + "px;" +
+                "-fx-background-color: rgba(251,197,9, 0.5);;" +
+                "-fx-border-color: rgb(251,197,9);" +
+                "-fx-border-width: 2;" +
+                "-fx-border-radius: 10;" +
+                "-fx-background-radius: 10;" +
+                "-fx-font-weight: bold;");
+
 
         readyOrNotButton.setPrefSize(buttonWidth, buttonHeight);
         readyOrNotButton.setMinSize(buttonWidth, buttonHeight);
@@ -466,7 +504,7 @@ public class LobbyController implements MiniModelObserver, Initializable {
             if (lobbyView == null) return;
 
             // If the game is starting, show the countdown
-            if (lobbyView.getPlayers().entrySet().stream().filter(Map.Entry::getValue).count() == lobbyView.getPlayers().size()) {
+            if (lobbyView.getPlayers().entrySet().stream().filter(Map.Entry::getValue).count() == lobbyView.getMaxPlayer()) {
                 gameStarting();
             }
 
