@@ -105,6 +105,8 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
         // Set the default value from the FXML
         setDefaultValue();
 
+        shipGroup.setManaged(false);
+
         // Remove any existing bindings to prevent conflicts
         backgroundImage.fitWidthProperty().unbind();
         backgroundImage.fitHeightProperty().unbind();

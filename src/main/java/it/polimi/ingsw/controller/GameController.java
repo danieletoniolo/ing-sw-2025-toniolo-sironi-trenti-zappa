@@ -290,7 +290,7 @@ public class GameController implements Serializable, StateTransitionHandler {
         }
     }
 
-    public void setProtect(PlayerData player, int batteryID) {
+    public void setProtect(PlayerData player, List<Integer> batteryID) {
         try {
             PlayerData currentPlayer = state.getCurrentPlayer();
             if (!currentPlayer.equals(player)) {

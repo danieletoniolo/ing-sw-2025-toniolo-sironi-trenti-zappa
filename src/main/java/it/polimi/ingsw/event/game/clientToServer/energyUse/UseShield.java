@@ -8,16 +8,18 @@ import it.polimi.ingsw.event.Responder;
 import it.polimi.ingsw.event.type.StatusEvent;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.function.Function;
 
 /**
  * This event is used when a player uses a shield.
  * @param userID    is the user ID. Only the user know his ID, so the event is not faked.
  * @param batteryID is the ID of the battery used to use the shield.
+ *                  It is a list for an easier implementation in the GUI, but the size should be 1
  */
 public record UseShield(
         String userID,
-        int batteryID
+        List<Integer> batteryID
 ) implements Event, Serializable {
     /**
      * This method is used to create a responder for the UseShield event.
