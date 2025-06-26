@@ -311,7 +311,9 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
                     ComponentView component = spaceShipModel.getComponent(j + rowOffset, i + colOffset);
                     if (component != null) {
                         Node node = component.getNode().getValue0();
-
+                        if (node.getParent() != null) {
+                            ((Pane) node.getParent()).getChildren().remove(node);
+                        }
                         GridPane.setHgrow(node, Priority.ALWAYS);
                         GridPane.setVgrow(node, Priority.ALWAYS);
                         GridPane.setFillWidth(node, true);
@@ -327,10 +329,18 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
             ArrayList<ComponentView> reservedDiscardedList = spaceShipModel.getDiscardReservedPile().getReserved();
             int size = reservedDiscardedList.size();
             if (size > 0 && reservedDiscardedList.get(size - 1) != null) {
-                reserveLostGrid.add(reservedDiscardedList.get(size - 1).getNode().getValue0(), 0, 0);
+                Node node = reservedDiscardedList.get(size - 1).getNode().getValue0();
+                if (node.getParent() != null) {
+                    ((Pane) node.getParent()).getChildren().remove(node);
+                }
+                reserveLostGrid.add(node, 0, 0);
             }
             if (size > 1 && reservedDiscardedList.get(size - 2) != null) {
-                reserveLostGrid.add(reservedDiscardedList.get(size - 2).getNode().getValue0(), 1, 0);
+                Node node = reservedDiscardedList.get(size - 2).getNode().getValue0();
+                if (node.getParent() != null) {
+                    ((Pane) node.getParent()).getChildren().remove(node);
+                }
+                reserveLostGrid.add(node, 1, 0);
             }
         });
     }

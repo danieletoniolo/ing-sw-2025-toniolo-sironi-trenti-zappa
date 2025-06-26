@@ -72,8 +72,8 @@ public class CabinView extends ComponentView {
     }
 
     @Override
-    public TilesTypeView getType() {
-        return TilesTypeView.CABIN;
+    public ComponentTypeView getType() {
+        return ComponentTypeView.CABIN;
     }
 
     @Override

@@ -210,7 +210,7 @@ public abstract class ComponentView implements Structure, MiniModelObservable {
         return covered;
     }
 
-    public abstract TilesTypeView getType();
+    public abstract ComponentTypeView getType();
 
     public void setRow(int row) {
         this.row = row + 1;

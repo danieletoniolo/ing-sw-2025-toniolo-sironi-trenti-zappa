@@ -70,6 +70,8 @@ public class GuiManager extends Application implements Manager {
         }
 
         scene = new Scene(root);
+        stage.setWidth(1024);
+        stage.setHeight(768);
         stage.setTitle("Galaxy Trucker");
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/image/background/galaxyTruckerIcon.png")));
         stage.setScene(scene);
@@ -309,7 +311,6 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyFragments(Fragments data) {
         controller.react();
-
     }
 
     @Override
@@ -338,7 +339,7 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyTimer(TimerFlipped data, boolean firstSecond) {
-        //controller.react();
+        controller.react();
     }
 
     @Override
@@ -369,6 +370,9 @@ public class GuiManager extends Application implements Manager {
                 this.setCrewScene();
                 break;
             case CARDS:
+                if (currentScene != GuiScene.CARDS) {
+                    this.setCardsGameScene();
+                }
                 break;
             case REWARD:
                 break;
@@ -427,10 +431,6 @@ public class GuiManager extends Application implements Manager {
         currentScene = GuiScene.BUILDING;
     }
 
-    private void setCardsGameScene() {
-        currentScene = GuiScene.CARDS;
-    }
-
     private void setValidationScene() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/validation.fxml"));
@@ -461,6 +461,22 @@ public class GuiManager extends Application implements Manager {
             return;
         }
         currentScene = GuiScene.CREW;
+    }
+
+    private void setCardsGameScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/cardsGame.fxml"));
+            root = loader.load();
+
+            controller = loader.getController();
+            controller.react();
+
+            scene.setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        currentScene = GuiScene.CARDS;
     }
 
     private void setRewardScene() {

@@ -19,8 +19,8 @@ public class GenericComponentView extends ComponentView {
     }
 
     @Override
-    public TilesTypeView getType() {
-        return TilesTypeView.GENERIC;
+    public ComponentTypeView getType() {
+        return ComponentTypeView.GENERIC;
     }
 
     @Override

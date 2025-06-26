@@ -1021,7 +1021,7 @@ public class EventHandlerClient {
             PlayerDataView player = getPlayerDataView(data.nickname());
             ComponentView tile = player.getHand();
             tile.rotate();
-            if (tile.getType() == TilesTypeView.SHIELD) {
+            if (tile.getType() == ComponentTypeView.SHIELD) {
                 boolean[] shields = new boolean[data.connectors().length];
                 shields[tile.getClockWise()] = true;
                 shields[((tile.getClockWise() - 1) + data.connectors().length) % data.connectors().length] = true;

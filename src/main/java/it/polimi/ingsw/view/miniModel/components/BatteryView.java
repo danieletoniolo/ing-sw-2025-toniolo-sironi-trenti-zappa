@@ -67,8 +67,8 @@ public class BatteryView extends ComponentView {
     }
 
     @Override
-    public TilesTypeView getType() {
-        return TilesTypeView.BATTERY;
+    public ComponentTypeView getType() {
+        return ComponentTypeView.BATTERY;
     }
 
     @Override

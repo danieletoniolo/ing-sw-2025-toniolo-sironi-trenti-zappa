@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.gui.screens;
 
 import it.polimi.ingsw.Client;
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.ManageCrewMember;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
@@ -54,7 +55,13 @@ public class CrewController implements MiniModelObserver, Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
+        confirmChoiceButton.setOnMouseClicked(e -> {
+            StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
+                Stage currentStage = (Stage) parent.getScene().getWindow();
+                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+            }
+        });
     }
 
     @Override
@@ -144,7 +151,7 @@ public class CrewController implements MiniModelObserver, Initializable {
         buttonsBox.setAlignment(Pos.CENTER);
 
         // Create confirm button
-        Button confirmButton = new Button("Choose");
+        Button confirmButton = new Button("Confirm");
         confirmButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
         confirmButton.setOnAction(_ -> {
             String selectedLevel = crewType.getValue();
@@ -156,11 +163,12 @@ public class CrewController implements MiniModelObserver, Initializable {
                 MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
             }
         });
+        confirmButton.setOnAction(_ -> hideCrewLobbyOptions());
 
         // Create cancel button
         Button cancelButton = new Button("Cancel");
         cancelButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
-        cancelButton.setOnAction(_ -> hideNewLobbyOptions());
+        cancelButton.setOnAction(_ -> hideCrewLobbyOptions());
 
         buttonsBox.getChildren().addAll(confirmButton, cancelButton);
 
@@ -193,7 +201,7 @@ public class CrewController implements MiniModelObserver, Initializable {
         });
     }
 
-    private void hideNewLobbyOptions() {
+    private void hideCrewLobbyOptions() {
         FadeTransition fadeOut = new FadeTransition(Duration.millis(300), newCrewOptionsPane);
         fadeOut.setFromValue(1);
         fadeOut.setToValue(0);

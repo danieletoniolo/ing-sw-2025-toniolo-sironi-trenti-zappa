@@ -1114,7 +1114,7 @@ public class MatchController {
             networkTransceivers.get(lobby).broadcast(readyPlayerEvent);
 
             if (lobby.canGameStart()) {
-                int timerDuration = 10000;
+                int timerDuration = 3000;
 
                 LocalTime startTime = LocalTime.now();
                 StartingGame startingGameEvent = new StartingGame(startTime.toString(), timerDuration);
