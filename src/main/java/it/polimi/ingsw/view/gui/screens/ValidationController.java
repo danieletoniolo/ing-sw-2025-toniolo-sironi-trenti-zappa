@@ -58,7 +58,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
                 MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
             }
             else {
-                for (ComponentController component : mm.getClientPlayer().getShip().getNode().getValue1().getComponentControllers()) {
+                for (ComponentController component : mm.getClientPlayer().getShip().getNode().getValue1().getShipComponentControllers()) {
                     Node node = component.getParent();
 
                     node.setDisable(false); // disable clicks on the component
@@ -81,7 +81,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
         Pair<Node, SpaceShipController> spaceShipPair = mm.getClientPlayer().getShip().getNode();
         SpaceShipController spaceShipController = spaceShipPair.getValue1();
 
-        for (ComponentController component : spaceShipController.getComponentControllers()) {
+        for (ComponentController component : spaceShipController.getShipComponentControllers()) {
             component.getParent().setOnMouseClicked(e -> {
                 Node node = component.getParent();
 

@@ -3,7 +3,9 @@ package it.polimi.ingsw.view.gui.screens;
 import it.polimi.ingsw.Client;
 import it.polimi.ingsw.event.game.clientToServer.deck.PickLeaveDeck;
 import it.polimi.ingsw.event.game.clientToServer.pickTile.PickTileFromBoard;
+import it.polimi.ingsw.event.game.clientToServer.pickTile.PickTileFromReserve;
 import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToBoard;
+import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToReserve;
 import it.polimi.ingsw.event.game.clientToServer.placeTile.PlaceTileToSpaceship;
 import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.clientToServer.player.PlaceMarker;
@@ -21,14 +23,11 @@ import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -63,8 +62,6 @@ public class BuildingController implements MiniModelObserver, Initializable {
             @FXML private Button putTileInPileButton;
             
     private final MiniModel mm = MiniModel.getInstance();
-    private ImageView currentMarker = null;
-    private BooleanProperty following = new SimpleBooleanProperty(false);
     int pos = 0;
 
     @Override
@@ -102,10 +99,11 @@ public class BuildingController implements MiniModelObserver, Initializable {
             });
         }
 
-        /*for (int i = 0; i < boardController.getStepsNodes().size(); i++) {
+        for (int i = 0; i < boardController.getStepsNodes().size(); i++) {
             int finalI = i;
             Node stepNode = boardController.getStepsNodes().get(i);
-            stepNode.setStyle("-fx-background-color: rgba(255,176,56,0.1);");
+            //stepNode.setStyle("-fx-background-color: rgba(255,176,56,0.1);");
+
             stepNode.setOnMouseClicked(e -> {
                 StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object())
                         .request(new PlaceMarker(MiniModel.getInstance().getUserID(), finalI));
@@ -114,7 +112,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
                     MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
                 }
             });
-        }*/
+        }
 
         placeMarkerButton.setText("Place marker, pos: " + pos);
         placeMarkerButton.setOnMouseClicked(e -> {
@@ -163,11 +161,14 @@ public class BuildingController implements MiniModelObserver, Initializable {
                 MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
             }
         });
+    }
 
+    @Override
+    public void react() {
         Pair<Node, SpaceShipController> spaceShipPair = mm.getClientPlayer().getShip().getNode();
         SpaceShipController spaceShipController = spaceShipPair.getValue1();
 
-        for (ComponentController component : spaceShipController.getComponentControllers()) {
+        for (ComponentController component : spaceShipController.getShipComponentControllers()) {
             component.getParent().setOnMouseClicked(event -> {
                 StatusEvent status = PlaceTileToSpaceship.requester(Client.transceiver, new Object()).request(new PlaceTileToSpaceship(mm.getUserID(), component.getComponentView().getRow() - 1, component.getComponentView().getCol() - 1));
                 if (status.get().equals(mm.getErrorCode())) {
@@ -177,18 +178,24 @@ public class BuildingController implements MiniModelObserver, Initializable {
             });
         }
 
+        for (ComponentController component : spaceShipController.getReservedComponentControllers()) {
+            component.getParent().setOnMouseClicked(event -> {
+                StatusEvent status = PickTileFromReserve.requester(Client.transceiver, new Object()).request(new PickTileFromReserve(mm.getUserID(), component.getComponentView().getID()));
+                if (status.get().equals(mm.getErrorCode())) {
+                    Stage currentStage = (Stage) parent.getScene().getWindow();
+                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                }
+            });
+        }
 
-        Platform.runLater(() -> {
-            upperRightStackPane.getChildren().clear();
-            upperRightStackPane.getChildren().add(mm.getViewablePile().getNode().getValue0());
-
-            lowerLeftStackPane.getChildren().clear();
-            lowerLeftStackPane.getChildren().add(mm.getBoardView().getNode().getValue0());
+        spaceShipController.getReserveLostGrid().setOnMouseClicked(event -> {
+            StatusEvent status = PlaceTileToReserve.requester(Client.transceiver, new Object()).request(new PlaceTileToReserve(mm.getUserID()));
+            if (status.get().equals(mm.getErrorCode())) {
+                Stage currentStage = (Stage) parent.getScene().getWindow();
+                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+            }
         });
-    }
 
-    @Override
-    public void react() {
         Pair<Node, ViewablePileController> viewablePile = mm.getViewablePile().getNode();
         ViewablePileController viewablePileCtrl = viewablePile.getValue1();
 
@@ -218,6 +225,12 @@ public class BuildingController implements MiniModelObserver, Initializable {
 
             handComponent.getChildren().clear();
             handComponent.getChildren().add(mm.getClientPlayer().getHand().getNode().getValue0());
+
+            upperRightStackPane.getChildren().clear();
+            upperRightStackPane.getChildren().add(mm.getViewablePile().getNode().getValue0());
+
+            lowerLeftStackPane.getChildren().clear();
+            lowerLeftStackPane.getChildren().add(mm.getBoardView().getNode().getValue0());
         });
 
     }

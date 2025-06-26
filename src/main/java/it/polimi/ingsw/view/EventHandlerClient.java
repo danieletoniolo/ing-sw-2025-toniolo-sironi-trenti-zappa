@@ -887,7 +887,7 @@ public class EventHandlerClient {
         placedTileToReserveListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
-            player.getShip().getDiscardReservedPile().addDiscardReserved(player.getHand());
+            player.getShip().addDiscardReserved(player.getHand());
             player.setHand(new GenericComponentView(-1, -1));
 
             manager.notifyPlacedTileToReserve(data);
@@ -1062,7 +1062,7 @@ public class EventHandlerClient {
             if (player != null) {
                 for (Pair<Integer, Integer> tile : data.destroyedComponents()) {
                     ComponentView tmp = player.getShip().removeComponent(tile.getValue0(), tile.getValue1());
-                    player.getShip().getDiscardReservedPile().addDiscardReserved(tmp);
+                    player.getShip().addDiscardReserved(tmp);
                 }
             }
 

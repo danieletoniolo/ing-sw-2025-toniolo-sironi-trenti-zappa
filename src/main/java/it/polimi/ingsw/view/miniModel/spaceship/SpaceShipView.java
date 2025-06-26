@@ -21,6 +21,7 @@ public class SpaceShipView implements Structure, MiniModelObservable {
     private final LevelView level;
     private ComponentView[][] spaceShip;
     private final DiscardReservedPileView discardReservedPile;
+
     private final Map<Integer, CannonView> mapDoubleCannons = new LinkedHashMap<>();
     private final Map<Integer, EngineView> mapDoubleEngines = new LinkedHashMap<>();
     private final Map<Integer, CabinView> mapCabins = new LinkedHashMap<>();
@@ -185,6 +186,11 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         return discardReservedPile;
     }
 
+    public void addDiscardReserved(ComponentView component) {
+        discardReservedPile.addDiscardReserved(component);
+        notifyObservers();
+    }
+
     public ComponentView getComponent(int row, int col) {
         return spaceShip[row - ROW_OFFSET][col - COL_OFFSET];
     }
@@ -254,7 +260,7 @@ public class SpaceShipView implements Structure, MiniModelObservable {
             }
         }
         for (ComponentView component : this.discardReservedPile.getReserved()) {
-            copy.getDiscardReservedPile().addDiscardReserved(component.clone());
+            copy.addDiscardReserved(component.clone());
         }
         copy.getDiscardReservedPile().setIsDiscarded();
         return copy;

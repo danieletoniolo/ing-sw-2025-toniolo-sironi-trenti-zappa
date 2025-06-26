@@ -3,14 +3,12 @@ package it.polimi.ingsw.view.gui.screens;
 import it.polimi.ingsw.Client;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.ManageCrewMember;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
-import it.polimi.ingsw.event.lobby.clientToServer.CreateLobby;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
 import it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
-import it.polimi.ingsw.view.tui.screens.ModifyCrew;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -64,7 +62,7 @@ public class CrewController implements MiniModelObserver, Initializable {
         Pair<Node, SpaceShipController> spaceShipPair = mm.getClientPlayer().getShip().getNode();
         SpaceShipController spaceShipController = spaceShipPair.getValue1();
 
-        for (ComponentController component : spaceShipController.getComponentControllers()) {
+        for (ComponentController component : spaceShipController.getShipComponentControllers()) {
             component.getParent().setOnMouseClicked(e -> {
                 showCrewChoice(component);
             });

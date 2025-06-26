@@ -338,8 +338,7 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyTimer(TimerFlipped data, boolean firstSecond) {
-        controller.react();
-
+        //controller.react();
     }
 
     @Override

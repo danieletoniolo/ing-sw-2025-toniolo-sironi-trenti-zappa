@@ -3,8 +3,8 @@ package it.polimi.ingsw.view.gui.controllers.ship;
 import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
+import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
-import it.polimi.ingsw.view.miniModel.components.TilesTypeView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -302,7 +302,7 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
             shipGrid.getChildren().clear();
 
             int rowOffset = SpaceShipView.ROW_OFFSET;
-            int colOffset = SpaceShipView.COL_OFFSET;
+            int colOffset = spaceShipModel.getLevel() == LevelView.SECOND ? SpaceShipView.COL_OFFSET : SpaceShipView.COL_OFFSET + 1;
 
             for (int i = 0; i < GRID_COLS; i++) {
                 for (int j = 0; j < GRID_ROWS; j++) {
@@ -333,9 +333,9 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
         });
     }
 
-    public List<ComponentController> getComponentControllers() {
+    public List<ComponentController> getShipComponentControllers() {
         List<ComponentController> controllers = new ArrayList<>();
-        for (ComponentView[] row : MiniModel.getInstance().getClientPlayer().getShip().getSpaceShip()) {
+        for (ComponentView[] row : spaceShipModel.getSpaceShip()) {
             for (ComponentView component : row) {
                 if (component != null) {
                     controllers.add(component.getNode().getValue1());
@@ -345,7 +345,17 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
         return controllers;
     }
 
-    public GridPane getShipGrid() {
-        return shipGrid;
+    public List<ComponentController> getReservedComponentControllers() {
+        List<ComponentController> controllers = new ArrayList<>();
+        for (ComponentView component : spaceShipModel.getDiscardReservedPile().getReserved()) {
+            if (component != null) {
+                controllers.add(component.getNode().getValue1());
+            }
+        }
+        return controllers;
+    }
+
+    public GridPane getReserveLostGrid() {
+        return reserveLostGrid;
     }
 }
