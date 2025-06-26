@@ -1,8 +1,10 @@
 package it.polimi.ingsw.view.miniModel.components;
 
 public class GenericComponentView extends ComponentView {
-    public GenericComponentView() {
+    public GenericComponentView(int row, int col) {
         super(-1, new int[]{0, 0, 0, 0}, 0);
+        this.setRow(row);
+        this.setCol(col);
     }
 
     @Override
@@ -23,7 +25,7 @@ public class GenericComponentView extends ComponentView {
 
     @Override
     public GenericComponentView clone() {
-        GenericComponentView copy = new GenericComponentView();
+        GenericComponentView copy = new GenericComponentView(this.getRow() - 1, this.getCol() - 1);
         copy.setIsWrong(this.getIsWrong());
         return copy;
     }

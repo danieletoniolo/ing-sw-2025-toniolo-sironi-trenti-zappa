@@ -215,7 +215,6 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyPlacedTileToSpaceship(PlacedTileToSpaceship data) {
         controller.react();
-
     }
 
     @Override

@@ -43,20 +43,20 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         switch (level) {
             case LEARNING:
                 spaceShip = new ComponentView[][] {
-                        {null, null, null, new GenericComponentView() , null, null, null},
-                        {null, null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null, null},
-                        {null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null},
-                        {null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null},
-                        {null, new GenericComponentView() , new GenericComponentView() , null, new GenericComponentView() , new GenericComponentView() , null}
+                        {null, null, null, new GenericComponentView(4, 6) , null, null, null},
+                        {null, null, new GenericComponentView(5, 5) , new GenericComponentView(5, 6) , new GenericComponentView(5, 7) , null, null},
+                        {null, new GenericComponentView(6, 4) , new GenericComponentView(6, 5) , new GenericComponentView(6, 6) , new GenericComponentView(6, 7) , new GenericComponentView(6, 8) , null},
+                        {null, new GenericComponentView(7, 4) , new GenericComponentView(7, 5) , new GenericComponentView(7, 6) , new GenericComponentView(7, 7) , new GenericComponentView(7, 8) , null},
+                        {null, new GenericComponentView(8, 4) , new GenericComponentView(8, 5) , null, new GenericComponentView(8, 7) , new GenericComponentView(8, 8) , null}
                 };
                 break;
             case SECOND:
                 spaceShip = new ComponentView[][] {
-                        {null, null, new GenericComponentView() , null, new GenericComponentView() , null, null},
-                        {null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null},
-                        {new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() },
-                        {new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() },
-                        {new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() }
+                        {null, null, new GenericComponentView(4, 5) , null, new GenericComponentView(4,7) , null, null},
+                        {null, new GenericComponentView(5, 4) , new GenericComponentView(5, 5) , new GenericComponentView(5, 6) , new GenericComponentView(5, 7) , new GenericComponentView(5, 8) , null},
+                        {new GenericComponentView(6, 3) , new GenericComponentView(6, 4) , new GenericComponentView(6, 5) , new GenericComponentView(6, 6) , new GenericComponentView(6, 7) , new GenericComponentView(6, 8) , new GenericComponentView(6, 9) },
+                        {new GenericComponentView(7, 3) , new GenericComponentView(7, 4) , new GenericComponentView(7, 5) , new GenericComponentView(7, 6) , new GenericComponentView(7, 7) , new GenericComponentView(7, 8) , new GenericComponentView(7, 9) },
+                        {new GenericComponentView(8, 3) , new GenericComponentView(8, 4) , new GenericComponentView(8, 5) , null, new GenericComponentView(8, 7) , new GenericComponentView(8, 8) , new GenericComponentView(8, 9) }
                 };
                 break;
         }
@@ -146,7 +146,7 @@ public class SpaceShipView implements Structure, MiniModelObservable {
             case BATTERY -> mapBatteries.remove(component.getID());
         }
 
-        spaceShip[row- ROW_OFFSET][col- COL_OFFSET] = new GenericComponentView();
+        spaceShip[row- ROW_OFFSET][col- COL_OFFSET] = new GenericComponentView(component.getRow() - 1, component.getCol() - 1);
         return component;
     }
 

@@ -344,4 +344,8 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
         }
         return controllers;
     }
+
+    public GridPane getShipGrid() {
+        return shipGrid;
+    }
 }

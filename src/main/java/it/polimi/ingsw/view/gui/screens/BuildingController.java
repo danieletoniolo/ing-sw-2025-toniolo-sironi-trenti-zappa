@@ -164,15 +164,26 @@ public class BuildingController implements MiniModelObserver, Initializable {
             }
         });
 
+        Pair<Node, SpaceShipController> spaceShipPair = mm.getClientPlayer().getShip().getNode();
+        SpaceShipController spaceShipController = spaceShipPair.getValue1();
+
+        for (ComponentController component : spaceShipController.getComponentControllers()) {
+            component.getParent().setOnMouseClicked(event -> {
+                StatusEvent status = PlaceTileToSpaceship.requester(Client.transceiver, new Object()).request(new PlaceTileToSpaceship(mm.getUserID(), component.getComponentView().getRow() - 1, component.getComponentView().getCol() - 1));
+                if (status.get().equals(mm.getErrorCode())) {
+                    Stage currentStage = (Stage) parent.getScene().getWindow();
+                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                }
+            });
+        }
+
+
         Platform.runLater(() -> {
             upperRightStackPane.getChildren().clear();
             upperRightStackPane.getChildren().add(mm.getViewablePile().getNode().getValue0());
 
             lowerLeftStackPane.getChildren().clear();
             lowerLeftStackPane.getChildren().add(mm.getBoardView().getNode().getValue0());
-
-            lowerRightStackPane.getChildren().clear();
-            lowerRightStackPane.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
         });
     }
 
@@ -201,20 +212,10 @@ public class BuildingController implements MiniModelObserver, Initializable {
             });
         }
 
-        Pair<Node, SpaceShipController> spaceShipPair = mm.getClientPlayer().getShip().getNode();
-        SpaceShipController spaceShipController = spaceShipPair.getValue1();
-
-        for (ComponentController component : spaceShipController.getComponentControllers()) {
-            component.getParent().setOnMouseClicked(event -> {
-                StatusEvent status = PlaceTileToSpaceship.requester(Client.transceiver, new Object()).request(new PlaceTileToSpaceship(mm.getUserID(), component.getComponentView().getRow() - 1, component.getComponentView().getCol() - 1));
-                if (status.get().equals(mm.getErrorCode())) {
-                    Stage currentStage = (Stage) parent.getScene().getWindow();
-                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
-                }
-            });
-        }
-
         Platform.runLater(() -> {
+            lowerRightStackPane.getChildren().clear();
+            lowerRightStackPane.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
+
             handComponent.getChildren().clear();
             handComponent.getChildren().add(mm.getClientPlayer().getHand().getNode().getValue0());
         });

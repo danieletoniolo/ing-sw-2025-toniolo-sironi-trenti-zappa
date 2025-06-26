@@ -387,7 +387,7 @@ public class EventHandlerClient {
         playerAddedReceiver = new CastEventReceiver<>(this.transceiver);
         playerAddedListener = data -> {
             PlayerDataView player = new PlayerDataView(data.nickname(), MarkerView.fromValue(data.color()), new SpaceShipView(MiniModel.getInstance().getBoardView().getLevel()));
-            player.setHand(new GenericComponentView());
+            player.setHand(new GenericComponentView(-1, -1));
             if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
                 MiniModel.getInstance().setClientPlayer(player);
             }
@@ -875,7 +875,7 @@ public class EventHandlerClient {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             MiniModel.getInstance().getViewablePile().addComponent(player.getHand());
-            player.setHand(new GenericComponentView());
+            player.setHand(new GenericComponentView(-1, -1));
 
             manager.notifyPlacedTileToBoard(data);
         };
@@ -888,7 +888,7 @@ public class EventHandlerClient {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             player.getShip().getDiscardReservedPile().addDiscardReserved(player.getHand());
-            player.setHand(new GenericComponentView());
+            player.setHand(new GenericComponentView(-1, -1));
 
             manager.notifyPlacedTileToReserve(data);
         };
@@ -901,7 +901,7 @@ public class EventHandlerClient {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             player.getShip().placeComponent(player.getHand(), data.row(), data.column());
-            player.setHand(new GenericComponentView());
+            player.setHand(new GenericComponentView(-1, -1));
 
             manager.notifyPlacedTileToSpaceship(data);
         };
