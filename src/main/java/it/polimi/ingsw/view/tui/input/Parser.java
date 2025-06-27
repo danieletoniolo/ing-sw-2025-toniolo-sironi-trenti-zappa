@@ -12,11 +12,33 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.function.Predicate;
 
+/**
+ * Handles user input parsing and menu navigation for the TUI.
+ */
 public class Parser {
+    /**
+     * Index of the currently selected menu option.
+     */
     private int selected;
+
+    /**
+     * Terminal instance used for input and output operations.
+     */
     private final Terminal terminal;
+
+    /**
+     * Thread responsible for handling user input asynchronously.
+     */
     private Thread inputThread;
+
+    /**
+     * Queue for storing key codes pressed by the user.
+     */
     private final Queue<Integer> keyQueue;
+
+    /**
+     * Queue for storing string inputs entered by the user.
+     */
     private final Queue<String> stringsQueue;
 
     /**

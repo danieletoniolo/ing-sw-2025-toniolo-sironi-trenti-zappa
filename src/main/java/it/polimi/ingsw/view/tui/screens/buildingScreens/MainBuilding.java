@@ -15,8 +15,17 @@ import it.polimi.ingsw.view.tui.screens.TuiScreens;
 
 import java.util.ArrayList;
 
+/**
+ * MainBuilding is a screen in the TUI that manages the main building phase of the game.
+ * It extends the Building class and provides options such as picking, putting, rotating tiles,
+ * picking a deck, flipping the timer, and placing a marker, depending on the game state.
+ */
 public class MainBuilding extends Building {
 
+    /**
+     * Constructs the MainBuilding screen, initializing the available actions
+     * based on the current game state (e.g., board level, timer flips).
+     */
     public MainBuilding() {
         super(new ArrayList<>(){{
             add("Pick tile");
@@ -32,11 +41,23 @@ public class MainBuilding extends Building {
         }});
     }
 
+    /**
+     * Returns the type of this TUI screen.
+     *
+     * @return the TuiScreens enum value representing MainBuilding
+     */
     @Override
     public TuiScreens getType() {
         return TuiScreens.MainBuilding;
     }
 
+    /**
+     * Sets and returns the new screen based on the user's selection and the current game state.
+     * Handles actions such as picking, putting, rotating tiles, picking a deck, flipping the timer,
+     * and placing a marker. Also manages error messages and cheat screen access.
+     *
+     * @return the next TuiScreenView to display, or this if no transition occurs
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

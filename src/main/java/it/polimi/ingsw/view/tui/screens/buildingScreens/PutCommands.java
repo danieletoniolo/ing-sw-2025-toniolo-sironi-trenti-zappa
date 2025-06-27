@@ -11,8 +11,17 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * The PutCommands class represents a screen in the TUI where the user can choose
+ * how to place a tile (on the spaceship, into the pile, or into the reserved pile).
+ * It extends the Building class and manages the logic for handling user selection
+ * and sending the appropriate requests to the server.
+ */
 public class PutCommands extends Building {
 
+    /**
+     * Constructs a PutCommands screen with the available placement options.
+     */
     public PutCommands() {
         super(new ArrayList<>(){{
             add("Put the tile on spaceship");
@@ -22,6 +31,13 @@ public class PutCommands extends Building {
         }});
     }
 
+    /**
+     * Handles the logic for setting the new screen based on the user's selection.
+     * Depending on the selected option, it may send a request to the server to place
+     * the tile or navigate to another screen.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
