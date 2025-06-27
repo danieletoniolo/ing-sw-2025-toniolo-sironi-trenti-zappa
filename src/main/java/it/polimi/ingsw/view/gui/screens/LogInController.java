@@ -55,7 +55,7 @@ public class LogInController implements MiniModelObserver, Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.setDefaultValue();
 
-        usernameField.setOnAction(event -> {
+        usernameField.setOnAction(_ -> {
             String username = usernameField.getText().trim();
             if (!username.isEmpty()) {
                 StatusEvent status = SetNickname.requester(Client.transceiver, new Object()).request(new SetNickname(MiniModel.getInstance().getUserID(), username));

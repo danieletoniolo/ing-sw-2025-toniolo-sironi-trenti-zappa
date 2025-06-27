@@ -13,9 +13,11 @@ import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -34,14 +36,13 @@ import java.util.ResourceBundle;
 
 public class CrewController implements MiniModelObserver, Initializable {
 
-    @FXML
-    private StackPane parent;
+    @FXML private StackPane parent;
+
+    @FXML private Group resizeGroup;
 
     @FXML private VBox mainVBox;
 
     @FXML private Label titleLabel;
-
-    @FXML private HBox centerHBox;
 
     @FXML private StackPane spaceShipStackPane;
 
@@ -55,32 +56,148 @@ public class CrewController implements MiniModelObserver, Initializable {
     private StackPane newOtherPlayerPane;
     private VBox newOtherPlayerVBox;
 
+    private final double ORIGINAL_MAIN_BOX_WIDTH = 1600;
+    private final double ORIGINAL_MAIN_BOX_HEIGHT = 900;
+
     private final MiniModel mm = MiniModel.getInstance();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        URL imageUrl = getClass().getResource("/image/background/background2.png");
+        if (imageUrl != null) {
+            String cssBackground = "-fx-background-image: url('" + imageUrl.toExternalForm() + "'); " +
+                    "-fx-background-size: cover; " +
+                    "-fx-background-position: center center; " +
+                    "-fx-background-repeat: no-repeat;";
+            parent.setStyle(cssBackground);
+        }
+
+        StackPane.setAlignment(mainVBox, Pos.CENTER);
+
+        ChangeListener<Number> resizeListener = createResizeListener();
+        parent.widthProperty().addListener(resizeListener);
+        parent.heightProperty().addListener(resizeListener);
+
+        mainVBox.sceneProperty().addListener((_, _, newScene) -> {
+            if (newScene != null) {
+                Platform.runLater(() -> {
+                    resizeListener.changed(null, null, null);
+                    newScene.windowProperty().addListener((_, _, newWin) -> {
+                        if (newWin != null) {
+                            Platform.runLater(() -> resizeListener.changed(null, null, null));
+                        }
+                    });
+                });
+            }
+        });
+
         int HBoxTotalButtons = 1 + mm.getOtherPlayers().size();
 
         endTurnButton = new Button("Confirm spaceship");
-
         endTurnButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(HBoxTotalButtons));
 
         lowerHBox.getChildren().addAll(endTurnButton);
-
         for (PlayerDataView player : mm.getOtherPlayers()) {
             Button otherButtonPlayer = new Button("View " + player.getUsername() + "'s spaceship");
-            otherButtonPlayer.setOnMouseClicked(e -> showOtherPlayer(player));
+            otherButtonPlayer.setOnMouseClicked(_ -> showOtherPlayer(player));
             otherButtonPlayer.prefWidthProperty().bind(lowerHBox.widthProperty().divide(HBoxTotalButtons));
+            otherButtonPlayer.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
             lowerHBox.getChildren().add(otherButtonPlayer);
         }
-
-        endTurnButton.setOnMouseClicked(e -> {
+        endTurnButton.setOnMouseClicked(_ -> {
             StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 Stage currentStage = (Stage) parent.getScene().getWindow();
                 MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
             }
         });
+        endTurnButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
+    }
+
+    private ChangeListener<Number> createResizeListener() {
+        return (_, _, _) -> {
+            if (parent.getWidth() <= 0 || parent.getHeight() <= 0) {
+                return;
+            }
+
+            double scaleX = parent.getWidth() / ORIGINAL_MAIN_BOX_WIDTH;
+            double scaleY = parent.getHeight() / ORIGINAL_MAIN_BOX_HEIGHT;
+            double scale = Math.min(scaleX, scaleY);
+
+            resizeGroup.setScaleX(scale);
+            resizeGroup.setScaleY(scale);
+        };
+    }
+
+    private void showOtherPlayer(PlayerDataView player) {
+        newOtherPlayerPane = new StackPane();
+        newOtherPlayerPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
+
+        newOtherPlayerPane.prefWidthProperty().bind(parent.widthProperty());
+        newOtherPlayerPane.prefHeightProperty().bind(parent.heightProperty());
+        newOtherPlayerPane.maxWidthProperty().bind(parent.widthProperty());
+        newOtherPlayerPane.maxHeightProperty().bind(parent.heightProperty());
+
+        VBox newOtherPlayerVBox = new VBox(15);
+        newOtherPlayerVBox.setAlignment(Pos.CENTER);
+
+        newOtherPlayerVBox.prefWidthProperty().bind(mainVBox.widthProperty().multiply(0.8));
+        newOtherPlayerVBox.prefHeightProperty().bind(mainVBox.heightProperty().multiply(0.8));
+        newOtherPlayerVBox.maxWidthProperty().bind(mainVBox.widthProperty().multiply(0.8));
+        newOtherPlayerVBox.maxHeightProperty().bind(mainVBox.heightProperty().multiply(0.8));
+        newOtherPlayerVBox.setStyle("-fx-background-color: transparent;");
+
+        Label titleLabel = new Label(player.getUsername() + "'s spaceship");
+        titleLabel.setStyle("-fx-font-size: 48px; -fx-font-weight: bold; -fx-text-fill: #f2ff00;");
+        titleLabel.setEffect(new DropShadow());
+
+
+        StackPane otherShip = new StackPane();
+        otherShip.prefWidthProperty().bind(mainVBox.widthProperty().multiply(0.6));
+        otherShip.prefHeightProperty().bind(mainVBox.heightProperty().multiply(0.5));
+        otherShip.setStyle("-fx-background-color: transparent;");
+        otherShip.getChildren().add(player.getShip().getNode().getValue0());
+
+        Button backButton = new Button("Back");
+        backButton.setPrefSize(200, 60);
+        backButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 10;");
+        backButton.setOnAction(_ -> hideOverlay(newOtherPlayerPane));
+
+        newOtherPlayerVBox.getChildren().addAll(titleLabel, otherShip, backButton);
+        newOtherPlayerPane.getChildren().add(newOtherPlayerVBox);
+        StackPane.setAlignment(newOtherPlayerVBox, Pos.CENTER);
+
+        parent.getChildren().add(newOtherPlayerPane);
+        newOtherPlayerPane.setVisible(false);
+
+        Platform.runLater(() -> {
+
+            newOtherPlayerPane.setVisible(true);
+            newOtherPlayerPane.toFront(); // Poi il popup va davanti al background
+
+            parent.layout();
+
+            newOtherPlayerPane.setOpacity(0);
+
+            FadeTransition fadeInContent = new FadeTransition(Duration.millis(300), newOtherPlayerPane);
+            fadeInContent.setFromValue(0);
+            fadeInContent.setToValue(1);
+
+            fadeInContent.play();
+        });
+    }
+
+    private void hideOverlay(StackPane paneToHide) {
+        FadeTransition fadeOutContent = new FadeTransition(Duration.millis(300), paneToHide);
+        fadeOutContent.setFromValue(1);
+        fadeOutContent.setToValue(0);
+
+        fadeOutContent.setOnFinished(_ -> {
+            paneToHide.setVisible(false);
+            parent.getChildren().remove(paneToHide);
+        });
+
+        fadeOutContent.play();
     }
 
     @Override
@@ -103,9 +220,7 @@ public class CrewController implements MiniModelObserver, Initializable {
 
                         node.setEffect(glow);
 
-                        node.setOnMouseClicked(e -> {
-                            showCrewChoice(component);
-                        });
+                        node.setOnMouseClicked(_ -> showCrewChoice(component));
                     }
                 }
             }
@@ -241,87 +356,7 @@ public class CrewController implements MiniModelObserver, Initializable {
         fadeOut.play();
     }
 
-    private void showOtherPlayer(PlayerDataView player) {
-        if (newOtherPlayerPane == null) {
-            createOtherPlayerPane(player);
-        }
 
-        Platform.runLater(() -> {
-            newOtherPlayerPane.setVisible(true);
-            newOtherPlayerPane.toFront();
-            parent.layout();
-
-            newOtherPlayerPane.setOpacity(0);
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), newOtherPlayerPane);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
-            fadeIn.play();
-        });
-    }
-
-    private void createOtherPlayerPane(PlayerDataView player) {
-        newOtherPlayerPane = new StackPane();
-        newOtherPlayerPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6);");
-
-        StackPane.setAlignment(newOtherPlayerPane, Pos.CENTER);
-
-        newOtherPlayerPane.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        newOtherPlayerPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-
-        // Create a VBox to hold the new lobby options
-        newOtherPlayerVBox = new VBox(15);
-        newOtherPlayerVBox.setAlignment(javafx.geometry.Pos.CENTER);
-
-        // Bind the size of the VBox to the main HBox
-        newOtherPlayerVBox.prefWidthProperty().bind(mainVBox.widthProperty().multiply(0.3));
-        newOtherPlayerVBox.prefHeightProperty().bind(mainVBox.heightProperty().multiply(0.5));
-        newOtherPlayerVBox.minWidthProperty().bind(newOtherPlayerVBox.prefWidthProperty());
-        newOtherPlayerVBox.minHeightProperty().bind(newOtherPlayerVBox.prefHeightProperty());
-        newOtherPlayerVBox.maxWidthProperty().bind(newOtherPlayerVBox.prefWidthProperty());
-        newOtherPlayerVBox.maxHeightProperty().bind(newOtherPlayerVBox.prefHeightProperty());
-
-        // Create a title label with a drop shadow effect
-        Label titleLabel = new Label(player.getUsername() + "'s spaceship");
-        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
-        titleLabel.setEffect(new DropShadow());
-
-        // Create StackPane for an other player
-        StackPane otherShip = new StackPane();
-        otherShip.getChildren().clear();
-        otherShip.getChildren().add(player.getShip().getNode().getValue0());
-        otherShip.setMaxWidth(newOtherPlayerVBox.getMaxWidth() * 0.8);
-
-
-        // Create confirm button
-        Button backButton = new Button("Back");
-        backButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
-        backButton.setOnAction(_ -> hideCrewOptions(newOtherPlayerPane));
-
-        // Add all components to the VBox
-        newOtherPlayerVBox.getChildren().addAll(titleLabel,
-                otherShip,
-                backButton);
-
-        newOtherPlayerPane.getChildren().add(newOtherPlayerVBox);
-        StackPane.setAlignment(newOtherPlayerVBox, Pos.CENTER);
-
-        // Add the new lobby options pane to the parent StackPane
-        parent.getChildren().add(newOtherPlayerPane);
-        newOtherPlayerPane.setVisible(false);
-
-        // Force the layout to update and bring the new pane to the front
-        Platform.runLater(() -> {
-            newOtherPlayerPane.toFront();
-            parent.layout();
-        });
-
-        // Update the sizes of the new lobby options controls
-        Platform.runLater(() -> {
-            newOtherPlayerPane.toFront();
-            parent.layout();
-            //updateNewLobbyOptionsSizes();
-        });
-    }
 
     private void hideCrewOptions(StackPane pane) {
         FadeTransition fadeOut = new FadeTransition(Duration.millis(300), pane);
