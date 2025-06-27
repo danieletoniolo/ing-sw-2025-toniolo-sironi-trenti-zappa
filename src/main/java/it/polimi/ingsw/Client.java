@@ -20,9 +20,24 @@ import org.jline.terminal.TerminalBuilder;
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * Main client class for the application.
+ * Handles user interface selection, network connection setup, and application startup.
+ */
 public class Client {
+    /**
+     * Shared network transceiver instance for client-server communication.
+     */
     public static NetworkTransceiver transceiver;
 
+    /**
+     * Entry point for the client application.
+     * Initializes the terminal, handles user input for UI and connection type,
+     * and starts the appropriate user interface.
+     *
+     * @param args command line arguments
+     * @throws IOException if an I/O error occurs during terminal initialization
+     */
     public static void main(String[] args) throws IOException {
         Terminal terminal;
         try {

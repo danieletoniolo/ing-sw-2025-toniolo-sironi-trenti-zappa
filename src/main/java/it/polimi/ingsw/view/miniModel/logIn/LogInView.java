@@ -1,15 +1,26 @@
 package it.polimi.ingsw.view.miniModel.logIn;
 
+/**
+ * View class for the login screen in the TUI (Text User Interface).
+ */
 public class LogInView {
 
-    public void drawMenuGui() {
-        //TODO: Implement the GUI drawing logic
-    }
-
+    /**
+     * Returns the number of rows to draw for the login view.
+     *
+     * @return the number of rows to draw
+     */
     public static int getRowsToDraw() {
         return 7;
     }
 
+    /**
+     * Returns the string to be drawn for a specific line in the login TUI.
+     *
+     * @param line the line number to draw
+     * @return the string representation of the specified line
+     * @throws IllegalStateException if the line number is not valid
+     */
     public String drawLineTui(int line) {
         return switch (line) {
             case 0 -> "  ___   __   __     __   _  _  _  _    ____  ____  _  _   ___  __ _  ____  ____  ";

@@ -1,5 +1,9 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+/**
+ * Enumeration representing the different types of components available in the view layer.
+ * Each component type corresponds to a specific spacecraft part or system.
+ */
 public enum ComponentTypeView {
     BATTERY,
     SINGLE_CANNON,

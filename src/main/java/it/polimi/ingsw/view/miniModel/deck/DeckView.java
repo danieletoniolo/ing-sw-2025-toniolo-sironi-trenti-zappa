@@ -14,18 +14,34 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
+/**
+ * Represents a view of a deck of cards in the mini model.
+ * Manages the stack of cards, observer registration, and GUI node creation.
+ */
 public class DeckView implements MiniModelObservable {
+    /** Stack containing the cards in the deck. */
     private final Stack<CardView> deck;
+    /** Indicates if the deck is covered (face down). */
     private boolean covered;
+    /** Indicates if only the last card should be shown. */
     private boolean onlyLast;
+    /** List of observers registered to this deck. */
     private final List<MiniModelObserver> observers;
+    /** Pair containing the JavaFX node and its controller for the deck. */
     private Pair<Node, DeckController> deckNode;
 
+    /**
+     * Constructs an empty DeckView and initializes the observer list.
+     */
     public DeckView() {
         this.deck = new Stack<>();
         this.observers = new ArrayList<>();
     }
 
+    /**
+     * Registers an observer to this deck.
+     * @param observer the observer to register
+     */
     @Override
     public void registerObserver(MiniModelObserver observer) {
         synchronized (observers) {
@@ -33,6 +49,10 @@ public class DeckView implements MiniModelObservable {
         }
     }
 
+    /**
+     * Unregisters an observer from this deck.
+     * @param observer the observer to remove
+     */
     @Override
     public void unregisterObserver(MiniModelObserver observer) {
         synchronized (observers) {
@@ -40,6 +60,9 @@ public class DeckView implements MiniModelObservable {
         }
     }
 
+    /**
+     * Notifies all registered observers of a change in the deck.
+     */
     @Override
     public void notifyObservers() {
         synchronized (observers) {
@@ -49,6 +72,10 @@ public class DeckView implements MiniModelObservable {
         }
     }
 
+    /**
+     * Returns the JavaFX node and controller for the deck, loading them if necessary.
+     * @return a Pair containing the Node and DeckController, or null if loading fails
+     */
     public Pair<Node, DeckController> getNode() {
         try {
             if (deckNode != null) return deckNode;
@@ -68,10 +95,19 @@ public class DeckView implements MiniModelObservable {
     }
 
 
+    /**
+     * Checks if the deck is currently covered (face down).
+     * @return true if the deck is covered, false otherwise
+     */
     public boolean isCovered() {
         return covered;
     }
 
+    /**
+     * Sets whether the deck is covered (face down) and updates all cards accordingly.
+     * Notifies observers after the change.
+     * @param covered true to cover the deck, false to uncover
+     */
     public void setCovered(boolean covered) {
         this.covered = covered;
 
@@ -81,10 +117,20 @@ public class DeckView implements MiniModelObservable {
         notifyObservers();
     }
 
+    /**
+     * Checks if only the last card in the deck should be shown.
+     * @return true if only the last card is shown, false otherwise
+     */
     public boolean isOnlyLast() {
         return onlyLast;
     }
 
+    /**
+     * Sets whether only the last card in the deck should be shown.
+     * If set to true, uncovers the last card.
+     * Notifies observers after the change.
+     * @param onlyLast true to show only the last card, false otherwise
+     */
     public void setOnlyLast(boolean onlyLast) {
         this.onlyLast = onlyLast;
 
@@ -94,19 +140,35 @@ public class DeckView implements MiniModelObservable {
         notifyObservers();
     }
 
+    /**
+     * Adds a card to the top of the deck and notifies observers.
+     * @param card the CardView to add
+     */
     public void addCard(CardView card) {
         deck.push(card);
         notifyObservers();
     }
 
+    /**
+     * Removes the card from the top of the deck.
+     */
     public void popCard() {
         deck.pop();
     }
 
+    /**
+     * Returns the stack of cards in the deck.
+     * @return the stack of CardView objects
+     */
     public Stack<CardView> getDeck() {
         return deck;
     }
 
+    /**
+     * Reorders the deck according to the given list of card IDs.
+     * Notifies observers after reordering.
+     * @param ids the list of card IDs in the desired order
+     */
     public void order(List<Integer> ids) {
         for (int i = 0; i < ids.size(); i++) {
             int j;
@@ -120,14 +182,27 @@ public class DeckView implements MiniModelObservable {
         notifyObservers();
     }
 
+    /**
+     * Gets the number of rows to draw for the deck (static).
+     * @return the number of rows to draw
+     */
     public static int getRowsToDraw() {
         return CardView.getRowsToDraw();
     }
 
+    /**
+     * Gets the number of columns to draw for the deck.
+     * @return the number of columns to draw
+     */
     public int getColsToDraw() {
         return CardView.getColsToDraw() + deck.size() - 1;
     }
 
+    /**
+     * Draws a specific line of the deck for the text-based user interface (TUI).
+     * @param line the line number to draw
+     * @return the string representation of the specified line
+     */
     public String drawLineTui(int line){
         StringBuilder str = new StringBuilder();
 
