@@ -29,7 +29,7 @@ The server must be started before any client. It supports both Socket and RMI co
 cd /path/to/ing-sw-2025-toniolo-sironi-trenti-zappa
 
 # Launch server with default parameters
-java -jar derivables/Server.jar
+java -jar deliverables/Server.jar
 ```
 
 #### 📱 Client
@@ -41,7 +41,7 @@ The client can be started in **GUI** (graphical interface) or **TUI** (text inte
 cd /path/to/ing-sw-2025-toniolo-sironi-trenti-zappa
 
 # Launch GUI client (default mode)
-java -jar derivables/Client.jar
+java -jar deliverables/Client.jar
 
 ```
 
@@ -55,10 +55,10 @@ java -jar derivables/Client.jar
 2. **Start one or more Clients:**
    ```bash
    # Terminal 1 - Client
-   java -jar derivables/Client.jar
+   java -jar deliverables/Client.jar
    
    # Terminal 2 - Client
-   java -jar derivables/Client.jar
+   java -jar deliverables/Client.jar
    ```
 
 3. **In the client:** 
