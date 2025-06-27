@@ -117,24 +117,15 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            resetHandlers();
-            selectedEnginesList.clear();
-            selectedBatteriesList.clear();
-            selectedCabinsList.clear();
-            selectedCannonsList.clear();
-            fromStorage = -1;
-            withStorage = -1;
-            fromList.clear();
-            withList.clear();
-            cardGoods.clear();
-            penaltyGoods.clear();
 
             if (deckLen == -1) {
                 deckLen = mm.getShuffledDeckView().getDeck().size();
+                resetHandlers();
             }
             else {
                 if (deckLen != mm.getShuffledDeckView().getDeck().size()) {
                     changeCardGoods = true;
+                    resetHandlers();
                 }
             }
 
@@ -150,27 +141,31 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                     activeGoodsButtons();
                     break;
                 case SMUGGLERS:
-                    totalButtons += 3 + 4 + 3;
+                    totalButtons += 3 + 2 + 4 + 3;
                     activeCannonsButton();
+                    activeBatteriesButtons();
                     activeGoodsButtons();
                     activePenaltyGoods();
                     break;
                 case METEORSSWARM:
-                    totalButtons += 1 + 1 + 1;
+                    totalButtons += 1 + 1 + 1 + 2;
                     activeFragmentsButtons();
                     activeShieldButtons();
+                    activeBatteriesButtons();
                     activeRollDiceButtons();
                     break;
                 case PIRATES:
-                    totalButtons += 1 + 1 + 1 + 3;
+                    totalButtons += 1 + 1 + 1 + 3 + 2;
                     activeFragmentsButtons();
                     activeShieldButtons();
+                    activeBatteriesButtons();
                     activeRollDiceButtons();
                     activeCannonsButton();
                     break;
                 case SLAVERS:
-                    totalButtons += 3 + 3;
+                    totalButtons += 3 + 3 + 2;
                     activeCannonsButton();
+                    activeBatteriesButtons();
                     activeCabinsButtons();
                     break;
                 case EPIDEMIC:
@@ -178,13 +173,15 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 case STARDUST:
                     break;
                 case OPENSPACE:
-                    totalButtons += 3;
+                    totalButtons += 3 + 2;
                     activeEnginesButtons();
+                    activeBatteriesButtons();
                     break;
                 case COMBATZONE:
-                    totalButtons += 3 + 3 + 1 + 1 + 1 + 3 + 3;
+                    totalButtons += 3 + 3 + 1 + 1 + 1 + 3 + 3 + 2;
                     activeCannonsButton();
                     activeEnginesButtons();
+                    activeBatteriesButtons();
                     activeRollDiceButtons();
                     activeShieldButtons();
                     activeFragmentsButtons();
@@ -474,7 +471,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
                 exchanges.add(new Triplet<>(goodsToGet, goodsToLeave, storageID));
                 StatusEvent status = ExchangeGoods.requester(Client.transceiver, new Object()).request(new ExchangeGoods(mm.getUserID(), exchanges));
-                error(status);
+                if (status.get().equals(mm.getErrorCode())) {
+                    error(status);
+                }
             });
             confirmButton.setOnAction(_ -> hideOptions(newSelectGoodsPane));
 
@@ -727,12 +726,18 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
     private void error(StatusEvent status) {
         Stage currentStage = (Stage) parent.getScene().getWindow();
-        if (status.get().equals(mm.getErrorCode())) {
-            MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
-            react();
-        } else {
-            MessageController.showInfoMessage(currentStage, "You have end your turn");
-        }
+        MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+        resetHandlers();
+        selectedEnginesList.clear();
+        selectedBatteriesList.clear();
+        selectedCabinsList.clear();
+        selectedCannonsList.clear();
+        fromStorage = -1;
+        withStorage = -1;
+        fromList.clear();
+        withList.clear();
+        cardGoods.clear();
+        penaltyGoods.clear();
     }
     
     private void showPlanetOptions(PlanetsView planets) {
@@ -803,7 +808,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         confirmButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
         confirmButton.setOnMouseClicked(_ -> {
             StatusEvent status = SelectPlanet.requester(Client.transceiver, new Object()).request(new SelectPlanet(mm.getUserID(), plantNumbers.getValue()));
-            error(status);
+            if (status.get().equals(mm.getErrorCode())) {
+                error(status);
+            }
         });
         confirmButton.setOnAction(_ -> hideOptions(newPlanetPane));
 
@@ -874,7 +881,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         // Use cannons event
         activeCannonsButton.setOnMouseClicked(e -> {
             StatusEvent status = UseCannons.requester(Client.transceiver, new Object()).request(new UseCannons(mm.getUserID(), selectedCannonsList, selectedBatteriesList));
-            error(status);
+            if (status.get().equals(mm.getErrorCode())) {
+                error(status);
+            }
         });
 
         lowerHBox.getChildren().addAll(selectCannonsButton, cancelCannonsButton, activeCannonsButton);
@@ -913,7 +922,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         // Use engine event
         activeEnginesButton.setOnMouseClicked(e -> {
             StatusEvent status = UseEngines.requester(Client.transceiver, new Object()).request(new UseEngines(mm.getUserID(), selectedEnginesList, selectedBatteriesList));
-            error(status);
+            if (status.get().equals(mm.getErrorCode())) {
+                error(status);
+            }
         });
 
 
@@ -989,7 +1000,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
         sendCrewPenalty.setOnMouseClicked(_ -> {
             StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object()).request(new SetPenaltyLoss(mm.getUserID(), 2, selectedCabinsList));
-            error(status);
+            if (status.get().equals(mm.getErrorCode())) {
+                error(status);
+            }
         });
 
         lowerHBox.getChildren().addAll(selectCabinsButton, cancelCabinsButton, sendCrewPenalty);
@@ -1002,7 +1015,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         // Use shield event
         activeShield.setOnMouseClicked(e -> {
             StatusEvent status = UseShield.requester(Client.transceiver, new Object()).request(new UseShield(mm.getUserID(), selectedBatteriesList));
-            error(status);
+            if (status.get().equals(mm.getErrorCode())) {
+                error(status);
+            }
         });
 
         lowerHBox.getChildren().addAll(activeShield);
@@ -1016,7 +1031,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         // Roll dice event
         rollDiceButton.setOnMouseClicked(e -> {
             StatusEvent status = RollDice.requester(Client.transceiver, new Object()).request(new RollDice(mm.getUserID()));
-            error(status);
+            if (status.get().equals(mm.getErrorCode())) {
+                error(status);
+            }
         });
 
         lowerHBox.getChildren().addAll(rollDiceButton);
@@ -1030,7 +1047,13 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         // EndTurn event
         endTurn.setOnMouseClicked(e -> {
             StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
-            error(status);
+            if (status.get().equals(mm.getErrorCode())) {
+                error(status);
+            }
+            else {
+                Stage currentStage = (Stage) parent.getScene().getWindow();
+                MessageController.showInfoMessage(currentStage, "You have end your turn");
+            }
         });
 
         lowerHBox.getChildren().addAll(endTurn);
@@ -1066,7 +1089,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
         swapGoods.setOnMouseClicked(e -> {
             StatusEvent status = SwapGoods.requester(Client.transceiver, new Object()).request(new SwapGoods(mm.getUserID(), fromStorage, withStorage, fromList, withList));
-            error(status);
+            if (status.get().equals(mm.getErrorCode())) {
+                error(status);
+            }
         });
 
 
@@ -1093,7 +1118,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
         acceptCard.setOnMouseClicked(e -> {
             StatusEvent status = Play.requester(Client.transceiver, new Object()).request(new Play(mm.getUserID()));
-            error(status);
+            if (status.get().equals(mm.getErrorCode())) {
+                error(status);
+            }
         });
 
         lowerHBox.getChildren().addAll(acceptCard);
@@ -1111,7 +1138,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
         sendGoodsPenalty.setOnMouseClicked(e -> {
             StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object()).request(new SetPenaltyLoss(mm.getUserID(), 0, penaltyGoods));
-            error(status);
+            if (status.get().equals(mm.getErrorCode())) {
+                error(status);
+            }
         });
 
         choosePenaltyGoods.setOnMouseClicked(_ -> {
@@ -1120,7 +1149,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
         sendPenaltyButteries.setOnMouseClicked(_ -> {
             StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object()).request(new SetPenaltyLoss(mm.getUserID(), 1, selectedBatteriesList));
-            error(status);
+            if (status.get().equals(mm.getErrorCode())) {
+                error(status);
+            }
         });
 
         lowerHBox.getChildren().addAll(choosePenaltyGoods, sendGoodsPenalty, sendPenaltyButteries);
@@ -1177,7 +1208,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                     int finalI = i;
                     node.setOnMouseClicked(_ -> {
                         StatusEvent status = ChooseFragment.requester(Client.transceiver, new Object()).request(new ChooseFragment(mm.getUserID(), finalI));
-                        error(status);
+                        if (status.get().equals(mm.getErrorCode())) {
+                            error(status);
+                        }
                     });
                 }
                 i++;
@@ -1191,7 +1224,11 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
         giveUp.setOnMouseClicked(_ -> {
             StatusEvent status = GiveUp.requester(Client.transceiver, new Object()).request(new GiveUp(mm.getUserID()));
-            error(status);
+            if (status.get().equals(mm.getErrorCode())) {
+                error(status);
+            }
         });
+
+        lowerHBox.getChildren().addAll(giveUp);
     }
 }

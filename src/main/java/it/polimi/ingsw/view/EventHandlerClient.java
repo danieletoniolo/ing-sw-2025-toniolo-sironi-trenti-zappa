@@ -1211,6 +1211,10 @@ public class EventHandlerClient {
                         battery.setNumberOfBatteries(battery.getMaximumBatteries());
                     }
                 }
+
+                for (int i = 0; i < MiniModel.getInstance().getDeckViews().getValue1().length; i++) {
+                    MiniModel.getInstance().getDeckViews().getValue0()[i] = null;
+                }
             }
             if (data.newState() == GamePhases.FINISHED.getValue()) {
                 MiniModel mm = MiniModel.getInstance();

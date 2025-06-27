@@ -116,7 +116,6 @@ public class ValidationController implements MiniModelObserver, Initializable {
         cancelSelectionButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
         cancelSelectionButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
-
         endTurnButton = new Button("End Turn");
         endTurnButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
         endTurnButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
@@ -158,15 +157,21 @@ public class ValidationController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            resetHandlers();
+            for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+                for (ComponentView component : row) {
+                    if (component != null && component.getIsWrong()) {
+                        placedMarker = false;
+                        break;
+                    }
+                }
+            }
 
             placeMarkerButton.setOnMouseClicked(_ -> showMarkerPositionSelector());
 
             destroyComponentsButton.setOnMouseClicked(_ -> {
                 StatusEvent status = DestroyComponents.requester(Client.transceiver, new Object()).request(new DestroyComponents(mm.getUserID(), componentsToDestroy));
                 if (status.get().equals(mm.getErrorCode())) {
-                    Stage currentStage = (Stage) parent.getScene().getWindow();
-                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                    error(status);
                 }
                 for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
                     for (ComponentView component : row) {
@@ -199,13 +204,16 @@ public class ValidationController implements MiniModelObserver, Initializable {
                 if (!placedMarker) {
                     Stage currentStage = (Stage) parent.getScene().getWindow();
                     MessageController.showErrorMessage(currentStage, "You need to place the marker");
-                    return;
                 }
-
-                StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
-                if (status.get().equals(mm.getErrorCode())) {
-                    Stage currentStage = (Stage) parent.getScene().getWindow();
-                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                else{
+                    StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                    if (status.get().equals(mm.getErrorCode())) {
+                        error(status);
+                    }
+                    else{
+                        Stage currentStage = (Stage) parent.getScene().getWindow();
+                        MessageController.showInfoMessage(currentStage, "Confirmed choices");
+                    }
                 }
             });
 
@@ -289,7 +297,9 @@ public class ValidationController implements MiniModelObserver, Initializable {
                         int finalI = i;
                         node.setOnMouseClicked(_ -> {
                             StatusEvent status = ChooseFragment.requester(Client.transceiver, new Object()).request(new ChooseFragment(mm.getUserID(), finalI));
-                            error(status);
+                            if (status.get().equals(mm.getErrorCode())) {
+                                error(status);
+                            }
                         });
                     }
                     i++;
@@ -370,8 +380,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
         StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object())
                 .request(new PlaceMarker(MiniModel.getInstance().getUserID(), position));
         if (status.get().equals(mm.getErrorCode())) {
-            Stage currentStage = (Stage) parent.getScene().getWindow();
-            MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+            error(status);
         } else {
             placedMarker = true;
         }
@@ -469,10 +478,8 @@ public class ValidationController implements MiniModelObserver, Initializable {
     }
 
     private void error(StatusEvent status) {
-        if (status.get().equals(mm.getErrorCode())) {
-            Stage currentStage = (Stage) parent.getScene().getWindow();
-            MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
-            react();
-        }
+        Stage currentStage = (Stage) parent.getScene().getWindow();
+        MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+        resetHandlers();
     }
 }
