@@ -9,6 +9,7 @@ import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
 import it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController;
 import it.polimi.ingsw.view.gui.screens.LobbyController;
 import it.polimi.ingsw.view.gui.screens.MenuController;
+import it.polimi.ingsw.view.gui.screens.RewardController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
@@ -73,32 +74,19 @@ public class GuiTest extends Application {
         lv.setPlayerStatus("Player1", true);
         lobbyController.react();*/
 
-        BoardView boardView = new BoardView(LevelView.SECOND, 2);
+        PlayerDataView player1 = new PlayerDataView("Player1", MarkerView.BLUE, new SpaceShipView(LevelView.LEARNING));
+        MiniModel.getInstance().getOtherPlayers().add(player1);
+        PlayerDataView player2 = new PlayerDataView("Player2", MarkerView.RED, new SpaceShipView(LevelView.LEARNING));
+        MiniModel.getInstance().getOtherPlayers().add(player2);
+        PlayerDataView player3 = new PlayerDataView("Player3", MarkerView.GREEN, new SpaceShipView(LevelView.LEARNING));
+        MiniModel.getInstance().getOtherPlayers().add(player3);
+        PlayerDataView player4 = new PlayerDataView("Player4", MarkerView.YELLOW, new SpaceShipView(LevelView.LEARNING));
+        MiniModel.getInstance().setClientPlayer(player4);
 
-
-        AbandonedShipView a = new AbandonedShipView(17, false, 1, 2, 3, 4);
-        a.setWidth(200);
-        a.setCovered(true);
-        SlaversView b = new SlaversView(18, false, 1, 5, 6, 7, 8);
-        b.setWidth(200);
-        b.setCovered(true);
-        SmugglersView c = new SmugglersView(19, false, 1, 9, 10, 11, new ArrayList<>());
-        c.setWidth(200);
-        c.setCovered(true);
-        DeckView d = new DeckView();
-        d.addCard(a);
-        d.addCard(b);
-        d.addCard(c);
-        d.setCovered(true);
-
-        boardView.getDecksView().add(new Pair<>(d, true));
-        boardView.getDecksView().add(new Pair<>(d, false));
-        boardView.getDecksView().add(new Pair<>(d, true));
-
-
-        Pair<Node, BoardController> pair = boardView.getNode();
-        Parent root = (Parent) pair.getValue0();
-
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/reward.fxml"));
+        Parent root = loader.load();
+        RewardController rewardController = loader.getController();
+        rewardController.react();
 
         Scene scene = new Scene(root);
         stage.setTitle("Hello!");

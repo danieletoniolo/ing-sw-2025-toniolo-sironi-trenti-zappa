@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<StackPane fx:id="parent" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1600.0"
+           xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="it.polimi.ingsw.view.gui.screens.RewardController">
+   <Group fx:id="resizeGroup">
+      <StackPane fx:id="mainBox" layoutX="16.0" layoutY="16.0" prefHeight="600.0" prefWidth="1600.0">
+         <VBox alignment="CENTER" prefHeight="100.0" prefWidth="1300.0" maxWidth="1000.0" spacing="50.0" StackPane.alignment="CENTER"
+               style="-fx-background-color: rgba(251,197,9, 0.5); -fx-background-radius: 10; -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10;">
+            <Label fx:id="titleLabel" alignment="CENTER" graphicTextGap="5.0" prefWidth="1300.0"
+                   text="Ranking" textAlignment="CENTER" textFill="#f2ff00">
+               <font>
+                  <Font name="System Bold" size="79.0"/>
+               </font>
+               <effect>
+                  <DropShadow/>
+               </effect>
+            </Label>
+            <VBox fx:id="rankVBox" maxWidth="900.0" prefWidth="1200.0" spacing="20.0"/>
+            <Button fx:id="nextRankButton" mnemonicParsing="false" prefHeight="40.0" prefWidth="150.0" text="rankingButton"/>
+         </VBox>
+      </StackPane>
+   </Group>
+</StackPane>
