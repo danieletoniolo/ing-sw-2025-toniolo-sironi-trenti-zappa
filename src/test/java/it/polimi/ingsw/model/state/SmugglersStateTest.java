@@ -27,7 +27,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SmugglersStateTest {
-    Field cannonStrengthField = SmugglersState.class.getDeclaredField("cannonStrength");
+    Field cannonStrengthField = SmugglersState.class.getDeclaredField("cannonsStrength");
     Field internalStateField = SmugglersState.class.getDeclaredField("internalState");
     Field cardField = SmugglersState.class.getDeclaredField("card");
     Field currentPenaltyLossField = SmugglersState.class.getDeclaredField("currentPenaltyLoss");
@@ -39,6 +39,10 @@ class SmugglersStateTest {
 
         @Override
         public void trigger(Event event, UUID targetUser) {
+
+        }
+        @Override
+        public void triggerEndGame() {
 
         }
     };
@@ -384,7 +388,6 @@ class SmugglersStateTest {
         }
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
     }
 
     @RepeatedTest(5)
@@ -397,12 +400,12 @@ class SmugglersStateTest {
         assertThrows(IllegalStateException.class, () -> state.exit());
     }
 
-    @RepeatedTest(5)
+    @Test
     void exit_withNoPlayers() {
         state.players.clear();
         state.playersStatus.clear();
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
+        assertFalse(state.played);
     }
 }

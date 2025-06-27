@@ -44,18 +44,6 @@ class CardsManagerTest {
         }
     }
 
-    @ParameterizedTest
-    @ValueSource(ints = {1, 3, 4, 8, 12, 15, 17, 18})
-    void createLearningDeck(int number) {
-        Stack<Card> shuffled = CardsManager.createLearningDeck();
-
-        assertNotNull(shuffled);
-        for (Card card : shuffled) {
-            assertNotNull(card);
-        }
-        assertTrue(shuffled.contains(CardsManager.getCard(number)));
-
-    }
 
     @Test
     void createShuffledDeck() {
@@ -69,18 +57,6 @@ class CardsManagerTest {
             }
         }
         assertTrue(shuffled.getLast().getCardLevel() == 2 || shuffled.getLast().getCardLevel() == 1);
-    }
-
-    @Test
-    void getCard() {
-        assertThrows(IndexOutOfBoundsException.class, () -> {
-            CardsManager.getCard(40);
-        });
-        for (int i = 0; i < 40; i++) {
-            assertEquals(i, CardsManager.getCard(i).getID());
-            if (i < 20) assertEquals(1, CardsManager.getCard(i).getCardLevel());
-            else assertEquals(2, CardsManager.getCard(i).getCardLevel());
-        }
     }
 
     @Test

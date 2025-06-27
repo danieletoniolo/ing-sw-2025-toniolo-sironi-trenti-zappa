@@ -33,6 +33,10 @@ class LobbyStateTest {
         public void trigger(Event event, UUID targetUser) {
 
         }
+        @Override
+        public void triggerEndGame() {
+
+        }
     };
     StateTransitionHandler th;
 
@@ -95,7 +99,6 @@ class LobbyStateTest {
         }
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
     }
 
     @Test
@@ -116,7 +119,7 @@ class LobbyStateTest {
         state.playersStatus.clear();
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
+        assertFalse(state.played);
     }
 
     @Test

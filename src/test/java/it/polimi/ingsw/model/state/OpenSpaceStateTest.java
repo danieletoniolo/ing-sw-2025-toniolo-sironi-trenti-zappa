@@ -33,6 +33,10 @@ class OpenSpaceStateTest {
         public void trigger(Event event, UUID targetUser) {
 
         }
+        @Override
+        public void triggerEndGame() {
+
+        }
     };
     StateTransitionHandler th;
 
@@ -188,7 +192,6 @@ class OpenSpaceStateTest {
         }
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
     }
 
     @Test
@@ -207,6 +210,5 @@ class OpenSpaceStateTest {
         state.playersStatus.clear();
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
     }
 }

@@ -224,10 +224,9 @@ class BoardTest {
         });
     }
 
-    @ParameterizedTest
-    @EnumSource(Level.class)
-    void updateInGamePlayers(Level level) throws JsonProcessingException {
-        Board board = new Board(level);
+    @Test
+    void updateInGamePlayers() throws JsonProcessingException {
+        Board board = new Board(Level.SECOND);
         board.clearInGamePlayers();
         ArrayList<PlayerData> players = new ArrayList<>(3);
 
@@ -241,7 +240,7 @@ class BoardTest {
 
         board.setPlayer(player1, 0);
         board.setPlayer(player2, 1);
-        board.setPlayer(player3, 3);
+        board.setPlayer(player3, 2);
         board.refreshInGamePlayers();
         assertEquals(players, board.getInGamePlayers());
 

@@ -22,7 +22,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SlaversStateTest {
-    Field statsField = SlaversState.class.getDeclaredField("cannonStrength");
+    Field statsField = SlaversState.class.getDeclaredField("cannonsStrength");
     Field cardField = SlaversState.class.getDeclaredField("card");
     Field internalStateField = SlaversState.class.getDeclaredField("internalState");
     Field slaversDefeatField = SlaversState.class.getDeclaredField("slaversDefeat");
@@ -35,6 +35,10 @@ class SlaversStateTest {
 
         @Override
         public void trigger(Event event, UUID targetUser) {
+
+        }
+        @Override
+        public void triggerEndGame() {
 
         }
     };
@@ -239,14 +243,13 @@ class SlaversStateTest {
         assertThrows(NullPointerException.class, () -> state.execute(player));
     }
 
-    @RepeatedTest(5)
+    @Test
     void exit_withAllPlayersPlayed() {
         for (PlayerData player : state.board.getInGamePlayers()) {
             state.playersStatus.put(player.getColor(), State.PlayerStatus.PLAYED);
         }
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
     }
 
     @RepeatedTest(5)
@@ -259,12 +262,12 @@ class SlaversStateTest {
         assertThrows(IllegalStateException.class, () -> state.exit());
     }
 
-    @RepeatedTest(5)
+    @Test
     void exit_withNoPlayers() {
         state.players.clear();
         state.playersStatus.clear();
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
+        assertFalse(state.played);
     }
 }

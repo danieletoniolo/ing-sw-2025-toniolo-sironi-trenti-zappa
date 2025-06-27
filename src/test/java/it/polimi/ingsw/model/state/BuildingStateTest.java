@@ -41,6 +41,11 @@ class BuildingStateTest {
         public void trigger(Event event, UUID targetUser) {
 
         }
+
+        @Override
+        public void triggerEndGame() {
+
+        }
     };
     StateTransitionHandler th = _ -> {
     };
@@ -112,7 +117,7 @@ class BuildingStateTest {
         b.setPlayer(p3, 3);
         BuildingState bs = new BuildingState(b, ecb, th);
         PlayerData player = bs.board.getInGamePlayers().getFirst();
-        int validShipIndex = 2;
+        int validShipIndex = 1;
 
         assertDoesNotThrow(() -> bs.cheatCode(player, validShipIndex));
     }
@@ -427,7 +432,7 @@ class BuildingStateTest {
         }
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
+        assertFalse(state.played);
     }
 
     @Test
@@ -446,6 +451,6 @@ class BuildingStateTest {
         state.playersStatus.clear();
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
+        assertFalse(state.played);
     }
 }

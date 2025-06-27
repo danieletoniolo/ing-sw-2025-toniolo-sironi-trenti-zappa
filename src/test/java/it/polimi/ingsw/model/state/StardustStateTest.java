@@ -31,6 +31,10 @@ class StardustStateTest {
         public void trigger(Event event, UUID targetUser) {
 
         }
+        @Override
+        public void triggerEndGame() {
+
+        }
     };
     StateTransitionHandler th;
 

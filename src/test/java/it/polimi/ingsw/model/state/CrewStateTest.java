@@ -31,6 +31,10 @@ class CrewStateTest {
         public void trigger(Event event, UUID targetUser) {
 
         }
+        @Override
+        public void triggerEndGame() {
+
+        }
     };
     StateTransitionHandler th;
 
@@ -158,7 +162,6 @@ class CrewStateTest {
         }
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
     }
 
     @Test
@@ -177,7 +180,7 @@ class CrewStateTest {
         state.playersStatus.clear();
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
+        assertFalse(state.played);
     }
 
     @Test

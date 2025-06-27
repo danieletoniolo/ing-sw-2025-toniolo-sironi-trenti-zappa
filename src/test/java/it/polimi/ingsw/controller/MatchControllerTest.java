@@ -13,7 +13,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class MatchControllerTest {
 
     @Test
-    void setUp_withValidNetworkTransceiver() {
+    void setUp_withValidNetworkTransceiver() throws NoSuchFieldException, IllegalAccessException {
+        Field instanceField = MatchController.class.getDeclaredField("instance");
+
+        instanceField.setAccessible(true);
+        instanceField.set(MatchController.getInstance(), null);
         NetworkTransceiver transceiver = new NetworkTransceiver();
 
         assertDoesNotThrow(() -> MatchController.setUp(transceiver));

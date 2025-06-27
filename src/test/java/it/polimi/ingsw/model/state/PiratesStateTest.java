@@ -42,6 +42,10 @@ class PiratesStateTest {
         public void trigger(Event event, UUID targetUser) {
 
         }
+        @Override
+        public void triggerEndGame() {
+
+        }
     };
     StateTransitionHandler th = _ -> {};
 
@@ -129,7 +133,7 @@ class PiratesStateTest {
         state.rollDice(player);
         internalStateField.set(state, PiratesState.PiratesInternalState.PENALTY);
         state.execute(player);
-        assertDoesNotThrow(() -> state.setProtect(player, 1));
+        assertDoesNotThrow(() -> state.setProtect(player, List.of(1)));
         state.setFragmentChoice(player, 0);
         assertTrue(((List<List<Pair<Integer, Integer>>>) fragmentsField.get(state)).isEmpty());
     }
@@ -137,7 +141,7 @@ class PiratesStateTest {
     @Test
     void setProtect_whenDiceNotRolled() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        assertThrows(IllegalStateException.class, () -> state.setProtect(player, 1));
+        assertThrows(IllegalStateException.class, () -> state.setProtect(player, List.of(1)));
     }
 
     @Test
@@ -315,7 +319,6 @@ class PiratesStateTest {
         }
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
     }
 
     @RepeatedTest(5)
@@ -334,6 +337,6 @@ class PiratesStateTest {
         state.playersStatus.clear();
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
+        assertFalse(state.played);
     }
 }

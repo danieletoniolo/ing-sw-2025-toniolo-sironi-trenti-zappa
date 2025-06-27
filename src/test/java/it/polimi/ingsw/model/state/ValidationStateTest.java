@@ -13,6 +13,7 @@ import it.polimi.ingsw.model.state.exception.SynchronousStateException;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.shadow.com.univocity.parsers.fixed.FieldAlignment;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -33,6 +34,10 @@ class ValidationStateTest {
 
         @Override
         public void trigger(Event event, UUID targetUser) {
+
+        }
+        @Override
+        public void triggerEndGame() {
 
         }
     };
@@ -93,8 +98,8 @@ class ValidationStateTest {
         ArrayList<Pair<Integer, Integer>> fragment1 = new ArrayList<>(List.of(new Pair<>(6, 7), new Pair<>(6, 8)));
         ((Map<PlayerData, List<List<Pair<Integer, Integer>>>>) fragmentedComponentsField.get(state)).put(player, List.of(fragment1));
 
-        assertThrows(IllegalArgumentException.class, () -> state.setFragmentChoice(player, 2));
-        assertThrows(IllegalArgumentException.class, () -> state.setFragmentChoice(player, -1));
+        assertThrows(IllegalStateException.class, () -> state.setFragmentChoice(player, 2));
+        assertThrows(IllegalStateException.class, () -> state.setFragmentChoice(player, -1));
     }
 
     @Test
@@ -106,13 +111,37 @@ class ValidationStateTest {
     }
 
     @Test
-    void setComponentToDestroy_withValidComponents() {
+    void placeMarker_wrongBoard() throws JsonProcessingException {
+        Board b = new Board(Level.SECOND);
+        State L = new ValidationState(b, ecb, th);
+        PlayerData player = new PlayerData("p0", UUID.randomUUID().toString(), PlayerColor.BLUE, new SpaceShip(Level.SECOND, PlayerColor.BLUE));
+        L.board.addInGamePlayers(player);
+        assertThrows(IllegalStateException.class, () -> L.placeMarker(player, 1));
+    }
+
+    @Test
+    void placeMarker() throws JsonProcessingException {
+        Board b = new Board(Level.LEARNING);
+        State L = new ValidationState(b, ecb, th);
+        PlayerData player = new PlayerData("p0", UUID.randomUUID().toString(), PlayerColor.BLUE, new SpaceShip(Level.SECOND, PlayerColor.BLUE));
+        L.board.addInGamePlayers(player);
+        assertEquals(0, L.board.getInGamePlayers().getFirst().getPosition());
+    }
+
+
+
+    @Test
+    void setComponentToDestroy_withValidComponents() throws IllegalAccessException, NoSuchFieldException {
         PlayerData player = state.board.getInGamePlayers().getFirst();
         ArrayList<Pair<Integer, Integer>> components = new ArrayList<>();
         components.add(new Pair<>(6, 7));
         components.add(new Pair<>(6, 8));
         player.getSpaceShip().placeComponent(new Connectors(1, null), 6, 7);
         player.getSpaceShip().placeComponent(new Connectors(1, null), 6, 8);
+
+        Field invalidComponentsField = ValidationState.class.getDeclaredField("invalidComponents");
+        invalidComponentsField.setAccessible(true);
+        ((Map<PlayerData, ArrayList<Pair<Integer, Integer>>>) invalidComponentsField.get(state)).put(player, components);
 
         assertDoesNotThrow(() -> state.setComponentToDestroy(player, components));
         assertTrue(player.getSpaceShip().getInvalidComponents().isEmpty());
@@ -173,7 +202,7 @@ class ValidationStateTest {
         player.getSpaceShip().getInvalidComponents().clear();
 
         assertDoesNotThrow(() -> state.execute(player));
-        assertEquals(State.PlayerStatus.PLAYED, state.playersStatus.get(player.getColor()));
+        assertEquals(State.PlayerStatus.SKIPPED, state.playersStatus.get(player.getColor()));
     }
 
     @Test

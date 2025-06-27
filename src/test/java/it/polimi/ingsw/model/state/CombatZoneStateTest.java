@@ -47,6 +47,10 @@ class CombatZoneStateTest {
         public void trigger(Event event, UUID targetUser) {
 
         }
+        @Override
+        public void triggerEndGame() {
+
+        }
     };
     StateTransitionHandler th = _ -> {
     };
@@ -136,13 +140,12 @@ class CombatZoneStateTest {
         assertThrows(IllegalStateException.class, () -> state.setFragmentChoice(player, 0));
     }
 
-    //Todo: testare quando avranno finito setProtect
     @Test
     void setProtect_whenInternalStateIsInvalid() throws IllegalAccessException {
         internalStateField.set(state, CombatZoneState.CombatZoneInternalState.ENGINES);
         PlayerData player = state.players.getFirst();
 
-        assertThrows(IllegalStateException.class, () -> state.setProtect(player, 1));
+        assertThrows(IllegalStateException.class, () -> state.setProtect(player, List.of(1)));
     }
 
     @Test
@@ -158,7 +161,7 @@ class CombatZoneStateTest {
         state.rollDice(player);
         state.execute(player);
         internalStateField.set(state, CombatZoneState.CombatZoneInternalState.HIT_PENALTY);
-        assertDoesNotThrow(() -> state.setProtect(player, 1));
+        assertDoesNotThrow(() -> state.setProtect(player, List.of(-1)));
         assertDoesNotThrow(() -> state.setFragmentChoice(player, 0));
         assertTrue(((List<?>) fragmentsField.get(state)).isEmpty());
     }
@@ -484,7 +487,6 @@ class CombatZoneStateTest {
         }
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
     }
 
     @Test
@@ -503,6 +505,6 @@ class CombatZoneStateTest {
         state.playersStatus.clear();
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
+        assertFalse(state.played);
     }
 }

@@ -43,6 +43,11 @@ class AbandonedShipStateTest {
         public void trigger(Event event, UUID targetUser) {
 
         }
+
+        @Override
+        public void triggerEndGame() {
+
+        }
     };
     StateTransitionHandler th = _ -> {
     };
@@ -176,7 +181,7 @@ class AbandonedShipStateTest {
         ((Map<PlayerColor, State.PlayerStatus>) playersStatus.get(state)).put(((Board) board.get(state)).getInGamePlayers().getFirst().getColor(), State.PlayerStatus.SKIPPED);
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue((Boolean) played.get(state));
+        assertFalse((Boolean) played.get(state));
     }
 
 
@@ -199,7 +204,7 @@ class AbandonedShipStateTest {
         assertThrows(IllegalStateException.class, () -> {state.setFragmentChoice(p, 0);});
         assertThrows(IllegalStateException.class, () -> {state.setComponentToDestroy(p, null);});
         assertThrows(IllegalStateException.class, () -> {state.rollDice(p);});
-        assertThrows(IllegalStateException.class, () -> {state.setProtect(p, 0);});
+        assertThrows(IllegalStateException.class, () -> {state.setProtect(p, List.of(0));});
         assertThrows(IllegalStateException.class, () -> {state.setGoodsToExchange(p, null);});
         assertThrows(IllegalStateException.class, () -> {state.swapGoods(p, 1, 2, null, null);});
         assertThrows(IllegalStateException.class, () -> {state.cheatCode(p, 0);});

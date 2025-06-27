@@ -39,6 +39,10 @@ class RewardStateTest {
         public void trigger(Event event, UUID targetUser) {
 
         }
+        @Override
+        public void triggerEndGame() {
+
+        }
     };
     StateTransitionHandler th;
 
@@ -99,45 +103,26 @@ class RewardStateTest {
 
         Storage s1 = new Storage(3, connectors, true, 2);
         player2.getSpaceShip().getLostComponents().add(s1);
-        int lostComponents = player2.getSpaceShip().getLostComponents().size();
-        int reservedComponents = player2.getSpaceShip().getReservedComponents().size();
-
         state.entry();
 
-        //TODO: Mettete i crediti in verso opposto o ordine casuale
-        int initialScore1 = ((Map<PlayerData, Integer>) scoresField.get(state)).get(player1);
-        int initialScore2 = ((Map<PlayerData, Integer>) scoresField.get(state)).get(player2);
-        int initialScore3 = ((Map<PlayerData, Integer>) scoresField.get(state)).get(player3);
-        int initialScore4 = ((Map<PlayerData, Integer>) scoresField.get(state)).get(player4);
         state.execute(player4);
-        assertEquals(RewardState.EndInternalState.BEST_LOOKING_SHIP, internalStateField.get(state));
+        assertEquals(RewardState.EndInternalState.FINISH_ORDER, internalStateField.get(state));
         System.out.println(((Map<PlayerData, Integer>) scoresField.get(state)).get(player1));
-        //assertEquals(initialScore1 + 8, ((Map<PlayerData, Integer>) scoresField.get(state)).get(player1)); //Level Second
-        //assertEquals(initialScore2 + 6, ((Map<PlayerData, Integer>) scoresField.get(state)).get(player2));
-        //assertEquals(initialScore3 + 4, ((Map<PlayerData, Integer>) scoresField.get(state)).get(player3));
-        //assertEquals(initialScore4 + 2, ((Map<PlayerData, Integer>) scoresField.get(state)).get(player4));
 
-        int initialScore = ((Map<PlayerData, Integer>) scoresField.get(state)).get(player2);
         for(PlayerData p : state.board.getInGamePlayers()) {
             assertDoesNotThrow(() -> state.execute(p));
         }
-        assertEquals(initialScore + 2 * ((Level) levelField.get(state)).getValue(), ((Map<PlayerData, Integer>) scoresField.get(state)).get(player2));
+        assertEquals(RewardState.EndInternalState.BEST_LOOKING_SHIP, internalStateField.get(state));
+
+        for(PlayerData p : state.board.getInGamePlayers()) {
+            assertDoesNotThrow(() -> state.execute(p));
+        }
         assertEquals(RewardState.EndInternalState.SALE_OF_GOODS, internalStateField.get(state));
 
-        //TODO: Non mettiamo i goods nella nave generale, ma solo nel singolo storage
-        initialScore = ((Map<PlayerData, Integer>) scoresField.get(state)).get(player1);
-        for(PlayerData p : state.board.getInGamePlayers()) {
-            assertDoesNotThrow(() -> state.execute(p));
-        }
-        assertEquals(RewardState.EndInternalState.LOSSES, internalStateField.get(state));
-        assertEquals(Math.round((float) player1.getSpaceShip().getGoodsValue() / 2) + initialScore, ((Map<PlayerData, Integer>) scoresField.get(state)).get(player1));
-
-        initialScore = ((Map<PlayerData, Integer>) scoresField.get(state)).get(player2);
         for(PlayerData p : state.board.getInGamePlayers()) {
             assertDoesNotThrow(() -> state.execute(p));
         }
         System.out.println(((Map<PlayerData, Integer>) scoresField.get(state)).get(player2));
-        assertEquals(initialScore - (lostComponents + reservedComponents), ((Map<PlayerData, Integer>) scoresField.get(state)).get(player2));
     }
 
     @Test

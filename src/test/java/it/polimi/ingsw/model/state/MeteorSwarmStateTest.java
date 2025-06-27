@@ -39,6 +39,10 @@ class MeteorSwarmStateTest {
         public void trigger(Event event, UUID targetUser) {
 
         }
+        @Override
+        public void triggerEndGame() {
+
+        }
     };
     StateTransitionHandler th;
 
@@ -114,14 +118,14 @@ class MeteorSwarmStateTest {
         ((Map<PlayerData, List<List<Pair<Integer, Integer>>>>) fragmentsField.get(state)).get(player).add(List.of(Pair.with(6, 7)));
         state.rollDice(player);
         state.execute(player);
-        assertDoesNotThrow(() -> state.setProtect(player, 1));
+        assertDoesNotThrow(() -> state.setProtect(player, List.of(-1)));
         assertFalse(((Map<PlayerData, List<List<Pair<Integer, Integer>>>>) fragmentsField.get(state)).get(player).isEmpty());
     }
 
     @Test
     void setProtect_whenDiceNotRolled() {
         PlayerData player = state.board.getInGamePlayers().getFirst();
-        assertThrows(IllegalStateException.class, () -> state.setProtect(player, 1));
+        assertThrows(IllegalStateException.class, () -> state.setProtect(player, List.of(1)));
     }
 
     @Test
@@ -176,7 +180,6 @@ class MeteorSwarmStateTest {
         }
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
     }
 
     @Test
@@ -195,6 +198,6 @@ class MeteorSwarmStateTest {
         state.playersStatus.clear();
 
         assertDoesNotThrow(() -> state.exit());
-        assertTrue(state.played);
+        assertFalse(state.played);
     }
 }

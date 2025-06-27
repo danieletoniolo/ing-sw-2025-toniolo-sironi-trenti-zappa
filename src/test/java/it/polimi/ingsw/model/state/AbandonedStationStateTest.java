@@ -33,6 +33,10 @@ class AbandonedStationStateTest {
         public void trigger(Event event, UUID targetUser) {
 
         }
+        @Override
+        public void triggerEndGame() {
+
+        }
     };
     StateTransitionHandler th = _ -> {
     };
@@ -186,7 +190,7 @@ class AbandonedStationStateTest {
         state.playersStatus.put(state.board.getInGamePlayers().get(0).getColor(), State.PlayerStatus.PLAYED);
         state.playersStatus.put(state.board.getInGamePlayers().get(1).getColor(), State.PlayerStatus.WAITING);
 
-        assertDoesNotThrow(() -> state.exit());
+        assertThrows(IllegalStateException.class, () -> state.exit());
     }
 
     @Test
