@@ -76,7 +76,8 @@ public class BoardController implements MiniModelObserver, Initializable {
     private double ORIGINAL_IMAGE_Y;
 
 
-    // Posizioni e dimensioni originali degli elementi
+    // Lists to store the original positions and dimensions of steps, timers, and decks.
+
     private final List<Double> originalStepX = new ArrayList<>();
     private final List<Double> originalStepY = new ArrayList<>();
     private final List<Double> originalStepWidth = new ArrayList<>();
@@ -147,7 +148,6 @@ public class BoardController implements MiniModelObserver, Initializable {
         ORIGINAL_IMAGE_X = backgroundImage.getLayoutX();
         ORIGINAL_IMAGE_Y = backgroundImage.getLayoutY();
 
-        // Salva posizioni e dimensioni originali degli step
         originalStepX.clear();
         originalStepY.clear();
         originalStepWidth.clear();
@@ -160,7 +160,6 @@ public class BoardController implements MiniModelObserver, Initializable {
             originalStepHeight.add(((StackPane) step).getPrefHeight());
         }
 
-        // Salva posizioni e dimensioni originali dei timer
         originalTimerX.clear();
         originalTimerY.clear();
         originalTimerWidth.clear();
@@ -173,7 +172,6 @@ public class BoardController implements MiniModelObserver, Initializable {
             originalTimerHeight.add(((StackPane) timer).getPrefHeight());
         }
 
-        // Salva posizioni e dimensioni originali dei deck
         originalDeckX.clear();
         originalDeckY.clear();
         originalDeckWidth.clear();
@@ -190,12 +188,11 @@ public class BoardController implements MiniModelObserver, Initializable {
     private void bindStepsElements(DoubleBinding scaleFactorBinding) {
         for (int i = 0; i < stepsNodes.size(); i++) {
             Node step = stepsNodes.get(i);
-            int index = i;
 
-            step.layoutXProperty().bind(scaleFactorBinding.multiply(originalStepX.get(index)));
-            step.layoutYProperty().bind(scaleFactorBinding.multiply(originalStepY.get(index)));
-            ((StackPane) step).prefWidthProperty().bind(scaleFactorBinding.multiply(originalStepWidth.get(index)));
-            ((StackPane) step).prefHeightProperty().bind(scaleFactorBinding.multiply(originalStepHeight.get(index)));
+            step.layoutXProperty().bind(scaleFactorBinding.multiply(originalStepX.get(i)));
+            step.layoutYProperty().bind(scaleFactorBinding.multiply(originalStepY.get(i)));
+            ((StackPane) step).prefWidthProperty().bind(scaleFactorBinding.multiply(originalStepWidth.get(i)));
+            ((StackPane) step).prefHeightProperty().bind(scaleFactorBinding.multiply(originalStepHeight.get(i)));
         }
     }
 

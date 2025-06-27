@@ -138,6 +138,10 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         return removeComponent(last.getRow() - 1, last.getCol() - 1);
     }
 
+    public ComponentView peekLast() {
+        return spaceShip[last.getRow() - 1 - ROW_OFFSET][last.getCol() - 1 - COL_OFFSET];
+    }
+
     public ComponentView removeComponent(int row, int col) {
         ComponentView component = spaceShip[row- ROW_OFFSET][col- COL_OFFSET];
         switch (component.getType()) {
