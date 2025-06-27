@@ -45,6 +45,7 @@ import org.javatuples.Triplet;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class EventHandlerClient {
@@ -1186,6 +1187,7 @@ public class EventHandlerClient {
         stateChangedListener = data -> {
             if (data.newState() == GamePhases.CARDS.getValue() && MiniModel.getInstance().getGamePhase().getValue() == data.newState()) {
                 MiniModel.getInstance().getShuffledDeckView().popCard();
+                MiniModel.getInstance().getShuffledDeckView().setOnlyLast(true);
             }
 
             if (data.newState() == GamePhases.VALIDATION.getValue()) {
@@ -1212,9 +1214,9 @@ public class EventHandlerClient {
                     }
                 }
 
-                for (int i = 0; i < MiniModel.getInstance().getDeckViews().getValue1().length; i++) {
-                    MiniModel.getInstance().getDeckViews().getValue0()[i] = null;
-                }
+                Arrays.fill(MiniModel.getInstance().getDeckViews().getValue1(), true);
+
+
             }
             if (data.newState() == GamePhases.FINISHED.getValue()) {
                 MiniModel mm = MiniModel.getInstance();
