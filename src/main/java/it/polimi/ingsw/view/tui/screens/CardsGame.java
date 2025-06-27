@@ -15,20 +15,59 @@ import it.polimi.ingsw.view.tui.input.Parser;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Abstract class representing the main game screen for the TUI (Text User Interface).
+ * Handles the display and interaction logic for the cards game, including options for viewing spaceships,
+ * giving up, and closing the program.
+ */
 public abstract class CardsGame implements TuiScreenView {
+    /**
+     * List of selectable options for the user.
+     */
     protected ArrayList<String> options = new ArrayList<>();
+    /**
+     * Indicates if the screen is being shown for the first time.
+     */
     private boolean isNewScreen;
 
+    /**
+     * Total number of lines to be drawn on the screen.
+     */
     private final int totalLines;
+    /**
+     * Index of the currently selected option.
+     */
     protected int selected;
+    /**
+     * Message to be displayed on the screen.
+     */
     protected static String message;
+    /**
+     * The spaceship view currently being displayed.
+     */
     protected static SpaceShipView spaceShipView;
+    /**
+     * The next screen to be shown after this one.
+     */
     protected TuiScreenView nextScreen;
 
+    /**
+     * Reference to the board view.
+     */
     protected BoardView boardView = MiniModel.getInstance().getBoardView();
+    /**
+     * Reference to the client player's data.
+     */
     protected PlayerDataView clientPlayer = MiniModel.getInstance().getClientPlayer();
+    /**
+     * Reference to the shuffled deck view.
+     */
     protected DeckView shuffledDeckView = MiniModel.getInstance().getShuffledDeckView();
 
+    /**
+     * Constructs a new CardsGame screen, initializing options and calculating the total lines to draw.
+     * @param otherOptions Additional options to be included in the options list.
+     */
     public CardsGame(List<String> otherOptions) {
         if (otherOptions != null && !otherOptions.isEmpty()) options.addAll(otherOptions);
 
@@ -43,11 +82,20 @@ public abstract class CardsGame implements TuiScreenView {
         this.isNewScreen = true;
     }
 
+    /**
+     * Reads the user's command from the parser and updates the selected option.
+     * @param parser The parser handling user input.
+     */
     @Override
     public void readCommand(Parser parser) {
         selected = parser.getCommand(options, totalLines);
     }
 
+    /**
+     * Determines and returns the next screen based on the user's selection.
+     * Handles viewing other players, giving up, and closing the program.
+     * @return The next TuiScreenView to display.
+     */
     @Override
     public TuiScreenView setNewScreen() {
         if ((selected < options.size() - 2) && (selected >= options.size() - 2 - MiniModel.getInstance().getOtherPlayers().size())) {
@@ -76,6 +124,9 @@ public abstract class CardsGame implements TuiScreenView {
         return null;
     }
 
+    /**
+     * Prints the TUI screen, including the board, deck, player spaceship, and options.
+     */
     @Override
     public void printTui() {
         List<String> newLines = new ArrayList<>();
@@ -139,20 +190,36 @@ public abstract class CardsGame implements TuiScreenView {
         }
     }
 
+    /**
+     * Returns the line to be displayed before the input prompt.
+     * @return The command prompt line.
+     */
     protected String lineBeforeInput() {
         return "Commands: ";
     }
 
+    /**
+     * Sets the message to be displayed on the screen.
+     * @param message The message to display.
+     */
     @Override
     public synchronized void setMessage(String message) {
         CardsGame.message = message;
     }
 
+    /**
+     * Returns the type of the TUI screen.
+     * @return The TuiScreens enum value representing this screen.
+     */
     @Override
     public TuiScreens getType() {
         return TuiScreens.Game;
     }
 
+    /**
+     * Sets the next screen to be displayed after this one.
+     * @param nextScreen The next TuiScreenView.
+     */
     @Override
     public void setNextScreen(TuiScreenView nextScreen) {
         this.nextScreen = nextScreen;

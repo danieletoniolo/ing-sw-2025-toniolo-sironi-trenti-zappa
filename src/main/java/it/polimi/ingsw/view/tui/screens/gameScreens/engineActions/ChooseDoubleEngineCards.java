@@ -4,8 +4,17 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * Screen for choosing double engine cards to activate in the TUI.
+ * Extends {@link ManagerEnginesCards} and manages the selection and activation
+ * of double engine cards, providing options to cancel or complete the selection.
+ */
 public class ChooseDoubleEngineCards extends ManagerEnginesCards {
 
+    /**
+     * Constructs the screen with a list of selectable double engine cards,
+     * along with "Cancel" and "Done" options.
+     */
     public ChooseDoubleEngineCards() {
         super(new ArrayList<>(){{
             if (enginesIDs == null) {
@@ -23,11 +32,23 @@ public class ChooseDoubleEngineCards extends ManagerEnginesCards {
         }});
     }
 
+    /**
+     * Returns the line to display before the user input.
+     *
+     * @return the prompt string for the user
+     */
     @Override
     protected String lineBeforeInput() {
         return "Choose double engines to activate";
     }
 
+    /**
+     * Handles the logic for setting the next screen based on user selection.
+     * Updates the list of selected engine IDs, manages navigation between screens,
+     * and sets the appropriate message for the user.
+     *
+     * @return the next {@link TuiScreenView} to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

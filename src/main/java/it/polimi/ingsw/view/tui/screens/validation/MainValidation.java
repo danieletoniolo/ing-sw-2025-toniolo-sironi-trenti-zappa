@@ -12,9 +12,21 @@ import it.polimi.ingsw.view.tui.screens.Validation;
 
 import java.util.ArrayList;
 
+/**
+ * MainValidation is a screen validation class for the TUI.
+ * It manages the validation process for the player's spaceship,
+ * allowing the user to destroy wrong components, cancel, or confirm the spaceship.
+ */
 public class MainValidation extends Validation {
+    /**
+     * Indicates if there are any wrong components in the spaceship.
+     */
     private boolean hasWrong;
 
+    /**
+     * Constructs a MainValidation screen.
+     * Initializes the available options based on the presence of wrong components in the spaceship.
+     */
     public MainValidation(){
         super(new ArrayList<>(){{
             boolean hasWrong = false;
@@ -44,6 +56,12 @@ public class MainValidation extends Validation {
         }
     }
 
+    /**
+     * Sets the new screen based on the user's selection.
+     * Handles the logic for destroying components, canceling, or confirming the spaceship.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

@@ -11,8 +11,17 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * MainReward is a screen that manages the main reward phase in the TUI.
+ * It displays messages and options to the user based on the current reward phase,
+ * and handles the transition to the next phase or screen.
+ */
 public class MainReward extends Reward {
 
+    /**
+     * Constructs a MainReward screen, initializing the available commands and
+     * setting the appropriate message based on the current reward phase.
+     */
     public MainReward() {
         super(new ArrayList<>(){{
             String command = switch (MiniModel.getInstance().getRewardPhase()) {
@@ -48,6 +57,13 @@ public class MainReward extends Reward {
         }
     }
 
+    /**
+     * Handles the logic for setting a new screen after the user makes a selection.
+     * If the user selects the first option, it sends a request to change the reward phase.
+     * If the request fails, it displays an error message.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

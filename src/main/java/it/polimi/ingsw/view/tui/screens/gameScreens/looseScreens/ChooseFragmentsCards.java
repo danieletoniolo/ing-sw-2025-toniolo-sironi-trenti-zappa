@@ -14,8 +14,17 @@ import org.javatuples.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Screen that allows the player to choose which group of ship fragments to keep
+ * when their ship is fragmented. Displays the available fragment groups and
+ * handles the selection and communication with the server.
+ */
 public class ChooseFragmentsCards extends CardsGame {
 
+    /**
+     * Constructs the ChooseFragmentsCards screen, initializing the list of
+     * fragment groups to display and setting the initial message.
+     */
     public ChooseFragmentsCards() {
         super(new ArrayList<>(){{
             int i = 1;
@@ -32,11 +41,22 @@ public class ChooseFragmentsCards extends CardsGame {
         setMessage("Your ship is fragmented, you have to choose which group of components to keep");
     }
 
+    /**
+     * Returns the label to display before the input line.
+     *
+     * @return the string "Fragments:"
+     */
     @Override
     protected String lineBeforeInput() {
         return "Fragments:";
     }
 
+    /**
+     * Handles the logic for setting the new screen after the player makes a selection.
+     * Sends the fragment choice to the server, handles errors, and ends the turn if successful.
+     *
+     * @return the next screen to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

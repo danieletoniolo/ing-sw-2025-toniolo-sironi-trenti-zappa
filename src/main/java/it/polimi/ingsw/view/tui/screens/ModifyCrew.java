@@ -9,18 +9,53 @@ import it.polimi.ingsw.view.tui.input.Parser;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Abstract class representing a TUI screen for modifying the crew.
+ * Handles the display and navigation logic for the crew modification screen,
+ * including options for viewing other players' spaceships and closing the program.
+ */
 public abstract class ModifyCrew implements TuiScreenView {
+    /**
+     * List of available options for the user.
+     */
     protected ArrayList<String> options = new ArrayList<>();
+    /**
+     * Indicates if this is a new screen instance.
+     */
     private boolean isNewScreen;
 
+    /**
+     * Total number of lines to display in the TUI.
+     */
     protected int totalLines;
+    /**
+     * Index of the currently selected option.
+     */
     protected int selected;
+    /**
+     * Message to display to the user.
+     */
     protected String message;
+    /**
+     * Reference to the next screen to display.
+     */
     protected TuiScreenView nextScreen;
 
+    /**
+     * Reference to the client's spaceship view.
+     */
     protected final SpaceShipView spaceShipView = MiniModel.getInstance().getClientPlayer().getShip();
+    /**
+     * Reference to the client's player data view.
+     */
     protected final PlayerDataView clientPlayer = MiniModel.getInstance().getClientPlayer();
 
+    /**
+     * Constructs a ModifyCrew screen with additional options.
+     * Adds options for viewing other players' spaceships and closing the program.
+     *
+     * @param otherOptions Additional options to display.
+     */
     public ModifyCrew(List<String> otherOptions) {
         if (otherOptions != null && !otherOptions.isEmpty()) options.addAll(otherOptions);
 
@@ -33,11 +68,21 @@ public abstract class ModifyCrew implements TuiScreenView {
         this.isNewScreen = true;
     }
 
+    /**
+     * Reads the user's command input and updates the selected option.
+     *
+     * @param parser The parser to read user input.
+     */
     @Override
     public void readCommand(Parser parser) {
         selected = parser.getCommand(options, totalLines);
     }
 
+    /**
+     * Determines and returns the next screen based on the user's selection.
+     *
+     * @return The next TuiScreenView to display.
+     */
     @Override
     public TuiScreenView setNewScreen() {
         if ((selected < options.size() - 1) && (selected >= options.size() - 1 - MiniModel.getInstance().getOtherPlayers().size())) {
@@ -57,16 +102,29 @@ public abstract class ModifyCrew implements TuiScreenView {
         return null;
     }
 
+    /**
+     * Sets the message to be displayed on the screen.
+     *
+     * @param message The message to display.
+     */
     @Override
     public void setMessage(String message) {
         this.message = message;
     }
 
+    /**
+     * Returns the type of this TUI screen.
+     *
+     * @return The TuiScreens enum value for ModifyCrew.
+     */
     @Override
     public TuiScreens getType() {
         return TuiScreens.ModifyCrew;
     }
 
+    /**
+     * Prints the TUI screen, including the spaceship, player info, and options.
+     */
     @Override
     public void printTui() {
         List<String> newLines = new ArrayList<>();
@@ -102,10 +160,20 @@ public abstract class ModifyCrew implements TuiScreenView {
         }
     }
 
+    /**
+     * Returns the line to display before the input prompt.
+     *
+     * @return The string to display before input.
+     */
     protected String lineBeforeInput() {
         return "Commands";
     }
 
+    /**
+     * Sets the next screen to be displayed.
+     *
+     * @param nextScreen The next TuiScreenView.
+     */
     @Override
     public void setNextScreen(TuiScreenView nextScreen) {
         this.nextScreen = nextScreen;

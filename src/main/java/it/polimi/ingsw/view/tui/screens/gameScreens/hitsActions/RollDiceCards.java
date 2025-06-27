@@ -11,12 +11,26 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.List;
 
+/**
+ * Represents the screen for rolling dice cards in the TUI game.
+ * Handles the logic for rolling dice and ending the player's turn.
+ */
 public class RollDiceCards extends CardsGame {
 
+    /**
+     * Constructs a new RollDiceCards screen with the "Roll dice" option.
+     */
     public RollDiceCards() {
         super(List.of("Roll dice"));
     }
 
+    /**
+     * Sets the new screen after the player chooses to roll the dice.
+     * Handles the dice roll request and ends the player's turn.
+     * Displays error messages if any operation fails.
+     *
+     * @return the next screen to display, or this screen if an error occurs
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

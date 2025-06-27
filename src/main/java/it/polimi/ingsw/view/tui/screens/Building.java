@@ -13,19 +13,33 @@ import it.polimi.ingsw.view.tui.input.Parser;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Abstract class representing a building screen in the TUI.
+ * Handles the display and interaction logic for the building phase,
+ * including options, player data, decks, and timer.
+ */
 public abstract class Building implements TuiScreenView {
+    /** List of selectable options for the user. */
     protected final ArrayList<String> options = new ArrayList<>();
+    /** Flag indicating if this is a new screen to be rendered. */
     protected boolean isNewScreen;
-
+    /** Total number of lines to be displayed on the screen. */
     protected int totalLines;
-
+    /** Message to be shown to the user. */
     protected String message;
-
+    /** Reference to the client player data. */
     protected final PlayerDataView clientPlayer = MiniModel.getInstance().getClientPlayer();
+    /** Pair containing deck views and their visibility status. */
     protected final Pair<DeckView[], Boolean[]> decksView;
+    /** Reference to the timer view. */
     private final TimerView timerView = MiniModel.getInstance().getTimerView();
+    /** Index of the currently selected option. */
     protected int selected;
 
+    /**
+     * Constructs a Building screen with additional options.
+     * @param otherOptions List of extra options to be added to the screen.
+     */
     public Building(List<String> otherOptions) {
         this.decksView = MiniModel.getInstance().getDeckViews();
 
@@ -41,12 +55,19 @@ public abstract class Building implements TuiScreenView {
         this.isNewScreen = true;
     }
 
+    /**
+     * Reads the user's command input and updates the selected option.
+     * @param parser The parser used to interpret user input.
+     */
     @Override
     public void readCommand(Parser parser) {
         selected = parser.getCommand(options, totalLines);
     }
 
-
+    /**
+     * Determines and returns the next screen based on the selected option.
+     * @return The next TuiScreenView to display, or null if no transition.
+     */
     @Override
     public TuiScreenView setNewScreen() {
         if ((selected < options.size() - 1) && (selected >= options.size() - 1 - MiniModel.getInstance().getOtherPlayers().size())) {
@@ -66,11 +87,19 @@ public abstract class Building implements TuiScreenView {
         return null;
     }
 
+    /**
+     * Returns the type of this TUI screen.
+     * @return The TuiScreens enum value representing this screen.
+     */
     @Override
     public TuiScreens getType() {
         return TuiScreens.Building;
     }
 
+    /**
+     * Prints the TUI representation of the building screen, including
+     * the player's ship, decks, timer, and available options.
+     */
     @Override
     public void printTui() {
         List<String> newLines = new ArrayList<>();
@@ -149,15 +178,27 @@ public abstract class Building implements TuiScreenView {
         }
     }
 
+    /**
+     * Returns the line to be displayed before the input prompt.
+     * @return The string to show before user input.
+     */
     protected String lineBeforeInput(){
         return "Commands:";
     }
 
+    /**
+     * Sets the message to be displayed on the screen.
+     * @param message The message to display.
+     */
     @Override
     public synchronized void setMessage(String message) {
         this.message = message;
     }
 
+    /**
+     * Sets the next screen to be displayed.
+     * @param nextScreen The next TuiScreenView to display.
+     */
     @Override
     public void setNextScreen(TuiScreenView nextScreen) {
 

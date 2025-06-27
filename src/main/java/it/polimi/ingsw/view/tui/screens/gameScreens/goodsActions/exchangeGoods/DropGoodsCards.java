@@ -5,9 +5,20 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * The DropGoodsCards class manages the TUI screen for dropping goods cards during an exchange action.
+ * It extends ManagerExchangeGoodsCards and provides the logic for selecting and removing goods from storage,
+ * as well as handling user navigation (done/cancel) in the drop flow.
+ */
 public class DropGoodsCards extends ManagerExchangeGoodsCards {
     private final TuiScreenView oldScreen;
 
+    /**
+     * Constructs a DropGoodsCards screen.
+     * Initializes the selectable options with the current goods in storage, plus "Done" and "Cancel".
+     *
+     * @param oldScreen the previous TUI screen to return to if the action is cancelled
+     */
     public DropGoodsCards(TuiScreenView oldScreen) {
         super(new ArrayList<>(){{
             for(GoodView good : storage.getGoods()) {
@@ -21,6 +32,14 @@ public class DropGoodsCards extends ManagerExchangeGoodsCards {
         this.oldScreen = oldScreen;
     }
 
+    /**
+     * Handles the logic for updating the screen based on the user's selection.
+     * If "Done" is selected, proceeds to the next step in the exchange.
+     * If "Cancel" is selected, returns to the previous screen.
+     * Otherwise, removes the selected good from storage and updates the message.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
@@ -66,6 +85,11 @@ public class DropGoodsCards extends ManagerExchangeGoodsCards {
         return new DropGoodsCards(oldScreen);
     }
 
+    /**
+     * Returns the prompt line to display before user input.
+     *
+     * @return the prompt string
+     */
     @Override
     protected String lineBeforeInput() {
         return "Select goods to DROP:";

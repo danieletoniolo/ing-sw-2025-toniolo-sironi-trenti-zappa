@@ -10,7 +10,17 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * The EngineBatteryCards class manages the selection and activation of batteries
+ * to be used with engines in the game. It extends ManagerEnginesCards and provides
+ * a TUI (Text User Interface) screen for the user to select batteries, confirm their
+ * choices, or cancel the action.
+ */
 public class EngineBatteryCards extends ManagerEnginesCards {
+    /**
+     * Constructs an EngineBatteryCards screen, initializing the selectable options
+     * based on the current state of available batteries and engines.
+     */
     public EngineBatteryCards() {
         super(new ArrayList<>(){{
             if (batteriesIDs == null) batteriesIDs = new ArrayList<>();
@@ -29,11 +39,24 @@ public class EngineBatteryCards extends ManagerEnginesCards {
         }});
     }
 
+    /**
+     * Returns the line to be displayed before the user input,
+     * prompting the user to select batteries.
+     *
+     * @return the prompt string
+     */
     @Override
     protected String lineBeforeInput() {
         return "Select batteries to use";
     }
 
+    /**
+     * Handles the logic for updating the screen based on the user's selection.
+     * It processes the selection, sends requests to use engines and batteries,
+     * handles errors, and transitions to the next appropriate screen.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

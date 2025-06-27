@@ -13,10 +13,26 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Screen for handling the loss of crew cards in the game.
+ * Allows the player to select cabins from which to remove crew members,
+ * sends the penalty to the server, and manages the turn ending process.
+ */
 public class LooseCrewCards extends CardsGame {
+    /**
+     * List of IDs of cabins from which crew members are being removed.
+     */
     private static List<Integer> cabinIDs;
+
+    /**
+     * Flag to determine if the static state should be reset.
+     */
     private static boolean reset;
 
+    /**
+     * Constructs a new LooseCrewCards screen.
+     * Initializes the list of selectable cabins and manages the static state.
+     */
     public LooseCrewCards() {
         super(new ArrayList<>(){{
             if (!reset) {
@@ -37,6 +53,9 @@ public class LooseCrewCards extends CardsGame {
         }
     }
 
+    /**
+     * Resets the static fields and restores the spaceship view to the current player's ship.
+     */
     public static void destroyStatics() {
         cabinIDs = null;
         reset = false;
@@ -45,11 +64,21 @@ public class LooseCrewCards extends CardsGame {
 
     }
 
+    /**
+     * Returns the line to display before the user input.
+     * @return the prompt string
+     */
     @Override
     protected String lineBeforeInput() {
         return "Select a cabin to remove a crew member from";
     }
 
+    /**
+     * Handles the logic for setting the new screen based on user selection.
+     * Manages the removal of crew members, communication with the server,
+     * and transition to the next screen or error handling.
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

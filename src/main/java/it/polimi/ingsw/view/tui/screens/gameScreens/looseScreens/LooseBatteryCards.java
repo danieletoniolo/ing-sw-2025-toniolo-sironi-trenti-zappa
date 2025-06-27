@@ -13,10 +13,20 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Screen for handling the loss of battery cards in the game.
+ * Allows the player to select batteries to lose energy from, sends the selection to the server,
+ * and manages the turn ending process.
+ */
 public class LooseBatteryCards extends CardsGame {
+    /** Flag to determine if the screen should reset the spaceship view. */
     private static boolean reset;
+    /** List of battery IDs selected for energy loss. */
     private static List<Integer> batteryIDs;
 
+    /**
+     * Constructs the LooseBatteryCards screen, initializing the list of selectable batteries.
+     */
     public LooseBatteryCards() {
         super(new ArrayList<>(){{
             if (!reset) {
@@ -34,11 +44,18 @@ public class LooseBatteryCards extends CardsGame {
         }
     }
 
+    /**
+     * Returns the line to display before the user input prompt.
+     * @return the prompt string
+     */
     @Override
     protected String lineBeforeInput() {
         return "Select a battery where to drop energy from:";
     }
 
+    /**
+     * Resets static fields and restores the spaceship view to the current player's ship.
+     */
     public static void destroyStatics() {
         batteryIDs = null;
         reset = false;
@@ -46,6 +63,11 @@ public class LooseBatteryCards extends CardsGame {
         spaceShipView = player == null ? null : player.getShip();
     }
 
+    /**
+     * Handles the logic for setting the next screen based on the user's selection.
+     * Sends the selected batteries to the server and manages error handling and turn ending.
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

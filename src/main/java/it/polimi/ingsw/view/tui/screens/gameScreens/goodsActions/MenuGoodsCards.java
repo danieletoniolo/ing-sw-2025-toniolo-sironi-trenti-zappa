@@ -19,9 +19,21 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.swapGoods.Stora
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents the menu screen for goods card actions in the TUI.
+ * Allows the player to swap, exchange, or finish modifying goods.
+ * Manages the static list of goods associated with the current card.
+ */
 public class MenuGoodsCards extends CardsGame {
+    /**
+     * Static list of goods present on the current card.
+     */
     protected static List<GoodView> cardGoods;
 
+    /**
+     * Constructs the menu for goods card actions.
+     * Initializes the card goods if not already set, based on the type of the current card.
+     */
     public MenuGoodsCards() {
         super(List.of("Swap goods", "Exchange goods", "Done"));
 
@@ -50,6 +62,10 @@ public class MenuGoodsCards extends CardsGame {
         }
     }
 
+    /**
+     * Sets the new screen based on the selected action.
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
@@ -78,19 +94,35 @@ public class MenuGoodsCards extends CardsGame {
         };
     }
 
+    /**
+     * Returns the line to display before the user input.
+     * @return the prompt string
+     */
     @Override
     protected String lineBeforeInput() {
         return "Select an action:";
     }
 
+    /**
+     * Returns a copy of the current card goods.
+     * @return the list of goods on the card
+     */
     public static List<GoodView> getCopy() {
         return cardGoods;
     }
     
+    /**
+     * Sets the static card goods list.
+     * @param goods the new list of goods to set
+     */
     public static void setCardGoods(List<GoodView> goods) {
         cardGoods = goods;
     }
 
+    /**
+     * Destroys static data related to card goods and spaceship view.
+     * Resets cardGoods and updates spaceShipView to the current player's ship.
+     */
     public static void destroyStatics() {
         cardGoods = null;
         PlayerDataView player = MiniModel.getInstance().getClientPlayer();

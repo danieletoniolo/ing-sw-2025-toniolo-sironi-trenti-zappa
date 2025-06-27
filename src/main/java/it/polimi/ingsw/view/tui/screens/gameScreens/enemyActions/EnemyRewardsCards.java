@@ -13,12 +13,28 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.MenuGoodsCards;
 
 import java.util.List;
 
+/**
+ * Represents the screen where the player can choose to claim or refuse enemy rewards cards.
+ * Extends {@link CardsGame} to provide options for claiming or refusing rewards.
+ */
 public class EnemyRewardsCards extends CardsGame {
 
+    /**
+     * Constructs the EnemyRewardsCards screen with two options:
+     * "Claim rewards" and "Refuse rewards".
+     */
     public EnemyRewardsCards() {
         super(List.of("Claim rewards", "Refuse rewards"));
     }
 
+    /**
+     * Handles the logic for setting the new screen based on the player's selection.
+     * If the player claims rewards, it processes the claim and may transition to the goods menu
+     * or end the turn. If the player refuses, it ends the turn directly.
+     * Displays error messages if any server-side error occurs.
+     *
+     * @return the next {@link TuiScreenView} to display, or this screen if an error occurs.
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
