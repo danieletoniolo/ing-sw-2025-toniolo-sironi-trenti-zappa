@@ -15,6 +15,7 @@ import java.util.List;
  *
  * @param nickname            The nickname of the player whose spaceship has invalid components.
  * @param invalidComponents   A list of pairs representing the invalid components.
+ * @author Vittorio Sironi
  */
 public record InvalidComponents(
         String nickname,

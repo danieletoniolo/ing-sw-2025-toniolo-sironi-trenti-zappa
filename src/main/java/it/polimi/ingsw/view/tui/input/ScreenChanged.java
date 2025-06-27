@@ -1,5 +1,8 @@
 package it.polimi.ingsw.view.tui.input;
 
+/**
+ * Exception thrown to indicate that the screen has changed in the TUI.
+ */
 public class ScreenChanged extends RuntimeException {
 
     /**

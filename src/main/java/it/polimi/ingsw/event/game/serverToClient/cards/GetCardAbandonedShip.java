@@ -11,6 +11,7 @@ import java.io.Serializable;
  * @param crewRequired number of crew members required for the quest
  * @param flightDays   number of flight days lost for the quest
  * @param credit       number of credit rewarded
+ * @author Vittorio Sironi
  */
 public record GetCardAbandonedShip(
         int ID,

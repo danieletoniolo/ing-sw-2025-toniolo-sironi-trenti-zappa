@@ -14,6 +14,7 @@ import java.util.function.Function;
  * This event is used when a player have to move the marker on the board.
  * @param userID is the user ID. Only the user know his ID, so the event is not faked.
  * @param position The new position of the marker on the board. It is not the number of the position to add to the current position
+ * @author Vittorio Sironi
  */
 public record PlaceMarker(
         String userID,

@@ -18,6 +18,7 @@ import java.util.function.Function;
  * @param storageID2 is the ID of the second storage.
  * @param goods1to2  is the list of goods to swap from storage 1 to storage 2.
  * @param goods2to1  is the list of goods to swap from storage 2 to storage 1.
+ * @author Vittorio Sironi
  */
 public record SwapGoods(
         String userID,

@@ -2,16 +2,15 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-
-
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+
 <StackPane fx:id="parent" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="it.polimi.ingsw.view.gui.controllers.misc.ViewablePileController"
            prefHeight="320.0" prefWidth="600.0">
-   <ScrollPane fx:id="scrollPane" prefHeight="325.0" prefWidth="600.0" vbarPolicy="NEVER">
-      <HBox fx:id="hBox" spacing="5" >
+   <ScrollPane fx:id="scrollPane" prefHeight="325.0" prefWidth="600.0" vbarPolicy="NEVER"
+               style=" -fx-control-inner-background: transparent; -fx-background-color: rgba(251,197,9, 0.5); -fx-background-radius: 10; -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-viewport-border: transparent; -fx-background: transparent;">
+      <HBox fx:id="hBox" spacing="5" style="-fx-background-color: transparent" >
          <padding>
             <Insets top="5.0"/>
          </padding>

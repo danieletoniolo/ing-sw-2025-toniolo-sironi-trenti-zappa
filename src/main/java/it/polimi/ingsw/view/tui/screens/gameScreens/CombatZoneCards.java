@@ -13,9 +13,21 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.engineActions.ChooseDoubleEn
 
 import java.util.ArrayList;
 
+/**
+ * Represents the screen for handling Combat Zone cards in the TUI.
+ * Displays options and messages based on the current card's level and context.
+ * Handles user selection and transitions to the appropriate next screen.
+ */
 public class CombatZoneCards extends CardsGame {
+    /**
+     * The level of the current Combat Zone card.
+     */
     private final int level = MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getLevel();
 
+    /**
+     * Constructs the CombatZoneCards screen, initializing the available options
+     * and the message to display based on the current card's level and context.
+     */
     public CombatZoneCards() {
         super(new ArrayList<>(){{
             if (MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getLevel() == 1) {
@@ -42,6 +54,10 @@ public class CombatZoneCards extends CardsGame {
 
     }
 
+    /**
+     * Handles the transition to a new screen based on the user's selection and the current card's state.
+     * @return the next TuiScreenView to display, or this screen if no transition occurs.
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
@@ -86,6 +102,10 @@ public class CombatZoneCards extends CardsGame {
         return this;
     }
 
+    /**
+     * Returns the line to display before the user input, based on the current card's level and context.
+     * @return the string to display before input.
+     */
     @Override
     protected String lineBeforeInput() {
         boolean firstLevel = level == 1 && ((CombatZoneView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek()).getCont() == 0;

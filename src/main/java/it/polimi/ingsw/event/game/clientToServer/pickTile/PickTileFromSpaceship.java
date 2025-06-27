@@ -13,6 +13,7 @@ import java.util.function.Function;
 /**
  * This event is used when a player pick a tile from the spaceship.
  * @param userID is the user ID. Only the user know his ID, so the event is not faked.
+ * @author Vittorio Sironi
  */
 public record PickTileFromSpaceship(
         String userID

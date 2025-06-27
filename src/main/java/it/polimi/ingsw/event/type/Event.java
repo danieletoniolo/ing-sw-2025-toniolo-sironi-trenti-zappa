@@ -10,6 +10,7 @@ import java.io.Serializable;
  * Classes implementing the Event interface can define specific types of events
  * and behaviors associated with those events, which can then be transmitted or
  * handled by relevant components.
+ * @author Vittorio Sironi
  */
 public interface Event extends Serializable {
 }

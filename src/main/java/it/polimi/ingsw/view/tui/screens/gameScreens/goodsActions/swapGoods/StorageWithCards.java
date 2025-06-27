@@ -4,9 +4,23 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * The StorageWithCards class represents a screen in the TUI where the user can select a storage
+ * to swap goods with, excluding the current storage. It extends ManagerSwapGoodCards and manages
+ * the list of possible storages to swap with, as well as the navigation back to the previous screen.
+ */
 public class StorageWithCards extends ManagerSwapGoodCards {
+    /**
+     * The previous screen to return to if the user cancels the swap.
+     */
     private final TuiScreenView oldScreen;
 
+    /**
+     * Constructs a StorageWithCards screen, initializing the list of possible storages to swap with,
+     * excluding the current storage, and adding a cancel option.
+     *
+     * @param oldScreen the previous TuiScreenView to return to on cancel
+     */
     public StorageWithCards(TuiScreenView oldScreen) {
         super(new ArrayList<>(){{
             spaceShipView.getMapStorages().forEach(
@@ -20,6 +34,13 @@ public class StorageWithCards extends ManagerSwapGoodCards {
         this.oldScreen = oldScreen;
     }
 
+    /**
+     * Sets the new screen based on the user's selection.
+     * If the user selects cancel, returns to the previous screen.
+     * Otherwise, prepares the swap with the selected storage and navigates to the swap screen.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
@@ -56,6 +77,11 @@ public class StorageWithCards extends ManagerSwapGoodCards {
         return new SwapGoodsFromCards(oldScreen);
     }
 
+    /**
+     * Returns the line to display before the user input prompt.
+     *
+     * @return the prompt line as a String
+     */
     @Override
     protected String lineBeforeInput() {
         return "Select a storage to swap WITH:";

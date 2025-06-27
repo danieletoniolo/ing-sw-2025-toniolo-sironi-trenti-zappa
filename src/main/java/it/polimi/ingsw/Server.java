@@ -12,6 +12,10 @@ import java.rmi.RemoteException;
 import java.util.Scanner;
 import java.util.UUID;
 
+/**
+ * Main server class that initializes and starts the server application.
+ * Handles network setup, logging, and incoming client connections.
+ */
 public class Server {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);

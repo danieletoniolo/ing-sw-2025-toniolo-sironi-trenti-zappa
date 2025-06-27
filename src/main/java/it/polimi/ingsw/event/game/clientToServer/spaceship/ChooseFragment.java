@@ -14,6 +14,7 @@ import java.util.function.Function;
  * This event is used when a player have to choose the fragments of the ship. So it returns the fragments from which the user can choose
  * @param userID         is the user ID. Only the user know his ID, so the event is not faked.
  * @param fragmentChoice The fragment to keep
+ * @author Vittorio Sironi
  */
 public record ChooseFragment(
         String userID,

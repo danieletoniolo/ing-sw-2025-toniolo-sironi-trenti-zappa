@@ -45,6 +45,11 @@ import it.polimi.ingsw.view.tui.screens.*;
 import java.util.Objects;
 
 
+/**
+ * Manages the Text User Interface (TUI) for the game.
+ * Handles screen transitions, user input, and updates based on server events.
+ * Implements the Manager interface to receive and process game events.
+ */
 public class TuiManager implements Manager {
     private final Object stateLock = new Object();
     private TuiScreenView currentScreen;
@@ -54,6 +59,10 @@ public class TuiManager implements Manager {
     private String rollDice;
     private final MiniModel mm = MiniModel.getInstance();
 
+    /**
+     * Constructs a TuiManager with the specified parser.
+     * @param parser the input parser for user commands
+     */
     public TuiManager(Parser parser) {
         this.parser = parser;
 
@@ -61,6 +70,9 @@ public class TuiManager implements Manager {
         this.running = true;
     }
 
+    /**
+     * Starts the TUI, launching threads for input reading and screen rendering.
+     */
     public void startTui(){
         //Reading inputs thread
         Thread parserThread = new Thread(() -> {
@@ -103,11 +115,18 @@ public class TuiManager implements Manager {
         viewThread.start();
     }
 
+    /**
+     * Notifies that the nickname has been set.
+     * @param data the nickname set event data
+     */
     @Override
     public void notifyNicknameSet(NicknameSet data) {
 
     }
 
+    /**
+     * Notifies that the connection to the server has been lost.
+     */
     @Override
     public void notifyConnectionLost() {
         synchronized (stateLock) {
@@ -116,6 +135,9 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that the list of lobbies has been updated.
+     */
     @Override
     public void notifyLobbies() {
         if (currentScreen.getType().equals(TuiScreens.Menu)) {
@@ -126,17 +148,25 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a new lobby has been created.
+     * @param data the lobby created event data
+     */
     @Override
     public void notifyCreatedLobby(LobbyCreated data) {
         if (!data.nickname().equals(mm.getNickname())) {
             synchronized (stateLock) {
                 currentScreen = new Menu();
-                currentScreen.setMessage(data.nickname() + " has created a new lobby: ");
+                currentScreen.setMessage(data.nickname() + " has created a new lobby");
                 parser.changeScreen();
             }
         }
     }
 
+    /**
+     * Notifies that a player has joined a lobby.
+     * @param data the lobby joined event data
+     */
     @Override
     public void notifyLobbyJoined(LobbyJoined data) {
         if (currentScreen.getType() == TuiScreens.Menu) {
@@ -153,6 +183,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a player has left a lobby.
+     * @param data the lobby left event data
+     */
     @Override
     public void notifyLobbyLeft(LobbyLeft data) {
         if (!data.nickname().equals(mm.getNickname()) && mm.getCurrentLobby() == null) {
@@ -174,6 +208,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a lobby has been removed.
+     * @param data the lobby removed event data
+     */
     @Override
     public void notifyLobbyRemoved(LobbyRemoved data) {
         if (mm.getCurrentLobby() == null) {
@@ -184,6 +222,9 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a player is ready in the lobby.
+     */
     @Override
     public void notifyReadyPlayer() {
         if (currentScreen.getType().equals(TuiScreens.Lobby)) {
@@ -194,7 +235,7 @@ public class TuiManager implements Manager {
     }
 
     /**
-     * Refresh the starting countdown on the screen
+     * Refreshes the starting countdown on the screen.
      */
     @Override
     public void notifyCountDown() {
@@ -213,6 +254,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a player has picked a left deck.
+     * @param data the picked left deck event data
+     */
     @Override
     public void notifyPickedLeftDeck(PickedLeftDeck data) {
         if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainBuilding) || currentScreen.getType().equals(TuiScreens.WatchingBuilding))  && !mm.getClientPlayer().getUsername().equals(data.nickname())) {
@@ -225,6 +270,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that the dice have been rolled.
+     * @param data the dice rolled event data
+     */
     @Override
     public void notifyDiceRolled(DiceRolled data) {
         synchronized (stateLock) {
@@ -233,6 +282,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that batteries have been lost.
+     * @param data the batteries loss event data
+     */
     @Override
     public void notifyBatteriesLoss(BatteriesLoss data) {
         if (!data.batteriesIDs().isEmpty()) {
@@ -244,6 +297,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a player is forced to give up.
+     * @param data the forcing give up event data
+     */
     @Override
     public void notifyForcingGiveUp(ForcingGiveUp data) {
         synchronized (stateLock) {
@@ -263,6 +320,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a penalty is being forced on a player.
+     * @param data the forcing penalty event data
+     */
     @Override
     public void notifyForcingPenalty(ForcingPenalty data) {
         if (mm.getNickname().equals(data.nickname())) {
@@ -307,6 +368,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a player must place a marker.
+     * @param data the forcing place marker event data
+     */
     @Override
     public void notifyForcingPlaceMarker(ForcingPlaceMarker data) {
         if (mm.getNickname().equals(data.nickname())) {
@@ -320,6 +385,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that goods have been exchanged.
+     * @param data the update goods exchange event data
+     */
     @Override
     public void notifyUpdateGoodsExchange(UpdateGoodsExchange data) {
         if (!data.exchangeData().isEmpty()) {
@@ -330,6 +399,9 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a tile has been picked from the board.
+     */
     @Override
     public void notifyPickedTileFromBoard() {
         if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainBuilding) || currentScreen.getType().equals(TuiScreens.WatchingBuilding))) {
@@ -339,6 +411,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a tile has been picked from a spaceship.
+     * @param data the picked tile from spaceship event data
+     */
     @Override
     public void notifyPickedTileFromSpaceShip(PickedTileFromSpaceship data) {
         if (data.nickname().equals(mm.getNickname())) {
@@ -355,6 +431,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a hidden tile has been picked.
+     * @param nickname the nickname of the player who picked the tile
+     */
     @Override
     public void notifyPickedHiddenTile(String nickname) {
         if (mm.getNickname().equals(nickname)) {
@@ -364,6 +444,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a tile has been placed on the board.
+     * @param data the placed tile to board event data
+     */
     @Override
     public void notifyPlacedTileToBoard(PlacedTileToBoard data) {
         if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainBuilding) || currentScreen.getType().equals(TuiScreens.WatchingBuilding))) {
@@ -379,6 +463,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a tile has been placed in the reserve.
+     * @param data the placed tile to reserve event data
+     */
     @Override
     public void notifyPlacedTileToReserve(PlacedTileToReserve data) {
         if ((currentScreen.getType().equals(TuiScreens.Building) || currentScreen.getType().equals(TuiScreens.MainBuilding) || currentScreen.getType().equals(TuiScreens.OtherPlayer))) {
@@ -388,6 +476,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a tile has been placed on a spaceship.
+     * @param data the placed tile to spaceship event data
+     */
     @Override
     public void notifyPlacedTileToSpaceship(PlacedTileToSpaceship data) {
         if (data.nickname().equals(mm.getNickname())) {
@@ -404,6 +496,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a planet has been selected.
+     * @param data the planet selected event data
+     */
     @Override
     public void notifyPlanetSelected(PlanetSelected data) {
         synchronized (stateLock) {
@@ -412,6 +508,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies the result of an enemy defeat event.
+     * @param data the enemy defeat event data
+     */
     @Override
     public void notifyEnemyDefeat(EnemyDefeat data) {
         synchronized (stateLock) {
@@ -451,11 +551,19 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies the minimum player event.
+     * @param data the min player event data
+     */
     @Override
     public void notifyMinPlayer(MinPlayer data) {
 
     }
 
+    /**
+     * Notifies that a marker has been moved.
+     * @param data the move marker event data
+     */
     @Override
     public void notifyMoveMarker(MoveMarker data) {
         synchronized (stateLock) {
@@ -464,6 +572,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a marker has been removed.
+     * @param data the remove marker event data
+     */
     @Override
     public void notifyRemoveMarker(RemoveMarker data) {
         synchronized (stateLock) {
@@ -472,6 +584,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a player has given up.
+     * @param data the player gave up event data
+     */
     @Override
     public void notifyPlayerGaveUp(PlayerGaveUp data) {
         synchronized (stateLock) {
@@ -480,6 +596,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a card has been played.
+     * @param data the card played event data
+     */
     @Override
     public void notifyCardPlayed(CardPlayed data) {
         synchronized (stateLock) {
@@ -488,11 +608,19 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies the combat zone phase.
+     * @param data the combat zone phase event data
+     */
     @Override
     public void notifyCombatZonePhase(CombatZonePhase data) {
         cardScreen = new CombatZoneCards();
     }
 
+    /**
+     * Notifies the current player.
+     * @param data the current player event data
+     */
     @Override
     public void notifyCurrentPlayer(CurrentPlayer data) {
         synchronized (stateLock) {
@@ -509,6 +637,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies the score event.
+     * @param data the score event data
+     */
     @Override
     public void notifyScore(Score data) {
         synchronized (stateLock) {
@@ -519,6 +651,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that coins have been updated.
+     * @param data the update coins event data
+     */
     @Override
     public void notifyUpdateCoins(UpdateCoins data) {
         if (currentScreen.getType().equals(TuiScreens.OtherPlayer)) {
@@ -529,6 +665,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a tile has been rotated.
+     * @param data the rotated tile event data
+     */
     @Override
     public void notifyRotatedTile(RotatedTile data) {
         if (mm.getNickname().equals(data.nickname())) {
@@ -538,6 +678,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies the best looking ships event.
+     * @param data the best looking ships event data
+     */
     @Override
     public void notifyBestLookingShips(BestLookingShips data) {
         synchronized (stateLock) {
@@ -557,6 +701,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that the player can protect from a hit.
+     * @param data the can protect event data
+     */
     @Override
     public void notifyCanProtect(CanProtect data) {
         if (data.nickname().equals(mm.getNickname())) {
@@ -594,6 +742,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that a component has been destroyed.
+     * @param data the component destroyed event data
+     */
     @Override
     public void notifyComponentDestroyed(ComponentDestroyed data) {
         if (!data.destroyedComponents().isEmpty()) {
@@ -603,6 +755,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that fragments have been updated.
+     * @param data the fragments event data
+     */
     @Override
     public void notifyFragments(Fragments data) {
         synchronized (stateLock) {
@@ -621,6 +777,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that invalid components have been found.
+     * @param data the invalid components event data
+     */
     @Override
     public void notifyInvalidComponents(InvalidComponents data) {
         if (currentScreen.getType().equals(TuiScreens.Validation)) {
@@ -638,6 +798,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that the cannon strength has been set.
+     * @param data the set cannon strength event data
+     */
     @Override
     public void notifySetCannonStrength(SetCannonStrength data) {
         if (mm.getNickname().equals(data.nickname())) {
@@ -654,6 +818,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that the engine strength has been set.
+     * @param data the set engine strength event data
+     */
     @Override
     public void notifySetEngineStrength(SetEngineStrength data) {
         if (mm.getNickname().equals(data.nickname())) {
@@ -670,6 +838,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that crew members have been updated.
+     * @param data the update crew members event data
+     */
     @Override
     public void notifyUpdateCrewMembers(UpdateCrewMembers data) {
         synchronized (stateLock) {
@@ -678,6 +850,9 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that the last timer has been flipped.
+     */
     @Override
     public void notifyLastTimerFlipped() {
         if (currentScreen.getType() == TuiScreens.Building || currentScreen.getType().equals(TuiScreens.MainBuilding) || currentScreen.getType() == TuiScreens.OtherPlayer || currentScreen.getType() == TuiScreens.Deck) {
@@ -688,6 +863,11 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that the timer has been flipped.
+     * @param data the timer flipped event data
+     * @param firstSecond true if it is the first or second flip
+     */
     @Override
     public void notifyTimer(TimerFlipped data, boolean firstSecond) {
         if (firstSecond) {
@@ -710,6 +890,10 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that the timer has finished.
+     * @param data the timer flipped event data
+     */
     @Override
     public void notifyTimerFinished(TimerFlipped data) {
         if (data.numberOfFlips() == data.maxNumberOfFlips() - 1) {
@@ -725,6 +909,9 @@ public class TuiManager implements Manager {
         }
     }
 
+    /**
+     * Notifies that the game state has changed and updates the screen accordingly.
+     */
     @Override
     public void notifyStateChange() {
         synchronized (stateLock) {

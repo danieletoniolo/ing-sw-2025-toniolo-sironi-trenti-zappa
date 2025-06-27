@@ -14,6 +14,7 @@ import java.util.function.Function;
  * This class represents the selection of a planet.
  * @param userID       is the user ID. Only the user know his ID, so the event is not faked.
  * @param planetNumber is the number of the planet to select.
+ * @author Vittorio Sironi
  */
 public record SelectPlanet(
         String userID,

@@ -12,6 +12,7 @@ import java.io.Serializable;
  * @param tileID            The unique identifier of the tile from which the connectors are picked.
  * @param clockwiseRotation The clockwise rotation of the connectors tile, represented as an integer.
  * @param connectors        A list of integers representing the type of the connectors associated to the connectors tile.
+ * @author Vittorio Sironi
  */
 public record PickedConnectorsFromBoard(
         String nickname,

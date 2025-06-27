@@ -11,6 +11,7 @@ import java.io.Serializable;
  * @param nickname  The userID of the player who picked the deck.
  * @param usage     The usage of the deck: 0 = get, 1 = leave.
  * @param deckIndex The index of the deck in the hand or in the table.
+ * @author Vittorio Sironi
  */
 public record PickedLeftDeck(
         String nickname,

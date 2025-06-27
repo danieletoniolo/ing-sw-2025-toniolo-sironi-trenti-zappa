@@ -10,6 +10,7 @@ import java.util.List;
  * It contains a list of integers representing the cards in the deck.
  *
  * @param shuffledDeck A list of integers representing the shuffled deck.
+ * @author Vittorio Sironi
  */
 public record GetShuffledDeck(
         List<Integer> shuffledDeck

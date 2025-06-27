@@ -8,6 +8,7 @@ import java.util.List;
 /**
  * This class represents the best looking ships in the game.
  * @param nicknames The list of users' nicknames with the best looking ships
+ * @author Vittorio Sironi
  */
 public record BestLookingShips(
         List<String> nicknames

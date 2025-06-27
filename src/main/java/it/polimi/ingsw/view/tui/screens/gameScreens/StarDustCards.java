@@ -10,13 +10,28 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.List;
 
+/**
+ * Represents the Star Dust Cards screen in the TUI during the game.
+ * Extends {@link CardsGame} and manages the logic for the "Move marker" action
+ * and the end turn request when high-density star dust is incoming.
+ */
 public class StarDustCards extends CardsGame {
 
+    /**
+     * Constructs a new StarDustCards screen with a predefined message and option.
+     */
     public StarDustCards() {
         super(List.of("Move marker"));
         setMessage("Sensor report: high-density star dust incoming.");
     }
 
+    /**
+     * Handles the transition to a new screen based on the user's selection.
+     * If the "Move marker" option is selected, it sends an end turn request.
+     * Displays an error message if the request fails, or proceeds to the next screen if successful.
+     *
+     * @return the next {@link TuiScreenView} to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

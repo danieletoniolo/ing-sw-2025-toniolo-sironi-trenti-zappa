@@ -11,12 +11,30 @@ import it.polimi.ingsw.view.tui.screens.ClosingProgram;
 import it.polimi.ingsw.view.tui.screens.OtherPlayer;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
+/**
+ * The ForceGiveUp class represents a screen in the TUI where a player is forced to give up.
+ * It extends CardsGame and manages the logic for handling forced give up actions,
+ * including updating the game state and handling user selections.
+ */
 public class ForceGiveUp extends CardsGame {
 
+    /**
+     * Constructs a ForceGiveUp screen with no initial parameters.
+     */
     public ForceGiveUp() {
         super(null);
     }
 
+    /**
+     * Handles the logic for setting the new screen based on the user's selection.
+     * Depending on the selected option, it may:
+     * - Show another player's information,
+     * - Force the current player to give up and end their turn,
+     * - Close the program,
+     * - Or remain on the current screen if the selection is invalid.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         if ((selected < options.size() - 2) && (selected >= options.size() - 2 - MiniModel.getInstance().getOtherPlayers().size())) {

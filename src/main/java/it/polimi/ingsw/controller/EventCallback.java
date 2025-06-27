@@ -6,6 +6,7 @@ import java.util.UUID;
 
 /**
  * It is used by the states and the gameController to notify to the matchController that an it.polimi.ingsw.event need to be sent in broadcast
+ * @author Vittorio Sironi
  */
 public interface EventCallback {
     /**

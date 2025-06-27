@@ -15,6 +15,7 @@ import java.util.function.Function;
  * It contains the userID of the player who ended their turn.
  *
  * @param userID The userID of the player who ended their turn.
+ * @author Vittorio Sironi
  */
 public record EndTurn(
         String userID

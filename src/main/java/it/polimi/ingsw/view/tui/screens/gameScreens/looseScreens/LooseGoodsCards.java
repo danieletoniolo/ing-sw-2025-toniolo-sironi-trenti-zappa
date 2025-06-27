@@ -13,11 +13,22 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.*;
 
+/**
+ * Screen for handling the loss of goods cards in the game.
+ * Allows the player to select storage units to discard the most expensive goods,
+ * sends the loss to the server, and manages turn ending.
+ */
 public class LooseGoodsCards extends CardsGame {
+    /** List of storage IDs selected for discarding goods. */
     private static List<Integer> storageIDs;
+    /** List of goods values to be discarded. */
     private static List<Integer> looseGoods;
+    /** Flag to reset the screen state. */
     private static boolean reset;
 
+    /**
+     * Constructs the LooseGoodsCards screen, initializing the list of selectable storage units.
+     */
     public LooseGoodsCards() {
         super(new ArrayList<>(){{
             if (!reset) {
@@ -38,11 +49,18 @@ public class LooseGoodsCards extends CardsGame {
         }
     }
 
+    /**
+     * Returns the line to display before the input prompt.
+     * @return Instructional string for the user.
+     */
     @Override
     protected String lineBeforeInput() {
         return "Choose a storage unit to discard the most expensive goods.";
     }
 
+    /**
+     * Resets all static fields and restores the spaceship view.
+     */
     public static void destroyStatics() {
         storageIDs = null;
         looseGoods = null;
@@ -51,6 +69,11 @@ public class LooseGoodsCards extends CardsGame {
         spaceShipView = player == null ? null : player.getShip();
     }
 
+    /**
+     * Handles the logic for setting the new screen based on user selection.
+     * Manages discarding goods, sending updates to the server, and ending the turn.
+     * @return The next TuiScreenView to display.
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

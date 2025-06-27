@@ -57,8 +57,14 @@ import java.util.*;
  * It is a singleton class, so it can be accessed from anywhere in the code.
  * It also manages the network transceivers for each lobby and the handle of the events that the server receive from the clients.
  * The MatchController is associated also with a serverNetworkTransceiver, which is used to communicate with the clients when they are not in a lobby.
+ * @author Vittorio Sironi
  */
 public class MatchController {
+    /**
+     * The singleton instance of MatchController. This ensures that only one instance
+     * of the MatchController exists throughout the application lifecycle, providing
+     * a global point of access to the match management functionality.
+     */
     private static MatchController instance;
 
     /**
@@ -98,8 +104,20 @@ public class MatchController {
      */
     private final Map<User, LobbyInfo> userLobbyInfo;
 
+    /**
+     * Placeholder value used in method calls where a specific parameter is not needed
+     * or not applicable for the current operation.
+     */
     static private final Integer PLACEHOLDER = -1;
 
+    /**
+     * Private constructor for the MatchController singleton class.
+     * Initializes all the necessary data structures for managing lobbies, users,
+     * network transceivers, and game controllers.
+     *
+     * @param serverNetworkTransceiver the main network transceiver used for server-wide
+     *                                communication with clients not in specific lobbies
+     */
     private MatchController(NetworkTransceiver serverNetworkTransceiver) {
         this.gameControllers = new HashMap<>();
         this.users = new HashMap<>();
@@ -1114,7 +1132,7 @@ public class MatchController {
             networkTransceivers.get(lobby).broadcast(readyPlayerEvent);
 
             if (lobby.canGameStart()) {
-                int timerDuration = 3000;
+                int timerDuration = 10000;
 
                 LocalTime startTime = LocalTime.now();
                 StartingGame startingGameEvent = new StartingGame(startTime.toString(), timerDuration);

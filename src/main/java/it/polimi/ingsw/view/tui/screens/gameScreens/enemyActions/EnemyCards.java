@@ -12,8 +12,17 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.cannonsActions.ChooseDoubleC
 
 import java.util.List;
 
+/**
+ * EnemyCards is a screen in the TUI that displays enemy card actions to the player.
+ * It extends CardsGame and allows the player to choose between activating cannons or not engaging.
+ * The screen shows information about the incoming enemy type and handles the player's selection.
+ */
 public class EnemyCards extends CardsGame {
 
+    /**
+     * Constructs the EnemyCards screen, initializing the options and displaying
+     * information about the top enemy card in the deck.
+     */
     public EnemyCards() {
         super(List.of("Active cannons", "Do not engage cannon systems"));
         String info = switch (MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getCardViewType()) {
@@ -25,6 +34,13 @@ public class EnemyCards extends CardsGame {
         setMessage(info);
     }
 
+    /**
+     * Handles the transition to a new screen based on the player's selection.
+     * If the player chooses to activate cannons, transitions to the ChooseDoubleCannonsCards screen.
+     * If the player chooses not to engage, sends an EndTurn request and handles any errors.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

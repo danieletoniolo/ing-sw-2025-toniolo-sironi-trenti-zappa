@@ -13,6 +13,7 @@ import java.io.Serializable;
  *
  * @param nickname the userID of the player being added
  * @param color    the color assigned to the player
+ * @author Vittorio Sironi
  */
 public record PlayerAdded(
     String nickname,

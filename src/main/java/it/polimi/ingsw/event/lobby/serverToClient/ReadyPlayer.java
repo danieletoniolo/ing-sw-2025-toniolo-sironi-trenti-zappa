@@ -9,6 +9,7 @@ import java.io.Serializable;
  * This event is used in the lobby phase when players indicate they are ready.
  * @param nickname the nickname of the player who is ready
  * @param isReady  true if the player is ready, false otherwise
+ * @author Daniele Toniolo
  */
 public record ReadyPlayer(
         String nickname,

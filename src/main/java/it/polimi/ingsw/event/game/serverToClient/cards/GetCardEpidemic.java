@@ -9,6 +9,7 @@ import java.io.Serializable;
  * It contains the card's ID, level, crew required, flight days, and credit.
  * @param ID    ID of the card
  * @param level level of the card
+ * @author Vittorio Sironi
  */
 public record GetCardEpidemic(
         int ID,

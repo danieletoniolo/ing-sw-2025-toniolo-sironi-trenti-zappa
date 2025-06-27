@@ -11,6 +11,7 @@ import java.io.Serializable;
  * @param lobbyID    the name of the lobby
  * @param maxPlayers the maximum number of players allowed in the lobby
  * @param level      the level of the game
+ * @author Vittorio Sironi
  */
 public record LobbyCreated(
         String nickname,

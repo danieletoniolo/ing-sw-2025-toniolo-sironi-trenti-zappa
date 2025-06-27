@@ -22,6 +22,7 @@ import java.util.UUID;
  * </p>
  * The database controller creates a new folder in the user's home directory to store game state files and a
  * JSON file to map players to their game controllers.
+ * @author Daniele Toniolo
  */
 public class DatabaseController {
     /**

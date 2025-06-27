@@ -6,10 +6,15 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
+/**
+ * Enum representing the different types of goods in the view.
+ * Each good has an associated integer value and color codes for TUI representation.
+ */
 public enum GoodView {
     BLUE(1), GREEN(2), YELLOW(3), RED(4);
 
     private final int value;
+    // ANSI color codes for TUI representation
     private final String blue =   "\033[34m";
     private final String green =  "\033[32m";
     private final String yellow = "\033[33m";
@@ -17,14 +22,32 @@ public enum GoodView {
     private final String reset =  "\033[0m";
     private final String Cell = "■";
 
+    /**
+     * Constructor for GoodView.
+     * @param value the integer value associated with the good
+     */
     GoodView(int value) {
         this.value = value;
     }
 
+    /**
+     * Gets the integer value associated with the good.
+     * @return the value of the good
+     */
     public int getValue() {
         return value;
     }
 
+    /**
+     * Draws the good on a GUI image at the specified position.
+     * @param inputImage the input image to draw on
+     * @param centerX the x-coordinate of the center
+     * @param centerY the y-coordinate of the center
+     * @param size the size of the square to draw
+     * @param numberOfGoods the total number of goods to display
+     * @param position the position index of this good
+     * @return the modified image with the good drawn
+     */
     public Image drawGui(Image inputImage, int centerX, int centerY, int size, int numberOfGoods, int position) {
         int width = (int) inputImage.getWidth();
         int height = (int) inputImage.getHeight();
@@ -80,6 +103,18 @@ public enum GoodView {
         return outputImage;
     }
 
+    /**
+     * Draws a filled square with a black border on the given PixelWriter.
+     * The square is centered at (centerX, centerY) with the specified size and color.
+     *
+     * @param writer   the PixelWriter to draw on
+     * @param imgWidth the width of the image
+     * @param imgHeight the height of the image
+     * @param centerX  the x-coordinate of the square's center
+     * @param centerY  the y-coordinate of the square's center
+     * @param size     the size (width and height) of the square
+     * @param color    the fill color of the square
+     */
     private static void drawSquare(PixelWriter writer, int imgWidth, int imgHeight, int centerX, int centerY, int size, Color color) {
         int halfSize = size / 2;
         int startX = centerX - halfSize;
@@ -98,6 +133,13 @@ public enum GoodView {
         }
     }
 
+    /**
+     * Returns the GoodView enum constant corresponding to the given integer value.
+     *
+     * @param value the integer value associated with the good
+     * @return the GoodView constant matching the value
+     * @throws IllegalArgumentException if no GoodView with the specified value exists
+     */
     public static GoodView fromValue(int value) {
         for (GoodView good : values()) {
             if (good.value == value) {
@@ -107,6 +149,12 @@ public enum GoodView {
         throw new IllegalArgumentException("No GoodView with value " + value);
     }
 
+    /**
+     * Returns a string representation of the good for TUI display,
+     * including the appropriate ANSI color codes.
+     *
+     * @return the colored string representation of the good for TUI
+     */
     public String drawTui() {
         return switch (this) {
             case BLUE -> blue + Cell + reset;

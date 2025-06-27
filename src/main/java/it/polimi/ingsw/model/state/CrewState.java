@@ -1,8 +1,10 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.deck.GetShuffledDeck;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.SetCannonStrength;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.SetEngineStrength;
+import it.polimi.ingsw.model.cards.Card;
 import it.polimi.ingsw.model.game.board.Board;
 import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.player.PlayerData;
@@ -134,5 +136,9 @@ public class CrewState extends State {
     @Override
     public void exit() {
         super.exit();
+        GetShuffledDeck getShuffledDeckEvent = new GetShuffledDeck(
+                board.getShuffledDeck().stream().map(Card::getID).toList()
+        );
+        eventCallback.trigger(getShuffledDeckEvent);
     }
 }

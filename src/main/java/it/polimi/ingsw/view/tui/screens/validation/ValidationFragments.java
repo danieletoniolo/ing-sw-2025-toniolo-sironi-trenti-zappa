@@ -13,8 +13,17 @@ import org.javatuples.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * ValidationFragments is a screen that handles the validation process when a player's ship is fragmented.
+ * It displays the available groups of ship fragments and allows the player to choose which group to keep.
+ * After the selection, it sends the appropriate requests to the server and manages error handling and turn ending.
+ */
 public class ValidationFragments extends Validation {
 
+    /**
+     * Constructs the ValidationFragments screen.
+     * Initializes the list of fragment groups to display and sets the initial message for the user.
+     */
     public ValidationFragments() {
         super(new ArrayList<>(){{
             int i = 1;
@@ -31,6 +40,12 @@ public class ValidationFragments extends Validation {
         setMessage("Your ship is fragmented, you have to choose which group of components to keep");
     }
 
+    /**
+     * Handles the logic for setting the new screen after the user makes a selection.
+     * Sends the fragment choice and end turn requests to the server, manages errors, and transitions to the next screen.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
@@ -58,6 +73,11 @@ public class ValidationFragments extends Validation {
         return this;
     }
 
+    /**
+     * Returns the label to display before the input prompt.
+     *
+     * @return a string label for the fragments section
+     */
     @Override
     protected String lineBeforeInput() {
         return "Fragments:";

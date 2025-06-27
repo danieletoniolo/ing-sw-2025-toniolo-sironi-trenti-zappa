@@ -16,6 +16,7 @@ import java.io.Serializable;
  *                          determine potential connections or associations within the board.
  * @param type              The type of the life support picked up:
  *                          1 represents a "brown alien", 2 represents a "purple alien".
+ * @author Vittorio Sironi
  */
 public record PickedLifeSupportFromBoard(
         String nickname,

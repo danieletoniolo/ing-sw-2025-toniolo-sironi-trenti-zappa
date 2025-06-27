@@ -18,6 +18,7 @@ import java.util.Map;
  * of specific it.polimi.ingsw.event listeners in order to associate the listener from the register, to the listener on the actual transceiver
  *
  * @param <T> the specific type of {@link Event} this receiver will handle
+ * @author Vittorio Sironi
  */
 public class CastEventReceiver<T extends Event> implements EventReceiver<T> {
     /**
@@ -51,6 +52,16 @@ public class CastEventReceiver<T extends Event> implements EventReceiver<T> {
      */
     private final Map<EventListener<T>, EventListener<Event>> listeners = new HashMap<>();
 
+    /**
+     * Constructs a new {@code CastEventReceiver} with the specified generic event receiver.
+     * This constructor initializes the receiver that will be used for delegating event
+     * registration and unregistration operations.
+     *
+     * @param receiver the generic event receiver that will handle the underlying event
+     *                 management operations. This receiver must accept events of type
+     *                 {@link Event} and will be used as the delegation target for all
+     *                 listener operations.
+     */
     public CastEventReceiver(EventReceiver<Event> receiver) {
         this.receiver = receiver;
     }

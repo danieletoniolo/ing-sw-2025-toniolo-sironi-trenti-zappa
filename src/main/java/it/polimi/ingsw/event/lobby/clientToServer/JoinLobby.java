@@ -14,6 +14,7 @@ import java.util.function.Function;
  *
  * @param userID  userID of the user joining the lobby
  * @param lobbyID The ID of the lobby to join
+ * @author Vittorio Sironi
  */
 public record JoinLobby(
         String userID,

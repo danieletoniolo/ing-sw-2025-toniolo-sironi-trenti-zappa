@@ -744,13 +744,6 @@ public class Handler {
                             0
                     };
                 }
-                case 4 -> {
-                    if (level == Level.SECOND) {
-                        throw new IllegalStateException("Cannot use this ship in SECOND level");
-                    }
-
-
-                }
                 default -> throw new IllegalArgumentException("Invalid ship index: " + shipIndex);
             }
         }

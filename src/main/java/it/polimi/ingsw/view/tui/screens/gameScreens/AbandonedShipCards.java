@@ -12,12 +12,28 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.looseScreens.LooseCrewCards;
 
 import java.util.List;
 
+/**
+ * Represents the screen for handling the "Abandoned Ship" card event in the TUI.
+ * Allows the player to choose whether to accept or refuse searching for crew on an abandoned ship.
+ * Extends {@link CardsGame} to provide card selection functionality.
+ */
 public class AbandonedShipCards extends CardsGame {
 
+    /**
+     * Constructs the AbandonedShipCards screen with the available options.
+     * The options are "Accept" and "Refuse".
+     */
     public AbandonedShipCards() {
         super(List.of("Accept", "Refuse"));
     }
 
+    /**
+     * Handles the logic for setting the new screen based on the player's selection.
+     * If "Accept" is chosen, attempts to play the card and handles possible errors.
+     * If "Refuse" is chosen, ends the turn and handles possible errors.
+     *
+     * @return the next {@link TuiScreenView} to display, or this screen if an error occurs.
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
@@ -47,6 +63,11 @@ public class AbandonedShipCards extends CardsGame {
         return this;
     }
 
+    /**
+     * Provides the message displayed before the user input prompt.
+     *
+     * @return a string describing the abandoned ship scenario.
+     */
     @Override
     public String lineBeforeInput() {
         return "You have reached an abandoned ship, wanna look for some crew?";

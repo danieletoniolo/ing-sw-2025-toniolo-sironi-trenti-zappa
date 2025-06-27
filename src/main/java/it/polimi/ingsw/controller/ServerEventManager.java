@@ -9,10 +9,16 @@ import java.util.UUID;
 
 /**
  * It is used by the states and the gameController to notify to the matchController that an it.polimi.ingsw.event need to be sent in broadcast
+ * @author Vittorio Sironi
  */
 public class ServerEventManager implements EventCallback, Serializable {
+    /** The lobby information associated with this event manager */
     private final LobbyInfo lobbyInfo;
 
+    /**
+     * Constructs a new ServerEventManager with the specified lobby information.
+     * @param lobbyInfo the lobby information to associate with this event manager
+     */
     public ServerEventManager(LobbyInfo lobbyInfo) {
         this.lobbyInfo = lobbyInfo;
     }

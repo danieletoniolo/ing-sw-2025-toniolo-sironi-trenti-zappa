@@ -11,8 +11,16 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * Represents the screen for the "Meteors Swarm" event in the TUI game.
+ * Extends {@link CardsGame} and manages the interaction when a meteor swarm occurs,
+ * allowing the player to roll dice and end their turn.
+ */
 public class MeteorsSwarmCards extends CardsGame {
 
+    /**
+     * Constructs a new MeteorsSwarmCards screen with the appropriate options and message.
+     */
     public MeteorsSwarmCards() {
         super(new ArrayList<>(){{
             add("Roll dice");
@@ -20,6 +28,13 @@ public class MeteorsSwarmCards extends CardsGame {
         setMessage("A meteor swarn is coming! Good luck!");
     }
 
+    /**
+     * Handles the logic for setting the new screen after the player interacts with the options.
+     * If the player chooses to roll the dice, it sends the roll request and then ends the turn.
+     * Handles error messages and transitions to the next screen accordingly.
+     *
+     * @return the next {@link TuiScreenView} to display, or this screen if an error occurs.
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

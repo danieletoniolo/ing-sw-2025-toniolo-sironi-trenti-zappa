@@ -7,6 +7,7 @@ import java.io.Serializable;
 /**
  * This event is triggered when a player picks hidden tiles from the board.
  * It is used to notify the number of hidden tiles that remain on the board.
+ * @author Vittorio Sironi
  */
 public record NumberHiddenTiles(
         int hiddenTilesCount

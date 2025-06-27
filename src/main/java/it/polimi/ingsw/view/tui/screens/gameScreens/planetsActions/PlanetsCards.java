@@ -11,13 +11,29 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.List;
 
+/**
+ * The PlanetsCards class represents the screen where the player can choose to play or refuse a card
+ * during the planets phase of the game. It extends CardsGame and provides options to accept or refuse
+ * the card, handling the corresponding actions and transitions to the next screen.
+ */
 public class PlanetsCards extends CardsGame {
 
+    /**
+     * Constructs a new PlanetsCards screen with options to accept or refuse the card.
+     */
     public PlanetsCards() {
         super(List.of("Accept", "Refuse"));
         setMessage("You can now play on the planets, choose what to do!");
     }
 
+    /**
+     * Handles the logic for setting the new screen based on the player's selection.
+     * If the player accepts, it attempts to play the card and transitions to SelectPlanetCards.
+     * If the player refuses, it ends the turn and transitions to the next screen.
+     * Displays error messages if the action fails.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

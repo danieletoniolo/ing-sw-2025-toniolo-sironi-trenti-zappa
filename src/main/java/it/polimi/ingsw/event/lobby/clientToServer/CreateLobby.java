@@ -15,6 +15,7 @@ import java.util.function.Function;
  * @param userID     userID of the user creating the lobby
  * @param maxPlayers the maximum number of players allowed in the lobby
  * @param level      the level of the game
+ * @author Vittorio Sironi
  */
 public record CreateLobby(
         String userID,

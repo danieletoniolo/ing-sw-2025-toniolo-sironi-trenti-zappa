@@ -11,8 +11,18 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * The PickCommands class represents a screen in the TUI where the user can choose
+ * different commands for picking components during the building phase.
+ * It extends the Building class and provides options for picking hidden components,
+ * picking from the pile, picking the last component from the spaceship, picking from
+ * the reserved pile, or going back.
+ */
 public class PickCommands extends Building {
 
+    /**
+     * Constructs a PickCommands screen with a predefined list of pick options.
+     */
     public PickCommands() {
         super(new ArrayList<>(){{
             add("Pick an hidden component");
@@ -23,6 +33,13 @@ public class PickCommands extends Building {
         }});
     }
 
+    /**
+     * Sets the new screen based on the user's selection.
+     * Handles the logic for each pick command, including requesting actions from the server
+     * and handling possible errors.
+     *
+     * @return the next TuiScreenView to display, or this if an error occurs.
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

@@ -13,6 +13,7 @@ import java.util.function.Function;
  *
  * @param userID   userID of the user
  * @param nickname The userID of the user
+ * @author Vittorio Sironi
  */
 public record SetNickname(
         String userID,

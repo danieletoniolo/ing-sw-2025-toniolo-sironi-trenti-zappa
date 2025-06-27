@@ -9,6 +9,7 @@ import java.io.Serializable;
  * This record encapsulates the new state that has been reached.
  *
  * @param newState The identifier of the new state after the change has occurred.
+ * @author Vittorio Sironi
  */
 public record StateChanged(
     Integer newState

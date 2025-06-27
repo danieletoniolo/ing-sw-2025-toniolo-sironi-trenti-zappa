@@ -10,6 +10,7 @@ import java.util.List;
  * It contains a list of lists of integers, where each inner list represents a deck.
  *
  * @param decks A list of lists of integers representing the cards in the decks.
+ * @author Vittorio Sironi
  */
 public record GetDecks(
         List<List<Integer>> decks

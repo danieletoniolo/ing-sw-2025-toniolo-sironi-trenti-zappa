@@ -8,10 +8,27 @@ import org.javatuples.Triplet;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Screen for picking goods from a card during the exchange goods action in the TUI.
+ * Extends {@link ManagerExchangeGoodsCards} to manage the selection and exchange process.
+ */
 public class PickGoodsFromCardCards extends ManagerExchangeGoodsCards {
+    /**
+     * The previous screen to return to after the action is completed or cancelled.
+     */
     private final TuiScreenView oldScreen;
+
+    /**
+     * The list of goods currently available on the card.
+     */
     private final List<GoodView> goodsOnCard;
 
+    /**
+     * Constructs a new PickGoodsFromCardCards screen.
+     *
+     * @param goodsOnCard the list of goods available to pick from the card
+     * @param oldScreen   the previous screen to return to
+     */
     public PickGoodsFromCardCards(List<GoodView> goodsOnCard, TuiScreenView oldScreen) {
         super(new ArrayList<>(){{
             for (GoodView good : goodsOnCard) {
@@ -25,6 +42,13 @@ public class PickGoodsFromCardCards extends ManagerExchangeGoodsCards {
         this.oldScreen = oldScreen;
     }
 
+    /**
+     * Handles the logic for setting the new screen after a selection is made.
+     * Adds selected goods to the exchange, manages the flow for "Done" and "Cancel" actions,
+     * and updates the message shown to the user.
+     *
+     * @return the next {@link TuiScreenView} to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
@@ -59,6 +83,11 @@ public class PickGoodsFromCardCards extends ManagerExchangeGoodsCards {
         return new PickGoodsFromCardCards(goodsOnCard, oldScreen);
     }
 
+    /**
+     * Returns the line to display before the user input, based on the card type.
+     *
+     * @return the prompt string to show to the user
+     */
     @Override
     protected String lineBeforeInput() {
         return switch (MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getCardViewType()) {

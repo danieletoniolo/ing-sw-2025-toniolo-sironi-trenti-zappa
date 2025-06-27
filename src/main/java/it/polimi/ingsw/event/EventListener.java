@@ -10,6 +10,7 @@ import it.polimi.ingsw.event.type.Event;
  * such as {@link NetworkTransceiver}.
  *
  * @param <T> The type of it.polimi.ingsw.event this listener is capable of handling. Must extend {@link Event}.
+ * @author Daniele Toniolo
  */
 public interface EventListener<T extends Event> {
     /**

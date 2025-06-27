@@ -13,6 +13,7 @@ import java.util.function.Function;
 /**
  * This class represents the event of a player starting to play the game.
  * @param userID The userID of the player who is starting to play.
+ * @author Vittorio Sironi
  */
 public record Play(
         String userID

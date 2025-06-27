@@ -13,17 +13,57 @@ import it.polimi.ingsw.view.tui.input.Parser;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents the Deck screen in the TUI.
+ * Allows the user to view and interact with a deck, including leaving the deck.
+ */
 public class Deck implements TuiScreenView {
+    /**
+     * List of available options for the user.
+     */
     private final ArrayList<String> options = new ArrayList<>(List.of("Back"));
+
+    /**
+     * Indicates if this is a new screen instance.
+     */
     private boolean isNewScreen;
+
+    /**
+     * The next screen to display after this one.
+     */
     private final TuiScreenView nextScreen;
 
+    /**
+     * The deck view associated with this screen.
+     */
     private final DeckView myDeck;
+
+    /**
+     * The currently selected option index.
+     */
     int selected;
+
+    /**
+     * Total number of lines to draw in the TUI.
+     */
     int totalLines = DeckView.getRowsToDraw() + 4 + 2;
+
+    /**
+     * Message to display to the user.
+     */
     protected String message;
+
+    /**
+     * The deck number.
+     */
     private final int num;
 
+    /**
+     * Constructs a Deck screen for the given deck and number.
+     *
+     * @param deck the deck view to display
+     * @param num the deck number
+     */
     public Deck(DeckView deck, int num) {
         this.myDeck = deck;
         this.num = num;
@@ -32,11 +72,21 @@ public class Deck implements TuiScreenView {
         nextScreen = new MainBuilding();
     }
 
+    /**
+     * Reads the user's command input using the provided parser.
+     *
+     * @param parser the input parser
+     */
     @Override
     public void readCommand(Parser parser) {
         selected = parser.getCommand(options, totalLines);
     }
 
+    /**
+     * Handles the logic for setting a new screen based on the user's selection.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         if (selected == 0) {
@@ -53,6 +103,9 @@ public class Deck implements TuiScreenView {
         return this;
     }
 
+    /**
+     * Prints the deck screen to the terminal.
+     */
     @Override
     public void printTui() {
         List<String> newLines = new ArrayList<>();
@@ -76,17 +129,32 @@ public class Deck implements TuiScreenView {
         }
     }
 
+    /**
+     * Sets the message to display and propagates it to the next screen.
+     *
+     * @param message the message to set
+     */
     @Override
     public synchronized void setMessage(String message) {
         this.message = message;
         nextScreen.setMessage(message);
     }
 
+    /**
+     * Returns the type of this TUI screen.
+     *
+     * @return the TuiScreens enum value for this screen
+     */
     @Override
     public TuiScreens getType() {
         return TuiScreens.Deck;
     }
 
+    /**
+     * Sets the next screen to display. (Currently not implemented)
+     *
+     * @param nextScreen the next TuiScreenView
+     */
     @Override
     public void setNextScreen(TuiScreenView nextScreen) {
 

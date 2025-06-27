@@ -16,6 +16,7 @@ import java.util.function.Function;
  * This event is used when a player have to destroy components of his ship.
  * @param userID              is the user ID. Only the user know his ID, so the event is not faked.
  * @param componentsToDestroy The list of components that the player has to destroy, the pair represent the row and the columns of the component
+ * @author Vittorio Sironi
  */
 public record DestroyComponents(
         String userID,

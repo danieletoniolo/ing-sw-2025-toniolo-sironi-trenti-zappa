@@ -15,8 +15,17 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.NotClientTurnCards;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Screen for handling the use of shield cards during the game.
+ * Allows the player to select a battery to activate the shield or skip activation.
+ * Extends {@link CardsGame} to provide card selection functionality.
+ */
 public class UseShieldCards extends CardsGame {
 
+    /**
+     * Constructs the UseShieldCards screen.
+     * Populates the selectable options with available batteries and the option to not activate the shield.
+     */
     public UseShieldCards() {
         super(new ArrayList<>(){{
             spaceShipView.getMapBatteries().values().stream()
@@ -26,11 +35,20 @@ public class UseShieldCards extends CardsGame {
         }});
     }
 
+    /**
+     * Returns the line to display before the user input prompt.
+     * @return the prompt string
+     */
     @Override
     protected String lineBeforeInput() {
         return "Select a battery to active the shield";
     }
 
+    /**
+     * Handles the logic for setting the new screen after a selection is made.
+     * Sends requests to use a shield and end the turn, handling errors if they occur.
+     * @return the next {@link TuiScreenView} to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

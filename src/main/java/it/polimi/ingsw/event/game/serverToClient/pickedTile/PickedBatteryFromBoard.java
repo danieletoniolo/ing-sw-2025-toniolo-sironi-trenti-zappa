@@ -14,6 +14,7 @@ import java.io.Serializable;
  * @param clockwiseRotation The rotation of the battery in a clockwise direction, represented as an integer.
  * @param connectors        A list of the connector type associated with the battery.
  * @param energyNumber      The amount of energy represented by the picked battery.
+ * @author Vittorio Sironi
  */
 public record PickedBatteryFromBoard(
         String nickname,

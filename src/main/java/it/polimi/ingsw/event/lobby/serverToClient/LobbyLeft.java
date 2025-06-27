@@ -9,6 +9,7 @@ import java.io.Serializable;
  *
  * @param nickname userID of the user leaving the lobby
  * @param lobbyID  The lobbyID is the lobbyID of the lobby the user is leaving.
+ * @author Vittorio Sironi
  */
 public record LobbyLeft(
         String nickname,

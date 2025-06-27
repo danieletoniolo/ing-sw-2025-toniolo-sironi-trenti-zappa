@@ -13,14 +13,31 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.NotClientTurnCards;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a game screen where the player cannot protect their cards.
+ * This screen is shown when the player is unable to use a shield to defend their cards.
+ * It handles the logic for attempting to use a shield and, if not possible, ends the player's turn.
+ */
 public class CantProtectCards extends CardsGame {
 
+    /**
+     * Constructs the CantProtectCards screen with a default message.
+     */
     public CantProtectCards() {
         super(new ArrayList<>() {{
             add("Ready for the impact");
         }});
     }
 
+    /**
+     * Sets the new screen for the TUI.
+     * Attempts to use a shield with an invalid battery index (-1).
+     * If the shield cannot be used, displays the error message.
+     * Otherwise, ends the player's turn and handles any errors.
+     * Returns the next appropriate screen.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

@@ -14,6 +14,7 @@ import java.util.function.Function;
  * This event is used when the timer is flipped.
  * It is used to notify the other players that the timer has been flipped.
  * @param userID is the user ID. Only the user know his ID, so the event is not faked.
+ * @author Vittorio Sironi
  */
 public record FlipTimer(
         String userID

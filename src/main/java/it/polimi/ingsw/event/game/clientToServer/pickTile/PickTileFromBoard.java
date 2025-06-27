@@ -13,6 +13,7 @@ import java.util.function.Function;
  * This event is used when a player pick a tile from the board.
  * @param userID is the user ID. Only the user know his ID, so the event is not faked.
  * @param tileID The ID of the tile being picked.
+ * @author Vittorio Sironi
  */
 public record PickTileFromBoard(
         String userID,

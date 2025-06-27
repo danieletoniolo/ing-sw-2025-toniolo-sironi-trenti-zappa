@@ -9,6 +9,7 @@ import java.io.Serializable;
  * @param startingTime     is the time when the timer was flipped.
  * @param maxNumberOfFlips is the maximum number of times the timer can be flipped.
  * @param timerDuration    is the duration of the timer in milliseconds.
+ * @author Vittorio Sironi
  */
 public record TimerFlipped(
         String nickname,

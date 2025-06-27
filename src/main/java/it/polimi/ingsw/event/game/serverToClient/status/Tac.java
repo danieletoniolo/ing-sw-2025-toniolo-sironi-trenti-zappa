@@ -12,6 +12,7 @@ import java.io.Serializable;
  * @param userID       The user ID of the player who has done the request
  *  *                  We can put it in the event because this event will be sent only to the client who have made the request
  * @param eventType The class type of the event that completed successfully.
+ * @author Vittorio Sironi
  */
 public record Tac(
         String userID,

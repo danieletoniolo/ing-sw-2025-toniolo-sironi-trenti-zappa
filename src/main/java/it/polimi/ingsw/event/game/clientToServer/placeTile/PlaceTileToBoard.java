@@ -13,6 +13,7 @@ import java.util.function.Function;
 /**
  * This event is used when a player place a tile on the board.
  * @param userID is the user ID. Only the user know his ID, so the event is not faked.
+ * @author Vittorio Sironi
  */
 public record PlaceTileToBoard(
         String userID

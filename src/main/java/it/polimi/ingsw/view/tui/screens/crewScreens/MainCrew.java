@@ -11,8 +11,16 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * MainCrew is a screen in the TUI that allows the user to modify their crew members.
+ * It extends ModifyCrew and provides options to add or remove crew members based on the current board level.
+ */
 public class MainCrew extends ModifyCrew {
 
+    /**
+     * Constructs the MainCrew screen with options depending on the current board level.
+     * Sets the appropriate message for the user.
+     */
     public MainCrew() {
         super(new ArrayList<>(){{
             if (MiniModel.getInstance().getBoardView().getLevel() == LevelView.SECOND) {
@@ -31,6 +39,13 @@ public class MainCrew extends ModifyCrew {
         }
     }
 
+    /**
+     * Sets the new screen based on the user's selection.
+     * If the user selects "Done", sends an end turn request and handles the response.
+     * Otherwise, returns a new AddCrew screen for the selected option.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

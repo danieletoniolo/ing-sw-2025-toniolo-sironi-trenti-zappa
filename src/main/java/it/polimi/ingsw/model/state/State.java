@@ -46,7 +46,7 @@ public abstract class State implements Serializable {
     /**
      * Enum to represent the status of the player in the state.
      */
-     enum PlayerStatus {
+     public enum PlayerStatus {
         WAITING,
         PLAYING,
         PLAYED,

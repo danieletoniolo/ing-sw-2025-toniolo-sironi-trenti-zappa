@@ -4,8 +4,16 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * Screen for choosing double cannons cards in the TUI.
+ * Extends {@link ManagerCannonsCards} to manage the selection of double cannons.
+ */
 public class ChooseDoubleCannonsCards extends ManagerCannonsCards {
 
+    /**
+     * Constructs the screen for choosing double cannons cards.
+     * Initializes the list of selectable options based on the available double cannons.
+     */
     public ChooseDoubleCannonsCards() {
         super(new ArrayList<>(){{
             if (cannonsIDs == null) {
@@ -23,11 +31,22 @@ public class ChooseDoubleCannonsCards extends ManagerCannonsCards {
         }});
     }
 
+    /**
+     * Returns the line to display before the user input.
+     *
+     * @return the prompt string for the user
+     */
     @Override
     protected String lineBeforeInput() {
         return "Choose double cannons to activate";
     }
 
+    /**
+     * Handles the logic for setting the new screen based on user selection.
+     * Updates the state and navigates to the appropriate screen.
+     *
+     * @return the next {@link TuiScreenView} to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

@@ -10,8 +10,18 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * The CannonsBatteryCards class manages the selection and activation of batteries
+ * to be used with cannons in the TUI game screen.
+ * Extends ManagerCannonsCards to provide specific logic for battery selection,
+ * user interaction, and communication with the server for cannon and battery usage.
+ */
 public class CannonsBatteryCards extends ManagerCannonsCards {
 
+    /**
+     * Constructs a CannonsBatteryCards screen, initializing the selectable options
+     * based on available batteries and cannons.
+     */
     public CannonsBatteryCards() {
         super(new ArrayList<>(){{
             if (batteriesIDs == null) {
@@ -31,11 +41,24 @@ public class CannonsBatteryCards extends ManagerCannonsCards {
         }});
     }
 
+    /**
+     * Returns the line to be displayed before the user input,
+     * prompting the user to select batteries.
+     *
+     * @return the prompt string
+     */
     @Override
     protected String lineBeforeInput() {
         return "Select batteries to use";
     }
 
+    /**
+     * Handles the logic for updating the screen based on user selection.
+     * Manages the selection of batteries, sending requests to use cannons and batteries,
+     * handling errors, and progressing to the next screen.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

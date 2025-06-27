@@ -12,12 +12,27 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.MenuGoodsCards;
 
 import java.util.List;
 
+/**
+ * Represents the screen for handling cards found at an abandoned station in the TUI.
+ * Allows the player to accept or refuse the card, triggering the appropriate game actions.
+ */
 public class AbandonedStationCards extends CardsGame {
 
+    /**
+     * Constructs the AbandonedStationCards screen with options to accept or refuse.
+     */
     public AbandonedStationCards() {
         super(List.of("Accept", "Refuse"));
     }
 
+    /**
+     * Sets the new screen based on the player's selection.
+     * If "Accept" is chosen, attempts to play the card.
+     * If "Refuse" is chosen, ends the player's turn.
+     * Handles error messages if the action fails.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
@@ -46,6 +61,11 @@ public class AbandonedStationCards extends CardsGame {
         return this;
     }
 
+    /**
+     * Returns the message to display before the input prompt.
+     *
+     * @return the prompt message
+     */
     @Override
     public String lineBeforeInput() {
         return "You have reached an abandoned station, wanna look for some goods?";

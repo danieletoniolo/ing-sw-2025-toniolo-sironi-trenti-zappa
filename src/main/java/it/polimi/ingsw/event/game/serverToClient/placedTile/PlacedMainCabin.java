@@ -9,6 +9,7 @@ import java.io.Serializable;
  * @param nickname   is the user ID of the player who placed the main cabin. Only the user knows their ID, so the event is not faked.
  * @param tileID     is the ID of the tile representing the main cabin.
  * @param connectors is an array of integers representing the connectors associated with the main cabin.
+ * @author Vittorio Sironi
  */
 public record PlacedMainCabin(
         String nickname,

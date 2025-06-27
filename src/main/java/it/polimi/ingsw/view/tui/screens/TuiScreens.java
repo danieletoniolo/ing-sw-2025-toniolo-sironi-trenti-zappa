@@ -1,5 +1,8 @@
 package it.polimi.ingsw.view.tui.screens;
 
+/**
+ * Enum representing the different screens available in the TUI (Text User Interface).
+ */
 public enum TuiScreens {
     Building,
     MainBuilding,

@@ -4,12 +4,31 @@ import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
 
 import java.util.List;
 
+/**
+ * Represents a Combat Zone card in the view layer of the MiniModel.
+ * This card type contains information about combat losses, flight days, and hit effects.
+ * @author Matteo Zappa
+ */
 public class CombatZoneView extends CardView {
+    /** The loss value associated with this combat zone */
     private final int loss;
+    /** The number of flight days for this combat zone */
     private final int flightDays;
+    /** List of hit effects available on this combat zone card */
     private final List<HitView> hits;
+    /** Counter for tracking combat zone state */
     private int cont;
 
+    /**
+     * Constructs a new CombatZoneView with the specified parameters.
+     *
+     * @param ID the unique identifier for this card
+     * @param covered whether the card is face down or face up
+     * @param level the level of this card
+     * @param loss the loss value associated with this combat zone
+     * @param flightDays the number of flight days for this combat zone
+     * @param hits the list of hit effects available on this card
+     */
     public CombatZoneView(int ID, boolean covered, int level, int loss, int flightDays, List<HitView> hits) {
         super(ID, covered, level);
         this.loss = loss;
@@ -18,6 +37,15 @@ public class CombatZoneView extends CardView {
         this.cont = 0;
     }
 
+    /**
+     * Draws a specific line of the Text User Interface representation for this combat zone card.
+     * If the card is covered, delegates to the parent class implementation.
+     * Otherwise, renders different parts of the card based on the line number including
+     * combat zone type, flight days, loss values, and hit effects.
+     *
+     * @param l the line number to draw (0-9 for a complete card representation)
+     * @return a formatted string representing the specified line of the card's TUI display
+     */
     @Override
     public String drawLineTui(int l) {
         if(isCovered()) return super.drawLineTui(l);
@@ -45,26 +73,56 @@ public class CombatZoneView extends CardView {
         return line.toString();
     }
 
+    /**
+     * Sets the counter value for tracking combat zone state.
+     *
+     * @param cont the new counter value
+     */
     public void setCont(int cont) {
         this.cont = cont;
     }
 
+    /**
+     * Gets the current counter value for tracking combat zone state.
+     *
+     * @return the current counter value
+     */
     public int getCont() {
         return cont;
     }
 
+    /**
+     * Gets the loss value associated with this combat zone.
+     *
+     * @return the loss value
+     */
     public int getLoss() {
         return loss;
     }
 
+    /**
+     * Gets the number of flight days for this combat zone.
+     *
+     * @return the number of flight days
+     */
     public int getFlightDays() {
         return flightDays;
     }
 
+    /**
+     * Gets the list of hit effects available on this combat zone card.
+     *
+     * @return the list of hit effects
+     */
     public List<HitView> getHits() {
         return hits;
     }
 
+    /**
+     * Gets the card view type for this combat zone card.
+     *
+     * @return the card view type (COMBATZONE)
+     */
     @Override
     public CardViewType getCardViewType() {
         return CardViewType.COMBATZONE;

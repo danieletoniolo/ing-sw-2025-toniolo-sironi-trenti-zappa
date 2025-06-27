@@ -12,6 +12,7 @@ import java.util.List;
  * @param level      is the level of the card.
  * @param planets    is a list of lists of integers representing the planets and the goods on them.
  * @param flightDays is the number of flight days lost when visiting the planets.
+ * @author Vittorio Sironi
  */
 public record GetCardPlanets(
         int ID,

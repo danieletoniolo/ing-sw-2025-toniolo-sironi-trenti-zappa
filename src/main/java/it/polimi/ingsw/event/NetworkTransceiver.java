@@ -10,6 +10,20 @@ import org.javatuples.Pair;
 import java.util.*;
 
 
+/**
+ * NetworkTransceiver is a concrete implementation of the EventTransceiver interface that handles
+ * event communication over network connections. It manages multiple client connections and provides
+ * bidirectional event transmission capabilities.
+ *
+ * <p>This class implements a producer-consumer pattern using internal queues for both incoming
+ * and outgoing events, with dedicated threads for handling network communication asynchronously.
+ * It supports both broadcasting events to all connected clients and sending events to specific
+ * connections identified by UUID.</p>
+ *
+ * <p>The class is thread-safe and handles connection lifecycle management, including automatic
+ * cleanup when connections are lost.</p>
+ * @author Daniele Toniolo
+ */
 public class NetworkTransceiver implements EventTransceiver {
     /**
      * Lock object used to synchronize listeners registration, removal and event handling.

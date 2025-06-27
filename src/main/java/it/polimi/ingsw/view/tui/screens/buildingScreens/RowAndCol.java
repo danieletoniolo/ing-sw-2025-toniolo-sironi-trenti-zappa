@@ -12,10 +12,22 @@ import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.Building;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
+/**
+ * Represents a screen in the TUI for entering row and column coordinates.
+ * Used for both placing a tile on the spaceship and picking a tile from the board,
+ * depending on the value of {@code num}.
+ */
 public class RowAndCol extends Building {
+    /** Stores the row and column entered by the user as a pair. */
     private Pair<Integer, Integer> rowAndCol;
+    /** Determines the action: 0 for placing, 1 for picking a tile. */
     private final int num;
 
+    /**
+     * Constructs a RowAndCol screen with the specified action type.
+     *
+     * @param num 0 to place a tile, 1 to pick a tile
+     */
     public RowAndCol(int num) {
         super(null);
         options.clear();
@@ -23,11 +35,22 @@ public class RowAndCol extends Building {
         this.num = num;
     }
 
+    /**
+     * Reads the row and column coordinates from the user input using the provided parser.
+     *
+     * @param parser the parser to read user input
+     */
     @Override
     public void readCommand(Parser parser) {
         rowAndCol = parser.getRowAndCol("Type coordinates (row col): ", totalLines);
     }
 
+    /**
+     * Sets the next screen based on the action type and the entered coordinates.
+     * Handles both placing a tile on the spaceship and picking a tile from the board.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         if (num == 0) {

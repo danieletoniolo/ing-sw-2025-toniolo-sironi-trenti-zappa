@@ -8,6 +8,7 @@ import java.io.Serializable;
  * @param nickname is the userID of the player that placed the tile.
  * @param row      is the row of the tile on the spaceship.
  * @param column   is the column of the tile on the spaceship.
+ * @author Vittorio Sironi
  */
 public record PlacedTileToSpaceship(
         String nickname,

@@ -6,9 +6,18 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Screen for managing the selection of goods to swap from cards in the TUI.
+ * Extends {@link ManagerSwapGoodCards} to provide specific logic for swapping goods from cards.
+ */
 public class SwapGoodsFromCards extends ManagerSwapGoodCards {
     private final TuiScreenView oldScreen;
 
+    /**
+     * Constructs a new SwapGoodsFromCards screen.
+     *
+     * @param oldScreen the previous screen to return to after the swap
+     */
     public SwapGoodsFromCards(TuiScreenView oldScreen) {
         super(new ArrayList<>(){{
             for (GoodView good : fromStorage.getGoods()) {
@@ -22,6 +31,12 @@ public class SwapGoodsFromCards extends ManagerSwapGoodCards {
         this.oldScreen = oldScreen;
     }
 
+    /**
+     * Handles the logic for setting the next screen based on the user's selection.
+     * Manages the swap process, updates messages, and transitions between screens.
+     *
+     * @return the next {@link TuiScreenView} to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
@@ -72,7 +87,11 @@ public class SwapGoodsFromCards extends ManagerSwapGoodCards {
         return new SwapGoodsFromCards(oldScreen);
     }
 
-
+    /**
+     * Returns the line to display before the user input prompt.
+     *
+     * @return the prompt line as a String
+     */
     @Override
     protected String lineBeforeInput() {
         return "Select goods to swap FROM (" + fromStorage.getRow() + " " + fromStorage.getCol() + "):";

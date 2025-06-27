@@ -10,9 +10,23 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.MenuGoodsCards;
 
 import java.util.ArrayList;
 
+/**
+ * The StorageExchangeCards class manages the selection and exchange of goods
+ * from the player's storage in the TUI (Text User Interface) of the game.
+ * It extends ManagerExchangeGoodsCards and provides options to select storages,
+ * finish the exchange, or cancel the operation.
+ */
 public class StorageExchangeCards extends ManagerExchangeGoodsCards {
+    /**
+     * Reference to the previous screen to return to after the exchange.
+     */
     private final TuiScreenView oldScreen;
 
+    /**
+     * Constructs a StorageExchangeCards screen with selectable storage options.
+     *
+     * @param oldScreen the previous TuiScreenView to return to
+     */
     public StorageExchangeCards(TuiScreenView oldScreen) {
         super(new ArrayList<>(){{
             spaceShipView.getMapStorages().forEach(
@@ -27,6 +41,13 @@ public class StorageExchangeCards extends ManagerExchangeGoodsCards {
         this.oldScreen = oldScreen;
     }
 
+    /**
+     * Handles the logic for setting the new screen based on the user's selection.
+     * Sends the exchange request, returns to the previous screen, or proceeds to
+     * the next step in the exchange process.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
@@ -76,6 +97,11 @@ public class StorageExchangeCards extends ManagerExchangeGoodsCards {
         return new DropGoodsCards(oldScreen);
     }
 
+    /**
+     * Returns the prompt line to display before the user input.
+     *
+     * @return the prompt string
+     */
     @Override
     protected String lineBeforeInput() {
         return "Select a STORAGE:";

@@ -13,9 +13,22 @@ import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.MenuGoodsCards;
 
 import java.util.ArrayList;
 
+/**
+ * Screen for selecting a planet card in the TUI game interface.
+ * Extends {@link CardsGame} to provide planet selection options.
+ */
 public class SelectPlanetCards extends CardsGame {
+    /**
+     * Reference to the previous screen to return to if needed.
+     */
     private final TuiScreenView oldScreen;
 
+    /**
+     * Constructs the SelectPlanetCards screen.
+     * Initializes the selectable options based on the number of planets in the current card.
+     *
+     * @param oldScreen the previous screen to return to on cancel
+     */
     public SelectPlanetCards(TuiScreenView oldScreen) {
         super(new ArrayList<>() {{
             CardView card = MiniModel.getInstance().getShuffledDeckView().getDeck().peek();
@@ -27,6 +40,12 @@ public class SelectPlanetCards extends CardsGame {
         this.oldScreen = oldScreen;
     }
 
+    /**
+     * Handles the logic for setting the new screen after a selection is made.
+     * Sends a request to select a planet and handles possible errors.
+     *
+     * @return the next {@link TuiScreenView} to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
@@ -47,6 +66,11 @@ public class SelectPlanetCards extends CardsGame {
         return new MenuGoodsCards();
     }
 
+    /**
+     * Provides the prompt line before user input.
+     *
+     * @return the prompt string
+     */
     @Override
     protected String lineBeforeInput() {
         return "Select a planet from the card:";

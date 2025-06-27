@@ -1,5 +1,9 @@
 package it.polimi.ingsw.view.miniModel;
 
+/**
+ * Interface for objects that can be observed by MiniModelObserver instances.
+ * Provides methods to register, unregister, and notify observers.
+ */
 public interface MiniModelObservable {
     /**
      * Adds an observer to the list of observers.

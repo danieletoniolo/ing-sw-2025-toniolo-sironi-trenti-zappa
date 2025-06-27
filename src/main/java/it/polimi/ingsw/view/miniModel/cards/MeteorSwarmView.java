@@ -4,16 +4,37 @@ import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
 
 import java.util.List;
 
+/**
+ * Represents a view for the Meteor Swarm card in the mini model.
+ * This class extends CardView and manages the display of multiple hits
+ * with a current hit indicator for the text-based user interface.
+ */
 public class MeteorSwarmView extends CardView {
+    /** List of hits associated with this meteor swarm card */
     public List<HitView> hits;
+    /** Index of the currently selected hit (0-based) */
     private int currentHit;
 
+    /**
+     * Constructs a new MeteorSwarmView with the specified parameters.
+     *
+     * @param ID the unique identifier for this card
+     * @param covered whether the card is currently covered/hidden
+     * @param level the level of the card
+     * @param hits the list of hits associated with this meteor swarm
+     */
     public MeteorSwarmView(int ID, boolean covered, int level, List<HitView> hits) {
         super(ID, covered, level);
         this.hits = hits;
         this.currentHit = 0;
     }
 
+    /**
+     * Draws a specific line of the card for the text-based user interface.
+     *
+     * @param l the line number to draw (0-based)
+     * @return the string representation of the specified line
+     */
     @Override
     public String drawLineTui(int l){
         if(isCovered()) return super.drawLineTui(l);
@@ -41,18 +62,38 @@ public class MeteorSwarmView extends CardView {
         return line.toString();
     }
 
+    /**
+     * Gets the list of hits associated with this meteor swarm card.
+     *
+     * @return the list of HitView objects representing the hits
+     */
     public List<HitView> getHits() {
         return hits;
     }
 
+    /**
+     * Advances to the next hit in the sequence.
+     * Increments the currentHit index to move the selection indicator
+     * to the next hit in the list.
+     */
     public void nextHit() {
         this.currentHit++;
     }
 
+    /**
+     * Draws the current hit indicator symbol for the text-based user interface.
+     *
+     * @return the Unicode symbol "◉" used to indicate the currently selected hit
+     */
     private String drawCurrent(){
         return "◉";
     }
 
+    /**
+     * Gets the card view type for this meteor swarm card.
+     *
+     * @return the CardViewType enum value METEORSSWARM
+     */
     @Override
     public CardViewType getCardViewType() {
         return CardViewType.METEORSSWARM;

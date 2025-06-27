@@ -10,6 +10,7 @@ import java.io.Serializable;
  * @param nickname   The userID of the player that can use the options.
  * @param canProtect Pair of the component that can shield and the value of the shield.
  *                   -1 if the ship can't shield, 0 if the ship can shield spending a battery, 1 if the ship can shield without spending a battery (in this case the component return is null)
+ * @author Vittorio Sironi
  */
 public record CanProtect(
         String nickname,

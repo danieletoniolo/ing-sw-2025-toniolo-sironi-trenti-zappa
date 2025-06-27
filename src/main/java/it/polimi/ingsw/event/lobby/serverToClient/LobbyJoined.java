@@ -9,6 +9,7 @@ import java.io.Serializable;
  *
  * @param nickname The userID of the user joining the lobby
  * @param lobbyID  The ID of the lobby to join
+ * @author Vittorio Sironi
  */
 public record LobbyJoined(
         String nickname,

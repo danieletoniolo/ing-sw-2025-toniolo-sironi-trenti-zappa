@@ -16,6 +16,7 @@ import java.util.List;
  * @param flightDays             the number of flight days lost when facing the card
  * @param fires                  a list of pairs representing the fire hits (hit type and direction)
  * @param credit                 the credit rewarded for completing the card
+ * @author Vittorio Sironi
  */
 public record GetCardPirates(
         int ID,

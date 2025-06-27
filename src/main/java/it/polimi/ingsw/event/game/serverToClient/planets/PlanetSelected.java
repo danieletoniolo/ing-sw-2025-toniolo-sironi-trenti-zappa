@@ -10,6 +10,7 @@ import java.io.Serializable;
  *
  * @param nickname     The username or identifier of the player selecting the planet.
  * @param planetNumber The unique identifier of the planet being selected.
+ * @author Vittorio Sironi
  */
 public record PlanetSelected(
         String nickname,
