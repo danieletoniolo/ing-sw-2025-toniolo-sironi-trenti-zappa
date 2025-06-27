@@ -80,6 +80,15 @@ public class MessageController implements Initializable {
         fadeOut.play();
     }
 
+    /**
+     * Displays a message popup with the specified content and styling.
+     * The popup is automatically positioned relative to the owner window and includes
+     * responsive behavior for window resizing.
+     *
+     * @param owner The parent window that will own the popup
+     * @param message The text message to display in the popup
+     * @param path The path to the FXML file that defines the popup's appearance
+     */
     private static void showMessage(Window owner, String message, String path) {
         try {
             // Load the FXML file for the message popup
@@ -93,7 +102,7 @@ public class MessageController implements Initializable {
             popup.getContent().add(messagePane);
             popup.setAutoHide(true);
 
-            // Itialize the popup position and size
+            // Initialize the popup position and size
             positionPopup(owner, popup, messagePane);
 
             // Add a listener to the owner window to reposition the popup when the window is resized
@@ -111,11 +120,23 @@ public class MessageController implements Initializable {
         }
     }
 
+    /**
+     * Positions the popup window relative to its owner window.
+     * If the popup is already showing, updates its position. Otherwise, shows the popup
+     * at the calculated position. The popup is centered horizontally and positioned
+     * 50 pixels from the top of the owner window.
+     *
+     * @param owner The parent window used as reference for positioning
+     * @param popup The popup window to be positioned
+     * @param messagePane The content pane of the popup, used for width calculations
+     */
     private static void positionPopup(Window owner, Popup popup, StackPane messagePane) {
         if (popup.isShowing()) {
+            // Update position of already visible popup
             popup.setX(owner.getX() + (owner.getWidth() - messagePane.getWidth()) / 2);
             popup.setY(owner.getY() + 50);
         } else {
+            // Show popup at calculated position
             popup.show(owner,
                     owner.getX() + (owner.getWidth() - messagePane.getWidth()) / 2,
                     owner.getY() + 50);

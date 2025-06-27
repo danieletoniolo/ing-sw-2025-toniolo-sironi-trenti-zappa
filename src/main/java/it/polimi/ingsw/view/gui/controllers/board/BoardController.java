@@ -23,6 +23,26 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for managing the board view in the GUI application.
+ * This class handles the visual representation and interaction of the game board,
+ * including player markers, timer display, and deck management.
+ *
+ * <p>The controller implements the Observer pattern to react to changes in the board model
+ * and provides responsive scaling functionality to adapt to different screen sizes.</p>
+ *
+ * <p>Key responsibilities include:</p>
+ * <ul>
+ *   <li>Managing the layout and positioning of board elements (steps, timers, decks)</li>
+ *   <li>Updating player marker positions based on game state changes</li>
+ *   <li>Providing responsive scaling for different screen resolutions</li>
+ *   <li>Coordinating with deck and timer controllers</li>
+ * </ul>
+ *
+ * @see MiniModelObserver
+ * @see Initializable
+ * @see BoardView
+ */
 public class BoardController implements MiniModelObserver, Initializable {
 
     /**

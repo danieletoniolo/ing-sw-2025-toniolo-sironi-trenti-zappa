@@ -17,6 +17,19 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 
+/**
+ * Controller class for managing battery component UI in the JavaFX application.
+ * This class extends ComponentController and implements Initializable to provide
+ * functionality for displaying and updating battery energy levels through visual
+ * battery icons. It handles the dynamic creation and management of battery icons
+ * based on the energy state from the BatteryView model.
+ *
+ * The controller supports:
+ * - Dynamic display of battery icons based on energy level
+ * - Visual feedback through opacity changes for energy consumption
+ * - Automatic rotation based on component orientation
+ * - Observer pattern integration for model updates
+ */
 public class BatteryController extends ComponentController implements Initializable {
     /**
      * The HBox container that holds the battery icons representing the energy level.

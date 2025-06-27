@@ -17,6 +17,19 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
+/**
+ * Controller class for managing card display and interactions in the GUI.
+ *
+ * This controller handles the visual representation of cards, including:
+ * - Loading and displaying card images (both covered and uncovered states)
+ * - Implementing drag and drop functionality for card movement
+ * - Responding to changes in the underlying CardView model
+ * - Managing responsive UI scaling and layout
+ *
+ * The controller implements MiniModelObserver to receive updates when the
+ * associated CardView changes, and Initializable to set up the UI components
+ * after FXML loading.
+ */
 public class CardController implements MiniModelObserver, Initializable {
     /**
      * The StackPane that serves as the parent container for the card image.

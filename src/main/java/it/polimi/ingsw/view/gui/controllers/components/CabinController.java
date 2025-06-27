@@ -15,6 +15,13 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
+/**
+ * Controller class for managing cabin components in the GUI.
+ * This class extends ComponentController and implements Initializable to handle
+ * the visual representation and user interactions for cabin components.
+ * It manages the display of crew members within the cabin, including their
+ * types (human, purple alien, brown alien) and visual effects like opacity changes.
+ */
 public class CabinController extends ComponentController implements Initializable {
 
     /**
