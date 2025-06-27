@@ -20,10 +20,7 @@ import it.polimi.ingsw.view.gui.controllers.components.CabinController;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
-import it.polimi.ingsw.view.miniModel.cards.AbandonedStationView;
-import it.polimi.ingsw.view.miniModel.cards.CardView;
-import it.polimi.ingsw.view.miniModel.cards.PlanetsView;
-import it.polimi.ingsw.view.miniModel.cards.SmugglersView;
+import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.components.ComponentTypeView;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.components.StorageView;
@@ -216,10 +213,35 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                     activeBatteriesButtons();
                     break;
                 case COMBATZONE:
-                    totalButtons += 3 + 3 + 1 + 1 + 1 + 3 + 3 + 2;
-                    activeCannonsButton();
-                    activeEnginesButtons();
-                    activeBatteriesButtons();
+                    if (MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getLevel() == 1) {
+                        switch (((CombatZoneView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek()).getCont()) {
+                            case 1 -> {
+                                activeEnginesButtons();
+                                activeBatteriesButtons();
+                            }
+                            case 2 -> {
+                                activeCannonsButton();
+                                activeBatteriesButtons();
+                            }
+                            default -> {}
+                        }
+                    }
+                    else {
+                        switch (((CombatZoneView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek()).getCont()) {
+                            case 0 -> {
+                                activeCannonsButton();
+                                activeBatteriesButtons();
+                            }
+                            case 1 -> {
+                                activeEnginesButtons();
+                                activeBatteriesButtons();
+                            }
+                            default -> {
+                            }
+                        }
+                    }
+                    totalButtons += 5;
+                    totalButtons += 3 + 3 + 1 + 1 + 1;
                     activeRollDiceButtons();
                     activeShieldButtons();
                     activeFragmentsButtons();
@@ -237,7 +259,6 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                     activeCabinsButtons();
                     break;
             }
-
 
             // Exchange goods
             if (changeCardGoods) {

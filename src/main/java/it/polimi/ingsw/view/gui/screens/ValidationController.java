@@ -10,6 +10,7 @@ import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
+import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import javafx.animation.FadeTransition;
@@ -157,11 +158,13 @@ public class ValidationController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-                for (ComponentView component : row) {
-                    if (component != null && component.getIsWrong()) {
-                        placedMarker = false;
-                        break;
+            if (mm.getBoardView().getLevel() == LevelView.SECOND) {
+                for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+                    for (ComponentView component : row) {
+                        if (component != null && component.getIsWrong()) {
+                            placedMarker = false;
+                            break;
+                        }
                     }
                 }
             }
