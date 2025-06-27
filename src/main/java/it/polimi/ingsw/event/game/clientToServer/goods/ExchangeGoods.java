@@ -16,6 +16,7 @@ import java.util.function.Function;
  * This event is used when a player have to exchange goods between two storages.
  * @param userID       is the user ID. Only the user know his ID, so the event is not faked.
  * @param exchangeData exchangeData contains an arraylist of triplets, each triplet contains (in this order) the goods that the player wants to get, the good that the player wants to leave and the storage ID
+ * @author Vittorio Sironi
  * */
 public record ExchangeGoods(
         String userID,

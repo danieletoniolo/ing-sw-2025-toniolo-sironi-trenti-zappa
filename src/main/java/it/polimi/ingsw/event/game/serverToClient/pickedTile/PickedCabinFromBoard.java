@@ -12,6 +12,7 @@ import java.io.Serializable;
  * @param tileID            The unique identifier of the selected cabin tile.
  * @param clockwiseRotation The rotation of the cabin in a clockwise direction, represented as an integer.
  * @param connectors        A list of integers representing the connectors type associated with the selected cabin.
+ * @author Vittorio Sironi
  */
 public record PickedCabinFromBoard(
     String nickname,

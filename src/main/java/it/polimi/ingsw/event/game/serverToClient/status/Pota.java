@@ -17,6 +17,7 @@ import java.io.Serializable;
  *                     We can put it in the event because this event will be sent only to the client who have made the request
  * @param eventType    The type of the event that caused the error
  * @param errorMessage The error message to be sent to the client
+ * @author Vittorio Sironi
  */
 public record Pota(
         String userID,

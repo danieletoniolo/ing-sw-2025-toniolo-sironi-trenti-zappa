@@ -17,6 +17,7 @@ import java.util.function.Function;
  * @param userID       is the user ID. Only the user know his ID, so the event is not faked.
  * @param cannonsIDs   The IDs of the cannons to use.
  * @param batteriesIDs The IDs of the batteries to use, in order to reach the power.
+ * @author Vittorio Sironi
  * */
 public record UseCannons(
         String userID,

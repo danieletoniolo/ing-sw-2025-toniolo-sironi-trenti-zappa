@@ -16,6 +16,7 @@ import java.util.function.Function;
  * @param mode     is the mode of the event. 0 = add, 1 = remove
  * @param crewType is the type of the crew member. 0 = crew, 1 = brown alien, 2 = purple alien
  * @param cabinID  ID of the cabin where the crew member is added or removed
+ * @author Vittorio Sironi
  */
 public record ManageCrewMember(
         String userID,

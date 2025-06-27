@@ -18,6 +18,7 @@ import java.util.function.Function;
  * @param userID    is the user ID. Only the user know his ID, so the event is not faked.
  * @param usage     The usage of the deck: 0 = get, 1 = leave.
  * @param deckIndex The index of the deck in the hand or in the table.
+ * @author Vittorio Sironi
  */
 public record PickLeaveDeck(
         String userID,

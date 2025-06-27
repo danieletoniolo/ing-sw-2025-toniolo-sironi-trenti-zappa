@@ -9,6 +9,7 @@ import java.io.Serializable;
  * It serves as a means to notify the system or other components about the player who is active in the game.
  *
  * @param nickname The username or identifier of the player who is currently playing.
+ * @author Vittorio Sironi
  */
 public record CurrentPlayer(
         String nickname

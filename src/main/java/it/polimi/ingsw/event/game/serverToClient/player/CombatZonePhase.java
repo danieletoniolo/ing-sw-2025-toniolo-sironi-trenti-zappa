@@ -8,6 +8,7 @@ import java.io.Serializable;
  * Represents a phase in the combat zone of the game.
  * @param phaseNumber the number of the phase
  *                    0, 1, 2
+ * @author Vittorio Sironi
  */
 public record CombatZonePhase(
         int phaseNumber

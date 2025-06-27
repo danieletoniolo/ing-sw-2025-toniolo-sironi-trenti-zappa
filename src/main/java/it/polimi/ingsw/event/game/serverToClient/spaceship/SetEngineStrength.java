@@ -8,7 +8,8 @@ import java.io.Serializable;
  * Event to set the strength of the engine on the spaceship.
  * It is sent only to the client who has to set the strength of the engine in the view
  * @param singleEnginesStrength the strength of the single engines
- * @param maxEnginesStrength    the maximum strength of the engine
+ * @param maxEnginesStrength    the maximum strength of the engineù
+ * @author Vittorio Sironi
  */
 public record SetEngineStrength(
         String nickname,

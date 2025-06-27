@@ -14,6 +14,7 @@ import java.io.Serializable;
  * @param clockwiseRotation The direction in which the engine is oriented.
  * @param connectors        A list of integers representing the connectors type associated with the selected engine.
  * @param cannonStrength    The cannon strength associated with the selected engine.
+ * @author Vittorio Sironi
  */
 public record PickedEngineFromBoard(
         String nickname,

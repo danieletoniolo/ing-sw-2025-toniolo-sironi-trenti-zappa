@@ -13,6 +13,7 @@ import java.util.function.Function;
  * This class represents the event of a player being isReady in the game.
  * @param userID  The userID of the player
  * @param isReady The isReady status of the player
+ * @author Vittorio Sironi
  */
 public record PlayerReady(
         String userID,

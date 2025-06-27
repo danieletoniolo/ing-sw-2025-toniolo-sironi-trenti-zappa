@@ -14,6 +14,7 @@ import java.util.function.Function;
  * @param userID is the user ID. Only the user know his ID, so the event is not faked.
  * @param row    is the row of the tile on the spaceship.
  * @param column is the column of the tile on the spaceship.
+ * @author Vittorio Sironi
  */
 public record PlaceTileToSpaceship(
     String userID,

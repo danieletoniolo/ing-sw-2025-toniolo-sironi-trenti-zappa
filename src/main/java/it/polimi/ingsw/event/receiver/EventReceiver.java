@@ -9,6 +9,7 @@ import it.polimi.ingsw.event.EventListener;
  * with a specific type of it.polimi.ingsw.event.
  *
  * @param <T> the specific type of {@link Event} this receiver will handle
+ * @author Daniele Toniolo
  */
 public interface EventReceiver<T extends Event> {
     /**

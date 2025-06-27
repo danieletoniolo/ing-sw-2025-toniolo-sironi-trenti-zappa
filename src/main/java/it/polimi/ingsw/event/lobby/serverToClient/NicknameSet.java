@@ -9,6 +9,7 @@ import java.io.Serializable;
  * The userID is used to identify the user in the lobby.
  *
  * @param nickname The userID of the user
+ * @author Vittorio Sironi
  */
 public record NicknameSet(
         String nickname

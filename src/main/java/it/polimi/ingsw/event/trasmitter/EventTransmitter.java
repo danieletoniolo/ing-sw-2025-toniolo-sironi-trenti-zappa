@@ -8,6 +8,7 @@ import java.util.UUID;
  * Represents a mechanism for transmitting events to multiple connections. An implementation of this
  * interface should provide the ability to broadcast events to all connected entities, as well as
  * sending events to specific connections.
+ * @author Vittorio Sironi
  */
 public interface EventTransmitter {
     /**

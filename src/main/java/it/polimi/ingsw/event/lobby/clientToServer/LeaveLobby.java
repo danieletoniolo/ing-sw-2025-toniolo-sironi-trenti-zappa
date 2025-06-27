@@ -14,6 +14,7 @@ import java.util.function.Function;
  *
  * @param userID  userID of the user leaving the lobby
  * @param lobbyID The lobbyID is the lobbyID of the lobby the user is leaving.
+ * @author Vittorio Sironi
  */
 public record LeaveLobby(
         String userID,

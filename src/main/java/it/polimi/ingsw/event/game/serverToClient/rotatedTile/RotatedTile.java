@@ -12,6 +12,7 @@ import java.io.Serializable;
  * @param nickname    The nickname of the player who rotated the cannon.
  * @param tileID      The identifier of the cannon tile that was rotated.
  * @param connectors  A list of integers representing the connectors associated with the cannon.
+ * @author Vittorio Sironi
  */
 public record RotatedTile(
         String nickname,

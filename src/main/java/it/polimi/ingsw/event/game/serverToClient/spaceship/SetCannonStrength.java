@@ -9,6 +9,7 @@ import java.io.Serializable;
  * Event to set the strength of the cannons on the spaceship.
  * @param singleCannonsStrength the strength of the single cannons
  * @param maxCannonsStrength    the maximum strength of the cannons
+ * @author Vittorio Sironi
  */
 public record SetCannonStrength(
         String nickname,

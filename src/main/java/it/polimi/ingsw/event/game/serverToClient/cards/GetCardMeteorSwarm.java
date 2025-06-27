@@ -13,6 +13,7 @@ import java.util.List;
  * @param ID       ID of the card
  * @param level    level of the card
  * @param meteors  list of meteors associated with the card
+ * @author Vittorio Sironi
  */
 public record GetCardMeteorSwarm(
         int ID,

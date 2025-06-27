@@ -9,6 +9,7 @@ import java.io.Serializable;
  * It contains the card's ID, level, crew required, flight days, and credit.
  * @param ID    the ID of the card.
  * @param level the level of the card.
+ * @author Vittorio Sironi
  */
 public record GetCardStardust(
         int ID,

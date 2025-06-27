@@ -12,6 +12,7 @@ import java.io.Serializable;
  * @param flightDays             the number of flight days required to play the card.
  * @param crewLost               the number of crew members lost when playing the card.
  * @param credit                 the credit gained when playing the card.
+ * @author Vittorio Sironi
  */
 public record GetCardSlavers(
         int ID,

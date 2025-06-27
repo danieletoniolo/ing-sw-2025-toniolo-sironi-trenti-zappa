@@ -10,6 +10,7 @@ import java.io.Serializable;
  * @param nickname   the nickname of the player who rolled the dice
  * @param diceValue1 the value of the first die
  * @param diceValue2 the value of the second die
+ * @author Daniele Toniolo
  */
 public record DiceRolled(
         String nickname,

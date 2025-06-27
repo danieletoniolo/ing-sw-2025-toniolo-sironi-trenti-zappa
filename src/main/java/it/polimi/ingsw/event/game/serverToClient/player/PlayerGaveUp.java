@@ -9,6 +9,7 @@ import java.io.Serializable;
  * It contains the nickname of the player who gave up.
  *
  * @param nickname the nickname of the player who gave up
+ * @author Vittorio Sironi
 */
 public record PlayerGaveUp(
     String nickname

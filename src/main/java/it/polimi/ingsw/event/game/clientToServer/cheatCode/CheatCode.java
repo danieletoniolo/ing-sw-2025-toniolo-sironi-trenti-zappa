@@ -9,6 +9,15 @@ import it.polimi.ingsw.event.type.StatusEvent;
 import java.io.Serializable;
 import java.util.function.Function;
 
+/**
+ * CheatCode event record for client-to-server communication.
+ * This record represents a cheat code event that contains user identification
+ * and ship index information for game manipulation purposes.
+ *
+ * @param userID    the unique identifier of the user sending the cheat code
+ * @param shipIndex the index of the ship to be affected by the cheat code
+ * @author Daniele Toniolo
+ */
 public record CheatCode(
         String userID,
         int shipIndex

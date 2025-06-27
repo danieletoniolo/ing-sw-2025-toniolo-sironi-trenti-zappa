@@ -11,6 +11,7 @@ import java.io.Serializable;
  * It can be used across different contexts or events to associate actions or states with a specific user.
  *
  * @param userID the unique identifier for the user
+ * @author Vittorio Sironi
  */
 public record UserIDSet(
         String userID

@@ -11,6 +11,7 @@ import java.util.List;
  * @param lobbiesNames   a list of the names of the lobbies
  * @param lobbiesPlayers a list of pairs containing the current number of players and the maximum number of players of each lobby
  * @param lobbiesLevels  a list of the levels of the lobbies
+ * @author Vittorio Sironi
  */
 public record Lobbies(
         List<String> lobbiesNames,

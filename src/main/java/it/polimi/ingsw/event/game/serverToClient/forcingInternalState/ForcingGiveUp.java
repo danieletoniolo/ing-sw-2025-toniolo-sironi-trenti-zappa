@@ -9,6 +9,7 @@ import java.io.Serializable;
  * For this reason, it does not contain any information about the player who lost.
  * @param nickname the nickname of the player who has lost
  * @param message the message to be displayed to the player who has lost
+ * @author Vittorio Sironi
  */
 public record ForcingGiveUp(
         String nickname,

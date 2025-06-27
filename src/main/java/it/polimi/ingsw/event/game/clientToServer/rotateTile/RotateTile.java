@@ -14,6 +14,7 @@ import java.util.function.Function;
  * This event is sent when the user rotates a tile.
  * @param userID is the user ID. Only the user know his ID, so the event is not faked.
  * @param tileID is the ID of the tile that has been rotated.
+ * @author Vittorio Sironi
  */
 public record RotateTile(
         String userID,

@@ -13,6 +13,7 @@ import java.util.List;
  * @param flightDays             the number of flight days required to play the card.
  * @param goodsReward            list of goods rewarded
  * @param goodsLoss              number of goods lost
+ * @author Vittorio Sironi
  */
 public record GetCardSmugglers(
         int ID,

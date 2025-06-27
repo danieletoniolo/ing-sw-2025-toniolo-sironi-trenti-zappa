@@ -7,6 +7,7 @@ import java.io.Serializable;
  * This event is used when a player pick a tile from the spaceship.
  * @param nickname          is the userID of the player that pick the tile.
  * @param clockwiseRotation The rotation of the tile in a clockwise direction, represented as an integer.
+ * @author Vittorio Sironi
  */
 public record PickedTileFromSpaceship(
         String nickname,

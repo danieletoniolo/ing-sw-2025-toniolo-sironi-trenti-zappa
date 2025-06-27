@@ -11,6 +11,7 @@ import java.io.Serializable;
  *
  * @param startingTime  The time at which the game is set to start, formatted as a string
  * @param timerDuration The duration of the timer for the game, in milliseconds
+ * @author Vittorio Sironi
  */
 public record StartingGame(
         String startingTime,

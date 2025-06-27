@@ -12,6 +12,7 @@ import it.polimi.ingsw.event.type.StatusEvent;
  *
  * This class is utilized in the context of facilitating event handling and response mechanisms, bridging event
  * transmitters with the corresponding status events.
+ * @author Vittorio Sironi
  */
 public record TransmitterEventWrapper(EventTransmitter transmitter, StatusEvent event) {
 }

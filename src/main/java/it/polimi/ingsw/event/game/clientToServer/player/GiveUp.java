@@ -14,6 +14,7 @@ import java.util.function.Function;
  * This event is used when a player has given up.
  * It is used to notify the other players that the player has given up.
  * @param userID is the user ID. Only the user know his ID, so the event is not faked.
+ * @author Vittorio Sironi
  */
 public record GiveUp(
         String userID

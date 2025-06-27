@@ -7,6 +7,7 @@ import java.io.Serializable;
 /**
  * This event is sent when the last timer finishes.
  * It is used to notify the clients that the game has ended.
+ * @author Daniele Toniolo
  */
 public record LastTimerFinished(
 

@@ -14,6 +14,7 @@ import java.io.Serializable;
  * @param connectors        A list of IDs representing the connectors type associated with the picked storage.
  * @param dangerous         An integer indicating whether the storage is dangerous.
  * @param goodsCapacity     The capacity of goods that the picked storage can hold.
+ * @author Vittorio Sironi
  */
 public record PickedStorageFromBoard(
     String nickname,

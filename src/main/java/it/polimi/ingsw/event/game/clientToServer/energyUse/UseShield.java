@@ -16,6 +16,7 @@ import java.util.function.Function;
  * @param userID    is the user ID. Only the user know his ID, so the event is not faked.
  * @param batteryID is the ID of the battery used to use the shield.
  *                  It is a list for an easier implementation in the GUI, but the size should be 1
+ * @author Vittorio Sironi
  */
 public record UseShield(
         String userID,

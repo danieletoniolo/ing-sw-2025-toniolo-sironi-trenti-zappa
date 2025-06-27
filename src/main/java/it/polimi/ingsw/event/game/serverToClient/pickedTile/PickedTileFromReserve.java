@@ -8,6 +8,7 @@ import java.io.Serializable;
  * @param nickname          is the userID of the player who picked the tile.
  * @param tileID            The ID of the tile being picked.
  * @param clockwiseRotation The rotation of the tile in a clockwise direction, represented as an integer.
+ * @author Vittorio Sironi
  */
 public record PickedTileFromReserve(
         String nickname,

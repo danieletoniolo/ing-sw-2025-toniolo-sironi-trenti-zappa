@@ -14,6 +14,7 @@ import java.util.List;
  * @param flightDays the number of flight days
  * @param lost       indicates if the card is lost
  * @param fires      a list of integers representing the fires on the card
+ * @author Vittorio Sironi
  */
 public record GetCardCombatZone(
         int ID,

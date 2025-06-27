@@ -18,6 +18,7 @@ import java.util.function.Function;
  * @param penaltyLoss List of Integers representing the ID of storage, batteries or cabins from
  *                    which we take the penalty to serve.
  *                    We pick one from each ID in the list, in case of goods we pick the most valuable ones.
+ * @author Vittorio Sironi
  */
 public record SetPenaltyLoss(
         String userID,

@@ -10,6 +10,7 @@ import java.util.List;
  * This event is used when a player have to add or remove a crew member.
  * @param nickname The userID of the player that has to add or remove a crew member.
  * @param cabins A triplet containing in this order a cabin ID, the number of crew members that there is in the cabin and the type of crew member (0 normal, 1 brown alien, 2 purple alien)
+ * @author Vittorio Sironi
  * */
 public record UpdateCrewMembers(
         String nickname,

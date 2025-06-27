@@ -14,6 +14,7 @@ import java.io.Serializable;
  * @param clockwiseRotation The clockwise rotation of the cannon, represented as an integer.
  * @param connectors        A list of connector type that are relevant to the cannon selection.
  * @param cannonStrength    The strength value of the selected cannon.
+ * @author Vittorio Sironi
  */
 public record PickedCannonFromBoard(
     String nickname,

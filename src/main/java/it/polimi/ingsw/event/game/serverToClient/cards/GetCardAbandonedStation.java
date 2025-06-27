@@ -12,6 +12,7 @@ import java.util.List;
  * @param crewRequired number of crew members required for the quest
  * @param flightDays   number of flight days lost for the quest
  * @param goods        list of goods rewarded
+ * @author Vittorio Sironi
  */
 public record GetCardAbandonedStation(
         int ID,
