@@ -1,15 +1,19 @@
 package it.polimi.ingsw.view.gui.screens;
 
 import it.polimi.ingsw.Client;
+import it.polimi.ingsw.event.game.clientToServer.energyUse.UseCannons;
 import it.polimi.ingsw.event.game.clientToServer.energyUse.UseEngines;
+import it.polimi.ingsw.event.game.clientToServer.energyUse.UseShield;
+import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
+import it.polimi.ingsw.view.gui.controllers.components.BatteryController;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
 import it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.ComponentTypeView;
+import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
@@ -47,13 +51,20 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     @FXML private StackPane infos;
     @FXML private StackPane clientSpaceShip;
     @FXML private HBox lowerHBox;
+
     private Button selectCannonsButton;
+    private Button cancelCannonsButton;
     private Button selectBatteriesButton;
+    private Button cancelBatteriesButton;
     private Button selectEnginesButton;
+    private Button cancelEnginesButton;
     private Button selectCabinsButton;
+
     private Button activeCannonsButton;
     private Button activeEnginesButton;
     private Button activeShield;
+
+    private Button endTurn;
 
     private StackPane newOtherPlayerPane;
     private VBox newOtherPlayerVBox;
@@ -65,7 +76,6 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     private final List<Integer> selectedCabinsList = new ArrayList<>();
 
     private enum ListType {
-        BATTERIES,
         CANNONS,
         ENGINES,
         CABINS
@@ -73,26 +83,45 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        int totalButtons = 7 + mm.getOtherPlayers().size();
+        int totalButtons = 11 + mm.getOtherPlayers().size();
 
-        selectBatteriesButton = new Button("Select Batteries");
+        // Cannons buttons
         selectCannonsButton = new Button("Select cannons");
-        selectEnginesButton = new Button("Select Engines");
-        selectCabinsButton = new Button("Select cabins");
-
-        activeCannonsButton = new Button("Active cannons");
-        activeEnginesButton = new Button("Active engines");
-        activeShield = new Button("Active shield");
-
-        selectBatteriesButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
         selectCannonsButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+        cancelCannonsButton = new Button("Cancel cannons");
+        cancelCannonsButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+
+        // Engines buttons
+        selectEnginesButton = new Button("Select engines");
         selectEnginesButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+        cancelEnginesButton = new Button("Cancel engines");
+        cancelEnginesButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+
+        // Batteries buttons
+        selectBatteriesButton = new Button("Select Batteries");
+        selectBatteriesButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+        cancelBatteriesButton = new Button("Cancel Batteries");
+        cancelBatteriesButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+
+        // Cabins buttons
+        selectCabinsButton = new Button("Select cabins");
         selectCabinsButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+
+        // Actions buttons
+        activeCannonsButton = new Button("Active cannons");
         activeCannonsButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+
+        activeEnginesButton = new Button("Active engines");
         activeEnginesButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+
+        activeShield = new Button("Active shield");
         activeShield.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
-        lowerHBox.getChildren().addAll(selectBatteriesButton, selectCannonsButton, selectEnginesButton, selectCabinsButton);
+        // EndTurn
+        endTurn = new Button("End turn");
+        endTurn.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+
+        lowerHBox.getChildren().addAll(selectCannonsButton, cancelCannonsButton, selectEnginesButton, cancelEnginesButton, selectBatteriesButton, cancelBatteriesButton, selectCabinsButton, activeCannonsButton, activeEnginesButton, activeShield, endTurn);
 
         for (PlayerDataView player : mm.getOtherPlayers()) {
             Button otherButtonPlayer = new Button("View " + player.getUsername() + "'s spaceship");
@@ -102,39 +131,80 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         }
     }
 
-
     @Override
     public void react() {
-        selectBatteriesButton.setOnMouseClicked(e -> {
-            resetEffects();
-            activeSelectComponents(ListType.BATTERIES);
-        });
-
-        selectCannonsButton.setOnMouseClicked(e -> {
-            resetEffects();
-            activeSelectComponents(ListType.CANNONS);
-        });
-
-        selectEnginesButton.setOnMouseClicked(e -> {
-            resetEffects();
-            activeSelectComponents(ListType.ENGINES);
-        });
-
-        selectCabinsButton.setOnMouseClicked(e -> {
-            resetEffects();
-            activeSelectComponents(ListType.CABINS);
-        });
-
-        activeEnginesButton.setOnMouseClicked(e -> {
-            StatusEvent status = UseEngines.requester(Client.transceiver, new Object()).request(new UseEngines(mm.getUserID(), selectedEnginesList, selectedBatteriesList));
-            if (status.get().equals(mm.getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
-            }
-        });
-
-
         Platform.runLater(() -> {
+            resetHandlers();
+            selectedEnginesList.clear();
+            selectedBatteriesList.clear();
+            selectedCabinsList.clear();
+            selectedCannonsList.clear();
+
+            selectBatteriesButton.setOnMouseClicked(e -> {
+                resetHandlers();
+                setEffectBattery();
+            });
+
+            cancelBatteriesButton.setOnMouseClicked(e -> {
+                resetHandlers();
+            });
+
+            selectCannonsButton.setOnMouseClicked(e -> {
+                resetHandlers();
+                setEffectGeneral(ListType.CANNONS);
+            });
+
+            cancelCannonsButton.setOnMouseClicked(e -> {
+                resetHandlers();
+            });
+
+            selectEnginesButton.setOnMouseClicked(e -> {
+                resetHandlers();
+                setEffectGeneral(ListType.ENGINES);
+            });
+
+            cancelEnginesButton.setOnMouseClicked(e -> {
+                resetHandlers();
+            });
+
+            selectCabinsButton.setOnMouseClicked(e -> {
+                resetHandlers();
+                setEffectGeneral(ListType.CABINS);
+            });
+
+            // Set active engine button
+            activeEnginesButton.setOnMouseClicked(e -> {
+                StatusEvent status = UseEngines.requester(Client.transceiver, new Object()).request(new UseEngines(mm.getUserID(), selectedEnginesList, selectedBatteriesList));
+                if (status.get().equals(mm.getErrorCode())) {
+                    Stage currentStage = (Stage) parent.getScene().getWindow();
+                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                }
+            });
+
+            activeCannonsButton.setOnMouseClicked(e -> {
+                StatusEvent status = UseCannons.requester(Client.transceiver, new Object()).request(new UseCannons(mm.getUserID(), selectedCannonsList, selectedBatteriesList));
+                if (status.get().equals(mm.getErrorCode())) {
+                    Stage currentStage = (Stage) parent.getScene().getWindow();
+                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                }
+            });
+
+            activeShield.setOnMouseClicked(e -> {
+                StatusEvent status = UseShield.requester(Client.transceiver, new Object()).request(new UseShield(mm.getUserID(), selectedBatteriesList));
+                if (status.get().equals(mm.getErrorCode())) {
+                    Stage currentStage = (Stage) parent.getScene().getWindow();
+                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                }
+            });
+
+            endTurn.setOnMouseClicked(e -> {
+                StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                if (status.get().equals(mm.getErrorCode())) {
+                    Stage currentStage = (Stage) parent.getScene().getWindow();
+                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                }
+            });
+
             clientSpaceShip.getChildren().clear();
             clientSpaceShip.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
 
@@ -146,23 +216,50 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
-    private void activeSelectComponents(ListType type) {
+    private void setEffectBattery() {
+        for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+            for (ComponentView component : row) {
+                if (component != null && component.getType() == ComponentTypeView.BATTERY) {
+                    Node node = component.getNode().getValue0();
+
+                    DropShadow redGlow = new DropShadow();
+                    redGlow.setColor(Color.GREEN);
+                    redGlow.setRadius(20);
+                    redGlow.setSpread(0.6);
+
+                    Glow glow = new Glow(0.7);
+                    glow.setInput(redGlow);
+
+                    node.setEffect(glow);
+
+                    BatteryController batteryController = (BatteryController) component.getNode().getValue1();
+
+                    node.setOnMouseClicked(e -> {
+                        selectedBatteriesList.add(component.getID());
+                        batteryController.setOpacity();
+                    });
+
+                    Stage currentStage = (Stage) parent.getScene().getWindow();
+                    MessageController.showInfoMessage(currentStage, "Battery: " + selectedBatteriesList);
+                }
+            }
+        }
+    }
+
+    private void setEffectGeneral(ListType type) {
         List<Integer> IDs = switch (type) {
-            case BATTERIES -> selectedBatteriesList;
             case CABINS -> selectedCabinsList;
             case CANNONS ->  selectedCannonsList;
             case ENGINES -> selectedEnginesList;
         };
 
         Color color = switch (type) {
-            case BATTERIES -> Color.GREEN;
             case CABINS -> Color.BLUE;
             case CANNONS ->  Color.PURPLE;
             case ENGINES -> Color.YELLOW;
         };
 
         ComponentTypeView componentTypeView = switch (type) {
-            case BATTERIES -> ComponentTypeView.BATTERY;
             case CABINS -> ComponentTypeView.CABIN;
             case CANNONS ->  ComponentTypeView.DOUBLE_CANNON;
             case ENGINES -> ComponentTypeView.DOUBLE_ENGINE;
@@ -170,47 +267,35 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
         SpaceShipController spaceShipController = mm.getClientPlayer().getShip().getNode().getValue1();
 
-//        for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-//            for (ComponentView component : row) {
-        for (ComponentController component : spaceShipController.getShipComponentControllers()) {
-            if (component.getComponentView().getType() == componentTypeView) {
-                Node node = component.getParent();
+        for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+            for (ComponentView component : row) {
+                if (component != null) {
+                    if (component.getType() == componentTypeView) {
+                        Node node = component.getNode().getValue0();
 
-                DropShadow redGlow = new DropShadow();
-                redGlow.setColor(color);
-                redGlow.setRadius(20);
-                redGlow.setSpread(0.6);
+                        DropShadow redGlow = new DropShadow();
+                        redGlow.setColor(color);
+                        redGlow.setRadius(20);
+                        redGlow.setSpread(0.6);
 
-                Glow glow = new Glow(0.7);
-                glow.setInput(redGlow);
+                        Glow glow = new Glow(0.7);
+                        glow.setInput(redGlow);
 
-                node.setEffect(glow);
+                        node.setEffect(glow);
 
-                node.setOnMouseClicked(e -> {
-                    node.setDisable(true);
-                    node.setOpacity(0.5);
-                    IDs.add(component.getComponentView().getID());
-                });
-
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showInfoMessage(currentStage, "Battery: " + selectedBatteriesList);
+                        node.setOnMouseClicked(e -> {
+                            node.setDisable(true);
+                            node.setOpacity(0.5);
+                            IDs.add(component.getID());
+                        });
+                    }
+                }
             }
         }
     }
 
-    private void resetEffects() {
-        SpaceShipController spaceShipController = mm.getClientPlayer().getShip().getNode().getValue1();
-
-        for (ComponentController component : spaceShipController.getShipComponentControllers()) {
-            Node node = component.getParent();
-            node.setEffect(null);
-        }
-    }
-
     private void showOtherPlayer(PlayerDataView player) {
-        if (newOtherPlayerPane == null) {
-            createOtherPlayerPane(player);
-        }
+        createOtherPlayerPane(player);
 
         Platform.runLater(() -> {
             newOtherPlayerPane.setVisible(true);
@@ -294,5 +379,23 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         fadeOut.setToValue(0);
         fadeOut.setOnFinished(_ -> newOtherPlayerPane.setVisible(false));
         fadeOut.play();
+    }
+
+    private void resetHandlers() {
+        for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+            for (ComponentView component : row) {
+                if (component != null) {
+                    Node node = component.getNode().getValue0();
+                    node.setOnMouseClicked(null);
+                    node.setOpacity(1.0);
+                    node.setEffect(null);
+
+                    if (component.getType() == ComponentTypeView.BATTERY) {
+                        BatteryController batteryController = (BatteryController) component.getNode().getValue1();
+                        batteryController.removeOpacity();
+                    }
+                }
+            }
+        }
     }
 }

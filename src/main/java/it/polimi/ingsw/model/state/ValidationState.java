@@ -145,6 +145,9 @@ public class ValidationState extends State {
         if (componentsToDestroy.isEmpty()) {
             return;
         }
+        if (invalidComponents.get(player).isEmpty()) {
+            throw new IllegalStateException("The player " + player.getUsername() + " has no components to destroy");
+        }
 
         SpaceShip ship = player.getSpaceShip();
         boolean isCannon = false, isEngine = false;

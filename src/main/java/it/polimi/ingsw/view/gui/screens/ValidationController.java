@@ -77,9 +77,9 @@ public class ValidationController implements MiniModelObserver, Initializable {
         cancelButton = new Button("Cancel");
         endTurnButton = new Button("End Turn");
 
-        destroyComponentsButton.prefHeightProperty().bind(lowerHBox.heightProperty().divide(totalButtons));
-        cancelButton.prefHeightProperty().bind(lowerHBox.heightProperty().divide(totalButtons));
-        endTurnButton.prefHeightProperty().bind(lowerHBox.heightProperty().divide(totalButtons));
+        destroyComponentsButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+        cancelButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+        endTurnButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
         lowerHBox.getChildren().addAll(destroyComponentsButton, cancelButton, endTurnButton);
 
