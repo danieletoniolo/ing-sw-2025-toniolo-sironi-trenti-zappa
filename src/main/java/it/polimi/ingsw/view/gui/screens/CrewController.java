@@ -106,9 +106,11 @@ public class CrewController implements MiniModelObserver, Initializable {
         }
         endTurnButton.setOnMouseClicked(_ -> {
             StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+            Stage currentStage = (Stage) parent.getScene().getWindow();
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
                 MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+            } else {
+                MessageController.showInfoMessage(currentStage, "Waiting for other players to end their turn...");
             }
         });
         endTurnButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
