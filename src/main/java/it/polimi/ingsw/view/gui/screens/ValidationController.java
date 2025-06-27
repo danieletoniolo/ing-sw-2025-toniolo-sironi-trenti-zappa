@@ -2,22 +2,23 @@ package it.polimi.ingsw.view.gui.screens;
 
 import it.polimi.ingsw.Client;
 import it.polimi.ingsw.event.game.clientToServer.player.EndTurn;
+import it.polimi.ingsw.event.game.clientToServer.player.PlaceMarker;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.ChooseFragment;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.DestroyComponents;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
-import it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -41,6 +42,8 @@ public class ValidationController implements MiniModelObserver, Initializable {
 
     @FXML private StackPane parent;
 
+    @FXML private Group resizeGroup;
+
     @FXML private VBox mainVBox;
 
     @FXML private Label titleLabel;
@@ -54,13 +57,12 @@ public class ValidationController implements MiniModelObserver, Initializable {
     @FXML private HBox lowerHBox;
 
     private StackPane newValidationOptionsPane;
-    private VBox newValidationOptionsVBox;
 
     private StackPane newOtherPlayerPane;
-    private VBox newOtherPlayerVBox;
 
     private Button destroyComponentsButton;
-    private Button cancelButton;
+    private Button cancelSelectionButton;
+    private Button placeMarkerButton;
     private Button endTurnButton;
 
     private final MiniModel mm = MiniModel.getInstance();
@@ -68,29 +70,89 @@ public class ValidationController implements MiniModelObserver, Initializable {
 
     private boolean placedMarker;
 
+    private final double ORIGINAL_MAIN_VBOX_WIDTH = 1600.0;
+    private final double ORIGINAL_MAIN_VBOX_HEIGHT = 900.0;
+
+    private int totalButtons;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        URL imageUrl = getClass().getResource("/image/background/background2.png");
+        if (imageUrl != null) {
+            String cssBackground = "-fx-background-image: url('" + imageUrl.toExternalForm() + "'); " +
+                    "-fx-background-size: cover; " +
+                    "-fx-background-position: center center; " +
+                    "-fx-background-repeat: no-repeat;";
+            parent.setStyle(cssBackground);
+        }
+
+        StackPane.setAlignment(mainVBox, Pos.CENTER);
+
+        ChangeListener<Number> resizeListener = createResizeListener();
+        parent.widthProperty().addListener(resizeListener);
+        parent.heightProperty().addListener(resizeListener);
+
+        mainVBox.sceneProperty().addListener((_, _, newScene) -> {
+            if (newScene != null) {
+                Platform.runLater(() -> {
+                    resizeListener.changed(null, null, null);
+                    newScene.windowProperty().addListener((_, _, newWin) -> {
+                        if (newWin != null) {
+                            Platform.runLater(() -> resizeListener.changed(null, null, null));
+                        }
+                    });
+                });
+            }
+        });
+
         // Initialize lower HBox buttons
-        int totalButtons = 3 + mm.getOtherPlayers().size();
+        int totalButtons = 4 + mm.getOtherPlayers().size();
 
         destroyComponentsButton = new Button("Destroy");
-        cancelButton = new Button("Cancel");
-        endTurnButton = new Button("End Turn");
-
+        destroyComponentsButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
         destroyComponentsButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-        cancelButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+
+        cancelSelectionButton = new Button("Cancel");
+        cancelSelectionButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
+        cancelSelectionButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+
+
+        endTurnButton = new Button("End Turn");
+        endTurnButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
         endTurnButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
-        lowerHBox.getChildren().addAll(destroyComponentsButton, cancelButton, endTurnButton);
+        placeMarkerButton = new Button("Place Marker");
+        placeMarkerButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
+        placeMarkerButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+
+        lowerHBox.getChildren().addAll(destroyComponentsButton, cancelSelectionButton, endTurnButton, placeMarkerButton);
 
         for (PlayerDataView player : mm.getOtherPlayers()) {
             Button otherButtonPlayer = new Button("View " + player.getUsername() + "'s spaceship");
-            otherButtonPlayer.setOnMouseClicked(e -> showOtherPlayer(player));
+            otherButtonPlayer.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
+            otherButtonPlayer.setOnMouseClicked(_ -> showOtherPlayer(player));
             otherButtonPlayer.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
             lowerHBox.getChildren().add(otherButtonPlayer);
         }
 
         placedMarker = true;
+
+        Platform.runLater(this::react);
+    }
+
+    private ChangeListener<Number> createResizeListener() {
+        return (_, _, _) -> {
+            if (parent.getWidth() <= 0 || parent.getHeight() <= 0) {
+                return;
+            }
+
+            double scaleX = parent.getWidth() / ORIGINAL_MAIN_VBOX_WIDTH;
+            double scaleY = parent.getHeight() / ORIGINAL_MAIN_VBOX_HEIGHT;
+            double scale = Math.min(scaleX, scaleY);
+
+            resizeGroup.setScaleX(scale);
+            resizeGroup.setScaleY(scale);
+        };
     }
 
     @Override
@@ -98,7 +160,9 @@ public class ValidationController implements MiniModelObserver, Initializable {
         Platform.runLater(() -> {
             resetHandlers();
 
-            destroyComponentsButton.setOnMouseClicked(e -> {
+            placeMarkerButton.setOnMouseClicked(_ -> showMarkerPositionSelector());
+
+            destroyComponentsButton.setOnMouseClicked(_ -> {
                 StatusEvent status = DestroyComponents.requester(Client.transceiver, new Object()).request(new DestroyComponents(mm.getUserID(), componentsToDestroy));
                 if (status.get().equals(mm.getErrorCode())) {
                     Stage currentStage = (Stage) parent.getScene().getWindow();
@@ -117,7 +181,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
                 componentsToDestroy.clear();
             });
 
-            cancelButton.setOnMouseClicked(e -> {
+            cancelSelectionButton.setOnMouseClicked(_ -> {
                 for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
                     for (ComponentView component : row) {
                         if (component != null) {
@@ -131,7 +195,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
                 componentsToDestroy.clear();
             });
 
-            endTurnButton.setOnMouseClicked(e -> {
+            endTurnButton.setOnMouseClicked(_ -> {
                 if (!placedMarker) {
                     Stage currentStage = (Stage) parent.getScene().getWindow();
                     MessageController.showErrorMessage(currentStage, "You need to place the marker");
@@ -164,7 +228,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
                             node.setEffect(null);
                         }
 
-                        node.setOnMouseClicked(e -> {
+                        node.setOnMouseClicked(_ -> {
                             node.setDisable(true); // disable clicks on the component
 
                             node.setOpacity(0.5); // Set opacity to indicate selection
@@ -178,21 +242,91 @@ public class ValidationController implements MiniModelObserver, Initializable {
             if (mm.getClientPlayer().getShip().getFragments() != null && mm.getClientPlayer().getShip().getFragments().size() > 1) {
                 Platform.runLater(this::showValidationChoice);
                 placedMarker = false;
-                // TODO: riportare la variabile a true quando faccio evento placeMarker
             }
 
-                board.getChildren().clear();
-                board.getChildren().add(mm.getBoardView().getNode().getValue0());
+            board.getChildren().clear();
+            board.getChildren().add(mm.getBoardView().getNode().getValue0());
 
-                clientShip.getChildren().clear();
-                clientShip.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
+            clientShip.getChildren().clear();
+            clientShip.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
         });
     }
 
-    private void showValidationChoice() {
-        if (newValidationOptionsPane == null) {
-            createValidationCrewOptionsPane();
+    private void showMarkerPositionSelector() {
+        StackPane markerSelectorPane = new StackPane();
+        markerSelectorPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
+
+        markerSelectorPane.prefWidthProperty().bind(parent.widthProperty());
+        markerSelectorPane.prefHeightProperty().bind(parent.heightProperty());
+        markerSelectorPane.maxWidthProperty().bind(parent.widthProperty());
+        markerSelectorPane.maxHeightProperty().bind(parent.heightProperty());
+
+        VBox selectorVBox = new VBox(20);
+        selectorVBox.setAlignment(Pos.CENTER);
+
+        selectorVBox.prefWidthProperty().bind(mainVBox.widthProperty().multiply(0.5));
+        selectorVBox.prefHeightProperty().bind(mainVBox.heightProperty().multiply(0.6));
+
+        Label titleLabel = new Label("Select Marker Position");
+        titleLabel.setStyle("-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #f2ff00;");
+        titleLabel.setEffect(new DropShadow());
+
+        VBox buttonsVBox = new VBox(15);
+        buttonsVBox.setAlignment(Pos.CENTER);
+
+        for (int i = 1; i <= 4; i++) {
+            Button positionButton = new Button("Position " + i);
+            positionButton.setPrefSize(300, 60);
+            positionButton.setStyle("-fx-background-color: rgba(251,197,9, 0.8); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; -fx-font-size: 18px;");
+
+            int position = i - 1;
+            positionButton.setOnAction(_ -> {
+                placeMarkerAtPosition(position);
+                hideOverlay(markerSelectorPane);
+            });
+
+            buttonsVBox.getChildren().add(positionButton);
         }
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setPrefSize(300, 60);
+        cancelButton.setStyle("-fx-background-color: #d32f2f; -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 10;");
+        cancelButton.setOnAction(_ -> hideOverlay(markerSelectorPane));
+
+        selectorVBox.getChildren().addAll(titleLabel, buttonsVBox, cancelButton);
+        markerSelectorPane.getChildren().add(selectorVBox);
+        StackPane.setAlignment(selectorVBox, Pos.CENTER);
+
+        // Aggiungi al parent
+        parent.getChildren().add(markerSelectorPane);
+        markerSelectorPane.setVisible(false);
+
+        Platform.runLater(() -> {
+            markerSelectorPane.setVisible(true);
+            markerSelectorPane.toFront();
+            parent.layout();
+
+            markerSelectorPane.setOpacity(0);
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), markerSelectorPane);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            fadeIn.play();
+        });
+    }
+
+    private void placeMarkerAtPosition(int position) {
+        StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object())
+                .request(new PlaceMarker(MiniModel.getInstance().getUserID(), position));
+        if (status.get().equals(mm.getErrorCode())) {
+            Stage currentStage = (Stage) parent.getScene().getWindow();
+            MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+        } else {
+            placedMarker = true;
+        }
+    }
+
+    private void showValidationChoice() {
+        createValidationCrewOptionsPane();
 
         Platform.runLater(() -> {
             newValidationOptionsPane.setVisible(true);
@@ -217,7 +351,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
         newValidationOptionsPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
         // Create a VBox to hold the new lobby options
-        newValidationOptionsVBox = new VBox(15);
+        VBox newValidationOptionsVBox = new VBox(15);
         newValidationOptionsVBox.setAlignment(javafx.geometry.Pos.CENTER);
         newValidationOptionsVBox.setStyle("-fx-background-color: rgba(251,197,9, 0.8); " +
                 "-fx-background-radius: 10; " +
@@ -241,15 +375,15 @@ public class ValidationController implements MiniModelObserver, Initializable {
 
 
         // ComboBox for type crew selection
-        ComboBox<Integer> crewType = new ComboBox<>();
+        ComboBox<Integer> fragmentsIndex = new ComboBox<>();
         for (int i = 0; i < mm.getClientPlayer().getShip().getFragments().size(); i++) {
-            crewType.getItems().add(i + 1);
+            fragmentsIndex.getItems().add(i + 1);
         }
-        crewType.setValue(1);
-        crewType.setPromptText("Select fragments:");
-        crewType.setMaxWidth(newValidationOptionsVBox.getMaxWidth() * 0.8);
+        fragmentsIndex.setValue(1);
+        fragmentsIndex.setPromptText("Select fragments:");
+        fragmentsIndex.setMaxWidth(newValidationOptionsVBox.getMaxWidth() * 0.8);
 
-        // Buttons box to hold the confirm and cancel buttons
+        // Buttons box to hold the confirmation and cancel buttons
         HBox buttonsBox = new HBox(15);
         buttonsBox.setAlignment(Pos.CENTER);
 
@@ -257,7 +391,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
         Button confirmButton = new Button("Confirm");
         confirmButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
         confirmButton.setOnAction(_ -> {
-            int fragment = crewType.getValue();
+            int fragment = fragmentsIndex.getValue();
             StatusEvent status = ChooseFragment.requester(Client.transceiver, new Object()).request(new ChooseFragment(mm.getUserID(), fragment));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
                 Stage currentStage = (Stage) parent.getScene().getWindow();
@@ -276,7 +410,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
         // Add all components to the VBox
         newValidationOptionsVBox.getChildren().addAll(titleLabel,
                 new Label("Select fragments group:"),
-                crewType,
+                fragmentsIndex,
                 buttonsBox);
 
         newValidationOptionsPane.getChildren().add(newValidationOptionsVBox);
@@ -301,85 +435,74 @@ public class ValidationController implements MiniModelObserver, Initializable {
     }
 
     private void showOtherPlayer(PlayerDataView player) {
-        if (newOtherPlayerPane == null) {
-            createOtherPlayerPane(player);
-        }
-
-        Platform.runLater(() -> {
-            newOtherPlayerPane.setVisible(true);
-            newOtherPlayerPane.toFront();
-            parent.layout();
-
-            newOtherPlayerPane.setOpacity(0);
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), newOtherPlayerPane);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
-            fadeIn.play();
-        });
-    }
-
-    private void createOtherPlayerPane(PlayerDataView player) {
         newOtherPlayerPane = new StackPane();
-        newOtherPlayerPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6);");
+        newOtherPlayerPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
 
-        StackPane.setAlignment(newOtherPlayerPane, Pos.CENTER);
+        newOtherPlayerPane.prefWidthProperty().bind(parent.widthProperty());
+        newOtherPlayerPane.prefHeightProperty().bind(parent.heightProperty());
+        newOtherPlayerPane.maxWidthProperty().bind(parent.widthProperty());
+        newOtherPlayerPane.maxHeightProperty().bind(parent.heightProperty());
 
-        newOtherPlayerPane.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        newOtherPlayerPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        VBox newOtherPlayerVBox = new VBox(15);
+        newOtherPlayerVBox.setAlignment(Pos.CENTER);
 
-        // Create a VBox to hold the new lobby options
-        newOtherPlayerVBox = new VBox(15);
-        newOtherPlayerVBox.setAlignment(javafx.geometry.Pos.CENTER);
+        newOtherPlayerVBox.prefWidthProperty().bind(mainVBox.widthProperty().multiply(0.8));
+        newOtherPlayerVBox.prefHeightProperty().bind(mainVBox.heightProperty().multiply(0.8));
+        newOtherPlayerVBox.maxWidthProperty().bind(mainVBox.widthProperty().multiply(0.8));
+        newOtherPlayerVBox.maxHeightProperty().bind(mainVBox.heightProperty().multiply(0.8));
+        newOtherPlayerVBox.setStyle("-fx-background-color: transparent;");
 
-        // Bind the size of the VBox to the main HBox
-        newOtherPlayerVBox.prefWidthProperty().bind(mainVBox.widthProperty().multiply(0.3));
-        newOtherPlayerVBox.prefHeightProperty().bind(mainVBox.heightProperty().multiply(0.5));
-        newOtherPlayerVBox.minWidthProperty().bind(newOtherPlayerVBox.prefWidthProperty());
-        newOtherPlayerVBox.minHeightProperty().bind(newOtherPlayerVBox.prefHeightProperty());
-        newOtherPlayerVBox.maxWidthProperty().bind(newOtherPlayerVBox.prefWidthProperty());
-        newOtherPlayerVBox.maxHeightProperty().bind(newOtherPlayerVBox.prefHeightProperty());
-
-        // Create a title label with a drop shadow effect
         Label titleLabel = new Label(player.getUsername() + "'s spaceship");
-        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
+        titleLabel.setStyle("-fx-font-size: 48px; -fx-font-weight: bold; -fx-text-fill: #f2ff00;");
         titleLabel.setEffect(new DropShadow());
 
-        // Create StackPane for an other player
+
         StackPane otherShip = new StackPane();
-        otherShip.getChildren().clear();
+        otherShip.prefWidthProperty().bind(mainVBox.widthProperty().multiply(0.6));
+        otherShip.prefHeightProperty().bind(mainVBox.heightProperty().multiply(0.5));
+        otherShip.setStyle("-fx-background-color: transparent;");
         otherShip.getChildren().add(player.getShip().getNode().getValue0());
-        otherShip.setMaxWidth(newOtherPlayerVBox.getMaxWidth() * 0.8);
 
-
-        // Create confirm button
         Button backButton = new Button("Back");
-        backButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
-        backButton.setOnAction(_ -> hideValidationOptions(newOtherPlayerPane));
+        backButton.setPrefSize(200, 60);
+        backButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 10;");
+        backButton.setOnAction(_ -> hideOverlay(newOtherPlayerPane));
 
-        // Add all components to the VBox
-        newOtherPlayerVBox.getChildren().addAll(titleLabel,
-                otherShip,
-                backButton);
-
+        newOtherPlayerVBox.getChildren().addAll(titleLabel, otherShip, backButton);
         newOtherPlayerPane.getChildren().add(newOtherPlayerVBox);
         StackPane.setAlignment(newOtherPlayerVBox, Pos.CENTER);
 
-        // Add the new lobby options pane to the parent StackPane
         parent.getChildren().add(newOtherPlayerPane);
         newOtherPlayerPane.setVisible(false);
 
-        // Force the layout to update and bring the new pane to the front
         Platform.runLater(() -> {
-            newOtherPlayerPane.toFront();
+
+            newOtherPlayerPane.setVisible(true);
+            newOtherPlayerPane.toFront(); // Poi il popup va davanti al background
+
             parent.layout();
+
+            newOtherPlayerPane.setOpacity(0);
+
+            FadeTransition fadeInContent = new FadeTransition(Duration.millis(300), newOtherPlayerPane);
+            fadeInContent.setFromValue(0);
+            fadeInContent.setToValue(1);
+
+            fadeInContent.play();
+        });
+    }
+
+    private void hideOverlay(StackPane paneToHide) {
+        FadeTransition fadeOutContent = new FadeTransition(Duration.millis(300), paneToHide);
+        fadeOutContent.setFromValue(1);
+        fadeOutContent.setToValue(0);
+
+        fadeOutContent.setOnFinished(_ -> {
+            paneToHide.setVisible(false);
+            parent.getChildren().remove(paneToHide); // Rimuovi dal parent, non dal resizeGroup
         });
 
-        // Update the sizes of the new lobby options controls
-        Platform.runLater(() -> {
-            newOtherPlayerPane.toFront();
-            parent.layout();
-            //updateNewLobbyOptionsSizes();
-        });
+        fadeOutContent.play();
     }
 
     private void hideValidationOptions(StackPane pane) {

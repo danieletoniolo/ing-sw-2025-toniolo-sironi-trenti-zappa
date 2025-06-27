@@ -138,7 +138,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
 
         int numOfButtons = mm.getOtherPlayers().size() + 1;
         for (PlayerDataView playerDataView : mm.getOtherPlayers()) {
-            Button playerButton = new Button("See " + playerDataView.getUsername() + "'s spaceship");
+            Button playerButton = new Button("View " + playerDataView.getUsername() + "'s spaceship");
             playerButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
             playerButton.setOnMouseClicked(_ -> showOtherPlayer(playerDataView));
             playerButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(numOfButtons));
@@ -229,7 +229,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
                 Stage currentStage = (Stage) parent.getScene().getWindow();
                 MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
             } else {
-                hideDeckView(deckViewPane);
+                hideOverlay(deckViewPane);
             }
         });
 
@@ -251,19 +251,6 @@ public class BuildingController implements MiniModelObserver, Initializable {
             fadeIn.setToValue(1);
             fadeIn.play();
         });
-    }
-
-    private void hideDeckView(StackPane deckPane) {
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), deckPane);
-        fadeOut.setFromValue(1);
-        fadeOut.setToValue(0);
-
-        fadeOut.setOnFinished(_ -> {
-            deckPane.setVisible(false);
-            parent.getChildren().remove(deckPane);
-        });
-
-        fadeOut.play();
     }
 
     private void showMarkerPositionSelector() {
@@ -295,7 +282,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
 
             int position = i - 1;
             positionButton.setOnAction(_ -> {
-                hideValidationOptions(markerSelectorPane);
+                hideOverlay(markerSelectorPane);
                 placeMarkerAtPosition(position);
             });
 
@@ -305,7 +292,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
         Button cancelButton = new Button("Cancel");
         cancelButton.setPrefSize(300, 60);
         cancelButton.setStyle("-fx-background-color: #d32f2f; -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 10;");
-        cancelButton.setOnAction(_ -> hideMarkerSelector(markerSelectorPane));
+        cancelButton.setOnAction(_ -> hideOverlay(markerSelectorPane));
 
         selectorVBox.getChildren().addAll(titleLabel, buttonsVBox, cancelButton);
         markerSelectorPane.getChildren().add(selectorVBox);
@@ -326,19 +313,6 @@ public class BuildingController implements MiniModelObserver, Initializable {
             fadeIn.setToValue(1);
             fadeIn.play();
         });
-    }
-
-    private void hideMarkerSelector(StackPane selectorPane) {
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), selectorPane);
-        fadeOut.setFromValue(1);
-        fadeOut.setToValue(0);
-
-        fadeOut.setOnFinished(_ -> {
-            selectorPane.setVisible(false);
-            parent.getChildren().remove(selectorPane);
-        });
-
-        fadeOut.play();
     }
 
     private void placeMarkerAtPosition(int position) {
@@ -388,7 +362,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
         Button backButton = new Button("Back");
         backButton.setPrefSize(200, 60);
         backButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold; -fx-background-radius: 10;");
-        backButton.setOnAction(_ -> hideValidationOptions(newOtherPlayerPane));
+        backButton.setOnAction(_ -> hideOverlay(newOtherPlayerPane));
 
         newOtherPlayerVBox.getChildren().addAll(titleLabel, otherShip, backButton);
         newOtherPlayerPane.getChildren().add(newOtherPlayerVBox);
@@ -414,7 +388,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
         });
     }
 
-    private void hideValidationOptions(StackPane paneToHide) {
+    private void hideOverlay(StackPane paneToHide) {
         FadeTransition fadeOutContent = new FadeTransition(Duration.millis(300), paneToHide);
         fadeOutContent.setFromValue(1);
         fadeOutContent.setToValue(0);
