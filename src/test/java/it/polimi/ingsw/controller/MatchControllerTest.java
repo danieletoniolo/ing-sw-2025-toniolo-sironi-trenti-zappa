@@ -6,10 +6,12 @@ import it.polimi.ingsw.model.game.lobby.LobbyInfo;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 class MatchControllerTest {
+
     @Test
     void setUp_withValidNetworkTransceiver() {
         NetworkTransceiver transceiver = new NetworkTransceiver();
@@ -47,5 +49,19 @@ class MatchControllerTest {
         MatchController matchController = MatchController.getInstance();
         LobbyInfo nonExistentLobby = new LobbyInfo("NonExistent", 4, Level.SECOND);
         assertThrows(NullPointerException.class, () -> matchController.getNetworkTransceiver(nonExistentLobby));
+    }
+
+    @Test
+    void getNetworkTransceiver() throws NoSuchFieldException, IllegalAccessException {
+        MatchController matchController = MatchController.getInstance();
+        LobbyInfo lobbyInfo = new LobbyInfo("TestLobby", 4, Level.SECOND);
+
+        Field networkTransceiversField = MatchController.class.getDeclaredField("networkTransceivers");
+        networkTransceiversField.setAccessible(true);
+        Map<LobbyInfo, NetworkTransceiver> lobbies =  new HashMap<>();
+        lobbies.put(lobbyInfo, new NetworkTransceiver());
+        networkTransceiversField.set(matchController, lobbies);
+
+        assertNotNull(matchController.getNetworkTransceiver(lobbyInfo));
     }
 }
