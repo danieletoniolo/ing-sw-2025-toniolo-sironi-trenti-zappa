@@ -41,9 +41,8 @@ public class BuildingState extends State {
     private int numberOfTimerFlips;
     /** Flag indicating whether the final timer has finished */
     private boolean lastTimerFinished;
-    // TODO: set timer to 90000
     /** Duration of each timer phase in milliseconds */
-    private static final long timerDuration = 5000;
+    private static final long timerDuration = 90000;
     /** Map storing the component currently held by each player */
     private final Map<PlayerColor, Component> playersHandQueue;
     /** List of players who have placed their marker on the board */
