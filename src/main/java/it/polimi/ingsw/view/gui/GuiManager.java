@@ -32,6 +32,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class GuiManager extends Application implements Manager {
     private static Scene scene;
@@ -183,7 +184,7 @@ public class GuiManager extends Application implements Manager {
         if (mm.getNickname().equals(data.nickname())) {
             message = data.message();
         } else {
-            message = data.nickname() + " is forced to give up";
+            message = data.nickname() + " is forced to give up. Waiting for his turn...";
         }
         Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), message));
     }
@@ -210,12 +211,16 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyForcingPlaceMarker(ForcingPlaceMarker data) {
-        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), "You have to place a marker on the board"));
+        if (mm.getNickname().equals(data.nickname())) {
+            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), "You have to place a marker on the board"));
+        }
     }
 
     @Override
     public void notifyUpdateGoodsExchange(UpdateGoodsExchange data) {
-        Platform.runLater(() ->MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has modified own goods"));
+        if (!data.exchangeData().isEmpty()) {
+            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has modified own goods"));
+        }
         controller.react();
 
     }
@@ -286,6 +291,8 @@ public class GuiManager extends Application implements Manager {
                 CardViewType cardViewType = mm.getShuffledDeckView().getDeck().peek().getCardViewType();
                 if (cardViewType == CardViewType.PIRATES) {
                     message = "You have lost the fight against pirates, prepare your defenses! At the end of the turn you will have to avoid their fires!";
+                } else if (cardViewType != CardViewType.SMUGGLERS && Objects.requireNonNull(cardViewType) != CardViewType.SLAVERS) {
+                    message = "Waiting for other players to play...";
                 } else {
                     message = "";
                 }
@@ -325,14 +332,19 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyCurrentPlayer(CurrentPlayer data) {
+        String message;
         controller.react();
-
+        if (!mm.getNickname().equals(data.nickname())) {
+            message = "Waiting for " + data.nickname() + " to play";
+        } else {
+            message = "Your turn!";
+        }
+        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), message));
     }
 
     @Override
     public void notifyScore(Score data) {
         controller.react();
-
     }
 
     @Override
