@@ -1,6 +1,7 @@
 package it.polimi.ingsw.model.state;
 
 import it.polimi.ingsw.controller.StateTransitionHandler;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.player.CardPlayed;
 import it.polimi.ingsw.event.game.serverToClient.player.CurrentPlayer;
 import it.polimi.ingsw.event.type.Event;
@@ -22,6 +23,8 @@ import java.util.List;
 public class AbandonedShipState extends State {
     /** The Abandoned Ship card associated with this state */
     private final AbandonedShip card;
+    /** Indicates whether the player has to give up their turn after playing the card */
+    private boolean playerHasToGiveUp;
 
     /**
      * Constructor for AbandonedShipState
@@ -31,6 +34,7 @@ public class AbandonedShipState extends State {
     public AbandonedShipState(Board board, EventCallback callback, AbandonedShip card, StateTransitionHandler transitionHandler) {
         super(board, callback, transitionHandler);
         this.card = card;
+        this.playerHasToGiveUp = false;
     }
 
     /**
@@ -104,15 +108,28 @@ public class AbandonedShipState extends State {
             throw new IllegalStateException("State already played");
         }
 
-        if (playersStatus.get(player.getColor()).equals(PlayerStatus.PLAYING)) {
+        if (playerHasToGiveUp) {
+            playerHasToGiveUp = false;
+            played = true;
+        } else if (playersStatus.get(player.getColor()).equals(PlayerStatus.PLAYING)) {
             player.addCoins(card.getCredit());
 
             UpdateCoins coinsEvent = new UpdateCoins(player.getUsername(), card.getCredit());
             eventCallback.trigger(coinsEvent);
 
-            played = true;
+            if (player.getSpaceShip().getHumanCrewNumber() == 0) {
+                ForcingGiveUp forcingGiveUpEvent = new ForcingGiveUp(player.getUsername(), "You are forced to give up, you have no human crew left");
+                eventCallback.trigger(forcingGiveUpEvent);
+                playerHasToGiveUp = true;
+            } else {
+                played = true;
+            }
         }
-        super.execute(player);
+
+        if (!playerHasToGiveUp) {
+            super.execute(player);
+        }
+
 
         if (!played) {
             try {

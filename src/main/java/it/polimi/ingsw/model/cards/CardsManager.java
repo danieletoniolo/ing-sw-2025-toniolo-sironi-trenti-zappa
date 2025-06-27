@@ -119,11 +119,21 @@ public class CardsManager {
     public static Stack<Card> createLearningDeck() {
         Stack<Card> learningDeck = new Stack<>();
 
+        /*
         learningDeck.push(cards[1]);
         learningDeck.push(cards[3]);
         learningDeck.push(cards[4]);
         learningDeck.push(cards[8]);
         learningDeck.push(cards[12]);
+        learningDeck.push(cards[15]);
+        learningDeck.push(cards[17]);
+        learningDeck.push(cards[18]);
+        */
+        learningDeck.push(cards[17]);
+        learningDeck.push(cards[17]);
+        learningDeck.push(cards[17]);
+        learningDeck.push(cards[16]);
+        learningDeck.push(cards[16]);
         learningDeck.push(cards[15]);
         learningDeck.push(cards[17]);
         learningDeck.push(cards[18]);
