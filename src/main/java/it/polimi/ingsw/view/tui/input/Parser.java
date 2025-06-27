@@ -242,7 +242,7 @@ public class Parser {
      */
     public String readNickname(String prompt, int menuStartRow) {
         String input = getString(prompt, menuStartRow,
-                s -> s.matches("^[a-zA-Z0-9]+$"),
+                s -> s.matches("^[a-zA-Z0-9.]+$"),
                 "Invalid input. Use only letters and numbers, no spaces.");
         if (input != null) {
             return input;
