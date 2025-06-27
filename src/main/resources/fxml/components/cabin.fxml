@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<StackPane fx:id="parent"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="it.polimi.ingsw.view.gui.controllers.components.CabinController">
+
+<ImageView fx:id="componentImage"
+           pickOnBounds="true"
+           preserveRatio="true"
+/>
+
+<HBox fx:id="cabinPane"
+      mouseTransparent="true"
+      pickOnBounds="false"
+      alignment="CENTER"
+      StackPane.alignment="CENTER"
+/>
+</StackPane>

@@ -28,7 +28,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.javatuples.Pair;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -117,9 +116,7 @@ public class CrewController implements MiniModelObserver, Initializable {
     }
 
     private void showCrewChoice(ComponentView component) {
-        if (newCrewOptionsPane == null) {
-            createNewCrewOptionsPane(component);
-        }
+        createNewCrewOptionsPane(component);
 
         Platform.runLater(() -> {
             newCrewOptionsPane.setVisible(true);
@@ -188,7 +185,7 @@ public class CrewController implements MiniModelObserver, Initializable {
         // Create confirm button
         Button confirmButton = new Button("Confirm");
         confirmButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
-        confirmButton.setOnAction(_ -> {
+        confirmButton.setOnMouseClicked(_ -> {
             String selectedLevel = crewType.getValue();
             int type = selectedLevel.equals("Human") ? 0 : selectedLevel.equals("Brown alien") ? 1 : 2;
             int mode = modeChose.getValue().equals("Add crew member") ? 0 : 1;
@@ -198,12 +195,12 @@ public class CrewController implements MiniModelObserver, Initializable {
                 MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
             }
         });
-        confirmButton.setOnAction(_ -> hideCrewLobbyOptions());
+        confirmButton.setOnAction(_ -> hideOptions());
 
         // Create cancel button
         Button cancelButton = new Button("Cancel");
         cancelButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
-        cancelButton.setOnAction(_ -> hideCrewLobbyOptions());
+        cancelButton.setOnAction(_ -> hideOptions());
 
         buttonsBox.getChildren().addAll(confirmButton, cancelButton);
 
@@ -236,7 +233,7 @@ public class CrewController implements MiniModelObserver, Initializable {
         });
     }
 
-    private void hideCrewLobbyOptions() {
+    private void hideOptions() {
         FadeTransition fadeOut = new FadeTransition(Duration.millis(300), newCrewOptionsPane);
         fadeOut.setFromValue(1);
         fadeOut.setToValue(0);

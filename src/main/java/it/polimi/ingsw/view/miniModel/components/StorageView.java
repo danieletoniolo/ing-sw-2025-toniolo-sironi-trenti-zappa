@@ -1,6 +1,15 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import it.polimi.ingsw.view.gui.controllers.components.CabinController;
+import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
+import it.polimi.ingsw.view.gui.controllers.components.StorageController;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import org.javatuples.Pair;
+
+import java.io.IOException;
 
 public class StorageView extends ComponentView {
 
@@ -10,6 +19,7 @@ public class StorageView extends ComponentView {
     private static final String red = "\033[31m";
     private static final String lightBlue = "\033[94m";
     private static final String reset = "\033[0m";
+    private Pair<Node, ComponentController> storagePair;
 
     public StorageView(int ID, int[] connectors, int clockWise, boolean dangerous, int capacity) {
         super(ID, connectors, clockWise);
@@ -69,8 +79,25 @@ public class StorageView extends ComponentView {
         return capacity;
     }
 
-    // GUI methods
+    @Override
+    public Pair<Node, ComponentController> getNode() {
+        try {
+            if (storagePair != null) return storagePair;
 
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/components/storage.fxml"));
+            Parent root = loader.load();
+
+            StorageController controller = loader.getController();
+            controller.setModel(this);
+
+            storagePair = new Pair<>(root, controller);
+            return storagePair;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     // TUI methods
     @Override

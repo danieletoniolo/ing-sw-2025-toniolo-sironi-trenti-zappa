@@ -1,6 +1,15 @@
 package it.polimi.ingsw.view.miniModel.components;
 
+import it.polimi.ingsw.view.gui.controllers.components.BatteryController;
+import it.polimi.ingsw.view.gui.controllers.components.CabinController;
+import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
 import it.polimi.ingsw.view.miniModel.components.crewmembers.CrewView;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import org.javatuples.Pair;
+
+import java.io.IOException;
 
 public class CabinView extends ComponentView {
     private static final String lightBlue = "\033[94m";
@@ -13,6 +22,7 @@ public class CabinView extends ComponentView {
 
     private int crewNumber;
     private CrewView crew;
+    private Pair<Node, ComponentController> cabinPair;
 
     public CabinView(int ID, int[] connectors, int clockWise) {
         super(ID, connectors, clockWise);
@@ -33,10 +43,12 @@ public class CabinView extends ComponentView {
 
     public void setCrewNumber(int crewNumber) {
         this.crewNumber = crewNumber;
+        notifyObservers();
     }
 
     public void setCrewType(CrewView crew) {
         this.crew = crew;
+        notifyObservers();
     }
 
     public CrewView getCrewType() {
@@ -49,6 +61,26 @@ public class CabinView extends ComponentView {
 
     public boolean hasBrownAlien() {
         return crew.equals(CrewView.BROWALIEN);
+    }
+
+    @Override
+    public Pair<Node, ComponentController> getNode() {
+        try {
+            if (cabinPair != null) return cabinPair;
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/components/cabin.fxml"));
+            Parent root = loader.load();
+
+            CabinController controller = loader.getController();
+            controller.setModel(this);
+
+            cabinPair = new Pair<>(root, controller);
+            return cabinPair;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override

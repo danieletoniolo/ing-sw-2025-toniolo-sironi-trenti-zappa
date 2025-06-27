@@ -37,7 +37,7 @@ public class BoardView implements Structure, MiniModelObservable {
      If boolean[i] == true, the deck[i] is not taken by a player, else the deck is taken and not viewable on the building screen*/
     private Pair<DeckView[], Boolean[]> decksView;
     private final List<MiniModelObserver> observers;
-    private Pair<Node, BoardController> node;
+    private Pair<Node, BoardController> boardPair;
 
 
     public BoardView(LevelView level, int numberOfPlayers) {
@@ -89,9 +89,8 @@ public class BoardView implements Structure, MiniModelObservable {
      */
     public Pair<Node, BoardController> getNode() {
         try {
-            if (node != null) {
-                return node;
-            }
+            if (boardPair != null) return boardPair;
+
             String path = level == LevelView.LEARNING ? "/fxml/board/learningBoard.fxml" : "/fxml/board/secondBoard.fxml";
             FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
             Parent root = loader.load();
@@ -99,7 +98,8 @@ public class BoardView implements Structure, MiniModelObservable {
             BoardController controller = loader.getController();
             controller.setModel(this);
 
-            return new Pair<>(root, controller);
+            boardPair = new Pair<>(root, controller);
+            return boardPair;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
