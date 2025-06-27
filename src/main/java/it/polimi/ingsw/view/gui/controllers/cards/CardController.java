@@ -40,25 +40,38 @@ public class CardController implements MiniModelObserver, Initializable {
      */
     private CardView cardView;
     
+    /**
+     * Initializes the controller after its root element has been completely processed.
+     * This method sets up the UI components and configures drag and drop functionality for the card image.
+     *
+     * @param location  The location used to resolve relative paths for the root object, or null if the location is not known
+     * @param resources The resources used to localize the root object, or null if the root object was not localized
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Configure parent container sizing to allow flexible resizing
         parent.setMinSize(0, 0);
         parent.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
+        // Bind card image dimensions to parent container for responsive scaling
         cardImage.fitWidthProperty().bind(parent.widthProperty());
         cardImage.fitHeightProperty().bind(parent.heightProperty());
 
        // Drag & drop setup for the card image
        cardImage.setOnDragDetected(event -> {
+           // Start drag operation with MOVE transfer mode
            Dragboard db = cardImage.startDragAndDrop(TransferMode.MOVE);
            ClipboardContent content = new ClipboardContent();
 
+           // Store the card ID as drag data for identification during drop
            content.putString(String.valueOf(cardView.getID()));
            db.setContent(content);
 
+           // Set visual feedback during drag using a snapshot of the card image
            db.setDragView(cardImage.snapshot(null, null),
                           event.getX(), event.getY());
 
+           // Consume the event to prevent further processing
            event.consume();
        });
     }

@@ -175,7 +175,7 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
      */
     private void onFinished() {
         // TODO: We could trigger something here or make a nice animation
-        labelTimer.setText("Time's\nup!");
+        labelTimer.setText("!");
         if (timerView.getNumberOfFlips() == 3) {
             parent.setVisible(false);
         }

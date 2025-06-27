@@ -131,7 +131,7 @@ public class TuiManager implements Manager {
         if (!data.nickname().equals(mm.getNickname())) {
             synchronized (stateLock) {
                 currentScreen = new Menu();
-                currentScreen.setMessage(data.nickname() + " has created a new lobby: ");
+                currentScreen.setMessage(data.nickname() + " has created a new lobby");
                 parser.changeScreen();
             }
         }

@@ -18,10 +18,24 @@ import java.util.ResourceBundle;
 
 
 public class BatteryController extends ComponentController implements Initializable {
+    /**
+     * The HBox container that holds the battery icons representing the energy level.
+     */
     @FXML private HBox batteryPane;
 
+    /**
+     * Static image resource for the battery icon used to display energy units.
+     */
     private static final Image BATTERY_IMG = new Image(Objects.requireNonNull(BatteryController.class.getResource("/image/misc/energy.png")).toExternalForm());
 
+    /**
+     * Initializes the battery controller component.
+     * Sets up the battery pane sizing properties and binds its dimensions
+     * to the component image for proper scaling.
+     *
+     * @param location  the location used to resolve relative paths for the root object
+     * @param resources the resources used to localize the root object
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         super.initialize(location, resources);
@@ -35,6 +49,15 @@ public class BatteryController extends ComponentController implements Initializa
         batteryPane.prefHeightProperty().bind(componentImage.fitHeightProperty());
     }
 
+    /**
+     * Sets the model for this battery controller and establishes the observer pattern.
+     * This method binds the controller to a ComponentView model, registers this controller
+     * as an observer to receive updates when the model changes, and triggers an initial
+     * reaction to update the UI based on the current model state.
+     *
+     * @param componentView the ComponentView model to be associated with this controller,
+     *                     expected to be a BatteryView instance for proper functionality
+     */
     @Override
     public void setModel(ComponentView componentView){
         super.componentView = componentView;
@@ -42,6 +65,12 @@ public class BatteryController extends ComponentController implements Initializa
         this.react();
     }
 
+    /**
+     * Reacts to changes in the battery model by updating the visual representation.
+     * This method is called when the observed BatteryView model notifies of changes.
+     * It updates the battery pane with the correct number of battery icons and applies
+     * the appropriate rotation based on the component's orientation.
+     */
     @Override
     public void react() {
         super.react();
@@ -68,6 +97,12 @@ public class BatteryController extends ComponentController implements Initializa
 
     }
 
+    /**
+     * Sets the opacity of the first fully opaque battery icon to 0.5.
+     * This method is used to visually indicate energy consumption by dimming
+     * one battery icon at a time. It only affects the first battery icon
+     * found with full opacity (1.0).
+     */
     public void setOpacity() {
         Platform.runLater(() -> {
             for (Node node : batteryPane.getChildren()) {
@@ -79,6 +114,11 @@ public class BatteryController extends ComponentController implements Initializa
         });
     }
 
+    /**
+     * Restores full opacity (1.0) to all battery icons in the battery pane.
+     * This method is used to reset the visual state of all battery icons,
+     * typically when energy is restored or the component is reset.
+     */
     public void removeOpacity() {
         Platform.runLater(() -> {
             for (Node node : batteryPane.getChildren()) {

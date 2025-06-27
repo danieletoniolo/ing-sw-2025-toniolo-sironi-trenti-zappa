@@ -1,6 +1,7 @@
 package it.polimi.ingsw.view.gui.screens;
 
 import it.polimi.ingsw.Client;
+import it.polimi.ingsw.event.game.clientToServer.cheatCode.CheatCode;
 import it.polimi.ingsw.event.game.clientToServer.deck.PickLeaveDeck;
 import it.polimi.ingsw.event.game.clientToServer.pickTile.PickTileFromBoard;
 import it.polimi.ingsw.event.game.clientToServer.pickTile.PickTileFromReserve;
@@ -14,6 +15,7 @@ import it.polimi.ingsw.event.game.clientToServer.rotateTile.RotateTile;
 import it.polimi.ingsw.event.game.clientToServer.timer.FlipTimer;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
+import it.polimi.ingsw.utils.Logger;
 import it.polimi.ingsw.view.gui.controllers.board.BoardController;
 import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
@@ -37,6 +39,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -66,9 +70,10 @@ public class BuildingController implements MiniModelObserver, Initializable {
 
     private final MiniModel mm = MiniModel.getInstance();
 
-
     private final double ORIGINAL_MAIN_VBOX_WIDTH = 1600.0;
     private final double ORIGINAL_MAIN_VBOX_HEIGHT = 900.0;
+
+    private boolean pKeyPressed = false;
 
 
     @Override
@@ -90,6 +95,48 @@ public class BuildingController implements MiniModelObserver, Initializable {
 
         mainVBox.sceneProperty().addListener((_, _, newScene) -> {
             if (newScene != null) {
+                newScene.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+                    if (event.getCode() == KeyCode.P) {
+                        pKeyPressed = true;
+                        return;
+                    }
+
+                    if (pKeyPressed) {
+                        int cheatIndex = -1;
+                        boolean isLevelSecond = mm.getBoardView().getLevel() == LevelView.SECOND;
+                        switch (event.getCode()) {
+                            case DIGIT1:
+                            case NUMPAD1:
+                                cheatIndex = 0;
+                                break;
+                            case DIGIT2:
+                            case NUMPAD2:
+                                cheatIndex = 1;
+                                break;
+                            case DIGIT3:
+                            case NUMPAD3:
+                                if (isLevelSecond) {
+                                    cheatIndex = 2;
+                                }
+                                break;
+                            case DIGIT4:
+                            case NUMPAD4:
+                                if (isLevelSecond) {
+                                    cheatIndex = 3;
+                                }
+                                break;
+                            default:
+                                // Not a cheat key, do nothing
+                                break;
+                        }
+
+                        if (cheatIndex != -1) {
+                            CheatCode.requester(Client.transceiver, new Object()).request(new CheatCode(mm.getUserID(), cheatIndex));
+                        }
+                        pKeyPressed = false; // Reset after any key press following 'P'
+                    }
+                });
+
                 Platform.runLater(() -> {
                     resizeListener.changed(null, null, null);
                     newScene.windowProperty().addListener((_, _, newWin) -> {
@@ -136,7 +183,18 @@ public class BuildingController implements MiniModelObserver, Initializable {
         placeMarkerButton.setOnMouseClicked(_ -> showMarkerPositionSelector());
         lowerHBox.getChildren().add(placeMarkerButton);
 
-        int numOfButtons = mm.getOtherPlayers().size() + 1;
+        Button flipTimerButton = new Button("Flip timer");
+        flipTimerButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
+        flipTimerButton.setOnMouseClicked(_ -> {
+            StatusEvent status = FlipTimer.requester(Client.transceiver, new Object()).request(new FlipTimer(mm.getUserID()));
+            if (status.get().equals(mm.getErrorCode())) {
+                Stage currentStage = (Stage) parent.getScene().getWindow();
+                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+            }
+        });
+        lowerHBox.getChildren().add(flipTimerButton);
+
+        int numOfButtons = mm.getOtherPlayers().size() + 2;
         for (PlayerDataView playerDataView : mm.getOtherPlayers()) {
             Button playerButton = new Button("View " + playerDataView.getUsername() + "'s spaceship");
             playerButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
@@ -145,6 +203,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
             lowerHBox.getChildren().add(playerButton);
         }
         placeMarkerButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(numOfButtons));
+        flipTimerButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(numOfButtons));
 
         // Initialize upper buttons and interactions
 

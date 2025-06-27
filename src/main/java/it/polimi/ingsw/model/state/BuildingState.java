@@ -487,10 +487,5 @@ public class BuildingState extends State {
     @Override
     public void exit() {
         super.exit();
-
-        GetShuffledDeck getShuffledDeckEvent = new GetShuffledDeck(
-                board.getShuffledDeck().stream().map(Card::getID).toList()
-        );
-        eventCallback.trigger(getShuffledDeckEvent);
     }
 }

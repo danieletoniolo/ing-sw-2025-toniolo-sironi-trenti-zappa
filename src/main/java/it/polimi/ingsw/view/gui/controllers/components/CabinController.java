@@ -17,12 +17,33 @@ import java.util.ResourceBundle;
 
 public class CabinController extends ComponentController implements Initializable {
 
+    /**
+     * The HBox container that holds the crew members in the cabin.
+     */
     @FXML private HBox cabinPane;
 
+    /**
+     * Static image resource for human crew members.
+     */
     private static final Image HUMAN = new Image(Objects.requireNonNull(CabinController.class.getResource("/image/misc/human.png")).toExternalForm());
+
+    /**
+     * Static image resource for purple alien crew members.
+     */
     private static final Image PURPLEALIEN = new Image(Objects.requireNonNull(CabinController.class.getResource("/image/misc/purpleAlien.png")).toExternalForm());
+
+    /**
+     * Static image resource for brown alien crew members.
+     */
     private static final Image BROWNALIEN = new Image(Objects.requireNonNull(CabinController.class.getResource("/image/misc/brownAlien.png")).toExternalForm());
 
+    /**
+     * Initializes the cabin controller by setting up the cabin pane properties
+     * and binding its dimensions to the component image.
+     *
+     * @param location The location used to resolve relative paths for the root object, or null if not known
+     * @param resources The resources used to localize the root object, or null if not localized
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         super.initialize(location, resources);
@@ -36,6 +57,11 @@ public class CabinController extends ComponentController implements Initializabl
         cabinPane.prefHeightProperty().bind(componentImage.fitHeightProperty());
     }
 
+    /**
+     * Sets the model for this cabin controller and registers it as an observer.
+     *
+     * @param componentView The component view model to set for this controller
+     */
     @Override
     public void setModel(ComponentView componentView){
         super.componentView = componentView;
@@ -43,6 +69,11 @@ public class CabinController extends ComponentController implements Initializabl
         this.react();
     }
 
+    /**
+     * Reacts to model changes by updating the cabin's visual representation.
+     * This method clears the current crew members and recreates them based on
+     * the current model state, including crew number and type.
+     */
     @Override
     public void react() {
         super.react();
@@ -72,6 +103,11 @@ public class CabinController extends ComponentController implements Initializabl
         });
     }
 
+    /**
+     * Sets the opacity of the first fully opaque crew member to 50%.
+     * This method is typically used to indicate selection or highlighting
+     * of a specific crew member.
+     */
     public void setOpacity() {
         Platform.runLater(() -> {
             for (Node node : cabinPane.getChildren()) {
@@ -83,6 +119,11 @@ public class CabinController extends ComponentController implements Initializabl
         });
     }
 
+    /**
+     * Removes opacity effects from all crew members by setting their
+     * opacity back to 100%. This method restores all crew members
+     * to their normal visual state.
+     */
     public void removeOpacity() {
         Platform.runLater(() -> {
             for (Node node : cabinPane.getChildren()) {
