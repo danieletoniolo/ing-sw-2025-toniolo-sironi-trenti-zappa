@@ -11,8 +11,15 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * The DeckCommands class represents a screen in the TUI for selecting and interacting with decks.
+ * It extends the Building class and provides options for the user to pick a deck or go back.
+ */
 public class DeckCommands extends Building {
 
+    /**
+     * Constructs a DeckCommands screen with predefined options for deck selection and navigation.
+     */
     public DeckCommands() {
         super(new ArrayList<>(){{
             add("Deck 1");
@@ -22,6 +29,13 @@ public class DeckCommands extends Building {
         }});
     }
 
+    /**
+     * Handles the logic for setting the next screen based on the user's selection.
+     * If "Back" is selected, returns to the MainBuilding screen.
+     * If a deck is selected, sends a request to pick or leave the deck and handles errors.
+     *
+     * @return the next TuiScreenView to display, or this screen if an error occurs.
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

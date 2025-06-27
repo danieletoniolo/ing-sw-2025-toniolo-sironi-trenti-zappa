@@ -11,8 +11,16 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * Screen for picking a reserved tile in the building phase.
+ * Displays the list of reserved tiles and allows the user to select one or go back.
+ */
 public class PickReserved extends Building {
 
+    /**
+     * Constructs the PickReserved screen, initializing the selectable options
+     * with the reserved tiles and a "Back" option.
+     */
     public PickReserved() {
         super(new ArrayList<>(){{
             for (int i = 0; i < MiniModel.getInstance().getClientPlayer().getShip().getDiscardReservedPile().getReserved().size(); i++) {
@@ -22,6 +30,13 @@ public class PickReserved extends Building {
         }});
     }
 
+    /**
+     * Handles the logic for setting the new screen after a selection is made.
+     * If "Back" is selected, returns to the PickCommands screen.
+     * If a reserved tile is selected, sends a request to pick it and handles the response.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

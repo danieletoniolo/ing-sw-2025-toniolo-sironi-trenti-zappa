@@ -12,9 +12,29 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * The AddCrew class extends ModifyCrew and manages the addition or removal of crew members
+ * to or from spaceship cabins in the TUI (Text User Interface) view.
+ * The behavior depends on the value parameter:
+ * - If value == 3, it allows removing crew members from non-empty cabins.
+ * - Otherwise, it allows adding crew members to empty cabins.
+ */
 public class AddCrew extends ModifyCrew {
+    /**
+     * The value indicating the operation mode:
+     * 3 for removing crew members, other values for adding.
+     */
     private final int value;
 
+    /**
+     * Constructs an AddCrew screen with the specified operation mode.
+     * Populates the selectable options based on the value:
+     * - If value == 3, lists non-empty cabins.
+     * - Otherwise, lists empty cabins.
+     * Always adds a "Back" option.
+     *
+     * @param value the operation mode (3 for remove, other for add)
+     */
     public AddCrew(int value) {
         super(new ArrayList<>(){{
             if (value == 3) {
@@ -35,6 +55,13 @@ public class AddCrew extends ModifyCrew {
         this.value = value;
     }
 
+    /**
+     * Handles the transition to a new screen based on the user's selection.
+     * Sends a request to the server to add or remove a crew member, depending on the mode.
+     * If an error occurs, displays the error message and stays on the current screen.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();

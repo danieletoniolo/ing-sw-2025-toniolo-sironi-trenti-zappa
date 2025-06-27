@@ -11,8 +11,15 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 
 import java.util.ArrayList;
 
+/**
+ * Screen that allows the user to activate cheat codes or view other players' ships
+ * during the building phase. The available options depend on the current game level.
+ */
 public class CheatShipScreen extends Building {
 
+    /**
+     * Constructs the CheatShipScreen with options based on the current board level.
+     */
     public CheatShipScreen() {
         super(new ArrayList<>(){{
             if (MiniModel.getInstance().getBoardView().getLevel().equals(LevelView.LEARNING)) {
@@ -29,11 +36,23 @@ public class CheatShipScreen extends Building {
         }});
     }
 
+    /**
+     * Returns the line to display before the user input.
+     *
+     * @return a string describing the current screen's purpose
+     */
     @Override
     protected String lineBeforeInput() {
         return "You can now cheat or view other players' ships.";
     }
 
+    /**
+     * Handles the transition to a new screen based on the user's selection.
+     * If the "Back" option is selected, returns to the main building screen.
+     * Otherwise, sends a cheat code request and handles any errors.
+     *
+     * @return the next TuiScreenView to display
+     */
     @Override
     public TuiScreenView setNewScreen() {
         TuiScreenView possibleScreen = super.setNewScreen();
