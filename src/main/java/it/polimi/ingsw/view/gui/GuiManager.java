@@ -440,7 +440,6 @@ public class GuiManager extends Application implements Manager {
     public void notifyStateChange() {
         switch (mm.getGamePhase()) {
             case LOBBY:
-
                 break;
             case BUILDING:
                 this.setBuildingScene();
@@ -457,6 +456,7 @@ public class GuiManager extends Application implements Manager {
                 }
                 break;
             case REWARD:
+                this.setRewardScene();
                 break;
             case FINISHED:
                 this.setMenuScene();
@@ -563,6 +563,18 @@ public class GuiManager extends Application implements Manager {
     }
 
     private void setRewardScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/reward.fxml"));
+            root = loader.load();
+
+            controller = loader.getController();
+            controller.react();
+
+            scene.setRoot(root);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
         currentScene = GuiScene.REWARD;
     }
 }
