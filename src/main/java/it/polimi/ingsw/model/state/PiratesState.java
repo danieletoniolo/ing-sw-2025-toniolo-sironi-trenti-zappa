@@ -21,17 +21,43 @@ import org.javatuples.Pair;
 import java.util.*;
 
 
+/**
+ * Represents the state of the game when players encounter pirates.
+ * This state handles the pirate encounter mechanics including combat, rewards, penalties, and protection.
+ * @author Vittorio Sironi
+ */
 public class PiratesState extends State {
+    /** The pirates card that defines the encounter parameters */
     private final Pirates card;
+
+    /** Map storing each player's cannon strength for combat calculations */
     private final Map<PlayerData, Float> cannonsStrength;
+
+    /** Current internal state of the pirate encounter */
     private PiratesInternalState internalState;
+
+    /** Result of the pirate combat: true if pirates defeated, false if players defeated, null if tie */
     private Boolean piratesDefeat;
+
+    /** List of players who were defeated during the pirate encounter */
     private final ArrayList<PlayerData> playersDefeated;
+
+    /** List of fragment choices available to players during penalty phase */
     private final List<List<Pair<Integer, Integer>>> fragments;
+
+    /** Result of protection attempt: component that can protect and protection level */
     private MutablePair<Component, Integer> protectionResult;
+
+    /** Pair storing the two dice values rolled for protection */
     private final MutablePair<Integer, Integer> dice;
+
+    /** Index of the current hit being processed from the pirate fires */
     private int hitIndex;
+
+    /** Player who is currently able to attempt protection */
     private PlayerData currentPlayerCanProtect;
+
+    /** List of players who have given up due to having no human crew */
     private final ArrayList<PlayerData> playersGivenUp;
 
     /**
@@ -88,18 +114,27 @@ public class PiratesState extends State {
     }
 
     /**
-     * Implementation of the {@link State#setProtect(PlayerData, int)} to set whether the player wants to protect or not.
+     * Implementation of the {@link State#setProtect(PlayerData, List)} to set whether the player wants to protect or not.
      */
     @Override
-    public void setProtect(PlayerData player, int batteryID) throws IllegalStateException, IllegalArgumentException {
+    public void setProtect(PlayerData player, List<Integer> batteryID) throws IllegalStateException, IllegalArgumentException {
         if (internalState != PiratesInternalState.PENALTY && internalState != PiratesInternalState.CAN_PROTECT) {
             throw new IllegalStateException("setProtect not allowed in this state");
         }
-        Event event = Handler.protectFromHit(player, protectionResult, batteryID);
-        if (event != null) {
-            eventCallback.trigger(event);
+        if (batteryID.size() != 1) {
+            throw new IllegalArgumentException("Battery ID list must contain exactly one element");
         }
-        event = Handler.checkForFragments(player, fragments);
+        if (batteryID.getFirst() != -1 && protectionResult.getSecond() == -1) {
+            throw new IllegalArgumentException("You cannot set a shield if because you cannot protect from the hit");
+        }
+
+        List<Event> events = Handler.protectFromHit(player, protectionResult, batteryID.getFirst());
+        if (events != null) {
+            for (Event event : events) {
+                eventCallback.trigger(event);
+            }
+        }
+        Event event = Handler.checkForFragments(player, fragments);
         eventCallback.trigger(event);
     }
 
@@ -142,11 +177,7 @@ public class PiratesState extends State {
     @Override
     public void entry() {
         for (PlayerData player : super.players) {
-            float initialStrength = player.getSpaceShip().getSingleCannonsStrength();
-            if (player.getSpaceShip().hasPurpleAlien()) {
-                initialStrength += player.getSpaceShip().getAlienStrength(false);
-            }
-            this.cannonsStrength.put(player, initialStrength);
+            Handler.initializeCannonStrengths(player, cannonsStrength);
         }
         super.entry();
     }
@@ -163,7 +194,7 @@ public class PiratesState extends State {
 
         switch (internalState) {
             case ENEMY_DEFEAT:
-                int cannonStrengthRequired = card.getCannonStrengthRequired();
+                float cannonStrengthRequired = card.getCannonStrengthRequired();
 
                 if (cannonsStrength.get(player) > cannonStrengthRequired) {
                     piratesDefeat = true;
@@ -183,6 +214,7 @@ public class PiratesState extends State {
                     super.execute(player);
                 }
 
+                Handler.initializeCannonStrengths(player, cannonsStrength);
                 EnemyDefeat enemyDefeat = new EnemyDefeat(player.getUsername(), piratesDefeat);
                 eventCallback.trigger(enemyDefeat);
 
@@ -229,13 +261,13 @@ public class PiratesState extends State {
                     break;
                 }
                 fragments.clear();
-                // TODO: TO TEST THE GIVE UP
                 if (spaceShip.getHumanCrewNumber() == 0 && !playersGivenUp.contains(player)) {
                     this.playersGivenUp.add(player);
                 }
 
                 super.execute(player);
 
+                Handler.initializeCannonStrengths(player, cannonsStrength);
                 try {
                     currentPlayerCanProtect = getCurrentPlayer();
                 } catch (IllegalStateException e) {
@@ -298,8 +330,12 @@ public class PiratesState extends State {
         super.nextState(GameState.CARDS);
     }
 
+    /**
+     * Cleanup method called when exiting the pirates state.
+     * Performs any necessary cleanup operations before transitioning to the next state.
+     */
     @Override
-    public void exit() throws IllegalStateException{
+    public void exit() {
         super.exit();
     }
 }

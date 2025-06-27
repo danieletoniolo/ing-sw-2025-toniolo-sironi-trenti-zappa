@@ -15,8 +15,15 @@ import org.javatuples.Triplet;
 
 import java.util.List;
 
+/**
+ * State that handles planet selection and goods exchange on planets.
+ * Players can select planets to land on and exchange goods with the planet's resources.
+ * @author Daniele Toniolo
+ */
 public class PlanetsState extends State {
+    /** The planet card containing planet data and flight days information */
     private final Planets card;
+    /** Array tracking which player has selected each planet (null if unselected) */
     private final PlayerData[] planetSelected;
 
     /**
@@ -86,6 +93,10 @@ public class PlanetsState extends State {
         eventCallback.trigger(goodsSwappedEvent);
     }
 
+    /**
+     * Entry point for the PlanetsState.
+     * Called when transitioning into this state to perform initialization.
+     */
     @Override
     public void entry() {
         super.entry();
@@ -117,19 +128,19 @@ public class PlanetsState extends State {
      */
     @Override
     public void exit() throws IllegalStateException{
-        int flightDays = card.getFlightDays();
-        PlayerStatus status;
-        for (PlayerData p : players.reversed()) {
-            status = playersStatus.get(p.getColor());
-            if (status == PlayerStatus.PLAYED) {
-                board.addSteps(p, -flightDays);
-
-                MoveMarker stepsEvent = new MoveMarker(p.getUsername(),  p.getModuleStep(board.getStepsForALap()));
-                eventCallback.trigger(stepsEvent);
-            } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
-                throw new IllegalStateException("Not all players have played");
-            }
+        // There are two for loops here, because we need first to control the exception and then move the marker
+        if (!played) {
+            allPlayersPlayed();
         }
-        super.exit();
+
+        int flightDays = card.getFlightDays();
+        for (PlayerData p : players.reversed()) {
+            board.addSteps(p, -flightDays);
+
+            MoveMarker stepsEvent = new MoveMarker(p.getUsername(),  p.getModuleStep(board.getStepsForALap()));
+            eventCallback.trigger(stepsEvent);
+        }
+
+        board.refreshInGamePlayers();
     }
 }

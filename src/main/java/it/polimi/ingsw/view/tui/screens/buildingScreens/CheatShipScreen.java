@@ -17,10 +17,13 @@ public class CheatShipScreen extends Building {
         super(new ArrayList<>(){{
             if (MiniModel.getInstance().getBoardView().getLevel().equals(LevelView.LEARNING)) {
                 add("Big flight");
+                add("Normal ship");
             }
             else{
                 add("Cabins");
                 add("Engine and cannons");
+                add("Invalid cannons and engine");
+                add("Fragments");
             }
             add("Back");
         }});
@@ -36,7 +39,7 @@ public class CheatShipScreen extends Building {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == (MiniModel.getInstance().getBoardView().getLevel() == LevelView.LEARNING ? 1 : 2)) {
+        if (selected == (MiniModel.getInstance().getBoardView().getLevel() == LevelView.LEARNING ? 2 : 4)) {
             return new MainBuilding();
         }
 

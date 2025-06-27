@@ -9,42 +9,74 @@ import org.javatuples.Pair;
 import java.io.Serializable;
 import java.util.*;
 
+/**
+ * Represents a spaceship in the game with a modular component-based design.
+ * The spaceship consists of a grid-based layout where various components can be placed,
+ * and tracks the ship's statistics and capabilities.
+ * @author Daniele Toniolo
+ */
 public class SpaceShip {
+    /** The difficulty level of the game, which determines the valid placement spots */
     private final Level level;
 
+    /** The strength bonus provided by alien crew members */
     private static final float alienStrength = 2.0f;
+    /** The number of rows in the spaceship's component grid */
     private static final int rows = 12;
+    /** The number of columns in the spaceship's component grid */
     private static final int cols = 12;
+    /** 2D array representing the placed components on the spaceship grid */
     private final Component[][] components;
+    /** The total number of components currently placed on the spaceship */
     private int numberOfComponents;
+    /** 2D boolean array indicating which grid positions are valid for component placement */
     private final boolean[][] validSpots;
 
+    /** List of components that have been destroyed and removed from the ship */
     private final List<Component> lostComponents;
+    /** List of components that are reserved for placement but not yet placed on the ship */
     private final ArrayList<Component> reservedComponents;
 
+    /** Map of storage components indexed by their unique ID */
     private final Map<Integer, Storage> storages;
+    /** Map of battery components indexed by their unique ID */
     private final Map<Integer, Battery> batteries;
+    /** Map of cabin components indexed by their unique ID */
     private final Map<Integer, Cabin> cabins;
+    /** Map of cannon components indexed by their unique ID */
     private final Map<Integer, Cannon> cannons;
+    /** Map of engine components indexed by their unique ID */
     private final Map<Integer, Engine> engines;
+    /** Priority queue of goods ordered by value (highest value first) */
     private final PriorityQueue<Good> goods;
+    /** Reference to the most recently placed component on the ship */
     private Component lastPlacedComponent;
 
+    /** The total strength contributed by single engine components */
     private int singleEnginesStrength;
+    /** The total strength contributed by double engine components */
     private int doubleEnginesStrength;
 
+    /** The total strength contributed by single cannon components */
     private float singleCannonsStrength;
-    private int doubleCannonsStrength;
+    /** The total strength contributed by double cannon components */
+    private float doubleCannonsStrength;
+    /** The total number of double cannon components on the ship */
     private int doubleCannonsNumber;
 
+    /** The total number of energy units available from all batteries */
     private int energyNumber;
 
+    /** The total number of crew members aboard the ship */
     private int crewNumber;
 
+    /** Flag indicating whether the ship has a purple alien crew member */
     private boolean purpleAlien;
 
+    /** Flag indicating whether the ship has a brown alien crew member */
     private boolean brownAlien;
 
+    /** The total value of all goods stored in the ship's storage compartments */
     private int goodsValue;
 
     /**
@@ -54,13 +86,21 @@ public class SpaceShip {
      * We use a static inner class to avoid serialization issues with the comparator.
      */
     private static class ValueDescendingComparator implements Comparator<Good>, Serializable {
-        // TODO: We might need the serialVersionUID
         @Override
         public int compare(Good g1, Good g2) {
             return Integer.compare(g2.getValue(), g1.getValue());
         }
     }
 
+    /**
+     * Constructs a new SpaceShip with the specified difficulty level and player color.
+     * Initializes the spaceship grid based on the level, sets up valid placement spots,
+     * and places the main cabin at the center of the grid.
+     *
+     * @param level the difficulty level of the game which determines the valid placement spots
+     * @param color the color of the player, used for the main cabin component
+     * @throws IllegalArgumentException if the level is not supported (only LEARNING and SECOND are valid)
+     */
     public SpaceShip(Level level, PlayerColor color) throws IllegalArgumentException{
         this.level = level;
 
@@ -192,7 +232,7 @@ public class SpaceShip {
      * Get the strength of the double cannons of the ship
      * @return Strength of the double cannons of the ship
      */
-    public int getDoubleCannonsStrength() {
+    public float getDoubleCannonsStrength() {
         return doubleCannonsStrength;
     }
 
@@ -301,6 +341,38 @@ public class SpaceShip {
         } else {
             return purpleAlien && !cannons.isEmpty() ? alienStrength : 0;
         }
+    }
+
+    /**
+     * Get the default strength of cannons of the ship
+     * @return the default strength of cannons of the ship
+     */
+    public float getDefaultCannonsStrength() {
+        return getSingleCannonsStrength() + getAlienStrength(false);
+    }
+
+    /**
+     * Get the default strength of engines of the ship
+     * @return the default strength of engines of the ship
+     */
+    public int getDefaultEnginesStrength() {
+        return getSingleEnginesStrength() + (int) getAlienStrength(true);
+    }
+
+    /**
+     * Get the maximum potential of cannons and engines of the ship
+     * @return the maximum potential of cannons and engines of the ship
+     */
+    public float getMaxCannonsStrength() {
+        return getSingleCannonsStrength() + getDoubleCannonsStrength() + getAlienStrength(false);
+    }
+
+    /**
+     * Get the maximum potential of engines of the ship
+     * @return the maximum potential of engines of the ship
+     */
+    public int getMaxEnginesStrength() {
+        return getSingleEnginesStrength() + getDoubleEnginesStrength() + (int) getAlienStrength(true);
     }
 
     /**
@@ -555,7 +627,6 @@ public class SpaceShip {
             energyNumber--;
             return true;
         } catch (IllegalStateException e) {
-            // TODO: decide if we want to throw an exception or return false
             return false;
         }
     }
@@ -648,6 +719,11 @@ public class SpaceShip {
         reservedComponents.removeIf(c -> c.getID() == tileID);
     }
 
+    /**
+     * Peek at a reserved component by its ID without removing it from the reserved list.
+     * @param tileID The ID of the component to peek at
+     * @return The component with the specified ID, or null if not found in the reserved components
+     */
     public Component peekReservedComponent(int tileID) {
         for (Component c : reservedComponents) {
             if (c.getID() == tileID) {
@@ -714,6 +790,7 @@ public class SpaceShip {
             numberOfComponents++;
         } else {
             components[row][column].ship = null;
+            components[row][column] = null;
             throw new IllegalStateException("The component at the given row and column are not connected");
         }
     }
@@ -894,7 +971,7 @@ public class SpaceShip {
 
     /**
      * Search if there is component that are no longer connected to the ship
-     * @return List of List of Pair<Integer, Integer> representing the group of disconnected components
+     * @return List of list of Pair<Integer, Integer> representing the group of disconnected components
      */
     public List<List<Pair<Integer, Integer>>> getDisconnectedComponents() {
         List<List<Pair<Integer, Integer>>> disconnectedComponents = new ArrayList<>();
@@ -935,7 +1012,6 @@ public class SpaceShip {
                 }
             }
         }
-        // TODO: check which group of disconnected components are still valid
         return disconnectedComponents;
     }
 }

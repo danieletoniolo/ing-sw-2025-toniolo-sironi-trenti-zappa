@@ -11,7 +11,6 @@ import java.util.UUID;
 public record ConnectionLost(
         UUID userID
 ) implements Event, Serializable {
-
     public static void registerHandler(EventTransceiver transceiver, EventListener<ConnectionLost> listener) {
         new CastEventReceiver<ConnectionLost>(transceiver).registerListener(listener);
     }

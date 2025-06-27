@@ -3,7 +3,14 @@ package it.polimi.ingsw.model.cards;
 import it.polimi.ingsw.model.cards.hits.Hit;
 import java.util.List;
 
+/**
+ * MeteorSwarm card that contains a list of meteor hits.
+ * Extends the base Card class and represents a special type of card
+ * that can contain multiple hit effects.
+ * @author Lorenzo Trenti
+ */
 public class MeteorSwarm extends Card {
+    /** List of meteor hits associated with this card */
     private List<Hit> meteors;
 
     /**
@@ -21,6 +28,10 @@ public class MeteorSwarm extends Card {
         this.meteors = meteors;
     }
 
+    /**
+     * Default constructor for MeteorSwarm.
+     * Creates an empty MeteorSwarm card with default values.
+     */
     public MeteorSwarm() {
         super();
     }

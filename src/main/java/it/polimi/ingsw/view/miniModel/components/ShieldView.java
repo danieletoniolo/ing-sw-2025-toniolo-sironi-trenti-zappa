@@ -1,10 +1,5 @@
 package it.polimi.ingsw.view.miniModel.components;
 
-import it.polimi.ingsw.view.miniModel.MiniModelObserver;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class ShieldView extends ComponentView {
     public static final String UpShield = "∩";
     public static final String DownShield = "∪";
@@ -56,8 +51,8 @@ public class ShieldView extends ComponentView {
     }
 
     @Override
-    public TilesTypeView getType() {
-        return TilesTypeView.SHIELD;
+    public ComponentTypeView getType() {
+        return ComponentTypeView.SHIELD;
     }
 
     @Override

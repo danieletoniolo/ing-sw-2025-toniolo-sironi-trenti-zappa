@@ -7,6 +7,7 @@ import it.polimi.ingsw.view.miniModel.Structure;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import org.javatuples.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public abstract class CardView implements Structure, MiniModelObservable {
      * It is used to notify the observers when the model changes.
      */
     private final List<MiniModelObserver> listeners;
-
+    private Pair<Node, CardController> cardPair;
 
     public CardView(int ID, boolean covered, int level) {
         this.ID = ID;
@@ -103,15 +104,18 @@ public abstract class CardView implements Structure, MiniModelObservable {
         notifyObservers();
     }
 
-    public Node getNode() {
+    public Pair<Node, CardController> getNode() {
         try {
+            if (cardPair != null) return cardPair;
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/cards/card.fxml"));
             Parent root = loader.load();
 
             CardController controller = loader.getController();
             controller.setModel(this);
 
-            return root;
+            cardPair = new Pair<>(root, controller);
+            return cardPair;
 
         } catch (IOException e) {
             e.printStackTrace();

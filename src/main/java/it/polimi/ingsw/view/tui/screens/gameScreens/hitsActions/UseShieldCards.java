@@ -13,6 +13,7 @@ import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import it.polimi.ingsw.view.tui.screens.gameScreens.NotClientTurnCards;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class UseShieldCards extends CardsGame {
 
@@ -35,14 +36,18 @@ public class UseShieldCards extends CardsGame {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        int ID = spaceShipView.getMapBatteries().keySet().stream()
+        int ID = spaceShipView.getMapBatteries().entrySet().stream()
+                .filter(battery -> battery.getValue().getNumberOfBatteries() != 0)
                 .skip(selected)
                 .findFirst()
+                .map(entry -> entry.getValue().getID())
                 .orElse(-1);
 
+        List<Integer> batteries = new ArrayList<>();
+        batteries.add(ID);
         StatusEvent status;
         // Player uses the shield battery
-        status = UseShield.requester(Client.transceiver, new Object()).request(new UseShield(MiniModel.getInstance().getUserID(), ID));
+        status = UseShield.requester(Client.transceiver, new Object()).request(new UseShield(MiniModel.getInstance().getUserID(), batteries));
         if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
             setMessage(((Pota) status).errorMessage());
             return this;

@@ -10,6 +10,12 @@ import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 import java.util.ArrayList;
 
 
+/**
+ * StardustState represents the stardust phase of the game where players lose steps
+ * based on their exposed connectors. This state reverses the player order and
+ * transitions to the CARDS state after execution.
+ * @author Vittorio Sironi
+ */
 public class StardustState extends State {
 
     /**
@@ -21,6 +27,13 @@ public class StardustState extends State {
         super.players = new ArrayList<>(super.players.reversed());
     }
 
+    /**
+     * Executes the stardust phase for the given player.
+     * During this phase, the player loses steps equal to their number of exposed connectors.
+     * After processing the player, triggers events to update the game state and transitions to CARDS state.
+     *
+     * @param player The player data for whom to execute the stardust phase
+     */
     @Override
     public void execute(PlayerData player) {
 
@@ -41,5 +54,14 @@ public class StardustState extends State {
         }
 
         super.nextState(GameState.CARDS);
+    }
+
+    /**
+     * Cleans up resources and performs any necessary finalization when exiting the StardustState.
+     * This method is called when transitioning away from the stardust phase.
+     */
+    @Override
+    public void exit() {
+        super.exit();
     }
 }

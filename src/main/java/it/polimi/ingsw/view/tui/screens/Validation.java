@@ -19,12 +19,14 @@ public abstract class Validation implements TuiScreenView {
     protected TuiScreenView nextState;
 
     protected static SpaceShipView spaceShipView;
-    protected static List<Pair<Integer, Integer>> destroyTiles;
+    private static boolean reset;
+    protected static List<Pair<Integer, Integer>> destroyTiles; // List of coordinates of tiles to be destroyed
     private String message;
 
     public Validation(List<String> otherOptions) {
-        if (spaceShipView == null) {
+        if (!reset) {
             spaceShipView = MiniModel.getInstance().getClientPlayer().getShip().clone();
+            reset = true;
         }
         if (destroyTiles == null) {
             destroyTiles = new ArrayList<>();
@@ -121,6 +123,7 @@ public abstract class Validation implements TuiScreenView {
 
     public static void destroyStatics() {
         destroyTiles = null;
+        reset = false;
         PlayerDataView player = MiniModel.getInstance().getClientPlayer();
         spaceShipView = player == null ? null : player.getShip();
     }

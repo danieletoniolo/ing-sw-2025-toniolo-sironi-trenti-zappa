@@ -5,8 +5,15 @@ import it.polimi.ingsw.model.cards.Card;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+/**
+ * Represents a deck of cards that can be marked as pickable or not.
+ * This class implements Serializable to allow for object serialization.
+ * @author Vittorio Sironi
+ */
 public class Deck implements Serializable {
+    /** The list of cards contained in this deck */
     private final ArrayList<Card> cards;
+    /** Flag indicating whether this deck can be picked from */
     private boolean pickable;
 
     /**

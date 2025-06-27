@@ -1,5 +1,10 @@
 package it.polimi.ingsw.network.exceptions;
 
+/**
+ * Custom exception thrown when there is an error creating a socket connection.
+ * This exception extends RuntimeException to indicate that it represents an unchecked exception
+ * that can occur during socket creation operations.
+ */
 public class SocketCreationException extends RuntimeException {
     /**
      * Constructs a new SocketCreationException.

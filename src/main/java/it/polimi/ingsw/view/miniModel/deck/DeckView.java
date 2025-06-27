@@ -6,6 +6,7 @@ import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.cards.CardView;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import org.javatuples.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class DeckView implements MiniModelObservable {
     private boolean covered;
     private boolean onlyLast;
     private final List<MiniModelObserver> observers;
+    private Pair<Node, DeckController> deckNode;
 
     public DeckView() {
         this.deck = new Stack<>();
@@ -47,15 +49,18 @@ public class DeckView implements MiniModelObservable {
         }
     }
 
-    public Node getNode() {
+    public Pair<Node, DeckController> getNode() {
         try {
+            if (deckNode != null) return deckNode;
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/cards/deck.fxml"));
             Node root = loader.load();
 
             DeckController controller = loader.getController();
             controller.setModel(this);
 
-            return root;
+            deckNode = new Pair<>(root, controller);
+            return deckNode;
         } catch (IOException e) {
             e.printStackTrace();
             return null;

@@ -286,7 +286,11 @@ public class MenuController implements MiniModelObserver, Initializable {
             lobbyBoxVBox.getChildren().clear();
             for (LobbyView lv : mm.getLobbiesView()) {
                 Node lobbyBoxNode = lv.getNode();
-                ((StackPane) lobbyBoxNode).prefWidthProperty().bind(lobbyBoxVBox.widthProperty().subtract(20));
+                // Bind the width of the lobby box to the VBox width minus some padding
+                if (lobbyBoxNode instanceof StackPane sp) {
+                    sp.prefHeightProperty().bind(lobbyBoxVBox.heightProperty().multiply(0.15));
+                    sp.prefWidthProperty().bind(lobbyBoxVBox.widthProperty().subtract(20));
+                }
                 lobbyBoxVBox.getChildren().add(lobbyBoxNode);
                 lobbyBoxVBox.setOnMouseClicked(
                         _ -> {

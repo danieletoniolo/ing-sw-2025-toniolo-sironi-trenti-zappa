@@ -7,7 +7,7 @@ import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
-import it.polimi.ingsw.view.miniModel.components.TilesTypeView;
+import it.polimi.ingsw.view.miniModel.components.ComponentTypeView;
 import it.polimi.ingsw.view.tui.screens.Building;
 import it.polimi.ingsw.view.tui.screens.ChoosePosition;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
@@ -42,7 +42,7 @@ public class MainBuilding extends Building {
         TuiScreenView possibleScreen = super.setNewScreen();
         if (possibleScreen != null) return possibleScreen;
 
-        if (selected == -4 && MiniModel.getInstance().getClientPlayer().getHand().getType().equals(TilesTypeView.GENERIC)) {
+        if (selected == -4 && MiniModel.getInstance().getClientPlayer().getHand().getType().equals(ComponentTypeView.GENERIC)) {
             return new CheatShipScreen();
         }
 
@@ -86,7 +86,7 @@ public class MainBuilding extends Building {
         }
 
         if (selected == 3) {
-            return new ChoosePosition();
+            return new ChoosePosition(true);
         }
 
         return this;

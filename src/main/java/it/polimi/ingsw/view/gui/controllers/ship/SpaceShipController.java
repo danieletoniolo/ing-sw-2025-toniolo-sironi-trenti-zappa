@@ -1,6 +1,9 @@
 package it.polimi.ingsw.view.gui.controllers.ship;
 
+import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
+import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
+import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
 import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import javafx.application.Platform;
@@ -17,6 +20,7 @@ import javafx.scene.layout.*;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class SpaceShipController implements MiniModelObserver, Initializable {
@@ -100,6 +104,8 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         // Set the default value from the FXML
         setDefaultValue();
+
+        shipGroup.setManaged(false);
 
         // Remove any existing bindings to prevent conflicts
         backgroundImage.fitWidthProperty().unbind();
@@ -298,14 +304,16 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
             shipGrid.getChildren().clear();
 
             int rowOffset = SpaceShipView.ROW_OFFSET;
-            int colOffset = SpaceShipView.COL_OFFSET;
+            int colOffset = spaceShipModel.getLevel() == LevelView.SECOND ? SpaceShipView.COL_OFFSET : SpaceShipView.COL_OFFSET + 1;
 
             for (int i = 0; i < GRID_COLS; i++) {
                 for (int j = 0; j < GRID_ROWS; j++) {
                     ComponentView component = spaceShipModel.getComponent(j + rowOffset, i + colOffset);
                     if (component != null) {
-                        Node node = component.getNode();
-
+                        Node node = component.getNode().getValue0();
+                        if (node.getParent() != null) {
+                            ((Pane) node.getParent()).getChildren().remove(node);
+                        }
                         GridPane.setHgrow(node, Priority.ALWAYS);
                         GridPane.setVgrow(node, Priority.ALWAYS);
                         GridPane.setFillWidth(node, true);
@@ -321,11 +329,45 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
             ArrayList<ComponentView> reservedDiscardedList = spaceShipModel.getDiscardReservedPile().getReserved();
             int size = reservedDiscardedList.size();
             if (size > 0 && reservedDiscardedList.get(size - 1) != null) {
-                reserveLostGrid.add(reservedDiscardedList.get(size - 1).getNode(), 0, 0);
+                Node node = reservedDiscardedList.get(size - 1).getNode().getValue0();
+                if (node.getParent() != null) {
+                    ((Pane) node.getParent()).getChildren().remove(node);
+                }
+                reserveLostGrid.add(node, 0, 0);
             }
             if (size > 1 && reservedDiscardedList.get(size - 2) != null) {
-                reserveLostGrid.add(reservedDiscardedList.get(size - 2).getNode(), 1, 0);
+                Node node = reservedDiscardedList.get(size - 2).getNode().getValue0();
+                if (node.getParent() != null) {
+                    ((Pane) node.getParent()).getChildren().remove(node);
+                }
+                reserveLostGrid.add(node, 1, 0);
             }
         });
+    }
+
+    public List<ComponentController> getShipComponentControllers() {
+        List<ComponentController> controllers = new ArrayList<>();
+        for (ComponentView[] row : spaceShipModel.getSpaceShip()) {
+            for (ComponentView component : row) {
+                if (component != null) {
+                    controllers.add(component.getNode().getValue1());
+                }
+            }
+        }
+        return controllers;
+    }
+
+    public List<ComponentController> getReservedComponentControllers() {
+        List<ComponentController> controllers = new ArrayList<>();
+        for (ComponentView component : spaceShipModel.getDiscardReservedPile().getReserved()) {
+            if (component != null) {
+                controllers.add(component.getNode().getValue1());
+            }
+        }
+        return controllers;
+    }
+
+    public GridPane getReserveLostGrid() {
+        return reserveLostGrid;
     }
 }

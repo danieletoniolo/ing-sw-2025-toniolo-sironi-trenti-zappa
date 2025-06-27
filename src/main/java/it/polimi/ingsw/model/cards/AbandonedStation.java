@@ -4,9 +4,18 @@ import it.polimi.ingsw.model.good.Good;
 
 import java.util.List;
 
+/**
+ * Represents an Abandoned Station card in the game.
+ * This card requires crew members and flight days to complete a quest,
+ * and rewards the player with a list of goods upon completion.
+ * @author Lorenzo Trenti
+ */
 public class AbandonedStation extends Card {
+    /** Number of crew members required for the quest and not lost */
     private int crewRequired;
+    /** Number of flight days lost for the quest */
     private int flightDays;
+    /** List of goods rewarded upon quest completion */
     private List<Good> goods;
 
     /**
@@ -29,9 +38,14 @@ public class AbandonedStation extends Card {
         this.goods = goods;
     }
 
+    /**
+     * Default constructor for AbandonedStation.
+     * Creates an AbandonedStation with default values.
+     */
     public AbandonedStation(){
         super();
     }
+
     /**
      * Get the number of crew members required for the quest
      * @return number of crew members required for the quest

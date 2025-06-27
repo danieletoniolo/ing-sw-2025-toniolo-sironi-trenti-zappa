@@ -5,6 +5,12 @@ import it.polimi.ingsw.event.type.Event;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+/**
+ * Remote interface for a queue that handles Event messages through RMI.
+ * This interface extends Remote to allow for distributed communication
+ * between client and server components in the network layer.
+ * @author Daniele Toniolo
+ */
 public interface RemoteQueue extends Remote {
     /**
      * Adds a message to the queue.

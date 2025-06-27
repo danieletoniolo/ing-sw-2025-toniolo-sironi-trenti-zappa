@@ -10,6 +10,7 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Arc;
@@ -191,5 +192,9 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
             int time = timerView.getSecondsRemaining();
             this.start(time);
         });
+    }
+
+    public Node getParent() {
+        return parent;
     }
 }

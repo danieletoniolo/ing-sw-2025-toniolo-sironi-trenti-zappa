@@ -7,6 +7,7 @@ import it.polimi.ingsw.view.miniModel.Structure;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import org.javatuples.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class ViewablePileView implements Structure, MiniModelObservable {
     private final List<ComponentView> viewableComponents;
     private final List<MiniModelObserver> observers;
     private final int cols = 21;
+    private Pair<Node, ViewablePileController> viewablePileNode;
 
     public ViewablePileView() {
         this.viewableComponents = new ArrayList<>();
@@ -45,15 +47,18 @@ public class ViewablePileView implements Structure, MiniModelObservable {
         }
     }
 
-    public Node getNode() {
+    public Pair<Node, ViewablePileController> getNode() {
         try {
+            if (viewablePileNode != null) return viewablePileNode;
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/misc/viewablePile.fxml"));
             Node node = loader.load();
 
             ViewablePileController controller = loader.getController();
             controller.setModel(this);
 
-            return node;
+            viewablePileNode = new Pair<>(node, controller);
+            return viewablePileNode;
         } catch (IOException e) {
             e.printStackTrace();
             return null;

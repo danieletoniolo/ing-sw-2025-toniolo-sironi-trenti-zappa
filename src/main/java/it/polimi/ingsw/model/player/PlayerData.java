@@ -6,17 +6,32 @@ import it.polimi.ingsw.view.miniModel.MiniModel;
 import java.io.Serializable;
 import java.util.UUID;
 
+/**
+ * Represents the data of a player in the game.
+ * This class contains all the information about a player including their identity,
+ * game state, and progression through the game.
+ * @author Vittorio Sironi
+ */
 public class PlayerData implements Serializable {
+    /** The unique username of the player */
     private final String username;
+    /** The unique identifier for the player */
     private final UUID uuid;
+    /** The color assigned to the player */
     private final PlayerColor color;
+    /** The current step/position of the player in the game track */
     private int step;
+    /** The ranking position of the player (0 = leader, 1 = second, etc.) */
     private int position;
 
+    /** The number of coins the player has collected */
     private int coins;
+    /** The spaceship assigned to the player */
     private final SpaceShip ship;
+    /** Whether the player has given up the game */
     private boolean gaveUp;
 
+    /** Whether the player is currently disconnected from the game */
     private boolean disconnected;
 
     /**

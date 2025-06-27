@@ -4,11 +4,20 @@ import it.polimi.ingsw.model.cards.hits.Hit;
 
 import java.util.List;
 
+/**
+ * Pirates card representing enemy encounters that require cannon strength to defeat.
+ * When defeated, pirates provide credit rewards but cause flight days to be lost.
+ * @author Lorenzo Trenti
+ */
 public class Pirates extends Card {
+    /** The minimum cannon strength required to defeat these pirates */
     private int cannonStrengthRequired;
+    /** The number of flight days lost when encountering these pirates */
     private int flightDays;
 
+    /** List of hits that can be inflicted during pirate encounters */
     private List<Hit> fires;
+    /** The amount of credit rewarded for successfully defeating the pirates */
     private int credit;
 
     /**
@@ -32,6 +41,10 @@ public class Pirates extends Card {
         this.credit = credit;
     }
 
+    /**
+     * Default constructor for Pirates card.
+     * Creates an empty Pirates card with default values.
+     */
     public Pirates(){
         super();
     }

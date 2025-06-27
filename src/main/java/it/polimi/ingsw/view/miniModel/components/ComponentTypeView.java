@@ -1,6 +1,6 @@
 package it.polimi.ingsw.view.miniModel.components;
 
-public enum TilesTypeView {
+public enum ComponentTypeView {
     BATTERY,
     SINGLE_CANNON,
     DOUBLE_CANNON,

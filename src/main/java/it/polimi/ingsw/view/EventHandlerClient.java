@@ -9,6 +9,7 @@ import it.polimi.ingsw.event.game.serverToClient.dice.DiceRolled;
 import it.polimi.ingsw.event.game.serverToClient.energyUsed.*;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingGiveUp;
 import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPenalty;
+import it.polimi.ingsw.event.game.serverToClient.forcingInternalState.ForcingPlaceMarker;
 import it.polimi.ingsw.event.game.serverToClient.goods.*;
 import it.polimi.ingsw.event.game.serverToClient.pickedTile.*;
 import it.polimi.ingsw.event.game.serverToClient.placedTile.*;
@@ -128,6 +129,9 @@ public class EventHandlerClient {
     private final CastEventReceiver<ForcingPenalty> forcingPenaltyReceiver;
     private final EventListener<ForcingPenalty> forcingPenaltyListener;
 
+    private final CastEventReceiver<ForcingPlaceMarker> forcingPlaceMarkerReceiver;
+    private final EventListener<ForcingPlaceMarker> forcingPlaceMarkerListener;
+
     private final CastEventReceiver<UpdateGoodsExchange> updateGoodsExchangeReceiver;
     private final EventListener<UpdateGoodsExchange> updateGoodsExchangeListener;
 
@@ -158,8 +162,8 @@ public class EventHandlerClient {
     private final CastEventReceiver<PickedStorageFromBoard> pickedStorageFromBoardReceiver;
     private final EventListener<PickedStorageFromBoard> pickedStorageFromBoardListener;
 
-    private final CastEventReceiver<PickedTile> pickedTileReceiver;
-    private final EventListener<PickedTile> pickedTileListener;
+    private final CastEventReceiver<PickedTileFromBoard> pickedTileFromBoardReceiver;
+    private final EventListener<PickedTileFromBoard> pickedTileFromBoardListener;
 
     private final CastEventReceiver<PickedTileFromReserve> pickedTileFromReserveReceiver;
     private final EventListener<PickedTileFromReserve> pickedTileFromReserveListener;
@@ -190,6 +194,9 @@ public class EventHandlerClient {
 
     private final CastEventReceiver<MoveMarker> moveMarkerReceiver;
     private final EventListener<MoveMarker> moveMarkerListener;
+
+    private final CastEventReceiver<RemoveMarker> removeMarkerReceiver;
+    private final EventListener<RemoveMarker> removeMarkerListener;
 
     private final CastEventReceiver<PlayerGaveUp> playerGaveUpReceiver;
     private final EventListener<PlayerGaveUp> playerGaveUpListener;
@@ -380,7 +387,7 @@ public class EventHandlerClient {
         playerAddedReceiver = new CastEventReceiver<>(this.transceiver);
         playerAddedListener = data -> {
             PlayerDataView player = new PlayerDataView(data.nickname(), MarkerView.fromValue(data.color()), new SpaceShipView(MiniModel.getInstance().getBoardView().getLevel()));
-            player.setHand(new GenericComponentView());
+            player.setHand(new GenericComponentView(-1, -1));
             if (MiniModel.getInstance().getNickname().equals(data.nickname())) {
                 MiniModel.getInstance().setClientPlayer(player);
             }
@@ -658,6 +665,12 @@ public class EventHandlerClient {
              manager.notifyForcingPenalty(data);
         };
 
+        forcingPlaceMarkerReceiver = new CastEventReceiver<>(this.transceiver);
+        forcingPlaceMarkerListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+            manager.notifyForcingPlaceMarker(data);
+        };
+
         // GOODS events
         /*
          * Update status of storages
@@ -799,8 +812,11 @@ public class EventHandlerClient {
             manager.notifyPickedTileFromBoard();
         };
 
-        pickedTileReceiver = new CastEventReceiver<>(this.transceiver);
-        pickedTileListener = data -> {
+        /*
+         * Picked tile from board
+         */
+        pickedTileFromBoardReceiver = new CastEventReceiver<>(this.transceiver);
+        pickedTileFromBoardListener = data -> {
             ComponentView tile = MiniModel.getInstance().getViewablePile().getViewableComponents().stream()
                     .filter(component -> component.getID() == data.tileID())
                     .findFirst()
@@ -859,7 +875,7 @@ public class EventHandlerClient {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             MiniModel.getInstance().getViewablePile().addComponent(player.getHand());
-            player.setHand(new GenericComponentView());
+            player.setHand(new GenericComponentView(-1, -1));
 
             manager.notifyPlacedTileToBoard(data);
         };
@@ -871,8 +887,8 @@ public class EventHandlerClient {
         placedTileToReserveListener = data -> {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
-            player.getShip().getDiscardReservedPile().addDiscardReserved(player.getHand());
-            player.setHand(new GenericComponentView());
+            player.getShip().addDiscardReserved(player.getHand());
+            player.setHand(new GenericComponentView(-1, -1));
 
             manager.notifyPlacedTileToReserve(data);
         };
@@ -885,7 +901,7 @@ public class EventHandlerClient {
             PlayerDataView player = getPlayerDataView(data.nickname());
 
             player.getShip().placeComponent(player.getHand(), data.row(), data.column());
-            player.setHand(new GenericComponentView());
+            player.setHand(new GenericComponentView(-1, -1));
 
             manager.notifyPlacedTileToSpaceship(data);
         };
@@ -927,6 +943,18 @@ public class EventHandlerClient {
             MiniModel.getInstance().getBoardView().movePlayer(player.getMarkerView(), data.steps());
 
             manager.notifyMoveMarker(data);
+        };
+
+        /*
+         * Remove the marker of the player from the board
+         */
+        removeMarkerReceiver = new CastEventReceiver<>(this.transceiver);
+        removeMarkerListener = data -> {
+            PlayerDataView player = getPlayerDataView(data.nickname());
+
+            MiniModel.getInstance().getBoardView().removePlayer(player.getMarkerView());
+
+            manager.notifyRemoveMarker(data);
         };
 
         /*
@@ -993,7 +1021,7 @@ public class EventHandlerClient {
             PlayerDataView player = getPlayerDataView(data.nickname());
             ComponentView tile = player.getHand();
             tile.rotate();
-            if (tile.getType() == TilesTypeView.SHIELD) {
+            if (tile.getType() == ComponentTypeView.SHIELD) {
                 boolean[] shields = new boolean[data.connectors().length];
                 shields[tile.getClockWise()] = true;
                 shields[((tile.getClockWise() - 1) + data.connectors().length) % data.connectors().length] = true;
@@ -1034,7 +1062,7 @@ public class EventHandlerClient {
             if (player != null) {
                 for (Pair<Integer, Integer> tile : data.destroyedComponents()) {
                     ComponentView tmp = player.getShip().removeComponent(tile.getValue0(), tile.getValue1());
-                    player.getShip().getDiscardReservedPile().addDiscardReserved(tmp);
+                    player.getShip().addDiscardReserved(tmp);
                 }
             }
 
@@ -1247,6 +1275,7 @@ public class EventHandlerClient {
 
         forcingGiveUpReceiver.registerListener(forcingGiveUpListener);
         forcingPenaltyReceiver.registerListener(forcingPenaltyListener);
+        forcingPlaceMarkerReceiver.registerListener(forcingPlaceMarkerListener);
 
         updateGoodsExchangeReceiver.registerListener(updateGoodsExchangeListener);
 
@@ -1260,7 +1289,7 @@ public class EventHandlerClient {
         pickedLifeSupportFromBoardReceiver.registerListener(pickedLifeSupportFromBoardListener);
         pickedShieldFromBoardReceiver.registerListener(pickedShieldFromBoardListener);
         pickedStorageFromBoardReceiver.registerListener(pickedStorageFromBoardListener);
-        pickedTileReceiver.registerListener(pickedTileListener);
+        pickedTileFromBoardReceiver.registerListener(pickedTileFromBoardListener);
         pickedTileFromReserveReceiver.registerListener(pickedTileFromReserveListener);
         pickedTileFromSpaceshipReceiver.registerListener(pickedTileFromSpaceshipListener);
 
@@ -1274,6 +1303,7 @@ public class EventHandlerClient {
         enemyDefeatReceiver.registerListener(enemyDefeatListener);
         minPlayerReceiver.registerListener(minPlayerListener);
         moveMarkerReceiver.registerListener(moveMarkerListener);
+        removeMarkerReceiver.registerListener(removeMarkerListener);
         playerGaveUpReceiver.registerListener(playerGaveUpListener);
         cardPlayedReceiver.registerListener(cardPlayedListener);
         combatZonePhaseReceiver.registerListener(combatZonePhaseListener);

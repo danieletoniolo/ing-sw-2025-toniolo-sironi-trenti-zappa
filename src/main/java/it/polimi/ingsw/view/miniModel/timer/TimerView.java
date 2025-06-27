@@ -8,6 +8,7 @@ import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import org.javatuples.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class TimerView implements Structure, MiniModelObservable {
     private int totalFlips;
     private int times;
     private final List<MiniModelObserver> observers;
+    private Pair<Node, TimerCountdownController> timerNode;
 
     public TimerView() {
         this.observers = new ArrayList<>();
@@ -78,15 +80,18 @@ public class TimerView implements Structure, MiniModelObservable {
         this.notifyObservers();
     }
 
-    public Node getNode() {
+    public Pair<Node, TimerCountdownController> getNode() {
         try {
+            if (timerNode != null) return timerNode;
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/misc/timerCountdown.fxml"));
             Node root = loader.load();
 
             TimerCountdownController controller = loader.getController();
             controller.setModel(this);
 
-            return root;
+            timerNode = new Pair<>(root, controller);
+            return timerNode;
 
         } catch (IOException e) {
             e.printStackTrace();

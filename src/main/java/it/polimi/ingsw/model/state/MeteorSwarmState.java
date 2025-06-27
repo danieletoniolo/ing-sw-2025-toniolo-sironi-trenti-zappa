@@ -19,14 +19,35 @@ import org.javatuples.Pair;
 
 import java.util.*;
 
+/**
+ * State class that handles the MeteorSwarm card event in the game.
+ * This state manages the meteor attack sequence including dice rolling,
+ * protection decisions, and penalty application for all players.
+ * @author Vittorio Sironi
+ */
 public class MeteorSwarmState extends State {
+    /** The MeteorSwarm card that triggered this state */
     private final MeteorSwarm card;
+
+    /** Maps each player to their current internal state in the meteor sequence */
     private final Map<PlayerData, MeteorSwarmInternalState> internalStates;
+
+    /** Maps each player to their protection result (component and battery cost) */
     private final Map<PlayerData, MutablePair<Component, Integer>> protectionResult;
+
+    /** Maps each player to their list of fragment groups that can be destroyed */
     private final Map<PlayerData, List<List<Pair<Integer, Integer>>>> fragments;
+
+    /** The dice values rolled for the meteor attack */
     private final MutablePair<Integer, Integer> dice;
+
+    /** List of players who have given up due to having no human crew */
     private final ArrayList<PlayerData> playersGivenUp;
+
+    /** Flag indicating whether the dice have been rolled for the current meteor */
     private boolean diceRolled = false;
+
+    /** Index of the current meteor being processed from the card's meteor list */
     private int meteorsIndex;
 
     /**
@@ -63,6 +84,14 @@ public class MeteorSwarmState extends State {
         this.internalStates.put(players.getFirst(), MeteorSwarmInternalState.ROLL_DICE);
     }
 
+    /**
+     * Throws a SynchronousStateException as this is a synchronous state where the concept of a "current player" doesn't apply in the traditional sense.
+     * All players participate simultaneously in the meteor swarm event.
+     *
+     * @return Never returns a value, always throws an exception
+     * @throws SynchronousStateException Always thrown to indicate this operation
+     *         is not supported in synchronous states
+     */
     @Override
     public PlayerData getCurrentPlayer() throws SynchronousStateException {
         throw new SynchronousStateException("Cannot invoke getCurrentPlayer in a synchronous state MeteorSwarmState");
@@ -88,18 +117,27 @@ public class MeteorSwarmState extends State {
     }
 
     /**
-     * Implementation of the {@link State#setProtect(PlayerData, int)} to set whether the player wants to protect or not.
+     * Implementation of the {@link State#setProtect(PlayerData, List)} to set whether the player wants to protect or not.
      */
     @Override
-    public void setProtect(PlayerData player, int batteryID) throws IllegalStateException, IllegalArgumentException {
+    public void setProtect(PlayerData player, List<Integer> batteryID) throws IllegalStateException, IllegalArgumentException {
         if (!diceRolled) {
             throw new IllegalStateException("Dice not rolled yet");
         }
-        Event event = Handler.protectFromHit(player, protectionResult.get(player), batteryID);
-        if (event != null) {
-            eventCallback.trigger(event);
+        if (batteryID.size() != 1) {
+            throw new IllegalArgumentException("Battery ID must be a list of size 1");
         }
-        event = Handler.checkForFragments(player, fragments.get(player));
+        if (batteryID.getFirst() != -1 && protectionResult.get(player).getSecond() == -1) {
+            throw new IllegalArgumentException("You cannot set a shield if because you cannot protect from the hit");
+        }
+
+        List<Event> events = Handler.protectFromHit(player, protectionResult.get(player), batteryID.getFirst());
+        if (events != null) {
+            for (Event event : events ) {
+                eventCallback.trigger(event);
+            }
+        }
+        Event event = Handler.checkForFragments(player, fragments.get(player));
         eventCallback.trigger(event);
     }
 
@@ -119,6 +157,11 @@ public class MeteorSwarmState extends State {
         diceRolled = true;
     }
 
+    /**
+     * Entry point of the MeteorSwarmState that initializes the state by setting the first player
+     * as the current player and triggering the CurrentPlayer event to notify clients.
+     * This method is called when the state is first entered.
+     */
     @Override
     public void entry() {
         CurrentPlayer currentPlayerEvent = new CurrentPlayer(this.players.getFirst().getUsername());
@@ -155,7 +198,6 @@ public class MeteorSwarmState extends State {
                     break;
                 }
                 fragments.get(player).clear();
-                // TODO: TO TEST THE GIVE UP
                 if (spaceShip.getHumanCrewNumber() == 0 && !playersGivenUp.contains(player)) {
                     this.playersGivenUp.add(player);
                 }
@@ -163,11 +205,10 @@ public class MeteorSwarmState extends State {
                 super.execute(player);
 
                 boolean allPlayersPlayed = true;
-                for (PlayerData p : players) {
-                    if (playersStatus.get(p.getColor()) == PlayerStatus.PLAYING || playersStatus.get(p.getColor()) == PlayerStatus.WAITING) {
-                        allPlayersPlayed = false;
-                        break;
-                    }
+                try {
+                    allPlayersPlayed();
+                } catch (IllegalStateException e) {
+                    allPlayersPlayed = false;
                 }
 
                 if (allPlayersPlayed) {
@@ -185,7 +226,6 @@ public class MeteorSwarmState extends State {
                             }
                         }
                     } else {
-                        Logger.getInstance().logError("HitComing: " + meteorsIndex, true);
                         internalStates.put(players.getFirst(), MeteorSwarmInternalState.ROLL_DICE);
                         for (PlayerData p : players) {
                             playersStatus.replace(p.getColor(), PlayerStatus.WAITING);
@@ -202,5 +242,14 @@ public class MeteorSwarmState extends State {
         }
 
         super.nextState(GameState.CARDS);
+    }
+
+    /**
+     * Cleanup method called when exiting the MeteorSwarmState.
+     * Performs any necessary cleanup operations before transitioning to another state.
+     */
+    @Override
+    public void exit() {
+        super.exit();
     }
 }

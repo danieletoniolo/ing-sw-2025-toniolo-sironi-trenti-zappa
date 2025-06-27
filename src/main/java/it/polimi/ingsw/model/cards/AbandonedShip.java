@@ -1,8 +1,17 @@
 package it.polimi.ingsw.model.cards;
 
+/**
+ * Represents an Abandoned Ship card in the game.
+ * This card type requires crew members and flight days to complete the quest,
+ * but rewards the player with credits upon completion.
+ * @author Lorenzo Trenti
+ */
 public class AbandonedShip extends Card {
+    /** Number of crew members required and lost for this quest */
     private int crewRequired;
+    /** Number of flight days lost for this quest */
     private int flightDays;
+    /** Number of credits rewarded upon quest completion */
     private int credit;
 
     /**
@@ -20,6 +29,10 @@ public class AbandonedShip extends Card {
         this.credit = credit;
     }
 
+    /**
+     * Default constructor for AbandonedShip.
+     * Creates an AbandonedShip card with default values.
+     */
     public AbandonedShip(){
         super();
     }

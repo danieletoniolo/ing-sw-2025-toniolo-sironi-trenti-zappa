@@ -13,7 +13,14 @@ import it.polimi.ingsw.event.game.serverToClient.player.MoveMarker;
 
 import java.util.List;
 
+/**
+ * State class representing the Abandoned Ship card state in the game.
+ * This state handles the logic for playing the Abandoned Ship card, which requires
+ * crew members to be removed and provides credits and movement penalties in return.
+ * @author Vittorio Sironi
+ */
 public class AbandonedShipState extends State {
+    /** The Abandoned Ship card associated with this state */
     private final AbandonedShip card;
 
     /**
@@ -26,6 +33,14 @@ public class AbandonedShipState extends State {
         this.card = card;
     }
 
+    /**
+     * Initiates the play of the Abandoned Ship card for the specified player.
+     * Validates that the player has sufficient crew members to meet the card's requirements
+     * before allowing the card to be played.
+     *
+     * @param player The player attempting to play the Abandoned Ship card
+     * @throws IllegalStateException if the player does not have enough crew members
+     */
     @Override
     public void play(PlayerData player) {
         if (player.getSpaceShip().getCrewNumber() >= card.getCrewRequired()) {
@@ -49,13 +64,19 @@ public class AbandonedShipState extends State {
             case 0 -> throw new IllegalStateException("No goods to remove in this state");
             case 1 -> throw new IllegalStateException("No batteries to remove in this state");
             case 2 -> {
-                Event event = Handler.loseCrew(player, cabinsID, card.getCrewRequired());
-                eventCallback.trigger(event);
+                List<Event> events = Handler.loseCrew(player, cabinsID, card.getCrewRequired());
+                for (Event event : events) {
+                    eventCallback.trigger(event);
+                }
             }
             default -> throw new IllegalArgumentException("Invalid type: " + type + ". Expected 0, 1 or 2.");
         }
     }
 
+    /**
+     * Handles the entry into the Abandoned Ship state.
+     * Calls the parent's entry method to perform common initialization tasks.
+     */
     @Override
     public void entry() {
         super.entry();
@@ -105,8 +126,20 @@ public class AbandonedShipState extends State {
         super.nextState(GameState.CARDS);
     }
 
+    /**
+     * Handles the exit from the Abandoned Ship state.
+     * Validates that all players have played, then applies movement penalties
+     * to players who successfully played the card and refreshes the board state.
+     *
+     * @throws IllegalStateException if not all players have played when required
+     */
     @Override
     public void exit() throws IllegalStateException{
+        // There are two for loops here, because we need first to control the exception and then move the marker
+        if (!played) {
+            allPlayersPlayed();
+        }
+
         for (PlayerData player : players) {
             PlayerStatus status = playersStatus.get(player.getColor());
             if (status == PlayerStatus.PLAYED) {
@@ -117,10 +150,9 @@ public class AbandonedShipState extends State {
                 eventCallback.trigger(stepEvent);
 
                 break;
-            } else if (status == PlayerStatus.WAITING || status == PlayerStatus.PLAYING) {
-                throw new IllegalStateException("Not all players have played");
             }
         }
-        super.played = true;
+
+        board.refreshInGamePlayers();
     }
 }

@@ -9,7 +9,7 @@ import java.io.Serializable;
  * @param nickname is the nickname of the player who picked the tile.
  * @param tileID   is the ID of the tile being picked.
  */
-public record PickedTile(
+public record PickedTileFromBoard(
         String nickname,
         int tileID
 ) implements Event, Serializable {

@@ -184,7 +184,7 @@ public class GameController implements Serializable, StateTransitionHandler {
             } catch (IllegalStateException e) {
                 throw new IllegalStateException(e.getMessage());
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Invalid exchange data: " + exchangeData);
+                throw new IllegalArgumentException("Invalid exchange data");
             }
         }
     }
@@ -205,7 +205,7 @@ public class GameController implements Serializable, StateTransitionHandler {
             } catch (IllegalStateException e) {
                 throw new IllegalStateException(e.getMessage());
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Invalid swap data: " + goods1to2 + " " + goods2to1);
+                throw new IllegalArgumentException("Invalid swap data");
             }
         }
     }
@@ -290,7 +290,7 @@ public class GameController implements Serializable, StateTransitionHandler {
         }
     }
 
-    public void setProtect(PlayerData player, int batteryID) {
+    public void setProtect(PlayerData player, List<Integer> batteryID) {
         try {
             PlayerData currentPlayer = state.getCurrentPlayer();
             if (!currentPlayer.equals(player)) {

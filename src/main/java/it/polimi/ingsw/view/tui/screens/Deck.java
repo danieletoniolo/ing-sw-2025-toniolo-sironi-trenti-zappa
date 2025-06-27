@@ -16,6 +16,7 @@ import java.util.List;
 public class Deck implements TuiScreenView {
     private final ArrayList<String> options = new ArrayList<>(List.of("Back"));
     private boolean isNewScreen;
+    private final TuiScreenView nextScreen;
 
     private final DeckView myDeck;
     int selected;
@@ -27,6 +28,8 @@ public class Deck implements TuiScreenView {
         this.myDeck = deck;
         this.num = num;
         this.isNewScreen = true;
+
+        nextScreen = new MainBuilding();
     }
 
     @Override
@@ -44,7 +47,7 @@ public class Deck implements TuiScreenView {
                 return this;
             }
 
-            return new MainBuilding();
+            return nextScreen;
         }
 
         return this;
@@ -76,6 +79,7 @@ public class Deck implements TuiScreenView {
     @Override
     public synchronized void setMessage(String message) {
         this.message = message;
+        nextScreen.setMessage(message);
     }
 
     @Override

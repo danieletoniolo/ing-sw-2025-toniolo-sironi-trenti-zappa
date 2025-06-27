@@ -17,8 +17,8 @@ public class ConnectorsView extends ComponentView {
     }
 
     @Override
-    public TilesTypeView getType() {
-        return TilesTypeView.CONNECTORS;
+    public ComponentTypeView getType() {
+        return ComponentTypeView.CONNECTORS;
     }
 
     @Override

@@ -44,8 +44,8 @@ public class CannonView extends ComponentView {
     }
 
     @Override
-    public TilesTypeView getType() {
-        return doubleCannon ? TilesTypeView.DOUBLE_CANNON : TilesTypeView.SINGLE_CANNON;
+    public ComponentTypeView getType() {
+        return doubleCannon ? ComponentTypeView.DOUBLE_CANNON : ComponentTypeView.SINGLE_CANNON;
     }
 
     @Override

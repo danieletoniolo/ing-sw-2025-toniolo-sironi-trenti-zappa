@@ -1,9 +1,11 @@
 package it.polimi.ingsw.view.miniModel.components;
 
 import it.polimi.ingsw.view.gui.controllers.components.BatteryController;
+import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import org.javatuples.Pair;
 
 import java.io.IOException;
 
@@ -12,6 +14,7 @@ public class BatteryView extends ComponentView {
     private final int maximumBatteries;
     private static final String green = "\033[32m";
     private static final String reset = "\033[0m";
+    private Pair<Node, ComponentController> batteryPair;
 
     public BatteryView(int ID, int[] connectors, int clockWise, int maximumBatteries) {
         super(ID, connectors, clockWise);
@@ -32,15 +35,18 @@ public class BatteryView extends ComponentView {
     }
 
     @Override
-    public Node getNode() {
+    public Pair<Node, ComponentController> getNode() {
         try {
+            if (batteryPair != null) return batteryPair;
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/components/battery.fxml"));
             Parent root = loader.load();
 
             BatteryController controller = loader.getController();
             controller.setModel(this);
 
-            return root;
+            batteryPair = new Pair<>(root, controller);
+            return batteryPair;
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -61,8 +67,8 @@ public class BatteryView extends ComponentView {
     }
 
     @Override
-    public TilesTypeView getType() {
-        return TilesTypeView.BATTERY;
+    public ComponentTypeView getType() {
+        return ComponentTypeView.BATTERY;
     }
 
     @Override

@@ -101,10 +101,19 @@ public class DeckController implements MiniModelObserver, Initializable {
                 for (CardView cv : deckView.getDeck()) {
                     StackPane cardPane = (StackPane) cardPanes.get(i);
                     cardPane.getChildren().clear();
-                    cardPane.getChildren().add(cv.getNode());
+                    cardPane.getChildren().add(cv.getNode().getValue0());
                     i++;
                 }
             }
         });
+    }
+
+    /**
+     * Returns the parent StackPane of this controller.
+     *
+     * @return the parent StackPane
+     */
+    public Node getParent() {
+        return parent;
     }
 }

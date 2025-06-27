@@ -21,6 +21,7 @@ public class SpaceShipView implements Structure, MiniModelObservable {
     private final LevelView level;
     private ComponentView[][] spaceShip;
     private final DiscardReservedPileView discardReservedPile;
+
     private final Map<Integer, CannonView> mapDoubleCannons = new LinkedHashMap<>();
     private final Map<Integer, EngineView> mapDoubleEngines = new LinkedHashMap<>();
     private final Map<Integer, CabinView> mapCabins = new LinkedHashMap<>();
@@ -29,8 +30,9 @@ public class SpaceShipView implements Structure, MiniModelObservable {
     private final Map<Integer, BatteryView> mapBatteries = new LinkedHashMap<>();
     private ComponentView last;
     private List<List<Pair<Integer, Integer>>> fragments;
+    private Pair<Node, SpaceShipController> spaceShipNode;
 
-    // Converter model spaceship to view -> row 6 -> 2, col 6 -> 2
+    // Converter model spaceship to view -> row 6 -> 2, col 6 -> 3
     public final static int ROW_OFFSET = 4;
     public final static int COL_OFFSET = 3;
     private float totalPower;
@@ -42,20 +44,20 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         switch (level) {
             case LEARNING:
                 spaceShip = new ComponentView[][] {
-                        {null, null, null, new GenericComponentView() , null, null, null},
-                        {null, null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null, null},
-                        {null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null},
-                        {null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null},
-                        {null, new GenericComponentView() , new GenericComponentView() , null, new GenericComponentView() , new GenericComponentView() , null}
+                        {null, null, null, new GenericComponentView(4, 6) , null, null, null},
+                        {null, null, new GenericComponentView(5, 5) , new GenericComponentView(5, 6) , new GenericComponentView(5, 7) , null, null},
+                        {null, new GenericComponentView(6, 4) , new GenericComponentView(6, 5) , new GenericComponentView(6, 6) , new GenericComponentView(6, 7) , new GenericComponentView(6, 8) , null},
+                        {null, new GenericComponentView(7, 4) , new GenericComponentView(7, 5) , new GenericComponentView(7, 6) , new GenericComponentView(7, 7) , new GenericComponentView(7, 8) , null},
+                        {null, new GenericComponentView(8, 4) , new GenericComponentView(8, 5) , null, new GenericComponentView(8, 7) , new GenericComponentView(8, 8) , null}
                 };
                 break;
             case SECOND:
                 spaceShip = new ComponentView[][] {
-                        {null, null, new GenericComponentView() , null, new GenericComponentView() , null, null},
-                        {null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null},
-                        {new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() },
-                        {new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , new GenericComponentView() },
-                        {new GenericComponentView() , new GenericComponentView() , new GenericComponentView() , null, new GenericComponentView() , new GenericComponentView() , new GenericComponentView() }
+                        {null, null, new GenericComponentView(4, 5) , null, new GenericComponentView(4,7) , null, null},
+                        {null, new GenericComponentView(5, 4) , new GenericComponentView(5, 5) , new GenericComponentView(5, 6) , new GenericComponentView(5, 7) , new GenericComponentView(5, 8) , null},
+                        {new GenericComponentView(6, 3) , new GenericComponentView(6, 4) , new GenericComponentView(6, 5) , new GenericComponentView(6, 6) , new GenericComponentView(6, 7) , new GenericComponentView(6, 8) , new GenericComponentView(6, 9) },
+                        {new GenericComponentView(7, 3) , new GenericComponentView(7, 4) , new GenericComponentView(7, 5) , new GenericComponentView(7, 6) , new GenericComponentView(7, 7) , new GenericComponentView(7, 8) , new GenericComponentView(7, 9) },
+                        {new GenericComponentView(8, 3) , new GenericComponentView(8, 4) , new GenericComponentView(8, 5) , null, new GenericComponentView(8, 7) , new GenericComponentView(8, 8) , new GenericComponentView(8, 9) }
                 };
                 break;
         }
@@ -63,8 +65,10 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         this.observers = new ArrayList<>();
     }
 
-    public Node getNode() {
+    public Pair<Node, SpaceShipController> getNode() {
         try {
+            if (spaceShipNode != null) return spaceShipNode;
+
             String path;
             if (level == LevelView.SECOND) {
                 path = "/fxml/ship/secondShip.fxml";
@@ -77,7 +81,8 @@ public class SpaceShipView implements Structure, MiniModelObservable {
             SpaceShipController controller = loader.getController();
             controller.setModel(this);
 
-            return root;
+            spaceShipNode = new Pair<>(root, controller);
+            return spaceShipNode;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -125,6 +130,8 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         spaceShip[row- ROW_OFFSET][col- COL_OFFSET].setCol(col);
 
         last = component;
+
+        notifyObservers();
     }
 
     public ComponentView removeLast() {
@@ -142,7 +149,8 @@ public class SpaceShipView implements Structure, MiniModelObservable {
             case BATTERY -> mapBatteries.remove(component.getID());
         }
 
-        spaceShip[row- ROW_OFFSET][col- COL_OFFSET] = new GenericComponentView();
+        spaceShip[row- ROW_OFFSET][col- COL_OFFSET] = new GenericComponentView(component.getRow() - 1, component.getCol() - 1);
+        notifyObservers();
         return component;
     }
 
@@ -178,6 +186,11 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         return discardReservedPile;
     }
 
+    public void addDiscardReserved(ComponentView component) {
+        discardReservedPile.addDiscardReserved(component);
+        notifyObservers();
+    }
+
     public ComponentView getComponent(int row, int col) {
         return spaceShip[row - ROW_OFFSET][col - COL_OFFSET];
     }
@@ -200,17 +213,6 @@ public class SpaceShipView implements Structure, MiniModelObservable {
 
     public List<List<Pair<Integer, Integer>>> getFragments() {
         return fragments;
-    }
-
-    public Image drawGui() {
-        String path;
-        if(this.level == LevelView.LEARNING){
-            path = "/image/cardboard/ship_I.jpg";
-        } else {
-            path = "/image/cardboard/ship_II.jpg";
-        }
-        Image img = new Image(getClass().getResource(path).toExternalForm());
-        return img;
     }
 
     public int getRowsToDraw() {
@@ -253,10 +255,14 @@ public class SpaceShipView implements Structure, MiniModelObservable {
         for (int i = 0; i < this.spaceShip.length; i++) {
             for (int j = 0; j < this.spaceShip[i].length; j++) {
                 if (this.spaceShip[i][j] != null) {
-                    copy.placeComponent(this.spaceShip[i][j].clone(), i + this.ROW_OFFSET, j + this.COL_OFFSET);
+                    copy.placeComponent(this.spaceShip[i][j].clone(), i + ROW_OFFSET, j + COL_OFFSET);
                 }
             }
         }
+        for (ComponentView component : this.discardReservedPile.getReserved()) {
+            copy.addDiscardReserved(component.clone());
+        }
+        copy.getDiscardReservedPile().setIsDiscarded();
         return copy;
     }
 }

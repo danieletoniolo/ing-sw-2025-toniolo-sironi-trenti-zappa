@@ -7,6 +7,7 @@ import it.polimi.ingsw.event.type.StatusEvent;
 import it.polimi.ingsw.Client;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
+import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.tui.TerminalUtils;
 import it.polimi.ingsw.view.tui.input.Parser;
 import it.polimi.ingsw.view.tui.screens.buildingScreens.MainBuilding;
@@ -26,12 +27,15 @@ public class ChoosePosition implements TuiScreenView {
     private int selected;
     private String message;
 
-    public ChoosePosition() {
+    public ChoosePosition(boolean isBuilding) {
         options.add("1");
         options.add("2");
         options.add("3");
         options.add("4");
-        options.add("Back");
+
+        if (isBuilding) {
+            options.add("Back");
+        }
 
         totalLines = MiniModel.getInstance().getBoardView().getRowsToDraw() + 5;
 

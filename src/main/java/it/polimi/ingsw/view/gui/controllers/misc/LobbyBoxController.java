@@ -10,6 +10,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -52,6 +53,12 @@ public class LobbyBoxController implements MiniModelObserver, Initializable {
     @FXML private VBox leftVBox;
 
     /**
+     * The Label that describes the number of players in the lobby.
+     * This is defined in the FXML file and is used to show the player count description.
+     */
+    @FXML private Label numberOfPlayerDescription;
+
+    /**
      * The Label that displays the maximum number of players allowed in the lobby.
      * This is defined in the FXML file and is used to show the maximum player count.
      */
@@ -81,17 +88,15 @@ public class LobbyBoxController implements MiniModelObserver, Initializable {
         hBox.prefHeightProperty().bind(parent.heightProperty());
 
         // Binds the right and left VBox to the HBox dimensions to maintain their proportions
-        rightVBox.prefWidthProperty().bind(hBox.widthProperty().multiply(0.8));
-        leftVBox.prefWidthProperty().bind(hBox.widthProperty().multiply(0.2));
+        rightVBox.prefWidthProperty().bind(hBox.widthProperty().multiply(0.70));
+        leftVBox.prefWidthProperty().bind(hBox.widthProperty().multiply(0.25));
 
         // Enables text wrapping for labels to handle long text gracefully
         lobbyName.setWrapText(true);
         lobbyLevel.setWrapText(true);
 
         // Adds listeners to the parent StackPane to update font sizes dynamically
-        parent.heightProperty().addListener((obs, oldHeight, newHeight) -> {
-            updateFontSizes();
-        });
+        parent.heightProperty().addListener((_, _, _) -> updateFontSizes());
     }
 
     /**
@@ -99,13 +104,19 @@ public class LobbyBoxController implements MiniModelObserver, Initializable {
      */
     private void updateFontSizes() {
         double height = parent.getHeight();
-        double lobbyNameSize = Math.max(16, height * 0.3);
-        double lobbyLevelSize = Math.max(12, height * 0.2);
-        double numberOfPlayerSize = Math.max(16, height * 0.3);
+        double lobbyNameSize = Math.max(1, height * 0.3);
+        double lobbyLevelSize = Math.max(1, height * 0.2);
+        double numberOfPlayerSize = Math.max(1, height * 0.3);
+        double numberOfPlayerDescriptionSize = Math.max(1, height * 0.2);
 
-        lobbyName.setFont(Font.font(lobbyName.getFont().getFamily(), lobbyNameSize));
-        lobbyLevel.setFont(Font.font(lobbyLevel.getFont().getFamily(), lobbyLevelSize));
-        numberOfPlayer.setFont(Font.font(numberOfPlayer.getFont().getFamily(), numberOfPlayerSize));
+        double spacing = height * 0.05;
+        rightVBox.setSpacing(spacing);
+        leftVBox.setSpacing(spacing);
+
+        lobbyName.setFont(Font.font(lobbyName.getFont().getFamily(), FontWeight.BOLD, lobbyNameSize));
+        lobbyLevel.setFont(Font.font(lobbyLevel.getFont().getFamily(), FontWeight.BOLD, lobbyLevelSize));
+        numberOfPlayerDescription.setFont(Font.font(numberOfPlayerDescription.getFont().getFamily(), FontWeight.BOLD, numberOfPlayerDescriptionSize));
+        numberOfPlayer.setFont(Font.font(numberOfPlayer.getFont().getFamily(), FontWeight.BOLD, numberOfPlayerSize));
     }
 
     /**

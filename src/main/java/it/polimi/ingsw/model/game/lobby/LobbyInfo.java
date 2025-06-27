@@ -7,12 +7,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Represents information about a game lobby, including player details and game settings.
+ * This class manages lobby state such as player count, readiness status, and game level.
+ * @author Vittorio Sironi
+ */
 public class LobbyInfo implements Serializable {
+    /** The name of the lobby */
     private String name;
+    /** The nickname of the player who founded the lobby */
     private final String founderNickname;
+    /** The difficulty level for the game in this lobby */
     private final Level level;
+    /** The maximum number of players allowed in the lobby */
     private final int totalPlayers;
+    /** The current number of players who have entered the lobby */
     private  int numberOfPlayersEntered;
+    /** List of UUIDs representing players who are marked as ready to start the game */
     private final List<UUID> playersReady;
 
     /**

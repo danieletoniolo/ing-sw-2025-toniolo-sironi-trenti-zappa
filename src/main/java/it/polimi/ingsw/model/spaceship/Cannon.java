@@ -1,13 +1,30 @@
 package it.polimi.ingsw.model.spaceship;
 
+/**
+ * Represents a cannon component that can be mounted on a spaceship.
+ * The cannon's effectiveness depends on its rotation and strength.
+ * @author Daniele Toniolo
+ */
 public class Cannon extends Component{
+    /** The base strength value of this cannon */
     private int cannonStrength;
 
+    /**
+     * Constructs a new Cannon with specified parameters.
+     *
+     * @param ID the unique identifier for this cannon component
+     * @param connectors the array of connector types for this cannon
+     * @param cannonStrength the base strength value of the cannon
+     */
     public Cannon(int ID, ConnectorType[] connectors, int cannonStrength) {
         super(ID, connectors);
         this.cannonStrength = cannonStrength;
     }
 
+    /**
+     * Constructs a new Cannon with default parameters.
+     * This constructor creates a cannon with default values.
+     */
     public Cannon(){
         super();
     }
@@ -42,6 +59,12 @@ public class Cannon extends Component{
         return c == null && super.isValid();
     }
 
+    /**
+     * Returns the component type of this cannon based on its strength.
+     *
+     * @return ComponentType.SINGLE_CANNON if cannon strength is 1,
+     *         ComponentType.DOUBLE_CANNON otherwise
+     */
     @Override
     public ComponentType getComponentType() {
         if (cannonStrength == 1) {

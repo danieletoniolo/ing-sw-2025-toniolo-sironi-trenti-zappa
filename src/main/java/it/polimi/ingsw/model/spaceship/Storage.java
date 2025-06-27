@@ -8,11 +8,21 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
 
+/**
+ * Storage component that can hold goods with a specified capacity.
+ * Can be configured as dangerous to allow storing red goods.
+ * Goods are stored in a priority queue ordered by value (highest first).
+ * @author Daniele Toniolo
+ */
 public class Storage extends Component{
+    /** Flag indicating if this storage can hold dangerous (red) goods */
     private boolean dangerous;
+    /** Maximum number of goods this storage can hold */
     @JsonProperty("goodsCapacity")
     private int goodsCapacity;
+    /** Total value of all goods currently stored */
     private int goodsValue;
+    /** Priority queue containing the goods, ordered by value (highest first) */
     private final Queue<Good> goods;
 
     /**
@@ -22,13 +32,19 @@ public class Storage extends Component{
      * We use a static inner class to avoid serialization issues with the comparator.
      */
     private static class ValueDescendingComparator implements Comparator<Good>, Serializable {
-        // TODO: We might need the serialVersionUID
         @Override
         public int compare(Good g1, Good g2) {
             return Integer.compare(g2.getValue(), g1.getValue());
         }
     }
 
+    /**
+     * Constructs a Storage component with specified parameters.
+     * @param ID the unique identifier for this component
+     * @param connectors the array of connector types for this component
+     * @param dangerous true if this storage can hold dangerous (red) goods, false otherwise
+     * @param goodsCapacity the maximum number of goods this storage can hold
+     */
     public Storage(int ID, ConnectorType[] connectors, boolean dangerous, int goodsCapacity) {
         super(ID, connectors);
         this.dangerous = dangerous;
@@ -37,6 +53,10 @@ public class Storage extends Component{
         this.goods = new PriorityQueue<>(new ValueDescendingComparator());
     }
 
+    /**
+     * Default constructor for Storage component.
+     * Creates a storage with default values and an empty priority queue for goods.
+     */
     public Storage() {
         super();
         this.goodsValue = 0;
@@ -90,7 +110,6 @@ public class Storage extends Component{
      * @throws IllegalStateException if the good is not found in the storage
      */
     public void removeGood(Good good) throws IllegalStateException {
-        // TODO: ".contains" may not be working
         if (goods.contains(good)) {
             goods.remove(good);
             goodsValue -= good.getValue();
@@ -154,6 +173,10 @@ public class Storage extends Component{
         return goodsValue;
     }
 
+    /**
+     * Gets the component type of this storage.
+     * @return ComponentType.STORAGE indicating this is a storage component
+     */
     @Override
     public ComponentType getComponentType() {
         return ComponentType.STORAGE;

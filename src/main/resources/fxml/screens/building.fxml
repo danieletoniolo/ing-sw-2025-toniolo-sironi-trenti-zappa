@@ -9,49 +9,47 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<StackPane fx:id="parent" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <VBox fx:id="mainVBox" prefHeight="922.0" prefWidth="1600.0">
-         <children>
-            <HBox fx:id="upperHBox" prefHeight="910.0" prefWidth="1600.0" spacing="20.0">
-               <children>
-                  <VBox fx:id="leftVBox" prefHeight="766.0" prefWidth="1130.0">
-                     <children>
-                        <StackPane prefHeight="147.0" prefWidth="769.0">
-                           <children>
-                              <Label alignment="CENTER" graphicTextGap="5.0" prefHeight="211.0" prefWidth="769.0" text="Building phase" textAlignment="CENTER" textFill="#f2ff00">
-                                 <font>
-                                    <Font name="System Bold" size="79.0" />
-                                 </font>
-                                 <effect>
-                                    <DropShadow />
-                                 </effect>
-                              </Label>
-                           </children>
-                        </StackPane>
-                        <StackPane prefHeight="610.0" prefWidth="769.0" />
-                     </children>
-                  </VBox>
-                  <VBox fx:id="rightVBox" prefHeight="766.0" prefWidth="1191.0">
-                     <children>
-                        <StackPane prefHeight="356.0" prefWidth="831.0" />
-                        <StackPane prefHeight="596.0" prefWidth="831.0" />
-                     </children>
-                  </VBox>
-               </children>
+<StackPane fx:id="parent" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+           prefHeight="900.0" prefWidth="1600.0" xmlns="http://javafx.com/javafx/23.0.1"
+           xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.view.gui.screens.BuildingController">
+   <VBox fx:id="mainVBox" prefHeight="922.0" prefWidth="1600.0">
+      <padding>
+         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+      </padding>
+      <HBox fx:id="upperHBox" prefHeight="910.0" prefWidth="1600.0" spacing="20.0">
+         <VBox fx:id="leftVBox" prefHeight="766.0" prefWidth="1130.0">
+            <StackPane fx:id="upperLeftStackPane" prefHeight="147.0" prefWidth="769.0">
+               <Label fx:id="titleLabel" alignment="CENTER" graphicTextGap="5.0" prefHeight="211.0"
+                      prefWidth="769.0" text="Building phase" textAlignment="CENTER" textFill="#f2ff00">
+                  <font>
+                     <Font name="System Bold" size="79.0"/>
+                  </font>
+                  <effect>
+                     <DropShadow/>
+                  </effect>
+               </Label>
+            </StackPane>
+            <StackPane fx:id="lowerLeftStackPane" prefHeight="610.0" prefWidth="769.0"/>
+         </VBox>
+         <VBox fx:id="rightVBox" prefHeight="766.0" prefWidth="1191.0">
+            <HBox fx:id="upperRightHBox" prefHeight="300.0" prefWidth="801.0">
+               <VBox fx:id="handVBox" prefHeight="100.0" prefWidth="372.0">
+                  <StackPane fx:id="handComponent" prefHeight="150.0" prefWidth="200.0"/>
+                  <Button fx:id="rotateButton" mnemonicParsing="false" prefHeight="60.0"
+                          prefWidth="175.0" text="Rotate component"/>
+               </VBox>
+               <StackPane fx:id="upperRightStackPane" prefHeight="356.0" prefWidth="831.0"/>
             </HBox>
-            <HBox fx:id="lowerHBox" prefHeight="185.0" prefWidth="1600.0" spacing="10.0">
-               <children>
-                  <Button mnemonicParsing="false" prefHeight="88.0" prefWidth="518.0" text="Button" />
-                  <Button mnemonicParsing="false" prefHeight="88.0" prefWidth="538.0" text="Button" />
-                  <Button mnemonicParsing="false" prefHeight="88.0" prefWidth="538.0" text="Button" />
-               </children>
-            </HBox>
-         </children>
-         <padding>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-         </padding>
-      </VBox>
-   </children>
+            <StackPane fx:id="lowerRightStackPane" prefHeight="596.0" prefWidth="831.0"/>
+         </VBox>
+      </HBox>
+      <HBox fx:id="lowerHBox" prefHeight="185.0" prefWidth="1600.0" spacing="10.0">
+         <Button fx:id="placeMarkerButton" mnemonicParsing="false" prefHeight="88.0" prefWidth="518.0"
+                 text="PlaceMarker"/>
+         <Button fx:id="putTileInPileButton" mnemonicParsing="false" prefHeight="88.0" prefWidth="538.0"
+                 text="Button"/>
+         <Button fx:id="hiddenTileButton" mnemonicParsing="false" prefHeight="88.0" prefWidth="538.0"
+                 text="Button"/>
+      </HBox>
+   </VBox>
 </StackPane>

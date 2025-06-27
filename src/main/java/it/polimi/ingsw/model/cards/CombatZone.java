@@ -4,9 +4,18 @@ import it.polimi.ingsw.model.cards.hits.Hit;
 
 import java.util.ArrayList;
 
+/**
+ * Represents a combat zone card that causes flight days loss, object loss, and applies hits to the player.
+ * This card extends the base Card class and contains information about the penalties
+ * incurred when encountering this combat zone during a quest.
+ * @author Lorenzo Trenti
+ */
 public class CombatZone extends Card {
+    /** Number of flight days lost when this combat zone is encountered */
     private int flightDays;
+    /** Number of objects lost when this combat zone is encountered */
     private int lost;
+    /** List of hits that are applied to the player when encountering this combat zone */
     private ArrayList<Hit> fires;
 
     /**
@@ -29,6 +38,10 @@ public class CombatZone extends Card {
         this.fires = fires;
     }
 
+    /**
+     * Default constructor for CombatZone.
+     * Creates a CombatZone instance with default values.
+     */
     public CombatZone(){
         super();
     }

@@ -98,8 +98,8 @@ public class StorageView extends ComponentView {
     }
 
     @Override
-    public TilesTypeView getType() {
-        return TilesTypeView.STORAGE;
+    public ComponentTypeView getType() {
+        return ComponentTypeView.STORAGE;
     }
 
     @Override

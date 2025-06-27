@@ -1,5 +1,7 @@
 package it.polimi.ingsw.view.gui.controllers.board;
 
+import it.polimi.ingsw.view.gui.controllers.deck.DeckController;
+import it.polimi.ingsw.view.gui.controllers.misc.TimerCountdownController;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
@@ -17,6 +19,7 @@ import org.javatuples.Pair;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -66,78 +69,156 @@ public class BoardController implements MiniModelObserver, Initializable {
     private double ORIGINAL_WIDTH;
     private double ORIGINAL_HEIGHT;
 
+    // Original dimensions and positions of the background image used for scaling.
+    private double ORIGINAL_IMAGE_WIDTH;
+    private double ORIGINAL_IMAGE_HEIGHT;
+    private double ORIGINAL_IMAGE_X;
+    private double ORIGINAL_IMAGE_Y;
+
+
+    // Posizioni e dimensioni originali degli elementi
+    private final List<Double> originalStepX = new ArrayList<>();
+    private final List<Double> originalStepY = new ArrayList<>();
+    private final List<Double> originalStepWidth = new ArrayList<>();
+    private final List<Double> originalStepHeight = new ArrayList<>();
+
+    private final List<Double> originalTimerX = new ArrayList<>();
+    private final List<Double> originalTimerY = new ArrayList<>();
+    private final List<Double> originalTimerWidth = new ArrayList<>();
+    private final List<Double> originalTimerHeight = new ArrayList<>();
+
+    private final List<Double> originalDeckX = new ArrayList<>();
+    private final List<Double> originalDeckY = new ArrayList<>();
+    private final List<Double> originalDeckWidth = new ArrayList<>();
+    private final List<Double> originalDeckHeight = new ArrayList<>();
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        this.setDefaultValues();
+        stepsNodes = new ArrayList<>(boardGroup.getChildren().filtered(node ->
+                node instanceof StackPane && node.getId() != null &&
+                        node.getId().matches("-?\\d+") && Integer.parseInt(node.getId()) >= 0));
+        stepsNodes.sort(Comparator.comparingInt(a -> Integer.parseInt(a.getId())));
 
-        boardGroup.scaleXProperty().unbind();
-        boardGroup.scaleYProperty().unbind();
-        boardGroup.translateXProperty().unbind();
-        boardGroup.translateYProperty().unbind();
+        timerNodes = new ArrayList<>(boardGroup.getChildren().filtered(node ->
+                node instanceof StackPane && node.getId() != null &&
+                        node.getId().matches("-?\\d+") &&
+                        Integer.parseInt(node.getId()) >= -3 && Integer.parseInt(node.getId()) <= -1));
+        timerNodes.sort((a, b) -> Integer.compare(Integer.parseInt(b.getId()), Integer.parseInt(a.getId())));
 
-        // Create a binding to calculate the scale factor based on the parent StackPane dimensions
+        decksNodes = new ArrayList<>(boardGroup.getChildren().filtered(node ->
+                node instanceof StackPane && node.getId() != null &&
+                        node.getId().matches("-?\\d+") &&
+                        Integer.parseInt(node.getId()) >= -7 && Integer.parseInt(node.getId()) <= -4));
+        decksNodes.sort((a, b) -> Integer.compare(Integer.parseInt(b.getId()), Integer.parseInt(a.getId())));
+
+        setDefaultValues();
+
+        boardGroup.setManaged(false);
+
         DoubleBinding scaleFactorBinding = Bindings.createDoubleBinding(() -> {
             double parentWidth = parent.getWidth();
             double parentHeight = parent.getHeight();
-
             if (parentWidth <= 0 || parentHeight <= 0) return 1.0;
-
-            double scaleX = parentWidth / ORIGINAL_WIDTH;
-            double scaleY = parentHeight / ORIGINAL_HEIGHT;
-
-            return Math.min(scaleX, scaleY);
+            return Math.min(parentWidth / ORIGINAL_WIDTH, parentHeight / ORIGINAL_HEIGHT);
         }, parent.widthProperty(), parent.heightProperty());
 
-        // Bind the scale properties of the board group to the scale factor
-        boardGroup.scaleXProperty().bind(scaleFactorBinding);
-        boardGroup.scaleYProperty().bind(scaleFactorBinding);
+        backgroundImage.layoutXProperty().bind(scaleFactorBinding.multiply(ORIGINAL_IMAGE_X));
+        backgroundImage.layoutYProperty().bind(scaleFactorBinding.multiply(ORIGINAL_IMAGE_Y));
+        backgroundImage.fitWidthProperty().bind(scaleFactorBinding.multiply(ORIGINAL_IMAGE_WIDTH));
+        backgroundImage.fitHeightProperty().bind(scaleFactorBinding.multiply(ORIGINAL_IMAGE_HEIGHT));
 
-        // Center the board group in the parent StackPane
-        DoubleBinding centerXBinding = Bindings.createDoubleBinding(() -> {
-            double scaledWidth = scaleFactorBinding.get() * ORIGINAL_WIDTH;
-            return (parent.getWidth() - scaledWidth) / 2.0;
-        }, parent.widthProperty(), scaleFactorBinding);
-
-        DoubleBinding centerYBinding = Bindings.createDoubleBinding(() -> {
-            double scaledHeight = scaleFactorBinding.get() * ORIGINAL_HEIGHT;
-            return (parent.getHeight() - scaledHeight) / 2.0;
-        }, parent.heightProperty(), scaleFactorBinding);
-
-        // Bind the translation properties of the board group to center it
-        boardGroup.translateXProperty().bind(centerXBinding);
-        boardGroup.translateYProperty().bind(centerYBinding);
-
-        // Save the steps in a list and sort them based on their IDs
-        stepsNodes = new ArrayList<>(boardGroup.getChildren().filtered(node -> node instanceof StackPane && Integer.parseInt(node.getId()) >= 0));
-        stepsNodes.sort((a, b) -> {
-            if (a != null && b != null) {
-                return Integer.compare(Integer.parseInt(a.getId()), Integer.parseInt(b.getId()));
-            }
-            return 0; // Default case if not both are StackPane
-        });
-
-        // Save the timer nodes in a list and sort them based on their IDs (ids: -1, -2, -3)
-        timerNodes = new ArrayList<>(boardGroup.getChildren().filtered(node -> node instanceof StackPane && Integer.parseInt(node.getId()) < 0 && Integer.parseInt(node.getId()) > -4));
-        timerNodes.sort((a, b) -> {
-            if (a != null && b != null) {
-                return Integer.compare(Integer.parseInt(b.getId()), Integer.parseInt(a.getId()));
-            }
-            return 0; // Default case if not both are StackPane
-        });
-
-        // Save the deck nodes in a list and sort them based on their IDs (ids: -4, -5, -6, -7)
-        decksNodes = new ArrayList<>(boardGroup.getChildren().filtered(node -> node instanceof StackPane && Integer.parseInt(node.getId()) < -3 && Integer.parseInt(node.getId()) > -8));
-        decksNodes.sort((a, b) -> {
-            if (a != null && b != null) {
-                return Integer.compare(Integer.parseInt(b.getId()), Integer.parseInt(a.getId()));
-            }
-            return 0; // Default case if not both are StackPane
-        });
+        if (!stepsNodes.isEmpty()) {
+            bindStepsElements(scaleFactorBinding);
+        }
+        if (!timerNodes.isEmpty()) {
+            bindTimerElements(scaleFactorBinding);
+        }
+        if (!decksNodes.isEmpty()) {
+            bindDeckElements(scaleFactorBinding);
+        }
     }
 
     private void setDefaultValues() {
         ORIGINAL_WIDTH = boardGroup.getLayoutBounds().getWidth();
         ORIGINAL_HEIGHT = boardGroup.getLayoutBounds().getHeight();
+
+        ORIGINAL_IMAGE_WIDTH = backgroundImage.getFitWidth();
+        ORIGINAL_IMAGE_HEIGHT = backgroundImage.getFitHeight();
+        ORIGINAL_IMAGE_X = backgroundImage.getLayoutX();
+        ORIGINAL_IMAGE_Y = backgroundImage.getLayoutY();
+
+        // Salva posizioni e dimensioni originali degli step
+        originalStepX.clear();
+        originalStepY.clear();
+        originalStepWidth.clear();
+        originalStepHeight.clear();
+
+        for (Node step : stepsNodes) {
+            originalStepX.add(step.getLayoutX());
+            originalStepY.add(step.getLayoutY());
+            originalStepWidth.add(((StackPane) step).getPrefWidth());
+            originalStepHeight.add(((StackPane) step).getPrefHeight());
+        }
+
+        // Salva posizioni e dimensioni originali dei timer
+        originalTimerX.clear();
+        originalTimerY.clear();
+        originalTimerWidth.clear();
+        originalTimerHeight.clear();
+
+        for (Node timer : timerNodes) {
+            originalTimerX.add(timer.getLayoutX());
+            originalTimerY.add(timer.getLayoutY());
+            originalTimerWidth.add(((StackPane) timer).getPrefWidth());
+            originalTimerHeight.add(((StackPane) timer).getPrefHeight());
+        }
+
+        // Salva posizioni e dimensioni originali dei deck
+        originalDeckX.clear();
+        originalDeckY.clear();
+        originalDeckWidth.clear();
+        originalDeckHeight.clear();
+
+        for (Node deck : decksNodes) {
+            originalDeckX.add(deck.getLayoutX());
+            originalDeckY.add(deck.getLayoutY());
+            originalDeckWidth.add(((StackPane) deck).getPrefWidth());
+            originalDeckHeight.add(((StackPane) deck).getPrefHeight());
+        }
+    }
+
+    private void bindStepsElements(DoubleBinding scaleFactorBinding) {
+        for (int i = 0; i < stepsNodes.size(); i++) {
+            Node step = stepsNodes.get(i);
+            int index = i;
+
+            step.layoutXProperty().bind(scaleFactorBinding.multiply(originalStepX.get(index)));
+            step.layoutYProperty().bind(scaleFactorBinding.multiply(originalStepY.get(index)));
+            ((StackPane) step).prefWidthProperty().bind(scaleFactorBinding.multiply(originalStepWidth.get(index)));
+            ((StackPane) step).prefHeightProperty().bind(scaleFactorBinding.multiply(originalStepHeight.get(index)));
+        }
+    }
+
+    private void bindTimerElements(DoubleBinding scaleFactorBinding) {
+        for (int i = 0; i < timerNodes.size(); i++) {
+            Node timer = timerNodes.get(i);
+
+            timer.layoutXProperty().bind(scaleFactorBinding.multiply(originalTimerX.get(i)));
+            timer.layoutYProperty().bind(scaleFactorBinding.multiply(originalTimerY.get(i)));
+            ((StackPane) timer).prefWidthProperty().bind(scaleFactorBinding.multiply(originalTimerWidth.get(i)));
+            ((StackPane) timer).prefHeightProperty().bind(scaleFactorBinding.multiply(originalTimerHeight.get(i)));
+        }
+    }
+
+    private void bindDeckElements(DoubleBinding scaleFactorBinding) {
+        for (int i = 0; i < decksNodes.size(); i++) {
+            Node deck = decksNodes.get(i);
+
+            deck.layoutXProperty().bind(scaleFactorBinding.multiply(originalDeckX.get(i)));
+            deck.layoutYProperty().bind(scaleFactorBinding.multiply(originalDeckY.get(i)));
+            ((StackPane) deck).prefWidthProperty().bind(scaleFactorBinding.multiply(originalDeckWidth.get(i)));
+            ((StackPane) deck).prefHeightProperty().bind(scaleFactorBinding.multiply(originalDeckHeight.get(i)));
+        }
     }
 
     public void setModel(BoardView boardView) {
@@ -156,7 +237,7 @@ public class BoardController implements MiniModelObserver, Initializable {
             }
 
             // Reinitialize the steps based on the board view
-            List<Pair< MarkerView, Integer>> playerPositions = boardView.getPlayerPositions();
+            List<Pair<MarkerView, Integer>> playerPositions = boardView.getPlayerPositions();
             int numPlayers = boardView.getNumberOfPlayers();
             int numberOfSteps = stepsNodes.size();
 
@@ -190,7 +271,7 @@ public class BoardController implements MiniModelObserver, Initializable {
                 } else {
                     stackPane = (StackPane) timerNodes.getFirst();
                 }
-                stackPane.getChildren().add(boardView.getTimerView().getNode());
+                stackPane.getChildren().add(boardView.getTimerView().getNode().getValue0());
             }
 
             if (!decksNodes.isEmpty()) {
@@ -201,11 +282,39 @@ public class BoardController implements MiniModelObserver, Initializable {
                     if (deck != null) {
                         StackPane deckNode = (StackPane) decksNodes.get(i);
                         deckNode.getChildren().clear();
-                        deckNode.getChildren().add(deck.getNode());
+                        deckNode.getChildren().add(deck.getNode().getValue0());
                         i++;
                     }
                 }
             }
         });
+    }
+
+    /**
+     * Returns a list of DeckController instances for each deck in the board view.
+     * This method retrieves the DeckController from each DeckView in the board's decks.
+     *
+     * @return a List of DeckController instances
+     */
+    public List<DeckController> getDeckControllers() {
+        List<DeckController> deckControllers = new ArrayList<>();
+        for (DeckView deck : boardView.getDecksView().getValue0()) {
+            if (deck != null) {
+                Pair<Node, DeckController> pair = deck.getNode();
+                if (pair != null) {
+                    deckControllers.add(pair.getValue1());
+                }
+            }
+        }
+
+        return deckControllers;
+    }
+
+    public TimerCountdownController getTimerController() {
+        return boardView.getTimerView().getNode().getValue1();
+    }
+
+    public List<Node> getStepsNodes() {
+        return stepsNodes;
     }
 }

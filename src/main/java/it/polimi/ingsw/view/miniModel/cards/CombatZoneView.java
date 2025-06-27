@@ -27,7 +27,7 @@ public class CombatZoneView extends CardView {
             case 1 -> "│     COMBATZONE    │";
             case 2 -> Clear;
             case 3 -> (getID() == 15 ? "│  Cr " : "│  Ca ") + "=> FDays: " + getFlightDays();
-            case 4 -> "│  En => GoodL: " + getLoss();
+            case 4 -> "│  En => " + (getLevel() == 2 ? "GoodL: " : "CrewL: ") + getLoss();
             case 5 -> (getID() == 15 ? "│  Ca " : "│  Cr ") + "=> H1: " + hits.get(0).drawHitTui();
             case 6 -> "│        H2: " + hits.get(1).drawHitTui();
             case 7 -> getHits().size() < 3 ? Clear : "│        H3: " + hits.get(2).drawHitTui();

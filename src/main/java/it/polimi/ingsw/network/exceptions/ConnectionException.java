@@ -1,5 +1,10 @@
 package it.polimi.ingsw.network.exceptions;
 
+/**
+ * Exception thrown when a connection-related error occurs.
+ * This exception extends RuntimeException and provides various constructors
+ * to handle different types of connection failures.
+ */
 public class ConnectionException extends RuntimeException {
     /**
      * Constructs a new ConnectionException.

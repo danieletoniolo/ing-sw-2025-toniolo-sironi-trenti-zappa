@@ -2,28 +2,39 @@ package it.polimi.ingsw.view.gui;
 
 import it.polimi.ingsw.model.cards.*;
 import it.polimi.ingsw.model.cards.hits.Hit;
+import it.polimi.ingsw.model.game.board.Level;
 import it.polimi.ingsw.model.good.Good;
+import it.polimi.ingsw.view.gui.controllers.board.BoardController;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
+import it.polimi.ingsw.view.gui.controllers.ship.SpaceShipController;
 import it.polimi.ingsw.view.gui.screens.LobbyController;
 import it.polimi.ingsw.view.gui.screens.MenuController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
+import it.polimi.ingsw.view.miniModel.MiniModelObserver;
+import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitDirectionView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitTypeView;
 import it.polimi.ingsw.view.miniModel.cards.hit.HitView;
+import it.polimi.ingsw.view.miniModel.components.ConnectorsView;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
 import it.polimi.ingsw.view.miniModel.lobby.LobbyView;
+import it.polimi.ingsw.view.miniModel.player.MarkerView;
+import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
+import it.polimi.ingsw.view.miniModel.spaceship.SpaceShipView;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.javatuples.Pair;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GuiTest extends Application {
     @Override
@@ -53,14 +64,41 @@ public class GuiTest extends Application {
         Node root = d.getNode();
          */
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/lobby.fxml"));
+        /*FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/screens/lobby.fxml"));
         Parent root = loader.load();
         LobbyController lobbyController = loader.getController();
         LobbyView lv = new LobbyView("testLobby", 1, 1, LevelView.LEARNING);
         MiniModel.getInstance().setCurrentLobby(lv);
         lv.addPlayer("Player1");
         lv.setPlayerStatus("Player1", true);
-        lobbyController.react();
+        lobbyController.react();*/
+
+        BoardView boardView = new BoardView(LevelView.SECOND, 2);
+
+
+        AbandonedShipView a = new AbandonedShipView(17, false, 1, 2, 3, 4);
+        a.setWidth(200);
+        a.setCovered(true);
+        SlaversView b = new SlaversView(18, false, 1, 5, 6, 7, 8);
+        b.setWidth(200);
+        b.setCovered(true);
+        SmugglersView c = new SmugglersView(19, false, 1, 9, 10, 11, new ArrayList<>());
+        c.setWidth(200);
+        c.setCovered(true);
+        DeckView d = new DeckView();
+        d.addCard(a);
+        d.addCard(b);
+        d.addCard(c);
+        d.setCovered(true);
+
+        boardView.getDecksView().add(new Pair<>(d, true));
+        boardView.getDecksView().add(new Pair<>(d, false));
+        boardView.getDecksView().add(new Pair<>(d, true));
+
+
+        Pair<Node, BoardController> pair = boardView.getNode();
+        Parent root = (Parent) pair.getValue0();
+
 
         Scene scene = new Scene(root);
         stage.setTitle("Hello!");
@@ -86,9 +124,9 @@ public class GuiTest extends Application {
                 return new PiratesView(card.getID(), false, card.getCardLevel(), cannon, credits, flight, hits);
             case PLANETS:
                 int numberOfPlanets = ((Planets) card).getPlanetNumbers();
-                java.util.List<java.util.List<GoodView>> goodViews = new ArrayList<>();
+                List<List<GoodView>> goodViews = new ArrayList<>();
                 for (int i = 0; i < numberOfPlanets; i++) {
-                    java.util.List<GoodView> goodList = new ArrayList<>();
+                    List<GoodView> goodList = new ArrayList<>();
                     for (Good good : ((Planets) card).getPlanet(i)) {
                         goodList.add(GoodView.valueOf(good.getColor().name()));
                     }
@@ -107,7 +145,7 @@ public class GuiTest extends Application {
                 int cannonStrength = ((Smugglers) card).getCannonStrengthRequired();
                 int goodsLost = ((Smugglers) card).getGoodsLoss();
                 int flightDays = ((Smugglers) card).getFlightDays();
-                java.util.List<GoodView> goods = new ArrayList<>();
+                List<GoodView> goods = new ArrayList<>();
                 for (Good good : ((Smugglers) card).getGoodsReward()) {
                     goods.add(GoodView.valueOf(good.getColor().name()));
                 }
@@ -115,13 +153,13 @@ public class GuiTest extends Application {
             case COMBATZONE:
                 int loss = ((CombatZone) card).getLost();
                 int flights = ((CombatZone) card).getFlightDays();
-                java.util.List<HitView> hitsList = new ArrayList<>();
+                List<HitView> hitsList = new ArrayList<>();
                 for (Hit hit : ((CombatZone) card).getFires()) {
                     hitsList.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
                 }
                 return new CombatZoneView(card.getID(), false, card.getCardLevel(), loss, flights, hitsList);
             case METEORSWARM:
-                java.util.List<HitView> meteorHits = new ArrayList<>();
+                List<HitView> meteorHits = new ArrayList<>();
                 for (Hit hit : ((MeteorSwarm) card).getMeteors()) {
                     meteorHits.add(new HitView(HitTypeView.valueOf(hit.getType().name()), HitDirectionView.valueOf(hit.getDirection().name())));
                 }
@@ -134,7 +172,7 @@ public class GuiTest extends Application {
             case ABANDONEDSTATION:
                 int crew = ((AbandonedStation) card).getCrewRequired();
                 int days = ((AbandonedStation) card).getFlightDays();
-                java.util.List<GoodView> goodsList = new ArrayList<>();
+                List<GoodView> goodsList = new ArrayList<>();
                 for (Good good : ((AbandonedStation) card).getGoods()) {
                     goodsList.add(GoodView.valueOf(good.getColor().name()));
                 }

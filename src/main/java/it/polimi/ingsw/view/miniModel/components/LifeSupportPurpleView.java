@@ -20,8 +20,8 @@ public class LifeSupportPurpleView extends ComponentView {
     }
 
     @Override
-    public TilesTypeView getType() {
-        return TilesTypeView.LIFE_SUPPORT_PURPLE;
+    public ComponentTypeView getType() {
+        return ComponentTypeView.LIFE_SUPPORT_PURPLE;
     }
 
     @Override

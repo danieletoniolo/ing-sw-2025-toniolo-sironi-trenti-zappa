@@ -10,6 +10,7 @@ import it.polimi.ingsw.view.miniModel.cards.CardView;
 import it.polimi.ingsw.view.miniModel.cards.PlanetsView;
 import it.polimi.ingsw.view.miniModel.cards.SmugglersView;
 import it.polimi.ingsw.view.miniModel.good.GoodView;
+import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import it.polimi.ingsw.view.tui.screens.CardsGame;
 import it.polimi.ingsw.view.tui.screens.TuiScreenView;
 import it.polimi.ingsw.view.tui.screens.gameScreens.goodsActions.exchangeGoods.StorageExchangeCards;
@@ -70,7 +71,7 @@ public class MenuGoodsCards extends CardsGame {
                     setMessage(((Pota) status).errorMessage());
                     yield this;
                 }
-                spaceShipView = clientPlayer.getShip();
+                destroyStatics();
                 yield nextScreen;
             }
             default -> this;
@@ -88,5 +89,11 @@ public class MenuGoodsCards extends CardsGame {
     
     public static void setCardGoods(List<GoodView> goods) {
         cardGoods = goods;
+    }
+
+    public static void destroyStatics() {
+        cardGoods = null;
+        PlayerDataView player = MiniModel.getInstance().getClientPlayer();
+        spaceShipView = player == null ? null : player.getShip();
     }
 }

@@ -10,19 +10,39 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+/**
+ * Manages cards for the game by loading them from a JSON file and providing
+ * utility methods to create decks and access card data.
+ * @author Lorenzo Trenti
+ */
 public class CardsManager {
+    /** Input stream for reading the Cards.json file from resources */
     private static final InputStream inputStream = CardsManager.class.getResourceAsStream("/json/Cards.json");
+
+    /** JSON string content loaded from the Cards.json file */
     private static final String json;
+
+    /**
+     * Static initializer block that loads the JSON content from the input stream.
+     * Throws IllegalArgumentException if the file is not found.
+     */
     static {
         if (inputStream == null) {
             throw new IllegalArgumentException("File not found!");
         }
         json = new Scanner(inputStream, StandardCharsets.UTF_8).useDelimiter("\\A").next();
     }
+
+    /** ObjectMapper instance for JSON deserialization */
     static ObjectMapper objectMapper = new ObjectMapper();
 
+    /** Array containing all cards loaded from the JSON file */
     private static final Card[] cards;
 
+    /**
+     * Static initializer block that deserializes the JSON content into Card objects.
+     * Throws RuntimeException if JSON processing fails.
+     */
     static {
         try {
             cards = objectMapper.readValue(json, Card[].class);
@@ -108,8 +128,7 @@ public class CardsManager {
         learningDeck.push(cards[17]);
         learningDeck.push(cards[18]);
 
-        // TODO: Uncomment to shuffle the learning deck
-        // Collections.shuffle(learningDeck);
+        Collections.shuffle(learningDeck);
 
         return learningDeck;
     }
@@ -130,28 +149,11 @@ public class CardsManager {
             ArrayList<Card> cards = deck.getCards();
             shuffledDeck.addAll(cards);
         }
-
-        // TODO: Uncomment to shuffle the decks
-        /*
         do {
             Collections.shuffle(shuffledDeck);
         } while (shuffledDeck.peek().getCardLevel() != 2);
-         */
         // Ensure the first card is a level 2 card
 
         return shuffledDeck;
-    }
-
-    /// TODO: METODO DA ELIMINARE
-    /**
-     * Get a card by its ID
-     * @param ID the ID of the card
-     * @return the card with the specified ID
-     */
-    public static Card getCard(int ID) throws IndexOutOfBoundsException {
-        if (ID < 0 || ID >= cards.length) {
-            throw new IndexOutOfBoundsException("ID is out of bounds");
-        }
-        return cards[ID];
     }
 }

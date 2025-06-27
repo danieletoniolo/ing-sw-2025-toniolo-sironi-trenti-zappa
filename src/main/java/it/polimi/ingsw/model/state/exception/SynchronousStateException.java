@@ -1,5 +1,11 @@
 package it.polimi.ingsw.model.state.exception;
 
+/**
+ * Exception thrown when there is an error in the synchronous state management.
+ * This runtime exception is used to signal issues that occur during
+ * synchronous operations in the state management system.
+ * @author Daniele Toniolo
+ */
 public class SynchronousStateException extends RuntimeException {
     /**
      * Constructs a new SynchronousStateException.

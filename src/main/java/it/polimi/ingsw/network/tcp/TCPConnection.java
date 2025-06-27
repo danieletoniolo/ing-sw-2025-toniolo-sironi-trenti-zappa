@@ -16,19 +16,44 @@ import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * TCPConnection class implements the Connection interface to provide TCP-based network communication.
+ * This class handles both client-side and server-side TCP connections, managing socket operations,
+ * heartbeat mechanisms, and message queuing for reliable network communication.
+ *
+ * The connection supports automatic reconnection detection through heartbeat messages and
+ * provides thread-safe send/receive operations with proper synchronization.
+ * @author Daniele Toniolo
+ */
 public class TCPConnection implements Connection {
+    /** The TCP socket used for network communication */
     private final Socket socket;
 
+    /** Output stream for sending serialized objects over the network */
     private final ObjectOutputStream out;
 
+    /** Input stream for receiving serialized objects from the network */
     private final ObjectInputStream in;
 
+    /** Flag indicating whether the connection has been disconnected */
     private boolean disconnected;
 
+    /** Queue storing incoming events that haven't been processed yet */
     private final Queue<Event> pendingMessages;
 
+    /** Synchronization lock for thread-safe access to shared resources */
     private final Object lock = new Object();
 
+    /**
+     * Creates a TCPConnection object for client-side connections.
+     * Establishes a TCP socket connection to the specified address and port,
+     * initializes input/output streams, and starts the heartbeat and reader threads.
+     *
+     * @param address the hostname or IP address of the server to connect to
+     * @param port the port number on the server to connect to
+     * @throws BadHostException if the address is null or the host is unknown
+     * @throws SocketCreationException if an error occurs while creating the socket or streams
+     */
     public TCPConnection(String address, int port) {
         disconnected = false;
         pendingMessages = new LinkedList<>();
@@ -44,12 +69,11 @@ public class TCPConnection implements Connection {
         } catch(IOException e) {
             throw new SocketCreationException("error while creating socket", e);
         }
-        // TODO: Check if we are handling all the possible exceptions
 
-        // Start the heartbeat thread
+        // Start the reader thread to handle incoming messages
         read();
 
-        // Start the reader thread
+        // Start the heartbeat thread to maintain connection
         hearBeat();
     }
 
@@ -79,6 +103,11 @@ public class TCPConnection implements Connection {
         read();
     }
 
+    /**
+     * Starts a background thread that continuously reads incoming messages from the network connection.
+     * The thread reads objects from the input stream, filters out heartbeat messages, and adds valid
+     * events to the pending messages queue. The thread terminates when the connection is disconnected.
+     */
     private void read() {
         new Thread(() -> {
             while (true) {
@@ -133,6 +162,15 @@ public class TCPConnection implements Connection {
         }, 0, 2500);
     }
 
+    /**
+     * Sends an event message to the remote end of the connection.
+     * This method is thread-safe and will throw an exception if the connection
+     * has been disconnected.
+     *
+     * @param message the Event object to send over the connection
+     * @throws DisconnectedConnection if the connection is already disconnected
+     *                                or if an IOException occurs during sending
+     */
     @Override
     public void send(Event message) {
         synchronized (lock) {
@@ -144,7 +182,6 @@ public class TCPConnection implements Connection {
             try {
                 out.writeObject(message);
                 out.reset();
-                // TODO: RESET
                 out.flush();
             } catch (IOException e) {
                 // If a IOException is thrown, we consider the connection broken
@@ -153,6 +190,16 @@ public class TCPConnection implements Connection {
         }
     }
 
+    /**
+     * Receives the next available event from the connection.
+     * This method blocks until an event is available or the connection is disconnected.
+     * Events are processed in FIFO order from the pending messages queue.
+     *
+     * @return the next Event object from the pending messages queue
+     * @throws DisconnectedConnection if the connection is already disconnected or becomes
+     *                                disconnected while waiting for a message
+     * @throws InterruptedException if the thread is interrupted while waiting for a message
+     */
     @Override
     public Event receive() throws DisconnectedConnection, InterruptedException {
         synchronized (lock) {
@@ -179,6 +226,12 @@ public class TCPConnection implements Connection {
         }
     }
 
+    /**
+     * Disconnects the TCP connection by setting the disconnected flag to true.
+     * This method is thread-safe and notifies all waiting threads that the connection
+     * has been terminated. Once called, subsequent send() and receive() operations
+     * will throw DisconnectedConnection exceptions.
+     */
     @Override
     public void disconnect() {
         synchronized (lock) {
