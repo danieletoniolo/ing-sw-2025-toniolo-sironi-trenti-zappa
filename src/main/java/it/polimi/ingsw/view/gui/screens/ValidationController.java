@@ -239,10 +239,62 @@ public class ValidationController implements MiniModelObserver, Initializable {
                 }
             }
 
-            if (mm.getClientPlayer().getShip().getFragments() != null && mm.getClientPlayer().getShip().getFragments().size() > 1) {
-                Platform.runLater(this::showValidationChoice);
-                placedMarker = false;
-            }
+            Button chooseFragments = new Button("Choose fragments");
+            chooseFragments.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+
+            chooseFragments.setOnMouseClicked(_ -> {
+                List<Color> colors = new ArrayList<>();
+                colors.add(Color.RED);
+                colors.add(Color.GREEN);
+                colors.add(Color.BLUE);
+                colors.add(Color.YELLOW);
+                colors.add(Color.ORANGE);
+                colors.add(Color.PURPLE);
+                colors.add(Color.PINK);
+                colors.add(Color.BROWN);
+                colors.add(Color.GRAY);
+                colors.add(Color.BLACK);
+                colors.add(Color.WHITE);
+                colors.add(Color.CYAN);
+                colors.add(Color.MAGENTA);
+                colors.add(Color.LIME);
+                colors.add(Color.OLIVE);
+                colors.add(Color.NAVY);
+                colors.add(Color.TEAL);
+                colors.add(Color.MAROON);
+                colors.add(Color.AQUA);
+                colors.add(Color.GOLD);
+                colors.add(Color.SILVER);
+                colors.add(Color.CORAL);
+                colors.add(Color.INDIGO);
+                colors.add(Color.VIOLET);
+                colors.add(Color.KHAKI);
+                colors.add(Color.TURQUOISE);
+                colors.add(Color.SALMON);
+                int i = 0;
+                for (List<Pair<Integer, Integer>> group : mm.getClientPlayer().getShip().getFragments()) {
+                    for (Pair<Integer, Integer> pair : group) {
+                        Node node = mm.getClientPlayer().getShip().getComponent(pair.getValue0(), pair.getValue1()).getNode().getValue0();
+
+                        DropShadow redGlow = new DropShadow();
+                        redGlow.setColor(colors.get(i));
+                        redGlow.setRadius(20);
+                        redGlow.setSpread(0.6);
+
+                        Glow glow = new Glow(0.7);
+                        glow.setInput(redGlow);
+
+                        node.setEffect(glow);
+
+                        int finalI = i;
+                        node.setOnMouseClicked(_ -> {
+                            StatusEvent status = ChooseFragment.requester(Client.transceiver, new Object()).request(new ChooseFragment(mm.getUserID(), finalI));
+                            error(status);
+                        });
+                    }
+                    i++;
+                }
+            });
 
             board.getChildren().clear();
             board.getChildren().add(mm.getBoardView().getNode().getValue0());
@@ -323,115 +375,6 @@ public class ValidationController implements MiniModelObserver, Initializable {
         } else {
             placedMarker = true;
         }
-    }
-
-    private void showValidationChoice() {
-        createValidationCrewOptionsPane();
-
-        Platform.runLater(() -> {
-            newValidationOptionsPane.setVisible(true);
-            newValidationOptionsPane.toFront();
-            parent.layout();
-
-            newValidationOptionsPane.setOpacity(0);
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), newValidationOptionsPane);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
-            fadeIn.play();
-        });
-    }
-
-    private void createValidationCrewOptionsPane() {
-        newValidationOptionsPane = new StackPane();
-        newValidationOptionsPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6);");
-
-        StackPane.setAlignment(newValidationOptionsPane, Pos.CENTER);
-
-        newValidationOptionsPane.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        newValidationOptionsPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-
-        // Create a VBox to hold the new lobby options
-        VBox newValidationOptionsVBox = new VBox(15);
-        newValidationOptionsVBox.setAlignment(javafx.geometry.Pos.CENTER);
-        newValidationOptionsVBox.setStyle("-fx-background-color: rgba(251,197,9, 0.8); " +
-                "-fx-background-radius: 10; " +
-                "-fx-border-color: rgb(251,197,9); " +
-                "-fx-border-width: 3; " +
-                "-fx-border-radius: 10; " +
-                "-fx-padding: 20;");
-
-        // Bind the size of the VBox to the main HBox
-        newValidationOptionsVBox.prefWidthProperty().bind(mainVBox.widthProperty().multiply(0.3));
-        newValidationOptionsVBox.prefHeightProperty().bind(mainVBox.heightProperty().multiply(0.5));
-        newValidationOptionsVBox.minWidthProperty().bind(newValidationOptionsVBox.prefWidthProperty());
-        newValidationOptionsVBox.minHeightProperty().bind(newValidationOptionsVBox.prefHeightProperty());
-        newValidationOptionsVBox.maxWidthProperty().bind(newValidationOptionsVBox.prefWidthProperty());
-        newValidationOptionsVBox.maxHeightProperty().bind(newValidationOptionsVBox.prefHeightProperty());
-
-        // Create a title label with a drop shadow effect
-        Label titleLabel = new Label("Select fragments group");
-        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
-        titleLabel.setEffect(new DropShadow());
-
-
-        // ComboBox for type crew selection
-        ComboBox<Integer> fragmentsIndex = new ComboBox<>();
-        for (int i = 0; i < mm.getClientPlayer().getShip().getFragments().size(); i++) {
-            fragmentsIndex.getItems().add(i + 1);
-        }
-        fragmentsIndex.setValue(1);
-        fragmentsIndex.setPromptText("Select fragments:");
-        fragmentsIndex.setMaxWidth(newValidationOptionsVBox.getMaxWidth() * 0.8);
-
-        // Buttons box to hold the confirmation and cancel buttons
-        HBox buttonsBox = new HBox(15);
-        buttonsBox.setAlignment(Pos.CENTER);
-
-        // Create confirm button
-        Button confirmButton = new Button("Confirm");
-        confirmButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
-        confirmButton.setOnAction(_ -> {
-            int fragment = fragmentsIndex.getValue();
-            StatusEvent status = ChooseFragment.requester(Client.transceiver, new Object()).request(new ChooseFragment(mm.getUserID(), fragment));
-            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
-            }
-        });
-        confirmButton.setOnAction(_ -> hideValidationOptions(newValidationOptionsPane));
-
-        // Create cancel button
-        Button cancelButton = new Button("Cancel");
-        cancelButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;");
-        cancelButton.setOnAction(_ -> hideValidationOptions((newValidationOptionsPane)));
-
-        buttonsBox.getChildren().addAll(confirmButton, cancelButton);
-
-        // Add all components to the VBox
-        newValidationOptionsVBox.getChildren().addAll(titleLabel,
-                new Label("Select fragments group:"),
-                fragmentsIndex,
-                buttonsBox);
-
-        newValidationOptionsPane.getChildren().add(newValidationOptionsVBox);
-        StackPane.setAlignment(newValidationOptionsVBox, Pos.CENTER);
-
-        // Add the new lobby options pane to the parent StackPane
-        parent.getChildren().add(newValidationOptionsPane);
-        newValidationOptionsPane.setVisible(false);
-
-        // Force the layout to update and bring the new pane to the front
-        Platform.runLater(() -> {
-            newValidationOptionsPane.toFront();
-            parent.layout();
-        });
-
-        // Update the sizes of the new lobby options controls
-        Platform.runLater(() -> {
-            newValidationOptionsPane.toFront();
-            parent.layout();
-            //updateNewLobbyOptionsSizes();
-        });
     }
 
     private void showOtherPlayer(PlayerDataView player) {
@@ -522,6 +465,14 @@ public class ValidationController implements MiniModelObserver, Initializable {
                     node.setEffect(null);
                 }
             }
+        }
+    }
+
+    private void error(StatusEvent status) {
+        if (status.get().equals(mm.getErrorCode())) {
+            Stage currentStage = (Stage) parent.getScene().getWindow();
+            MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+            react();
         }
     }
 }
