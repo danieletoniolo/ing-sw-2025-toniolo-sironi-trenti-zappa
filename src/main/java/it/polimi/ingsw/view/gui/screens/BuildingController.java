@@ -166,14 +166,6 @@ public class BuildingController implements MiniModelObserver, Initializable {
                     }
                 });
             }
-
-            boardController.getTimerController().getParent().setOnMouseClicked(_ -> {
-                StatusEvent status = FlipTimer.requester(Client.transceiver, new Object()).request(new FlipTimer(mm.getUserID()));
-                if (status.get().equals(mm.getErrorCode())) {
-                    Stage currentStage = (Stage) parent.getScene().getWindow();
-                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
-                }
-            });
         }
 
         // Initialize lower buttons and interactions

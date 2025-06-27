@@ -726,10 +726,12 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     }
 
     private void error(StatusEvent status) {
+        Stage currentStage = (Stage) parent.getScene().getWindow();
         if (status.get().equals(mm.getErrorCode())) {
-            Stage currentStage = (Stage) parent.getScene().getWindow();
             MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
             react();
+        } else {
+            MessageController.showInfoMessage(currentStage, "You have end your turn");
         }
     }
     

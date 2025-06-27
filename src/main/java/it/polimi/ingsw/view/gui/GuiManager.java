@@ -162,6 +162,8 @@ public class GuiManager extends Application implements Manager {
         controller.react();
         if (data.usage() == 0) {
             Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has picked deck " + (data.deckIndex() + 1)));
+        } else if (data.usage() == 1) {
+            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has left the deck " + (data.deckIndex() + 1)));
         }
     }
 
