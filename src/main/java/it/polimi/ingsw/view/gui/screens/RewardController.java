@@ -123,8 +123,7 @@ public class RewardController implements MiniModelObserver, Initializable{
             StatusEvent status = EndTurn.requester(Client.transceiver, new Object())
                     .request(new EndTurn(MiniModel.getInstance().getUserID()));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             }
         });
     }

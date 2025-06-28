@@ -297,8 +297,7 @@ public class MenuController implements MiniModelObserver, Initializable {
                             StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
                                     .request(new JoinLobby(MiniModel.getInstance().getUserID(), lv.getLobbyName()));
                             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                                Stage currentStage = (Stage) parent.getScene().getWindow();
-                                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                                MessageController.showErrorMessage(((Pota) status).errorMessage());
                             }
                         }
                 );
@@ -395,8 +394,7 @@ public class MenuController implements MiniModelObserver, Initializable {
             Integer selectedPlayers = playersCombo.getValue();
             StatusEvent status = CreateLobby.requester(Client.transceiver, new Object()).request(new CreateLobby(MiniModel.getInstance().getUserID(), selectedPlayers, level));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             }
         });
 

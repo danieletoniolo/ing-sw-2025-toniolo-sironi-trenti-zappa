@@ -1214,8 +1214,9 @@ public class EventHandlerClient {
                     }
                 }
 
-                Arrays.fill(MiniModel.getInstance().getDeckViews().getValue1(), true);
-
+                if (MiniModel.getInstance().getBoardView().getLevel() == LevelView.SECOND) {
+                    Arrays.fill(MiniModel.getInstance().getDeckViews().getValue1(), true);
+                }
 
             }
             if (data.newState() == GamePhases.FINISHED.getValue()) {

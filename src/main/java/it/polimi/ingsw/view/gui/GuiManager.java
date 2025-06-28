@@ -19,8 +19,10 @@ import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
 import it.polimi.ingsw.view.Manager;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
+import it.polimi.ingsw.view.gui.screens.CardsGameController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
+import it.polimi.ingsw.view.miniModel.cards.CardView;
 import it.polimi.ingsw.view.miniModel.cards.CardViewType;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -57,6 +59,10 @@ public class GuiManager extends Application implements Manager {
 
     public GuiManager() {
         root = new StackPane();
+    }
+
+    public static Scene getScene() {
+        return scene;
     }
 
     @Override
@@ -106,7 +112,7 @@ public class GuiManager extends Application implements Manager {
             this.setLobbyScene();
         }
         else {
-            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has created a new lobby"));
+            Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " has created a new lobby"));
             // controller.setMessage("Lobby " + data.lobbyName() + " created by " + data.nickname());
             controller.react();
         }
@@ -118,7 +124,7 @@ public class GuiManager extends Application implements Manager {
             this.setLobbyScene();
         }
         else {
-            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has joined the lobby"));
+            Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " has joined the lobby"));
             controller.react();
         }
     }
@@ -129,7 +135,7 @@ public class GuiManager extends Application implements Manager {
             this.setMenuScene();
         }
         else {
-            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has left the lobby"));
+            Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " has left the lobby"));
             controller.react();
         }
     }
@@ -161,15 +167,16 @@ public class GuiManager extends Application implements Manager {
     public void notifyPickedLeftDeck(PickedLeftDeck data) {
         controller.react();
         if (data.usage() == 0) {
-            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has picked deck " + (data.deckIndex() + 1)));
+            Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " has picked deck " + (data.deckIndex() + 1)));
         } else if (data.usage() == 1) {
-            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has left the deck " + (data.deckIndex() + 1)));
+            Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " has left the deck " + (data.deckIndex() + 1)));
         }
     }
 
     @Override
     public void notifyDiceRolled(DiceRolled data) {
-        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " rolled the dice: " + data.diceValue1() + " + " + data.diceValue2() + " = " + (data.diceValue1() + data.diceValue2())));
+        rollDice = (mm.getNickname().equals(mm.getClientPlayer().getUsername()) ? "" : data.nickname() + " ") + "Rolled the dice: " + data.diceValue1() + " + " + data.diceValue2() + " = " + (data.diceValue1() + data.diceValue2());
+        Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " rolled the dice: " + data.diceValue1() + " + " + data.diceValue2() + " = " + (data.diceValue1() + data.diceValue2())));
         controller.react();
     }
 
@@ -188,7 +195,7 @@ public class GuiManager extends Application implements Manager {
         } else {
             message = data.nickname() + " is forced to give up. Waiting for his turn...";
         }
-        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), message));
+        Platform.runLater(() -> MessageController.showInfoMessage(message));
     }
 
     @Override
@@ -197,31 +204,42 @@ public class GuiManager extends Application implements Manager {
 
         String message = "";
         if (mm.getNickname().equals(data.nickname())) {
-            message = switch (data.penaltyType()) {
-                case 0 -> "You have to leave crew members";
-                case 1 -> "You have to discard goods";
-                case 2 -> "You have no more goods, you must discard batteries";
-                case 3 -> "New hit is coming! Good luck";
-                default -> message;
-            };
+            switch (data.penaltyType()) {
+                case 0:
+                    message = "You have to leave crew members";
+                    CardsGameController.actionCabins();
+                    break;
+                case 1:
+                    message = "You have to discard goods";
+                    CardsGameController.actionDiscardGoods();
+                    break;
+                case 2:
+                    message = "You have no more goods, you must discard batteries";
+                    CardsGameController.actionBatteries();
+                    break;
+                case 3:
+                    message = "New hit is coming! Good luck";
+                    CardsGameController.actionRollDice();
+                    break;
+            }
         } else {
             message = "Waiting for " + data.nickname() + " to manage the penalty";
         }
         String finalMessage = message;
-        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), finalMessage));
+        Platform.runLater(() -> MessageController.showInfoMessage(finalMessage));
     }
 
     @Override
     public void notifyForcingPlaceMarker(ForcingPlaceMarker data) {
         if (mm.getNickname().equals(data.nickname())) {
-            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), "You have to place a marker on the board"));
+            Platform.runLater(() -> MessageController.showInfoMessage("You have to place a marker on the board"));
         }
     }
 
     @Override
     public void notifyUpdateGoodsExchange(UpdateGoodsExchange data) {
         if (!data.exchangeData().isEmpty()) {
-            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has modified own goods"));
+            Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " has modified own goods"));
         }
         controller.react();
 
@@ -263,13 +281,13 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyPlanetSelected(PlanetSelected data) {
         controller.react();
-        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has selected planet " + (data.planetNumber() + 1)));
+        Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " has selected planet " + (data.planetNumber() + 1)));
     }
 
     @Override
     public void notifyCardPlayed(CardPlayed data) {
         controller.react();
-        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has accepted the card"));
+        Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " has accepted the card"));
     }
 
     @Override
@@ -280,31 +298,43 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyEnemyDefeat(EnemyDefeat data) {
-        controller.react();
-
         String message;
+
+        CardsGameController.resetActionState();
         if (data.enemyDefeat() == null) {
+            if (mm.getNickname().equals(data.nickname())) {
+                CardsGameController.waitingActionState();
+            }
             message = "It's a tie! Enemies lose interest... and seek a new target.";
         } else if (data.enemyDefeat()) {
+            if (mm.getNickname().equals(data.nickname())) {
+                CardsGameController.actionAccept();
+            }
             message = data.nickname() + " has defeated enemies! Everyone is safe";
         } else {
             if (mm.getNickname().equals(data.nickname())) {
-
                 CardViewType cardViewType = mm.getShuffledDeckView().getDeck().peek().getCardViewType();
-                if (cardViewType == CardViewType.PIRATES) {
-                    message = "You have lost the fight against pirates, prepare your defenses! At the end of the turn you will have to avoid their fires!";
-                } else if (cardViewType != CardViewType.SMUGGLERS && Objects.requireNonNull(cardViewType) != CardViewType.SLAVERS) {
-                    message = "Waiting for other players to play...";
-                } else {
+                if (Objects.requireNonNull(cardViewType) == CardViewType.SLAVERS) {
                     message = "";
+                    CardsGameController.actionCabins();
+                } else if (cardViewType == CardViewType.SMUGGLERS) {
+                    message = "";
+                    CardsGameController.actionDiscardGoods();
+                } else if (cardViewType == CardViewType.PIRATES) {
+                    message = "You have lost the fight against pirates, prepare your defenses! At the end of the turn you will have to avoid their fires!";
+                } else {
+                    CardsGameController.waitingActionState();
+                    message = "Waiting for other players to play...";
                 }
             } else {
+                CardsGameController.waitingActionState();
                 message = data.nickname() + " has lost! Enemies are seeking a new target";
             }
         }
 
+        controller.react();
         if (!message.isEmpty()) {
-            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), message));
+            Platform.runLater(() -> MessageController.showInfoMessage(message));
         }
     }
 
@@ -317,31 +347,61 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyMoveMarker(MoveMarker data) {
         controller.react();
-        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has moved"));
+        Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " has moved"));
 
     }
 
     @Override
     public void notifyRemoveMarker(RemoveMarker data) {
-        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has remove the marker"));
+        Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " has remove the marker"));
     }
 
     @Override
     public void notifyPlayerGaveUp(PlayerGaveUp data) {
         controller.react();
-        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has given up"));
+        Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " has given up"));
     }
 
     @Override
     public void notifyCurrentPlayer(CurrentPlayer data) {
         String message;
-        controller.react();
+
         if (!mm.getNickname().equals(data.nickname())) {
             message = "Waiting for " + data.nickname() + " to play";
+            CardsGameController.waitingActionState();
         } else {
             message = "Your turn!";
+            CardView card = mm.getShuffledDeckView().getDeck().peek();
+            switch (card.getCardViewType()) {
+                case OPENSPACE:
+                    CardsGameController.actionEngine();
+                    message += " Select the double engine to use or end turn";
+                    break;
+                case SLAVERS:
+                case SMUGGLERS:
+                case PIRATES:
+                    CardsGameController.actionCannon();
+                    message += " Select the double cannon to use or end turn";
+                    break;
+                case STARDUST:
+                    message += " End turn in order to play the Stardust card";
+                    break;
+                case EPIDEMIC:
+                    message += " End turn in order to play the Epidemic card";
+                    break;
+                case PLANETS:
+                case ABANDONEDSHIP:
+                    CardsGameController.actionAccept();
+                    message += " Choose if accept the card! Otherwise, you can end your turn";
+                    break;
+
+            }
         }
-        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), message));
+
+        controller.react();
+
+        String finalMessage = message;
+        Platform.runLater(() -> MessageController.showInfoMessage(finalMessage));
     }
 
     @Override
@@ -352,7 +412,7 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyUpdateCoins(UpdateCoins data) {
         controller.react();
-        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " has updated coins"));
+        Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " has updated coins"));
     }
 
     @Override
@@ -375,23 +435,31 @@ public class GuiManager extends Application implements Manager {
                 if (i != data.nicknames().size() - 1) message.append(", ");
             }
         }
-        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), message.toString()));
+        Platform.runLater(() -> MessageController.showInfoMessage(message.toString()));
     }
 
     @Override
     public void notifyCanProtect(CanProtect data) {
         controller.react();
         if (data.nickname().equals(mm.getNickname())) {
-            String message;
-            message = switch (data.canProtect().getValue1()) {
-                case -1 -> rollDice + " -> You can't protect from the hit";
-                case 0 -> rollDice + " -> You can protect from the hit, select a battery to use";
-                case 1 -> rollDice + " -> You don't need to protect from the hit";
-                default -> "";
+            String message = rollDice;
+            switch (data.canProtect().getValue1()) {
+                case -1:
+                    message += " -> You can't protect from the hit";
+                    break;
+                case 0:
+                    CardsGameController.actionShield();
+                    message += " -> You can protect from the hit, select a battery to use";
+                    break;
+                case 1:
+                    message += " -> You don't need to protect from the hit";
+                    break;
             };
-            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), message));
+
+            String finalMessage = message;
+            Platform.runLater(() -> MessageController.showInfoMessage(finalMessage));
         } else {
-            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), data.nickname() + " is deciding"));
+            Platform.runLater(() -> MessageController.showInfoMessage(data.nickname() + " is deciding"));
         }
     }
 
@@ -427,14 +495,14 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyUpdateCrewMembers(UpdateCrewMembers data) {
         controller.react();
-        Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), "Crew on " + data.nickname() + "'s spaceship is changed"));
+        Platform.runLater(() -> MessageController.showInfoMessage("Crew on " + data.nickname() + "'s spaceship is changed"));
     }
 
     @Override
     public void notifyTimer(TimerFlipped data, boolean firstSecond) {
         controller.react();
         if (firstSecond && data.nickname() != null) {
-            Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), "Timer flipped by " + data.nickname()));
+            Platform.runLater(() -> MessageController.showInfoMessage("Timer flipped by " + data.nickname()));
         }
     }
 
@@ -475,7 +543,7 @@ public class GuiManager extends Application implements Manager {
             case FINISHED:
                 this.setMenuScene();
                 countDownStarted = false;
-                Platform.runLater(() -> MessageController.showInfoMessage(scene.getWindow(), "You are back to the lobbies menu, a player disconnected or the game is over"));
+                Platform.runLater(() -> MessageController.showInfoMessage("You are back to the lobbies menu, a player disconnected or the game is over"));
                 break;
         }
     }

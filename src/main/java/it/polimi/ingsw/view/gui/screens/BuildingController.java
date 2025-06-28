@@ -15,7 +15,6 @@ import it.polimi.ingsw.event.game.clientToServer.rotateTile.RotateTile;
 import it.polimi.ingsw.event.game.clientToServer.timer.FlipTimer;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.utils.Logger;
 import it.polimi.ingsw.view.gui.controllers.board.BoardController;
 import it.polimi.ingsw.view.gui.controllers.components.ComponentController;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
@@ -159,8 +158,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
                 boardController.getDeckControllers().get(i).getParent().setOnMouseClicked(_ -> {
                     StatusEvent status = PickLeaveDeck.requester(Client.transceiver, new Object()).request(new PickLeaveDeck(mm.getUserID(), 0, finalI));
                     if (status.get().equals(mm.getErrorCode())) {
-                        Stage currentStage = (Stage) parent.getScene().getWindow();
-                        MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                        MessageController.showErrorMessage(((Pota) status).errorMessage());
                     } else {
                         showDeckView(mm.getDeckViews().getValue0()[finalI], finalI);
                     }
@@ -180,8 +178,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
         flipTimerButton.setOnMouseClicked(_ -> {
             StatusEvent status = FlipTimer.requester(Client.transceiver, new Object()).request(new FlipTimer(mm.getUserID()));
             if (status.get().equals(mm.getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             }
         });
         lowerHBox.getChildren().add(flipTimerButton);
@@ -203,16 +200,14 @@ public class BuildingController implements MiniModelObserver, Initializable {
         rotateButton.setOnMouseClicked(_ -> {
             StatusEvent status = RotateTile.requester(Client.transceiver, new Object()).request(new RotateTile(MiniModel.getInstance().getUserID(), mm.getClientPlayer().getHand().getID()));
             if (status.get().equals(mm.getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             }
         });
 
         pickNewTile.setOnAction(_ -> {
             StatusEvent status = PickTileFromBoard.requester(Client.transceiver, new Object()).request(new PickTileFromBoard(MiniModel.getInstance().getUserID(), -1));
             if (status.get().equals(mm.getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             }
         });
 
@@ -277,8 +272,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
         closeButton.setOnAction(_ -> {
             StatusEvent status = PickLeaveDeck.requester(Client.transceiver, new Object()).request(new PickLeaveDeck(mm.getUserID(), 1, position));
             if (status.get().equals(mm.getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             } else {
                 hideOverlay(deckViewPane);
             }
@@ -370,13 +364,11 @@ public class BuildingController implements MiniModelObserver, Initializable {
         StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object())
                 .request(new PlaceMarker(MiniModel.getInstance().getUserID(), position));
         if (status.get().equals(mm.getErrorCode())) {
-            Stage currentStage = (Stage) parent.getScene().getWindow();
-            MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+            MessageController.showErrorMessage(((Pota) status).errorMessage());
         } else {
             status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
             if (status.get().equals(mm.getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             }
         }
     }
@@ -465,8 +457,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
                 component.getParent().setOnMouseClicked(_ -> {
                     StatusEvent status = PlaceTileToSpaceship.requester(Client.transceiver, new Object()).request(new PlaceTileToSpaceship(mm.getUserID(), component.getComponentView().getRow() - 1, component.getComponentView().getCol() - 1));
                     if (status.get().equals(mm.getErrorCode())) {
-                        Stage currentStage = (Stage) parent.getScene().getWindow();
-                        MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                        MessageController.showErrorMessage(((Pota) status).errorMessage());
                     }
                 });
             } else if (component.getComponentView().getID() == mm.getClientPlayer().getShip().peekLast().getID()) {
@@ -474,8 +465,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
                     StatusEvent status = PickTileFromSpaceship.requester(Client.transceiver, new Object())
                             .request(new PickTileFromSpaceship(mm.getUserID()));
                     if (status.get().equals(mm.getErrorCode())) {
-                        Stage currentStage = (Stage) parent.getScene().getWindow();
-                        MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                        MessageController.showErrorMessage(((Pota) status).errorMessage());
                     }
                 });
             } else {
@@ -489,8 +479,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
                 component.getParent().setOnMouseClicked(_ -> {
                     StatusEvent status = PickTileFromReserve.requester(Client.transceiver, new Object()).request(new PickTileFromReserve(mm.getUserID(), component.getComponentView().getID()));
                     if (status.get().equals(mm.getErrorCode())) {
-                        Stage currentStage = (Stage) parent.getScene().getWindow();
-                        MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                        MessageController.showErrorMessage(((Pota) status).errorMessage());
                     }
                 });
             }
@@ -501,8 +490,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
             spaceShipController.getReserveLostGrid().setOnMouseClicked(_ -> {
                 StatusEvent status = PlaceTileToReserve.requester(Client.transceiver, new Object()).request(new PlaceTileToReserve(mm.getUserID()));
                 if (status.get().equals(mm.getErrorCode())) {
-                    Stage currentStage = (Stage) parent.getScene().getWindow();
-                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                    MessageController.showErrorMessage(((Pota) status).errorMessage());
                 }
             });
         }
@@ -534,8 +522,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
                     StatusEvent status = PickTileFromBoard.requester(Client.transceiver, new Object())
                             .request(new PickTileFromBoard(mm.getUserID(), ID));
                     if (status.get().equals(mm.getErrorCode())) {
-                        Stage currentStage = (Stage) parent.getScene().getWindow();
-                        MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                        MessageController.showErrorMessage(((Pota) status).errorMessage());
                     }
                 });
             }
@@ -548,8 +535,7 @@ public class BuildingController implements MiniModelObserver, Initializable {
                 StatusEvent status = PlaceTileToBoard.requester(Client.transceiver, new Object())
                         .request(new PlaceTileToBoard(mm.getUserID()));
                 if (status.get().equals(mm.getErrorCode())) {
-                    Stage currentStage = (Stage) parent.getScene().getWindow();
-                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                    MessageController.showErrorMessage(((Pota) status).errorMessage());
                 }
             });
         }

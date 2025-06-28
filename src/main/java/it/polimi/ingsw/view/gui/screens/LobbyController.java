@@ -203,8 +203,7 @@ public class LobbyController implements MiniModelObserver, Initializable {
             boolean tryingToBeReady = readyOrNotButton.getText().equals("READY");
             StatusEvent status = PlayerReady.requester(Client.transceiver, new Object()).request(new PlayerReady(MiniModel.getInstance().getUserID(), tryingToBeReady));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             } else {
                 if (tryingToBeReady) {
                     readyOrNotButton.setText("NOT READY");
@@ -217,8 +216,7 @@ public class LobbyController implements MiniModelObserver, Initializable {
         leaveLobbyButton.setOnAction(_ -> {
             StatusEvent status = LeaveLobby.requester(Client.transceiver, new Object()).request(new LeaveLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getCurrentLobby().getLobbyName()));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             }
         });
 

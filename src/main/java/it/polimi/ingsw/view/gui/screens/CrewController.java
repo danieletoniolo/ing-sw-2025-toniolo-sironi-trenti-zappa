@@ -106,12 +106,13 @@ public class CrewController implements MiniModelObserver, Initializable {
         }
         endTurnButton.setOnMouseClicked(_ -> {
             StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
-            Stage currentStage = (Stage) parent.getScene().getWindow();
-            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
-            } else {
-                MessageController.showInfoMessage(currentStage, "Waiting for other players to end their turn...");
-            }
+            Platform.runLater(() -> {
+                if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
+                    MessageController.showErrorMessage(((Pota) status).errorMessage());
+                } else {
+                    MessageController.showInfoMessage("Waiting for other players to end their turn...");
+                }
+            });
         });
         endTurnButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
     }
@@ -308,8 +309,7 @@ public class CrewController implements MiniModelObserver, Initializable {
             int mode = modeChose.getValue().equals("Add crew member") ? 0 : 1;
             StatusEvent status = ManageCrewMember.requester(Client.transceiver, new Object()).request(new ManageCrewMember(mm.getUserID(), mode, type, component.getID()));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             }
         });
         confirmButton.setOnAction(_ -> hideOptions());

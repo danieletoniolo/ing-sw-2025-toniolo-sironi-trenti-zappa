@@ -15,6 +15,7 @@ import it.polimi.ingsw.event.game.clientToServer.spaceship.ChooseFragment;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.SetPenaltyLoss;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
+import it.polimi.ingsw.model.cards.Smugglers;
 import it.polimi.ingsw.view.gui.controllers.components.BatteryController;
 import it.polimi.ingsw.view.gui.controllers.components.CabinController;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
@@ -55,6 +56,31 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class CardsGameController implements MiniModelObserver, Initializable {
+    private enum ActionState {
+        RESET,
+        WAITING,
+        ROLL_DICE,
+        SELECT_ACCEPT,
+        SELECT_BATTERIES,
+        SELECT_CANNONS,
+        SELECT_ENGINES,
+        SELECT_PLANET,
+        SELECT_GOODS,
+        SELECT_SHIELD,
+        SELECT_FRAGMENT,
+        DISCARD_CABINS,
+        DISCARD_GOODS,
+        DISCARD_BATTERIES
+    };
+
+    private enum ActionOnBatteries {
+        DISCARD,
+        SELECTION,
+        SELECTION_FOR_SHIELD
+    }
+
+    static private ActionState actionState = ActionState.RESET;
+    private ActionOnBatteries actionOnBatteries = ActionOnBatteries.SELECTION;
 
     @FXML private StackPane parent;
     @FXML private Group resizeGroup;
@@ -96,7 +122,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     private int withStorage = -1;
     private final ArrayList<Integer> withList = new ArrayList<>();
 
-    private int totalButtons = 19;
+    private ArrayList<Button> onScreenButtons = new ArrayList<>();
 
     private enum ListType {
         CANNONS,
@@ -156,25 +182,82 @@ public class CardsGameController implements MiniModelObserver, Initializable {
             if (deckLen == -1) {
                 deckLen = mm.getShuffledDeckView().getDeck().size();
                 resetHandlers();
+                resetEffects();
             }
             else {
                 if (deckLen != mm.getShuffledDeckView().getDeck().size()) {
                     changeCardGoods = true;
+                    deckLen = mm.getShuffledDeckView().getDeck().size();
                     resetHandlers();
+                    resetEffects();
                 }
             }
 
-            lowerHBox.getChildren().clear();
+            onScreenButtons.clear();
 
             CardView card = mm.getShuffledDeckView().getDeck().peek();
-            totalButtons = 2+ mm.getOtherPlayers().size();
-
-            switch (card.getCardViewType()) {
-                case ABANDONEDSTATION:
-                    totalButtons += 1 + 4;
-                    activeAcceptButton();
-                    activeGoodsButtons();
+            switch (actionState) {
+                case SELECT_ENGINES:
+                    activeEnginesButtons();
+                    activeBatteriesButtons(ActionOnBatteries.SELECTION);
                     break;
+                case SELECT_CANNONS:
+                    activeCannonsButton();
+                    activeBatteriesButtons(ActionOnBatteries.SELECTION);
+                    break;
+                case SELECT_BATTERIES:
+                    // TODO: to remove
+                    activeEndTurnButtons();
+                    break;
+                case SELECT_ACCEPT:
+                    activeAcceptButton(() -> {
+                        resetActionState();
+
+                        switch (card.getCardViewType()) {
+                            case PLANETS -> actionPlanets();
+                            case ABANDONEDSHIP -> actionCabins();
+                            case SMUGGLERS -> actionAddGoods();
+                        }
+
+                        react();
+
+                        displayMessageInfo("You can now select a planet to play.");
+                    });
+                    activeEndTurnButtons();
+                    break;
+                case SELECT_PLANET:
+                    activeSelectPlanetButton();
+                    activeEndTurnButtons();
+                    break;
+                case SELECT_GOODS:
+                    activeGoodsButtons();
+                    activeEndTurnButtons();
+                    break;
+                case SELECT_SHIELD:
+                    activeBatteriesButtons(ActionOnBatteries.SELECTION_FOR_SHIELD);
+                    activeShieldButtons();
+                    break;
+                case SELECT_FRAGMENT:
+                    activeFragmentsButtons();
+                case DISCARD_GOODS:
+                    activePenaltyGoods();
+                    if (card.getCardViewType() != CardViewType.SLAVERS) {
+                        break;
+                    }
+                case DISCARD_BATTERIES:
+                    activeBatteriesButtons(ActionOnBatteries.DISCARD);
+                    activeEndTurnButtons();
+                    break;
+                case DISCARD_CABINS:
+                    activeCabinsButtons();
+                    break;
+                case ROLL_DICE:
+                    activeRollDiceButtons();
+                    break;
+                case RESET:
+                    activeEndTurnButtons();
+                    break;
+                /*
                 case SMUGGLERS:
                     totalButtons += 3 + 2 + 4 + 3;
                     activeCannonsButton();
@@ -202,15 +285,6 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                     activeCannonsButton();
                     activeBatteriesButtons();
                     activeCabinsButtons();
-                    break;
-                case EPIDEMIC:
-                    break;
-                case STARDUST:
-                    break;
-                case OPENSPACE:
-                    totalButtons += 3 + 2;
-                    activeEnginesButtons();
-                    activeBatteriesButtons();
                     break;
                 case COMBATZONE:
                     if (MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getLevel() == 1) {
@@ -248,21 +322,11 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                     activePenaltyGoods();
                     activeCabinsButtons();
                     break;
-                case PLANETS:
-                    totalButtons += 1 + 4;
-                    activeSelectPlanetButton();
-                    activeGoodsButtons();
-                    break;
-                case ABANDONEDSHIP:
-                    totalButtons *= 1 + 3;
-                    activeAcceptButton();
-                    activeCabinsButtons();
-                    break;
+                    */
             }
 
-            // Exchange goods
             if (changeCardGoods) {
-                card = mm.getShuffledDeckView().getDeck().peek();
+                cardGoods.clear();
                 switch (card.getCardViewType()) {
                     case PLANETS:
                         cardGoods.addAll(((PlanetsView) card).getPlanet(((PlanetsView) card).getPlanetSelected()));
@@ -277,15 +341,17 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 changeCardGoods = false;
             }
 
-            activeEndTurnButtons();
-            activeGiveUp();
+            if (actionState != ActionState.WAITING) {
+                activeGiveUpButton();
+            }
 
             for (PlayerDataView player : mm.getOtherPlayers()) {
                 Button otherButtonPlayer = new Button("View " + player.getUsername() + "'s spaceship");
                 otherButtonPlayer.setOnMouseClicked(_ -> showOtherPlayer(player));
-                otherButtonPlayer.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-                lowerHBox.getChildren().add(otherButtonPlayer);
+                onScreenButtons.add(otherButtonPlayer);
             }
+
+            showButtons();
 
             clientSpaceShip.getChildren().clear();
             clientSpaceShip.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
@@ -296,6 +362,58 @@ public class CardsGameController implements MiniModelObserver, Initializable {
             currentCard.getChildren().clear();
             currentCard.getChildren().add(mm.getShuffledDeckView().getDeck().peek().getNode().getValue0());
         });
+    }
+
+    static public void actionRollDice() {
+        actionState = ActionState.ROLL_DICE;
+    }
+
+    static public void actionEngine() {
+        actionState = ActionState.SELECT_ENGINES;
+    }
+
+    static public void actionCannon() {
+        actionState = ActionState.SELECT_CANNONS;
+    }
+
+    static public void actionShield() {
+        actionState = ActionState.SELECT_SHIELD;
+    }
+
+    static public void actionBatteries() {
+        actionState = ActionState.SELECT_BATTERIES;
+    }
+
+    static public void actionPlanets() {
+        actionState = ActionState.SELECT_PLANET;
+    }
+
+    static public void actionAddGoods() {
+        actionState = ActionState.SELECT_GOODS;
+    }
+
+    static public void actionDiscardGoods() {
+        actionState = ActionState.DISCARD_GOODS;
+    }
+
+    static public void actionAccept() {
+        actionState = ActionState.SELECT_ACCEPT;
+    }
+
+    static public void actionCabins() {
+        actionState = ActionState.DISCARD_CABINS;
+    }
+
+    static public void waitingActionState() {
+        actionState = ActionState.WAITING;
+    }
+
+    static public void resetActionState() {
+        actionState = ActionState.RESET;
+    }
+
+    public void displayMessageInfo(String message) {
+        MessageController.showInfoMessage(message);
     }
 
     private void setEffectCabins() {
@@ -342,7 +460,9 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
                         node.setEffect(glow);
 
-                        showGoodsToSelect(((StorageView) component), mode);
+                        node.setOnMouseClicked(_ -> {
+                            showGoodsToSelect(((StorageView) component), mode);
+                        });
                     }
                 }
             }
@@ -395,7 +515,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
         if (mode == 0 || mode == 1) {
             // Create a title label with a drop shadow effect
-            Label titleLabel = new Label("Select goods:");
+            Label titleLabel = new Label("Select goods from " + (mode == 0 ? "first" : "second") + " cabin:");
             titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
             titleLabel.setEffect(new DropShadow());
 
@@ -414,7 +534,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
             buttonsBox.setAlignment(Pos.CENTER);
 
             // Create confirm button
-            Button confirmButton = new Button("Create");
+            Button confirmButton = new Button("Confirm");
             confirmButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
             confirmButton.setOnMouseClicked(_ -> {
                 if (mode == 0) {
@@ -426,6 +546,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                         }
                         i++;
                     }
+                    setEffectStorages(1);
                 } else {
                     withStorage = storage.getID();
                     int i = 0;
@@ -435,7 +556,20 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                         }
                         i++;
                     }
+
+                    StatusEvent status = SwapGoods.requester(Client.transceiver, new Object()).request(new SwapGoods(mm.getUserID(), fromStorage, withStorage, fromList, withList));
+                    fromList.clear();
+                    withList.clear();
+                    if (status.get().equals(mm.getErrorCode())) {
+                        error(status);
+                    }
+                    else {
+                        resetEffects();
+                        resetEffects();
+                    }
+
                 }
+                hideOptions(newSelectGoodsPane);
             });
             // Create cancel button
             Button cancelButton = new Button("Cancel");
@@ -479,8 +613,8 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 for (Node node : goods.getChildren()) {
                     if (node instanceof CheckBox check && check.isSelected()) {
                         goodsToLeave.add(i);
+                        i++;
                     }
-                    i++;
                 }
             });
             confirmButton.setOnAction(_ -> {
@@ -524,8 +658,8 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 for (Node node : goods.getChildren()) {
                     if (node instanceof CheckBox check && check.isSelected()) {
                         goodsToGet.add(cardGoods.get(i).getValue());
+                        i++;
                     }
-                    i++;
                 }
 
                 exchanges.add(new Triplet<>(goodsToGet, goodsToLeave, storageID));
@@ -533,6 +667,20 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 if (status.get().equals(mm.getErrorCode())) {
                     error(status);
                 }
+                else {
+                    resetEffects();
+                    resetHandlers();
+                }
+
+                List<GoodView> toRemove = new ArrayList<>();
+                for (Integer good : goodsToGet) {
+                    toRemove.add(GoodView.fromValue(good));
+                }
+                cardGoods.removeAll(toRemove);
+
+                exchanges.clear();
+                goodsToLeave.clear();
+                goodsToGet.clear();
             });
             confirmButton.setOnAction(_ -> hideOptions(newSelectGoodsPane));
 
@@ -605,7 +753,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
-    private void setEffectBattery() {
+    private void setBatteriesHandleEffect() {
         for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
             for (ComponentView component : row) {
                 if (component != null && component.getType() == ComponentTypeView.BATTERY) {
@@ -628,26 +776,25 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                         batteryController.setOpacity();
                     });
 
-                    Stage currentStage = (Stage) parent.getScene().getWindow();
-                    MessageController.showInfoMessage(currentStage, "Battery: " + selectedBatteriesList);
+                    displayMessageInfo("Battery: " + selectedBatteriesList);
                 }
             }
         }
     }
 
-    private void setEffectGeneral(ListType type) {
+    private void setCannonsEnginesHandlerEffect(ListType type) {
         List<Integer> IDs = switch (type) {
-            case CANNONS ->  selectedCannonsList;
+            case CANNONS -> selectedCannonsList;
             case ENGINES -> selectedEnginesList;
         };
 
         Color color = switch (type) {
-            case CANNONS ->  Color.PURPLE;
+            case CANNONS -> Color.PURPLE;
             case ENGINES -> Color.YELLOW;
         };
 
         ComponentTypeView componentTypeView = switch (type) {
-            case CANNONS ->  ComponentTypeView.DOUBLE_CANNON;
+            case CANNONS -> ComponentTypeView.DOUBLE_CANNON;
             case ENGINES -> ComponentTypeView.DOUBLE_ENGINE;
         };
 
@@ -738,37 +885,102 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     }
 
     private void resetHandlers() {
-        for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-            for (ComponentView component : row) {
-                if (component != null) {
-                    Node node = component.getNode().getValue0();
-                    node.setOnMouseClicked(null);
-                    node.setOpacity(1.0);
-                    node.setEffect(null);
+        resetHandlersBatteries();
+        resetHandlersCannons();
+        resetHandlersEngines();
+        resetHandlersCabins();
+        resetHandlersStorages();
+    }
 
-                    if (component.getType() == ComponentTypeView.BATTERY) {
-                        BatteryController batteryController = (BatteryController) component.getNode().getValue1();
-                        batteryController.removeOpacity();
-                    }
-                }
-            }
-        }
+    private void resetEffects() {
+        resetEffectCannons();
+        resetEffectEngines();
+        resetEffectBatteries();
+        resetEffectCabins();
+    }
+
+    // Reset effects for components
+    private void resetEffectCannons() {
+        mm.getClientPlayer().getShip().getMapDoubleCannons().values().forEach(cannon -> {
+            Node node = cannon.getNode().getValue0();
+            node.setOpacity(1.0);
+        });
+        selectedCannonsList.clear();
+    }
+
+    private void resetEffectEngines() {
+        mm.getClientPlayer().getShip().getMapDoubleEngines().values().forEach(engine -> {
+            Node node = engine.getNode().getValue0();
+            node.setOpacity(1.0);
+        });
+        selectedEnginesList.clear();
+    }
+
+    private void resetEffectBatteries() {
+        mm.getClientPlayer().getShip().getMapBatteries().values().forEach(battery -> {
+            BatteryController batteryController = (BatteryController) battery.getNode().getValue1();
+            batteryController.removeOpacity();
+        });
+        selectedBatteriesList.clear();
+    }
+
+    private void resetEffectCabins() {
+        mm.getClientPlayer().getShip().getMapCabins().values().forEach(cabin -> {
+            CabinController cabinController = (CabinController) cabin.getNode().getValue1();
+            cabinController.removeOpacity();
+        });
+        selectedCabinsList.clear();
+    }
+
+    // Reset handlers
+    private void resetHandlersCannons() {
+        mm.getClientPlayer().getShip().getMapDoubleCannons().values().forEach(cannon -> {
+            Node node = cannon.getNode().getValue0();
+            node.setOnMouseClicked(null);
+            node.setEffect(null);
+            node.setDisable(false);
+        });
+    }
+
+    private void resetHandlersEngines() {
+        mm.getClientPlayer().getShip().getMapDoubleEngines().values().forEach(engine -> {
+            Node node = engine.getNode().getValue0();
+            node.setOnMouseClicked(null);
+            node.setEffect(null);
+            node.setDisable(false);
+        });
+    }
+
+    private void resetHandlersBatteries() {
+        mm.getClientPlayer().getShip().getMapBatteries().values().forEach(battery -> {
+            Node node = battery.getNode().getValue0();
+            node.setOnMouseClicked(null);
+            node.setEffect(null);
+            node.setDisable(false);
+        });
+    }
+
+    private void resetHandlersCabins() {
+        mm.getClientPlayer().getShip().getMapCabins().values().forEach(cabin -> {
+            Node node = cabin.getNode().getValue0();
+            node.setOnMouseClicked(null);
+            node.setEffect(null);
+            node.setDisable(false);
+        });
+    }
+
+    private void resetHandlersStorages() {
+        mm.getClientPlayer().getShip().getMapStorages().values().forEach(storage -> {
+            Node node = storage.getNode().getValue0();
+            node.setOnMouseClicked(null);
+            node.setEffect(null);
+            node.setDisable(false);
+        });
     }
 
     private void error(StatusEvent status) {
-        Stage currentStage = (Stage) parent.getScene().getWindow();
-        MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
-        resetHandlers();
-        selectedEnginesList.clear();
-        selectedBatteriesList.clear();
-        selectedCabinsList.clear();
-        selectedCannonsList.clear();
-        fromStorage = -1;
-        withStorage = -1;
-        fromList.clear();
-        withList.clear();
-        cardGoods.clear();
-        penaltyGoods.clear();
+        MessageController.showErrorMessage(((Pota) status).errorMessage());
+        resetEffects();
     }
     
     private void showPlanetOptions(PlanetsView planets) {
@@ -816,7 +1028,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
 
         // Create a title label with a drop shadow effect
-        Label titleLabel = new Label("Seelct planet");
+        Label titleLabel = new Label("Select planet");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
         titleLabel.setEffect(new DropShadow());
 
@@ -835,12 +1047,20 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         buttonsBox.setAlignment(Pos.CENTER);
 
         // Create confirm button
-        Button confirmButton = new Button("Create");
+        Button confirmButton = new Button("Confirm");
         confirmButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;");
         confirmButton.setOnMouseClicked(_ -> {
-            StatusEvent status = SelectPlanet.requester(Client.transceiver, new Object()).request(new SelectPlanet(mm.getUserID(), plantNumbers.getValue()));
+            StatusEvent status = SelectPlanet.requester(Client.transceiver, new Object()).request(new SelectPlanet(mm.getUserID(), plantNumbers.getValue() - 1));
             if (status.get().equals(mm.getErrorCode())) {
                 error(status);
+            } else {
+                resetEffects();
+                resetHandlers();
+                resetActionState();
+                actionAddGoods();
+                react();
+
+                displayMessageInfo("Now you can swap or exchange goods!");
             }
         });
         confirmButton.setOnAction(_ -> hideOptions(newPlanetPane));
@@ -876,7 +1096,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
             newPlanetPane.toFront();
             parent.layout();
 
-            newOtherPlayerPane.setOpacity(0);
+            newPlanetPane.setOpacity(0);
 
             FadeTransition fadeInContent = new FadeTransition(Duration.millis(300), newOtherPlayerPane);
             fadeInContent.setFromValue(0);
@@ -889,16 +1109,12 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     private void activeCannonsButton() {
         // Cannons buttons
         Button selectCannonsButton = new Button("Select cannons");
-        selectCannonsButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
         Button cancelCannonsButton = new Button("Cancel cannons");
-        cancelCannonsButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-        Button activeCannonsButton = new Button("Active cannons");
-        activeCannonsButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
         // Select cannons to send
         selectCannonsButton.setOnMouseClicked(_ -> {
             resetHandlers();
-            setEffectGeneral(ListType.CANNONS);
+            setCannonsEnginesHandlerEffect(ListType.CANNONS);
         });
 
         // Cancel cannons to send
@@ -916,126 +1132,112 @@ public class CardsGameController implements MiniModelObserver, Initializable {
             selectedCannonsList.clear();
         });
 
-        // Use cannons event
-        activeCannonsButton.setOnMouseClicked(_ -> {
-            StatusEvent status = UseCannons.requester(Client.transceiver, new Object()).request(new UseCannons(mm.getUserID(), selectedCannonsList, selectedBatteriesList));
-            if (status.get().equals(mm.getErrorCode())) {
-                error(status);
-            }
-        });
-
-        activeCannonsButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
-        lowerHBox.getChildren().addAll(selectCannonsButton, cancelCannonsButton, activeCannonsButton);
+        onScreenButtons.add(selectCannonsButton);
+        onScreenButtons.add(cancelCannonsButton);
     }
 
     private void activeEnginesButtons() {
         // Engines buttons
         Button selectEnginesButton = new Button("Select engines");
-        selectEnginesButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
         Button cancelEnginesButton = new Button("Cancel engines");
-        cancelEnginesButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-        Button activeEnginesButton = new Button("Active engines");
-        activeEnginesButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
         // Select engines to send
         selectEnginesButton.setOnMouseClicked(_ -> {
             resetHandlers();
-            setEffectGeneral(ListType.ENGINES);
+            setCannonsEnginesHandlerEffect(ListType.ENGINES);
         });
 
         // Cancel engines to send
         cancelEnginesButton.setOnMouseClicked(_ -> {
-            for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-                for (ComponentView component : row) {
-                    if (component != null && component.getType() == ComponentTypeView.DOUBLE_ENGINE) {
-                        Node node = component.getNode().getValue0();
-                        node.setOnMouseClicked(null);
-                        node.setOpacity(1.0);
-                        node.setEffect(null);
-                    }
-                }
-            }
             selectedEnginesList.clear();
+            resetHandlers();
         });
 
-        // Use engine event
-        activeEnginesButton.setOnMouseClicked(_ -> {
-            StatusEvent status = UseEngines.requester(Client.transceiver, new Object()).request(new UseEngines(mm.getUserID(), selectedEnginesList, selectedBatteriesList));
-            if (status.get().equals(mm.getErrorCode())) {
-                error(status);
-            }
-        });
-
-
-        activeEnginesButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
-        lowerHBox.getChildren().addAll(selectEnginesButton, cancelEnginesButton);
+        onScreenButtons.addAll(List.of(selectEnginesButton, cancelEnginesButton));
     }
 
-    private void activeBatteriesButtons() {
+    private void activeBatteriesButtons(ActionOnBatteries actionOnBatteries) {
         // Batteries buttons
-        Button selectBatteriesButton = new Button("Select Batteries");
-        selectBatteriesButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+        Button selectBatteriesButton = new Button("Select batteries");
         Button cancelBatteriesButton = new Button("Cancel Batteries");
-        cancelBatteriesButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+        Button useBatteriesButton = null;
+        Button sendPenaltyBatteries = null;
+        Button useShieldButton = null;
 
-        // Select batteries to send
+        switch (actionOnBatteries) {
+            case SELECTION -> {
+                useBatteriesButton = new Button("Active");
+                // Use engine event
+                useBatteriesButton.setOnMouseClicked(_ -> {
+                    CardView card = mm.getShuffledDeckView().getDeck().peek();
+                    StatusEvent status = switch (card.getCardViewType()) {
+                        case SLAVERS, SMUGGLERS, PIRATES ->
+                                UseCannons.requester(Client.transceiver, new Object()).request(new UseCannons(mm.getUserID(), selectedCannonsList, selectedBatteriesList));
+                        case OPENSPACE, COMBATZONE ->
+                                UseEngines.requester(Client.transceiver, new Object()).request(new UseEngines(mm.getUserID(), selectedEnginesList, selectedBatteriesList));
+                        default -> null;
+                    };
+                    if (status != null && status.get().equals(mm.getErrorCode())) {
+                        error(status);
+                    } else {
+                        status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                        if (status != null && status.get().equals(mm.getErrorCode())) {
+                            error(status);
+                        }
+                        else {
+                            resetHandlers();
+                            resetEffects();
+                        }
+                    }
+                });
+            }
+            case DISCARD -> {
+                sendPenaltyBatteries = new Button("Send batteries");
+                sendPenaltyBatteries.setOnMouseClicked(_ -> {
+                    StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object()).request(new SetPenaltyLoss(mm.getUserID(), 1, selectedBatteriesList));
+                    if (status.get().equals(mm.getErrorCode())) {
+                        error(status);
+                    } else {
+                        resetHandlers();
+                        resetEffects();
+                    }
+                });
+            }
+        }
+
+        // Select engines or batteries to send
         selectBatteriesButton.setOnMouseClicked(_ -> {
             resetHandlers();
-            setEffectBattery();
+            setBatteriesHandleEffect();
+            displayMessageInfo("Now you can select batteries to use! Click on the batteries you want to use");
         });
 
         // Cancel batteries to send
         cancelBatteriesButton.setOnMouseClicked(_ -> {
-            for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-                for (ComponentView component : row) {
-                    if (component != null && component.getType() == ComponentTypeView.BATTERY) {
-                        Node node = component.getNode().getValue0();
-                        node.setOnMouseClicked(null);
-                        node.setOpacity(1.0);
-                        node.setEffect(null);
-                        BatteryController batteryController = (BatteryController) component.getNode().getValue1();
-                        batteryController.removeOpacity();
-                    }
-                }
-            }
+            resetEffectBatteries();
             selectedBatteriesList.clear();
         });
 
-        cancelBatteriesButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
-        lowerHBox.getChildren().addAll(selectBatteriesButton, cancelBatteriesButton);
+        onScreenButtons.add(selectBatteriesButton);
+        onScreenButtons.add(cancelBatteriesButton);
+
+        switch (actionOnBatteries) {
+            case SELECTION -> onScreenButtons.add(useBatteriesButton);
+            case DISCARD -> onScreenButtons.add(sendPenaltyBatteries);
+        }
     }
 
     private void activeCabinsButtons() {
         // Cabins buttons
-        Button selectCabinsButton = new Button("Select cabins");
-        selectCabinsButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-
         Button cancelCabinsButton = new Button("Cancel crew selected");
-        cancelCabinsButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
         Button sendCrewPenalty = new Button("Send crew");
-        sendCrewPenalty.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
-        // Select crew members to send
-        selectCabinsButton.setOnMouseClicked(_ -> {
-            resetHandlers();
-            setEffectCabins();
-        });
+        setEffectCabins();
 
         // Cancel crew to send
         cancelCabinsButton.setOnMouseClicked(_ -> {
-            for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-                for (ComponentView component : row) {
-                    if (component != null && component.getType() == ComponentTypeView.CABIN) {
-                        Node node = component.getNode().getValue0();
-                        node.setOnMouseClicked(null);
-                        node.setOpacity(1.0);
-                        node.setEffect(null);
-                        CabinController cabinController = (CabinController) component.getNode().getValue1();
-                        cabinController.removeOpacity();
-                    }
-                }
-            }
+            resetEffectCabins();
             selectedCabinsList.clear();
         });
 
@@ -1043,16 +1245,23 @@ public class CardsGameController implements MiniModelObserver, Initializable {
             StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object()).request(new SetPenaltyLoss(mm.getUserID(), 2, selectedCabinsList));
             if (status.get().equals(mm.getErrorCode())) {
                 error(status);
+            } else {
+                status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                if (status.get().equals(mm.getErrorCode())) {
+                    error(status);
+                } else {
+                    resetEffects();
+                    resetHandlers();
+                }
             }
         });
 
-        cancelCabinsButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
-        lowerHBox.getChildren().addAll(selectCabinsButton, cancelCabinsButton, sendCrewPenalty);
+        onScreenButtons.add(cancelCabinsButton);
+        onScreenButtons.add(sendCrewPenalty);
     }
 
     private void activeShieldButtons() {
         Button activeShield = new Button("Active shield");
-        activeShield.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
         // Use shield event
         activeShield.setOnMouseClicked(_ -> {
@@ -1060,16 +1269,18 @@ public class CardsGameController implements MiniModelObserver, Initializable {
             if (status.get().equals(mm.getErrorCode())) {
                 error(status);
             }
+            else {
+                resetHandlers();
+                resetEffects();
+            }
         });
 
-        activeShield.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
-        lowerHBox.getChildren().addAll(activeShield);
+        onScreenButtons.add(activeShield);
     }
 
     private void activeRollDiceButtons() {
         // Roll dice
         Button rollDiceButton = new Button("Roll Dice");
-        rollDiceButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
         // Roll dice event
         rollDiceButton.setOnMouseClicked(_ -> {
@@ -1077,16 +1288,24 @@ public class CardsGameController implements MiniModelObserver, Initializable {
             if (status.get().equals(mm.getErrorCode())) {
                 error(status);
             }
+            else {
+                status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                if (status.get().equals(mm.getErrorCode())) {
+                    error(status);
+                }
+                else {
+                    resetHandlers();
+                    resetEffects();
+                }
+            }
         });
 
-        rollDiceButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
-        lowerHBox.getChildren().addAll(rollDiceButton);
+        onScreenButtons.add(rollDiceButton);
     }
 
     private void activeEndTurnButtons() {
         // EndTurn
         Button endTurn = new Button("End turn");
-        endTurn.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
         // EndTurn event
         endTurn.setOnMouseClicked(_ -> {
@@ -1095,111 +1314,84 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 error(status);
             }
             else {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showInfoMessage(currentStage, "You have end your turn");
+                displayMessageInfo("You have end your turn");
             }
         });
 
-        endTurn.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
-        lowerHBox.getChildren().addAll(endTurn);
+        onScreenButtons.add(endTurn);
     }
 
     public void activeGoodsButtons() {
         // ExchangeGoods
         Button exchangeGoods = new Button("Exchange goods");
-        exchangeGoods.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-        // Swap goods
-        Button fromStorageButton = new Button("Storage to swap from");
-        fromStorageButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-        Button withStorageButton = new Button("Storage to swap with");
-        withStorageButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-
-        Button swapGoods = new Button("Swap selected goods");
-        swapGoods.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+        Button swapGoods = new Button("Swap goods");
 
         exchangeGoods.setOnMouseClicked(_ -> setEffectStorages(2));
 
         // Swaps from storage
-        fromStorageButton.setOnMouseClicked(_ -> setEffectStorages(0));
+        swapGoods.setOnMouseClicked(_ -> setEffectStorages(0));
 
-        // Select with storage
-        withStorageButton.setOnMouseClicked(_ -> setEffectStorages(1));
-
-        swapGoods.setOnMouseClicked(_ -> {
-            StatusEvent status = SwapGoods.requester(Client.transceiver, new Object()).request(new SwapGoods(mm.getUserID(), fromStorage, withStorage, fromList, withList));
-            if (status.get().equals(mm.getErrorCode())) {
-                error(status);
-            }
-        });
-
-        swapGoods.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
-        lowerHBox.getChildren().addAll(exchangeGoods, fromStorageButton, withStorageButton, swapGoods);
+        onScreenButtons.add(exchangeGoods);
+        onScreenButtons.add(swapGoods);
     }
 
     private void activeSelectPlanetButton() {
         // Select planets
-        Button selectPlanetButton = new Button("Select planet");
-        selectPlanetButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+        Button selectPlanetButton = new Button("Open choose planet menu");
 
-        selectPlanetButton.setOnMouseClicked(_ -> showPlanetOptions(((PlanetsView) mm.getShuffledDeckView().getDeck().peek())));
+        selectPlanetButton.setOnMouseClicked(_ -> {
+            showPlanetOptions(((PlanetsView) mm.getShuffledDeckView().getDeck().peek()));
+        });
 
-
-        selectPlanetButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
-        lowerHBox.getChildren().addAll(selectPlanetButton);
+        onScreenButtons.add(selectPlanetButton);
     }
 
-    private void activeAcceptButton() {
-        // AcceptCard
+    private void activeAcceptButton(Runnable onSuccess) {
         Button acceptCard = new Button("Accept card");
-        acceptCard.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
         acceptCard.setOnMouseClicked(_ -> {
             StatusEvent status = Play.requester(Client.transceiver, new Object()).request(new Play(mm.getUserID()));
             if (status.get().equals(mm.getErrorCode())) {
                 error(status);
+            } else {
+                resetHandlers();
+                resetEffects();
+                onSuccess.run();
             }
         });
 
-        acceptCard.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
-        lowerHBox.getChildren().addAll(acceptCard);
+        onScreenButtons.add(acceptCard);
     }
 
     private void activePenaltyGoods() {
         Button choosePenaltyGoods = new Button("Choose penalty goods");
-        choosePenaltyGoods.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-
         Button sendGoodsPenalty = new Button("Send penalty goods");
-        sendGoodsPenalty.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-
-        Button sendPenaltyBatteries = new Button("Send penalty batteries");
-        sendPenaltyBatteries.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
         sendGoodsPenalty.setOnMouseClicked(_ -> {
             StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object()).request(new SetPenaltyLoss(mm.getUserID(), 0, penaltyGoods));
             if (status.get().equals(mm.getErrorCode())) {
                 error(status);
             }
+            else {
+                status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                if (status.get().equals(mm.getErrorCode())) {
+                    error(status);
+                }
+                else {
+                    resetHandlers();
+                    resetEffects();
+                }
+            }
         });
 
         choosePenaltyGoods.setOnMouseClicked(_ -> setEffectStorages(4));
 
-        sendPenaltyBatteries.setOnMouseClicked(_ -> {
-            StatusEvent status = SetPenaltyLoss.requester(Client.transceiver, new Object()).request(new SetPenaltyLoss(mm.getUserID(), 1, selectedBatteriesList));
-            if (status.get().equals(mm.getErrorCode())) {
-                error(status);
-            }
-        });
-
-        choosePenaltyGoods.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
-        sendGoodsPenalty.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
-        sendPenaltyBatteries.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
-        lowerHBox.getChildren().addAll(choosePenaltyGoods, sendGoodsPenalty, sendPenaltyBatteries);
+        onScreenButtons.add(choosePenaltyGoods);
+        onScreenButtons.add(sendGoodsPenalty);
     }
 
     private void activeFragmentsButtons() {
         Button chooseFragments = new Button("Choose fragments");
-        chooseFragments.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-        chooseFragments.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
 
         chooseFragments.setOnMouseClicked(_ -> {
             List<Color> colors = new ArrayList<>();
@@ -1251,24 +1443,48 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                         if (status.get().equals(mm.getErrorCode())) {
                             error(status);
                         }
+                        else {
+                            status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                            if (status.get().equals(mm.getErrorCode())) {
+                                error(status);
+                            }
+                            else {
+                                resetHandlers();
+                                resetEffects();
+                            }
+                        }
                     });
                 }
                 i++;
             }
         });
+
+        onScreenButtons.add(chooseFragments);
     }
 
-    private void activeGiveUp() {
+    private void activeGiveUpButton() {
         Button giveUp = new Button("Give up");
-        giveUp.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
         giveUp.setOnMouseClicked(_ -> {
             StatusEvent status = GiveUp.requester(Client.transceiver, new Object()).request(new GiveUp(mm.getUserID()));
             if (status.get().equals(mm.getErrorCode())) {
                 error(status);
             }
+            else {
+                resetHandlers();
+                resetEffects();
+            }
         });
 
-        lowerHBox.getChildren().addAll(giveUp);
+        onScreenButtons.add(giveUp);
+    }
+
+    private void showButtons() {
+        lowerHBox.getChildren().clear();
+        for (Button button : onScreenButtons) {
+            button.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
+            button.prefWidthProperty().bind(lowerHBox.widthProperty().divide(onScreenButtons.size()));
+            lowerHBox.getChildren().add(button);
+        }
     }
 }

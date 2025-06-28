@@ -22,7 +22,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
@@ -205,8 +204,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
 
             endTurnButton.setOnMouseClicked(_ -> {
                 if (!placedMarker) {
-                    Stage currentStage = (Stage) parent.getScene().getWindow();
-                    MessageController.showErrorMessage(currentStage, "You need to place the marker");
+                    MessageController.showErrorMessage("You need to place the marker");
                 }
                 else{
                     StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
@@ -214,8 +212,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
                         error(status);
                     }
                     else{
-                        Stage currentStage = (Stage) parent.getScene().getWindow();
-                        MessageController.showInfoMessage(currentStage, "Confirmed choices");
+                        MessageController.showInfoMessage("Confirmed choices");
                     }
                 }
             });
@@ -481,8 +478,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
     }
 
     private void error(StatusEvent status) {
-        Stage currentStage = (Stage) parent.getScene().getWindow();
-        MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+        MessageController.showErrorMessage(((Pota) status).errorMessage());
         resetHandlers();
     }
 }

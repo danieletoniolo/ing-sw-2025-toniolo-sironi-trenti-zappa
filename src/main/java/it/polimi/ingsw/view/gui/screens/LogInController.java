@@ -60,8 +60,7 @@ public class LogInController implements MiniModelObserver, Initializable {
             if (!username.isEmpty()) {
                 StatusEvent status = SetNickname.requester(Client.transceiver, new Object()).request(new SetNickname(MiniModel.getInstance().getUserID(), username));
                 if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                    Stage currentStage = (Stage) parent.getScene().getWindow();
-                    MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                    MessageController.showErrorMessage(((Pota) status).errorMessage());
                 }
             }
         });

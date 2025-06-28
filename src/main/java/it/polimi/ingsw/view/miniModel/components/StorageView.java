@@ -64,6 +64,7 @@ public class StorageView extends ComponentView {
                 break;
             }
         }
+        notifyObservers();
     }
 
     /**
@@ -79,6 +80,7 @@ public class StorageView extends ComponentView {
                 break;
             }
         }
+        notifyObservers();
     }
 
     /**
@@ -96,6 +98,7 @@ public class StorageView extends ComponentView {
 
         GoodView good = goods[i];
         goods[i] = null;
+        notifyObservers();
         return good;
     }
 
@@ -106,6 +109,7 @@ public class StorageView extends ComponentView {
      */
     public void changeGoods(GoodView[] newGoods) {
         this.goods = newGoods;
+        notifyObservers();
     }
 
     /**
