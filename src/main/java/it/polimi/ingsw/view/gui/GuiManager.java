@@ -79,6 +79,10 @@ public class GuiManager extends Application implements Manager {
         stage.setTitle("Galaxy Trucker");
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/image/background/galaxyTruckerIcon.png")));
         stage.setScene(scene);
+        stage.setOnCloseRequest(_ -> {
+            Platform.exit();
+            System.exit(0);
+        });
         stage.show();
         currentScene = GuiScene.LOGIN;
     }
