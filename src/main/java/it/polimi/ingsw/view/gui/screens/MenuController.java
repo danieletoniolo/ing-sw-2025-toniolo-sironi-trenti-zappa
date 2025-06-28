@@ -31,6 +31,14 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the main menu screen in the GUI.
+ * <p>
+ * This class manages the layout, resizing, and user interactions
+ * for the lobby menu, including creating and joining lobbies.
+ * It observes changes in the MiniModel to update the lobby view dynamically.
+ * </p>
+ */
 public class MenuController implements MiniModelObserver, Initializable {
 
     /**

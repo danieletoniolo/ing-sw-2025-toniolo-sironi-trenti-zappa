@@ -12,12 +12,24 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 
+/**
+ * Controller for the player marker component in the GUI.
+ * Handles initialization and binding of the marker image to its parent container.
+ */
 public class PlayerMarkerController implements Initializable {
 
+    /** The parent StackPane containing the marker image. */
     @FXML private StackPane parent;
 
+    /** The ImageView displaying the player's marker. */
     @FXML private ImageView markerImage;
 
+    /**
+     * Initializes the controller, setting up resizing behavior for the marker image.
+     *
+     * @param location  the location used to resolve relative paths for the root object, or null if unknown
+     * @param resources the resources used to localize the root object, or null if not localized
+     */
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
         // Ensure the parent StackPane can resize properly
@@ -29,6 +41,12 @@ public class PlayerMarkerController implements Initializable {
         markerImage.fitHeightProperty().bind(parent.heightProperty());
     }
 
+    /**
+     * Sets the model for the player marker, updating the marker image
+     * based on the provided MarkerView enum value.
+     *
+     * @param markerView the MarkerView enum representing the player's marker color
+     */
     public void setModel(MarkerView markerView) {
         String path = switch (markerView) {
             case RED -> "/image/misc/redMarker.png";

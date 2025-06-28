@@ -50,31 +50,65 @@ import org.javatuples.Pair;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the main building screen in the GUI.
+ * Handles initialization, user interactions, and updates for the building phase.
+ * Implements MiniModelObserver to react to model changes and Initializable for JavaFX setup.
+ */
 public class BuildingController implements MiniModelObserver, Initializable {
 
+    /** The root StackPane of the scene. */
     @FXML private StackPane parent;
 
+    /** The main VBox containing the primary layout. */
     @FXML private VBox mainVBox;
+    /** StackPane for the lower left section, typically the board. */
     @FXML private StackPane lowerLeftStackPane;
+    /** StackPane for displaying the player's hand component. */
     @FXML private StackPane handComponent;
+    /** Button to rotate the current component. */
     @FXML private Button rotateButton;
+    /** Button to pick a new tile from the board. */
     @FXML private Button pickNewTile;
+    /** StackPane for the upper right section, typically the viewable pile. */
     @FXML private StackPane upperRightStackPane;
+    /** StackPane for the lower right section, typically the spaceship. */
     @FXML private StackPane lowerRightStackPane;
+    /** HBox containing lower action buttons. */
     @FXML private HBox lowerHBox;
 
+    /** Group used for resizing the main content. */
     @FXML private Group resizeGroup;
 
+    /** Overlay pane for displaying another player's spaceship. */
     private StackPane newOtherPlayerPane;
 
+    /**
+     * Reference to the singleton instance of MiniModel.
+     */
     private final MiniModel mm = MiniModel.getInstance();
 
+    /**
+     * Original width of the main VBox, used for scaling.
+     */
     private final double ORIGINAL_MAIN_VBOX_WIDTH = 1600.0;
+
+    /**
+     * Original height of the main VBox, used for scaling.
+     */
     private final double ORIGINAL_MAIN_VBOX_HEIGHT = 900.0;
 
+    /**
+     * Tracks if the 'P' key has been pressed for cheat code activation.
+     */
     private boolean pKeyPressed = false;
 
-
+    /**
+     * Initializes the building screen, sets up event listeners, and configures UI components.
+     *
+     * @param url            The location used to resolve relative paths for the root object, or null if not known.
+     * @param resourceBundle The resources used to localize the root object, or null if not found.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         URL imageUrl = getClass().getResource("/image/background/background2.png");
@@ -216,6 +250,12 @@ public class BuildingController implements MiniModelObserver, Initializable {
         }
     }
 
+    /**
+     * Creates a ChangeListener that rescales the resizeGroup based on the parent StackPane's size.
+     * Maintains the aspect ratio according to the original main VBox dimensions.
+     *
+     * @return a ChangeListener that updates the scale of the resizeGroup
+     */
     private ChangeListener<Number> createResizeListener() {
         return (_, _, _) -> {
             if (parent.getWidth() <= 0 || parent.getHeight() <= 0) {
@@ -231,6 +271,14 @@ public class BuildingController implements MiniModelObserver, Initializable {
         };
     }
 
+    /**
+     * Displays an overlay with the cards of the specified deck.
+     * Allows the user to view up to 3 cards and close the overlay.
+     * On closing, sends a PickLeaveDeck event to the server.
+     *
+     * @param deck     the DeckView containing the cards to display
+     * @param position the position of the deck in the list
+     */
     private void showDeckView(DeckView deck, int position) {
         StackPane deckViewPane = new StackPane();
         deckViewPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
@@ -298,6 +346,11 @@ public class BuildingController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Displays an overlay that allows the user to select a position for placing a marker.
+     * The overlay presents four position buttons and a cancel button.
+     * On selection, the overlay is hidden and the marker is placed at the chosen position.
+     */
     private void showMarkerPositionSelector() {
         StackPane markerSelectorPane = new StackPane();
         markerSelectorPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
@@ -360,6 +413,12 @@ public class BuildingController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Sends a request to place a marker at the specified position.
+     * If successful, sends an EndTurn event. If an error occurs, displays an error message.
+     *
+     * @param position the position where the marker should be placed (0-based index)
+     */
     private void placeMarkerAtPosition(int position) {
         StatusEvent status = PlaceMarker.requester(Client.transceiver, new Object())
                 .request(new PlaceMarker(MiniModel.getInstance().getUserID(), position));
@@ -373,6 +432,12 @@ public class BuildingController implements MiniModelObserver, Initializable {
         }
     }
 
+    /**
+     * Displays an overlay showing the selected other player's spaceship.
+     * The overlay includes the player's ship, a title, and a back button to close the overlay.
+     *
+     * @param player the PlayerDataView representing the other player whose spaceship is to be displayed
+     */
     private void showOtherPlayer(PlayerDataView player) {
         newOtherPlayerPane = new StackPane();
         newOtherPlayerPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
@@ -431,6 +496,11 @@ public class BuildingController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Hides the specified overlay pane with a fade-out animation and removes it from the parent StackPane.
+     *
+     * @param paneToHide the StackPane overlay to hide and remove
+     */
     private void hideOverlay(StackPane paneToHide) {
         FadeTransition fadeOutContent = new FadeTransition(Duration.millis(300), paneToHide);
         fadeOutContent.setFromValue(1);
@@ -541,6 +611,11 @@ public class BuildingController implements MiniModelObserver, Initializable {
         }
     }
 
+    /**
+     * Reacts to changes in the MiniModel.
+     * Updates the GUI components to reflect the current state of the model.
+     * This method is called on the JavaFX Application Thread.
+     */
     @Override
     public void react() {
         Platform.runLater(() -> {

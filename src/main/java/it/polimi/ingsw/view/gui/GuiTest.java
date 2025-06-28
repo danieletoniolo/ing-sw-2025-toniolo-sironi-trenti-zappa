@@ -37,7 +37,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JavaFX test application for GUI components.
+ * Used to initialize and display various GUI screens and controllers for testing purposes.
+ */
 public class GuiTest extends Application {
+    /**
+     * Starts the JavaFX application.
+     * Initializes the GUI for testing purposes by setting up the stage and scene.
+     *
+     * @param stage the primary stage for this application
+     * @throws IOException if the FXML resource cannot be loaded
+     */
     @Override
     public void start(Stage stage) throws IOException {
         /*ViewablePileView pile = new ViewablePileView();
@@ -94,11 +105,22 @@ public class GuiTest extends Application {
         stage.show();
     }
 
+    /**
+     * Main entry point for the JavaFX test application.
+     * Launches the JavaFX application.
+     *
+     * @param args the command line arguments
+     */
     public static void main(String[] args) {
         launch();
     }
 
-    //TODO: Useful for changing cards from model to view
+    /**
+     * Converts a Card model object to its corresponding CardView representation.
+     *
+     * @param card the Card model to convert
+     * @return the corresponding CardView, or null if the card type is not recognized
+     */
     public static CardView convertCard(Card card) {
         switch (card.getCardType()) {
             case PIRATES:

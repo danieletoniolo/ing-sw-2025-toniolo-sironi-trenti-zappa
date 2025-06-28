@@ -21,6 +21,11 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the countdown timer in the GUI.
+ * Implements the observer pattern to react to changes in the TimerView model
+ * and manages the visual representation and countdown logic of the timer.
+ */
 public class TimerCountdownController implements MiniModelObserver, Initializable {
     /**
      * The StackPane that serves as the parent container for the timer.

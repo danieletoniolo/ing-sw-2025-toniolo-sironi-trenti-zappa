@@ -34,6 +34,15 @@ import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the lobby screen in the GUI.
+ * <p>
+ * This class manages the layout, resizing, and user interactions within the lobby,
+ * including displaying player information, handling ready/not ready and leave lobby actions,
+ * and responding to updates from the mini model.
+ * Implements {@link MiniModelObserver} to react to model changes and {@link Initializable}
+ * for JavaFX FXML initialization.
+ */
 public class LobbyController implements MiniModelObserver, Initializable {
 
     /**

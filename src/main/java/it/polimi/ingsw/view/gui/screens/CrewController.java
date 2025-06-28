@@ -34,33 +34,60 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the Crew screen in the GUI.
+ * Handles user interactions related to crew management, resizing, and displaying other players' spaceships.
+ * Implements MiniModelObserver to react to model changes and Initializable for JavaFX initialization.
+ */
 public class CrewController implements MiniModelObserver, Initializable {
 
+    /** Root StackPane of the scene, used for layout and overlays. */
     @FXML private StackPane parent;
 
+    /** Group used for resizing the main content. */
     @FXML private Group resizeGroup;
 
+    /** Main VBox containing the primary UI elements. */
     @FXML private VBox mainVBox;
 
+    /** Label displaying the title of the screen. */
     @FXML private Label titleLabel;
 
+    /** StackPane containing the spaceship view. */
     @FXML private StackPane spaceShipStackPane;
 
+    /** HBox containing the lower action buttons. */
     @FXML private HBox lowerHBox;
 
+    /** Button to confirm the end of the turn. */
     private Button endTurnButton;
 
+    /** Overlay pane for crew options. */
     private StackPane newCrewOptionsPane;
+    /** VBox containing crew options UI. */
     private VBox newCrewOptionsVBox;
 
+    /** Overlay pane for viewing another player's spaceship. */
     private StackPane newOtherPlayerPane;
+    /** VBox containing other player's spaceship UI. */
     private VBox newOtherPlayerVBox;
 
+    /** Original width of the main box for scaling calculations. */
     private final double ORIGINAL_MAIN_BOX_WIDTH = 1600;
+    /** Original height of the main box for scaling calculations. */
     private final double ORIGINAL_MAIN_BOX_HEIGHT = 900;
 
+    /** Reference to the MiniModel singleton instance. */
     private final MiniModel mm = MiniModel.getInstance();
 
+    /**
+     * Initializes the Crew screen controller.
+     * Sets up the background, layout alignment, resize listeners, and action buttons.
+     * Called automatically by JavaFX after the FXML fields are injected.
+     *
+     * @param url The location used to resolve relative paths for the root object, or null if not known.
+     * @param resourceBundle The resources used to localize the root object, or null if not localized.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         URL imageUrl = getClass().getResource("/image/background/background2.png");
@@ -117,6 +144,12 @@ public class CrewController implements MiniModelObserver, Initializable {
         endTurnButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
     }
 
+    /**
+     * Creates a ChangeListener that rescales the resizeGroup based on the parent StackPane's current width and height.
+     * Ensures the UI scales proportionally to the original design dimensions.
+     *
+     * @return a ChangeListener that updates the scale of the resizeGroup
+     */
     private ChangeListener<Number> createResizeListener() {
         return (_, _, _) -> {
             if (parent.getWidth() <= 0 || parent.getHeight() <= 0) {
@@ -132,6 +165,12 @@ public class CrewController implements MiniModelObserver, Initializable {
         };
     }
 
+    /**
+     * Displays an overlay showing another player's spaceship.
+     * Creates a modal-like pane with the selected player's ship and a back button to close the overlay.
+     *
+     * @param player the PlayerDataView representing the player whose spaceship is to be displayed
+     */
     private void showOtherPlayer(PlayerDataView player) {
         newOtherPlayerPane = new StackPane();
         newOtherPlayerPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
@@ -190,6 +229,11 @@ public class CrewController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Hides the specified overlay pane with a fade-out animation and removes it from the parent StackPane.
+     *
+     * @param paneToHide the StackPane overlay to hide and remove
+     */
     private void hideOverlay(StackPane paneToHide) {
         FadeTransition fadeOutContent = new FadeTransition(Duration.millis(300), paneToHide);
         fadeOutContent.setFromValue(1);
@@ -203,6 +247,12 @@ public class CrewController implements MiniModelObserver, Initializable {
         fadeOutContent.play();
     }
 
+    /**
+     * Reacts to changes in the MiniModel.
+     * Updates the UI to reflect the current state of the player's spaceship,
+     * highlights interactable components, and sets up event handlers for crew management.
+     * This method is called on the JavaFX Application Thread.
+     */
     @Override
     public void react() {
         Platform.runLater(() -> {
@@ -233,6 +283,13 @@ public class CrewController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Shows the crew choice overlay for the specified component.
+     * Opens a modal pane allowing the user to select the type of crew member and whether to add or remove them.
+     * Triggers a fade-in animation for the overlay.
+     *
+     * @param component the ComponentView representing the cabin to manage crew for
+     */
     private void showCrewChoice(ComponentView component) {
         createNewCrewOptionsPane(component);
 
@@ -249,6 +306,14 @@ public class CrewController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Creates and displays a new overlay pane for crew options.
+     * This pane allows the user to select the type of crew member and whether to add or remove them
+     * for the specified component (cabin). The overlay is styled and sized relative to the main UI,
+     * and includes confirm and cancel actions.
+     *
+     * @param component the ComponentView representing the cabin to manage crew for
+     */
     private void createNewCrewOptionsPane(ComponentView component) {
         newCrewOptionsPane = new StackPane();
         newCrewOptionsPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6);");
@@ -350,6 +415,10 @@ public class CrewController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Hides the crew options overlay with a fade-out animation.
+     * Sets the overlay as invisible after the animation completes.
+     */
     private void hideOptions() {
         FadeTransition fadeOut = new FadeTransition(Duration.millis(300), newCrewOptionsPane);
         fadeOut.setFromValue(1);
@@ -358,8 +427,12 @@ public class CrewController implements MiniModelObserver, Initializable {
         fadeOut.play();
     }
 
-
-
+    /**
+     * Hides the specified crew options overlay pane with a fade-out animation.
+     * After the animation, sets the pane as invisible.
+     *
+     * @param pane the StackPane overlay to hide
+     */
     private void hideCrewOptions(StackPane pane) {
         FadeTransition fadeOut = new FadeTransition(Duration.millis(300), pane);
         fadeOut.setFromValue(1);
@@ -368,6 +441,11 @@ public class CrewController implements MiniModelObserver, Initializable {
         fadeOut.play();
     }
 
+    /**
+     * Removes all mouse click handlers and visual effects from every component
+     * in the player's spaceship. This is used to reset the UI before reapplying
+     * new handlers or effects, ensuring no duplicate or stale listeners remain.
+     */
     private void resetHandlers() {
         for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
             for (ComponentView component : row) {

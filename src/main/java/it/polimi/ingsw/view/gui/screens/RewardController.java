@@ -28,6 +28,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the reward screen in the GUI.
+ * Handles the display of player rankings and manages UI interactions
+ * such as resizing and navigation between rankings.
+ * Implements MiniModelObserver to react to model updates and Initializable
+ * for JavaFX component initialization.
+ */
 public class RewardController implements MiniModelObserver, Initializable{
 
     /**
@@ -83,6 +90,13 @@ public class RewardController implements MiniModelObserver, Initializable{
     };
 
 
+    /**
+     * Initializes the reward screen components, sets up background, resizing listeners,
+     * and prepares the player ranking list and button actions.
+     *
+     * @param url the location used to resolve relative paths for the root object, or null if not known
+     * @param resourceBundle the resources used to localize the root object, or null if not localized
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         URL imageUrl = getClass().getResource("/image/background/background2.png");
@@ -128,6 +142,13 @@ public class RewardController implements MiniModelObserver, Initializable{
         });
     }
 
+    /**
+     * Creates a ChangeListener that handles resizing of the UI components
+     * based on the parent StackPane's width and height.
+     * Scales the resizeGroup proportionally to maintain aspect ratio.
+     *
+     * @return a ChangeListener for Number properties to handle resizing
+     */
     private ChangeListener<Number> createResizeListener() {
         return (_, _, _) -> {
             if (parent.getWidth() <= 0 || parent.getHeight() <= 0) {
@@ -143,6 +164,11 @@ public class RewardController implements MiniModelObserver, Initializable{
         };
     }
 
+    /**
+     * Reacts to updates in the MiniModel.
+     * Populates the ranking VBox with player information and their positions.
+     * Called when the model notifies observers of changes.
+     */
     @Override
     public void react() {
         int i = 0;
