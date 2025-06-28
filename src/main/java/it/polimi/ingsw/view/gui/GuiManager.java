@@ -449,6 +449,7 @@ public class GuiManager extends Application implements Manager {
             String message = rollDice;
             switch (data.canProtect().getValue1()) {
                 case -1:
+                    CardsGameController.actionCantProtect();
                     message += " -> You can't protect from the hit";
                     break;
                 case 0:
@@ -456,6 +457,7 @@ public class GuiManager extends Application implements Manager {
                     message += " -> You can protect from the hit, select a battery to use";
                     break;
                 case 1:
+                    CardsGameController.actionProtectionNotRequired();
                     message += " -> You don't need to protect from the hit";
                     break;
             };

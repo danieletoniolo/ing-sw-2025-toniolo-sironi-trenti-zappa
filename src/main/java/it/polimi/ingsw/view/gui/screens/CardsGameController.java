@@ -15,7 +15,6 @@ import it.polimi.ingsw.event.game.clientToServer.spaceship.ChooseFragment;
 import it.polimi.ingsw.event.game.clientToServer.spaceship.SetPenaltyLoss;
 import it.polimi.ingsw.event.game.serverToClient.status.Pota;
 import it.polimi.ingsw.event.type.StatusEvent;
-import it.polimi.ingsw.model.cards.Smugglers;
 import it.polimi.ingsw.view.gui.controllers.components.BatteryController;
 import it.polimi.ingsw.view.gui.controllers.components.CabinController;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
@@ -45,7 +44,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
@@ -60,6 +58,8 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         RESET,
         WAITING,
         ROLL_DICE,
+        PROTECTION_NOT_POSSIBLE,
+        PROTECTION_NOT_REQUIRED,
         SELECT_ACCEPT,
         SELECT_BATTERIES,
         SELECT_CANNONS,
@@ -254,7 +254,11 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 case ROLL_DICE:
                     activeRollDiceButtons();
                     break;
+                case PROTECTION_NOT_POSSIBLE:
+                    activeCantProtectButtons();
+                    break;
                 case RESET:
+                case PROTECTION_NOT_REQUIRED:
                     activeEndTurnButtons();
                     break;
                 /*
@@ -366,6 +370,14 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
     static public void actionRollDice() {
         actionState = ActionState.ROLL_DICE;
+    }
+
+    static public void actionCantProtect() {
+        actionState = ActionState.PROTECTION_NOT_POSSIBLE;
+    }
+
+    static public void actionProtectionNotRequired() {
+        actionState = ActionState.PROTECTION_NOT_REQUIRED;
     }
 
     static public void actionEngine() {
@@ -1301,6 +1313,32 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
 
         onScreenButtons.add(rollDiceButton);
+    }
+
+    private void activeCantProtectButtons() {
+        Button cantProtectButton = new Button("End turn");
+
+        // EndTurn event
+        cantProtectButton.setOnMouseClicked(_ -> {
+            List<Integer> batteries = new ArrayList<>();
+            batteries.add(-1);
+            StatusEvent status = UseShield.requester(Client.transceiver, new Object()).request(new UseShield(MiniModel.getInstance().getUserID(), batteries));
+            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
+                error(status);
+            } else {
+                // Player is ready for the next hit, so we end the turn
+                status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(MiniModel.getInstance().getUserID()));
+                if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
+                    error(status);
+                } else {
+                    resetHandlers();
+                    resetEffects();
+                }
+            }
+
+        });
+
+        onScreenButtons.add(cantProtectButton);
     }
 
     private void activeEndTurnButtons() {

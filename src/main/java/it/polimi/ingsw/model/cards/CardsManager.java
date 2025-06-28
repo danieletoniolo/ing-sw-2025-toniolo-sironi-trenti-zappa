@@ -119,7 +119,6 @@ public class CardsManager {
     public static Stack<Card> createLearningDeck() {
         Stack<Card> learningDeck = new Stack<>();
 
-/*
         learningDeck.push(cards[1]);
         learningDeck.push(cards[3]);
         learningDeck.push(cards[4]);
@@ -128,13 +127,8 @@ public class CardsManager {
         learningDeck.push(cards[15]);
         learningDeck.push(cards[17]);
         learningDeck.push(cards[18]);
-*/
-        learningDeck.push(cards[3]);
-        learningDeck.push(cards[2]);
-        learningDeck.push(cards[2]);
-        learningDeck.push(cards[2]);
 
-        // Collections.shuffle(learningDeck);
+        Collections.shuffle(learningDeck);
 
         return learningDeck;
     }
