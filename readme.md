@@ -49,7 +49,7 @@ java -jar deliverables/Client.jar
 
 1. **Start the Server:**
    ```bash
-   java -jar target/libs/Server.jar
+   java -jar deliverables/Server.jar
    ```
    
 2. **Start one or more Clients:**
