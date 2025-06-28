@@ -20,6 +20,7 @@ import it.polimi.ingsw.view.gui.controllers.components.CabinController;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
+import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.components.ComponentTypeView;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
@@ -416,6 +417,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         actionState = ActionState.DISCARD_CABINS;
     }
 
+    static public void actionFragments() {
+        actionState = ActionState.SELECT_FRAGMENT;
+    }
+
     static public void waitingActionState() {
         actionState = ActionState.WAITING;
     }
@@ -508,7 +513,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
         // Create a VBox to hold the new lobby options
         VBox newSelectGoodsVBox = new VBox(15);
-        newSelectGoodsVBox.setAlignment(javafx.geometry.Pos.CENTER);
+        newSelectGoodsVBox.setAlignment(Pos.CENTER);
         newSelectGoodsVBox.setStyle("-fx-background-color: rgba(251,197,9, 0.8); " +
                 "-fx-background-radius: 10; " +
                 "-fx-border-color: rgb(251,197,9); " +
@@ -1022,7 +1027,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
         // Create a VBox to hold the new lobby options
         VBox newPlanetVBox = new VBox(15);
-        newPlanetVBox.setAlignment(javafx.geometry.Pos.CENTER);
+        newPlanetVBox.setAlignment(Pos.CENTER);
         newPlanetVBox.setStyle("-fx-background-color: rgba(251,197,9, 0.8); " +
                 "-fx-background-radius: 10; " +
                 "-fx-border-color: rgb(251,197,9); " +
@@ -1174,7 +1179,6 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         Button cancelBatteriesButton = new Button("Cancel Batteries");
         Button useBatteriesButton = null;
         Button sendPenaltyBatteries = null;
-        Button useShieldButton = null;
 
         switch (actionOnBatteries) {
             case SELECTION -> {
@@ -1182,12 +1186,23 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 // Use engine event
                 useBatteriesButton.setOnMouseClicked(_ -> {
                     CardView card = mm.getShuffledDeckView().getDeck().peek();
-                    StatusEvent status = switch (card.getCardViewType()) {
-                        case SLAVERS, SMUGGLERS, PIRATES ->
-                                UseCannons.requester(Client.transceiver, new Object()).request(new UseCannons(mm.getUserID(), selectedCannonsList, selectedBatteriesList));
-                        case OPENSPACE, COMBATZONE ->
-                                UseEngines.requester(Client.transceiver, new Object()).request(new UseEngines(mm.getUserID(), selectedEnginesList, selectedBatteriesList));
-                        default -> null;
+                    StatusEvent status = null;
+                    switch (card.getCardViewType()) {
+                        case SLAVERS:
+                        case SMUGGLERS:
+                        case PIRATES:
+                        case OPENSPACE:
+                            LevelView level = mm.getBoardView().getLevel();
+                            int combatZonePhase = mm.getCombatZonePhase();
+                            if ((combatZonePhase == 0 && level == LevelView.SECOND) ||
+                                (combatZonePhase == 2 && level == LevelView.LEARNING) ||
+                                (card.getCardViewType() != CardViewType.OPENSPACE)) {
+                                status = UseCannons.requester(Client.transceiver, new Object()).request(new UseCannons(mm.getUserID(), selectedCannonsList, selectedBatteriesList));
+                                break;
+                            }
+                        case COMBATZONE:
+                            status = UseEngines.requester(Client.transceiver, new Object()).request(new UseEngines(mm.getUserID(), selectedEnginesList, selectedBatteriesList));
+                            break;
                     };
                     if (status != null && status.get().equals(mm.getErrorCode())) {
                         error(status);

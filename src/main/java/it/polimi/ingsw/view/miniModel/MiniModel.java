@@ -55,6 +55,8 @@ public class MiniModel {
     /** Current game phase */
     private GamePhases phase;
 
+    private int combatZonePhase = 0;
+
     /**
      * Returns the singleton instance of MiniModel.
      * @return the MiniModel instance
@@ -64,6 +66,22 @@ public class MiniModel {
             instance = new MiniModel();
         }
         return instance;
+    }
+
+    /**
+     * Private constructor to prevent instantiation.
+     * @param combatZonePhase the initial combat zone phase
+     */
+    public void setCombatZonePhase(int combatZonePhase) {
+        this.combatZonePhase = combatZonePhase;
+    }
+
+    /**
+     * Gets the current combat zone phase.
+     * @return the combat zone phase
+     */
+    public int getCombatZonePhase() {
+        return combatZonePhase;
     }
 
     /**

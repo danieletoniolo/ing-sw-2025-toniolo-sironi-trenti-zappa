@@ -171,35 +171,37 @@ public class RewardController implements MiniModelObserver, Initializable{
      */
     @Override
     public void react() {
-        int i = 0;
-        for (PlayerDataView player : allPlayers) {
-            MarkerView mv = player.getMarkerView();
+        Platform.runLater(() -> {
+            int i = 0;
+            for (PlayerDataView player : allPlayers) {
+                MarkerView mv = player.getMarkerView();
 
-            // Create a new HBox for the player
-            HBox playerBox = new HBox(10);
-            playerBox.setAlignment(Pos.CENTER_LEFT);
-            playerBox.setSpacing(10);
-            playerBox.setStyle("-fx-background-color: white; " +
-                    "-fx-background-radius: 10; " +
-                    "-fx-text-fill: black; ");
+                // Create a new HBox for the player
+                HBox playerBox = new HBox(10);
+                playerBox.setAlignment(Pos.CENTER_LEFT);
+                playerBox.setSpacing(10);
+                playerBox.setStyle("-fx-background-color: white; " +
+                        "-fx-background-radius: 10; " +
+                        "-fx-text-fill: black; ");
 
-            // Create a Label for the player's name and status
-            Label playerNameLabel = new Label(rankings[i] + player.getUsername() + " with " + player.getCoins() + " coins");
-            playerNameLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
-            playerNameLabel.setStyle("-fx-text-fill: black;");
+                // Create a Label for the player's name and status
+                Label playerNameLabel = new Label(rankings[i] + player.getUsername() + " with " + player.getCoins() + " coins");
+                playerNameLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
+                playerNameLabel.setStyle("-fx-text-fill: black;");
 
-            // Add the player's marker view and name label to the player box
-            if (mv != null) {
-                playerBox.getChildren().add(mv.getNode());
+                // Add the player's marker view and name label to the player box
+                if (mv != null) {
+                    playerBox.getChildren().add(mv.getNode());
+                }
+                playerBox.getChildren().add(playerNameLabel);
+
+                // Bind the width of the player box to the lobby box VBox width
+                playerBox.prefWidthProperty().bind(rankVBox.widthProperty().subtract(20));
+
+                playerBox.prefHeight(100);
+                rankVBox.getChildren().add(playerBox);
+                i++;
             }
-            playerBox.getChildren().add(playerNameLabel);
-
-            // Bind the width of the player box to the lobby box VBox width
-            playerBox.prefWidthProperty().bind(rankVBox.widthProperty().subtract(20));
-
-            playerBox.prefHeight(100);
-            rankVBox.getChildren().add(playerBox);
-            i++;
-        }
+        });
     }
 }

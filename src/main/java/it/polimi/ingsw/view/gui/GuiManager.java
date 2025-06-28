@@ -17,9 +17,11 @@ import it.polimi.ingsw.event.game.serverToClient.rotatedTile.RotatedTile;
 import it.polimi.ingsw.event.game.serverToClient.spaceship.*;
 import it.polimi.ingsw.event.game.serverToClient.timer.TimerFlipped;
 import it.polimi.ingsw.event.lobby.serverToClient.*;
+import it.polimi.ingsw.model.cards.Card;
 import it.polimi.ingsw.view.Manager;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
 import it.polimi.ingsw.view.gui.screens.CardsGameController;
+import it.polimi.ingsw.view.miniModel.GamePhases;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.cards.CardView;
@@ -296,8 +298,8 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyCombatZonePhase(CombatZonePhase data) {
+        mm.setCombatZonePhase(data.phaseNumber());
         controller.react();
-
     }
 
     @Override
@@ -398,7 +400,18 @@ public class GuiManager extends Application implements Manager {
                     CardsGameController.actionAccept();
                     message += " Choose if accept the card! Otherwise, you can end your turn";
                     break;
-
+                case METEORSSWARM:
+                    CardsGameController.actionRollDice();
+                    message += " Roll the dice for all the player";
+                    break;
+                case COMBATZONE:
+                    if (mm.getShuffledDeckView().getDeck().peek().getLevel() == 1) {
+                        CardsGameController.resetActionState();
+                        message += " Take the penalty! You are the player with the lowest number of crew";
+                    } else {
+                        CardsGameController.actionCannon();
+                        message += " Select the double cannon to use or end turn";
+                    }
             }
         }
 
@@ -477,6 +490,13 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyFragments(Fragments data) {
+        if (data.nickname().equals(mm.getNickname())) {
+            if (data.fragments().size() > 1) {
+                if (mm.getGamePhase() == GamePhases.CARDS) {
+                    CardsGameController.actionFragments();
+                }
+            }
+        }
         controller.react();
     }
 
