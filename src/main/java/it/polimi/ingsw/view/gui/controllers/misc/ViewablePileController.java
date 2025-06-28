@@ -20,6 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for a viewable pile in the GUI.
+ * Implements the observer pattern to react to changes in the mini model and initializes
+ * the related JavaFX components.
+ */
 public class ViewablePileController implements MiniModelObserver, Initializable {
 
     /**
@@ -42,6 +47,14 @@ public class ViewablePileController implements MiniModelObserver, Initializable 
      */
     private ViewablePileView viewablePileView;
 
+    /**
+     * Initializes the controller after its root element has been completely processed.
+     * Binds the width and height of the scroll pane to the parent StackPane,
+     * and binds the height of the HBox to the height of the scroll pane.
+     *
+     * @param url The location used to resolve relative paths for the root object, or null if not known.
+     * @param resourceBundle The resources used to localize the root object, or null if not localized.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Bind the width and height of the scroll pane to the parent StackPane
@@ -54,6 +67,12 @@ public class ViewablePileController implements MiniModelObserver, Initializable 
         hBox.setAlignment(Pos.TOP_LEFT);
     }
 
+    /**
+     * Sets the model for this controller and registers it as an observer.
+     * Triggers an initial update of the view.
+     *
+     * @param viewablePileView The ViewablePileView model to be associated with this controller.
+     */
     public void setModel(ViewablePileView viewablePileView) {
         this.viewablePileView = viewablePileView;
         this.viewablePileView.registerObserver(this);
@@ -61,6 +80,10 @@ public class ViewablePileController implements MiniModelObserver, Initializable 
     }
 
 
+    /**
+     * Reacts to changes in the observed mini model.
+     * Updates the GUI components on the JavaFX Application Thread.
+     */
     @Override
     public void react() {
         Platform.runLater(() -> {
@@ -93,6 +116,12 @@ public class ViewablePileController implements MiniModelObserver, Initializable 
         });
     }
 
+    /**
+     * Returns a list of ComponentController instances associated with the components
+     * in the current ViewablePileView.
+     *
+     * @return a list of ComponentController objects for each component in the pile
+     */
     public List<ComponentController> getComponentControllers() {
         List<ComponentController> componentControllers = new ArrayList<>();
         for (ComponentView tile : viewablePileView.getViewableComponents()) {

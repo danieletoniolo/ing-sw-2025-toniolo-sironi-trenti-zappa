@@ -70,7 +70,7 @@ public class MessageController implements Initializable {
     }
 
     /**
-     * Chiude il messaggio con un'animazione di dissolvenza
+     * Closes the message box with a fade-out animation and hides the window.
      */
     private void closeMessage() {
         FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.5), messageRoot);

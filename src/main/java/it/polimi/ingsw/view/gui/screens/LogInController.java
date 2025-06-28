@@ -18,6 +18,10 @@ import javafx.stage.Stage;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the login screen in the GUI.
+ * Implements the observer pattern to react to changes in the MiniModel and handles initialization logic for the login view.
+ */
 public class LogInController implements MiniModelObserver, Initializable {
 
     /**
@@ -51,6 +55,13 @@ public class LogInController implements MiniModelObserver, Initializable {
     private double LOGIN_BOX_HEIGHT_RATIO;
 
 
+    /**
+     * Initializes the login screen components and binds their properties.
+     * Sets up event handlers and default values for the view.
+     *
+     * @param url The location used to resolve relative paths for the root object, or null if not known.
+     * @param resourceBundle The resources used to localize the root object, or null if not localized.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.setDefaultValue();
@@ -83,6 +94,11 @@ public class LogInController implements MiniModelObserver, Initializable {
         usernameField.minWidthProperty().bind(loginBox.widthProperty().multiply(0.5));
     }
 
+    /**
+     * Sets the default values for the login screen.
+     * Loads the background image and calculates the initial width and height ratios
+     * for the login box relative to its parent container.
+     */
     private void setDefaultValue() {
         // Load the background image from resources
         URL imageUrl = getClass().getResource("/image/background/background1.png");
@@ -98,6 +114,11 @@ public class LogInController implements MiniModelObserver, Initializable {
         LOGIN_BOX_HEIGHT_RATIO = loginBox.getPrefHeight() / parent.getPrefHeight();
     }
 
+    /**
+     * Reacts to changes in the MiniModel.
+     * This method is called when the observed MiniModel notifies its observers.
+     * Currently, this implementation does nothing.
+     */
     @Override
     public void react() {
     }

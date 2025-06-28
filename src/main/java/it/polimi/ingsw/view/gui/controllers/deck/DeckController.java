@@ -15,6 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller class for managing the deck view in the GUI.
+ * Implements the MiniModelObserver to react to model changes and Initializable for FXML initialization.
+ */
 public class DeckController implements MiniModelObserver, Initializable {
     /**
      * The StackPane that serves as the parent container for the deck.

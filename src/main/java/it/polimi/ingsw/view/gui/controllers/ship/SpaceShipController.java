@@ -23,6 +23,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller class for managing the graphical user interface of the spaceship view.
+ * <p>
+ * Implements the {@link MiniModelObserver} interface to react to model updates and
+ * the {@link Initializable} interface to initialize the JavaFX components.
+ * Handles the layout, scaling, and dynamic updates of the ship and its components,
+ * ensuring synchronization between the UI and the underlying {@link SpaceShipView} model.
+ */
 public class SpaceShipController implements MiniModelObserver, Initializable {
 
     /**
@@ -345,6 +353,14 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Returns a list of controllers for all components currently present in the spaceship grid.
+     * <p>
+     * Iterates through the 2D array of {@link ComponentView} objects representing the spaceship,
+     * collects their associated {@link ComponentController} instances, and returns them as a list.
+     *
+     * @return a list of {@link ComponentController} for the components in the ship grid
+     */
     public List<ComponentController> getShipComponentControllers() {
         List<ComponentController> controllers = new ArrayList<>();
         for (ComponentView[] row : spaceShipModel.getSpaceShip()) {
@@ -357,6 +373,14 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
         return controllers;
     }
 
+    /**
+     * Returns a list of controllers for the reserved components in the spaceship.
+     * <p>
+     * Iterates over the reserved components in the discard pile and collects their
+     * associated {@link ComponentController} instances.
+     *
+     * @return a list of {@link ComponentController} for the reserved components
+     */
     public List<ComponentController> getReservedComponentControllers() {
         List<ComponentController> controllers = new ArrayList<>();
         for (ComponentView component : spaceShipModel.getDiscardReservedPile().getReserved()) {
@@ -367,6 +391,11 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
         return controllers;
     }
 
+    /**
+     * Returns the GridPane used for displaying reserved and lost components.
+     *
+     * @return the reserveLostGrid GridPane
+     */
     public GridPane getReserveLostGrid() {
         return reserveLostGrid;
     }
