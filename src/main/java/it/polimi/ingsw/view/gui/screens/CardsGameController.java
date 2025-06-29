@@ -80,7 +80,6 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     }
 
     static private ActionState actionState = ActionState.RESET;
-    private ActionOnBatteries actionOnBatteries = ActionOnBatteries.SELECTION;
 
     @FXML private StackPane parent;
     @FXML private Group resizeGroup;
@@ -266,7 +265,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 cardGoods.clear();
                 switch (card.getCardViewType()) {
                     case PLANETS:
-                        // This is done when the user selects a planet
+                        cardGoods.addAll(((PlanetsView) card).getPlanet(((PlanetsView) card).getPlanetSelected()));
                         break;
                     case SMUGGLERS:
                         cardGoods.addAll(((SmugglersView) card).getGoods());
