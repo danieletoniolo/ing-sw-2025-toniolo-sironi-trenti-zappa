@@ -145,7 +145,7 @@ public class RewardController implements MiniModelObserver, Initializable{
     /**
      * Creates a ChangeListener that handles resizing of the UI components
      * based on the parent StackPane's width and height.
-     * Scales the resizeGroup proportionally to maintain aspect ratio.
+     * Scales the resizeGroup proportionally to maintain an aspect ratio.
      *
      * @return a ChangeListener for Number properties to handle resizing
      */
@@ -174,6 +174,7 @@ public class RewardController implements MiniModelObserver, Initializable{
         Platform.runLater(() -> {
             int i = 0;
             rankVBox.getChildren().clear();
+            allPlayers.addAll(MiniModel.getInstance().getOtherPlayers());
             for (PlayerDataView player : allPlayers) {
                 MarkerView mv = player.getMarkerView();
 
