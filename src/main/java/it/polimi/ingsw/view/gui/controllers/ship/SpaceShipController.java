@@ -309,47 +309,49 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            shipGrid.getChildren().clear();
+            try {
+                shipGrid.getChildren().clear();
 
-            int rowOffset = SpaceShipView.ROW_OFFSET;
-            int colOffset = spaceShipModel.getLevel() == LevelView.SECOND ? SpaceShipView.COL_OFFSET : SpaceShipView.COL_OFFSET + 1;
+                int rowOffset = SpaceShipView.ROW_OFFSET;
+                int colOffset = spaceShipModel.getLevel() == LevelView.SECOND ? SpaceShipView.COL_OFFSET : SpaceShipView.COL_OFFSET + 1;
 
-            for (int i = 0; i < GRID_COLS; i++) {
-                for (int j = 0; j < GRID_ROWS; j++) {
-                    ComponentView component = spaceShipModel.getComponent(j + rowOffset, i + colOffset);
-                    if (component != null) {
-                        Node node = component.getNode().getValue0();
-                        if (node.getParent() != null) {
-                            ((Pane) node.getParent()).getChildren().remove(node);
+                for (int i = 0; i < GRID_COLS; i++) {
+                    for (int j = 0; j < GRID_ROWS; j++) {
+                        ComponentView component = spaceShipModel.getComponent(j + rowOffset, i + colOffset);
+                        if (component != null) {
+                            Node node = component.getNode().getValue0();
+                            if (node.getParent() != null) {
+                                ((Pane) node.getParent()).getChildren().remove(node);
+                            }
+                            GridPane.setHgrow(node, Priority.ALWAYS);
+                            GridPane.setVgrow(node, Priority.ALWAYS);
+                            GridPane.setFillWidth(node, true);
+                            GridPane.setFillHeight(node, true);
+                            GridPane.setHalignment(node, HPos.CENTER);
+                            GridPane.setValignment(node, VPos.CENTER);
+
+                            shipGrid.add(node, i, j);
                         }
-                        GridPane.setHgrow(node, Priority.ALWAYS);
-                        GridPane.setVgrow(node, Priority.ALWAYS);
-                        GridPane.setFillWidth(node, true);
-                        GridPane.setFillHeight(node, true);
-                        GridPane.setHalignment(node, HPos.CENTER);
-                        GridPane.setValignment(node, VPos.CENTER);
-
-                        shipGrid.add(node, i, j);
                     }
                 }
-            }
 
-            ArrayList<ComponentView> reservedDiscardedList = spaceShipModel.getDiscardReservedPile().getReserved();
-            int size = reservedDiscardedList.size();
-            if (size > 0 && reservedDiscardedList.get(size - 1) != null) {
-                Node node = reservedDiscardedList.get(size - 1).getNode().getValue0();
-                if (node.getParent() != null) {
-                    ((Pane) node.getParent()).getChildren().remove(node);
+                ArrayList<ComponentView> reservedDiscardedList = spaceShipModel.getDiscardReservedPile().getReserved();
+                int size = reservedDiscardedList.size();
+                if (size > 0 && reservedDiscardedList.get(size - 1) != null) {
+                    Node node = reservedDiscardedList.get(size - 1).getNode().getValue0();
+                    if (node.getParent() != null) {
+                        ((Pane) node.getParent()).getChildren().remove(node);
+                    }
+                    reserveLostGrid.add(node, 0, 0);
                 }
-                reserveLostGrid.add(node, 0, 0);
-            }
-            if (size > 1 && reservedDiscardedList.get(size - 2) != null) {
-                Node node = reservedDiscardedList.get(size - 2).getNode().getValue0();
-                if (node.getParent() != null) {
-                    ((Pane) node.getParent()).getChildren().remove(node);
+                if (size > 1 && reservedDiscardedList.get(size - 2) != null) {
+                    Node node = reservedDiscardedList.get(size - 2).getNode().getValue0();
+                    if (node.getParent() != null) {
+                        ((Pane) node.getParent()).getChildren().remove(node);
+                    }
+                    reserveLostGrid.add(node, 1, 0);
                 }
-                reserveLostGrid.add(node, 1, 0);
-            }
+            } catch (Exception e) {}
         });
     }
 

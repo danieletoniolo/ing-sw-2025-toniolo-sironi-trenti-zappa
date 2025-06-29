@@ -178,126 +178,128 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     public void react() {
         Platform.runLater(() -> {
 
-            if (deckLen == -1) {
-                deckLen = mm.getShuffledDeckView().getDeck().size();
-                resetHandlers();
-                resetEffects();
-            }
-            else {
-                if (deckLen != mm.getShuffledDeckView().getDeck().size()) {
-                    changeCardGoods = true;
+            try {
+
+                if (deckLen == -1) {
                     deckLen = mm.getShuffledDeckView().getDeck().size();
                     resetHandlers();
                     resetEffects();
-                }
-            }
-
-            onScreenButtons.clear();
-
-            CardView card = mm.getShuffledDeckView().getDeck().peek();
-            switch (actionState) {
-                case SELECT_ENGINES:
-                    activeEnginesButtons();
-                    activeBatteriesButtons(ActionOnBatteries.SELECTION);
-                    break;
-                case SELECT_CANNONS:
-                    activeCannonsButton();
-                    activeBatteriesButtons(ActionOnBatteries.SELECTION);
-                    break;
-                case SELECT_ACCEPT:
-                    activeAcceptButton(() -> {
-                        resetActionState();
-
-                        switch (card.getCardViewType()) {
-                            case PLANETS -> actionPlanets();
-                            case ABANDONEDSHIP -> actionCabins();
-                            case SMUGGLERS, ABANDONEDSTATION -> actionAddGoods();
-                        }
-
-                        react();
-
-                        displayMessageInfo("You can now select a planet to play.");
-                    });
-                    activeEndTurnButtons();
-                    break;
-                case SELECT_PLANET:
-                    activeSelectPlanetButton();
-                    activeEndTurnButtons();
-                    break;
-                case SELECT_GOODS:
-                    activeGoodsButtons();
-                    activeEndTurnButtons();
-                    break;
-                case SELECT_SHIELD:
-                    activeBatteriesButtons(ActionOnBatteries.SELECTION_FOR_SHIELD);
-                    activeShieldButtons();
-                    break;
-                case SELECT_FRAGMENT:
-                    activeFragmentsButtons();
-                    break;
-                case DISCARD_GOODS:
-                    activePenaltyGoods();
-                    if (card.getCardViewType() != CardViewType.SLAVERS) {
-                        break;
+                } else {
+                    if (deckLen != mm.getShuffledDeckView().getDeck().size()) {
+                        changeCardGoods = true;
+                        deckLen = mm.getShuffledDeckView().getDeck().size();
+                        resetHandlers();
+                        resetEffects();
                     }
-                case DISCARD_BATTERIES:
-                    activeBatteriesButtons(ActionOnBatteries.DISCARD);
-                    activeEndTurnButtons();
-                    break;
-                case DISCARD_CABINS:
-                    activeCabinsButtons();
-                    break;
-                case ROLL_DICE:
-                    activeRollDiceButtons();
-                    break;
-                case PROTECTION_NOT_POSSIBLE:
-                    activeCantProtectButtons();
-                    break;
-                case FORCE_GIVE_UP:
-                    activeGiveUpButton(true);
-                    break;
-                case RESET:
-                case PROTECTION_NOT_REQUIRED:
-                    activeEndTurnButtons();
-                    break;
-            }
+                }
 
-            if (changeCardGoods) {
-                cardGoods.clear();
-                switch (card.getCardViewType()) {
-                    case PLANETS:
-                        cardGoods.addAll(((PlanetsView) card).getPlanet(((PlanetsView) card).getPlanetSelected()));
+                onScreenButtons.clear();
+
+                CardView card = mm.getShuffledDeckView().getDeck().peek();
+                switch (actionState) {
+                    case SELECT_ENGINES:
+                        activeEnginesButtons();
+                        activeBatteriesButtons(ActionOnBatteries.SELECTION);
                         break;
-                    case SMUGGLERS:
-                        cardGoods.addAll(((SmugglersView) card).getGoods());
+                    case SELECT_CANNONS:
+                        activeCannonsButton();
+                        activeBatteriesButtons(ActionOnBatteries.SELECTION);
                         break;
-                    case ABANDONEDSTATION:
-                        cardGoods.addAll(((AbandonedStationView) card).getGoods());
+                    case SELECT_ACCEPT:
+                        activeAcceptButton(() -> {
+                            resetActionState();
+
+                            switch (card.getCardViewType()) {
+                                case PLANETS -> actionPlanets();
+                                case ABANDONEDSHIP -> actionCabins();
+                                case SMUGGLERS, ABANDONEDSTATION -> actionAddGoods();
+                            }
+
+                            react();
+
+                            displayMessageInfo("You can now select a planet to play.");
+                        });
+                        activeEndTurnButtons();
+                        break;
+                    case SELECT_PLANET:
+                        activeSelectPlanetButton();
+                        activeEndTurnButtons();
+                        break;
+                    case SELECT_GOODS:
+                        activeGoodsButtons();
+                        activeEndTurnButtons();
+                        break;
+                    case SELECT_SHIELD:
+                        activeBatteriesButtons(ActionOnBatteries.SELECTION_FOR_SHIELD);
+                        activeShieldButtons();
+                        break;
+                    case SELECT_FRAGMENT:
+                        activeFragmentsButtons();
+                        break;
+                    case DISCARD_GOODS:
+                        activePenaltyGoods();
+                        if (card.getCardViewType() != CardViewType.SLAVERS) {
+                            break;
+                        }
+                    case DISCARD_BATTERIES:
+                        activeBatteriesButtons(ActionOnBatteries.DISCARD);
+                        activeEndTurnButtons();
+                        break;
+                    case DISCARD_CABINS:
+                        activeCabinsButtons();
+                        break;
+                    case ROLL_DICE:
+                        activeRollDiceButtons();
+                        break;
+                    case PROTECTION_NOT_POSSIBLE:
+                        activeCantProtectButtons();
+                        break;
+                    case FORCE_GIVE_UP:
+                        activeGiveUpButton(true);
+                        break;
+                    case RESET:
+                    case PROTECTION_NOT_REQUIRED:
+                        activeEndTurnButtons();
                         break;
                 }
-                changeCardGoods = false;
-            }
 
-            if (actionState != ActionState.WAITING && actionState != ActionState.FORCE_GIVE_UP) {
-                activeGiveUpButton(false);
-            }
+                if (changeCardGoods) {
+                    cardGoods.clear();
+                    switch (card.getCardViewType()) {
+                        case PLANETS:
+                            cardGoods.addAll(((PlanetsView) card).getPlanet(((PlanetsView) card).getPlanetSelected()));
+                            break;
+                        case SMUGGLERS:
+                            cardGoods.addAll(((SmugglersView) card).getGoods());
+                            break;
+                        case ABANDONEDSTATION:
+                            cardGoods.addAll(((AbandonedStationView) card).getGoods());
+                            break;
+                    }
+                    changeCardGoods = false;
+                }
 
-            for (PlayerDataView player : mm.getOtherPlayers()) {
-                Button otherButtonPlayer = new Button("View " + player.getUsername() + "'s spaceship");
-                otherButtonPlayer.setOnMouseClicked(_ -> showOtherPlayer(player));
-                onScreenButtons.add(otherButtonPlayer);
-            }
+                if (actionState != ActionState.WAITING && actionState != ActionState.FORCE_GIVE_UP && card.getCardViewType() != CardViewType.METEORSSWARM && card.getCardViewType() != CardViewType.EPIDEMIC) {
+                    activeGiveUpButton(false);
+                }
 
-            showButtons();
+                for (PlayerDataView player : mm.getOtherPlayers()) {
+                    Button otherButtonPlayer = new Button("View " + player.getUsername() + "'s spaceship");
+                    otherButtonPlayer.setOnMouseClicked(_ -> showOtherPlayer(player));
+                    onScreenButtons.add(otherButtonPlayer);
+                }
 
-            clientSpaceShip.getChildren().clear();
-            clientSpaceShip.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
+                showButtons();
 
-            board.getChildren().clear();
-            board.getChildren().add(mm.getBoardView().getNode().getValue0());
+                clientSpaceShip.getChildren().clear();
+                clientSpaceShip.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
 
-            currentCard.getChildren().clear();
-            currentCard.getChildren().add(mm.getShuffledDeckView().getDeck().peek().getNode().getValue0());
+                board.getChildren().clear();
+                board.getChildren().add(mm.getBoardView().getNode().getValue0());
+
+                currentCard.getChildren().clear();
+                currentCard.getChildren().add(mm.getShuffledDeckView().getDeck().peek().getNode().getValue0());
+            } catch (Exception e) {}
         });
     }
 
@@ -617,11 +619,6 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 StatusEvent status = ExchangeGoods.requester(Client.transceiver, new Object()).request(new ExchangeGoods(mm.getUserID(), exchanges));
                 if (status.get().equals(mm.getErrorCode())) {
                     error(status);
-                    CardView card = mm.getShuffledDeckView().getDeck().peek();
-                    if (card.getCardViewType() == CardViewType.PLANETS) {
-                        cardGoods.clear();
-                        cardGoods.addAll(((PlanetsView) card).getPlanet(((PlanetsView) card).getPlanetSelected()));
-                    }
                 }
                 else {
                     resetEffects();
@@ -858,13 +855,12 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     private void resetEffectFragments() {
         for (List<Pair<Integer, Integer>> group : mm.getClientPlayer().getShip().getFragments()) {
             for (Pair<Integer, Integer> pair : group) {
-                ComponentView fragment = mm.getClientPlayer().getShip().getSpaceShip()[pair.getValue0()][pair.getValue1()];
+                Node fragment = mm.getClientPlayer().getShip().getComponent(pair.getValue0(), pair.getValue1()).getNode().getValue0();
                 if (fragment != null) {
-                    Node node = fragment.getNode().getValue0();
-                    node.setOpacity(1.0);
-                    node.setOnMouseClicked(null);
-                    node.setEffect(null);
-                    node.setDisable(false);
+                    fragment.setOpacity(1.0);
+                    fragment.setOnMouseClicked(null);
+                    fragment.setEffect(null);
+                    fragment.setDisable(false);
                 }
             }
         }

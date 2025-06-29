@@ -140,11 +140,13 @@ public class LobbyBoxController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            if (lobbyView != null) {
-                lobbyName.setText(lobbyView.getLobbyName());
-                lobbyLevel.setText(lobbyView.getLevel().toString());
-                numberOfPlayer.setText(lobbyView.getNumberOfPlayers() + "/" + lobbyView.getMaxPlayer());
-            }
+            try {
+                if (lobbyView != null) {
+                    lobbyName.setText(lobbyView.getLobbyName());
+                    lobbyLevel.setText(lobbyView.getLevel().toString());
+                    numberOfPlayer.setText(lobbyView.getNumberOfPlayers() + "/" + lobbyView.getMaxPlayer());
+                }
+            } catch (Exception e) {}
         });
     }
 }

@@ -256,30 +256,32 @@ public class CrewController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            resetHandlers();
+            try {
+                resetHandlers();
 
-            for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-                for (ComponentView component : row) {
-                    if (component != null && component.getType() == ComponentTypeView.CABIN) {
-                        Node node = component.getNode().getValue0();
+                for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+                    for (ComponentView component : row) {
+                        if (component != null && component.getType() == ComponentTypeView.CABIN) {
+                            Node node = component.getNode().getValue0();
 
-                        DropShadow redGlow = new DropShadow();
-                        redGlow.setColor(Color.BLUE);
-                        redGlow.setRadius(20);
-                        redGlow.setSpread(0.6);
+                            DropShadow redGlow = new DropShadow();
+                            redGlow.setColor(Color.BLUE);
+                            redGlow.setRadius(20);
+                            redGlow.setSpread(0.6);
 
-                        Glow glow = new Glow(0.7);
-                        glow.setInput(redGlow);
+                            Glow glow = new Glow(0.7);
+                            glow.setInput(redGlow);
 
-                        node.setEffect(glow);
+                            node.setEffect(glow);
 
-                        node.setOnMouseClicked(_ -> showCrewChoice(component));
+                            node.setOnMouseClicked(_ -> showCrewChoice(component));
+                        }
                     }
                 }
-            }
 
-            spaceShipStackPane.getChildren().clear();
-            spaceShipStackPane.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
+                spaceShipStackPane.getChildren().clear();
+                spaceShipStackPane.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
+            } catch (Exception e) {}
         });
     }
 

@@ -109,19 +109,21 @@ public class CardController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            String path;
-            // Update the image based on the card model
-            if (cardView.isCovered()) {
-                path = switch (cardView.getLevel()) {
-                    case 1 -> "/image/card/covered_1.jpg";
-                    case 2 -> "/image/card/covered_2.jpg";
-                    default -> throw new IllegalStateException("Unexpected value: " + cardView.getLevel());
-                };
-            } else {
-                path = "/image/card/" + cardView.getID() + ".jpg";
-            }
-            Image img = new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
-            cardImage.setImage(img);
+            try {
+                String path;
+                // Update the image based on the card model
+                if (cardView.isCovered()) {
+                    path = switch (cardView.getLevel()) {
+                        case 1 -> "/image/card/covered_1.jpg";
+                        case 2 -> "/image/card/covered_2.jpg";
+                        default -> throw new IllegalStateException("Unexpected value: " + cardView.getLevel());
+                    };
+                } else {
+                    path = "/image/card/" + cardView.getID() + ".jpg";
+                }
+                Image img = new Image(Objects.requireNonNull(getClass().getResource(path)).toExternalForm());
+                cardImage.setImage(img);
+            } catch (Exception e) {}
         });
     }
 }

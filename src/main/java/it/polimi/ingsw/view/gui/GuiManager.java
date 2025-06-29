@@ -525,7 +525,6 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyInvalidComponents(InvalidComponents data) {
         controller.react();
-
     }
 
     @Override

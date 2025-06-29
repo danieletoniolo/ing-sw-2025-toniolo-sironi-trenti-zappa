@@ -619,22 +619,23 @@ public class BuildingController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
+            try {
+                setupSpaceShipInteraction();
 
-            setupSpaceShipInteraction();
+                setupPileInteraction();
 
-            setupPileInteraction();
+                lowerRightStackPane.getChildren().clear();
+                lowerRightStackPane.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
 
-            lowerRightStackPane.getChildren().clear();
-            lowerRightStackPane.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
+                handComponent.getChildren().clear();
+                handComponent.getChildren().add(mm.getClientPlayer().getHand().getNode().getValue0());
 
-            handComponent.getChildren().clear();
-            handComponent.getChildren().add(mm.getClientPlayer().getHand().getNode().getValue0());
+                upperRightStackPane.getChildren().clear();
+                upperRightStackPane.getChildren().add(mm.getViewablePile().getNode().getValue0());
 
-            upperRightStackPane.getChildren().clear();
-            upperRightStackPane.getChildren().add(mm.getViewablePile().getNode().getValue0());
-
-            lowerLeftStackPane.getChildren().clear();
-            lowerLeftStackPane.getChildren().add(mm.getBoardView().getNode().getValue0());
+                lowerLeftStackPane.getChildren().clear();
+                lowerLeftStackPane.getChildren().add(mm.getBoardView().getNode().getValue0());
+            } catch (Exception e) {}
         });
     }
 }

@@ -86,27 +86,29 @@ public class CabinController extends ComponentController implements Initializabl
         super.react();
 
         Platform.runLater(() -> {
-            // Update the batteryPane based on the model's state
-            CabinView cabin = ((CabinView) super.componentView);
+            try {
+                // Update the batteryPane based on the model's state
+                CabinView cabin = ((CabinView) super.componentView);
 
-            cabinPane.getChildren().clear();
-            cabinPane.setSpacing(0);
+                cabinPane.getChildren().clear();
+                cabinPane.setSpacing(0);
 
-            for (int i = 0; i < cabin.getCrewNumber(); i++) {
-                ImageView crew;
-                crew = switch (cabin.getCrewType()) {
-                    case BROWALIEN -> new ImageView(BROWNALIEN);
-                    case PURPLEALIEN -> new ImageView(PURPLEALIEN);
-                    default -> new ImageView(HUMAN);
-                };
+                for (int i = 0; i < cabin.getCrewNumber(); i++) {
+                    ImageView crew;
+                    crew = switch (cabin.getCrewType()) {
+                        case BROWALIEN -> new ImageView(BROWNALIEN);
+                        case PURPLEALIEN -> new ImageView(PURPLEALIEN);
+                        default -> new ImageView(HUMAN);
+                    };
 
-                crew.setPreserveRatio(true);
-                crew.fitWidthProperty().bind(componentImage.fitWidthProperty().divide(5));
+                    crew.setPreserveRatio(true);
+                    crew.fitWidthProperty().bind(componentImage.fitWidthProperty().divide(5));
 
-                cabinPane.getChildren().add(crew);
-            }
+                    cabinPane.getChildren().add(crew);
+                }
 
-            //cabinPane.setRotate(super.componentView.getClockWise() * 90);
+                //cabinPane.setRotate(super.componentView.getClockWise() * 90);
+            } catch (Exception e) {}
         });
     }
 

@@ -98,17 +98,19 @@ public class DeckController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            if (deckView.getDeck().isEmpty()) return;
+            try {
+                if (deckView.getDeck().isEmpty()) return;
 
-            if (deckView.isCovered() || deckView.isOnlyLast()) {
-                int i = 0;
-                for (CardView cv : deckView.getDeck()) {
-                    StackPane cardPane = (StackPane) cardPanes.get(i);
-                    cardPane.getChildren().clear();
-                    cardPane.getChildren().add(cv.getNode().getValue0());
-                    i++;
+                if (deckView.isCovered() || deckView.isOnlyLast()) {
+                    int i = 0;
+                    for (CardView cv : deckView.getDeck()) {
+                        StackPane cardPane = (StackPane) cardPanes.get(i);
+                        cardPane.getChildren().clear();
+                        cardPane.getChildren().add(cv.getNode().getValue0());
+                        i++;
+                    }
                 }
-            }
+            } catch (Exception e) {}
         });
     }
 

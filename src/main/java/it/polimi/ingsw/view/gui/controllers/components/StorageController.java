@@ -99,34 +99,36 @@ public class StorageController extends ComponentController implements Initializa
         super.react();
 
         Platform.runLater(() -> {
-            // Update the storage pane based on the model's state
-            StorageView storage = ((StorageView) super.componentView);
+            try {
+                // Update the storage pane based on the model's state
+                StorageView storage = ((StorageView) super.componentView);
 
-            // Clear existing goods and reset spacing
-            storagePane.getChildren().clear();
-            storagePane.setSpacing(0);
+                // Clear existing goods and reset spacing
+                storagePane.getChildren().clear();
+                storagePane.setSpacing(0);
 
-            // Add visual representation for each good in storage
-            for (GoodView good : storage.getGoods()) {
-                if (good != null) {
-                    ImageView goodView;
-                    // Create appropriate cargo image based on good color
-                    goodView = switch (good) {
-                        case RED -> new ImageView(REDCARGO);
-                        case YELLOW -> new ImageView(YELLOWCARGO);
-                        case GREEN -> new ImageView(GREENCARGO);
-                        case BLUE -> new ImageView(BLUECARGO);
-                    };
+                // Add visual representation for each good in storage
+                for (GoodView good : storage.getGoods()) {
+                    if (good != null) {
+                        ImageView goodView;
+                        // Create appropriate cargo image based on good color
+                        goodView = switch (good) {
+                            case RED -> new ImageView(REDCARGO);
+                            case YELLOW -> new ImageView(YELLOWCARGO);
+                            case GREEN -> new ImageView(GREENCARGO);
+                            case BLUE -> new ImageView(BLUECARGO);
+                        };
 
-                    // Configure image properties for proper display
-                    goodView.setPreserveRatio(true);
-                    goodView.fitWidthProperty().bind(componentImage.fitWidthProperty().divide(5));
+                        // Configure image properties for proper display
+                        goodView.setPreserveRatio(true);
+                        goodView.fitWidthProperty().bind(componentImage.fitWidthProperty().divide(5));
 
-                    storagePane.getChildren().add(goodView);
+                        storagePane.getChildren().add(goodView);
+                    }
                 }
-            }
 
-            //cabinPane.setRotate(super.componentView.getClockWise() * 90);
+                //cabinPane.setRotate(super.componentView.getClockWise() * 90);
+            } catch (Exception e) {}
         });
     }
 }

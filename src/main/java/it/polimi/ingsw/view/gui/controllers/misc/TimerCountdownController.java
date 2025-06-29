@@ -194,8 +194,10 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
     @Override
     public void react() {
         Platform.runLater(() -> {
-            int time = timerView.getSecondsRemaining();
-            this.start(time);
+            try {
+                int time = timerView.getSecondsRemaining();
+                this.start(time);
+            } catch (Exception e) {}
         });
     }
 

@@ -210,69 +210,127 @@ public class ValidationController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            if (mm.getBoardView().getLevel() == LevelView.SECOND) {
-                for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-                    for (ComponentView component : row) {
-                        if (component != null && component.getIsWrong()) {
-                            placedMarker = false;
-                            break;
+            try {
+                if (mm.getBoardView().getLevel() == LevelView.SECOND) {
+                    for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+                        for (ComponentView component : row) {
+                            if (component != null && component.getIsWrong()) {
+                                placedMarker = false;
+                                break;
+                            }
                         }
                     }
                 }
-            }
 
-            placeMarkerButton.setOnMouseClicked(_ -> showMarkerPositionSelector());
+                placeMarkerButton.setOnMouseClicked(_ -> showMarkerPositionSelector());
 
-            destroyComponentsButton.setOnMouseClicked(_ -> {
-                StatusEvent status = DestroyComponents.requester(Client.transceiver, new Object()).request(new DestroyComponents(mm.getUserID(), componentsToDestroy));
-                if (status.get().equals(mm.getErrorCode())) {
-                    error(status);
-                }
+                destroyComponentsButton.setOnMouseClicked(_ -> {
+                    StatusEvent status = DestroyComponents.requester(Client.transceiver, new Object()).request(new DestroyComponents(mm.getUserID(), componentsToDestroy));
+                    if (status.get().equals(mm.getErrorCode())) {
+                        error(status);
+                    }
+                    for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+                        for (ComponentView component : row) {
+                            if (component != null) {
+                                Node node = component.getNode().getValue0();
+
+                                node.setDisable(false);
+                                node.setOpacity(1.0);
+                            }
+                        }
+                    }
+                    componentsToDestroy.clear();
+                });
+
+                cancelSelectionButton.setOnMouseClicked(_ -> {
+                    for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+                        for (ComponentView component : row) {
+                            if (component != null) {
+                                Node node = component.getNode().getValue0();
+
+                                node.setDisable(false);
+                                node.setOpacity(1.0);
+                            }
+                        }
+                    }
+                    componentsToDestroy.clear();
+                });
+
+                endTurnButton.setOnMouseClicked(_ -> {
+                    StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                    if (status.get().equals(mm.getErrorCode())) {
+                        error(status);
+                    } else {
+                        MessageController.showInfoMessage("Confirmed choices");
+                    }
+                });
+
                 for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
                     for (ComponentView component : row) {
                         if (component != null) {
                             Node node = component.getNode().getValue0();
 
-                            node.setDisable(false);
-                            node.setOpacity(1.0);
+                            if (component.getIsWrong()) {
+                                DropShadow redGlow = new DropShadow();
+                                redGlow.setColor(Color.RED);
+                                redGlow.setRadius(20);
+                                redGlow.setSpread(0.6);
+
+                                Glow glow = new Glow(0.7);
+                                glow.setInput(redGlow);
+
+                                node.setEffect(glow);
+                            } else {
+                                node.setEffect(null);
+                            }
+
+                            node.setOnMouseClicked(_ -> {
+                                node.setDisable(true); // disable clicks on the component
+
+                                node.setOpacity(0.5); // Set opacity to indicate selection
+
+                                componentsToDestroy.add(new Pair<>(component.getRow() - 1, component.getCol() - 1));
+                            });
                         }
                     }
                 }
-                componentsToDestroy.clear();
-            });
 
-            cancelSelectionButton.setOnMouseClicked(_ -> {
-                for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-                    for (ComponentView component : row) {
-                        if (component != null) {
-                            Node node = component.getNode().getValue0();
+                chooseFragments.setOnMouseClicked(_ -> {
+                    List<Color> colors = new ArrayList<>();
+                    colors.add(Color.RED);
+                    colors.add(Color.GREEN);
+                    colors.add(Color.BLUE);
+                    colors.add(Color.YELLOW);
+                    colors.add(Color.ORANGE);
+                    colors.add(Color.PURPLE);
+                    colors.add(Color.PINK);
+                    colors.add(Color.BROWN);
+                    colors.add(Color.GRAY);
+                    colors.add(Color.BLACK);
+                    colors.add(Color.WHITE);
+                    colors.add(Color.CYAN);
+                    colors.add(Color.MAGENTA);
+                    colors.add(Color.LIME);
+                    colors.add(Color.OLIVE);
+                    colors.add(Color.NAVY);
+                    colors.add(Color.TEAL);
+                    colors.add(Color.MAROON);
+                    colors.add(Color.AQUA);
+                    colors.add(Color.GOLD);
+                    colors.add(Color.SILVER);
+                    colors.add(Color.CORAL);
+                    colors.add(Color.INDIGO);
+                    colors.add(Color.VIOLET);
+                    colors.add(Color.KHAKI);
+                    colors.add(Color.TURQUOISE);
+                    colors.add(Color.SALMON);
+                    int i = 0;
+                    for (List<Pair<Integer, Integer>> group : mm.getClientPlayer().getShip().getFragments()) {
+                        for (Pair<Integer, Integer> pair : group) {
+                            Node node = mm.getClientPlayer().getShip().getComponent(pair.getValue0(), pair.getValue1()).getNode().getValue0();
 
-                            node.setDisable(false);
-                            node.setOpacity(1.0);
-                        }
-                    }
-                }
-                componentsToDestroy.clear();
-            });
-
-            endTurnButton.setOnMouseClicked(_ -> {
-                StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
-                if (status.get().equals(mm.getErrorCode())) {
-                    error(status);
-                }
-                else{
-                    MessageController.showInfoMessage("Confirmed choices");
-                }
-            });
-
-            for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-                for (ComponentView component : row) {
-                    if (component != null) {
-                        Node node = component.getNode().getValue0();
-
-                        if (component.getIsWrong()) {
                             DropShadow redGlow = new DropShadow();
-                            redGlow.setColor(Color.RED);
+                            redGlow.setColor(colors.get(i));
                             redGlow.setRadius(20);
                             redGlow.setSpread(0.6);
 
@@ -280,82 +338,25 @@ public class ValidationController implements MiniModelObserver, Initializable {
                             glow.setInput(redGlow);
 
                             node.setEffect(glow);
-                        } else {
-                            node.setEffect(null);
+
+                            int finalI = i;
+                            node.setOnMouseClicked(_ -> {
+                                StatusEvent status = ChooseFragment.requester(Client.transceiver, new Object()).request(new ChooseFragment(mm.getUserID(), finalI));
+                                if (status.get().equals(mm.getErrorCode())) {
+                                    error(status);
+                                }
+                            });
                         }
-
-                        node.setOnMouseClicked(_ -> {
-                            node.setDisable(true); // disable clicks on the component
-
-                            node.setOpacity(0.5); // Set opacity to indicate selection
-
-                            componentsToDestroy.add(new Pair<>(component.getRow() - 1, component.getCol() - 1));
-                        });
+                        i++;
                     }
-                }
-            }
+                });
 
-            chooseFragments.setOnMouseClicked(_ -> {
-                List<Color> colors = new ArrayList<>();
-                colors.add(Color.RED);
-                colors.add(Color.GREEN);
-                colors.add(Color.BLUE);
-                colors.add(Color.YELLOW);
-                colors.add(Color.ORANGE);
-                colors.add(Color.PURPLE);
-                colors.add(Color.PINK);
-                colors.add(Color.BROWN);
-                colors.add(Color.GRAY);
-                colors.add(Color.BLACK);
-                colors.add(Color.WHITE);
-                colors.add(Color.CYAN);
-                colors.add(Color.MAGENTA);
-                colors.add(Color.LIME);
-                colors.add(Color.OLIVE);
-                colors.add(Color.NAVY);
-                colors.add(Color.TEAL);
-                colors.add(Color.MAROON);
-                colors.add(Color.AQUA);
-                colors.add(Color.GOLD);
-                colors.add(Color.SILVER);
-                colors.add(Color.CORAL);
-                colors.add(Color.INDIGO);
-                colors.add(Color.VIOLET);
-                colors.add(Color.KHAKI);
-                colors.add(Color.TURQUOISE);
-                colors.add(Color.SALMON);
-                int i = 0;
-                for (List<Pair<Integer, Integer>> group : mm.getClientPlayer().getShip().getFragments()) {
-                    for (Pair<Integer, Integer> pair : group) {
-                        Node node = mm.getClientPlayer().getShip().getComponent(pair.getValue0(), pair.getValue1()).getNode().getValue0();
+                board.getChildren().clear();
+                board.getChildren().add(mm.getBoardView().getNode().getValue0());
 
-                        DropShadow redGlow = new DropShadow();
-                        redGlow.setColor(colors.get(i));
-                        redGlow.setRadius(20);
-                        redGlow.setSpread(0.6);
-
-                        Glow glow = new Glow(0.7);
-                        glow.setInput(redGlow);
-
-                        node.setEffect(glow);
-
-                        int finalI = i;
-                        node.setOnMouseClicked(_ -> {
-                            StatusEvent status = ChooseFragment.requester(Client.transceiver, new Object()).request(new ChooseFragment(mm.getUserID(), finalI));
-                            if (status.get().equals(mm.getErrorCode())) {
-                                error(status);
-                            }
-                        });
-                    }
-                    i++;
-                }
-            });
-
-            board.getChildren().clear();
-            board.getChildren().add(mm.getBoardView().getNode().getValue0());
-
-            clientShip.getChildren().clear();
-            clientShip.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
+                clientShip.getChildren().clear();
+                clientShip.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
+            } catch (Exception e) {}
         });
     }
 

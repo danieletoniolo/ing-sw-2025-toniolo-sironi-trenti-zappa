@@ -288,28 +288,30 @@ public class MenuController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            MiniModel mm = MiniModel.getInstance();
+            try {
+                MiniModel mm = MiniModel.getInstance();
 
-            // Update the lobbies in the lobby box VBox
-            lobbyBoxVBox.getChildren().clear();
-            for (LobbyView lv : mm.getLobbiesView()) {
-                Node lobbyBoxNode = lv.getNode();
-                // Bind the width of the lobby box to the VBox width minus some padding
-                if (lobbyBoxNode instanceof StackPane sp) {
-                    sp.prefHeightProperty().bind(lobbyBoxVBox.heightProperty().multiply(0.15));
-                    sp.prefWidthProperty().bind(lobbyBoxVBox.widthProperty().subtract(20));
-                }
-                lobbyBoxVBox.getChildren().add(lobbyBoxNode);
-                lobbyBoxVBox.setOnMouseClicked(
-                        _ -> {
-                            StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
-                                    .request(new JoinLobby(MiniModel.getInstance().getUserID(), lv.getLobbyName()));
-                            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                                MessageController.showErrorMessage(((Pota) status).errorMessage());
+                // Update the lobbies in the lobby box VBox
+                lobbyBoxVBox.getChildren().clear();
+                for (LobbyView lv : mm.getLobbiesView()) {
+                    Node lobbyBoxNode = lv.getNode();
+                    // Bind the width of the lobby box to the VBox width minus some padding
+                    if (lobbyBoxNode instanceof StackPane sp) {
+                        sp.prefHeightProperty().bind(lobbyBoxVBox.heightProperty().multiply(0.15));
+                        sp.prefWidthProperty().bind(lobbyBoxVBox.widthProperty().subtract(20));
+                    }
+                    lobbyBoxVBox.getChildren().add(lobbyBoxNode);
+                    lobbyBoxVBox.setOnMouseClicked(
+                            _ -> {
+                                StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
+                                        .request(new JoinLobby(MiniModel.getInstance().getUserID(), lv.getLobbyName()));
+                                if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
+                                    MessageController.showErrorMessage(((Pota) status).errorMessage());
+                                }
                             }
-                        }
-                );
-            }
+                    );
+                }
+            } catch (Exception e) {}
         });
     }
 

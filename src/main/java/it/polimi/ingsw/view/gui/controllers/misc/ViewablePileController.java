@@ -87,32 +87,34 @@ public class ViewablePileController implements MiniModelObserver, Initializable 
     @Override
     public void react() {
         Platform.runLater(() -> {
-            // Clear the current components in the scroll pane
-            hBox.getChildren().clear();
+            try {
+                // Clear the current components in the scroll pane
+                hBox.getChildren().clear();
 
-            List<ComponentView> components = viewablePileView.getViewableComponents();
+                List<ComponentView> components = viewablePileView.getViewableComponents();
 
-            VBox vBox = null;
-            for (ComponentView component : components) {
-                if (vBox == null) {
-                    // Create a new VBox for the first component
-                    vBox = new VBox();
-                    vBox.setAlignment(Pos.CENTER);
-                    vBox.prefHeightProperty().bind(hBox.heightProperty());
-                    vBox.maxWidthProperty().bind((hBox.heightProperty().divide(2)).subtract(5));
-                    vBox.getChildren().add(component.getNode().getValue0());
-                } else {
-                    // If the current VBox is full, add it to the HBox and create a new one
-                    vBox.setSpacing(5);
-                    vBox.getChildren().add(component.getNode().getValue0());
-                    hBox.getChildren().add(vBox);
-                    vBox = null;
+                VBox vBox = null;
+                for (ComponentView component : components) {
+                    if (vBox == null) {
+                        // Create a new VBox for the first component
+                        vBox = new VBox();
+                        vBox.setAlignment(Pos.CENTER);
+                        vBox.prefHeightProperty().bind(hBox.heightProperty());
+                        vBox.maxWidthProperty().bind((hBox.heightProperty().divide(2)).subtract(5));
+                        vBox.getChildren().add(component.getNode().getValue0());
+                    } else {
+                        // If the current VBox is full, add it to the HBox and create a new one
+                        vBox.setSpacing(5);
+                        vBox.getChildren().add(component.getNode().getValue0());
+                        hBox.getChildren().add(vBox);
+                        vBox = null;
+                    }
                 }
-            }
-            // If there's an unclosed VBox, add it to the HBox
-            if (vBox != null) {
-                hBox.getChildren().add(vBox);
-            }
+                // If there's an unclosed VBox, add it to the HBox
+                if (vBox != null) {
+                    hBox.getChildren().add(vBox);
+                }
+            } catch (Exception e) {}
         });
     }
 

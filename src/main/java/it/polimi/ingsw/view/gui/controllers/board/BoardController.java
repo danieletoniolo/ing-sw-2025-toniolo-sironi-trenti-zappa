@@ -344,70 +344,72 @@ public class BoardController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            // Clear the current steps from the board group
-            for (Node step : stepsNodes) {
-                StackPane stepNode = (StackPane) step;
-                stepNode.getChildren().clear();
-            }
-
-            // Reinitialize the steps based on the board view
-            List<Pair<MarkerView, Integer>> playerPositions = boardView.getPlayerPositions();
-            int numPlayers = boardView.getNumberOfPlayers();
-            int numberOfSteps = stepsNodes.size();
-
-            // Reset the marker in the waiting area - place all player markers at the end positions
-            for (int i = 0; i < numPlayers; i++) {
-                StackPane stepNode = (StackPane) stepsNodes.get(numberOfSteps-i-1);
-                stepNode.getChildren().add(MarkerView.fromValue(i).getNode());
-            }
-
-            // Place each player's marker on the corresponding step based on current positions
-            for (Pair<MarkerView, Integer> playerPosition : playerPositions) {
-                MarkerView marker = playerPosition.getValue0();
-                int step = playerPosition.getValue1();
-
-                // Add marker to the current step position
-                StackPane stepNode = (StackPane) stepsNodes.get(step);
-                stepNode.getChildren().add(marker.getNode());
-
-                // Remove marker from the waiting area
-                ((StackPane) stepsNodes.get(numberOfSteps - marker.getValue() - 1)).getChildren().clear();
-            }
-
-            // Update the timer if it exists
-            if (boardView.getTimerView() != null && !timerNodes.isEmpty()) {
-                // Clear all timer nodes first
-                for (Node timerStep : timerNodes) {
-                    ((StackPane) timerStep).getChildren().clear();
+            try {
+                // Clear the current steps from the board group
+                for (Node step : stepsNodes) {
+                    StackPane stepNode = (StackPane) step;
+                    stepNode.getChildren().clear();
                 }
 
-                // Place timer indicator based on number of flips
-                int numberOfFlip = boardView.getTimerView().getNumberOfFlips();
-                StackPane stackPane;
-                if (numberOfFlip > 0) {
-                    // Use the appropriate timer node based on flips count
-                    stackPane = (StackPane) timerNodes.get(numberOfFlip - 1);
-                } else {
-                    // Use the first timer node if no flips have occurred
-                    stackPane = (StackPane) timerNodes.getFirst();
+                // Reinitialize the steps based on the board view
+                List<Pair<MarkerView, Integer>> playerPositions = boardView.getPlayerPositions();
+                int numPlayers = boardView.getNumberOfPlayers();
+                int numberOfSteps = stepsNodes.size();
+
+                // Reset the marker in the waiting area - place all player markers at the end positions
+                for (int i = 0; i < numPlayers; i++) {
+                    StackPane stepNode = (StackPane) stepsNodes.get(numberOfSteps - i - 1);
+                    stepNode.getChildren().add(MarkerView.fromValue(i).getNode());
                 }
-                stackPane.getChildren().add(boardView.getTimerView().getNode().getValue0());
-            }
+
+                // Place each player's marker on the corresponding step based on current positions
+                for (Pair<MarkerView, Integer> playerPosition : playerPositions) {
+                    MarkerView marker = playerPosition.getValue0();
+                    int step = playerPosition.getValue1();
+
+                    // Add marker to the current step position
+                    StackPane stepNode = (StackPane) stepsNodes.get(step);
+                    stepNode.getChildren().add(marker.getNode());
+
+                    // Remove marker from the waiting area
+                    ((StackPane) stepsNodes.get(numberOfSteps - marker.getValue() - 1)).getChildren().clear();
+                }
+
+                // Update the timer if it exists
+                if (boardView.getTimerView() != null && !timerNodes.isEmpty()) {
+                    // Clear all timer nodes first
+                    for (Node timerStep : timerNodes) {
+                        ((StackPane) timerStep).getChildren().clear();
+                    }
+
+                    // Place timer indicator based on number of flips
+                    int numberOfFlip = boardView.getTimerView().getNumberOfFlips();
+                    StackPane stackPane;
+                    if (numberOfFlip > 0) {
+                        // Use the appropriate timer node based on flips count
+                        stackPane = (StackPane) timerNodes.get(numberOfFlip - 1);
+                    } else {
+                        // Use the first timer node if no flips have occurred
+                        stackPane = (StackPane) timerNodes.getFirst();
+                    }
+                    stackPane.getChildren().add(boardView.getTimerView().getNode().getValue0());
+                }
 
                 // Update the decks if they exist
-            if (!decksNodes.isEmpty()) {
-                DeckView[] decks = boardView.getDecksView().getValue0();
-                int i = 0;
-                // Iterate through available decks and update their visual representation
-                for (DeckView deck : decks) {
-                    if (deck != null) {
-                        StackPane deckNode = (StackPane) decksNodes.get(i);
-                        deckNode.getChildren().clear();
-                        deckNode.getChildren().add(deck.getNode().getValue0());
-                        i++;
+                if (!decksNodes.isEmpty()) {
+                    DeckView[] decks = boardView.getDecksView().getValue0();
+                    int i = 0;
+                    // Iterate through available decks and update their visual representation
+                    for (DeckView deck : decks) {
+                        if (deck != null) {
+                            StackPane deckNode = (StackPane) decksNodes.get(i);
+                            deckNode.getChildren().clear();
+                            deckNode.getChildren().add(deck.getNode().getValue0());
+                            i++;
+                        }
                     }
                 }
-            }
+            } catch (Exception e) {}
         });
     }
 
