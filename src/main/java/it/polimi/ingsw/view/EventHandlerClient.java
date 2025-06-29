@@ -1192,7 +1192,9 @@ public class EventHandlerClient {
             }
 
             if (data.newState() == GamePhases.VALIDATION.getValue()) {
-                MiniModel.getInstance().getTimerView().setRunning(false);
+                if (MiniModel.getInstance().getTimerView() != null) {
+                    MiniModel.getInstance().getTimerView().setRunning(false);
+                }
                 PlayerDataView player = MiniModel.getInstance().getClientPlayer();
                 player.getShip().getDiscardReservedPile().setIsDiscarded();
                 for (PlayerDataView otherPlayer : MiniModel.getInstance().getOtherPlayers()) {

@@ -145,7 +145,7 @@ public class RewardController implements MiniModelObserver, Initializable{
     /**
      * Creates a ChangeListener that handles resizing of the UI components
      * based on the parent StackPane's width and height.
-     * Scales the resizeGroup proportionally to maintain aspect ratio.
+     * Scales the resizeGroup proportionally to maintain an aspect ratio.
      *
      * @return a ChangeListener for Number properties to handle resizing
      */
@@ -172,39 +172,38 @@ public class RewardController implements MiniModelObserver, Initializable{
     @Override
     public void react() {
         Platform.runLater(() -> {
-            try {
-                int i = 0;
-                rankVBox.getChildren().clear();
-                for (PlayerDataView player : allPlayers) {
-                    MarkerView mv = player.getMarkerView();
+            int i = 0;
+            rankVBox.getChildren().clear();
+            allPlayers.addAll(MiniModel.getInstance().getOtherPlayers());
+            for (PlayerDataView player : allPlayers) {
+                MarkerView mv = player.getMarkerView();
 
-                    // Create a new HBox for the player
-                    HBox playerBox = new HBox(10);
-                    playerBox.setAlignment(Pos.CENTER_LEFT);
-                    playerBox.setSpacing(10);
-                    playerBox.setStyle("-fx-background-color: white; " +
-                            "-fx-background-radius: 10; " +
-                            "-fx-text-fill: black; ");
+                // Create a new HBox for the player
+                HBox playerBox = new HBox(10);
+                playerBox.setAlignment(Pos.CENTER_LEFT);
+                playerBox.setSpacing(10);
+                playerBox.setStyle("-fx-background-color: white; " +
+                        "-fx-background-radius: 10; " +
+                        "-fx-text-fill: black; ");
 
-                    // Create a Label for the player's name and status
-                    Label playerNameLabel = new Label(rankings[i] + player.getUsername() + " with " + player.getCoins() + " coins");
-                    playerNameLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
-                    playerNameLabel.setStyle("-fx-text-fill: black;");
+                // Create a Label for the player's name and status
+                Label playerNameLabel = new Label(rankings[i] + player.getUsername() + " with " + player.getCoins() + " coins");
+                playerNameLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
+                playerNameLabel.setStyle("-fx-text-fill: black;");
 
-                    // Add the player's marker view and name label to the player box
-                    if (mv != null) {
-                        playerBox.getChildren().add(mv.getNode());
-                    }
-                    playerBox.getChildren().add(playerNameLabel);
-
-                    // Bind the width of the player box to the lobby box VBox width
-                    playerBox.prefWidthProperty().bind(rankVBox.widthProperty().subtract(20));
-
-                    playerBox.prefHeight(100);
-                    rankVBox.getChildren().add(playerBox);
-                    i++;
+                // Add the player's marker view and name label to the player box
+                if (mv != null) {
+                    playerBox.getChildren().add(mv.getNode());
                 }
-            } catch (Exception e) {}
+                playerBox.getChildren().add(playerNameLabel);
+
+                // Bind the width of the player box to the lobby box VBox width
+                playerBox.prefWidthProperty().bind(rankVBox.widthProperty().subtract(20));
+
+                playerBox.prefHeight(100);
+                rankVBox.getChildren().add(playerBox);
+                i++;
+            }
         });
     }
 }
