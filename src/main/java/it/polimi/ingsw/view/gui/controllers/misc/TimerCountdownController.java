@@ -5,17 +5,12 @@ import it.polimi.ingsw.view.miniModel.timer.TimerView;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Arc;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -101,13 +96,9 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
         updateTimerPositionAndScale();
 
         // Manual bind the width and height of the timer group to the parent StackPane
-        parent.widthProperty().addListener((observable, oldValue, newValue) -> {
-            updateTimerPositionAndScale();
-        });
+        parent.widthProperty().addListener((_, _, _) -> updateTimerPositionAndScale());
 
-        parent.heightProperty().addListener((observable, oldValue, newValue) -> {
-            updateTimerPositionAndScale();
-        });
+        parent.heightProperty().addListener((_, _, _) -> updateTimerPositionAndScale());
     }
 
     /**
@@ -153,7 +144,7 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
 
         this.updateUI();
 
-        timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+        timeline = new Timeline(new KeyFrame(Duration.seconds(1), _ -> {
             remainingSeconds--;
             updateUI();
             if (remainingSeconds <= 0) {
@@ -179,7 +170,6 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
      * Callback when the countdown finishes.
      */
     private void onFinished() {
-        // TODO: We could trigger something here or make a nice animation
         labelTimer.setText("!");
         if (timerView.getNumberOfFlips() == 3) {
             parent.setVisible(false);
@@ -193,13 +183,11 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
 
     @Override
     public void react() {
-        Platform.runLater(() -> {
-            int time = timerView.getSecondsRemaining();
-            this.start(time);
-        });
-    }
-
-    public Node getParent() {
-        return parent;
+        if (timerView.isRunning()) {
+            Platform.runLater(() -> {
+                int time = timerView.getSecondsRemaining();
+                this.start(time);
+            });
+        }
     }
 }

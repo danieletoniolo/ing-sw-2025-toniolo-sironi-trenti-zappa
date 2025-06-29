@@ -1,7 +1,6 @@
 package it.polimi.ingsw.view.gui.controllers.board;
 
 import it.polimi.ingsw.view.gui.controllers.deck.DeckController;
-import it.polimi.ingsw.view.gui.controllers.misc.TimerCountdownController;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
 import it.polimi.ingsw.view.miniModel.board.BoardView;
 import it.polimi.ingsw.view.miniModel.deck.DeckView;
@@ -120,7 +119,7 @@ public class BoardController implements MiniModelObserver, Initializable {
     /**
      * Initializes the board controller by setting up node collections, scaling bindings,
      * and configuring the responsive layout system.
-     *
+     * <p>
      * This method performs the following operations:
      * 1. Filters and sorts board elements (steps, timers, decks) based on their IDs
      * 2. Sets up default values for original dimensions and positions
@@ -158,7 +157,7 @@ public class BoardController implements MiniModelObserver, Initializable {
         // Disable automatic layout management for manual positioning
         boardGroup.setManaged(false);
 
-        // Create dynamic scaling binding based on parent container size
+        // Create dynamic scaling binding based on the parent container size
         DoubleBinding scaleFactorBinding = Bindings.createDoubleBinding(() -> {
             double parentWidth = parent.getWidth();
             double parentHeight = parent.getHeight();
@@ -166,7 +165,7 @@ public class BoardController implements MiniModelObserver, Initializable {
             return Math.min(parentWidth / ORIGINAL_WIDTH, parentHeight / ORIGINAL_HEIGHT);
         }, parent.widthProperty(), parent.heightProperty());
 
-        // Bind background image properties to scale factor for responsive sizing
+        // Bind background image properties to a scale factor for responsive sizing
         backgroundImage.layoutXProperty().bind(scaleFactorBinding.multiply(ORIGINAL_IMAGE_X));
         backgroundImage.layoutYProperty().bind(scaleFactorBinding.multiply(ORIGINAL_IMAGE_Y));
         backgroundImage.fitWidthProperty().bind(scaleFactorBinding.multiply(ORIGINAL_IMAGE_WIDTH));
@@ -193,7 +192,7 @@ public class BoardController implements MiniModelObserver, Initializable {
      * - Step nodes properties (position and size for each step)
      * - Timer nodes properties (position and size for each timer)
      * - Deck nodes properties (position and size for each deck)
-     *
+     * <p>
      * This method should be called during initialization before any scaling operations.
      */
     private void setDefaultValues() {
@@ -213,7 +212,7 @@ public class BoardController implements MiniModelObserver, Initializable {
         originalStepWidth.clear();
         originalStepHeight.clear();
 
-        // Store original position and dimensions for each step node
+        // Store the original position and dimensions for each step node
         for (Node step : stepsNodes) {
             originalStepX.add(step.getLayoutX());
             originalStepY.add(step.getLayoutY());
@@ -227,7 +226,7 @@ public class BoardController implements MiniModelObserver, Initializable {
         originalTimerWidth.clear();
         originalTimerHeight.clear();
 
-        // Store original position and dimensions for each timer node
+        // Store the original position and dimensions for each timer node
         for (Node timer : timerNodes) {
             originalTimerX.add(timer.getLayoutX());
             originalTimerY.add(timer.getLayoutY());
@@ -241,7 +240,7 @@ public class BoardController implements MiniModelObserver, Initializable {
         originalDeckWidth.clear();
         originalDeckHeight.clear();
 
-        // Store original position and dimensions for each deck node
+        // Store the original position and dimensions for each deck node
         for (Node deck : decksNodes) {
             originalDeckX.add(deck.getLayoutX());
             originalDeckY.add(deck.getLayoutY());
@@ -253,8 +252,8 @@ public class BoardController implements MiniModelObserver, Initializable {
     /**
      * Binds the layout properties of step elements to a scale factor for responsive resizing.
      * This method applies dynamic scaling to all step nodes by binding their position and size
-     * properties to the provided scale factor binding. Each step's layout properties are
-     * multiplied by the scale factor to maintain proportional scaling when the parent container
+     * properties to the provided scale factor binding. The scale factor
+     * multiplies each step's layout properties to maintain proportional scaling when the parent container
      * size changes.
      *
      * @param scaleFactorBinding the DoubleBinding that calculates the current scale factor
@@ -331,14 +330,14 @@ public class BoardController implements MiniModelObserver, Initializable {
      * Reacts to changes in the board model by updating the UI components.
      * This method is called when the observed BoardView model notifies of changes.
      * It updates player markers, timer display, and deck representations on the board.
-     *
+     * <p>
      * The method performs the following operations:
      * 1. Clears all current markers from step nodes
-     * 2. Places markers in waiting area based on number of players
+     * 2. Places markers in the waiting area based on number of players
      * 3. Updates player positions on the board according to current game state
      * 4. Updates timer display if present
      * 5. Updates deck representations if present
-     *
+     * <p>
      * All UI updates are executed on the JavaFX Application Thread using Platform.runLater().
      */
     @Override
@@ -366,7 +365,7 @@ public class BoardController implements MiniModelObserver, Initializable {
                 MarkerView marker = playerPosition.getValue0();
                 int step = playerPosition.getValue1();
 
-                // Add marker to the current step position
+                // Add a marker to the current step position
                 StackPane stepNode = (StackPane) stepsNodes.get(step);
                 stepNode.getChildren().add(marker.getNode());
 
@@ -383,14 +382,12 @@ public class BoardController implements MiniModelObserver, Initializable {
 
                 // Place timer indicator based on number of flips
                 int numberOfFlip = boardView.getTimerView().getNumberOfFlips();
-                StackPane stackPane;
-                if (numberOfFlip > 0) {
-                    // Use the appropriate timer node based on flips count
-                    stackPane = (StackPane) timerNodes.get(numberOfFlip - 1);
-                } else {
-                    // Use the first timer node if no flips have occurred
-                    stackPane = (StackPane) timerNodes.getFirst();
-                }
+                StackPane stackPane = switch (numberOfFlip) {
+                    case 0, 1 -> (StackPane) timerNodes.get(0);
+                    case 2 -> (StackPane) timerNodes.get(1);
+                    case 3 -> (StackPane) timerNodes.get(2);
+                    default -> throw new IllegalStateException("Unexpected value: " + numberOfFlip);
+                };
                 stackPane.getChildren().add(boardView.getTimerView().getNode().getValue0());
             }
 
@@ -429,16 +426,5 @@ public class BoardController implements MiniModelObserver, Initializable {
         }
 
         return deckControllers;
-    }
-
-    /**
-     * Returns the TimerCountdownController associated with the timer view on the board.
-     * This method retrieves the controller component from the timer view's node pair,
-     * which can be used to interact with and control the timer functionality.
-     *
-     * @return the TimerCountdownController instance for managing timer operations
-     */
-    public TimerCountdownController getTimerController() {
-        return boardView.getTimerView().getNode().getValue1();
     }
 }
