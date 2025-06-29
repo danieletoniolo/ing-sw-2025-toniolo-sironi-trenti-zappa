@@ -251,17 +251,12 @@ public class ValidationController implements MiniModelObserver, Initializable {
             });
 
             endTurnButton.setOnMouseClicked(_ -> {
-                if (!placedMarker) {
-                    MessageController.showErrorMessage("You need to place the marker");
+                StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                if (status.get().equals(mm.getErrorCode())) {
+                    error(status);
                 }
                 else{
-                    StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
-                    if (status.get().equals(mm.getErrorCode())) {
-                        error(status);
-                    }
-                    else{
-                        MessageController.showInfoMessage("Confirmed choices");
-                    }
+                    MessageController.showInfoMessage("Confirmed choices");
                 }
             });
 
