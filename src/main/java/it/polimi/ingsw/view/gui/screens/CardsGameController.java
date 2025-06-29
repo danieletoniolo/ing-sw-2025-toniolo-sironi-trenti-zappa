@@ -53,7 +53,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the main game screen in the GUI.
+ * Handles user interactions, updates the view based on the MiniModel, and manages game actions.
+ */
 public class CardsGameController implements MiniModelObserver, Initializable {
+    /**
+     * Represents the possible states of user actions in the game.
+     */
     private enum ActionState {
         RESET,
         WAITING,
@@ -73,61 +80,123 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         DISCARD_BATTERIES
     };
 
+    /**
+     * Enum representing the possible actions that can be performed on batteries.
+     * DISCARD: Batteries are to be discarded as a penalty.
+     * SELECTION: Batteries are being selected for use (e.g., to power engines or cannons).
+     * SELECTION_FOR_SHIELD: Batteries are being selected specifically for shield activation.
+     */
     private enum ActionOnBatteries {
         DISCARD,
         SELECTION,
         SELECTION_FOR_SHIELD
     }
 
+    /**
+     * Current state of the user's action in the game.
+     */
     static private ActionState actionState = ActionState.RESET;
 
+    /** Main parent container for the game screen. */
     @FXML private StackPane parent;
+    /** Group used for resizing the main content. */
     @FXML private Group resizeGroup;
+    /** Main vertical box layout for the game UI. */
     @FXML private VBox mainVBox;
+    /** StackPane displaying the current card. */
     @FXML private StackPane currentCard;
+    /** StackPane displaying the game board. */
     @FXML private StackPane board;
+    /** StackPane displaying the client's spaceship. */
     @FXML private StackPane clientSpaceShip;
+    /** HBox containing the lower action buttons. */
     @FXML private HBox lowerHBox;
 
     private final double ORIGINAL_MAIN_BOX_WIDTH = 1600;
     private final double ORIGINAL_MAIN_BOX_HEIGHT = 900;
 
+    /** Pane for displaying another player's spaceship. */
     private StackPane newOtherPlayerPane;
 
+    /** Pane for selecting goods in the UI. */
     private StackPane newSelectGoodsPane;
 
+    /** Pane for planet selection options. */
     private StackPane newPlanetPane;
 
+    /** Reference to the MiniModel singleton instance. */
     private final MiniModel mm = MiniModel.getInstance();
+
+    /** List of selected battery IDs. */
     private final List<Integer> selectedBatteriesList = new ArrayList<>();
+
+    /** List of selected cannon IDs. */
     private final List<Integer> selectedCannonsList = new ArrayList<>();
+
+    /** List of selected engine IDs. */
     private final List<Integer> selectedEnginesList = new ArrayList<>();
+
+    /** List of selected cabin IDs. */
     private final List<Integer> selectedCabinsList = new ArrayList<>();
 
+    /** List of goods selected as penalty. */
     private final List<Integer> penaltyGoods = new ArrayList<>();
 
     // Exchange goods
+
+    /** List of exchanges, each as a triplet: goods to get, goods to leave, and storage ID. */
     private final List<Triplet<List<Integer>, List<Integer>, Integer>> exchanges = new ArrayList<>();
+
+    /** List of goods to get during an exchange. */
     private final List<Integer> goodsToGet = new ArrayList<>();
+
+    /** List of goods to leave during an exchange. */
     private final List<Integer> goodsToLeave = new ArrayList<>();
+
+    /** ID of the storage currently being used for exchange. */
     private int storageID;
+
+    /** List of goods currently on the card. */
     private final List<GoodView> cardGoods = new ArrayList<>();
+
+    /** Flag indicating if card goods need to be updated. */
     private boolean changeCardGoods = true;
+
+    /** Current length of the deck, used to detect changes. */
     private int deckLen = -1;
 
     // Swap goods
+
+    /** ID of the storage to swap from. */
     private int fromStorage = -1;
+
+    /** List of goods to swap from the first storage. */
     private final ArrayList<Integer> fromList = new ArrayList<>();
+
+    /** ID of the storage to swap with. */
     private int withStorage = -1;
+
+    /** List of goods to swap from the second storage. */
     private final ArrayList<Integer> withList = new ArrayList<>();
 
+    /** List of buttons currently displayed on the screen. */
     private ArrayList<Button> onScreenButtons = new ArrayList<>();
 
+    /**
+     * Enum representing the type of list for component selection.
+     */
     private enum ListType {
         CANNONS,
         ENGINES,
     }
 
+    /**
+     * Initializes the main game screen controller.
+     * Sets up the background, aligns UI components, and prepares the initial state of the view.
+     *
+     * @param url The location used to resolve relative paths for the root object, or null if not known.
+     * @param resourceBundle The resources used to localize the root object, or null if not localized.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         URL imageUrl = getClass().getResource("/image/background/background2.png");
@@ -159,6 +228,13 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Creates a ChangeListener that handles resizing of the main game UI components.
+     * The listener adjusts the scale of the resizeGroup based on the parent StackPane's dimensions,
+     * maintaining the aspect ratio relative to the original width and height.
+     *
+     * @return a ChangeListener that updates the UI scale on width or height changes
+     */
     private ChangeListener<Number> createResizeListener() {
         return (_, _, _) -> {
             if (parent.getWidth() <= 0 || parent.getHeight() <= 0) {
@@ -174,6 +250,11 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         };
     }
 
+    /**
+     * Reacts to changes in the MiniModel and updates the GUI accordingly.
+     * This method is called when the observed MiniModel notifies its observers.
+     * All UI updates are executed on the JavaFX Application Thread.
+     */
     @Override
     public void react() {
         Platform.runLater(() -> {
@@ -301,72 +382,129 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Sets the action state to FORCE_GIVE_UP, indicating the player is giving up.
+     */
     static public void actionGiveUp() { actionState = ActionState.FORCE_GIVE_UP; }
 
+    /**
+     * Sets the action state to ROLL_DICE, indicating the player should roll the dice.
+     */
     static public void actionRollDice() {
         actionState = ActionState.ROLL_DICE;
     }
 
+    /**
+     * Sets the action state to PROTECTION_NOT_POSSIBLE, indicating protection is not possible.
+     */
     static public void actionCantProtect() {
         actionState = ActionState.PROTECTION_NOT_POSSIBLE;
     }
 
+    /**
+     * Sets the action state to PROTECTION_NOT_REQUIRED, indicating protection is not required.
+     */
     static public void actionProtectionNotRequired() {
         actionState = ActionState.PROTECTION_NOT_REQUIRED;
     }
 
+    /**
+     * Sets the action state to SELECT_ENGINES, indicating the player should select engines.
+     */
     static public void actionEngine() {
         actionState = ActionState.SELECT_ENGINES;
     }
 
+    /**
+     * Sets the action state to SELECT_CANNONS, indicating the player should select cannons.
+     */
     static public void actionCannon() {
         actionState = ActionState.SELECT_CANNONS;
     }
 
+    /**
+     * Sets the action state to SELECT_SHIELD, indicating the player should select shield.
+     */
     static public void actionShield() {
         actionState = ActionState.SELECT_SHIELD;
     }
 
+    /**
+     * Sets the action state to SELECT_PLANET, indicating the player should select a planet.
+     */
     static public void actionPlanets() {
         actionState = ActionState.SELECT_PLANET;
     }
 
+    /**
+     * Sets the action state to SELECT_GOODS, indicating the player should select goods.
+     */
     static public void actionAddGoods() {
         actionState = ActionState.SELECT_GOODS;
     }
 
+    /**
+     * Sets the action state to DISCARD_GOODS, indicating the player should discard goods.
+     */
     static public void actionDiscardGoods() {
         actionState = ActionState.DISCARD_GOODS;
     }
 
+    /**
+     * Sets the action state to SELECT_ACCEPT, indicating the player should accept the current action.
+     */
     static public void actionAccept() {
         actionState = ActionState.SELECT_ACCEPT;
     }
 
+    /**
+     * Sets the action state to DISCARD_CABINS, indicating the player should discard cabins.
+     */
     static public void actionCabins() {
         actionState = ActionState.DISCARD_CABINS;
     }
 
+    /**
+     * Sets the action state to DISCARD_BATTERIES, indicating the player should discard batteries.
+     */
     static public void actionDiscardBatteries() {
         actionState = ActionState.DISCARD_BATTERIES;
     }
 
+    /**
+     * Sets the action state to SELECT_FRAGMENT, indicating the player should select a fragment.
+     */
     static public void actionFragments() {
         actionState = ActionState.SELECT_FRAGMENT;
     }
 
+    /**
+     * Sets the action state to WAITING, indicating the player is waiting for the next action.
+     */
     static public void waitingActionState() {
         actionState = ActionState.WAITING;
     }
 
+    /**
+     * Resets the action state to RESET, returning to the default state.
+     */
     static public void resetActionState() {
         actionState = ActionState.RESET;
     }
 
+    /**
+     * Displays an informational message to the user in the GUI.
+     *
+     * @param message The message to be shown.
+     */
     public void displayMessageInfo(String message) {
         MessageController.showInfoMessage(message);
     }
 
+    /**
+     * Highlights all cabin components in the player's spaceship by applying a visual effect.
+     * Used to indicate selectable cabins for user interaction.
+     */
     private void setEffectCabins() {
         for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
             for (ComponentView component : row) {
@@ -394,6 +532,12 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         }
     }
 
+    /**
+     * Applies a visual effect to Storage components in the player's spaceship.
+     * The behavior and effect applied depend on the mode parameter.
+     *
+     * @param mode Selection/effect mode to apply to storages.
+     */
     private void setEffectStorages(int mode) {
         for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
             for (ComponentView component : row) {
@@ -420,6 +564,13 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         }
     }
 
+    /**
+     * Displays the UI for selecting goods from a given storage, based on the specified mode.
+     * This method creates and shows the options pane for the user to interact with goods selection.
+     *
+     * @param storage the StorageView from which goods can be selected
+     * @param mode the selection mode (determines the type of selection UI to display)
+     */
     private void showGoodsToSelect(StorageView storage, int mode) {
         createGoodsToSelectOptionsPane(storage, mode);
 
@@ -436,6 +587,13 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Creates the options pane for selecting goods from a given storage.
+     * The UI and behavior depend on the specified mode.
+     *
+     * @param storage the StorageView from which goods can be selected
+     * @param mode the selection mode (determines the type of selection UI to display)
+     */
     private void createGoodsToSelectOptionsPane(StorageView storage, int mode) {
         newSelectGoodsPane = new StackPane();
         newSelectGoodsPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6);");
@@ -709,6 +867,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Applies visual effects and event handlers to the battery components of the player's ship.
+     * Used to highlight and enable selection of batteries during gameplay actions.
+     */
     private void setBatteriesHandleEffect() {
         for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
             for (ComponentView component : row) {
@@ -738,6 +900,13 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         }
     }
 
+    /**
+     * Applies visual effects and event handlers to the cannons or engines components
+     * of the player's spaceship, depending on the specified type.
+     * Enables interactive selection of these components.
+     *
+     * @param type The type of component to handle (CANNONS or ENGINES)
+     */
     private void setCannonsEnginesHandlerEffect(ListType type) {
         List<Integer> IDs = switch (type) {
             case CANNONS -> selectedCannonsList;
@@ -781,6 +950,13 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         }
     }
 
+    /**
+     * Displays the spaceship of another player in a new overlay pane.
+     * This method creates and shows a StackPane containing the selected player's spaceship,
+     * allowing the user to view other players' ships during the game.
+     *
+     * @param player The PlayerDataView representing the player whose spaceship is to be displayed.
+     */
     private void showOtherPlayer(PlayerDataView player) {
         newOtherPlayerPane = new StackPane();
         newOtherPlayerPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7);");
@@ -832,6 +1008,11 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Hides the given options pane with a fade-out animation.
+     *
+     * @param pane The StackPane to hide.
+     */
     private void hideOptions(StackPane pane) {
         FadeTransition fadeOut = new FadeTransition(Duration.millis(300), pane);
         fadeOut.setFromValue(1);
@@ -840,6 +1021,11 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         fadeOut.play();
     }
 
+    /**
+     * Resets all event handlers for batteries, cannons, engines, and cabins components.
+     * This method is typically called to clear previous handlers before setting new ones,
+     * ensuring that only the appropriate handlers are active for the current game state.
+     */
     private void resetHandlers() {
         resetHandlersBatteries();
         resetHandlersCannons();
@@ -848,6 +1034,11 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         resetHandlersStorages();
     }
 
+    /**
+     * Resets all visual effects applied to cannons, engines, batteries, and cabins components.
+     * This method is typically called to clear previous effects before applying new ones,
+     * ensuring that only the appropriate visual cues are active for the current game state.
+     */
     private void resetEffects() {
         resetEffectCannons();
         resetEffectEngines();
@@ -855,6 +1046,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         resetEffectCabins();
     }
 
+    /**
+     * Resets all visual effects applied to fragment components in the player's spaceship.
+     * Iterates through all fragment groups and removes any effect set on their nodes.
+     */
     private void resetEffectFragments() {
         for (List<Pair<Integer, Integer>> group : mm.getClientPlayer().getShip().getFragments()) {
             for (Pair<Integer, Integer> pair : group) {
@@ -871,6 +1066,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     }
 
     // Reset effects for components
+    /**
+     * Resets all visual effects applied to double cannon components in the player's spaceship.
+     * Iterates through all double cannons and restores their opacity to the default value.
+     */
     private void resetEffectCannons() {
         mm.getClientPlayer().getShip().getMapDoubleCannons().values().forEach(cannon -> {
             Node node = cannon.getNode().getValue0();
@@ -879,6 +1078,11 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         selectedCannonsList.clear();
     }
 
+    /**
+     * Resets all visual effects applied to double engine components in the player's spaceship.
+     * Iterates through all double engines and restores their opacity to the default value.
+     * Also clears the list of selected engine IDs.
+     */
     private void resetEffectEngines() {
         mm.getClientPlayer().getShip().getMapDoubleEngines().values().forEach(engine -> {
             Node node = engine.getNode().getValue0();
@@ -887,6 +1091,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         selectedEnginesList.clear();
     }
 
+    /**
+     * Resets all visual effects applied to battery components in the player's spaceship.
+     * Iterates through all batteries and removes any opacity effect set on their nodes.
+     */
     private void resetEffectBatteries() {
         mm.getClientPlayer().getShip().getMapBatteries().values().forEach(battery -> {
             BatteryController batteryController = (BatteryController) battery.getNode().getValue1();
@@ -895,6 +1103,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         selectedBatteriesList.clear();
     }
 
+    /**
+     * Resets all visual effects applied to cabin components in the player's spaceship.
+     * Iterates through all cabins and restores their default opacity and removes any effect.
+     */
     private void resetEffectCabins() {
         mm.getClientPlayer().getShip().getMapCabins().values().forEach(cabin -> {
             CabinController cabinController = (CabinController) cabin.getNode().getValue1();
@@ -904,6 +1116,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     }
 
     // Reset handlers
+    /**
+     * Resets all event handlers for double cannon components in the player's spaceship.
+     * Iterates through all double cannons and removes any mouse click event handlers and effects.
+     */
     private void resetHandlersCannons() {
         mm.getClientPlayer().getShip().getMapDoubleCannons().values().forEach(cannon -> {
             Node node = cannon.getNode().getValue0();
@@ -913,6 +1129,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Resets all event handlers for double engine components in the player's spaceship.
+     * Iterates through all double engines and removes any mouse click event handlers and effects.
+     */
     private void resetHandlersEngines() {
         mm.getClientPlayer().getShip().getMapDoubleEngines().values().forEach(engine -> {
             Node node = engine.getNode().getValue0();
@@ -922,6 +1142,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Resets all event handlers for battery components in the player's spaceship.
+     * Iterates through all batteries and removes any mouse click event handlers and effects.
+     */
     private void resetHandlersBatteries() {
         mm.getClientPlayer().getShip().getMapBatteries().values().forEach(battery -> {
             Node node = battery.getNode().getValue0();
@@ -931,6 +1155,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Resets all event handlers for cabin components in the player's spaceship.
+     * Iterates through all cabins and removes any mouse click event handlers and effects.
+     */
     private void resetHandlersCabins() {
         mm.getClientPlayer().getShip().getMapCabins().values().forEach(cabin -> {
             Node node = cabin.getNode().getValue0();
@@ -940,6 +1168,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Resets all event handlers for storage components in the player's spaceship.
+     * Iterates through all storages and removes any mouse click event handlers and effects.
+     */
     private void resetHandlersStorages() {
         mm.getClientPlayer().getShip().getMapStorages().values().forEach(storage -> {
             Node node = storage.getNode().getValue0();
@@ -949,11 +1181,23 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Displays an error message in the GUI using the MessageController.
+     * Extracts the error message from the given StatusEvent, casting it to Pota.
+     *
+     * @param status the StatusEvent containing the error information
+     */
     private void error(StatusEvent status) {
         MessageController.showErrorMessage(((Pota) status).errorMessage());
         resetEffects();
     }
     
+    /**
+     * Displays the planet selection options pane in the GUI.
+     * This method creates and shows the pane for choosing a planet from the given PlanetsView.
+     *
+     * @param planets the PlanetsView containing available planets to select
+     */
     private void showPlanetOptions(PlanetsView planets) {
         createPlanetPane(planets);
 
@@ -970,6 +1214,12 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Creates the pane for planet selection options.
+     * Initializes a new StackPane with a semi-transparent background for displaying planet choices.
+     *
+     * @param planets the PlanetsView containing available planets to select
+     */
     private void createPlanetPane(PlanetsView planets) {
         newPlanetPane = new StackPane();
         newPlanetPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.6);");
@@ -1081,6 +1331,11 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
+    /**
+     * Activates the buttons for selecting cannons.
+     * Creates and manages the buttons to select and cancel the selection of cannons,
+     * allowing the user to choose which cannons to use during the turn.
+     */
     private void activeCannonsButton() {
         // Cannons buttons
         Button selectCannonsButton = new Button("Select cannons");
@@ -1111,6 +1366,11 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.add(cancelCannonsButton);
     }
 
+    /**
+     * Activates the buttons for selecting engines.
+     * Creates and manages the buttons to select and cancel the selection of engines,
+     * allowing the user to choose which engines to use during the turn.
+     */
     private void activeEnginesButtons() {
         // Engines buttons
         Button selectEnginesButton = new Button("Select engines");
@@ -1131,6 +1391,13 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.addAll(List.of(selectEnginesButton, cancelEnginesButton));
     }
 
+    /**
+     * Activates the buttons for battery selection based on the specified action.
+     * Creates and manages buttons to select, cancel, or use batteries,
+     * adapting the behavior depending on the required action (selection, discard, use for shield).
+     *
+     * @param actionOnBatteries the type of action to perform on the batteries
+     */
     private void activeBatteriesButtons(ActionOnBatteries actionOnBatteries) {
         // Batteries buttons
         Button selectBatteriesButton = new Button("Select batteries");
@@ -1211,6 +1478,11 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         }
     }
 
+    /**
+     * Activates the buttons for selecting cabins.
+     * Creates and manages the buttons to select and cancel the selection of cabins,
+     * allowing the user to choose which cabins to use or discard during the turn.
+     */
     private void activeCabinsButtons() {
         // Cabins buttons
         Button cancelCabinsButton = new Button("Cancel crew selected");
@@ -1244,6 +1516,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.add(sendCrewPenalty);
     }
 
+    /**
+     * Activates the buttons for shield activation.
+     * Creates and manages the button to activate the shield during the player's turn.
+     */
     private void activeShieldButtons() {
         Button activeShield = new Button("Active shield");
 
@@ -1272,6 +1548,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.add(activeShield);
     }
 
+    /**
+     * Activates the button(s) for rolling the dice.
+     * Creates and manages the UI elements that allow the user to roll dice during their turn.
+     */
     private void activeRollDiceButtons() {
         // Roll dice
         Button rollDiceButton = new Button("Roll Dice");
@@ -1297,6 +1577,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.add(rollDiceButton);
     }
 
+    /**
+     * Activates the button for ending the turn when protection is not possible.
+     * Creates and displays the "End turn" button for the user to proceed.
+     */
     private void activeCantProtectButtons() {
         Button cantProtectButton = new Button("End turn");
 
@@ -1323,6 +1607,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.add(cantProtectButton);
     }
 
+    /**
+     * Activates the button for ending the turn.
+     * Creates and displays the "End turn" button for the user to proceed to the next phase.
+     */
     private void activeEndTurnButtons() {
         // EndTurn
         Button endTurn = new Button("End turn");
@@ -1341,6 +1629,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.add(endTurn);
     }
 
+    /**
+     * Activates the buttons for selecting goods to exchange or pick up.
+     * Creates and manages the UI elements that allow the user to interact with goods during their turn.
+     */
     public void activeGoodsButtons() {
         // ExchangeGoods
         Button exchangeGoods = new Button("Exchange goods");
@@ -1355,6 +1647,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.add(swapGoods);
     }
 
+    /**
+     * Activates the button for selecting a planet.
+     * Creates and displays the UI element that allows the user to select a planet during their turn.
+     */
     private void activeSelectPlanetButton() {
         // Select planets
         Button selectPlanetButton = new Button("Open choose planet menu");
@@ -1366,6 +1662,12 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.add(selectPlanetButton);
     }
 
+    /**
+     * Activates the accept button for the current card.
+     * When the button is pressed, executes the action specified by onSuccess.
+     *
+     * @param onSuccess Runnable to execute upon successful acceptance.
+     */
     private void activeAcceptButton(Runnable onSuccess) {
         Button acceptCard = new Button("Accept");
 
@@ -1383,6 +1685,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.add(acceptCard);
     }
 
+    /**
+     * Activates the button for selecting penalty goods.
+     * Creates and displays the UI element that allows the user to choose goods to be penalized.
+     */
     private void activePenaltyGoods() {
         Button choosePenaltyGoods = new Button("Choose penalty goods");
         Button sendGoodsPenalty = new Button("Send penalty goods");
@@ -1410,6 +1716,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.add(sendGoodsPenalty);
     }
 
+    /**
+     * Activates the button(s) for selecting fragments.
+     * Creates and manages the UI elements that allow the user to choose fragments during their turn.
+     */
     private void activeFragmentsButtons() {
         Button chooseFragments = new Button("Choose fragments");
 
@@ -1483,6 +1793,12 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.add(chooseFragments);
     }
 
+    /**
+     * Activates the "Give up" button in the GUI.
+     * If forceGiveUp is true, the button will trigger a forced give up action for the player.
+     *
+     * @param forceGiveUp whether the give up action should be forced
+     */
     private void activeGiveUpButton(boolean forceGiveUp) {
         Button giveUp = new Button("Give up");
 
@@ -1510,6 +1826,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.add(giveUp);
     }
 
+    /**
+     * Clears all buttons from the lowerHBox container.
+     * This method is typically called before adding new buttons to the UI.
+     */
     private void showButtons() {
         lowerHBox.getChildren().clear();
         for (Button button : onScreenButtons) {
