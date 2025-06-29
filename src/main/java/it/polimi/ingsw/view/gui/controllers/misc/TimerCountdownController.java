@@ -101,13 +101,9 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
         updateTimerPositionAndScale();
 
         // Manual bind the width and height of the timer group to the parent StackPane
-        parent.widthProperty().addListener((observable, oldValue, newValue) -> {
-            updateTimerPositionAndScale();
-        });
+        parent.widthProperty().addListener((_, _, _) -> updateTimerPositionAndScale());
 
-        parent.heightProperty().addListener((observable, oldValue, newValue) -> {
-            updateTimerPositionAndScale();
-        });
+        parent.heightProperty().addListener((_, _, _) -> updateTimerPositionAndScale());
     }
 
     /**
@@ -153,7 +149,7 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
 
         this.updateUI();
 
-        timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+        timeline = new Timeline(new KeyFrame(Duration.seconds(1), _ -> {
             remainingSeconds--;
             updateUI();
             if (remainingSeconds <= 0) {
@@ -193,15 +189,11 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
 
     @Override
     public void react() {
-        Platform.runLater(() -> {
-            try {
+        if (timerView.isRunning()) {
+            Platform.runLater(() -> {
                 int time = timerView.getSecondsRemaining();
                 this.start(time);
-            } catch (Exception e) {}
-        });
-    }
-
-    public Node getParent() {
-        return parent;
+            });
+        }
     }
 }

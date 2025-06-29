@@ -43,7 +43,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.javatuples.Pair;
 
@@ -619,11 +618,12 @@ public class BuildingController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
+
+            setupSpaceShipInteraction();
+
+            setupPileInteraction();
+
             try {
-                setupSpaceShipInteraction();
-
-                setupPileInteraction();
-
                 lowerRightStackPane.getChildren().clear();
                 lowerRightStackPane.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
 
@@ -635,7 +635,9 @@ public class BuildingController implements MiniModelObserver, Initializable {
 
                 lowerLeftStackPane.getChildren().clear();
                 lowerLeftStackPane.getChildren().add(mm.getBoardView().getNode().getValue0());
-            } catch (Exception e) {}
+            } catch (Exception _) {
+                // Ignore any exceptions that may occur during the update
+            }
         });
     }
 }
