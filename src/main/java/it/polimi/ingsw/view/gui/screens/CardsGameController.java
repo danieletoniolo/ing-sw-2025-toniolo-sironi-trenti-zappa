@@ -20,7 +20,6 @@ import it.polimi.ingsw.view.gui.controllers.components.CabinController;
 import it.polimi.ingsw.view.gui.controllers.misc.MessageController;
 import it.polimi.ingsw.view.miniModel.MiniModel;
 import it.polimi.ingsw.view.miniModel.MiniModelObserver;
-import it.polimi.ingsw.view.miniModel.board.LevelView;
 import it.polimi.ingsw.view.miniModel.cards.*;
 import it.polimi.ingsw.view.miniModel.components.ComponentTypeView;
 import it.polimi.ingsw.view.miniModel.components.ComponentView;
@@ -58,12 +57,11 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     private enum ActionState {
         RESET,
         WAITING,
-        GIVE_UP,
+        FORCE_GIVE_UP,
         ROLL_DICE,
         PROTECTION_NOT_POSSIBLE,
         PROTECTION_NOT_REQUIRED,
         SELECT_ACCEPT,
-        SELECT_BATTERIES,
         SELECT_CANNONS,
         SELECT_ENGINES,
         SELECT_PLANET,
@@ -207,10 +205,6 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                     activeCannonsButton();
                     activeBatteriesButtons(ActionOnBatteries.SELECTION);
                     break;
-                case SELECT_BATTERIES:
-                    // TODO: to remove
-                    activeEndTurnButtons();
-                    break;
                 case SELECT_ACCEPT:
                     activeAcceptButton(() -> {
                         resetActionState();
@@ -259,76 +253,12 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 case PROTECTION_NOT_POSSIBLE:
                     activeCantProtectButtons();
                     break;
+                case FORCE_GIVE_UP:
+                    activeGiveUpButton(true);
                 case RESET:
                 case PROTECTION_NOT_REQUIRED:
                     activeEndTurnButtons();
                     break;
-                /*
-                case SMUGGLERS:
-                    totalButtons += 3 + 2 + 4 + 3;
-                    activeCannonsButton();
-                    activeBatteriesButtons();
-                    activeGoodsButtons();
-                    activePenaltyGoods();
-                    break;
-                case METEORSSWARM:
-                    totalButtons += 1 + 1 + 1 + 2;
-                    activeFragmentsButtons();
-                    activeShieldButtons();
-                    activeBatteriesButtons();
-                    activeRollDiceButtons();
-                    break;
-                case PIRATES:
-                    totalButtons += 1 + 1 + 1 + 3 + 2;
-                    activeFragmentsButtons();
-                    activeShieldButtons();
-                    activeBatteriesButtons();
-                    activeRollDiceButtons();
-                    activeCannonsButton();
-                    break;
-                case SLAVERS:
-                    totalButtons += 3 + 3 + 2;
-                    activeCannonsButton();
-                    activeBatteriesButtons();
-                    activeCabinsButtons();
-                    break;
-                case COMBATZONE:
-                    if (MiniModel.getInstance().getShuffledDeckView().getDeck().peek().getLevel() == 1) {
-                        switch (((CombatZoneView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek()).getCont()) {
-                            case 1 -> {
-                                activeEnginesButtons();
-                                activeBatteriesButtons();
-                            }
-                            case 2 -> {
-                                activeCannonsButton();
-                                activeBatteriesButtons();
-                            }
-                            default -> {}
-                        }
-                    }
-                    else {
-                        switch (((CombatZoneView) MiniModel.getInstance().getShuffledDeckView().getDeck().peek()).getCont()) {
-                            case 0 -> {
-                                activeCannonsButton();
-                                activeBatteriesButtons();
-                            }
-                            case 1 -> {
-                                activeEnginesButtons();
-                                activeBatteriesButtons();
-                            }
-                            default -> {
-                            }
-                        }
-                    }
-                    totalButtons += 5;
-                    totalButtons += 3 + 3 + 1 + 1 + 1;
-                    activeRollDiceButtons();
-                    activeShieldButtons();
-                    activeFragmentsButtons();
-                    activePenaltyGoods();
-                    activeCabinsButtons();
-                    break;
-                    */
             }
 
             if (changeCardGoods) {
@@ -347,8 +277,8 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 changeCardGoods = false;
             }
 
-            if (actionState != ActionState.WAITING) {
-                activeGiveUpButton();
+            if (actionState != ActionState.WAITING && actionState != ActionState.FORCE_GIVE_UP) {
+                activeGiveUpButton(false);
             }
 
             for (PlayerDataView player : mm.getOtherPlayers()) {
@@ -370,7 +300,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         });
     }
 
-    static public void actionGiveUp() { actionState = ActionState.GIVE_UP; }
+    static public void actionGiveUp() { actionState = ActionState.FORCE_GIVE_UP; }
 
     static public void actionRollDice() {
         actionState = ActionState.ROLL_DICE;
@@ -396,10 +326,6 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         actionState = ActionState.SELECT_SHIELD;
     }
 
-    static public void actionBatteries() {
-        actionState = ActionState.SELECT_BATTERIES;
-    }
-
     static public void actionPlanets() {
         actionState = ActionState.SELECT_PLANET;
     }
@@ -418,6 +344,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
     static public void actionCabins() {
         actionState = ActionState.DISCARD_CABINS;
+    }
+
+    static public void actionDiscardBatteries() {
+        actionState = ActionState.DISCARD_BATTERIES;
     }
 
     static public void actionFragments() {
@@ -1194,16 +1124,15 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                         case SLAVERS:
                         case SMUGGLERS:
                         case PIRATES:
-                        case OPENSPACE:
-                            LevelView level = mm.getBoardView().getLevel();
+                        case COMBATZONE:
                             int combatZonePhase = mm.getCombatZonePhase();
-                            if ((combatZonePhase == 0 && level == LevelView.SECOND) ||
-                                (combatZonePhase == 2 && level == LevelView.LEARNING) ||
-                                (card.getCardViewType() != CardViewType.OPENSPACE)) {
+                            if ((combatZonePhase == 0 && card.getLevel() == 2) ||
+                                (combatZonePhase == 2 && card.getLevel() == 1) ||
+                                (card.getCardViewType() != CardViewType.COMBATZONE)) {
                                 status = UseCannons.requester(Client.transceiver, new Object()).request(new UseCannons(mm.getUserID(), selectedCannonsList, selectedBatteriesList));
                                 break;
                             }
-                        case COMBATZONE:
+                        case OPENSPACE:
                             status = UseEngines.requester(Client.transceiver, new Object()).request(new UseEngines(mm.getUserID(), selectedEnginesList, selectedBatteriesList));
                             break;
                     };
@@ -1295,13 +1224,23 @@ public class CardsGameController implements MiniModelObserver, Initializable {
 
         // Use shield event
         activeShield.setOnMouseClicked(_ -> {
+            if (selectedBatteriesList.isEmpty()) {
+                selectedBatteriesList.add(-1);
+            }
+
             StatusEvent status = UseShield.requester(Client.transceiver, new Object()).request(new UseShield(mm.getUserID(), selectedBatteriesList));
             if (status.get().equals(mm.getErrorCode())) {
                 error(status);
             }
             else {
-                resetHandlers();
-                resetEffects();
+                status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                if (status.get().equals(mm.getErrorCode())) {
+                    error(status);
+                }
+                else {
+                    resetHandlers();
+                    resetEffects();
+                }
             }
         });
 
@@ -1518,7 +1457,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         onScreenButtons.add(chooseFragments);
     }
 
-    private void activeGiveUpButton() {
+    private void activeGiveUpButton(boolean forceGiveUp) {
         Button giveUp = new Button("Give up");
 
         giveUp.setOnMouseClicked(_ -> {
@@ -1527,8 +1466,18 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 error(status);
             }
             else {
-                resetHandlers();
-                resetEffects();
+                if (forceGiveUp) {
+                    status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                    if (status.get().equals(mm.getErrorCode())) {
+                        error(status);
+                    } else {
+                        resetHandlers();
+                        resetEffects();
+                    }
+                } else {
+                    resetHandlers();
+                    resetEffects();
+                }
             }
         });
 

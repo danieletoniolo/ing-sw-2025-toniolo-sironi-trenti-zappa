@@ -87,7 +87,7 @@ public class ValidationState extends State {
         if (playersWithMarkerOnBoard.contains(player)) {
             throw new IllegalStateException("You are already on the board");
         }
-        if (fragmentedComponents.get(player).size() > 1 || !invalidComponents.get(player).isEmpty()) {
+        if (position != -1 && ((fragmentedComponents.get(player) != null && fragmentedComponents.get(player).size() > 1) || (invalidComponents.get(player) != null && !invalidComponents.get(player).isEmpty()))) {
             throw new IllegalStateException("You cannot place a marker if you have invalid components or fragmented ship");
         }
 
