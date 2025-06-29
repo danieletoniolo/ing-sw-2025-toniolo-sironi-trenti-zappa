@@ -79,6 +79,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
     private Button cancelSelectionButton;
     private Button placeMarkerButton;
     private Button endTurnButton;
+    private Button chooseFragments;
 
     /**
      * Reference to the singleton instance of MiniModel, used to access and observe the game state.
@@ -139,7 +140,7 @@ public class ValidationController implements MiniModelObserver, Initializable {
         });
 
         // Initialize lower HBox buttons
-        int totalButtons = 4 + mm.getOtherPlayers().size();
+        int totalButtons = 5 + mm.getOtherPlayers().size();
 
         destroyComponentsButton = new Button("Destroy");
         destroyComponentsButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
@@ -157,7 +158,11 @@ public class ValidationController implements MiniModelObserver, Initializable {
         placeMarkerButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
         placeMarkerButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
-        lowerHBox.getChildren().addAll(destroyComponentsButton, cancelSelectionButton, endTurnButton, placeMarkerButton);
+        chooseFragments = new Button("Choose Fragments");
+        chooseFragments.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
+        chooseFragments.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
+
+        lowerHBox.getChildren().addAll(destroyComponentsButton, chooseFragments, cancelSelectionButton, endTurnButton, placeMarkerButton);
 
         for (PlayerDataView player : mm.getOtherPlayers()) {
             Button otherButtonPlayer = new Button("View " + player.getUsername() + "'s spaceship");
@@ -289,9 +294,6 @@ public class ValidationController implements MiniModelObserver, Initializable {
                     }
                 }
             }
-
-            Button chooseFragments = new Button("Choose fragments");
-            chooseFragments.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
 
             chooseFragments.setOnMouseClicked(_ -> {
                 List<Color> colors = new ArrayList<>();
