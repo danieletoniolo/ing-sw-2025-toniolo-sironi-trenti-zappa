@@ -75,12 +75,6 @@ public class ValidationController implements MiniModelObserver, Initializable {
     /** Overlay pane for viewing another player's spaceship. */
     private StackPane newOtherPlayerPane;
 
-    private Button destroyComponentsButton;
-    private Button cancelSelectionButton;
-    private Button placeMarkerButton;
-    private Button endTurnButton;
-    private Button chooseFragments;
-
     /**
      * Reference to the singleton instance of MiniModel, used to access and observe the game state.
      */
@@ -95,11 +89,12 @@ public class ValidationController implements MiniModelObserver, Initializable {
      * Indicates whether the player has placed the marker during their turn.
      */
     private boolean placedMarker;
+    boolean found;
 
     private final double ORIGINAL_MAIN_VBOX_WIDTH = 1600.0;
     private final double ORIGINAL_MAIN_VBOX_HEIGHT = 900.0;
 
-    private int totalButtons;
+    private final ArrayList<Button> onScreenButtons = new ArrayList<>();
 
     /**
      * Initializes the validation screen controller.
@@ -139,42 +134,9 @@ public class ValidationController implements MiniModelObserver, Initializable {
             }
         });
 
-        // Initialize lower HBox buttons
-        int totalButtons = 5 + mm.getOtherPlayers().size();
-
-        destroyComponentsButton = new Button("Destroy");
-        destroyComponentsButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
-        destroyComponentsButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-
-        cancelSelectionButton = new Button("Cancel");
-        cancelSelectionButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
-        cancelSelectionButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-
-        endTurnButton = new Button("End Turn");
-        endTurnButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
-        endTurnButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-
-        placeMarkerButton = new Button("Place Marker");
-        placeMarkerButton.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
-        placeMarkerButton.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-
-        chooseFragments = new Button("Choose Fragments");
-        chooseFragments.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
-        chooseFragments.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-
-        lowerHBox.getChildren().addAll(destroyComponentsButton, chooseFragments, cancelSelectionButton, endTurnButton, placeMarkerButton);
-
-        for (PlayerDataView player : mm.getOtherPlayers()) {
-            Button otherButtonPlayer = new Button("View " + player.getUsername() + "'s spaceship");
-            otherButtonPlayer.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold");
-            otherButtonPlayer.setOnMouseClicked(_ -> showOtherPlayer(player));
-            otherButtonPlayer.prefWidthProperty().bind(lowerHBox.widthProperty().divide(totalButtons));
-            lowerHBox.getChildren().add(otherButtonPlayer);
-        }
-
         placedMarker = true;
 
-        Platform.runLater(this::react);
+        react();
     }
 
     /**
@@ -210,90 +172,18 @@ public class ValidationController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            try {
-                if (mm.getBoardView().getLevel() == LevelView.SECOND) {
-                    for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-                        for (ComponentView component : row) {
-                            if (component != null && component.getIsWrong()) {
-                                placedMarker = false;
-                                break;
-                            }
-                        }
-                    }
-                }
+            onScreenButtons.clear();
 
-                placeMarkerButton.setOnMouseClicked(_ -> showMarkerPositionSelector());
+            for (ComponentView component : mm.getClientPlayer().getShip().getDiscardReservedPile().getReserved()) {
+                Node node = component.getNode().getValue0();
 
-                destroyComponentsButton.setOnMouseClicked(_ -> {
-                    StatusEvent status = DestroyComponents.requester(Client.transceiver, new Object()).request(new DestroyComponents(mm.getUserID(), componentsToDestroy));
-                    if (status.get().equals(mm.getErrorCode())) {
-                        error(status);
-                    }
-                    for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-                        for (ComponentView component : row) {
-                            if (component != null) {
-                                Node node = component.getNode().getValue0();
+                node.setOnMouseClicked(null);
+                node.setEffect(null);
+                node.setOpacity(1.0);
+            }
 
-                                node.setDisable(false);
-                                node.setOpacity(1.0);
-                            }
-                        }
-                    }
-                    componentsToDestroy.clear();
-                });
-
-                cancelSelectionButton.setOnMouseClicked(_ -> {
-                    for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-                        for (ComponentView component : row) {
-                            if (component != null) {
-                                Node node = component.getNode().getValue0();
-
-                                node.setDisable(false);
-                                node.setOpacity(1.0);
-                            }
-                        }
-                    }
-                    componentsToDestroy.clear();
-                });
-
-                endTurnButton.setOnMouseClicked(_ -> {
-                    StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
-                    if (status.get().equals(mm.getErrorCode())) {
-                        error(status);
-                    } else {
-                        MessageController.showInfoMessage("Confirmed choices");
-                    }
-                });
-
-                for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
-                    for (ComponentView component : row) {
-                        if (component != null) {
-                            Node node = component.getNode().getValue0();
-
-                            if (component.getIsWrong()) {
-                                DropShadow redGlow = new DropShadow();
-                                redGlow.setColor(Color.RED);
-                                redGlow.setRadius(20);
-                                redGlow.setSpread(0.6);
-
-                                Glow glow = new Glow(0.7);
-                                glow.setInput(redGlow);
-
-                                node.setEffect(glow);
-                            } else {
-                                node.setEffect(null);
-                            }
-
-                            node.setOnMouseClicked(_ -> {
-                                node.setDisable(true); // disable clicks on the component
-
-                                node.setOpacity(0.5); // Set opacity to indicate selection
-
-                                componentsToDestroy.add(new Pair<>(component.getRow() - 1, component.getCol() - 1));
-                            });
-                        }
-                    }
-                }
+            if (mm.getClientPlayer().getShip().getFragments() != null && mm.getClientPlayer().getShip().getFragments().size() > 1) {
+                Button chooseFragments = new Button("Choose fragments");
 
                 chooseFragments.setOnMouseClicked(_ -> {
                     List<Color> colors = new ArrayList<>();
@@ -345,18 +235,126 @@ public class ValidationController implements MiniModelObserver, Initializable {
                                 if (status.get().equals(mm.getErrorCode())) {
                                     error(status);
                                 }
+                                resetHandlers();
                             });
                         }
                         i++;
                     }
                 });
+                onScreenButtons.add(chooseFragments);
+            }
+            else {
+                found = false;
+                if (mm.getBoardView().getLevel() == LevelView.LEARNING) {
+                    for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+                        for (ComponentView component : row) {
+                            if (component != null && component.getIsWrong()) {
+                                placedMarker = false;
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                }
 
-                board.getChildren().clear();
-                board.getChildren().add(mm.getBoardView().getNode().getValue0());
+                Button destroyComponentsButton = new Button("Destroy");
+                Button cancelSelectionButton = new Button("Cancel");
+                Button placeMarkerButton = new Button("Place Marker");
 
-                clientShip.getChildren().clear();
-                clientShip.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
-            } catch (Exception e) {}
+                onScreenButtons.add(destroyComponentsButton);
+                onScreenButtons.add(cancelSelectionButton);
+                onScreenButtons.add(placeMarkerButton);
+
+                placeMarkerButton.setOnMouseClicked(_ -> showMarkerPositionSelector());
+
+                destroyComponentsButton.setOnMouseClicked(_ -> {
+                    StatusEvent status = DestroyComponents.requester(Client.transceiver, new Object()).request(new DestroyComponents(mm.getUserID(), componentsToDestroy));
+                    componentsToDestroy.clear();
+                    if (status.get().equals(mm.getErrorCode())) {
+                        error(status);
+                    }
+                    else {
+                        resetHandlers();
+                        react();
+                    }
+                });
+
+                cancelSelectionButton.setOnMouseClicked(_ -> {
+                    for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+                        for (ComponentView component : row) {
+                            if (component != null) {
+                                Node node = component.getNode().getValue0();
+
+                                node.setDisable(false);
+                                node.setOpacity(1.0);
+                            }
+                        }
+                    }
+                    componentsToDestroy.clear();
+                });
+
+                for (ComponentView[] row : mm.getClientPlayer().getShip().getSpaceShip()) {
+                    for (ComponentView component : row) {
+                        if (component != null) {
+                            Node node = component.getNode().getValue0();
+
+                            if (component.getIsWrong()) {
+                                DropShadow redGlow = new DropShadow();
+                                redGlow.setColor(Color.RED);
+                                redGlow.setRadius(20);
+                                redGlow.setSpread(0.6);
+
+                                Glow glow = new Glow(0.7);
+                                glow.setInput(redGlow);
+
+                                node.setEffect(glow);
+                            } else {
+                                node.setEffect(null);
+                            }
+
+                            node.setOnMouseClicked(_ -> {
+                                node.setDisable(true); // disable clicks on the component
+
+                                node.setOpacity(0.5); // Set opacity to indicate selection
+
+                                componentsToDestroy.add(new Pair<>(component.getRow() - 1, component.getCol() - 1));
+                            });
+                        }
+                    }
+                }
+            }
+
+            Button endTurnButton = new Button("Confirm changes");
+
+            endTurnButton.setOnMouseClicked(_ -> {
+                if (!placedMarker && !found) {
+                    MessageController.showErrorMessage("You need to place the marker");
+                } else {
+                    StatusEvent status = EndTurn.requester(Client.transceiver, new Object()).request(new EndTurn(mm.getUserID()));
+                    if (status.get().equals(mm.getErrorCode())) {
+                        error(status);
+                    } else {
+                        MessageController.showInfoMessage("Confirmed changes");
+                    }
+                }
+            });
+
+            onScreenButtons.add(endTurnButton);
+
+
+            for (PlayerDataView player : mm.getOtherPlayers()) {
+                Button otherButtonPlayer = new Button("View " + player.getUsername() + "'s spaceship");
+                otherButtonPlayer.setOnMouseClicked(_ -> showOtherPlayer(player));
+                onScreenButtons.add(otherButtonPlayer);
+            }
+
+            showButtons();
+
+            board.getChildren().clear();
+            board.getChildren().add(mm.getBoardView().getNode().getValue0());
+
+            clientShip.getChildren().clear();
+            clientShip.getChildren().add(mm.getClientPlayer().getShip().getNode().getValue0());
         });
     }
 
@@ -550,8 +548,10 @@ public class ValidationController implements MiniModelObserver, Initializable {
             for (ComponentView component : row) {
                 if (component != null) {
                     Node node = component.getNode().getValue0();
-                    node.setOnMouseClicked(null);
                     node.setEffect(null);
+                    node.setDisable(false);
+                    node.setOnMouseClicked(null);
+                    node.setOpacity(1.0);
                 }
             }
         }
@@ -565,5 +565,15 @@ public class ValidationController implements MiniModelObserver, Initializable {
     private void error(StatusEvent status) {
         MessageController.showErrorMessage(((Pota) status).errorMessage());
         resetHandlers();
+        react();
+    }
+
+    private void showButtons() {
+        lowerHBox.getChildren().clear();
+        for (Button button : onScreenButtons) {
+            button.setStyle("-fx-background-color: rgba(251,197,9, 0.5); -fx-border-color: rgb(251,197,9); -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold; textAlignment: CENTER; textFill: white");
+            button.prefWidthProperty().bind(lowerHBox.widthProperty().divide(onScreenButtons.size()));
+            lowerHBox.getChildren().add(button);
+        }
     }
 }

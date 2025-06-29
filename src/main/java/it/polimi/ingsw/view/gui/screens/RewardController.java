@@ -174,7 +174,8 @@ public class RewardController implements MiniModelObserver, Initializable{
         Platform.runLater(() -> {
             int i = 0;
             rankVBox.getChildren().clear();
-            allPlayers.addAll(MiniModel.getInstance().getOtherPlayers());
+            allPlayers.sort((p1, p2) -> Integer.compare(p2.getCoins(), p1.getCoins()));
+            //allPlayers.addAll(MiniModel.getInstance().getOtherPlayers());
             for (PlayerDataView player : allPlayers) {
                 MarkerView mv = player.getMarkerView();
 

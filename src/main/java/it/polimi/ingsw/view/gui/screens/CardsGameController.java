@@ -722,8 +722,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 storageID = storage.getID();
                 int i = 0;
                 for (Node node : goods.getChildren()) {
-                    if (node instanceof CheckBox check && check.isSelected()) {
-                        goodsToLeave.add(i);
+                    if (node instanceof CheckBox check) {
+                        if (check.isSelected()) {
+                            goodsToLeave.add(i);
+                        }
                         i++;
                     }
                 }
@@ -767,8 +769,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
             confirmButton.setOnMouseClicked(_ -> {
                 int i = 0;
                 for (Node node : goods.getChildren()) {
-                    if (node instanceof CheckBox check && check.isSelected()) {
-                        goodsToGet.add(cardGoods.get(i).getValue());
+                    if (node instanceof CheckBox check) {
+                        if (check.isSelected()) {
+                            goodsToGet.add(cardGoods.get(i).getValue());
+                        }
                         i++;
                     }
                 }
@@ -781,13 +785,12 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 else {
                     resetEffects();
                     resetHandlers();
+                    List<GoodView> toRemove = new ArrayList<>();
+                    for (Integer good : goodsToGet) {
+                        toRemove.add(GoodView.fromValue(good));
+                    }
+                    cardGoods.removeAll(toRemove);
                 }
-
-                List<GoodView> toRemove = new ArrayList<>();
-                for (Integer good : goodsToGet) {
-                    toRemove.add(GoodView.fromValue(good));
-                }
-                cardGoods.removeAll(toRemove);
 
                 exchanges.clear();
                 goodsToLeave.clear();
