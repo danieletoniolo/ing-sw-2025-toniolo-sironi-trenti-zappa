@@ -173,6 +173,7 @@ public class RewardController implements MiniModelObserver, Initializable{
     public void react() {
         Platform.runLater(() -> {
             int i = 0;
+            rankVBox.getChildren().clear();
             for (PlayerDataView player : allPlayers) {
                 MarkerView mv = player.getMarkerView();
 

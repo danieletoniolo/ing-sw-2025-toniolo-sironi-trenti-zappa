@@ -458,7 +458,6 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyRotatedTile(RotatedTile data) {
         controller.react();
-
     }
 
     @Override
@@ -564,7 +563,6 @@ public class GuiManager extends Application implements Manager {
     @Override
     public void notifyLastTimerFlipped() {
         controller.react();
-
     }
 
     @Override

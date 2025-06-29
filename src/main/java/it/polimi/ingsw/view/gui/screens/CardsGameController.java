@@ -265,7 +265,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 cardGoods.clear();
                 switch (card.getCardViewType()) {
                     case PLANETS:
-                        cardGoods.addAll(((PlanetsView) card).getPlanet(((PlanetsView) card).getPlanetSelected()));
+                        // This is done when the user selects a planet
                         break;
                     case SMUGGLERS:
                         cardGoods.addAll(((SmugglersView) card).getGoods());
@@ -1004,6 +1004,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
             if (status.get().equals(mm.getErrorCode())) {
                 error(status);
             } else {
+                cardGoods.clear();
+                CardView card = mm.getShuffledDeckView().getDeck().peek();
+                cardGoods.addAll(((PlanetsView) card).getPlanet(((PlanetsView) card).getPlanetSelected()));
+
                 resetEffects();
                 resetHandlers();
                 resetActionState();
