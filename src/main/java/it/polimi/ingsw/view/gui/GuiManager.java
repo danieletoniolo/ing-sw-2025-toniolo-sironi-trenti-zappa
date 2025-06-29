@@ -193,15 +193,16 @@ public class GuiManager extends Application implements Manager {
 
     @Override
     public void notifyForcingGiveUp(ForcingGiveUp data) {
-        controller.react();
-
         String message;
         if (mm.getNickname().equals(data.nickname())) {
             message = data.message();
+            CardsGameController.actionGiveUp();
         } else {
             message = data.nickname() + " is forced to give up. Waiting for his turn...";
+            CardsGameController.waitingActionState();
         }
         Platform.runLater(() -> MessageController.showInfoMessage(message));
+        controller.react();
     }
 
     @Override
@@ -397,6 +398,7 @@ public class GuiManager extends Application implements Manager {
                     break;
                 case PLANETS:
                 case ABANDONEDSHIP:
+                case ABANDONEDSTATION:
                     CardsGameController.actionAccept();
                     message += " Choose if accept the card! Otherwise, you can end your turn";
                     break;

@@ -58,6 +58,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     private enum ActionState {
         RESET,
         WAITING,
+        GIVE_UP,
         ROLL_DICE,
         PROTECTION_NOT_POSSIBLE,
         PROTECTION_NOT_REQUIRED,
@@ -217,7 +218,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                         switch (card.getCardViewType()) {
                             case PLANETS -> actionPlanets();
                             case ABANDONEDSHIP -> actionCabins();
-                            case SMUGGLERS -> actionAddGoods();
+                            case SMUGGLERS, ABANDONEDSTATION -> actionAddGoods();
                         }
 
                         react();
@@ -368,6 +369,8 @@ public class CardsGameController implements MiniModelObserver, Initializable {
             currentCard.getChildren().add(mm.getShuffledDeckView().getDeck().peek().getNode().getValue0());
         });
     }
+
+    static public void actionGiveUp() { actionState = ActionState.GIVE_UP; }
 
     static public void actionRollDice() {
         actionState = ActionState.ROLL_DICE;
@@ -1400,7 +1403,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
     }
 
     private void activeAcceptButton(Runnable onSuccess) {
-        Button acceptCard = new Button("Accept card");
+        Button acceptCard = new Button("Accept");
 
         acceptCard.setOnMouseClicked(_ -> {
             StatusEvent status = Play.requester(Client.transceiver, new Object()).request(new Play(mm.getUserID()));
