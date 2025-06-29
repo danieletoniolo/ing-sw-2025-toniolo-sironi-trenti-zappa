@@ -29,7 +29,7 @@ The server must be started before any client. It supports both Socket and RMI co
 cd /path/to/ing-sw-2025-toniolo-sironi-trenti-zappa
 
 # Launch server with default parameters
-java -jar target/libs/Server.jar
+java -jar deliverables/Server.jar
 ```
 
 #### 📱 Client
@@ -41,7 +41,7 @@ The client can be started in **GUI** (graphical interface) or **TUI** (text inte
 cd /path/to/ing-sw-2025-toniolo-sironi-trenti-zappa
 
 # Launch GUI client (default mode)
-java -jar target/libs/Client.jar
+java -jar deliverables/Client.jar
 
 ```
 
@@ -49,20 +49,20 @@ java -jar target/libs/Client.jar
 
 1. **Start the Server:**
    ```bash
-   java -jar target/libs/Server.jar
+   java -jar deliverables/Server.jar
    ```
    
 2. **Start one or more Clients:**
    ```bash
    # Terminal 1 - Client
-   java -jar target/libs/Client.jar
+   java -jar deliverables/Client.jar
    
    # Terminal 2 - Client
-   java -jar target/libs/Client.jar
+   java -jar deliverables/Client.jar
    ```
 
 3. **In the client:** 
    - Choose connection type (Socket or RMI)
-   - Choose IP Adress
+   - Choose IP Address
    - Enter username
    - Create or join a game
