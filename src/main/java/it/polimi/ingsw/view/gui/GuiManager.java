@@ -222,7 +222,7 @@ public class GuiManager extends Application implements Manager {
                     break;
                 case 2:
                     message = "You have no more goods, you must discard batteries";
-                    CardsGameController.actionBatteries();
+                    CardsGameController.actionDiscardBatteries();
                     break;
                 case 3:
                     message = "New hit is coming! Good luck";
@@ -391,9 +391,11 @@ public class GuiManager extends Application implements Manager {
                     message += " Select the double cannon to use or end turn";
                     break;
                 case STARDUST:
+                    CardsGameController.resetActionState();
                     message += " End turn in order to play the Stardust card";
                     break;
                 case EPIDEMIC:
+                    CardsGameController.resetActionState();
                     message += " End turn in order to play the Epidemic card";
                     break;
                 case PLANETS:
@@ -407,20 +409,38 @@ public class GuiManager extends Application implements Manager {
                     message += " Roll the dice for all the player";
                     break;
                 case COMBATZONE:
-                    if (mm.getShuffledDeckView().getDeck().peek().getLevel() == 1) {
-                        CardsGameController.resetActionState();
-                        message += " Take the penalty! You are the player with the lowest number of crew";
-                    } else {
-                        CardsGameController.actionCannon();
-                        message += " Select the double cannon to use or end turn";
+                    switch (mm.getCombatZonePhase()) {
+                        case 0:
+                            if (mm.getShuffledDeckView().getDeck().peek().getLevel() == 1) {
+                                CardsGameController.resetActionState();
+                                message += " Take the penalty! You are the player with the lowest number of crew";
+                            } else {
+                                CardsGameController.actionCannon();
+                                message += " Select the double cannon to use or end turn";
+                            }
+                            break;
+                        case 1:
+                            CardsGameController.actionEngine();
+                            message += " Select the double engine to use or end turn";
+                            break;
+                        case 2:
+                            if (mm.getShuffledDeckView().getDeck().peek().getLevel() == 1) {
+                                CardsGameController.actionCannon();
+                                message += " Select the double cannon to use or end turn";
+                            } else {
+                                message = "";
+                            }
+                            break;
                     }
             }
         }
 
         controller.react();
 
-        String finalMessage = message;
-        Platform.runLater(() -> MessageController.showInfoMessage(finalMessage));
+        if (!message.isEmpty()) {
+            String finalMessage = message;
+            Platform.runLater(() -> MessageController.showInfoMessage(finalMessage));
+        }
     }
 
     @Override
