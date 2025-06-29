@@ -235,6 +235,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                     break;
                 case SELECT_FRAGMENT:
                     activeFragmentsButtons();
+                    break;
                 case DISCARD_GOODS:
                     activePenaltyGoods();
                     if (card.getCardViewType() != CardViewType.SLAVERS) {
@@ -616,6 +617,10 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                 StatusEvent status = ExchangeGoods.requester(Client.transceiver, new Object()).request(new ExchangeGoods(mm.getUserID(), exchanges));
                 if (status.get().equals(mm.getErrorCode())) {
                     error(status);
+                    CardView card = mm.getShuffledDeckView().getDeck().peek();
+                    if (card.getCardViewType() == CardViewType.PLANETS) {
+                        cardGoods.addAll(((PlanetsView) card).getPlanet(((PlanetsView) card).getPlanetSelected()));
+                    }
                 }
                 else {
                     resetEffects();
@@ -847,6 +852,21 @@ public class CardsGameController implements MiniModelObserver, Initializable {
         resetEffectEngines();
         resetEffectBatteries();
         resetEffectCabins();
+    }
+
+    private void resetEffectFragments() {
+        for (List<Pair<Integer, Integer>> group : mm.getClientPlayer().getShip().getFragments()) {
+            for (Pair<Integer, Integer> pair : group) {
+                ComponentView fragment = mm.getClientPlayer().getShip().getSpaceShip()[pair.getValue0()][pair.getValue1()];
+                if (fragment != null) {
+                    Node node = fragment.getNode().getValue0();
+                    node.setOpacity(1.0);
+                    node.setOnMouseClicked(null);
+                    node.setEffect(null);
+                    node.setDisable(false);
+                }
+            }
+        }
     }
 
     // Reset effects for components
@@ -1450,6 +1470,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                             else {
                                 resetHandlers();
                                 resetEffects();
+                                resetEffectFragments();
                             }
                         }
                     });
