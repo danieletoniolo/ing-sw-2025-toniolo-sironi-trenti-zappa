@@ -255,6 +255,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                     break;
                 case FORCE_GIVE_UP:
                     activeGiveUpButton(true);
+                    break;
                 case RESET:
                 case PROTECTION_NOT_REQUIRED:
                     activeEndTurnButtons();
@@ -618,6 +619,7 @@ public class CardsGameController implements MiniModelObserver, Initializable {
                     error(status);
                     CardView card = mm.getShuffledDeckView().getDeck().peek();
                     if (card.getCardViewType() == CardViewType.PLANETS) {
+                        cardGoods.clear();
                         cardGoods.addAll(((PlanetsView) card).getPlanet(((PlanetsView) card).getPlanetSelected()));
                     }
                 }
