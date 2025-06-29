@@ -591,7 +591,7 @@ public class EventHandlerClient {
         getShuffledDeckListener = data -> {
             MiniModel.getInstance().getShuffledDeckView().order(data.shuffledDeck());
             for (CardView card : MiniModel.getInstance().getShuffledDeckView().getDeck()) {
-                card.setCovered(false);
+                card.setCovered(true);
             }
             MiniModel.getInstance().getShuffledDeckView().setOnlyLast((true));
         };
@@ -931,7 +931,7 @@ public class EventHandlerClient {
 
         minPlayerReceiver = new CastEventReceiver<>(this.transceiver);
         minPlayerListener = data -> {
-            //TODO
+
         };
 
         /*
@@ -1217,11 +1217,6 @@ public class EventHandlerClient {
                         battery.setNumberOfBatteries(battery.getMaximumBatteries());
                     }
                 }
-
-                if (MiniModel.getInstance().getBoardView().getLevel() == LevelView.SECOND) {
-                    Arrays.fill(MiniModel.getInstance().getDeckViews().getValue1(), true);
-                }
-
             }
             if (data.newState() == GamePhases.FINISHED.getValue()) {
                 MiniModel mm = MiniModel.getInstance();
