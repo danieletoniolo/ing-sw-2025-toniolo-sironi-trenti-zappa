@@ -21,7 +21,7 @@ The following *advanced features* have been implemented in this project:
 - **Multiple Games**: The server is designed to manage multiple games concurrently. This allows players to choose which open game to join or to create a new one.
 
 ## Launch Instructions
-The project consists of a server-side JAR and a client-side JARs.
+The project consists of a server-side JAR and a client-side JAR.
 
 ### Server Launch
 The server manages multiple games. Please run the JAR file and follow the instruction on screen to set up your network. Note that only one server is needed for multiple clients to connect.
