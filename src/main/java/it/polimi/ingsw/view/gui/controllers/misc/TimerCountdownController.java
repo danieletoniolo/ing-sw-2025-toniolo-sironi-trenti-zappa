@@ -21,6 +21,11 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the countdown timer in the GUI.
+ * Implements the observer pattern to react to changes in the TimerView model
+ * and manages the visual representation and countdown logic of the timer.
+ */
 public class TimerCountdownController implements MiniModelObserver, Initializable {
     /**
      * The StackPane that serves as the parent container for the timer.
@@ -96,13 +101,9 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
         updateTimerPositionAndScale();
 
         // Manual bind the width and height of the timer group to the parent StackPane
-        parent.widthProperty().addListener((observable, oldValue, newValue) -> {
-            updateTimerPositionAndScale();
-        });
+        parent.widthProperty().addListener((_, _, _) -> updateTimerPositionAndScale());
 
-        parent.heightProperty().addListener((observable, oldValue, newValue) -> {
-            updateTimerPositionAndScale();
-        });
+        parent.heightProperty().addListener((_, _, _) -> updateTimerPositionAndScale());
     }
 
     /**
@@ -148,7 +149,7 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
 
         this.updateUI();
 
-        timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+        timeline = new Timeline(new KeyFrame(Duration.seconds(1), _ -> {
             remainingSeconds--;
             updateUI();
             if (remainingSeconds <= 0) {
@@ -188,13 +189,11 @@ public class TimerCountdownController implements MiniModelObserver, Initializabl
 
     @Override
     public void react() {
-        Platform.runLater(() -> {
-            int time = timerView.getSecondsRemaining();
-            this.start(time);
-        });
-    }
-
-    public Node getParent() {
-        return parent;
+        if (timerView.isRunning()) {
+            Platform.runLater(() -> {
+                int time = timerView.getSecondsRemaining();
+                this.start(time);
+            });
+        }
     }
 }

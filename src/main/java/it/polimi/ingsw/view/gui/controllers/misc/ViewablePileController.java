@@ -20,6 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for a viewable pile in the GUI.
+ * Implements the observer pattern to react to changes in the mini model and initializes
+ * the related JavaFX components.
+ */
 public class ViewablePileController implements MiniModelObserver, Initializable {
 
     /**
@@ -42,6 +47,14 @@ public class ViewablePileController implements MiniModelObserver, Initializable 
      */
     private ViewablePileView viewablePileView;
 
+    /**
+     * Initializes the controller after its root element has been completely processed.
+     * Binds the width and height of the scroll pane to the parent StackPane,
+     * and binds the height of the HBox to the height of the scroll pane.
+     *
+     * @param url The location used to resolve relative paths for the root object, or null if not known.
+     * @param resourceBundle The resources used to localize the root object, or null if not localized.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Bind the width and height of the scroll pane to the parent StackPane
@@ -54,6 +67,12 @@ public class ViewablePileController implements MiniModelObserver, Initializable 
         hBox.setAlignment(Pos.TOP_LEFT);
     }
 
+    /**
+     * Sets the model for this controller and registers it as an observer.
+     * Triggers an initial update of the view.
+     *
+     * @param viewablePileView The ViewablePileView model to be associated with this controller.
+     */
     public void setModel(ViewablePileView viewablePileView) {
         this.viewablePileView = viewablePileView;
         this.viewablePileView.registerObserver(this);
@@ -61,38 +80,50 @@ public class ViewablePileController implements MiniModelObserver, Initializable 
     }
 
 
+    /**
+     * Reacts to changes in the observed mini model.
+     * Updates the GUI components on the JavaFX Application Thread.
+     */
     @Override
     public void react() {
         Platform.runLater(() -> {
-            // Clear the current components in the scroll pane
-            hBox.getChildren().clear();
+            try {
+                // Clear the current components in the scroll pane
+                hBox.getChildren().clear();
 
-            List<ComponentView> components = viewablePileView.getViewableComponents();
+                List<ComponentView> components = viewablePileView.getViewableComponents();
 
-            VBox vBox = null;
-            for (ComponentView component : components) {
-                if (vBox == null) {
-                    // Create a new VBox for the first component
-                    vBox = new VBox();
-                    vBox.setAlignment(Pos.CENTER);
-                    vBox.prefHeightProperty().bind(hBox.heightProperty());
-                    vBox.maxWidthProperty().bind((hBox.heightProperty().divide(2)).subtract(5));
-                    vBox.getChildren().add(component.getNode().getValue0());
-                } else {
-                    // If the current VBox is full, add it to the HBox and create a new one
-                    vBox.setSpacing(5);
-                    vBox.getChildren().add(component.getNode().getValue0());
-                    hBox.getChildren().add(vBox);
-                    vBox = null;
+                VBox vBox = null;
+                for (ComponentView component : components) {
+                    if (vBox == null) {
+                        // Create a new VBox for the first component
+                        vBox = new VBox();
+                        vBox.setAlignment(Pos.CENTER);
+                        vBox.prefHeightProperty().bind(hBox.heightProperty());
+                        vBox.maxWidthProperty().bind((hBox.heightProperty().divide(2)).subtract(5));
+                        vBox.getChildren().add(component.getNode().getValue0());
+                    } else {
+                        // If the current VBox is full, add it to the HBox and create a new one
+                        vBox.setSpacing(5);
+                        vBox.getChildren().add(component.getNode().getValue0());
+                        hBox.getChildren().add(vBox);
+                        vBox = null;
+                    }
                 }
-            }
-            // If there's an unclosed VBox, add it to the HBox
-            if (vBox != null) {
-                hBox.getChildren().add(vBox);
-            }
+                // If there's an unclosed VBox, add it to the HBox
+                if (vBox != null) {
+                    hBox.getChildren().add(vBox);
+                }
+            } catch (Exception e) {}
         });
     }
 
+    /**
+     * Returns a list of ComponentController instances associated with the components
+     * in the current ViewablePileView.
+     *
+     * @return a list of ComponentController objects for each component in the pile
+     */
     public List<ComponentController> getComponentControllers() {
         List<ComponentController> componentControllers = new ArrayList<>();
         for (ComponentView tile : viewablePileView.getViewableComponents()) {

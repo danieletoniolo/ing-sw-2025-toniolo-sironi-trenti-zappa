@@ -1,5 +1,6 @@
 package it.polimi.ingsw.view.gui.controllers.misc;
 
+import it.polimi.ingsw.view.gui.GuiManager;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
@@ -70,7 +71,7 @@ public class MessageController implements Initializable {
     }
 
     /**
-     * Chiude il messaggio con un'animazione di dissolvenza
+     * Closes the message box with a fade-out animation and hides the window.
      */
     private void closeMessage() {
         FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.5), messageRoot);
@@ -85,12 +86,12 @@ public class MessageController implements Initializable {
      * The popup is automatically positioned relative to the owner window and includes
      * responsive behavior for window resizing.
      *
-     * @param owner The parent window that will own the popup
      * @param message The text message to display in the popup
      * @param path The path to the FXML file that defines the popup's appearance
      */
-    private static void showMessage(Window owner, String message, String path) {
+    private static void showMessage(String message, String path) {
         try {
+            Window owner = GuiManager.getScene().getWindow();
             // Load the FXML file for the message popup
             FXMLLoader loader = new FXMLLoader(MessageController.class.getResource(path));
             StackPane messagePane = loader.load();
@@ -145,19 +146,19 @@ public class MessageController implements Initializable {
 
     /**
      * Sets the message text to be displayed in the window chosen by the user.
-     * @param owner The owner window where the message will be displayed.
+     *
      * @param message The message text to be displayed in the popup window.
      */
-    public static void showInfoMessage(Window owner, String message) {
-        showMessage(owner, message, "/fxml/misc/messageInfo.fxml");
+    public static void showInfoMessage(String message) {
+        showMessage(message, "/fxml/misc/messageInfo.fxml");
     }
 
     /**
      * Sets the message text to be displayed in the window chosen by the user.
-     * @param owner The owner window where the message will be displayed.
+     *
      * @param message The message text to be displayed in the popup window.
      */
-    public static void showErrorMessage(Window owner, String message) {
-        showMessage(owner, message, "/fxml/misc/messageError.fxml");
+    public static void showErrorMessage(String message) {
+        showMessage(message, "/fxml/misc/messageError.fxml");
     }
 }

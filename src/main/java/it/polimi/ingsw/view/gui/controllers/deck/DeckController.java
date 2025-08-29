@@ -15,6 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller class for managing the deck view in the GUI.
+ * Implements the MiniModelObserver to react to model changes and Initializable for FXML initialization.
+ */
 public class DeckController implements MiniModelObserver, Initializable {
     /**
      * The StackPane that serves as the parent container for the deck.
@@ -94,17 +98,19 @@ public class DeckController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            if (deckView.getDeck().isEmpty()) return;
+            try {
+                if (deckView.getDeck().isEmpty()) return;
 
-            if (deckView.isCovered() || deckView.isOnlyLast()) {
-                int i = 0;
-                for (CardView cv : deckView.getDeck()) {
-                    StackPane cardPane = (StackPane) cardPanes.get(i);
-                    cardPane.getChildren().clear();
-                    cardPane.getChildren().add(cv.getNode().getValue0());
-                    i++;
+                if (deckView.isCovered() || deckView.isOnlyLast()) {
+                    int i = 0;
+                    for (CardView cv : deckView.getDeck()) {
+                        StackPane cardPane = (StackPane) cardPanes.get(i);
+                        cardPane.getChildren().clear();
+                        cardPane.getChildren().add(cv.getNode().getValue0());
+                        i++;
+                    }
                 }
-            }
+            } catch (Exception e) {}
         });
     }
 

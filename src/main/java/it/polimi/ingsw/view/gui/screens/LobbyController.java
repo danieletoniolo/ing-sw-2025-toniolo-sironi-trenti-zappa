@@ -34,6 +34,15 @@ import java.net.URL;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the lobby screen in the GUI.
+ * <p>
+ * This class manages the layout, resizing, and user interactions within the lobby,
+ * including displaying player information, handling ready/not ready and leave lobby actions,
+ * and responding to updates from the mini model.
+ * Implements {@link MiniModelObserver} to react to model changes and {@link Initializable}
+ * for JavaFX FXML initialization.
+ */
 public class LobbyController implements MiniModelObserver, Initializable {
 
     /**
@@ -203,8 +212,7 @@ public class LobbyController implements MiniModelObserver, Initializable {
             boolean tryingToBeReady = readyOrNotButton.getText().equals("READY");
             StatusEvent status = PlayerReady.requester(Client.transceiver, new Object()).request(new PlayerReady(MiniModel.getInstance().getUserID(), tryingToBeReady));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             } else {
                 if (tryingToBeReady) {
                     readyOrNotButton.setText("NOT READY");
@@ -217,8 +225,7 @@ public class LobbyController implements MiniModelObserver, Initializable {
         leaveLobbyButton.setOnAction(_ -> {
             StatusEvent status = LeaveLobby.requester(Client.transceiver, new Object()).request(new LeaveLobby(MiniModel.getInstance().getUserID(), MiniModel.getInstance().getCurrentLobby().getLobbyName()));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             }
         });
 
@@ -498,64 +505,66 @@ public class LobbyController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            MiniModel mm = MiniModel.getInstance();
+            try {
+                MiniModel mm = MiniModel.getInstance();
 
-            LobbyView lobbyView = mm.getCurrentLobby();
-            if (lobbyView == null) return;
+                LobbyView lobbyView = mm.getCurrentLobby();
+                if (lobbyView == null) return;
 
-            // If the game is starting, show the countdown
-            if (lobbyView.getPlayers().entrySet().stream().filter(Map.Entry::getValue).count() == lobbyView.getMaxPlayer()) {
-                gameStarting();
-            }
-
-            lobbyNameLabel.setText(lobbyView.getLobbyName());
-            lobbyBoxVBox.getChildren().clear();
-            Map<String, Boolean> players = lobbyView.getPlayers();
-
-            for (Map.Entry<String, Boolean> entry : players.entrySet()) {
-                try {
-                    MarkerView mv;
-                    if (entry.getKey().equals(mm.getNickname())) {
-                        mv = mm.getClientPlayer().getMarkerView();
-                    } else {
-                        mv = mm.getOtherPlayers().stream()
-                                .filter(player -> player.getUsername().equals(entry.getKey()))
-                                .findFirst()
-                                .map(PlayerDataView::getMarkerView)
-                                .orElse(null);
-                    }
-
-                    // Create a new HBox for the player
-                    HBox playerBox = new HBox(10);
-                    playerBox.setAlignment(Pos.CENTER_LEFT);
-                    playerBox.setSpacing(10);
-                    playerBox.setStyle("-fx-background-color: white; " +
-                            "-fx-background-radius: 10; " +
-                            "-fx-text-fill: black; ");
-
-                    // Create a Label for the player's name and status
-                    Label playerNameLabel = new Label(entry.getKey() + ": " + (entry.getValue() ? "READY" : "NOT READY"));
-                    playerNameLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
-                    playerNameLabel.setStyle("-fx-text-fill: black;");
-
-                    // Add the player's marker view and name label to the player box
-                    if (mv != null) {
-                        playerBox.getChildren().add(mv.getNode());
-                    }
-                    playerBox.getChildren().add(playerNameLabel);
-
-                    // Bind the width of the player box to the lobby box VBox width
-                    playerBox.prefWidthProperty().bind(lobbyBoxVBox.widthProperty().subtract(20));
-
-                    lobbyBoxVBox.getChildren().add(playerBox);
-
-                } catch (Exception e) {
-                    // TODO: Decide whether to log this error or handle it differently
-                    System.err.println("Error while loading data of player: " + entry.getKey() + ": " + e.getMessage());
+                // If the game is starting, show the countdown
+                if (lobbyView.getPlayers().entrySet().stream().filter(Map.Entry::getValue).count() == lobbyView.getMaxPlayer()) {
+                    gameStarting();
                 }
-            }
 
-            updatePlayerBoxesSizes();
+                lobbyNameLabel.setText(lobbyView.getLobbyName());
+                lobbyBoxVBox.getChildren().clear();
+                Map<String, Boolean> players = lobbyView.getPlayers();
+
+                for (Map.Entry<String, Boolean> entry : players.entrySet()) {
+                    try {
+                        MarkerView mv;
+                        if (entry.getKey().equals(mm.getNickname())) {
+                            mv = mm.getClientPlayer().getMarkerView();
+                        } else {
+                            mv = mm.getOtherPlayers().stream()
+                                    .filter(player -> player.getUsername().equals(entry.getKey()))
+                                    .findFirst()
+                                    .map(PlayerDataView::getMarkerView)
+                                    .orElse(null);
+                        }
+
+                        // Create a new HBox for the player
+                        HBox playerBox = new HBox(10);
+                        playerBox.setAlignment(Pos.CENTER_LEFT);
+                        playerBox.setSpacing(10);
+                        playerBox.setStyle("-fx-background-color: white; " +
+                                "-fx-background-radius: 10; " +
+                                "-fx-text-fill: black; ");
+
+                        // Create a Label for the player's name and status
+                        Label playerNameLabel = new Label(entry.getKey() + ": " + (entry.getValue() ? "READY" : "NOT READY"));
+                        playerNameLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
+                        playerNameLabel.setStyle("-fx-text-fill: black;");
+
+                        // Add the player's marker view and name label to the player box
+                        if (mv != null) {
+                            playerBox.getChildren().add(mv.getNode());
+                        }
+                        playerBox.getChildren().add(playerNameLabel);
+
+                        // Bind the width of the player box to the lobby box VBox width
+                        playerBox.prefWidthProperty().bind(lobbyBoxVBox.widthProperty().subtract(20));
+
+                        lobbyBoxVBox.getChildren().add(playerBox);
+
+                    } catch (Exception e) {
+                        // TODO: Decide whether to log this error or handle it differently
+                        System.err.println("Error while loading data of player: " + entry.getKey() + ": " + e.getMessage());
+                    }
+                }
+
+                updatePlayerBoxesSizes();
+            } catch (Exception e) {}
         });
     }
 }

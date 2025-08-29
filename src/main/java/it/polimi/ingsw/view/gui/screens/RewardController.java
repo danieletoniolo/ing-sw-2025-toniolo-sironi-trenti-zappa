@@ -28,6 +28,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the reward screen in the GUI.
+ * Handles the display of player rankings and manages UI interactions
+ * such as resizing and navigation between rankings.
+ * Implements MiniModelObserver to react to model updates and Initializable
+ * for JavaFX component initialization.
+ */
 public class RewardController implements MiniModelObserver, Initializable{
 
     /**
@@ -83,6 +90,13 @@ public class RewardController implements MiniModelObserver, Initializable{
     };
 
 
+    /**
+     * Initializes the reward screen components, sets up background, resizing listeners,
+     * and prepares the player ranking list and button actions.
+     *
+     * @param url the location used to resolve relative paths for the root object, or null if not known
+     * @param resourceBundle the resources used to localize the root object, or null if not localized
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         URL imageUrl = getClass().getResource("/image/background/background2.png");
@@ -123,12 +137,18 @@ public class RewardController implements MiniModelObserver, Initializable{
             StatusEvent status = EndTurn.requester(Client.transceiver, new Object())
                     .request(new EndTurn(MiniModel.getInstance().getUserID()));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             }
         });
     }
 
+    /**
+     * Creates a ChangeListener that handles resizing of the UI components
+     * based on the parent StackPane's width and height.
+     * Scales the resizeGroup proportionally to maintain an aspect ratio.
+     *
+     * @return a ChangeListener for Number properties to handle resizing
+     */
     private ChangeListener<Number> createResizeListener() {
         return (_, _, _) -> {
             if (parent.getWidth() <= 0 || parent.getHeight() <= 0) {
@@ -144,37 +164,47 @@ public class RewardController implements MiniModelObserver, Initializable{
         };
     }
 
+    /**
+     * Reacts to updates in the MiniModel.
+     * Populates the ranking VBox with player information and their positions.
+     * Called when the model notifies observers of changes.
+     */
     @Override
     public void react() {
-        int i = 0;
-        for (PlayerDataView player : allPlayers) {
-            MarkerView mv = player.getMarkerView();
+        Platform.runLater(() -> {
+            int i = 0;
+            rankVBox.getChildren().clear();
+            allPlayers.sort((p1, p2) -> Integer.compare(p2.getCoins(), p1.getCoins()));
+            //allPlayers.addAll(MiniModel.getInstance().getOtherPlayers());
+            for (PlayerDataView player : allPlayers) {
+                MarkerView mv = player.getMarkerView();
 
-            // Create a new HBox for the player
-            HBox playerBox = new HBox(10);
-            playerBox.setAlignment(Pos.CENTER_LEFT);
-            playerBox.setSpacing(10);
-            playerBox.setStyle("-fx-background-color: white; " +
-                    "-fx-background-radius: 10; " +
-                    "-fx-text-fill: black; ");
+                // Create a new HBox for the player
+                HBox playerBox = new HBox(10);
+                playerBox.setAlignment(Pos.CENTER_LEFT);
+                playerBox.setSpacing(10);
+                playerBox.setStyle("-fx-background-color: white; " +
+                        "-fx-background-radius: 10; " +
+                        "-fx-text-fill: black; ");
 
-            // Create a Label for the player's name and status
-            Label playerNameLabel = new Label(rankings[i] + player.getUsername() + " with " + player.getCoins() + " coins");
-            playerNameLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
-            playerNameLabel.setStyle("-fx-text-fill: black;");
+                // Create a Label for the player's name and status
+                Label playerNameLabel = new Label(rankings[i] + player.getUsername() + " with " + player.getCoins() + " coins");
+                playerNameLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
+                playerNameLabel.setStyle("-fx-text-fill: black;");
 
-            // Add the player's marker view and name label to the player box
-            if (mv != null) {
-                playerBox.getChildren().add(mv.getNode());
+                // Add the player's marker view and name label to the player box
+                if (mv != null) {
+                    playerBox.getChildren().add(mv.getNode());
+                }
+                playerBox.getChildren().add(playerNameLabel);
+
+                // Bind the width of the player box to the lobby box VBox width
+                playerBox.prefWidthProperty().bind(rankVBox.widthProperty().subtract(20));
+
+                playerBox.prefHeight(100);
+                rankVBox.getChildren().add(playerBox);
+                i++;
             }
-            playerBox.getChildren().add(playerNameLabel);
-
-            // Bind the width of the player box to the lobby box VBox width
-            playerBox.prefWidthProperty().bind(rankVBox.widthProperty().subtract(20));
-
-            playerBox.prefHeight(100);
-            rankVBox.getChildren().add(playerBox);
-            i++;
-        }
+        });
     }
 }

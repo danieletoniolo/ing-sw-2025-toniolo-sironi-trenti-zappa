@@ -63,6 +63,6 @@ java -jar deliverables/Client.jar
 
 3. **In the client:** 
    - Choose connection type (Socket or RMI)
-   - Choose IP Adress
+   - Choose IP Address
    - Enter username
    - Create or join a game

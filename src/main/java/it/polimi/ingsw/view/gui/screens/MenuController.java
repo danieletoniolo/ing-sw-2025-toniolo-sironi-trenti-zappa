@@ -31,6 +31,14 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the main menu screen in the GUI.
+ * <p>
+ * This class manages the layout, resizing, and user interactions
+ * for the lobby menu, including creating and joining lobbies.
+ * It observes changes in the MiniModel to update the lobby view dynamically.
+ * </p>
+ */
 public class MenuController implements MiniModelObserver, Initializable {
 
     /**
@@ -280,29 +288,30 @@ public class MenuController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            MiniModel mm = MiniModel.getInstance();
+            try {
+                MiniModel mm = MiniModel.getInstance();
 
-            // Update the lobbies in the lobby box VBox
-            lobbyBoxVBox.getChildren().clear();
-            for (LobbyView lv : mm.getLobbiesView()) {
-                Node lobbyBoxNode = lv.getNode();
-                // Bind the width of the lobby box to the VBox width minus some padding
-                if (lobbyBoxNode instanceof StackPane sp) {
-                    sp.prefHeightProperty().bind(lobbyBoxVBox.heightProperty().multiply(0.15));
-                    sp.prefWidthProperty().bind(lobbyBoxVBox.widthProperty().subtract(20));
-                }
-                lobbyBoxVBox.getChildren().add(lobbyBoxNode);
-                lobbyBoxVBox.setOnMouseClicked(
-                        _ -> {
-                            StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
-                                    .request(new JoinLobby(MiniModel.getInstance().getUserID(), lv.getLobbyName()));
-                            if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                                Stage currentStage = (Stage) parent.getScene().getWindow();
-                                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                // Update the lobbies in the lobby box VBox
+                lobbyBoxVBox.getChildren().clear();
+                for (LobbyView lv : mm.getLobbiesView()) {
+                    Node lobbyBoxNode = lv.getNode();
+                    // Bind the width of the lobby box to the VBox width minus some padding
+                    if (lobbyBoxNode instanceof StackPane sp) {
+                        sp.prefHeightProperty().bind(lobbyBoxVBox.heightProperty().multiply(0.15));
+                        sp.prefWidthProperty().bind(lobbyBoxVBox.widthProperty().subtract(20));
+                    }
+                    lobbyBoxVBox.getChildren().add(lobbyBoxNode);
+                    lobbyBoxVBox.setOnMouseClicked(
+                            _ -> {
+                                StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
+                                        .request(new JoinLobby(MiniModel.getInstance().getUserID(), lv.getLobbyName()));
+                                if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
+                                    MessageController.showErrorMessage(((Pota) status).errorMessage());
+                                }
                             }
-                        }
-                );
-            }
+                    );
+                }
+            } catch (Exception e) {}
         });
     }
 
@@ -395,8 +404,7 @@ public class MenuController implements MiniModelObserver, Initializable {
             Integer selectedPlayers = playersCombo.getValue();
             StatusEvent status = CreateLobby.requester(Client.transceiver, new Object()).request(new CreateLobby(MiniModel.getInstance().getUserID(), selectedPlayers, level));
             if (status.get().equals(MiniModel.getInstance().getErrorCode())) {
-                Stage currentStage = (Stage) parent.getScene().getWindow();
-                MessageController.showErrorMessage(currentStage, ((Pota) status).errorMessage());
+                MessageController.showErrorMessage(((Pota) status).errorMessage());
             }
         });
 

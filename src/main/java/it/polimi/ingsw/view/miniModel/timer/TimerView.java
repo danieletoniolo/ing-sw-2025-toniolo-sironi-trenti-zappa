@@ -7,7 +7,6 @@ import it.polimi.ingsw.view.miniModel.Structure;
 import it.polimi.ingsw.view.miniModel.player.PlayerDataView;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import org.javatuples.Pair;
 
 import java.io.IOException;
@@ -19,20 +18,45 @@ import java.util.List;
  * Manages timer state, observers, and player actions related to the timer.
  */
 public class TimerView implements Structure, MiniModelObservable {
-    /** Minutes remaining on the timer. */
+    /**
+     * Minutes remaining on the timer.
+     */
     private int minutes;
-    /** Seconds remaining on the timer. */
+
+    /**
+     * Seconds remaining on the timer.
+     */
     private int seconds;
-    /** The player who last flipped the timer. */
+
+    /**
+     * The player who last flipped the timer.
+     */
     private PlayerDataView playerWhoFlipped;
-    /** The total number of flips allowed. */
+
+    /**
+     * The total number of flips allowed.
+     */
     private int totalFlips;
-    /** The current number of flips performed. */
+
+    /**
+     * The current number of flips performed.
+     */
     private int times;
-    /** List of observers registered to this timer view. */
+
+    /**
+     * List of observers registered to this timer view.
+     */
     private final List<MiniModelObserver> observers;
-    /** Pair containing the timer node and its controller for the GUI. */
+
+    /**
+     * Pair containing the timer node and its controller for the GUI.
+     */
     private Pair<Node, TimerCountdownController> timerNode;
+
+    /**
+     * Flag indicating whether the timer is currently running.
+     */
+    private boolean isRunning = false;
 
     /**
      * Constructs a new TimerView and initializes the observer list.
@@ -73,6 +97,23 @@ public class TimerView implements Structure, MiniModelObservable {
                 observer.react();
             }
         }
+    }
+
+    /**
+     * Checks if the timer is currently running.
+     * @return true if the timer is running, false otherwise
+     */
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    /**
+     * Sets the running state of the timer.
+     * @param running true if the timer should be running, false otherwise
+     */
+    public void setRunning(boolean running) {
+        isRunning = running;
+        notifyObservers();
     }
 
     /**
@@ -134,7 +175,6 @@ public class TimerView implements Structure, MiniModelObservable {
      */
     public void setFlippedTimer(PlayerDataView playerWhoFlipped) {
         this.playerWhoFlipped = playerWhoFlipped;
-        this.notifyObservers();
     }
 
     /**

@@ -23,6 +23,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller class for managing the graphical user interface of the spaceship view.
+ * <p>
+ * Implements the {@link MiniModelObserver} interface to react to model updates and
+ * the {@link Initializable} interface to initialize the JavaFX components.
+ * Handles the layout, scaling, and dynamic updates of the ship and its components,
+ * ensuring synchronization between the UI and the underlying {@link SpaceShipView} model.
+ */
 public class SpaceShipController implements MiniModelObserver, Initializable {
 
     /**
@@ -301,50 +309,60 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
     @Override
     public void react() {
         Platform.runLater(() -> {
-            shipGrid.getChildren().clear();
+            try {
+                shipGrid.getChildren().clear();
 
-            int rowOffset = SpaceShipView.ROW_OFFSET;
-            int colOffset = spaceShipModel.getLevel() == LevelView.SECOND ? SpaceShipView.COL_OFFSET : SpaceShipView.COL_OFFSET + 1;
+                int rowOffset = SpaceShipView.ROW_OFFSET;
+                int colOffset = spaceShipModel.getLevel() == LevelView.SECOND ? SpaceShipView.COL_OFFSET : SpaceShipView.COL_OFFSET + 1;
 
-            for (int i = 0; i < GRID_COLS; i++) {
-                for (int j = 0; j < GRID_ROWS; j++) {
-                    ComponentView component = spaceShipModel.getComponent(j + rowOffset, i + colOffset);
-                    if (component != null) {
-                        Node node = component.getNode().getValue0();
-                        if (node.getParent() != null) {
-                            ((Pane) node.getParent()).getChildren().remove(node);
+                for (int i = 0; i < GRID_COLS; i++) {
+                    for (int j = 0; j < GRID_ROWS; j++) {
+                        ComponentView component = spaceShipModel.getComponent(j + rowOffset, i + colOffset);
+                        if (component != null) {
+                            Node node = component.getNode().getValue0();
+                            if (node.getParent() != null) {
+                                ((Pane) node.getParent()).getChildren().remove(node);
+                            }
+                            GridPane.setHgrow(node, Priority.ALWAYS);
+                            GridPane.setVgrow(node, Priority.ALWAYS);
+                            GridPane.setFillWidth(node, true);
+                            GridPane.setFillHeight(node, true);
+                            GridPane.setHalignment(node, HPos.CENTER);
+                            GridPane.setValignment(node, VPos.CENTER);
+
+                            shipGrid.add(node, i, j);
                         }
-                        GridPane.setHgrow(node, Priority.ALWAYS);
-                        GridPane.setVgrow(node, Priority.ALWAYS);
-                        GridPane.setFillWidth(node, true);
-                        GridPane.setFillHeight(node, true);
-                        GridPane.setHalignment(node, HPos.CENTER);
-                        GridPane.setValignment(node, VPos.CENTER);
-
-                        shipGrid.add(node, i, j);
                     }
                 }
-            }
 
-            ArrayList<ComponentView> reservedDiscardedList = spaceShipModel.getDiscardReservedPile().getReserved();
-            int size = reservedDiscardedList.size();
-            if (size > 0 && reservedDiscardedList.get(size - 1) != null) {
-                Node node = reservedDiscardedList.get(size - 1).getNode().getValue0();
-                if (node.getParent() != null) {
-                    ((Pane) node.getParent()).getChildren().remove(node);
+                ArrayList<ComponentView> reservedDiscardedList = spaceShipModel.getDiscardReservedPile().getReserved();
+                int size = reservedDiscardedList.size();
+                if (size > 0 && reservedDiscardedList.get(size - 1) != null) {
+                    Node node = reservedDiscardedList.get(size - 1).getNode().getValue0();
+                    if (node.getParent() != null) {
+                        ((Pane) node.getParent()).getChildren().remove(node);
+                    }
+                    reserveLostGrid.add(node, 0, 0);
                 }
-                reserveLostGrid.add(node, 0, 0);
-            }
-            if (size > 1 && reservedDiscardedList.get(size - 2) != null) {
-                Node node = reservedDiscardedList.get(size - 2).getNode().getValue0();
-                if (node.getParent() != null) {
-                    ((Pane) node.getParent()).getChildren().remove(node);
+                if (size > 1 && reservedDiscardedList.get(size - 2) != null) {
+                    Node node = reservedDiscardedList.get(size - 2).getNode().getValue0();
+                    if (node.getParent() != null) {
+                        ((Pane) node.getParent()).getChildren().remove(node);
+                    }
+                    reserveLostGrid.add(node, 1, 0);
                 }
-                reserveLostGrid.add(node, 1, 0);
-            }
+            } catch (Exception e) {}
         });
     }
 
+    /**
+     * Returns a list of controllers for all components currently present in the spaceship grid.
+     * <p>
+     * Iterates through the 2D array of {@link ComponentView} objects representing the spaceship,
+     * collects their associated {@link ComponentController} instances, and returns them as a list.
+     *
+     * @return a list of {@link ComponentController} for the components in the ship grid
+     */
     public List<ComponentController> getShipComponentControllers() {
         List<ComponentController> controllers = new ArrayList<>();
         for (ComponentView[] row : spaceShipModel.getSpaceShip()) {
@@ -357,6 +375,14 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
         return controllers;
     }
 
+    /**
+     * Returns a list of controllers for the reserved components in the spaceship.
+     * <p>
+     * Iterates over the reserved components in the discard pile and collects their
+     * associated {@link ComponentController} instances.
+     *
+     * @return a list of {@link ComponentController} for the reserved components
+     */
     public List<ComponentController> getReservedComponentControllers() {
         List<ComponentController> controllers = new ArrayList<>();
         for (ComponentView component : spaceShipModel.getDiscardReservedPile().getReserved()) {
@@ -367,6 +393,11 @@ public class SpaceShipController implements MiniModelObserver, Initializable {
         return controllers;
     }
 
+    /**
+     * Returns the GridPane used for displaying reserved and lost components.
+     *
+     * @return the reserveLostGrid GridPane
+     */
     public GridPane getReserveLostGrid() {
         return reserveLostGrid;
     }

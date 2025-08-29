@@ -591,7 +591,7 @@ public class EventHandlerClient {
         getShuffledDeckListener = data -> {
             MiniModel.getInstance().getShuffledDeckView().order(data.shuffledDeck());
             for (CardView card : MiniModel.getInstance().getShuffledDeckView().getDeck()) {
-                card.setCovered(false);
+                card.setCovered(true);
             }
             MiniModel.getInstance().getShuffledDeckView().setOnlyLast((true));
         };
@@ -931,7 +931,7 @@ public class EventHandlerClient {
 
         minPlayerReceiver = new CastEventReceiver<>(this.transceiver);
         minPlayerListener = data -> {
-            //TODO
+
         };
 
         /*
@@ -1147,9 +1147,7 @@ public class EventHandlerClient {
         };
 
         lastTimerFinishedReceiver = new CastEventReceiver<>(this.transceiver);
-        lastTimerFinishedListener = data -> {
-            manager.notifyLastTimerFlipped();
-        };
+        lastTimerFinishedListener = _ -> manager.notifyLastTimerFlipped();
 
 
         /*
@@ -1162,14 +1160,16 @@ public class EventHandlerClient {
             timer.setTotalFlips(data.maxNumberOfFlips());
             new Thread(() -> {
                 boolean firstSecond = true;
-                timer.setFlippedTimer(getPlayerDataView(data.nickname()));
                 LocalTime serverTime = LocalTime.parse(data.startingTime());
                 LocalTime clientTime = LocalTime.now();
                 int time = (int) ((data.timerDuration() / 1000) - Math.max(0, Duration.between(serverTime, clientTime).toSeconds()));
+                timer.setSecondsRemaining(time);
+                timer.setFlippedTimer(getPlayerDataView(data.nickname()));
+                timer.setRunning(true);
                 while (time >= 0) {
                     try {
                         if (MiniModel.getInstance().getGamePhase() == GamePhases.BUILDING) {
-                            MiniModel.getInstance().getTimerView().setSecondsRemaining(time);
+                            timer.setSecondsRemaining(time);
                             manager.notifyTimer(data, firstSecond);
                             if (firstSecond) firstSecond = false;
                             Thread.sleep(1000);
@@ -1179,6 +1179,7 @@ public class EventHandlerClient {
                         Thread.currentThread().interrupt();
                     }
                 }
+                timer.setRunning(false);
                 manager.notifyTimerFinished(data);
             }).start();
         };
@@ -1191,6 +1192,9 @@ public class EventHandlerClient {
             }
 
             if (data.newState() == GamePhases.VALIDATION.getValue()) {
+                if (MiniModel.getInstance().getTimerView() != null) {
+                    MiniModel.getInstance().getTimerView().setRunning(false);
+                }
                 PlayerDataView player = MiniModel.getInstance().getClientPlayer();
                 player.getShip().getDiscardReservedPile().setIsDiscarded();
                 for (PlayerDataView otherPlayer : MiniModel.getInstance().getOtherPlayers()) {
@@ -1213,10 +1217,6 @@ public class EventHandlerClient {
                         battery.setNumberOfBatteries(battery.getMaximumBatteries());
                     }
                 }
-
-                Arrays.fill(MiniModel.getInstance().getDeckViews().getValue1(), true);
-
-
             }
             if (data.newState() == GamePhases.FINISHED.getValue()) {
                 MiniModel mm = MiniModel.getInstance();
