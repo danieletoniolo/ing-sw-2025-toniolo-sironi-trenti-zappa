@@ -301,7 +301,7 @@ public class MenuController implements MiniModelObserver, Initializable {
                         sp.prefWidthProperty().bind(lobbyBoxVBox.widthProperty().subtract(20));
                     }
                     lobbyBoxVBox.getChildren().add(lobbyBoxNode);
-                    lobbyBoxVBox.setOnMouseClicked(
+                    lobbyBoxNode.setOnMouseClicked(
                             _ -> {
                                 StatusEvent status = JoinLobby.requester(Client.transceiver, new Object())
                                         .request(new JoinLobby(MiniModel.getInstance().getUserID(), lv.getLobbyName()));

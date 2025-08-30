@@ -67,7 +67,7 @@ public class ValidationFragments extends Validation {
                 return this;
             }
             destroyStatics();
-            return new WaitingValidation();
+            return nextState == null ? new WaitingValidation() : nextState;
         }
 
         return this;
